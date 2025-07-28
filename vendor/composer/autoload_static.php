@@ -491,7 +491,7 @@ class ComposerStaticInitbf8dc242a640d7c740f283f226d0bdb4
         ),
         'Psy\\TimeitCommand\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/overrides/psy/psysh/src/TimeitCommand',
+            0 => __DIR__ . '/../..' . '/overrides/psy/psysh/src/Command/TimeitCommand',
         ),
         'Psy\\Output\\' => 
         array (
@@ -503,7 +503,7 @@ class ComposerStaticInitbf8dc242a640d7c740f283f226d0bdb4
         ),
         'Psy\\Exception\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/overrides/psy/psysh/src/ErrorException',
+            0 => __DIR__ . '/../..' . '/overrides/psy/psysh/src/Exception',
         ),
         'Psy\\Command\\ListCommand\\' => 
         array (
@@ -849,11 +849,11 @@ class ComposerStaticInitbf8dc242a640d7c740f283f226d0bdb4
         ),
         'DebugBar\\DataFormatter\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/overrides/maximebf/debugbar/src/DataFormatter/DataFormatter',
+            0 => __DIR__ . '/../..' . '/overrides/maximebf/debugbar/src/DebugBar/DataFormatter',
         ),
         'DebugBar\\DataCollector\\PDO\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/overrides/maximebf/debugbar/src/DataFormatter/DataCollector/PDO',
+            0 => __DIR__ . '/../..' . '/overrides/maximebf/debugbar/src/DebugBar/DataCollector/PDO',
         ),
         'DebugBar\\' => 
         array (
@@ -3509,7 +3509,6 @@ class ComposerStaticInitbf8dc242a640d7c740f283f226d0bdb4
         'Rap2hpoutre\\LaravelLogViewer\\LaravelLogViewer' => __DIR__ . '/../..' . '/overrides/rap2hpoutre/laravel-log-viewer/src/Rap2hpoutre/LaravelLogViewer/LaravelLogViewer.php',
         'Rap2hpoutre\\LaravelLogViewer\\LaravelLogViewerServiceProvider' => __DIR__ . '/..' . '/rap2hpoutre/laravel-log-viewer/src/Rap2hpoutre/LaravelLogViewer/LaravelLogViewerServiceProvider.php',
         'Rap2hpoutre\\LaravelLogViewer\\Level' => __DIR__ . '/..' . '/rap2hpoutre/laravel-log-viewer/src/Rap2hpoutre/LaravelLogViewer/Level.php',
-        'Rap2hpoutre\\LaravelLogViewer\\LogViewerController' => __DIR__ . '/../..' . '/overrides/rap2hpoutre/laravel-log-viewer/src/Rap2hpoutre/LaravelLogViewer/LogViewerController.php',
         'Rap2hpoutre\\LaravelLogViewer\\Pattern' => __DIR__ . '/..' . '/rap2hpoutre/laravel-log-viewer/src/Rap2hpoutre/LaravelLogViewer/Pattern.php',
         'SessionUpdateTimestampHandlerInterface' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/SessionUpdateTimestampHandlerInterface.php',
         'Spatie\\Activitylog\\ActivityLogger' => __DIR__ . '/..' . '/spatie/laravel-activitylog/src/ActivityLogger.php',

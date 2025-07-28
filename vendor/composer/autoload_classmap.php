@@ -2545,7 +2545,6 @@ return array(
     'Rap2hpoutre\\LaravelLogViewer\\LaravelLogViewer' => $baseDir . '/overrides/rap2hpoutre/laravel-log-viewer/src/Rap2hpoutre/LaravelLogViewer/LaravelLogViewer.php',
     'Rap2hpoutre\\LaravelLogViewer\\LaravelLogViewerServiceProvider' => $vendorDir . '/rap2hpoutre/laravel-log-viewer/src/Rap2hpoutre/LaravelLogViewer/LaravelLogViewerServiceProvider.php',
     'Rap2hpoutre\\LaravelLogViewer\\Level' => $vendorDir . '/rap2hpoutre/laravel-log-viewer/src/Rap2hpoutre/LaravelLogViewer/Level.php',
-    'Rap2hpoutre\\LaravelLogViewer\\LogViewerController' => $baseDir . '/overrides/rap2hpoutre/laravel-log-viewer/src/Rap2hpoutre/LaravelLogViewer/LogViewerController.php',
     'Rap2hpoutre\\LaravelLogViewer\\Pattern' => $vendorDir . '/rap2hpoutre/laravel-log-viewer/src/Rap2hpoutre/LaravelLogViewer/Pattern.php',
     'SessionUpdateTimestampHandlerInterface' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/SessionUpdateTimestampHandlerInterface.php',
     'Spatie\\Activitylog\\ActivityLogger' => $vendorDir . '/spatie/laravel-activitylog/src/ActivityLogger.php',
