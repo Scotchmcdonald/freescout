@@ -2,7 +2,7 @@
     "name": "freescout-helpdesk/freescout",
     "description": "Free self-hosted helpdesk and shared mailbox (Zendesk / Help Scout alternative)",
     "keywords": ["helpdesk", "help desk", "shared mailbox"],
-    "license": "AGPL-3.0",
+    "license": "AGPL-3.0-or-later",
     "authors": [
         {
             "name": "The FreeScout Team",
