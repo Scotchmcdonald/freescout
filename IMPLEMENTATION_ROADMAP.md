@@ -129,18 +129,27 @@ Given the scale of changes required, we recommend creating a modernized version 
 - [ ] UI/UX matches original
 
 ### Week 9-10: Modules System
-**Goal**: Port module system
+**Goal**: Build custom module system
 
 #### Tasks:
 1. Update nwidart/laravel-modules to v11
-2. Port existing modules
-3. Test module loading and activation
-4. Document module development process
+2. Create simplified module structure (no license/authentication system)
+3. Remove "phone home" authentication logic from original FreeScout
+4. Port core module functionality without license checks
+5. Document new module development process
+6. Create example custom module
+
+**Notes**:
+- Since the modernized app won't be compatible with original FreeScout modules, we don't need the license validation system
+- Focus on clean, simple module architecture without external authentication
+- Modules will be custom-developed for this modernized version
 
 **Deliverables**:
-- [ ] Module system working
-- [ ] All modules ported
-- [ ] Module documentation updated
+- [ ] Simplified module system working
+- [ ] License checking removed
+- [ ] Core modules ported (without authentication)
+- [ ] Module development documentation
+- [ ] Example module created
 
 ### Week 11-12: Testing & Quality
 **Goal**: Comprehensive testing and quality assurance

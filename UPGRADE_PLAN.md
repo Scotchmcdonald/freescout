@@ -34,6 +34,24 @@ The codebase uses a complex override system where vendor packages are replaced v
 #### 4. Vendor Directory Committed
 The repository commits the entire vendor directory, which is unusual but intentional for easier deployment.
 
+## Key Architectural Decisions
+
+### Module System Simplification
+**Decision**: The modernized application will use a simplified module system without license authentication.
+
+**Rationale**:
+- The modernized app won't be compatible with original FreeScout modules due to Laravel 5.5 → 11.x breaking changes
+- No need to "phone home" to authenticate modules since we're building custom modules
+- Removes unnecessary complexity and external dependencies
+- Module licensing logic (e.g., `ModuleCheckLicenses` command, `WpApi` authentication) will be removed
+
+**Implementation**:
+- Keep `nwidart/laravel-modules` package (update to v11)
+- Remove license validation and authentication code
+- Create clean, simple module architecture
+- Document custom module development process
+- Develop new modules specifically for modernized version
+
 ## Upgrade Strategy
 
 ### Phase 1: Foundation Cleanup (PRIORITY: HIGH)

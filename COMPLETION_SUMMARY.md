@@ -159,7 +159,7 @@ Start with: **MODERNIZATION_INDEX.md** (complete guide to all documents)
 ### Keep & Update
 - laravel/framework: 5.5 → 11.0
 - webklex/php-imap: 4.1 → 5.3
-- nwidart/laravel-modules: 2.7 → 11.0
+- nwidart/laravel-modules: 2.7 → 11.0 (simplified, no license authentication)
 - tormjens/eventy: 0.5 → 0.8
 - spatie/laravel-activitylog: 2.7 → 4.8
 

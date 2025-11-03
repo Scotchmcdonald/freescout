@@ -85,8 +85,9 @@ Create new Laravel 11 app and port business logic.
 - Configure queues and caching
 
 **Weeks 9-10**: Modules
-- Port module system
-- Update modules to new structure
+- Simplify module system (remove license authentication)
+- Create custom module architecture
+- Port core functionality without "phone home" validation
 
 **Weeks 11-12**: Testing & Quality
 - Comprehensive testing

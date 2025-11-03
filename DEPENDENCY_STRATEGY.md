@@ -82,6 +82,8 @@ This is the recommended approach for this project.
 
 ### Laravel Packages
 - nwidart/laravel-modules: 2.7.0 → ^11.0
+  - **Note**: Will remove license/authentication system since modernized app won't be compatible with original FreeScout modules
+  - Custom modules will be developed without "phone home" validation
 - spatie/laravel-activitylog: 2.7.0 → ^4.8
 - tormjens/eventy: 0.5.4 → ^0.8
 - barryvdh/laravel-translation-manager: v0.5.0 → ^0.6
