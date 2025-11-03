@@ -12,6 +12,14 @@ This directory contains comprehensive planning and analysis documents for upgrad
 - Risks and mitigation
 - Decision points
 
+### 🏗️ [REPOSITORY_STRATEGY.md](REPOSITORY_STRATEGY.md) (10KB) **NEW**
+**Repository & branch strategy** - How to structure the modernization
+- Should modernization start in a new repo or branch?
+- Comparison of repository structure options
+- Recommended approach: New repository
+- Git workflow and branching strategy
+- Timeline and transition plan
+
 ## Detailed Planning Documents
 
 ### 📊 [UPGRADE_PLAN.md](UPGRADE_PLAN.md) (9KB)
@@ -74,12 +82,20 @@ Package upgrade planning:
 - **13 weeks** estimated timeline with comprehensive testing
 
 ### Recommended Approach
-**Fresh Start**: Create new Laravel 11 application and port business logic
+**Fresh Start**: Create new Laravel 11 application in new repository and port business logic
 - Cleaner codebase
 - Modern patterns
 - No technical debt
 - Actually faster than incremental
 - More maintainable
+
+### Repository Strategy Decision
+**New Repository**: Create `Scotchmcdonald/freescout-modern`
+- Laravel 5.5 and 11.x cannot coexist in same repo
+- Clean separation enables parallel development
+- Both versions can run simultaneously during transition
+- Clear git history without legacy conflicts
+- See REPOSITORY_STRATEGY.md for detailed analysis
 
 ## Documents by Audience
 
