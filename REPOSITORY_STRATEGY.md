@@ -3,7 +3,47 @@
 ## Question
 **"Should this start in a new repo/branch?"**
 
-## Recommended Approach: New Repository
+## UPDATED: Recommended Approach - In-Place Archive
+
+**Context Update**: This repository is used for **reference only**, not production deployment. Production uses the official freescout repo.
+
+Therefore, we can safely modernize **in-place** by archiving the old code.
+
+### ✅ CHOSEN APPROACH: Archive Legacy, Develop Modern (Same Repo)
+
+**See IN_PLACE_MODERNIZATION.md for complete implementation details.**
+
+#### Structure:
+```
+Scotchmcdonald/freescout/
+├── archive/              # OLD CODE (read-only reference)
+│   ├── app/             # Laravel 5.5 application  
+│   ├── overrides/       # 269 override files
+│   └── ...              # All legacy code
+│
+├── app/                 # NEW: Laravel 11 application
+├── config/              # NEW: Modern configuration
+└── ...                  # All modern code
+```
+
+#### Why This Works:
+1. ✅ **Single repository**: Simpler workflow
+2. ✅ **Reference available**: Old code in `archive/` folder
+3. ✅ **No production risk**: This repo is reference-only
+4. ✅ **Clean separation**: `archive/` vs root directories
+5. ✅ **Git history preserved**: Shows transformation journey
+
+#### Implementation:
+1. Move all legacy code to `archive/`
+2. Initialize Laravel 11 in root
+3. Port functionality incrementally, referencing `archive/`
+4. Archive stays as read-only reference
+
+---
+
+## Previous Consideration: New Repository
+
+*The analysis below was the initial recommendation before understanding this repo's reference-only usage.*
 
 ### Why a New Repository is Best
 

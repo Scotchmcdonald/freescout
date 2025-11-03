@@ -12,13 +12,20 @@ This directory contains comprehensive planning and analysis documents for upgrad
 - Risks and mitigation
 - Decision points
 
-### 🏗️ [REPOSITORY_STRATEGY.md](REPOSITORY_STRATEGY.md) (10KB) **NEW**
-**Repository & branch strategy** - How to structure the modernization
-- Should modernization start in a new repo or branch?
-- Comparison of repository structure options
-- Recommended approach: New repository
-- Git workflow and branching strategy
-- Timeline and transition plan
+### 🏗️ [IN_PLACE_MODERNIZATION.md](IN_PLACE_MODERNIZATION.md) (11KB) **CHOSEN APPROACH**
+**In-place modernization strategy** - Archive old code, develop modern in same repo
+- Move legacy code to `archive/` folder
+- Initialize Laravel 11 in root
+- Step-by-step archive and initialization process
+- Reference-based development workflow
+- Perfect for reference-only repositories
+
+### 🏗️ [REPOSITORY_STRATEGY.md](REPOSITORY_STRATEGY.md) (10KB) **UPDATED**
+**Repository & branch strategy analysis** - Comparison of all options
+- Original analysis of repository structure options
+- Updated with in-place archive approach
+- Why in-place works for reference-only repos
+- Comparison of new repo vs archive approach
 
 ## Detailed Planning Documents
 
