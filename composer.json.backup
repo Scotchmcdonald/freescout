@@ -2,7 +2,7 @@
     "name": "freescout-helpdesk/freescout",
     "description": "Free self-hosted helpdesk and shared mailbox (Zendesk / Help Scout alternative)",
     "keywords": ["helpdesk", "help desk", "shared mailbox"],
-    "license": "AGPL-3.0-or-later",
+    "license": "AGPL-3.0",
     "authors": [
         {
             "name": "The FreeScout Team",
@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": ">=7.1.0",
 
         "symfony/debug": "v3.4.18",
         "devfactory/minify": "1.0.7",
@@ -91,6 +91,7 @@
         "files": [
             "app/Misc/Functions.php"
         ],
+        "fs-comment": "Above new lines are listed files containing custom updates. Below - only PHP compatibility updates.",
         "psr-4": {
             "App\\": "app/",
             "Modules\\": "Modules/",
