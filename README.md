@@ -1,15 +1,18 @@
 # Free Self-Hosted Zendesk & Help Scout Alternative
 
-<div align="center">
+# FreeScout Modernized - Laravel 11
 
-<img src="https://raw.githubusercontent.com/freescout-help-desk/freescout/master/public/img/logo-300.png" width="180" height="180" />
-<br/><br/>
+[![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?logo=laravel)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php)](https://php.net)
+[![License](https://img.shields.io/badge/License-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
-[![PHP version](https://freescout-helpdesk.github.io/img/badges/PHP-7.1%2B-blue.svg)](https://github.com/freescout-help-desk/freescout#requirements)
+> **Modern Laravel 11 implementation of FreeScout - Free self-hosted helpdesk and shared mailbox**
 
-</div>
+## 🎯 Project Status
 
-**FreeScout** is the super lightweight and powerful free open source help desk and shared inbox built with PHP (Laravel framework). Now you can enjoy free Zendesk & Help Scout without giving up privacy or locking yourself into a service you don't control. FreeScout has been developed from scratch and is not using any copyrighted Help Scout or Zendesk materials.
+**Branch**: `laravel-11-foundation`  
+**Phase**: Week 1 - Foundation Setup  
+**Status**: ✅ Legacy Code Archived, 🚧 Laravel 11 Foundation In Progress Now you can enjoy free Zendesk & Help Scout without giving up privacy or locking yourself into a service you don't control. FreeScout has been developed from scratch and is not using any copyrighted Help Scout or Zendesk materials.
 
 If you want to support the project feel free to **star this repository**. It helps to increase the visibility of the project and let people know that it is valuable. Thanks for your support!
 
