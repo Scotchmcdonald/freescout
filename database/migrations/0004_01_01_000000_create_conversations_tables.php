@@ -1,0 +1,157 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        // Conversations - ticket/conversation threads
+        Schema::create('conversations', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedInteger('number')->unique(); // human-readable conversation number
+            $table->unsignedInteger('threads_count')->default(0);
+            $table->unsignedTinyInteger('type'); // 1=email, 2=phone, 3=chat
+            $table->foreignId('folder_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('mailbox_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // assignee
+            $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedTinyInteger('status')->default(1); // 1=active, 2=pending, 3=closed, 4=spam
+            $table->unsignedTinyInteger('state')->default(1); // 1=draft, 2=published, 3=deleted
+            $table->string('subject', 998)->nullable();
+            $table->string('customer_email', 191)->nullable();
+            $table->json('cc')->nullable();
+            $table->json('bcc')->nullable();
+            $table->string('preview', 255);
+            $table->boolean('imported')->default(false);
+            $table->boolean('has_attachments')->default(false);
+
+            // Who created the conversation
+            $table->foreignId('created_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedBigInteger('created_by_customer_id')->nullable();
+
+            // Source tracking
+            $table->unsignedTinyInteger('source_via'); // 1=user, 2=customer
+            $table->unsignedTinyInteger('source_type'); // 1=email, 2=web, 3=API
+            $table->unsignedTinyInteger('channel')->nullable(); // multichannel support
+
+            // Closing info
+            $table->foreignId('closed_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('closed_at')->nullable();
+
+            // Activity timestamps
+            $table->timestamp('user_updated_at')->nullable();
+            $table->timestamp('last_reply_at')->nullable();
+            $table->unsignedTinyInteger('last_reply_from')->nullable();
+
+            $table->boolean('read_by_user')->default(false);
+            $table->text('meta')->nullable();
+            $table->timestamps();
+
+            // Indexes
+            $table->index(['folder_id', 'status']);
+            $table->index(['mailbox_id', 'customer_id']);
+            $table->index('user_id');
+            $table->index('state');
+            $table->index('last_reply_at');
+        });
+
+        // Threads - individual messages/replies within a conversation
+        Schema::create('threads', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // assigned user
+            $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedTinyInteger('type'); // 1=message, 2=note, 3=lineitem
+            $table->unsignedTinyInteger('status')->default(1);
+            $table->unsignedTinyInteger('state')->default(1);
+
+            // Action tracking (for lineitems)
+            $table->unsignedTinyInteger('action_type')->nullable();
+            $table->string('action_data')->nullable();
+            $table->unsignedTinyInteger('meta_type')->nullable();
+            $table->text('meta_subtype')->nullable();
+
+            // Message content
+            $table->longText('body')->nullable();
+            $table->longText('body_original')->nullable();
+            $table->json('headers')->nullable();
+
+            // Email fields
+            $table->string('from', 191)->nullable();
+            $table->json('to')->nullable();
+            $table->json('cc')->nullable();
+            $table->json('bcc')->nullable();
+            $table->string('message_id', 998)->nullable();
+
+            $table->boolean('has_attachments')->default(false);
+            $table->boolean('first')->default(false);
+            $table->boolean('imported')->default(false);
+
+            // Source tracking
+            $table->unsignedTinyInteger('source_via');
+            $table->unsignedTinyInteger('source_type');
+
+            // Who created/edited
+            $table->foreignId('created_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedBigInteger('created_by_customer_id')->nullable();
+            $table->foreignId('edited_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('edited_at')->nullable();
+
+            // Saved reply tracking
+            $table->unsignedBigInteger('saved_reply_id')->nullable();
+
+            // Send status tracking
+            $table->unsignedTinyInteger('send_status')->nullable();
+            $table->json('send_status_data')->nullable();
+            $table->timestamp('opened_at')->nullable();
+
+            $table->timestamps();
+
+            // Indexes
+            $table->index('conversation_id');
+            $table->index(['conversation_id', 'type']);
+            $table->index('created_at');
+        });
+
+        // Add unique prefix index for message_id manually
+        DB::statement('CREATE UNIQUE INDEX threads_message_id_unique ON threads (message_id(191))');
+
+        // Conversation-Folder pivot (for organizing conversations)
+        Schema::create('conversation_folder', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('folder_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+
+            $table->unique(['conversation_id', 'folder_id']);
+        });
+
+        // Followers - users following conversations
+        Schema::create('followers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+
+            $table->unique(['conversation_id', 'user_id']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('followers');
+        Schema::dropIfExists('conversation_folder');
+        Schema::dropIfExists('threads');
+        Schema::dropIfExists('conversations');
+    }
+};
