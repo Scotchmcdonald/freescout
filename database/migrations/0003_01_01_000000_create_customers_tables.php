@@ -14,12 +14,13 @@ return new class extends Migration
         // Customers - contact information
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->string('first_name')->nullable();
-            $table->string('last_name')->nullable();
-            $table->string('company')->nullable();
-            $table->string('job_title')->nullable();
-            $table->unsignedTinyInteger('photo_type')->nullable();
+            $table->string('first_name', 50)->nullable();
+            $table->string('last_name', 50)->nullable();
             $table->string('photo_url')->nullable();
+            $table->text('notes')->nullable();
+            $table->string('company', 100)->nullable();
+            $table->string('job_title', 100)->nullable();
+            $table->unsignedTinyInteger('photo_type')->nullable();
             $table->string('age', 7)->nullable();
             $table->unsignedTinyInteger('gender')->nullable();
             $table->json('phones')->nullable(); // modernized to JSON type

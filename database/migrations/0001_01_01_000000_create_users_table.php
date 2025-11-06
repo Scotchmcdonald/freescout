@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('first_name', 20);
             $table->string('last_name', 30);
             $table->string('email', 191)->unique();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->unsignedTinyInteger('role')->default(20)->index(); // admin/user
+            $table->unsignedTinyInteger('role')->default(1)->index(); // 1: user, 2: admin
             $table->string('timezone')->default('UTC');
             $table->string('photo_url')->nullable();
             $table->unsignedTinyInteger('type')->default(1); // team/user

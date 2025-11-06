@@ -67,61 +67,50 @@ return new class extends Migration
             $table->id();
             $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // assigned user
-            $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();
             $table->unsignedTinyInteger('type'); // 1=message, 2=note, 3=lineitem
-            $table->unsignedTinyInteger('status')->default(1);
-            $table->unsignedTinyInteger('state')->default(1);
-
-            // Action tracking (for lineitems)
+            $table->unsignedTinyInteger('status')->default(1); // 1=active, 2=draft, 3=deleted
+            $table->unsignedTinyInteger('state')->default(1); // 1=draft, 2=published, 3=deleted
             $table->unsignedTinyInteger('action_type')->nullable();
-            $table->string('action_data')->nullable();
-            $table->unsignedTinyInteger('meta_type')->nullable();
-            $table->text('meta_subtype')->nullable();
-
-            // Message content
-            $table->longText('body')->nullable();
-            $table->longText('body_original')->nullable();
-            $table->json('headers')->nullable();
-
-            // Email fields
+            $table->string('action_data', 255)->nullable();
+            $table->mediumText('body')->nullable();
+            $table->text('headers')->nullable();
             $table->string('from', 191)->nullable();
-            $table->json('to')->nullable();
-            $table->json('cc')->nullable();
-            $table->json('bcc')->nullable();
-            $table->string('message_id', 998)->nullable();
-
+            $table->text('to')->nullable(); // JSON
+            $table->text('cc')->nullable(); // JSON
+            $table->text('bcc')->nullable(); // JSON
             $table->boolean('has_attachments')->default(false);
-            $table->boolean('first')->default(false);
-            $table->boolean('imported')->default(false);
-
-            // Source tracking
-            $table->unsignedTinyInteger('source_via');
-            $table->unsignedTinyInteger('source_type');
-
-            // Who created/edited
+            $table->string('message_id', 998)->nullable();
+            $table->unsignedTinyInteger('source_via'); // 1=user, 2=customer
+            $table->unsignedTinyInteger('source_type'); // 1=email, 2=web, 3=API
+            $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('created_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedBigInteger('created_by_customer_id')->nullable();
             $table->foreignId('edited_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('edited_at')->nullable();
-
-            // Saved reply tracking
+            $table->mediumText('body_original')->nullable();
+            $table->boolean('first')->default(false);
             $table->unsignedBigInteger('saved_reply_id')->nullable();
-
-            // Send status tracking
             $table->unsignedTinyInteger('send_status')->nullable();
-            $table->json('send_status_data')->nullable();
+            $table->text('send_status_data')->nullable();
+            $table->string('meta_subtype', 20)->nullable();
+            $table->unsignedBigInteger('meta_id')->nullable();
+            $table->boolean('imported')->default(false);
             $table->timestamp('opened_at')->nullable();
-
+            $table->text('meta')->nullable();
             $table->timestamps();
 
-            // Indexes
             $table->index('conversation_id');
-            $table->index(['conversation_id', 'type']);
-            $table->index('created_at');
+            $table->index('user_id');
+            $table->index(['conversation_id', 'type', 'from', 'customer_id']);
+            $table->index(['conversation_id', 'created_at']);
+            $table->index(['meta_subtype', 'meta_id']);
         });
 
-        // Add unique prefix index for message_id manually
-        DB::statement('CREATE UNIQUE INDEX threads_message_id_unique ON threads (message_id(191))');
+        // Add unique prefix index for message_id (MySQL uses prefix for TEXT columns)
+        // SQLite: Skip this - it handles TEXT indexing differently
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            DB::statement('CREATE UNIQUE INDEX threads_message_id_unique ON threads (message_id(191))');
+        }
 
         // Conversation-Folder pivot (for organizing conversations)
         Schema::create('conversation_folder', function (Blueprint $table) {

@@ -1,0 +1,37 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - app
+        - config
+        - database
+        - routes
+    
+    # Ignore patterns
+    excludePaths:
+        - archive/*
+        - vendor/*
+        - storage/*
+        - bootstrap/cache/*
+    
+    # Laravel specific
+    checkModelProperties: true
+    checkOctaneCompatibility: true
+    
+    # Ignore errors during initial setup
+    reportUnmatchedIgnoredErrors: false
+    
+    # Custom rules
+    ignoreErrors:
+        # Allow dynamic properties during migration phase
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::[a-zA-Z0-9\\_]+\(\)#'
+        # Ignore UserFactory issues during initial setup
+        - '#PHPDoc tag @use has invalid type Database\\Factories\\UserFactory#'
+        - '#Type Database\\Factories\\UserFactory .* is not subtype#'
+        # Ignore missing typehints during migration
+        -
+            identifier: missingType.iterableValue
+        -
+            identifier: missingType.generics

@@ -1,0 +1,88 @@
+{
+  "_vendor-editor-L7A9Ap2O.js": {
+    "file": "js/chunk/vendor-editor-L7A9Ap2O.js",
+    "name": "vendor-editor"
+  },
+  "_vendor-realtime-HIKbia4Z.js": {
+    "file": "js/chunk/vendor-realtime-HIKbia4Z.js",
+    "name": "vendor-realtime"
+  },
+  "_vendor-ui-CosFLO3C.js": {
+    "file": "js/chunk/vendor-ui-CosFLO3C.js",
+    "name": "vendor-ui"
+  },
+  "_vendor-upload-CKKieNqx.js": {
+    "file": "js/chunk/vendor-upload-CKKieNqx.js",
+    "name": "vendor-upload"
+  },
+  "resources/css/app.css": {
+    "file": "css/app-CZJIT2RC.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "js/app-DheZjwB5.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "_vendor-realtime-HIKbia4Z.js",
+      "_vendor-ui-CosFLO3C.js"
+    ],
+    "dynamicImports": [
+      "resources/js/editor.js",
+      "resources/js/uploader.js",
+      "resources/js/notifications.js",
+      "resources/js/conversation.js",
+      "resources/js/ui-helpers.js"
+    ]
+  },
+  "resources/js/conversation.js": {
+    "file": "js/conversation.js/conversation-qrNWdIyF.js",
+    "name": "conversation",
+    "src": "resources/js/conversation.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/ui-helpers.js",
+      "resources/js/editor.js",
+      "_vendor-ui-CosFLO3C.js",
+      "_vendor-editor-L7A9Ap2O.js"
+    ]
+  },
+  "resources/js/editor.js": {
+    "file": "js/editor.js/editor-B9-_YOU6.js",
+    "name": "editor",
+    "src": "resources/js/editor.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-editor-L7A9Ap2O.js"
+    ]
+  },
+  "resources/js/notifications.js": {
+    "file": "js/notifications.js/notifications-57aVVKyT.js",
+    "name": "notifications",
+    "src": "resources/js/notifications.js",
+    "isDynamicEntry": true
+  },
+  "resources/js/ui-helpers.js": {
+    "file": "js/ui-helpers.js/ui-helpers-BYVGA8V-.js",
+    "name": "ui-helpers",
+    "src": "resources/js/ui-helpers.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-ui-CosFLO3C.js"
+    ]
+  },
+  "resources/js/uploader.js": {
+    "file": "js/uploader.js/uploader-BxapiTXr.js",
+    "name": "uploader",
+    "src": "resources/js/uploader.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-upload-CKKieNqx.js"
+    ],
+    "css": [
+      "css/uploader-CIgf0F6L.css"
+    ]
+  }
+}

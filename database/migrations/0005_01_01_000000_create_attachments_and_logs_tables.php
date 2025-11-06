@@ -16,12 +16,15 @@ return new class extends Migration
         Schema::create('attachments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('thread_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->string('file_name');
-            $table->string('file_dir')->nullable();
-            $table->string('mime_type', 127)->nullable();
-            $table->unsignedTinyInteger('type')->default(1); // 1=message, 2=draft
-            $table->unsignedInteger('size')->default(0);
-            $table->boolean('embedded')->default(false);
+            $table->string('filename', 255);
+            $table->string('mime_type', 100);
+            $table->unsignedInteger('size');
+            $table->unsignedSmallInteger('width')->nullable();
+            $table->unsignedSmallInteger('height')->nullable();
+            $table->boolean('inline')->default(false);
+            $table->boolean('public')->default(false);
+            $table->longText('data')->nullable();
+            $table->string('url', 255)->nullable();
             $table->timestamps();
 
             $table->index('thread_id');
@@ -43,27 +46,32 @@ return new class extends Migration
             $table->index('created_at');
         });
 
-        // Send logs - track outgoing emails
+        // Send logs - tracking outgoing emails
         Schema::create('send_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('thread_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('thread_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('message_id', 998);
+            $table->string('message_id', 998)->nullable();
             $table->string('email', 191);
-            $table->string('mail_type', 1); // 'e'=email
-            $table->unsignedTinyInteger('status'); // 1=accepted, 2=send_error, 3=delivery_error, etc.
+            $table->string('subject', 255)->nullable();
+            $table->unsignedTinyInteger('mail_type');
+            $table->unsignedTinyInteger('status'); // 1=sent, 2=failed
             $table->text('status_message')->nullable();
-            $table->unsignedInteger('opens')->default(0);
-            $table->unsignedInteger('clicks')->default(0);
-            $table->timestamp('created_at')->nullable();
+            $table->string('smtp_queue_id', 100)->nullable();
+            $table->timestamps();
 
             $table->index('thread_id');
-            $table->index(['email', 'created_at']);
+            $table->index('email');
+            $table->index('status');
+            $table->index(['customer_id', 'mail_type', 'created_at']);
         });
 
-        // Add prefix index for message_id manually
-        DB::statement('CREATE INDEX send_logs_message_id_index ON send_logs (message_id(191))');
+        // Add prefix index for message_id (MySQL requires prefix for TEXT columns)
+        // SQLite: Skip this - it handles TEXT indexing differently
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            DB::statement('CREATE INDEX send_logs_message_id_index ON send_logs (message_id(191))');
+        }
 
         // Subscriptions - users subscribing to receive notifications
         Schema::create('subscriptions', function (Blueprint $table) {

@@ -1,0 +1,262 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Rich Text Editor Styles */
+.rich-text-editor {
+    @apply border border-gray-300 rounded-lg overflow-hidden bg-white;
+}
+
+.editor-toolbar {
+    @apply flex items-center gap-1 p-2 bg-gray-50 border-b border-gray-300;
+}
+
+.editor-btn {
+    @apply px-3 py-1 rounded hover:bg-gray-200 transition-colors text-sm font-medium;
+}
+
+.editor-btn.active {
+    @apply bg-blue-100 text-blue-700;
+}
+
+.editor-content {
+    @apply p-4 prose max-w-none focus:outline-none;
+    min-height: 200px;
+}
+
+.editor-content:focus {
+    @apply ring-2 ring-blue-500 ring-inset;
+}
+
+/* Tiptap specific styles */
+.ProseMirror {
+    @apply focus:outline-none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    @apply text-gray-400 float-left h-0 pointer-events-none;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+    @apply pl-5;
+}
+
+.ProseMirror ul {
+    @apply list-disc;
+}
+
+.ProseMirror ol {
+    @apply list-decimal;
+}
+
+.ProseMirror h1 {
+    @apply text-2xl font-bold mt-4 mb-2;
+}
+
+.ProseMirror h2 {
+    @apply text-xl font-bold mt-3 mb-2;
+}
+
+.ProseMirror h3 {
+    @apply text-lg font-bold mt-2 mb-1;
+}
+
+.ProseMirror a {
+    @apply text-blue-600 hover:underline;
+}
+
+.ProseMirror img {
+    @apply max-w-full h-auto rounded;
+}
+
+.ProseMirror blockquote {
+    @apply border-l-4 border-gray-300 pl-4 italic my-2;
+}
+
+.ProseMirror code {
+    @apply bg-gray-100 px-1 py-0.5 rounded text-sm font-mono;
+}
+
+.ProseMirror pre {
+    @apply bg-gray-900 text-gray-100 p-4 rounded overflow-x-auto;
+}
+
+.ProseMirror pre code {
+    @apply bg-transparent p-0;
+}
+
+/* Sidebar Styles */
+.sidebar-menu {
+    @apply list-none p-0 m-0;
+}
+
+.sidebar-menu > li {
+    @apply relative;
+}
+
+.sidebar-menu > li > a {
+    @apply block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-r-full transition-colors;
+}
+
+.sidebar-menu > li.active > a {
+    @apply bg-blue-100 text-blue-700 font-semibold;
+}
+
+.sidebar-menu-toggle {
+    @apply cursor-pointer p-2 hover:bg-gray-100 rounded;
+}
+
+.sidebar-menu.active {
+    @apply block;
+}
+
+/* Conversation Thread Styles */
+.thread-item {
+    @apply border-b border-gray-200 py-4;
+}
+
+.thread-item:last-child {
+    @apply border-b-0;
+}
+
+.thread-header {
+    @apply flex items-center justify-between mb-2;
+}
+
+.thread-avatar {
+    @apply w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold;
+}
+
+.thread-body {
+    @apply prose max-w-none;
+}
+
+/* Notification Badge */
+.notification-badge {
+    @apply inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full;
+}
+
+/* Status Badges */
+.status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-badge-active {
+    @apply bg-green-100 text-green-800;
+}
+
+.status-badge-pending {
+    @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-badge-closed {
+    @apply bg-gray-100 text-gray-800;
+}
+
+.status-badge-spam {
+    @apply bg-red-100 text-red-800;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    @apply absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50;
+}
+
+.dropdown-menu a {
+    @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100;
+}
+
+/* Loading Spinner */
+.spinner {
+    @apply inline-block w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin;
+}
+
+/* Table Responsive */
+.table-responsive {
+    @apply overflow-x-auto;
+}
+
+/* Form Validation */
+.form-error {
+    @apply text-red-600 text-sm mt-1;
+}
+
+.input-error {
+    @apply border-red-500 focus:border-red-500 focus:ring-red-500;
+}
+
+/* Conversation Viewers (Collision Detection) */
+#conv-viewers {
+    @apply flex items-center gap-2 p-2 bg-blue-50 rounded-lg mb-4;
+}
+
+.viewer-item {
+    @apply flex items-center gap-2 text-sm text-gray-600;
+}
+
+/* Attachment Preview */
+.attachment-item {
+    @apply flex items-center gap-2 p-2 border border-gray-200 rounded hover:bg-gray-50;
+}
+
+.attachment-icon {
+    @apply w-8 h-8 flex items-center justify-center bg-gray-100 rounded;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .sidebar-2col {
+        @apply hidden;
+    }
+    
+    .layout-2col {
+        @apply flex-col;
+    }
+    
+    .editor-toolbar {
+        @apply flex-wrap;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .sidebar-2col,
+    .navbar,
+    .editor-toolbar,
+    button {
+        @apply hidden;
+    }
+    
+    .content-2col {
+        @apply shadow-none;
+    }
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification-slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Dark Mode Support (optional) */
+@media (prefers-color-scheme: dark) {
+    .dark-mode {
+        @apply bg-gray-900 text-gray-100;
+    }
+    
+    .dark-mode .editor-content {
+        @apply bg-gray-800 text-gray-100;
+    }
+}
