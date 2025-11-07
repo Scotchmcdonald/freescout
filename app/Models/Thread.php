@@ -9,6 +9,40 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property int $conversation_id
+ * @property int|null $user_id
+ * @property int|null $customer_id
+ * @property int|null $created_by_user_id
+ * @property int|null $created_by_customer_id
+ * @property int|null $edited_by_user_id
+ * @property \Illuminate\Support\Carbon|null $edited_at
+ * @property int $type
+ * @property int $status
+ * @property int $state
+ * @property int|null $action_type
+ * @property int|null $source_via
+ * @property int|null $source_type
+ * @property string|null $body
+ * @property string|null $to
+ * @property array|null $cc
+ * @property array|null $bcc
+ * @property string|null $from
+ * @property array|null $headers
+ * @property string|null $message_id
+ * @property \Illuminate\Support\Carbon|null $opened_at
+ * @property array|null $meta
+ * @property bool $first
+ * @property bool $has_attachments
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read \App\Models\Conversation $conversation
+ * @property-read \App\Models\User|null $user
+ * @property-read \App\Models\Customer|null $customer
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Attachment> $attachments
+ */
 class Thread extends Model
 {
     use HasFactory;

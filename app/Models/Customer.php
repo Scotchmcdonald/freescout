@@ -9,6 +9,31 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property string $first_name
+ * @property string $last_name
+ * @property string|null $company
+ * @property string|null $job_title
+ * @property string|null $photo_url
+ * @property int|null $photo_type
+ * @property int|null $channel
+ * @property string|null $channel_id
+ * @property array|null $phones
+ * @property array|null $websites
+ * @property array|null $social_profiles
+ * @property string|null $address
+ * @property string|null $city
+ * @property string|null $state
+ * @property string|null $zip
+ * @property string|null $country
+ * @property string|null $notes
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CustomerEmail> $emails
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
+ */
 class Customer extends Model
 {
     use HasFactory;

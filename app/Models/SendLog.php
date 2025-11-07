@@ -8,6 +8,27 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $thread_id
+ * @property int|null $customer_id
+ * @property int|null $user_id
+ * @property string|null $message_id
+ * @property string $email
+ * @property int $status
+ * @property string|null $status_message
+ * @property int $opens
+ * @property int $clicks
+ * @property \Illuminate\Support\Carbon|null $opened_at
+ * @property \Illuminate\Support\Carbon|null $clicked_at
+ * @property array|null $meta
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read \App\Models\Thread $thread
+ * @property-read \App\Models\Customer|null $customer
+ * @property-read \App\Models\User|null $user
+ */
 class SendLog extends Model
 {
     use HasFactory;

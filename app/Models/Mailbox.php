@@ -9,6 +9,48 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property bool $is_default
+ * @property int $status
+ * @property array|null $aliases
+ * @property bool $aliases_reply
+ * @property string|null $from_name
+ * @property string|null $from_name_custom
+ * @property int $ticket_status
+ * @property int $ticket_assignee
+ * @property string|null $template
+ * @property string|null $signature
+ * @property string|null $before_reply
+ * @property int $out_method
+ * @property string|null $out_server
+ * @property int|null $out_port
+ * @property string|null $out_username
+ * @property string|null $out_password
+ * @property string|null $out_encryption
+ * @property string|null $in_server
+ * @property int|null $in_port
+ * @property string|null $in_username
+ * @property string|null $in_password
+ * @property string|null $in_protocol
+ * @property string|null $in_encryption
+ * @property bool $in_validate_cert
+ * @property array|null $in_imap_folders
+ * @property string|null $imap_sent_folder
+ * @property string|null $auto_bcc
+ * @property bool $auto_reply_enabled
+ * @property string|null $auto_reply_subject
+ * @property string|null $auto_reply_message
+ * @property bool $office_hours_enabled
+ * @property bool $ratings
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
+ */
 class Mailbox extends Model
 {
     use HasFactory;
