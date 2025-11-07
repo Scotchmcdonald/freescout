@@ -41,7 +41,12 @@ class MailboxAutoReplyTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
+        $response->assertViewIs('mailboxes.auto_reply');
         $response->assertSee('Auto Reply');
+        $response->assertSee('Enable');
+        $response->assertSee('Subject');
+        $response->assertSee('Message');
+        $response->assertViewHas('mailbox', $this->mailbox);
     }
 
     /**

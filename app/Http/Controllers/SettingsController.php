@@ -126,7 +126,7 @@ class SettingsController extends Controller
     /**
      * Clear application cache.
      */
-    public function clearCache(): JsonResponse
+    public function clearCache(): RedirectResponse
     {
         try {
             Artisan::call('cache:clear');
@@ -134,36 +134,23 @@ class SettingsController extends Controller
             Artisan::call('route:clear');
             Artisan::call('view:clear');
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Cache cleared successfully.',
-            ]);
+            return back()->with('success', 'Cache cleared successfully.');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to clear cache: '.$e->getMessage(),
-            ], 500);
+            return back()->with('error', 'Failed to clear cache: '.$e->getMessage());
         }
     }
 
     /**
      * Run database migrations.
      */
-    public function migrate(): JsonResponse
+    public function migrate(): RedirectResponse
     {
         try {
             Artisan::call('migrate', ['--force' => true]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Migrations completed successfully.',
-                'output' => Artisan::output(),
-            ]);
+            return back()->with('success', 'Migrations completed successfully.');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Migration failed: '.$e->getMessage(),
-            ], 500);
+            return back()->with('error', 'Migration failed: '.$e->getMessage());
         }
     }
 

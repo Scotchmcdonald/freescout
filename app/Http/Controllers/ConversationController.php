@@ -224,7 +224,7 @@ class ConversationController extends Controller
     /**
      * Update conversation details (status, assignee, folder, etc).
      */
-    public function update(Request $request, Conversation $conversation): RedirectResponse
+    public function update(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
@@ -241,6 +241,13 @@ class ConversationController extends Controller
         ]);
 
         $conversation->update($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Conversation updated successfully.',
+            ]);
+        }
 
         return redirect()
             ->route('conversations.show', $conversation)
@@ -285,11 +292,17 @@ class ConversationController extends Controller
             ]);
 
             // Update conversation
-            $conversation->update([
+            $updateData = [
                 'threads_count' => $conversation->threads_count + 1,
                 'last_reply_at' => now(),
                 'status' => $validated['status'] ?? $conversation->status,
-            ]);
+            ];
+
+            if (is_null($conversation->user_id)) {
+                $updateData['user_id'] = $user->id;
+            }
+
+            $conversation->update($updateData);
 
             DB::commit();
 

@@ -13,7 +13,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::bBPnrO2fPFrR9nBo',
+            '_route' => 'generated::jy6v5DLTuUm5AUQd',
           ),
           1 => NULL,
           2 => 
@@ -33,7 +33,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::bRowFg6gqGGkzunH',
+            '_route' => 'generated::gsyH3022krZ68igN',
           ),
           1 => NULL,
           2 => 
@@ -103,6 +103,25 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
+      '/conversations/ajax' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'conversations.ajax',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
       '/conversations/search' => 
       array (
         0 => 
@@ -142,14 +161,11 @@ app('router')->setCompiledRoutes(
           5 => false,
           6 => NULL,
         ),
-      ),
-      '/customers/merge' => 
-      array (
-        0 => 
+        1 => 
         array (
           0 => 
           array (
-            '_route' => 'customers.merge',
+            '_route' => 'customers.store',
           ),
           1 => NULL,
           2 => 
@@ -425,6 +441,25 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
+      '/system/ajax' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'system.ajax',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
       '/system/diagnostics' => 
       array (
         0 => 
@@ -478,101 +513,6 @@ app('router')->setCompiledRoutes(
           array (
             'GET' => 0,
             'HEAD' => 1,
-          ),
-          3 => NULL,
-          4 => false,
-          5 => false,
-          6 => NULL,
-        ),
-      ),
-      '/conversations/ajax' => 
-      array (
-        0 => 
-        array (
-          0 => 
-          array (
-            '_route' => 'conversations.ajax',
-          ),
-          1 => NULL,
-          2 => 
-          array (
-            'POST' => 0,
-          ),
-          3 => NULL,
-          4 => false,
-          5 => false,
-          6 => NULL,
-        ),
-      ),
-      '/conversations/upload' => 
-      array (
-        0 => 
-        array (
-          0 => 
-          array (
-            '_route' => 'conversations.upload',
-          ),
-          1 => NULL,
-          2 => 
-          array (
-            'POST' => 0,
-          ),
-          3 => NULL,
-          4 => false,
-          5 => false,
-          6 => NULL,
-        ),
-      ),
-      '/customers/ajax' => 
-      array (
-        0 => 
-        array (
-          0 => 
-          array (
-            '_route' => 'customers.ajax',
-          ),
-          1 => NULL,
-          2 => 
-          array (
-            'POST' => 0,
-          ),
-          3 => NULL,
-          4 => false,
-          5 => false,
-          6 => NULL,
-        ),
-      ),
-      '/users/ajax' => 
-      array (
-        0 => 
-        array (
-          0 => 
-          array (
-            '_route' => 'users.ajax',
-          ),
-          1 => NULL,
-          2 => 
-          array (
-            'POST' => 0,
-          ),
-          3 => NULL,
-          4 => false,
-          5 => false,
-          6 => NULL,
-        ),
-      ),
-      '/system/ajax' => 
-      array (
-        0 => 
-        array (
-          0 => 
-          array (
-            '_route' => 'system.ajax',
-          ),
-          1 => NULL,
-          2 => 
-          array (
-            'POST' => 0,
           ),
           3 => NULL,
           4 => false,
@@ -655,7 +595,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::0fREqJ49owMHOaBG',
+            '_route' => 'generated::c2DozwgU21RlAsvW',
           ),
           1 => NULL,
           2 => 
@@ -691,7 +631,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::cVtgPezUL9mjofQN',
+            '_route' => 'generated::TaAfZRq9uhd5fIzS',
           ),
           1 => NULL,
           2 => 
@@ -821,7 +761,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::Edor4PHlUTheNxAA',
+            '_route' => 'generated::ECU1VkMVqVoKXxR4',
           ),
           1 => NULL,
           2 => 
@@ -878,7 +818,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::Tfoa5s4O1jGXFdW4',
+            '_route' => 'generated::eIGpsCBBb8Di7Dma',
           ),
           1 => NULL,
           2 => 
@@ -896,7 +836,7 @@ app('router')->setCompiledRoutes(
     ),
     2 => 
     array (
-      0 => '{^(?|/m(?|ailbox(?|/([^/]++)(?|(*:33)|/(?|settings(*:52)|c(?|on(?|nection/(?|incoming(?|(*:90))|outgoing(?|(*:109)))|versation(?|s(*:132)|/create(*:147)|(*:155)))|lone\\-ticket/([^/]++)(*:186))|fetch\\-emails(*:208)))|es/([^/]++)/(?|permissions(?|(*:247))|auto\\-reply(?|(*:270))))|odules/([^/]++)(?|/(?|enable(*:309)|disable(*:324))|(*:333)))|/c(?|onversation/([^/]++)(?|(*:371)|/reply(*:385)|(*:393))|ustomer/([^/]++)(?|(*:421)|/edit(*:434)|(*:442)))|/user/([^/]++)(?|(*:469)|/(?|edit(*:485)|permissions(*:504))|(*:513))|/reset\\-password/([^/]++)(*:547)|/verify\\-email/([^/]++)/([^/]++)(*:587)|/storage/(.*)(*:608))/?$}sDu',
+      0 => '{^(?|/m(?|ailbox(?|/([^/]++)(?|(*:33)|/(?|settings(*:52)|c(?|on(?|nection/(?|incoming(?|(*:90))|outgoing(?|(*:109)))|versation(?|s(*:132)|/create(*:147)|(*:155)))|lone\\-ticket/([^/]++)(*:186))|fetch\\-emails(*:208)))|es/([^/]++)/(?|permissions(?|(*:247))|auto\\-reply(?|(*:270))))|odules/([^/]++)(?|/(?|enable(*:309)|disable(*:324))|(*:333)))|/c(?|onversation/([^/]++)(?|(*:371)|/reply(*:385)|(*:393))|ustomers/(?|([^/]++)(?|(*:425)|/edit(*:438)|(*:446))|merge(*:460)|ajax(*:472)))|/user/([^/]++)(?|(*:499)|/(?|edit(*:515)|permissions(*:534))|(*:543))|/reset\\-password/([^/]++)(*:577)|/verify\\-email/([^/]++)/([^/]++)(*:617)|/storage/(.*)(*:638))/?$}sDu',
     ),
     3 => 
     array (
@@ -1011,7 +951,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::9AmZgzVvY916TFBI',
+            '_route' => 'generated::m1nC9O47lHv9Y0fc',
           ),
           1 => 
           array (
@@ -1053,7 +993,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 
           array (
-            '_route' => 'generated::bCKu2KUKT7yA64DB',
+            '_route' => 'generated::9dKOEDRoEBmb4cvX',
           ),
           1 => 
           array (
@@ -1419,7 +1359,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      421 => 
+      425 => 
       array (
         0 => 
         array (
@@ -1442,7 +1382,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      434 => 
+      438 => 
       array (
         0 => 
         array (
@@ -1465,7 +1405,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      442 => 
+      446 => 
       array (
         0 => 
         array (
@@ -1487,7 +1427,49 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      469 => 
+      460 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'customers.merge',
+          ),
+          1 => 
+          array (
+          ),
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      472 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'customers.ajax',
+          ),
+          1 => 
+          array (
+          ),
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      499 => 
       array (
         0 => 
         array (
@@ -1510,7 +1492,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      485 => 
+      515 => 
       array (
         0 => 
         array (
@@ -1533,7 +1515,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      504 => 
+      534 => 
       array (
         0 => 
         array (
@@ -1555,7 +1537,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      513 => 
+      543 => 
       array (
         0 => 
         array (
@@ -1597,7 +1579,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      547 => 
+      577 => 
       array (
         0 => 
         array (
@@ -1620,7 +1602,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      587 => 
+      617 => 
       array (
         0 => 
         array (
@@ -1644,7 +1626,7 @@ app('router')->setCompiledRoutes(
           6 => NULL,
         ),
       ),
-      608 => 
+      638 => 
       array (
         0 => 
         array (
@@ -1682,7 +1664,7 @@ app('router')->setCompiledRoutes(
   ),
   'attributes' => 
   array (
-    'generated::bBPnrO2fPFrR9nBo' => 
+    'generated::jy6v5DLTuUm5AUQd' => 
     array (
       'methods' => 
       array (
@@ -1710,8 +1692,8 @@ app('router')->setCompiledRoutes(
                     return response(\\Illuminate\\Support\\Facades\\View::file(\'/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Configuration\'.\'/../resources/health-up.blade.php\', [
                         \'exception\' => $exception,
                     ]), status: $exception ? 500 : 200);
-                }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"0000000000001d4b0000000000000000";}}',
-        'as' => 'generated::bBPnrO2fPFrR9nBo',
+                }";s:5:"scope";s:54:"Illuminate\\Foundation\\Configuration\\ApplicationBuilder";s:4:"this";N;s:4:"self";s:32:"000000000000619a0000000000000000";}}',
+        'as' => 'generated::jy6v5DLTuUm5AUQd',
       ),
       'fallback' => false,
       'defaults' => 
@@ -1727,7 +1709,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::bRowFg6gqGGkzunH' => 
+    'generated::gsyH3022krZ68igN' => 
     array (
       'methods' => 
       array (
@@ -1743,13 +1725,13 @@ app('router')->setCompiledRoutes(
         ),
         'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:59:"function () {
     return \\redirect()->route(\'dashboard\');
-}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000053030000000000000000";}}',
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000015c80000000000000000";}}',
         'namespace' => NULL,
         'prefix' => '',
         'where' => 
         array (
         ),
-        'as' => 'generated::bRowFg6gqGGkzunH',
+        'as' => 'generated::gsyH3022krZ68igN',
       ),
       'fallback' => false,
       'defaults' => 
@@ -2075,7 +2057,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::9AmZgzVvY916TFBI' => 
+    'generated::m1nC9O47lHv9Y0fc' => 
     array (
       'methods' => 
       array (
@@ -2097,7 +2079,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::9AmZgzVvY916TFBI',
+        'as' => 'generated::m1nC9O47lHv9Y0fc',
       ),
       'fallback' => false,
       'defaults' => 
@@ -2152,7 +2134,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::bCKu2KUKT7yA64DB' => 
+    'generated::9dKOEDRoEBmb4cvX' => 
     array (
       'methods' => 
       array (
@@ -2174,7 +2156,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::bCKu2KUKT7yA64DB',
+        'as' => 'generated::9dKOEDRoEBmb4cvX',
       ),
       'fallback' => false,
       'defaults' => 
@@ -2459,6 +2441,44 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+    'conversations.ajax' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'conversations/ajax',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'verified',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ConversationController@ajax',
+        'controller' => 'App\\Http\\Controllers\\ConversationController@ajax',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'conversations.ajax',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
     'conversations.destroy' => 
     array (
       'methods' => 
@@ -2621,7 +2641,7 @@ app('router')->setCompiledRoutes(
         0 => 'GET',
         1 => 'HEAD',
       ),
-      'uri' => 'customer/{customer}',
+      'uri' => 'customers/{customer}',
       'action' => 
       array (
         'middleware' => 
@@ -2660,7 +2680,7 @@ app('router')->setCompiledRoutes(
         0 => 'GET',
         1 => 'HEAD',
       ),
-      'uri' => 'customer/{customer}/edit',
+      'uri' => 'customers/{customer}/edit',
       'action' => 
       array (
         'middleware' => 
@@ -2698,7 +2718,7 @@ app('router')->setCompiledRoutes(
       array (
         0 => 'PATCH',
       ),
-      'uri' => 'customer/{customer}',
+      'uri' => 'customers/{customer}',
       'action' => 
       array (
         'middleware' => 
@@ -2715,6 +2735,44 @@ app('router')->setCompiledRoutes(
         array (
         ),
         'as' => 'customers.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'customers.store' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'customers',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'verified',
+        ),
+        'uses' => 'App\\Http\\Controllers\\CustomerController@store',
+        'controller' => 'App\\Http\\Controllers\\CustomerController@store',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'customers.store',
       ),
       'fallback' => false,
       'defaults' => 
@@ -3510,6 +3568,45 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
+    'system.ajax' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'system/ajax',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'verified',
+          3 => 'admin',
+        ),
+        'uses' => 'App\\Http\\Controllers\\SystemController@ajax',
+        'controller' => 'App\\Http\\Controllers\\SystemController@ajax',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'system.ajax',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
     'system.diagnostics' => 
     array (
       'methods' => 
@@ -3901,82 +3998,6 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'conversations.ajax' => 
-    array (
-      'methods' => 
-      array (
-        0 => 'POST',
-      ),
-      'uri' => 'conversations/ajax',
-      'action' => 
-      array (
-        'middleware' => 
-        array (
-          0 => 'web',
-          1 => 'auth',
-          2 => 'verified',
-        ),
-        'uses' => 'App\\Http\\Controllers\\ConversationController@ajax',
-        'controller' => 'App\\Http\\Controllers\\ConversationController@ajax',
-        'namespace' => NULL,
-        'prefix' => '',
-        'where' => 
-        array (
-        ),
-        'as' => 'conversations.ajax',
-      ),
-      'fallback' => false,
-      'defaults' => 
-      array (
-      ),
-      'wheres' => 
-      array (
-      ),
-      'bindingFields' => 
-      array (
-      ),
-      'lockSeconds' => NULL,
-      'waitSeconds' => NULL,
-      'withTrashed' => false,
-    ),
-    'conversations.upload' => 
-    array (
-      'methods' => 
-      array (
-        0 => 'POST',
-      ),
-      'uri' => 'conversations/upload',
-      'action' => 
-      array (
-        'middleware' => 
-        array (
-          0 => 'web',
-          1 => 'auth',
-          2 => 'verified',
-        ),
-        'uses' => 'App\\Http\\Controllers\\ConversationController@upload',
-        'controller' => 'App\\Http\\Controllers\\ConversationController@upload',
-        'namespace' => NULL,
-        'prefix' => '',
-        'where' => 
-        array (
-        ),
-        'as' => 'conversations.upload',
-      ),
-      'fallback' => false,
-      'defaults' => 
-      array (
-      ),
-      'wheres' => 
-      array (
-      ),
-      'bindingFields' => 
-      array (
-      ),
-      'lockSeconds' => NULL,
-      'waitSeconds' => NULL,
-      'withTrashed' => false,
-    ),
     'customers.ajax' => 
     array (
       'methods' => 
@@ -4000,82 +4021,6 @@ app('router')->setCompiledRoutes(
         array (
         ),
         'as' => 'customers.ajax',
-      ),
-      'fallback' => false,
-      'defaults' => 
-      array (
-      ),
-      'wheres' => 
-      array (
-      ),
-      'bindingFields' => 
-      array (
-      ),
-      'lockSeconds' => NULL,
-      'waitSeconds' => NULL,
-      'withTrashed' => false,
-    ),
-    'users.ajax' => 
-    array (
-      'methods' => 
-      array (
-        0 => 'POST',
-      ),
-      'uri' => 'users/ajax',
-      'action' => 
-      array (
-        'middleware' => 
-        array (
-          0 => 'web',
-          1 => 'auth',
-          2 => 'verified',
-        ),
-        'uses' => 'App\\Http\\Controllers\\UserController@ajax',
-        'controller' => 'App\\Http\\Controllers\\UserController@ajax',
-        'namespace' => NULL,
-        'prefix' => '',
-        'where' => 
-        array (
-        ),
-        'as' => 'users.ajax',
-      ),
-      'fallback' => false,
-      'defaults' => 
-      array (
-      ),
-      'wheres' => 
-      array (
-      ),
-      'bindingFields' => 
-      array (
-      ),
-      'lockSeconds' => NULL,
-      'waitSeconds' => NULL,
-      'withTrashed' => false,
-    ),
-    'system.ajax' => 
-    array (
-      'methods' => 
-      array (
-        0 => 'POST',
-      ),
-      'uri' => 'system/ajax',
-      'action' => 
-      array (
-        'middleware' => 
-        array (
-          0 => 'web',
-          1 => 'auth',
-          2 => 'verified',
-        ),
-        'uses' => 'App\\Http\\Controllers\\SystemController@ajax',
-        'controller' => 'App\\Http\\Controllers\\SystemController@ajax',
-        'namespace' => NULL,
-        'prefix' => '',
-        'where' => 
-        array (
-        ),
-        'as' => 'system.ajax',
       ),
       'fallback' => false,
       'defaults' => 
@@ -4241,7 +4186,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::0fREqJ49owMHOaBG' => 
+    'generated::c2DozwgU21RlAsvW' => 
     array (
       'methods' => 
       array (
@@ -4262,7 +4207,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::0fREqJ49owMHOaBG',
+        'as' => 'generated::c2DozwgU21RlAsvW',
       ),
       'fallback' => false,
       'defaults' => 
@@ -4316,7 +4261,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::cVtgPezUL9mjofQN' => 
+    'generated::TaAfZRq9uhd5fIzS' => 
     array (
       'methods' => 
       array (
@@ -4337,7 +4282,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::cVtgPezUL9mjofQN',
+        'as' => 'generated::TaAfZRq9uhd5fIzS',
       ),
       'fallback' => false,
       'defaults' => 
@@ -4657,7 +4602,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::Edor4PHlUTheNxAA' => 
+    'generated::ECU1VkMVqVoKXxR4' => 
     array (
       'methods' => 
       array (
@@ -4678,7 +4623,7 @@ app('router')->setCompiledRoutes(
         'where' => 
         array (
         ),
-        'as' => 'generated::Edor4PHlUTheNxAA',
+        'as' => 'generated::ECU1VkMVqVoKXxR4',
       ),
       'fallback' => false,
       'defaults' => 
@@ -4768,7 +4713,7 @@ app('router')->setCompiledRoutes(
       'waitSeconds' => NULL,
       'withTrashed' => false,
     ),
-    'generated::Tfoa5s4O1jGXFdW4' => 
+    'generated::eIGpsCBBb8Di7Dma' => 
     array (
       'methods' => 
       array (
@@ -4794,7 +4739,7 @@ app('router')->setCompiledRoutes(
         array (
           0 => 'Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken',
         ),
-        'as' => 'generated::Tfoa5s4O1jGXFdW4',
+        'as' => 'generated::eIGpsCBBb8Di7Dma',
       ),
       'fallback' => false,
       'defaults' => 
@@ -4826,7 +4771,7 @@ app('router')->setCompiledRoutes(
                         $config,
                         $isProduction
                     ))($request, $path);
-                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"00000000000041020000000000000000";}}',
+                }";s:5:"scope";s:47:"Illuminate\\Filesystem\\FilesystemServiceProvider";s:4:"this";N;s:4:"self";s:32:"0000000000006ae60000000000000000";}}',
         'as' => 'storage.local',
       ),
       'fallback' => false,

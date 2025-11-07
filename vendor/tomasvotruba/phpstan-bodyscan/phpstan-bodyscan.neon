@@ -1,0 +1,10 @@
+parameters:
+    level: 8
+    treatPhpDocTypesAsCertain: false
+    excludePaths:
+        - */Fixture/*
+
+    paths:
+        - bin
+        - src
+        - tests

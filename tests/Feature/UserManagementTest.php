@@ -28,12 +28,29 @@ class UserManagementTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        $user = User::factory()->create();
+        $user1 = User::factory()->create([
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'john@example.com',
+            'role' => User::ROLE_USER,
+        ]);
+        $user2 = User::factory()->create([
+            'first_name' => 'Jane',
+            'last_name' => 'Smith',
+            'email' => 'jane@example.com',
+            'role' => User::ROLE_ADMIN,
+        ]);
 
         $response = $this->get(route('users.index'));
 
         $response->assertOk();
-        $response->assertSee($user->email);
+        $response->assertViewIs('users.index');
+        $response->assertSee('John Doe');
+        $response->assertSee('john@example.com');
+        $response->assertSee('Jane Smith');
+        $response->assertSee('jane@example.com');
+        $response->assertSee('Admin');
+        $response->assertSee('User');
     }
 
     public function test_admin_can_create_user(): void

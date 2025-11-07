@@ -35,13 +35,18 @@ class SettingsTest extends TestCase
     {
         // Arrange
         Option::create(['name' => 'company_name', 'value' => 'Test Company']);
+        Option::create(['name' => 'app_timezone', 'value' => 'UTC']);
 
         // Act
         $response = $this->actingAs($this->admin)->get(route('settings'));
 
         // Assert
         $response->assertOk();
+        $response->assertViewIs('settings.index');
         $response->assertSee('Test Company');
+        $response->assertSee('Settings');
+        $response->assertSee('Company Name');
+        $response->assertViewHas('settings');
     }
 
     #[Test]
@@ -70,12 +75,17 @@ class SettingsTest extends TestCase
     {
         // Arrange
         Option::create(['name' => 'mail_from_address', 'value' => 'test@example.com']);
+        Option::create(['name' => 'mail_from_name', 'value' => 'Test Support']);
 
         // Act
         $response = $this->actingAs($this->admin)->get(route('settings.email'));
 
         // Assert
         $response->assertOk();
+        $response->assertViewIs('settings.email');
+        $response->assertSee('Email Settings');
+        $response->assertSee('test@example.com');
+        $response->assertSee('SMTP');
     }
 
     #[Test]
@@ -177,8 +187,8 @@ class SettingsTest extends TestCase
         $response = $this->post(route('settings.cache.clear'));
 
         // Assert
-        $response->assertOk();
-        $response->assertJson(['success' => true]);
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
     }
 
     #[Test]

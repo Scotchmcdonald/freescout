@@ -39,6 +39,10 @@ class SecurityAndEdgeCasesTest extends TestCase
     {
         $response = $this->get(route('settings'));
         $response->assertRedirect(route('login'));
+        
+        // Verify no settings data is leaked
+        $this->assertStringNotContainsString('company_name', $response->getContent());
+        $this->assertStringNotContainsString('option', $response->getContent());
     }
 
     #[Test]
@@ -56,6 +60,16 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
 
         $response->assertForbidden();
+        
+        // Verify the setting was not updated
+        $this->assertDatabaseMissing('options', [
+            'name' => 'company_name',
+            'value' => 'Hacked Company',
+        ]);
+        
+        // Verify no sensitive data is leaked in the forbidden response
+        $content = $response->getContent();
+        $this->assertStringNotContainsString('Hacked Company', $content);
     }
 
     #[Test]
@@ -141,8 +155,9 @@ class SecurityAndEdgeCasesTest extends TestCase
     {
         $this->actingAs($this->admin);
 
+        $maliciousInput = "'; DROP TABLE options; --";
         $response = $this->post(route('settings.update'), [
-            'company_name' => "'; DROP TABLE options; --",
+            'company_name' => $maliciousInput,
         ]);
 
         $response->assertRedirect();
@@ -150,11 +165,14 @@ class SecurityAndEdgeCasesTest extends TestCase
         // Verify the malicious input was safely stored
         $this->assertDatabaseHas('options', [
             'name' => 'company_name',
-            'value' => "'; DROP TABLE options; --",
+            'value' => $maliciousInput,
         ]);
         
-        // Verify options table still exists
+        // Verify options table still exists and other options are intact
         $this->assertNotNull(Option::all());
+        
+        // Verify no SQL was executed by checking table structure
+        $this->assertDatabaseHas('options', ['name' => 'company_name']);
     }
 
     #[Test]
@@ -188,6 +206,18 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('mail_from_address');
+        
+        // Verify error message is helpful
+        $errors = session('errors');
+        $this->assertNotNull($errors);
+        $emailErrors = $errors->get('mail_from_address');
+        $this->assertNotEmpty($emailErrors);
+        
+        // Verify the invalid email was not saved
+        $this->assertDatabaseMissing('options', [
+            'name' => 'mail_from_address',
+            'value' => 'invalid-email',
+        ]);
     }
 
     #[Test]
@@ -210,6 +240,12 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('system.diagnostics'));
 
         $response->assertOk();
+        $response->assertJsonStructure([
+            'success',
+            'checks' => [
+                'database' => ['status', 'message'],
+            ],
+        ]);
         $response->assertJsonPath('checks.database.status', 'ok');
     }
 

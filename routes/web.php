@@ -40,15 +40,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/mailbox/{mailbox}/conversation', [ConversationController::class, 'store'])->name('conversations.store');
     Route::patch('/conversation/{conversation}', [ConversationController::class, 'update'])->name('conversations.update');
     Route::post('/conversation/{conversation}/reply', [ConversationController::class, 'reply'])->name('conversations.reply');
+    Route::post('/conversations/ajax', [ConversationController::class, 'ajax'])->name('conversations.ajax');
     Route::delete('/conversation/{conversation}', [ConversationController::class, 'destroy'])->name('conversations.destroy');
     Route::get('/conversations/search', [ConversationController::class, 'search'])->name('conversations.search');
     Route::get('/mailbox/{mailbox}/clone-ticket/{thread}', [ConversationController::class, 'clone'])->name('conversations.clone');
     
     // Customers
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers');
-    Route::get('/customer/{customer}', [CustomerController::class, 'show'])->name('customers.show');
-    Route::get('/customer/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
-    Route::patch('/customer/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+    Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
+    Route::patch('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::post('/customers/merge', [CustomerController::class, 'merge'])->name('customers.merge');
     
     // Users (admin only)
@@ -78,6 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // System (admin only)
     Route::middleware(['admin'])->group(function () {
         Route::get('/system', [SystemController::class, 'index'])->name('system');
+        Route::post('/system/ajax', [SystemController::class, 'ajax'])->name('system.ajax');
         Route::get('/system/diagnostics', [SystemController::class, 'diagnostics'])->name('system.diagnostics');
         Route::get('/system/logs', [SystemController::class, 'logs'])->name('system.logs');
     });
@@ -102,12 +105,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/mailboxes/{mailbox}/auto-reply', [MailboxController::class, 'saveAutoReply'])
         ->name('mailboxes.auto_reply.save');
 
-    // AJAX endpoints
-    Route::post('/conversations/ajax', [ConversationController::class, 'ajax'])->name('conversations.ajax');
-    Route::post('/conversations/upload', [ConversationController::class, 'upload'])->name('conversations.upload');
     Route::post('/customers/ajax', [CustomerController::class, 'ajax'])->name('customers.ajax');
-    Route::post('/users/ajax', [UserController::class, 'ajax'])->name('users.ajax');
-    Route::post('/system/ajax', [SystemController::class, 'ajax'])->name('system.ajax');
 });
 
 Route::middleware('auth')->group(function () {

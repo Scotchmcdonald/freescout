@@ -28,12 +28,23 @@ class MailboxTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        $mailbox = Mailbox::factory()->create();
+        $mailbox1 = Mailbox::factory()->create([
+            'name' => 'Support',
+            'email' => 'support@example.com',
+        ]);
+        $mailbox2 = Mailbox::factory()->create([
+            'name' => 'Sales',
+            'email' => 'sales@example.com',
+        ]);
 
         $response = $this->get(route('mailboxes.index'));
 
         $response->assertOk();
-        $response->assertSee($mailbox->name);
+        $response->assertViewIs('mailboxes.index');
+        $response->assertSee('Support');
+        $response->assertSee('support@example.com');
+        $response->assertSee('Sales');
+        $response->assertSee('sales@example.com');
     }
 
     public function test_admin_can_create_mailbox(): void

@@ -15,11 +15,17 @@ class EmailVerificationTest extends TestCase
 
     public function test_email_verification_screen_can_be_rendered(): void
     {
-        $user = User::factory()->unverified()->create();
+        $user = User::factory()->unverified()->create([
+            'email' => 'test@example.com',
+        ]);
 
         $response = $this->actingAs($user)->get('/verify-email');
 
         $response->assertStatus(200);
+        $response->assertViewIs('auth.verify-email');
+        $response->assertSee('Thanks for signing up');
+        $response->assertSee('verify your email address');
+        $response->assertSee('Resend Verification Email');
     }
 
     public function test_email_can_be_verified(): void

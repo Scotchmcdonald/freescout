@@ -67,7 +67,7 @@
                                             {!! nl2br(e($thread->body)) !!}
                                         </div>
                                         
-                                        @if($thread->attachments->count())
+                                        @if($thread->attachments && $thread->attachments->count())
                                             <div class="mt-4 pt-4 border-t border-gray-200">
                                                 <div class="text-sm font-medium text-gray-700 mb-2">Attachments:</div>
                                                 <div class="space-y-1">

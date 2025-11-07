@@ -31,13 +31,22 @@ class CustomerManagementTest extends TestCase
     public function user_can_view_list_of_customers(): void
     {
         // Arrange
-        $customer = Customer::factory()->create([
+        $customer1 = Customer::factory()->create([
             'first_name' => 'John',
             'last_name' => 'Doe',
         ]);
         Email::factory()->create([
-            'customer_id' => $customer->id,
+            'customer_id' => $customer1->id,
             'email' => 'john@example.com',
+        ]);
+
+        $customer2 = Customer::factory()->create([
+            'first_name' => 'Jane',
+            'last_name' => 'Smith',
+        ]);
+        Email::factory()->create([
+            'customer_id' => $customer2->id,
+            'email' => 'jane@example.com',
         ]);
 
         // Act
@@ -45,8 +54,11 @@ class CustomerManagementTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        $response->assertSee('John');
-        $response->assertSee('Doe');
+        $response->assertViewIs('customers.index');
+        $response->assertSee('John Doe');
+        $response->assertSee('john@example.com');
+        $response->assertSee('Jane Smith');
+        $response->assertSee('jane@example.com');
     }
 
     #[Test]
@@ -57,18 +69,33 @@ class CustomerManagementTest extends TestCase
             'first_name' => 'Jane',
             'last_name' => 'Smith',
         ]);
-        $conversation = Conversation::factory()->create([
+        $email = Email::factory()->create([
             'customer_id' => $customer->id,
-            'subject' => 'Test Conversation',
+            'email' => 'jane@example.com',
+        ]);
+
+        $conversation1 = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+            'subject' => 'First Issue',
+        ]);
+        $conversation2 = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+            'subject' => 'Second Issue',
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->get("/customer/{$customer->id}");
+        $response = $this->actingAs($this->user)->get(route('customers.show', $customer->id));
 
         // Assert
         $response->assertStatus(200);
+        $response->assertViewIs('customers.show');
         $response->assertSee('Jane Smith');
-        $response->assertSee('Test Conversation');
+        $response->assertSee('jane@example.com');
+        $response->assertSee('First Issue');
+        $response->assertSee('Second Issue');
+        $response->assertViewHas('customer', function ($c) use ($customer) {
+            return $c->id === $customer->id;
+        });
     }
 
     #[Test]
@@ -81,7 +108,7 @@ class CustomerManagementTest extends TestCase
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->patch("/customer/{$customer->id}", [
+        $response = $this->actingAs($this->user)->patch(route('customers.update', $customer->id), [
             'first_name' => 'New',
             'last_name' => 'Updated',
             'company' => 'Acme Corp',
@@ -206,7 +233,7 @@ class CustomerManagementTest extends TestCase
         $customer = Customer::factory()->create();
 
         // Act
-        $response = $this->get("/customer/{$customer->id}");
+        $response = $this->get(route('customers.show', $customer->id));
 
         // Assert
         $response->assertStatus(302);
@@ -220,7 +247,7 @@ class CustomerManagementTest extends TestCase
         $customer = Customer::factory()->create();
 
         // Act
-        $response = $this->patch("/customer/{$customer->id}", [
+        $response = $this->patch(route('customers.update', $customer->id), [
             'first_name' => 'Updated',
             'last_name' => 'Name',
         ]);
@@ -237,7 +264,7 @@ class CustomerManagementTest extends TestCase
         $customer = Customer::factory()->create();
 
         // Act
-        $response = $this->actingAs($this->user)->patchJson("/customer/{$customer->id}", [
+        $response = $this->actingAs($this->user)->patchJson(route('customers.update', $customer->id), [
             'first_name' => 'John',
             'last_name' => 'Doe',
             'emails' => [
@@ -292,9 +319,18 @@ class CustomerManagementTest extends TestCase
             'first_name' => 'Alice',
             'last_name' => 'Johnson',
         ]);
+        Email::factory()->create([
+            'customer_id' => $customer1->id,
+            'email' => 'alice@example.com',
+        ]);
+
         $customer2 = Customer::factory()->create([
             'first_name' => 'Bob',
             'last_name' => 'Smith',
+        ]);
+        Email::factory()->create([
+            'customer_id' => $customer2->id,
+            'email' => 'bob@example.com',
         ]);
 
         // Act
@@ -302,8 +338,13 @@ class CustomerManagementTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        $response->assertSee('Alice');
-        $response->assertDontSee('Bob');
+        $response->assertViewIs('customers.index');
+        $response->assertSee('Alice Johnson');
+        $response->assertSee('alice@example.com');
+        $response->assertDontSee('Bob Smith');
+        $response->assertViewHas('customers', function ($customers) use ($customer1) {
+            return $customers->count() === 1 && $customers->first()->id === $customer1->id;
+        });
     }
 
     #[Test]
@@ -313,15 +354,26 @@ class CustomerManagementTest extends TestCase
         $customer = Customer::factory()->create([
             'first_name' => 'Edit',
             'last_name' => 'Test',
+            'company' => 'Test Corp',
+        ]);
+        $email = Email::factory()->create([
+            'customer_id' => $customer->id,
+            'email' => 'edit@example.com',
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->get("/customer/{$customer->id}/edit");
+        $response = $this->actingAs($this->user)->get(route('customers.edit', $customer->id));
 
         // Assert
         $response->assertStatus(200);
-        $response->assertSee('Edit');
-        $response->assertSee('Test');
+        $response->assertViewIs('customers.edit');
+        $response->assertSee('Edit Customer');
+        $response->assertSee('value="Edit"', false);
+        $response->assertSee('value="Test"', false);
+        $response->assertSee('edit@example.com');
+        $response->assertSee('Test Corp');
+        $response->assertSee('First Name');
+        $response->assertSee('Last Name');
     }
 
     #[Test]
@@ -331,7 +383,7 @@ class CustomerManagementTest extends TestCase
         $customer = Customer::factory()->create();
 
         // Act
-        $response = $this->get("/customer/{$customer->id}/edit");
+        $response = $this->get(route('customers.edit', $customer->id));
 
         // Assert
         $response->assertStatus(302);
@@ -349,7 +401,7 @@ class CustomerManagementTest extends TestCase
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->patch("/customer/{$customer->id}", [
+        $response = $this->actingAs($this->user)->patch(route('customers.update', $customer->id), [
             'first_name' => 'John',
             'last_name' => 'Doe',
             'company' => '',
@@ -373,7 +425,7 @@ class CustomerManagementTest extends TestCase
         $customer = Customer::factory()->create();
 
         // Act
-        $response = $this->actingAs($this->user)->patchJson("/customer/{$customer->id}", [
+        $response = $this->actingAs($this->user)->patchJson(route('customers.update', $customer->id), [
             'first_name' => '',
             'last_name' => 'Doe',
         ]);
@@ -390,7 +442,7 @@ class CustomerManagementTest extends TestCase
         $customer = Customer::factory()->create();
 
         // Act
-        $response = $this->actingAs($this->user)->patch("/customer/{$customer->id}", [
+        $response = $this->actingAs($this->user)->patch(route('customers.update', $customer->id), [
             'first_name' => 'John',
             'last_name' => 'Doe',
             'country' => 'US',
@@ -462,7 +514,7 @@ class CustomerManagementTest extends TestCase
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->get("/customer/{$customer->id}");
+        $response = $this->actingAs($this->user)->get(route('customers.show', $customer->id));
 
         // Assert
         $response->assertStatus(200);
@@ -476,7 +528,7 @@ class CustomerManagementTest extends TestCase
         $customer = Customer::factory()->create();
 
         // Act
-        $response = $this->actingAs($this->user)->patch("/customer/{$customer->id}", [
+        $response = $this->actingAs($this->user)->patch(route('customers.update', $customer->id), [
             'first_name' => 'Social',
             'last_name' => 'User',
             'social_profiles' => [
@@ -499,7 +551,7 @@ class CustomerManagementTest extends TestCase
         $customer = Customer::factory()->create();
 
         // Act
-        $response = $this->actingAs($this->user)->patch("/customer/{$customer->id}", [
+        $response = $this->actingAs($this->user)->patch(route('customers.update', $customer->id), [
             'first_name' => 'Web',
             'last_name' => 'User',
             'websites' => [

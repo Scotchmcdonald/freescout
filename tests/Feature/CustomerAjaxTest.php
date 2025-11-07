@@ -35,52 +35,62 @@ class CustomerAjaxTest extends TestCase
             'first_name' => 'Alice',
             'last_name' => 'Johnson',
         ]);
-        $customer2 = Customer::factory()->create([
+        Email::factory()->create([
+            'customer_id' => $customer1->id,
+            'email' => 'alice@example.com',
+        ]);
+
+        Customer::factory()->create([
             'first_name' => 'Bob',
             'last_name' => 'Smith',
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->post('/customers/ajax', [
+        $response = $this->actingAs($this->user)->post(route('customers.ajax'), [
             'action' => 'search',
-            'query' => 'Alice',
+            'q' => 'Alice',
         ]);
 
         // Assert
         $response->assertStatus(200);
-        $response->assertJson([
-            'success' => true,
+        $response->assertJsonStructure([
+            'results' => [
+                '*' => ['id', 'text'],
+            ],
         ]);
-        
-        $customers = $response->json('customers');
+
+        $customers = $response->json('results');
         $this->assertCount(1, $customers);
-        $this->assertEquals('Alice Johnson', $customers[0]['name']);
+        $this->assertEquals($customer1->id, $customers[0]['id']);
+        $this->assertEquals('Alice Johnson (alice@example.com)', $customers[0]['text']);
     }
 
     #[Test]
     public function ajax_search_returns_matching_customers_by_last_name(): void
     {
         // Arrange
-        $customer = Customer::factory()->create([
+        Customer::factory()->create([
             'first_name' => 'John',
             'last_name' => 'Doe',
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->post('/customers/ajax', [
+        $response = $this->actingAs($this->user)->post(route('customers.ajax'), [
             'action' => 'search',
-            'query' => 'Doe',
+            'q' => 'Doe',
         ]);
 
         // Assert
         $response->assertStatus(200);
-        $response->assertJson([
-            'success' => true,
+        $response->assertJsonStructure([
+            'results' => [
+                '*' => ['id', 'text'],
+            ],
         ]);
-        
-        $customers = $response->json('customers');
+
+        $customers = $response->json('results');
         $this->assertGreaterThanOrEqual(1, count($customers));
-        $this->assertStringContainsString('Doe', $customers[0]['name']);
+        $this->assertStringContainsString('Doe', $customers[0]['text']);
     }
 
     #[Test]
@@ -92,14 +102,14 @@ class CustomerAjaxTest extends TestCase
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->post('/customers/ajax', [
+        $response = $this->actingAs($this->user)->post(route('customers.ajax'), [
             'action' => 'search',
-            'query' => 'Test',
+            'q' => 'Test',
         ]);
 
         // Assert
         $response->assertStatus(200);
-        $customers = $response->json('customers');
+        $customers = $response->json('results');
         $this->assertLessThanOrEqual(25, count($customers));
     }
 
@@ -126,7 +136,7 @@ class CustomerAjaxTest extends TestCase
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->post('/customers/ajax', [
+        $response = $this->actingAs($this->user)->post(route('customers.ajax'), [
             'action' => 'conversations',
             'customer_id' => $customer->id,
         ]);
@@ -136,7 +146,7 @@ class CustomerAjaxTest extends TestCase
         $response->assertJson([
             'success' => true,
         ]);
-        
+
         $conversations = $response->json('conversations');
         $this->assertEquals(2, count($conversations));
     }
@@ -160,7 +170,7 @@ class CustomerAjaxTest extends TestCase
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->post('/customers/ajax', [
+        $response = $this->actingAs($this->user)->post(route('customers.ajax'), [
             'action' => 'conversations',
             'customer_id' => $customer->id,
         ]);
@@ -168,7 +178,7 @@ class CustomerAjaxTest extends TestCase
         // Assert
         $response->assertStatus(200);
         $conversations = $response->json('conversations');
-        
+
         // First conversation should be the newest one
         $this->assertEquals('New Conversation', $conversations[0]['subject']);
         $this->assertEquals('Old Conversation', $conversations[1]['subject']);
@@ -185,7 +195,7 @@ class CustomerAjaxTest extends TestCase
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->post('/customers/ajax', [
+        $response = $this->actingAs($this->user)->post(route('customers.ajax'), [
             'action' => 'conversations',
             'customer_id' => $customer->id,
         ]);
@@ -200,7 +210,7 @@ class CustomerAjaxTest extends TestCase
     public function ajax_returns_error_for_invalid_action(): void
     {
         // Act
-        $response = $this->actingAs($this->user)->post('/customers/ajax', [
+        $response = $this->actingAs($this->user)->post(route('customers.ajax'), [
             'action' => 'invalid_action',
         ]);
 
@@ -216,9 +226,9 @@ class CustomerAjaxTest extends TestCase
     public function ajax_requires_authentication(): void
     {
         // Act
-        $response = $this->post('/customers/ajax', [
+        $response = $this->post(route('customers.ajax'), [
             'action' => 'search',
-            'query' => 'test',
+            'q' => 'test',
         ]);
 
         // Assert
@@ -236,16 +246,15 @@ class CustomerAjaxTest extends TestCase
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->post('/customers/ajax', [
+        $response = $this->actingAs($this->user)->post(route('customers.ajax'), [
             'action' => 'search',
-            'query' => 'NonExistentCustomer',
+            'q' => 'NonExistentCustomer',
         ]);
 
         // Assert
         $response->assertStatus(200);
         $response->assertJson([
-            'success' => true,
-            'customers' => [],
+            'results' => [],
         ]);
     }
 
@@ -264,15 +273,15 @@ class CustomerAjaxTest extends TestCase
         ]);
 
         // Act
-        $response = $this->actingAs($this->user)->post('/customers/ajax', [
+        $response = $this->actingAs($this->user)->post(route('customers.ajax'), [
             'action' => 'search',
-            'query' => 'Jane',
+            'q' => 'Jane',
         ]);
 
         // Assert
         $response->assertStatus(200);
-        $customers = $response->json('customers');
-        $this->assertEquals('jane@example.com', $customers[0]['email']);
+        $customers = $response->json('results');
+        $this->assertEquals('Jane Smith (jane@example.com)', $customers[0]['text']);
     }
 
     #[Test]
@@ -282,7 +291,7 @@ class CustomerAjaxTest extends TestCase
         $customer = Customer::factory()->create();
 
         // Act
-        $response = $this->actingAs($this->user)->post('/customers/ajax', [
+        $response = $this->actingAs($this->user)->post(route('customers.ajax'), [
             'action' => 'conversations',
             'customer_id' => $customer->id,
         ]);

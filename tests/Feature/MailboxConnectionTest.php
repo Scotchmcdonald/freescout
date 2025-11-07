@@ -55,9 +55,15 @@ class MailboxConnectionTest extends TestCase
     {
         $this->actingAs($this->adminUser);
 
-        $this->get(route('mailboxes.connection.incoming', $this->mailbox))
-            ->assertStatus(200)
-            ->assertSee('Incoming Connection');
+        $response = $this->get(route('mailboxes.connection.incoming', $this->mailbox));
+        
+        $response->assertStatus(200);
+        $response->assertViewIs('mailboxes.connection_incoming');
+        $response->assertSee('Incoming Connection');
+        $response->assertSee('Protocol');
+        $response->assertSee('Server');
+        $response->assertSee('Port');
+        $response->assertViewHas('mailbox', $this->mailbox);
     }
 
     #[Test]
@@ -106,9 +112,15 @@ class MailboxConnectionTest extends TestCase
     {
         $this->actingAs($this->adminUser);
 
-        $this->get(route('mailboxes.connection.outgoing', $this->mailbox))
-            ->assertStatus(200)
-            ->assertSee('Outgoing Connection');
+        $response = $this->get(route('mailboxes.connection.outgoing', $this->mailbox));
+        
+        $response->assertStatus(200);
+        $response->assertViewIs('mailboxes.connection_outgoing');
+        $response->assertSee('Outgoing Connection');
+        $response->assertSee('SMTP');
+        $response->assertSee('Server');
+        $response->assertSee('Port');
+        $response->assertViewHas('mailbox', $this->mailbox);
     }
 
     #[Test]

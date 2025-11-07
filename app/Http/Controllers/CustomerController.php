@@ -38,6 +38,30 @@ class CustomerController extends Controller
     }
 
     /**
+     * Store a newly created customer in storage.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'nullable|string|max:50',
+            'email' => 'required|email|unique:customer_emails,email',
+        ]);
+
+        $customer = Customer::create([
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'] ?? '',
+        ]);
+
+        $customer->emails()->create([
+            'email' => $validated['email'],
+            'type' => 'primary',
+        ]);
+
+        return redirect()->route('customers.show', $customer);
+    }
+
+    /**
      * Display the specified customer.
      */
     public function show(Customer $customer): View
@@ -148,7 +172,7 @@ class CustomerController extends Controller
 
         switch ($action) {
             case 'search':
-                $query = $request->input('query');
+                $query = $request->input('q');
 
                 $customers = Customer::query()
                     ->where(function ($q) use ($query) {
@@ -164,12 +188,10 @@ class CustomerController extends Controller
                     ->get();
 
                 return response()->json([
-                    'success' => true,
-                    'customers' => $customers->map(function ($customer) {
+                    'results' => $customers->map(function ($customer) {
                         return [
                             'id' => $customer->id,
-                            'name' => $customer->getFullName(),
-                            'email' => $customer->getMainEmail(),
+                            'text' => $customer->getFullName() . ' (' . $customer->getMainEmail() . ')',
                         ];
                     }),
                 ]);

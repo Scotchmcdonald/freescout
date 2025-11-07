@@ -11,8 +11,7 @@ class ModulesController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('can:manage-settings');
+        // Middleware is now handled by the route group
     }
 
     /**
@@ -26,7 +25,7 @@ class ModulesController extends Controller
         foreach ($modules as $module) {
             $modulesData[] = [
                 'name' => $module->getName(),
-                'alias' => $module->getAlias(),
+                'alias' => $module->getLowerName(),
                 'description' => $module->getDescription(),
                 'enabled' => $module->isEnabled(),
                 'version' => $module->get('version', '1.0.0'),
@@ -45,7 +44,7 @@ class ModulesController extends Controller
     public function enable(Request $request, string $alias): \Illuminate\Http\JsonResponse
     {
         /** @var \Nwidart\Modules\Module|null $module */
-        $module = Module::findByAlias($alias);
+        $module = Module::find($alias);
 
         if (!$module) {
             return response()->json([
@@ -82,7 +81,7 @@ class ModulesController extends Controller
     public function disable(Request $request, string $alias): \Illuminate\Http\JsonResponse
     {
         /** @var \Nwidart\Modules\Module|null $module */
-        $module = Module::findByAlias($alias);
+        $module = Module::find($alias);
 
         if (!$module) {
             return response()->json([
@@ -116,7 +115,7 @@ class ModulesController extends Controller
     public function delete(Request $request, string $alias): \Illuminate\Http\JsonResponse
     {
         /** @var \Nwidart\Modules\Module|null $module */
-        $module = Module::findByAlias($alias);
+        $module = Module::find($alias);
 
         if (!$module) {
             return response()->json([

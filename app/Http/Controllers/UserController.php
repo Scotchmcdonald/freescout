@@ -153,20 +153,18 @@ class UserController extends Controller
     /**
      * Update user's permissions.
      */
-    public function permissions(Request $request, User $user): JsonResponse
+    public function permissions(Request $request, User $user): RedirectResponse
     {
         $this->authorize('update', $user);
 
         $validated = $request->validate([
-            'permissions' => 'nullable|array',
+            'mailboxes' => 'nullable|array',
+            'mailboxes.*' => 'integer|exists:mailboxes,id',
         ]);
 
-        $user->update(['permissions' => $validated['permissions'] ?? []]);
+        $user->mailboxes()->sync($validated['mailboxes'] ?? []);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Permissions updated successfully.',
-        ]);
+        return back()->with('success', 'Permissions updated successfully.');
     }
 
     /**

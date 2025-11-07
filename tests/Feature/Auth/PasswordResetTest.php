@@ -17,6 +17,10 @@ class PasswordResetTest extends TestCase
         $response = $this->get('/forgot-password');
 
         $response->assertStatus(200);
+        $response->assertViewIs('auth.forgot-password');
+        $response->assertSee('Forgot your password');
+        $response->assertSee('Email');
+        $response->assertSee('type="email"', false);
     }
 
     public function test_reset_password_link_can_be_requested(): void
@@ -42,6 +46,11 @@ class PasswordResetTest extends TestCase
             $response = $this->get('/reset-password/'.$notification->token);
 
             $response->assertStatus(200);
+            $response->assertViewIs('auth.reset-password');
+            $response->assertSee('Reset Password');
+            $response->assertSee('Email');
+            $response->assertSee('Password');
+            $response->assertSee('Confirm Password');
 
             return true;
         });

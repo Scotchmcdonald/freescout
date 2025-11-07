@@ -47,11 +47,31 @@ class ConversationTest extends TestCase
     public function test_user_can_view_conversations_list(): void
     {
         $this->actingAs($this->user);
+        
+        // Create multiple conversations
+        $conv1 = Conversation::factory()
+            ->for($this->mailbox)
+            ->create([
+                'subject' => 'First Support Request',
+                'state' => 2,
+            ]);
+        $conv2 = Conversation::factory()
+            ->for($this->mailbox)
+            ->create([
+                'subject' => 'Second Support Request',
+                'state' => 2,
+            ]);
 
         $response = $this->get(route('conversations.index', $this->mailbox));
 
         $response->assertOk();
+        $response->assertViewIs('conversations.index');
         $response->assertSee($this->mailbox->name);
+        $response->assertSee('First Support Request');
+        $response->assertSee('Second Support Request');
+        $response->assertViewHas('conversations', function ($conversations) use ($conv1, $conv2) {
+            return $conversations->contains($conv1) && $conversations->contains($conv2);
+        });
     }
 
     public function test_user_can_create_conversation(): void
@@ -86,12 +106,32 @@ class ConversationTest extends TestCase
 
         $conversation = Conversation::factory()
             ->for($this->mailbox)
-            ->create();
+            ->create([
+                'subject' => 'Important Issue',
+            ]);
+            
+        // Create threads for the conversation
+        $thread1 = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'body' => 'Initial customer message',
+            'state' => 2,
+        ]);
+        $thread2 = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'body' => 'Agent response',
+            'state' => 2,
+        ]);
 
         $response = $this->get(route('conversations.show', $conversation));
 
         $response->assertOk();
+        $response->assertViewIs('conversations.show');
         $response->assertSee($conversation->subject);
+        $response->assertSee('Initial customer message');
+        $response->assertSee('Agent response');
+        $response->assertViewHas('conversation', function ($c) use ($conversation) {
+            return $c->id === $conversation->id;
+        });
     }
 
     public function test_user_can_reply_to_conversation(): void

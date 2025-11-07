@@ -107,6 +107,13 @@ class MailboxController extends Controller
             $validated['in_password'] = encrypt($validated['in_password']);
         }
 
+        if (isset($validated['from_name'])) {
+            $validated['from_name_custom'] = $validated['from_name'];
+            $validated['from_name'] = 3; // custom
+        } else {
+            $validated['from_name'] = 1; // mailbox name
+        }
+
         $mailbox = Mailbox::create($validated);
 
         return redirect()->route('mailboxes.index')
@@ -121,8 +128,8 @@ class MailboxController extends Controller
         $this->authorize('update', $mailbox);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:mailboxes,email,'.$mailbox->id,
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|email|unique:mailboxes,email,'.$mailbox->id,
             'from_name' => 'nullable|string|max:255',
             'out_method' => 'nullable|in:mail,smtp',
             'out_server' => 'nullable|string|max:255',
@@ -151,6 +158,11 @@ class MailboxController extends Controller
             $validated['in_password'] = encrypt($validated['in_password']);
         } else {
             unset($validated['in_password']);
+        }
+
+        if (isset($validated['from_name'])) {
+            $validated['from_name_custom'] = $validated['from_name'];
+            $validated['from_name'] = 3; // custom
         }
 
         $mailbox->update($validated);

@@ -58,6 +58,10 @@ class Conversation extends Model
 
     public const STATUS_SPAM = 4;
 
+    // State constants
+    public const STATE_DRAFT = 1;
+    public const STATE_PUBLISHED = 2;
+
     protected $fillable = [
         'number',
         'threads_count',
