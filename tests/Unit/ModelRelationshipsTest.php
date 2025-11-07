@@ -305,4 +305,194 @@ class ModelRelationshipsTest extends TestCase
         $this->assertInstanceOf(Customer::class, $thread->customer);
         $this->assertEquals($customer->id, $thread->customer->id);
     }
+
+    /**
+     * Test that deleting a mailbox cascades to conversations.
+     */
+    public function test_mailbox_deletion_cascades_to_conversations(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->for($mailbox)->create();
+
+        $mailbox->delete();
+
+        // Conversation should be deleted (cascade delete)
+        $this->assertDatabaseMissing('conversations', ['id' => $conversation->id]);
+    }
+
+    /**
+     * Test that deleting a conversation deletes its threads.
+     */
+    public function test_conversation_deletion_cascades_to_threads(): void
+    {
+        $conversation = Conversation::factory()->create();
+        $thread1 = Thread::factory()->for($conversation)->create();
+        $thread2 = Thread::factory()->for($conversation)->create();
+
+        $conversation->delete();
+
+        // Threads should be deleted (cascade delete)
+        $this->assertDatabaseMissing('threads', ['id' => $thread1->id]);
+        $this->assertDatabaseMissing('threads', ['id' => $thread2->id]);
+    }
+
+    /**
+     * Test conversation followers many-to-many relationship.
+     */
+    public function test_conversation_followers_relationship(): void
+    {
+        $conversation = Conversation::factory()->create();
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $conversation->followers()->attach([$user1->id, $user2->id]);
+
+        $this->assertCount(2, $conversation->followers);
+        $this->assertTrue($conversation->followers->contains($user1));
+        $this->assertTrue($conversation->followers->contains($user2));
+    }
+
+    /**
+     * Test conversation can have multiple folders through many-to-many.
+     */
+    public function test_conversation_belongs_to_many_folders(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $folder1 = Folder::factory()->for($mailbox)->create();
+        $folder2 = Folder::factory()->for($mailbox)->create();
+        $conversation = Conversation::factory()->for($mailbox)->create();
+
+        $conversation->folders()->attach([$folder1->id, $folder2->id]);
+
+        $this->assertCount(2, $conversation->folders);
+        $this->assertTrue($conversation->folders->contains($folder1));
+        $this->assertTrue($conversation->folders->contains($folder2));
+    }
+
+    /**
+     * Test that a conversation has createdByUser relationship.
+     */
+    public function test_conversation_created_by_user_relationship(): void
+    {
+        $user = User::factory()->create();
+        $conversation = Conversation::factory()->create(['created_by_user_id' => $user->id]);
+
+        $this->assertInstanceOf(User::class, $conversation->createdByUser);
+        $this->assertEquals($user->id, $conversation->createdByUser->id);
+    }
+
+    /**
+     * Test that a conversation has closedByUser relationship.
+     */
+    public function test_conversation_closed_by_user_relationship(): void
+    {
+        $user = User::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'closed_by_user_id' => $user->id,
+            'closed_at' => now(),
+        ]);
+
+        $this->assertInstanceOf(User::class, $conversation->closedByUser);
+        $this->assertEquals($user->id, $conversation->closedByUser->id);
+    }
+
+    /**
+     * Test relationship query constraints work correctly.
+     */
+    public function test_mailbox_active_conversations_query(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $activeConv = Conversation::factory()->for($mailbox)->create(['status' => Conversation::STATUS_ACTIVE]);
+        $closedConv = Conversation::factory()->for($mailbox)->create(['status' => Conversation::STATUS_CLOSED]);
+
+        $activeConversations = $mailbox->conversations()->where('status', Conversation::STATUS_ACTIVE)->get();
+
+        $this->assertCount(1, $activeConversations);
+        $this->assertTrue($activeConversations->contains($activeConv));
+        $this->assertFalse($activeConversations->contains($closedConv));
+    }
+
+    /**
+     * Test lazy vs eager loading with counts.
+     */
+    public function test_eager_loading_with_counts(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        Conversation::factory()->count(3)->for($mailbox)->create();
+
+        DB::enableQueryLog();
+        
+        $mailboxes = Mailbox::withCount('conversations')->get();
+        
+        $queryCount = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        $this->assertEquals(3, $mailboxes->first()->conversations_count);
+        // Should use 2 queries: one for mailboxes, one for counts
+        $this->assertLessThanOrEqual(2, $queryCount);
+    }
+
+    /**
+     * Test that thread can have multiple attachments.
+     */
+    public function test_thread_has_many_attachments_relationship(): void
+    {
+        $thread = Thread::factory()->create();
+        
+        // Create attachments directly in database using raw SQL to match actual schema
+        DB::table('attachments')->insert([
+            [
+                'thread_id' => $thread->id,
+                'filename' => 'file1.pdf',
+                'mime_type' => 'application/pdf',
+                'size' => 1024,
+                'inline' => false,
+                'public' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'thread_id' => $thread->id,
+                'filename' => 'file2.jpg',
+                'mime_type' => 'image/jpeg',
+                'size' => 2048,
+                'inline' => false,
+                'public' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        $thread = $thread->fresh();
+        $attachments = $thread->attachments;
+
+        $this->assertCount(2, $attachments);
+    }
+
+    /**
+     * Test nested eager loading performance.
+     */
+    public function test_nested_eager_loading(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->for($mailbox)->create();
+        Thread::factory()->count(3)->for($conversation)->create();
+
+        DB::enableQueryLog();
+
+        $conversations = Conversation::with(['mailbox', 'threads'])->get();
+        
+        foreach ($conversations as $conv) {
+            $_ = $conv->mailbox->name;
+            foreach ($conv->threads as $thread) {
+                $_ = $thread->id;
+            }
+        }
+
+        $queryCount = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        // Should use 3 queries: conversations, mailboxes, threads
+        $this->assertLessThanOrEqual(3, $queryCount);
+    }
 }
