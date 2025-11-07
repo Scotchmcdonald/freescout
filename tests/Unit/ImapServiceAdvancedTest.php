@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Mockery;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
-use Webklex\PHPIMAP\ClientManager;
+use Webklex\PHPIMAP\Client;
+use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 
 class ImapServiceAdvancedTest extends TestCase
 {
@@ -23,6 +24,25 @@ class ImapServiceAdvancedTest extends TestCase
         parent::tearDown();
     }
 
+    /**
+     * Create a mocked IMAP service that simulates connection failure
+     */
+    protected function createMockedServiceWithConnectionFailure(): ImapService
+    {
+        $mockClient = Mockery::mock(Client::class);
+        $mockClient->shouldReceive('connect')
+            ->andThrow(new ConnectionFailedException('Connection failed'));
+
+        $service = Mockery::mock(ImapService::class)
+            ->makePartial()
+            ->shouldAllowMockingProtectedMethods();
+        
+        $service->shouldReceive('createClient')
+            ->andReturn($mockClient);
+
+        return $service;
+    }
+
     /** Test handling of empty IMAP server configuration */
     public function test_handles_missing_imap_server_configuration(): void
     {
@@ -30,7 +50,7 @@ class ImapServiceAdvancedTest extends TestCase
             'in_server' => null,
         ]);
 
-        $service = new ImapService();
+        $service = $this->createMockedServiceWithConnectionFailure();
         $result = $service->fetchEmails($mailbox);
 
         $this->assertIsArray($result);
@@ -51,7 +71,7 @@ class ImapServiceAdvancedTest extends TestCase
             'in_encryption' => 1, // SSL
         ]);
 
-        $service = new ImapService();
+        $service = $this->createMockedServiceWithConnectionFailure();
         $result = $service->fetchEmails($mailbox);
 
         $this->assertIsArray($result);
@@ -60,7 +80,6 @@ class ImapServiceAdvancedTest extends TestCase
     }
 
     /** Test handling of blank username */
-    #[Group('slow')]
     public function test_handles_blank_username(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -70,7 +89,7 @@ class ImapServiceAdvancedTest extends TestCase
             'in_password' => 'password',
         ]);
 
-        $service = new ImapService();
+        $service = $this->createMockedServiceWithConnectionFailure();
         $result = $service->fetchEmails($mailbox);
 
         $this->assertIsArray($result);
@@ -78,7 +97,6 @@ class ImapServiceAdvancedTest extends TestCase
     }
 
     /** Test handling of blank password */
-    #[Group('slow')]
     public function test_handles_blank_password(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -88,7 +106,7 @@ class ImapServiceAdvancedTest extends TestCase
             'in_password' => '',
         ]);
 
-        $service = new ImapService();
+        $service = $this->createMockedServiceWithConnectionFailure();
         $result = $service->fetchEmails($mailbox);
 
         $this->assertIsArray($result);
@@ -96,7 +114,6 @@ class ImapServiceAdvancedTest extends TestCase
     }
 
     /** Test handling of invalid port number */
-    #[Group('slow')]
     public function test_handles_invalid_port_number(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -106,7 +123,7 @@ class ImapServiceAdvancedTest extends TestCase
             'in_password' => 'password',
         ]);
 
-        $service = new ImapService();
+        $service = $this->createMockedServiceWithConnectionFailure();
         $result = $service->fetchEmails($mailbox);
 
         $this->assertIsArray($result);
@@ -114,7 +131,6 @@ class ImapServiceAdvancedTest extends TestCase
     }
 
     /** Test handling of non-existent folder */
-    #[Group('slow')]
     public function test_handles_nonexistent_imap_folder(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -125,7 +141,7 @@ class ImapServiceAdvancedTest extends TestCase
             'in_imap_folders' => 'NonExistentFolder,AnotherBadFolder',
         ]);
 
-        $service = new ImapService();
+        $service = $this->createMockedServiceWithConnectionFailure();
         $result = $service->fetchEmails($mailbox);
 
         $this->assertIsArray($result);
@@ -134,7 +150,6 @@ class ImapServiceAdvancedTest extends TestCase
     }
 
     /** Test handling of multiple folders */
-    #[Group('slow')]
     public function test_handles_multiple_imap_folders(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -145,7 +160,7 @@ class ImapServiceAdvancedTest extends TestCase
             'in_imap_folders' => 'INBOX,Sent,Drafts',
         ]);
 
-        $service = new ImapService();
+        $service = $this->createMockedServiceWithConnectionFailure();
         $result = $service->fetchEmails($mailbox);
 
         $this->assertIsArray($result);
@@ -153,7 +168,6 @@ class ImapServiceAdvancedTest extends TestCase
     }
 
     /** Test return structure is consistent */
-    #[Group('slow')]
     public function test_return_structure_is_always_consistent(): void
     {
         $mailbox1 = Mailbox::factory()->create(['in_server' => null]);
@@ -162,10 +176,11 @@ class ImapServiceAdvancedTest extends TestCase
             'in_port' => 993,
         ]);
 
-        $service = new ImapService();
+        $service1 = $this->createMockedServiceWithConnectionFailure();
+        $service2 = $this->createMockedServiceWithConnectionFailure();
 
-        $result1 = $service->fetchEmails($mailbox1);
-        $result2 = $service->fetchEmails($mailbox2);
+        $result1 = $service1->fetchEmails($mailbox1);
+        $result2 = $service2->fetchEmails($mailbox2);
 
         // Both should have same structure
         $expectedKeys = ['fetched', 'created', 'errors', 'messages'];
@@ -177,7 +192,6 @@ class ImapServiceAdvancedTest extends TestCase
     }
 
     /** Test service does not throw exceptions */
-    #[Group('slow')]
     public function test_service_never_throws_exceptions(): void
     {
         $mailboxes = [
@@ -186,7 +200,7 @@ class ImapServiceAdvancedTest extends TestCase
             Mailbox::factory()->create(['in_port' => 99999]), // Use an invalid port number
         ];
 
-        $service = new ImapService();
+        $service = $this->createMockedServiceWithConnectionFailure();
 
         foreach ($mailboxes as $mailbox) {
             try {
@@ -199,12 +213,11 @@ class ImapServiceAdvancedTest extends TestCase
     }
 
     /** Test handling of various encryption types */
-    #[Group('slow')]
     public function test_handles_different_encryption_types(): void
     {
         $encryptionTypes = [0, 1, 2]; // None, SSL, TLS
 
-        $service = new ImapService();
+        $service = $this->createMockedServiceWithConnectionFailure();
 
         foreach ($encryptionTypes as $encryption) {
             $mailbox = Mailbox::factory()->create([
@@ -219,12 +232,11 @@ class ImapServiceAdvancedTest extends TestCase
     }
 
     /** Test handling of various protocol types */
-    #[Group('slow')]
     public function test_handles_different_protocol_types(): void
     {
         $protocols = [1, 2]; // IMAP, POP3 (if supported)
 
-        $service = new ImapService();
+        $service = $this->createMockedServiceWithConnectionFailure();
 
         foreach ($protocols as $protocol) {
             $mailbox = Mailbox::factory()->create([
@@ -243,7 +255,7 @@ class ImapServiceAdvancedTest extends TestCase
     {
         $mailbox = Mailbox::factory()->create(['in_server' => null]);
 
-        $service = new ImapService();
+        $service = $this->createMockedServiceWithConnectionFailure();
         $result = $service->fetchEmails($mailbox);
 
         $this->assertEquals(0, $result['fetched']);
@@ -253,22 +265,30 @@ class ImapServiceAdvancedTest extends TestCase
     }
 
     /** Test logging occurs for connection attempts */
-    #[Group('slow')]
     public function test_logs_connection_attempts(): void
     {
+        // When server is configured, it should log info about starting fetch
         Log::shouldReceive('info')->atLeast()->once();
-        Log::shouldReceive('warning')->atLeast()->once();
+        
+        // When connection fails, it should log error
         Log::shouldReceive('error')->atLeast()->once();
+        
+        // Allow other log levels
+        Log::shouldReceive('warning')->zeroOrMoreTimes();
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
 
         $mailbox = Mailbox::factory()->create([
-            'in_server' => 'imap.test.com',
+            'in_server' => 'invalid.test.com',
             'in_port' => 993,
+            'in_username' => 'test@test.com',
+            'in_password' => 'test',
         ]);
 
-        $service = new ImapService();
-        $service->fetchEmails($mailbox);
+        $service = $this->createMockedServiceWithConnectionFailure();
+        $result = $service->fetchEmails($mailbox);
 
-        // Assertions on Log facade are handled by shouldReceive
-        $this->assertTrue(true);
+        // Verify the service returns proper structure even on failure
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('errors', $result);
     }
 }

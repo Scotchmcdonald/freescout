@@ -476,4 +476,26 @@ class ConversationController extends Controller
         return redirect()->route('conversations.show', $conversation)
             ->with('success', 'Conversation cloned successfully.');
     }
+
+    /**
+     * Delete a conversation.
+     */
+    public function destroy(Request $request, Conversation $conversation): RedirectResponse
+    {
+        $user = $request->user();
+
+        // Check access - user must be attached to the mailbox
+        if (! $user->mailboxes->contains($conversation->mailbox_id)) {
+            abort(403, 'Unauthorized to delete this conversation');
+        }
+
+        // Store mailbox_id before deletion for redirect
+        $mailboxId = $conversation->mailbox_id;
+
+        // Soft delete the conversation
+        $conversation->delete();
+
+        return redirect()->route('mailboxes.view', $mailboxId)
+            ->with('success', 'Conversation deleted successfully.');
+    }
 }

@@ -25,7 +25,9 @@ class CustomerController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere(DB::raw("JSON_EXTRACT(emails, '$[*].email')"), 'like', "%{$search}%");
+                    ->orWhereHas('emails', function ($q) use ($search) {
+                        $q->where('email', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -107,17 +109,13 @@ class CustomerController extends Controller
                 ->update(['customer_id' => $target->id]);
 
             // Merge emails (avoiding duplicates)
-            $sourceEmails = $source->emails ?? [];
-            $targetEmails = $target->emails ?? [];
-            $existingEmails = array_column($targetEmails, 'email');
+            $targetEmailAddresses = $target->emails->pluck('email')->toArray();
 
-            foreach ($sourceEmails as $email) {
-                if (! in_array($email['email'], $existingEmails)) {
-                    $targetEmails[] = $email;
+            foreach ($source->emails as $email) {
+                if (! in_array($email->email, $targetEmailAddresses)) {
+                    $email->update(['customer_id' => $target->id]);
                 }
             }
-
-            $target->update(['emails' => $targetEmails]);
 
             // Delete source customer
             $source->delete();
@@ -153,10 +151,13 @@ class CustomerController extends Controller
                     ->where(function ($q) use ($query) {
                         $q->where('first_name', 'like', "%{$query}%")
                             ->orWhere('last_name', 'like', "%{$query}%")
-                            ->orWhere(DB::raw("JSON_EXTRACT(emails, '$[*].email')"), 'like', "%{$query}%");
+                            ->orWhereHas('emails', function ($q) use ($query) {
+                                $q->where('email', 'like', "%{$query}%");
+                            });
                     })
+                    ->with('emails')
                     ->limit(25)
-                    ->get(['id', 'first_name', 'last_name', 'emails']);
+                    ->get();
 
                 return response()->json([
                     'success' => true,

@@ -3,13 +3,22 @@
         'name' => 'freescout-helpdesk/freescout-modern',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '7922deff0093b1f45794160ad12f16af614ee597',
+        'reference' => '175a0cd11f62543f81baec7611b9b1facfdbcfb6',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
+        'brianium/paratest' => array(
+            'pretty_version' => 'v7.8.4',
+            'version' => '7.8.4.0',
+            'reference' => '130a9bf0e269ee5f5b320108f794ad03e275cad4',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../brianium/paratest',
+            'aliases' => array(),
+            'dev_requirement' => true,
+        ),
         'brick/math' => array(
             'pretty_version' => '0.14.0',
             'version' => '0.14.0.0',
@@ -157,6 +166,15 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
+        'fidry/cpu-core-counter' => array(
+            'pretty_version' => '1.3.0',
+            'version' => '1.3.0.0',
+            'reference' => 'db9508f7b1474469d9d3c53b86f817e344732678',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../fidry/cpu-core-counter',
+            'aliases' => array(),
+            'dev_requirement' => true,
+        ),
         'filp/whoops' => array(
             'pretty_version' => '2.18.4',
             'version' => '2.18.4.0',
@@ -169,7 +187,7 @@
         'freescout-helpdesk/freescout-modern' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '7922deff0093b1f45794160ad12f16af614ee597',
+            'reference' => '175a0cd11f62543f81baec7611b9b1facfdbcfb6',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -450,6 +468,15 @@
             'replaced' => array(
                 0 => 'v11.46.1',
             ),
+        ),
+        'jean85/pretty-package-versions' => array(
+            'pretty_version' => '2.1.1',
+            'version' => '2.1.1.0',
+            'reference' => '4d7aa5dab42e2a76d99559706022885de0e18e1a',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../jean85/pretty-package-versions',
+            'aliases' => array(),
+            'dev_requirement' => true,
         ),
         'kodova/hamcrest-php' => array(
             'dev_requirement' => true,
