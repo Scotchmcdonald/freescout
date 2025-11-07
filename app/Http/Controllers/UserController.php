@@ -176,14 +176,15 @@ class UserController extends Controller
 
         switch ($action) {
             case 'search':
-                $query = $request->input('query');
+                $query = $request->input('query', '');
+                $searchQuery = is_string($query) ? $query : '';
 
                 $users = User::query()
                     ->where('status', 1) // Active only
-                    ->where(function ($q) use ($query) {
-                        $q->where('first_name', 'like', "%{$query}%")
-                            ->orWhere('last_name', 'like', "%{$query}%")
-                            ->orWhere('email', 'like', "%{$query}%");
+                    ->where(function ($q) use ($searchQuery) {
+                        $q->where('first_name', 'like', "%{$searchQuery}%")
+                            ->orWhere('last_name', 'like', "%{$searchQuery}%")
+                            ->orWhere('email', 'like', "%{$searchQuery}%");
                     })
                     ->limit(25)
                     ->get(['id', 'first_name', 'last_name', 'email', 'photo_url']);

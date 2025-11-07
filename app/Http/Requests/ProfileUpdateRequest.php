@@ -40,7 +40,8 @@ class ProfileUpdateRequest extends FormRequest
     {
         // If name is provided but first_name/last_name are not, split the name
         if ($this->has('name') && ! $this->has('first_name')) {
-            $nameParts = explode(' ', $this->name, 2);
+            $name = $this->input('name');
+            $nameParts = explode(' ', is_string($name) ? $name : '', 2);
             $this->merge([
                 'first_name' => $nameParts[0],
                 'last_name' => $nameParts[1] ?? '',

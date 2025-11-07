@@ -41,7 +41,9 @@ class NewMessageReceived implements ShouldBroadcast
         $usersQuery = $this->conversation->mailbox->users();
         $users = $usersQuery->pluck('id');
         foreach ($users as $userId) {
-            $channels[] = new PrivateChannel('user.'.$userId);
+            if (is_int($userId) || is_string($userId)) {
+                $channels[] = new PrivateChannel('user.'.(string) $userId);
+            }
         }
 
         return $channels;

@@ -36,13 +36,15 @@ class RegisteredUserController extends Controller
         ]);
 
         // Split name into first_name and last_name
-        $nameParts = explode(' ', $request->name, 2);
+        $name = $request->input('name');
+        $nameParts = explode(' ', is_string($name) ? $name : '', 2);
 
+        $password = $request->input('password');
         $user = User::create([
             'first_name' => $nameParts[0],
             'last_name' => $nameParts[1] ?? '',
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make(is_string($password) ? $password : ''),
             'role' => User::ROLE_USER,
             'status' => User::STATUS_ACTIVE,
         ]);

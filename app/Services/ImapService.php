@@ -395,7 +395,8 @@ class ImapService
 
             // Create new conversation if not found
             if (! $conversation) {
-                $number = $mailbox->conversations()->max('number') + 1;
+                $maxNumber = $mailbox->conversations()->max('number');
+                $number = (is_int($maxNumber) ? $maxNumber : 0) + 1;
                 // @phpstan-ignore-next-line - HasMany returns Builder for query operations
                 $folder = $mailbox->folders()->where('type', 1)->first(); // Inbox
 
@@ -484,6 +485,9 @@ class ImapService
 
                 // Update CC list - merge existing CC with new recipients
                 $existingCc = $conversation->cc ? json_decode($conversation->cc, true) : [];
+                if (!is_array($existingCc)) {
+                    $existingCc = [];
+                }
                 $newCc = array_unique(array_merge($existingCc, $cc, array_diff($to, [$mailbox->email])));
                 $conversation->cc = ! empty($newCc) ? json_encode($newCc) : null;
 
@@ -556,6 +560,7 @@ class ImapService
 
                 foreach ($attachments as $attachment) {
                     try {
+                        /** @var \Webklex\PHPIMAP\Attachment $attachment */
                         $filename = $attachment->getName();
                         $content = $attachment->getContent();
                         $contentId = $attachment->getId();
@@ -579,10 +584,7 @@ class ImapService
                         $isEmbedded = false;
                         $disposition = '';
 
-                        if (is_object($attachment->disposition)) {
-                            // @phpstan-ignore-next-line - IMAP extension object cast
-                            $disposition = strtolower((string) $attachment->disposition);
-                        } elseif (is_string($attachment->disposition)) {
+                        if (property_exists($attachment, 'disposition') && is_string($attachment->disposition)) {
                             $disposition = strtolower($attachment->disposition);
                         }
 
@@ -743,6 +745,7 @@ class ImapService
                 // Count unseen
                 $unseenCount = 0;
                 foreach ($messages as $message) {
+                    /** @var \Webklex\PHPIMAP\Message $message */
                     if (! $message->hasFlag('Seen')) {
                         $unseenCount++;
                     }

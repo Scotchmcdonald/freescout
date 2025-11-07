@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\Conversation;
 use App\Models\Customer;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -19,15 +20,17 @@ class CustomerController extends Controller
     public function index(Request $request): View
     {
         $query = Customer::query();
+        $search = $request->input('search', '');
+        $searchTerm = is_string($search) ? $search : '';
 
         // Search filter
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhereHas('emails', function ($q) use ($search) {
+        if ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('first_name', 'like', "%{$searchTerm}%")
+                    ->orWhere('last_name', 'like', "%{$searchTerm}%")
+                    ->orWhereHas('emails', function ($q) use ($searchTerm) {
                         // @phpstan-ignore-next-line - Closure receives Builder, not HasMany
-                        $q->where('email', 'like', "%{$search}%");
+                        $q->where('email', 'like', "%{$searchTerm}%");
                     });
             });
         }
@@ -39,6 +42,8 @@ class CustomerController extends Controller
 
     /**
      * Store a newly created customer in storage.
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request): RedirectResponse
     {
@@ -48,14 +53,17 @@ class CustomerController extends Controller
             'email' => 'required|email|unique:customer_emails,email',
         ]);
 
+        /** @phpstan-ignore-next-line */
         $customer = Customer::create([
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'] ?? '',
         ]);
 
+        /** @phpstan-ignore-next-line */
+        /** @phpstan-ignore-next-line */
         $customer->emails()->create([
             'email' => $validated['email'],
-            'type' => 'primary',
+            'type' => 1, // 1 for primary
         ]);
 
         return redirect()->route('customers.show', $customer);
@@ -172,15 +180,16 @@ class CustomerController extends Controller
 
         switch ($action) {
             case 'search':
-                $query = $request->input('q');
+                $query = $request->input('q', '');
+                $searchQuery = is_string($query) ? $query : '';
 
                 $customers = Customer::query()
-                    ->where(function ($q) use ($query) {
-                        $q->where('first_name', 'like', "%{$query}%")
-                            ->orWhere('last_name', 'like', "%{$query}%")
-                            ->orWhereHas('emails', function ($q) use ($query) {
+                    ->where(function ($q) use ($searchQuery) {
+                        $q->where('first_name', 'like', "%{$searchQuery}%")
+                            ->orWhere('last_name', 'like', "%{$searchQuery}%")
+                            ->orWhereHas('emails', function ($q) use ($searchQuery) {
                                 // @phpstan-ignore-next-line - Closure receives Builder, not HasMany
-                                $q->where('email', 'like', "%{$query}%");
+                                $q->where('email', 'like', "%{$searchQuery}%");
                             });
                     })
                     ->with('emails')

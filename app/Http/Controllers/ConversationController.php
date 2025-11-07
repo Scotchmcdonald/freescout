@@ -160,7 +160,8 @@ class ConversationController extends Controller
             }
 
             // Get next conversation number
-            $number = $mailbox->conversations()->max('number') + 1;
+            $maxNumber = $mailbox->conversations()->max('number');
+            $number = (is_int($maxNumber) ? $maxNumber : 0) + 1;
 
             // Get default folder
             // @phpstan-ignore-next-line - HasMany returns Builder for query operations
@@ -350,7 +351,8 @@ class ConversationController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
-        $query = $request->input('q');
+        $query = $request->input('q', '');
+        $searchQuery = is_string($query) ? $query : '';
 
         $conversations = Conversation::query()
             ->whereIn(
@@ -360,14 +362,14 @@ class ConversationController extends Controller
                 : $user->mailboxes->pluck('id')
             )
             ->where('state', 2) // Published
-            ->where(function ($q) use ($query) {
-                $q->where('subject', 'like', "%{$query}%")
-                    ->orWhere('preview', 'like', "%{$query}%")
-                    ->orWhereHas('customer', function ($q) use ($query) {
+            ->where(function ($q) use ($searchQuery) {
+                $q->where('subject', 'like', "%{$searchQuery}%")
+                    ->orWhere('preview', 'like', "%{$searchQuery}%")
+                    ->orWhereHas('customer', function ($q) use ($searchQuery) {
                         // @phpstan-ignore-next-line - Closure receives Builder, not BelongsTo
-                        $q->where('first_name', 'like', "%{$query}%")
+                        $q->where('first_name', 'like', "%{$searchQuery}%")
                             // @phpstan-ignore-next-line - Customer model has last_name property
-                            ->orWhere('last_name', 'like', "%{$query}%");
+                            ->orWhere('last_name', 'like', "%{$searchQuery}%");
                     });
             })
             ->with(['mailbox', 'customer', 'user', 'folder'])

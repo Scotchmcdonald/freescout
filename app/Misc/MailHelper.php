@@ -76,7 +76,8 @@ class MailHelper
      */
     public static function getMessageIdHash(int $threadId): string
     {
-        return md5($threadId.config('app.key'));
+        $appKey = config('app.key');
+        return md5((string) $threadId . (is_string($appKey) ? $appKey : ''));
     }
 
     /**
