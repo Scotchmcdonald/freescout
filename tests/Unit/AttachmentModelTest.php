@@ -19,16 +19,18 @@ class AttachmentModelTest extends TestCase
     {
         $attachment = new Attachment([
             'thread_id' => 1,
-            'file_name' => 'test.txt',
-            'file_dir' => 'attachments',
-            'file_size' => 1024,
+            'filename' => 'test.txt',
+            'size' => 1024,
             'mime_type' => 'text/plain',
+            'inline' => false,
+            'public' => false,
         ]);
 
         $this->assertEquals(1, $attachment->thread_id);
-        $this->assertEquals('test.txt', $attachment->file_name);
-        $this->assertEquals('attachments', $attachment->file_dir);
-        $this->assertEquals(1024, $attachment->file_size);
+        $this->assertEquals('test.txt', $attachment->filename);
+        $this->assertEquals(1024, $attachment->size);
         $this->assertEquals('text/plain', $attachment->mime_type);
+        $this->assertEquals(false, $attachment->inline);
+        $this->assertEquals(false, $attachment->public);
     }
 }
