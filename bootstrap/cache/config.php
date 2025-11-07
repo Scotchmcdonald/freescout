@@ -1,4 +1,8 @@
 <?php return array (
+  'concurrency' => 
+  array (
+    'default' => 'process',
+  ),
   'cors' => 
   array (
     'paths' => 
@@ -27,6 +31,14 @@
     'max_age' => 0,
     'supports_credentials' => false,
   ),
+  'view' => 
+  array (
+    'paths' => 
+    array (
+      0 => '/home/runner/work/freescout/freescout/resources/views',
+    ),
+    'compiled' => '/home/runner/work/freescout/freescout/storage/framework/views',
+  ),
   'hashing' => 
   array (
     'driver' => 'bcrypt',
@@ -44,18 +56,6 @@
     ),
     'rehash_on_login' => true,
   ),
-  'concurrency' => 
-  array (
-    'default' => 'process',
-  ),
-  'view' => 
-  array (
-    'paths' => 
-    array (
-      0 => '/var/www/html/resources/views',
-    ),
-    'compiled' => '/var/www/html/storage/framework/views',
-  ),
   'app' => 
   array (
     'name' => 'FreeScout',
@@ -69,7 +69,7 @@
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
     'cipher' => 'AES-256-CBC',
-    'key' => 'base64:rPsGoZIgpm1MAlwHxxyS8yn/1/Gd2bn8180hy1A3IwE=',
+    'key' => 'base64:K8qZ8pN3vN6vY5sT9gU0eW1dR5fH7mJ9kL2aB4cE6fG=',
     'previous_keys' => 
     array (
     ),
@@ -191,21 +191,21 @@
   ),
   'broadcasting' => 
   array (
-    'default' => 'reverb',
+    'default' => 'null',
     'connections' => 
     array (
       'reverb' => 
       array (
         'driver' => 'reverb',
-        'key' => 'tbfbcarbkc2txv9iw6dz',
-        'secret' => '0rgzmbepfh3yvydhmpkc',
-        'app_id' => '231482',
+        'key' => NULL,
+        'secret' => NULL,
+        'app_id' => NULL,
         'options' => 
         array (
-          'host' => 'localhost',
-          'port' => '8080',
-          'scheme' => 'http',
-          'useTLS' => false,
+          'host' => NULL,
+          'port' => 443,
+          'scheme' => 'https',
+          'useTLS' => true,
         ),
         'client_options' => 
         array (
@@ -266,8 +266,8 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => '/var/www/html/storage/framework/cache/data',
-        'lock_path' => '/var/www/html/storage/framework/cache/data',
+        'path' => '/home/runner/work/freescout/freescout/storage/framework/cache/data',
+        'lock_path' => '/home/runner/work/freescout/freescout/storage/framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -311,7 +311,7 @@
         'driver' => 'octane',
       ),
     ),
-    'prefix' => '',
+    'prefix' => 'freescout_cache_',
   ),
   'database' => 
   array (
@@ -337,7 +337,7 @@
         'port' => '3306',
         'database' => 'freescout',
         'username' => 'root',
-        'password' => 'lKyctrx4stu4d4di7c5OV8OG',
+        'password' => '',
         'unix_socket' => '',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
@@ -357,7 +357,7 @@
         'port' => '3306',
         'database' => 'freescout',
         'username' => 'root',
-        'password' => 'lKyctrx4stu4d4di7c5OV8OG',
+        'password' => '',
         'unix_socket' => '',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
@@ -377,7 +377,7 @@
         'port' => '3306',
         'database' => 'freescout',
         'username' => 'root',
-        'password' => 'lKyctrx4stu4d4di7c5OV8OG',
+        'password' => '',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -392,7 +392,7 @@
         'port' => '3306',
         'database' => 'freescout',
         'username' => 'root',
-        'password' => 'lKyctrx4stu4d4di7c5OV8OG',
+        'password' => '',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -439,7 +439,7 @@
       'local' => 
       array (
         'driver' => 'local',
-        'root' => '/var/www/html/storage/app/private',
+        'root' => '/home/runner/work/freescout/freescout/storage/app/private',
         'serve' => true,
         'throw' => false,
         'report' => false,
@@ -447,7 +447,7 @@
       'public' => 
       array (
         'driver' => 'local',
-        'root' => '/var/www/html/storage/app/public',
+        'root' => '/home/runner/work/freescout/freescout/storage/app/public',
         'url' => 'http://localhost/storage',
         'visibility' => 'public',
         'throw' => false,
@@ -456,10 +456,10 @@
       's3' => 
       array (
         'driver' => 's3',
-        'key' => '',
-        'secret' => '',
-        'region' => 'us-east-1',
-        'bucket' => '',
+        'key' => NULL,
+        'secret' => NULL,
+        'region' => NULL,
+        'bucket' => NULL,
         'url' => NULL,
         'endpoint' => NULL,
         'use_path_style_endpoint' => false,
@@ -469,7 +469,7 @@
     ),
     'links' => 
     array (
-      '/var/www/html/public/storage' => '/var/www/html/storage/app/public',
+      '/home/runner/work/freescout/freescout/public/storage' => '/home/runner/work/freescout/freescout/storage/app/public',
     ),
   ),
   'logging' => 
@@ -477,7 +477,7 @@
     'default' => 'stack',
     'deprecations' => 
     array (
-      'channel' => '',
+      'channel' => 'null',
       'trace' => false,
     ),
     'channels' => 
@@ -494,14 +494,14 @@
       'single' => 
       array (
         'driver' => 'single',
-        'path' => '/var/www/html/storage/logs/laravel.log',
+        'path' => '/home/runner/work/freescout/freescout/storage/logs/laravel.log',
         'level' => 'debug',
         'replace_placeholders' => true,
       ),
       'daily' => 
       array (
         'driver' => 'daily',
-        'path' => '/var/www/html/storage/logs/laravel.log',
+        'path' => '/home/runner/work/freescout/freescout/storage/logs/laravel.log',
         'level' => 'debug',
         'days' => 14,
         'replace_placeholders' => true,
@@ -512,7 +512,7 @@
         'url' => '',
         'username' => 'Laravel Log',
         'emoji' => ':boom:',
-        'level' => 'debug',
+        'level' => 'critical',
         'replace_placeholders' => true,
       ),
       'papertrail' => 
@@ -566,7 +566,7 @@
       ),
       'emergency' => 
       array (
-        'path' => '/var/www/html/storage/logs/laravel.log',
+        'path' => '/home/runner/work/freescout/freescout/storage/logs/laravel.log',
       ),
     ),
   ),
@@ -642,7 +642,7 @@
       'theme' => 'default',
       'paths' => 
       array (
-        0 => '/var/www/html/resources/views/vendor/mail',
+        0 => '/home/runner/work/freescout/freescout/resources/views/vendor/mail',
       ),
     ),
   ),
@@ -652,7 +652,7 @@
     'stubs' => 
     array (
       'enabled' => false,
-      'path' => '/var/www/html/vendor/nwidart/laravel-modules/src/Commands/stubs',
+      'path' => '/home/runner/work/freescout/freescout/vendor/nwidart/laravel-modules/src/Commands/stubs',
       'files' => 
       array (
         'routes/web' => 'routes/web.php',
@@ -728,9 +728,9 @@
     ),
     'paths' => 
     array (
-      'modules' => '/var/www/html/Modules',
-      'assets' => '/var/www/html/public/modules',
-      'migration' => '/var/www/html/database/migrations',
+      'modules' => '/home/runner/work/freescout/freescout/Modules',
+      'assets' => '/home/runner/work/freescout/freescout/public/modules',
+      'migration' => '/home/runner/work/freescout/freescout/database/migrations',
       'app_folder' => 'app/',
       'generator' => 
       array (
@@ -1015,7 +1015,7 @@
       'enabled' => false,
       'paths' => 
       array (
-        0 => '/var/www/html/vendor/*/*',
+        0 => '/home/runner/work/freescout/freescout/vendor/*/*',
       ),
     ),
     'composer' => 
@@ -1038,7 +1038,7 @@
       'file' => 
       array (
         'class' => 'Nwidart\\Modules\\Activators\\FileActivator',
-        'statuses-file' => '/var/www/html/modules_statuses.json',
+        'statuses-file' => '/home/runner/work/freescout/freescout/modules_statuses.json',
       ),
     ),
     'activator' => 'file',
@@ -1073,8 +1073,8 @@
       'sqs' => 
       array (
         'driver' => 'sqs',
-        'key' => '',
-        'secret' => '',
+        'key' => NULL,
+        'secret' => NULL,
         'prefix' => 'https://sqs.us-east-1.amazonaws.com/your-account-id',
         'queue' => 'default',
         'suffix' => NULL,
@@ -1113,7 +1113,7 @@
         'host' => '0.0.0.0',
         'port' => 8080,
         'path' => '',
-        'hostname' => 'localhost',
+        'hostname' => NULL,
         'options' => 
         array (
           'tls' => 
@@ -1147,15 +1147,15 @@
       array (
         0 => 
         array (
-          'key' => 'tbfbcarbkc2txv9iw6dz',
-          'secret' => '0rgzmbepfh3yvydhmpkc',
-          'app_id' => '231482',
+          'key' => NULL,
+          'secret' => NULL,
+          'app_id' => NULL,
           'options' => 
           array (
-            'host' => 'localhost',
-            'port' => '8080',
-            'scheme' => 'http',
-            'useTLS' => false,
+            'host' => NULL,
+            'port' => 443,
+            'scheme' => 'https',
+            'useTLS' => true,
           ),
           'allowed_origins' => 
           array (
@@ -1177,8 +1177,8 @@
     ),
     'ses' => 
     array (
-      'key' => '',
-      'secret' => '',
+      'key' => NULL,
+      'secret' => NULL,
       'region' => 'us-east-1',
     ),
     'resend' => 
@@ -1200,7 +1200,7 @@
     'lifetime' => 120,
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => '/var/www/html/storage/framework/sessions',
+    'files' => '/home/runner/work/freescout/freescout/storage/framework/sessions',
     'connection' => '',
     'table' => 'sessions',
     'store' => '',
@@ -1222,7 +1222,7 @@
     'encoding' => 'UTF-8',
     'finalize' => true,
     'ignoreNonStrings' => false,
-    'cachePath' => '/var/www/html/storage/app/purifier',
+    'cachePath' => '/home/runner/work/freescout/freescout/storage/app/purifier',
     'cacheFileMode' => 493,
     'settings' => 
     array (
