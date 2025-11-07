@@ -40,10 +40,10 @@ return [
 
         'database' => [
             'driver' => 'database',
-            'connection' => env('DB_CACHE_CONNECTION'),
-            'table' => env('DB_CACHE_TABLE', 'cache'),
-            'lock_connection' => env('DB_CACHE_LOCK_CONNECTION'),
-            'lock_table' => env('DB_CACHE_LOCK_TABLE'),
+            'connection' => (string) env('DB_CACHE_CONNECTION', ''),
+            'table' => (string) env('DB_CACHE_TABLE', 'cache'),
+            'lock_connection' => (string) env('DB_CACHE_LOCK_CONNECTION', ''),
+            'lock_table' => (string) env('DB_CACHE_LOCK_TABLE', ''),
         ],
 
         'file' => [
@@ -54,18 +54,18 @@ return [
 
         'memcached' => [
             'driver' => 'memcached',
-            'persistent_id' => env('MEMCACHED_PERSISTENT_ID'),
+            'persistent_id' => (string) env('MEMCACHED_PERSISTENT_ID', ''),
             'sasl' => [
-                env('MEMCACHED_USERNAME'),
-                env('MEMCACHED_PASSWORD'),
+                (string) env('MEMCACHED_USERNAME', ''),
+                (string) env('MEMCACHED_PASSWORD', ''),
             ],
             'options' => [
                 // Memcached::OPT_CONNECT_TIMEOUT => 2000,
             ],
             'servers' => [
                 [
-                    'host' => env('MEMCACHED_HOST', '127.0.0.1'),
-                    'port' => env('MEMCACHED_PORT', 11211),
+                    'host' => (string) env('MEMCACHED_HOST', '127.0.0.1'),
+                    'port' => (int) env('MEMCACHED_PORT', 11211),
                     'weight' => 100,
                 ],
             ],
@@ -79,11 +79,11 @@ return [
 
         'dynamodb' => [
             'driver' => 'dynamodb',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-            'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
-            'endpoint' => env('DYNAMODB_ENDPOINT'),
+            'key' => (string) env('AWS_ACCESS_KEY_ID', ''),
+            'secret' => (string) env('AWS_SECRET_ACCESS_KEY', ''),
+            'region' => (string) env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'table' => (string) env('DYNAMODB_CACHE_TABLE', 'cache'),
+            'endpoint' => (string) env('DYNAMODB_ENDPOINT', ''),
         ],
 
         'octane' => [

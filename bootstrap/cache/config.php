@@ -258,10 +258,10 @@
       'database' => 
       array (
         'driver' => 'database',
-        'connection' => NULL,
+        'connection' => '',
         'table' => 'cache',
-        'lock_connection' => NULL,
-        'lock_table' => NULL,
+        'lock_connection' => '',
+        'lock_table' => '',
       ),
       'file' => 
       array (
@@ -272,11 +272,11 @@
       'memcached' => 
       array (
         'driver' => 'memcached',
-        'persistent_id' => NULL,
+        'persistent_id' => '',
         'sasl' => 
         array (
-          0 => NULL,
-          1 => NULL,
+          0 => '',
+          1 => '',
         ),
         'options' => 
         array (
@@ -304,7 +304,7 @@
         'secret' => '',
         'region' => 'us-east-1',
         'table' => 'cache',
-        'endpoint' => NULL,
+        'endpoint' => '',
       ),
       'octane' => 
       array (
@@ -321,7 +321,7 @@
       'sqlite' => 
       array (
         'driver' => 'sqlite',
-        'url' => NULL,
+        'url' => '',
         'database' => 'freescout',
         'prefix' => '',
         'foreign_key_constraints' => true,
@@ -332,7 +332,7 @@
       'mysql' => 
       array (
         'driver' => 'mysql',
-        'url' => NULL,
+        'url' => '',
         'host' => '127.0.0.1',
         'port' => '3306',
         'database' => 'freescout',
@@ -352,7 +352,7 @@
       'mariadb' => 
       array (
         'driver' => 'mariadb',
-        'url' => NULL,
+        'url' => '',
         'host' => '127.0.0.1',
         'port' => '3306',
         'database' => 'freescout',
@@ -372,7 +372,7 @@
       'pgsql' => 
       array (
         'driver' => 'pgsql',
-        'url' => NULL,
+        'url' => '',
         'host' => '127.0.0.1',
         'port' => '3306',
         'database' => 'freescout',
@@ -387,7 +387,7 @@
       'sqlsrv' => 
       array (
         'driver' => 'sqlsrv',
-        'url' => NULL,
+        'url' => '',
         'host' => '127.0.0.1',
         'port' => '3306',
         'database' => 'freescout',
@@ -413,19 +413,19 @@
       ),
       'default' => 
       array (
-        'url' => NULL,
+        'url' => '',
         'host' => '127.0.0.1',
-        'username' => NULL,
-        'password' => NULL,
+        'username' => '',
+        'password' => '',
         'port' => '6379',
         'database' => '0',
       ),
       'cache' => 
       array (
-        'url' => NULL,
+        'url' => '',
         'host' => '127.0.0.1',
-        'username' => NULL,
-        'password' => NULL,
+        'username' => '',
+        'password' => '',
         'port' => '6379',
         'database' => '1',
       ),
@@ -477,7 +477,7 @@
     'default' => 'stack',
     'deprecations' => 
     array (
-      'channel' => NULL,
+      'channel' => '',
       'trace' => false,
     ),
     'channels' => 
@@ -509,7 +509,7 @@
       'slack' => 
       array (
         'driver' => 'slack',
-        'url' => NULL,
+        'url' => '',
         'username' => 'Laravel Log',
         'emoji' => ':boom:',
         'level' => 'debug',
@@ -522,8 +522,8 @@
         'handler' => 'Monolog\\Handler\\SyslogUdpHandler',
         'handler_with' => 
         array (
-          'host' => NULL,
-          'port' => NULL,
+          'host' => '',
+          'port' => '',
           'connectionString' => 'tls://:',
         ),
         'processors' => 
@@ -536,7 +536,7 @@
         'driver' => 'monolog',
         'level' => 'debug',
         'handler' => 'Monolog\\Handler\\StreamHandler',
-        'formatter' => NULL,
+        'formatter' => '',
         'with' => 
         array (
           'stream' => 'php://stderr',
@@ -578,10 +578,10 @@
       'smtp' => 
       array (
         'transport' => 'smtp',
-        'scheme' => NULL,
-        'url' => NULL,
+        'scheme' => '',
+        'url' => '',
         'host' => 'smtp.example.com',
-        'port' => '587',
+        'port' => 587,
         'username' => 'user@example.com',
         'password' => 'secret',
         'timeout' => NULL,
@@ -607,7 +607,7 @@
       'log' => 
       array (
         'transport' => 'log',
-        'channel' => NULL,
+        'channel' => '',
       ),
       'array' => 
       array (
@@ -1201,9 +1201,9 @@
     'expire_on_close' => false,
     'encrypt' => false,
     'files' => '/var/www/html/storage/framework/sessions',
-    'connection' => NULL,
+    'connection' => '',
     'table' => 'sessions',
-    'store' => NULL,
+    'store' => '',
     'lottery' => 
     array (
       0 => 2,
@@ -1211,8 +1211,8 @@
     ),
     'cookie' => 'freescout_session',
     'path' => '/',
-    'domain' => NULL,
-    'secure' => NULL,
+    'domain' => '',
+    'secure' => false,
     'http_only' => true,
     'same_site' => 'lax',
     'partitioned' => false,
