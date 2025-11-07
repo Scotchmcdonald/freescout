@@ -35,6 +35,11 @@ class CustomerAjaxTest extends TestCase
             'first_name' => 'Alice',
             'last_name' => 'Johnson',
         ]);
+        $email1 = Email::factory()->create([
+            'customer_id' => $customer1->id,
+            'email' => 'alice@example.com',
+        ]);
+
         $customer2 = Customer::factory()->create([
             'first_name' => 'Bob',
             'last_name' => 'Smith',
@@ -48,13 +53,19 @@ class CustomerAjaxTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        $response->assertJson([
-            'success' => true,
+        $response->assertJson(['success' => true]);
+        $response->assertJsonStructure([
+            'success',
+            'customers' => [
+                '*' => ['id', 'name', 'email']
+            ]
         ]);
-        
+
         $customers = $response->json('customers');
         $this->assertCount(1, $customers);
+        $this->assertEquals($customer1->id, $customers[0]['id']);
         $this->assertEquals('Alice Johnson', $customers[0]['name']);
+        $this->assertEquals('alice@example.com', $customers[0]['email']);
     }
 
     #[Test]
