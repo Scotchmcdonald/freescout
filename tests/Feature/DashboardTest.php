@@ -96,14 +96,14 @@ class DashboardTest extends TestCase
         // Create active conversations
         Conversation::factory()->count(3)->create([
             'mailbox_id' => $this->mailbox1->id,
-            'status' => 1, // Active
+            'status' => Conversation::STATUS_ACTIVE,
             'state' => 2, // Published
         ]);
 
         // Create inactive conversation (should not be counted)
         Conversation::factory()->create([
             'mailbox_id' => $this->mailbox1->id,
-            'status' => 2, // Closed
+            'status' => Conversation::STATUS_CLOSED,
             'state' => 2,
         ]);
 
@@ -127,7 +127,7 @@ class DashboardTest extends TestCase
         Conversation::factory()->count(2)->create([
             'mailbox_id' => $this->mailbox1->id,
             'user_id' => null,
-            'status' => 1,
+            'status' => Conversation::STATUS_ACTIVE,
             'state' => 2,
         ]);
 
@@ -135,7 +135,7 @@ class DashboardTest extends TestCase
         Conversation::factory()->create([
             'mailbox_id' => $this->mailbox1->id,
             'user_id' => $this->user->id,
-            'status' => 1,
+            'status' => Conversation::STATUS_ACTIVE,
             'state' => 2,
         ]);
 
@@ -160,13 +160,13 @@ class DashboardTest extends TestCase
         // Mailbox 1: 2 active, 1 unassigned
         Conversation::factory()->count(2)->create([
             'mailbox_id' => $this->mailbox1->id,
-            'status' => 1,
+            'status' => Conversation::STATUS_ACTIVE,
             'state' => 2,
             'user_id' => $this->user->id,
         ]);
         Conversation::factory()->create([
             'mailbox_id' => $this->mailbox1->id,
-            'status' => 1,
+            'status' => Conversation::STATUS_ACTIVE,
             'state' => 2,
             'user_id' => null,
         ]);
@@ -174,7 +174,7 @@ class DashboardTest extends TestCase
         // Mailbox 2: 1 active, 1 unassigned
         Conversation::factory()->create([
             'mailbox_id' => $this->mailbox2->id,
-            'status' => 1,
+            'status' => Conversation::STATUS_ACTIVE,
             'state' => 2,
             'user_id' => null,
         ]);
@@ -205,14 +205,14 @@ class DashboardTest extends TestCase
         // Create published active conversation
         Conversation::factory()->create([
             'mailbox_id' => $this->mailbox1->id,
-            'status' => 1,
+            'status' => Conversation::STATUS_ACTIVE,
             'state' => 2, // Published
         ]);
 
         // Create draft conversation (should not be counted)
         Conversation::factory()->create([
             'mailbox_id' => $this->mailbox1->id,
-            'status' => 1,
+            'status' => Conversation::STATUS_ACTIVE,
             'state' => 1, // Draft
         ]);
 
@@ -281,14 +281,14 @@ class DashboardTest extends TestCase
         // Create closed conversations
         Conversation::factory()->count(3)->create([
             'mailbox_id' => $this->mailbox1->id,
-            'status' => 2, // Closed
+            'status' => Conversation::STATUS_CLOSED,
             'state' => 2,
         ]);
 
         // Create one active conversation
         Conversation::factory()->create([
             'mailbox_id' => $this->mailbox1->id,
-            'status' => 1, // Active
+            'status' => Conversation::STATUS_ACTIVE,
             'state' => 2,
         ]);
 
