@@ -12,13 +12,22 @@ class ProfileTest extends TestCase
 
     public function test_profile_page_is_displayed(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'john@example.com',
+        ]);
 
         $response = $this
             ->actingAs($user)
             ->get('/profile');
 
         $response->assertOk();
+        $response->assertViewIs('profile.edit');
+        $response->assertSee('John');
+        $response->assertSee('Doe');
+        $response->assertSee('john@example.com');
+        $response->assertSee('Profile Information');
     }
 
     public function test_profile_information_can_be_updated(): void

@@ -44,7 +44,12 @@ class MailboxViewTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
+        $response->assertViewIs('mailboxes.show');
         $response->assertSee('Support Mailbox');
+        $response->assertSee($this->mailbox->email);
+        $response->assertViewHas('mailbox', function ($mailbox) {
+            return $mailbox->id === $this->mailbox->id;
+        });
     }
 
     /**
@@ -103,6 +108,10 @@ class MailboxViewTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
+        $response->assertViewIs('mailboxes.settings');
+        $response->assertSee('Mailbox Settings');
+        $response->assertSee($this->mailbox->name);
+        $response->assertViewHas('mailbox', $this->mailbox);
     }
 
     /**
