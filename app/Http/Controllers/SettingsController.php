@@ -22,7 +22,7 @@ class SettingsController extends Controller
      */
     public function index(): View
     {
-        $settings = Option::all()->pluck('value', 'name')->toArray();
+        $settings = Option::query()->pluck('value', 'name')->toArray();
 
         return view('settings.index', compact('settings'));
     }
@@ -68,7 +68,7 @@ class SettingsController extends Controller
             'mail_encryption',
             'mail_from_address',
             'mail_from_name',
-        ])->get()->pluck('value', 'name')->toArray();
+        ])->pluck('value', 'name')->toArray();
 
         return view('settings.email', compact('settings'));
     }
