@@ -149,4 +149,172 @@ class ConversationModelTest extends TestCase
         $this->assertTrue($conversation->imported);
         $this->assertFalse($conversation->has_attachments);
     }
+
+    public function test_update_folder_assigns_correct_folder_for_active_assigned_conversation(): void
+    {
+        $mailbox = \App\Models\Mailbox::factory()->create();
+        $user = \App\Models\User::factory()->create();
+        $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 2]);
+        $targetFolder = Folder::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'type' => 1, // Assigned folder
+            'user_id' => $user->id,
+        ]);
+        
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'status' => Conversation::STATUS_ACTIVE,
+            'user_id' => $user->id,
+            'folder_id' => $tempFolder->id,
+        ]);
+
+        $conversation->updateFolder();
+
+        $this->assertEquals($targetFolder->id, $conversation->folder_id);
+    }
+
+    public function test_update_folder_assigns_correct_folder_for_active_unassigned_conversation(): void
+    {
+        $mailbox = \App\Models\Mailbox::factory()->create();
+        $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
+        $targetFolder = Folder::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'type' => 2, // Unassigned folder
+        ]);
+        
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'status' => Conversation::STATUS_ACTIVE,
+            'user_id' => null,
+            'folder_id' => $tempFolder->id,
+        ]);
+
+        $conversation->updateFolder();
+
+        $this->assertEquals($targetFolder->id, $conversation->folder_id);
+    }
+
+    public function test_update_folder_assigns_correct_folder_for_closed_conversation(): void
+    {
+        $mailbox = \App\Models\Mailbox::factory()->create();
+        $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
+        $targetFolder = Folder::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'type' => 4, // Closed/Deleted folder
+        ]);
+        
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'status' => Conversation::STATUS_CLOSED,
+            'folder_id' => $tempFolder->id,
+        ]);
+
+        $conversation->updateFolder();
+
+        $this->assertEquals($targetFolder->id, $conversation->folder_id);
+    }
+
+    public function test_update_folder_assigns_correct_folder_for_spam_conversation(): void
+    {
+        $mailbox = \App\Models\Mailbox::factory()->create();
+        $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
+        $targetFolder = Folder::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'type' => 30, // Spam folder
+        ]);
+        
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'status' => Conversation::STATUS_SPAM,
+            'folder_id' => $tempFolder->id,
+        ]);
+
+        $conversation->updateFolder();
+
+        $this->assertEquals($targetFolder->id, $conversation->folder_id);
+    }
+
+    public function test_update_folder_keeps_folder_when_no_matching_folder_exists(): void
+    {
+        $mailbox = \App\Models\Mailbox::factory()->create();
+        $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
+        
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'status' => Conversation::STATUS_ACTIVE,
+            'folder_id' => $folder->id,
+        ]);
+
+        $originalFolderId = $conversation->folder_id;
+        $conversation->updateFolder();
+
+        // Folder ID should remain unchanged when no matching folder exists for the status
+        $this->assertEquals($originalFolderId, $conversation->folder_id);
+    }
+
+    public function test_conversation_with_null_cc_and_bcc(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'cc' => null,
+            'bcc' => null,
+        ]);
+
+        $this->assertNull($conversation->cc);
+        $this->assertNull($conversation->bcc);
+    }
+
+    public function test_conversation_with_empty_arrays_for_cc_and_bcc(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'cc' => [],
+            'bcc' => [],
+        ]);
+
+        $this->assertIsArray($conversation->cc);
+        $this->assertIsArray($conversation->bcc);
+        $this->assertEmpty($conversation->cc);
+        $this->assertEmpty($conversation->bcc);
+    }
+
+    public function test_conversation_status_pending(): void
+    {
+        $conversation = Conversation::factory()->make(['status' => Conversation::STATUS_PENDING]);
+
+        $this->assertFalse($conversation->isActive());
+        $this->assertFalse($conversation->isClosed());
+        $this->assertEquals(Conversation::STATUS_PENDING, $conversation->status);
+    }
+
+    public function test_conversation_status_spam(): void
+    {
+        $conversation = Conversation::factory()->make(['status' => Conversation::STATUS_SPAM]);
+
+        $this->assertFalse($conversation->isActive());
+        $this->assertFalse($conversation->isClosed());
+        $this->assertEquals(Conversation::STATUS_SPAM, $conversation->status);
+    }
+
+    public function test_conversation_with_null_user_id_is_unassigned(): void
+    {
+        $conversation = Conversation::factory()->create(['user_id' => null]);
+
+        $this->assertNull($conversation->user_id);
+        $this->assertNull($conversation->user);
+    }
+
+    public function test_conversation_number_is_integer(): void
+    {
+        $conversation = Conversation::factory()->create(['number' => '12345']);
+
+        $this->assertIsInt($conversation->number);
+        $this->assertEquals(12345, $conversation->number);
+    }
+
+    public function test_conversation_threads_count_is_integer(): void
+    {
+        $conversation = Conversation::factory()->create(['threads_count' => '10']);
+
+        $this->assertIsInt($conversation->threads_count);
+        $this->assertEquals(10, $conversation->threads_count);
+    }
 }

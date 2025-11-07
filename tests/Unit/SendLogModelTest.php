@@ -116,4 +116,95 @@ class SendLogModelTest extends TestCase
         $this->assertInstanceOf(User::class, $log->user);
         $this->assertEquals($user->id, $log->user->id);
     }
+
+    public function test_send_log_with_null_customer_id(): void
+    {
+        $log = SendLog::factory()->create(['customer_id' => null]);
+
+        $this->assertNull($log->customer_id);
+        $this->assertNull($log->customer);
+    }
+
+    public function test_send_log_with_null_user_id(): void
+    {
+        $log = SendLog::factory()->create(['user_id' => null]);
+
+        $this->assertNull($log->user_id);
+        $this->assertNull($log->user);
+    }
+
+    public function test_send_log_with_null_status_message(): void
+    {
+        $log = SendLog::factory()->create(['status_message' => null]);
+
+        $this->assertNull($log->status_message);
+    }
+
+    public function test_send_log_with_status_message(): void
+    {
+        $log = SendLog::factory()->create(['status_message' => 'Email sent successfully']);
+
+        $this->assertEquals('Email sent successfully', $log->status_message);
+    }
+
+    public function test_send_log_mail_type_values(): void
+    {
+        // Test different mail types
+        $log1 = SendLog::factory()->create(['mail_type' => 1]);
+        $this->assertEquals(1, $log1->mail_type);
+
+        $log2 = SendLog::factory()->create(['mail_type' => 2]);
+        $this->assertEquals(2, $log2->mail_type);
+
+        $log3 = SendLog::factory()->create(['mail_type' => 3]);
+        $this->assertEquals(3, $log3->mail_type);
+    }
+
+    public function test_send_log_status_values(): void
+    {
+        // Test status 1 (sent)
+        $sentLog = SendLog::factory()->create(['status' => 1]);
+        $this->assertTrue($sentLog->isSent());
+        $this->assertFalse($sentLog->isFailed());
+
+        // Test status 2 (failed)
+        $failedLog = SendLog::factory()->create(['status' => 2]);
+        $this->assertFalse($failedLog->isSent());
+        $this->assertTrue($failedLog->isFailed());
+    }
+
+    public function test_send_log_with_smtp_queue_id(): void
+    {
+        $queueId = 'smtp-queue-' . uniqid();
+        $log = SendLog::factory()->create(['smtp_queue_id' => $queueId]);
+
+        $this->assertEquals($queueId, $log->smtp_queue_id);
+    }
+
+    public function test_send_log_with_null_smtp_queue_id(): void
+    {
+        $log = SendLog::factory()->create(['smtp_queue_id' => null]);
+
+        $this->assertNull($log->smtp_queue_id);
+    }
+
+    public function test_multiple_send_logs_for_same_thread(): void
+    {
+        $thread = Thread::factory()->create();
+        
+        SendLog::factory()->count(3)->create(['thread_id' => $thread->id]);
+
+        $sendLogs = SendLog::where('thread_id', $thread->id)->get();
+
+        $this->assertCount(3, $sendLogs);
+        $this->assertTrue($sendLogs->every(fn($log) => $log->thread_id === $thread->id));
+    }
+
+    public function test_created_at_and_updated_at_timestamps(): void
+    {
+        $log = SendLog::factory()->create();
+
+        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $log->created_at);
+        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $log->updated_at);
+    }
 }

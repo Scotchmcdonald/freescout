@@ -206,4 +206,125 @@ class ThreadModelTest extends TestCase
 
         $this->assertTrue($thread->isBounce());
     }
+
+    public function test_is_bounce_returns_false_when_bounce_is_false_in_meta(): void
+    {
+        $thread = Thread::factory()->create([
+            'meta' => ['send_status' => ['is_bounce' => false]],
+        ]);
+
+        $this->assertFalse($thread->isBounce());
+    }
+
+    public function test_is_bounce_handles_null_meta(): void
+    {
+        $thread = Thread::factory()->create(['meta' => null]);
+
+        $this->assertFalse($thread->isBounce());
+    }
+
+    public function test_thread_with_null_opened_at(): void
+    {
+        $thread = Thread::factory()->create(['opened_at' => null]);
+
+        $this->assertNull($thread->opened_at);
+    }
+
+    public function test_thread_with_opened_at_datetime(): void
+    {
+        $openedAt = now()->subHours(2);
+        $thread = Thread::factory()->create(['opened_at' => $openedAt]);
+
+        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $thread->opened_at);
+        $this->assertEquals($openedAt->toDateTimeString(), $thread->opened_at->toDateTimeString());
+    }
+
+    public function test_thread_type_constants(): void
+    {
+        // Test that type field accepts various numeric values
+        $thread1 = Thread::factory()->make(['type' => 1]);
+        $this->assertEquals(1, $thread1->type);
+        $this->assertTrue($thread1->isUserMessage());
+
+        $thread2 = Thread::factory()->make(['type' => 2]);
+        $this->assertEquals(2, $thread2->type);
+        $this->assertTrue($thread2->isNote());
+
+        $thread4 = Thread::factory()->make(['type' => 4]);
+        $this->assertEquals(4, $thread4->type);
+        $this->assertTrue($thread4->isCustomerMessage());
+    }
+
+    public function test_thread_with_null_customer_id(): void
+    {
+        $thread = Thread::factory()->create(['created_by_customer_id' => null]);
+
+        $this->assertNull($thread->created_by_customer_id);
+        $this->assertNull($thread->customer);
+    }
+
+    public function test_thread_with_null_user_id(): void
+    {
+        $thread = Thread::factory()->create(['created_by_user_id' => null]);
+
+        $this->assertNull($thread->created_by_user_id);
+        $this->assertNull($thread->user);
+    }
+
+    public function test_thread_meta_with_nested_arrays(): void
+    {
+        $complexMeta = [
+            'custom_data' => [
+                'key1' => 'value1',
+                'nested' => ['deep' => 'value'],
+            ],
+            'send_status' => [
+                'is_bounce' => false,
+                'attempts' => 3,
+            ],
+        ];
+        
+        $thread = Thread::factory()->create(['meta' => $complexMeta]);
+
+        $this->assertIsArray($thread->meta);
+        $this->assertEquals($complexMeta, $thread->meta);
+    }
+
+    public function test_thread_first_flag_cast_to_boolean(): void
+    {
+        $thread = Thread::factory()->create(['first' => true]);
+        $this->assertIsBool($thread->first);
+        $this->assertTrue($thread->first);
+
+        $thread2 = Thread::factory()->create(['first' => false]);
+        $this->assertIsBool($thread2->first);
+        $this->assertFalse($thread2->first);
+    }
+
+    public function test_thread_has_attachments_flag_cast_to_boolean(): void
+    {
+        $thread = Thread::factory()->create(['has_attachments' => true]);
+        $this->assertIsBool($thread->has_attachments);
+        $this->assertTrue($thread->has_attachments);
+
+        $thread2 = Thread::factory()->create(['has_attachments' => false]);
+        $this->assertIsBool($thread2->has_attachments);
+        $this->assertFalse($thread2->has_attachments);
+    }
+
+    public function test_thread_with_empty_to_cc_bcc_arrays(): void
+    {
+        $thread = Thread::factory()->create([
+            'to' => [],
+            'cc' => [],
+            'bcc' => [],
+        ]);
+
+        $this->assertIsArray($thread->to);
+        $this->assertIsArray($thread->cc);
+        $this->assertIsArray($thread->bcc);
+        $this->assertEmpty($thread->to);
+        $this->assertEmpty($thread->cc);
+        $this->assertEmpty($thread->bcc);
+    }
 }

@@ -98,4 +98,67 @@ class ModuleModelTest extends TestCase
             'active' => false,
         ]);
     }
+
+    public function test_activate_already_active_module(): void
+    {
+        $module = Module::factory()->create(['active' => true]);
+
+        $result = $module->activate();
+
+        $this->assertTrue($result);
+        $this->assertTrue($module->active);
+    }
+
+    public function test_deactivate_already_inactive_module(): void
+    {
+        $module = Module::factory()->create(['active' => false]);
+
+        $result = $module->deactivate();
+
+        $this->assertTrue($result);
+        $this->assertFalse($module->active);
+    }
+
+    public function test_module_with_null_description(): void
+    {
+        $module = Module::factory()->create(['description' => null]);
+
+        $this->assertNull($module->description);
+    }
+
+    public function test_module_alias_is_unique(): void
+    {
+        $alias = 'unique-module-alias';
+        Module::factory()->create(['alias' => $alias]);
+
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        Module::factory()->create(['alias' => $alias]);
+    }
+
+    public function test_module_version_format(): void
+    {
+        $module = Module::factory()->create(['version' => '1.2.3']);
+
+        $this->assertEquals('1.2.3', $module->version);
+        $this->assertMatchesRegularExpression('/^\d+\.\d+\.\d+$/', $module->version);
+    }
+
+    public function test_created_at_and_updated_at_timestamps(): void
+    {
+        $module = Module::factory()->create();
+
+        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $module->created_at);
+        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $module->updated_at);
+    }
+
+    public function test_module_name_and_alias_relationship(): void
+    {
+        $module = Module::factory()->create([
+            'name' => 'Test Module',
+            'alias' => 'test-module',
+        ]);
+
+        $this->assertEquals('Test Module', $module->name);
+        $this->assertEquals('test-module', $module->alias);
+    }
 }

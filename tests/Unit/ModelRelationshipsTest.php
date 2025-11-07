@@ -495,4 +495,149 @@ class ModelRelationshipsTest extends TestCase
         // Should use 3 queries: conversations, mailboxes, threads
         $this->assertLessThanOrEqual(3, $queryCount);
     }
+
+    /**
+     * Test that conversation can have null relationships.
+     */
+    public function test_conversation_with_null_user_relationship(): void
+    {
+        $conversation = Conversation::factory()->create(['user_id' => null]);
+
+        $this->assertNull($conversation->user_id);
+        $this->assertNull($conversation->user);
+    }
+
+    /**
+     * Test that conversation closed_by_user can be null.
+     */
+    public function test_conversation_with_null_closed_by_user(): void
+    {
+        $conversation = Conversation::factory()->create(['closed_by_user_id' => null]);
+
+        $this->assertNull($conversation->closed_by_user_id);
+        $this->assertNull($conversation->closedByUser);
+    }
+
+    /**
+     * Test polymorphic relationship with different model types.
+     */
+    public function test_activity_log_subject_polymorphic_with_different_models(): void
+    {
+        $conversation = Conversation::factory()->create();
+        $user = User::factory()->create();
+        
+        $log1 = \App\Models\ActivityLog::factory()->create([
+            'subject_type' => Conversation::class,
+            'subject_id' => $conversation->id,
+        ]);
+        
+        $log2 = \App\Models\ActivityLog::factory()->create([
+            'subject_type' => User::class,
+            'subject_id' => $user->id,
+        ]);
+
+        $this->assertInstanceOf(Conversation::class, $log1->subject);
+        $this->assertInstanceOf(User::class, $log2->subject);
+    }
+
+    /**
+     * Test relationship with soft deletes (if applicable).
+     */
+    public function test_mailbox_users_detach(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $user = User::factory()->create();
+
+        $mailbox->users()->attach($user->id);
+        $this->assertCount(1, $mailbox->users);
+
+        $mailbox->users()->detach($user->id);
+        $this->assertCount(0, $mailbox->fresh()->users);
+    }
+
+    /**
+     * Test relationship sync method.
+     */
+    public function test_mailbox_users_sync(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $user3 = User::factory()->create();
+
+        $mailbox->users()->sync([$user1->id, $user2->id]);
+        $this->assertCount(2, $mailbox->fresh()->users);
+
+        $mailbox->users()->sync([$user2->id, $user3->id]);
+        $this->assertCount(2, $mailbox->fresh()->users);
+        $this->assertTrue($mailbox->users->contains($user2));
+        $this->assertTrue($mailbox->users->contains($user3));
+        $this->assertFalse($mailbox->users->contains($user1));
+    }
+
+    /**
+     * Test that orphaned threads are handled when conversation is deleted.
+     */
+    public function test_orphaned_threads_handling(): void
+    {
+        $conversation = Conversation::factory()->create();
+        $thread = Thread::factory()->for($conversation)->create();
+
+        $threadId = $thread->id;
+        $conversation->delete();
+
+        $this->assertDatabaseMissing('threads', ['id' => $threadId]);
+    }
+
+    /**
+     * Test relationship counting without loading the relationship.
+     */
+    public function test_relationship_counting_without_loading(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        Conversation::factory()->count(5)->for($mailbox)->create();
+
+        $mailboxWithCount = Mailbox::withCount('conversations')->find($mailbox->id);
+
+        $this->assertEquals(5, $mailboxWithCount->conversations_count);
+        $this->assertFalse($mailboxWithCount->relationLoaded('conversations'));
+    }
+
+    /**
+     * Test relationship existence queries.
+     */
+    public function test_relationship_existence_queries(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $convWithThreads = Conversation::factory()->for($mailbox)->create();
+        Thread::factory()->count(3)->for($convWithThreads)->create();
+        
+        $convWithoutThreads = Conversation::factory()->for($mailbox)->create();
+
+        $conversationsWithThreads = Conversation::has('threads')->get();
+
+        $this->assertCount(1, $conversationsWithThreads);
+        $this->assertTrue($conversationsWithThreads->contains($convWithThreads));
+        $this->assertFalse($conversationsWithThreads->contains($convWithoutThreads));
+    }
+
+    /**
+     * Test relationship whereHas queries.
+     */
+    public function test_relationship_where_has_queries(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $activeConv = Conversation::factory()->for($mailbox)->create(['status' => Conversation::STATUS_ACTIVE]);
+        Thread::factory()->for($activeConv)->create(['type' => 1]);
+        
+        $closedConv = Conversation::factory()->for($mailbox)->create(['status' => Conversation::STATUS_CLOSED]);
+        Thread::factory()->for($closedConv)->create(['type' => 2]);
+
+        $conversationsWithUserThreads = Conversation::whereHas('threads', function ($query) {
+            $query->where('type', 1);
+        })->get();
+
+        $this->assertCount(1, $conversationsWithUserThreads);
+        $this->assertTrue($conversationsWithUserThreads->contains($activeConv));
+    }
 }

@@ -158,4 +158,86 @@ class ActivityLogModelTest extends TestCase
         $this->assertInstanceOf(User::class, $log->causer);
         $this->assertEquals($user->id, $log->causer->id);
     }
+
+    public function test_activity_log_with_null_properties(): void
+    {
+        $log = ActivityLog::factory()->create(['properties' => null]);
+
+        $this->assertNull($log->properties);
+    }
+
+    public function test_activity_log_with_empty_properties_array(): void
+    {
+        $log = ActivityLog::factory()->create(['properties' => []]);
+
+        $this->assertIsArray($log->properties);
+        $this->assertEmpty($log->properties);
+    }
+
+    public function test_activity_log_with_null_batch_uuid(): void
+    {
+        $log = ActivityLog::factory()->create(['batch_uuid' => null]);
+
+        $this->assertNull($log->batch_uuid);
+    }
+
+    public function test_activity_log_with_batch_uuid(): void
+    {
+        $uuid = \Illuminate\Support\Str::uuid()->toString();
+        $log = ActivityLog::factory()->create(['batch_uuid' => $uuid]);
+
+        $this->assertEquals($uuid, $log->batch_uuid);
+    }
+
+    public function test_multiple_activity_logs_for_same_subject(): void
+    {
+        $conversation = Conversation::factory()->create();
+        
+        ActivityLog::factory()->count(3)->create([
+            'subject_type' => Conversation::class,
+            'subject_id' => $conversation->id,
+        ]);
+
+        $logs = ActivityLog::forSubject($conversation)->get();
+
+        $this->assertCount(3, $logs);
+    }
+
+    public function test_scope_filters_can_be_combined(): void
+    {
+        $user = User::factory()->create();
+        $conversation = Conversation::factory()->create();
+        
+        ActivityLog::factory()->create([
+            'log_name' => 'conversation',
+            'causer_type' => User::class,
+            'causer_id' => $user->id,
+            'subject_type' => Conversation::class,
+            'subject_id' => $conversation->id,
+        ]);
+        
+        ActivityLog::factory()->create([
+            'log_name' => 'other',
+            'causer_type' => User::class,
+            'causer_id' => $user->id,
+            'subject_type' => Conversation::class,
+            'subject_id' => $conversation->id,
+        ]);
+
+        $logs = ActivityLog::inLog('conversation')
+            ->causedBy($user)
+            ->forSubject($conversation)
+            ->get();
+
+        $this->assertCount(1, $logs);
+        $this->assertEquals('conversation', $logs->first()->log_name);
+    }
+
+    public function test_created_at_and_updated_at_cast_to_datetime(): void
+    {
+        $log = ActivityLog::factory()->create();
+
+        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $log->created_at);
+        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $log->updated_at);
+    }
 }
