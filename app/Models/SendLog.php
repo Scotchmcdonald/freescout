@@ -33,12 +33,22 @@ class SendLog extends Model
 {
     use HasFactory;
 
+    // Mail Types
+    public const MAIL_TYPE_REPLY = 1;
+    public const MAIL_TYPE_NOTE = 2;
+    public const MAIL_TYPE_AUTO_REPLY = 3;
+    
+    // Status Constants
+    public const STATUS_ACCEPTED = 1;
+    public const STATUS_SEND_ERROR = 2;
+
     protected $fillable = [
         'thread_id',
         'customer_id',
         'user_id',
         'message_id',
         'email',
+        'mail_type',
         'status',
         'status_message',
         'opens',
