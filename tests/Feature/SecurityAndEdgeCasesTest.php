@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\Option;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -33,21 +34,21 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function guest_cannot_access_settings_routes(): void
     {
         $response = $this->get(route('settings'));
         $response->assertRedirect(route('login'));
     }
 
-    /** @test */
+    #[Test]
     public function guest_cannot_access_system_routes(): void
     {
         $response = $this->get(route('system'));
         $response->assertRedirect(route('login'));
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_update_settings(): void
     {
         $response = $this->actingAs($this->user)->post(route('settings.update'), [
@@ -57,14 +58,14 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_access_email_settings(): void
     {
         $response = $this->actingAs($this->user)->get(route('settings.email'));
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_update_email_settings(): void
     {
         $response = $this->actingAs($this->user)->post(route('settings.email.update'), [
@@ -76,28 +77,28 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_clear_cache(): void
     {
         $response = $this->actingAs($this->user)->post(route('settings.cache.clear'));
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_run_migrations(): void
     {
         $response = $this->actingAs($this->user)->post(route('settings.migrate'));
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_access_system_diagnostics(): void
     {
         $response = $this->actingAs($this->user)->get(route('system.diagnostics'));
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function option_handles_null_values_correctly(): void
     {
         Option::setValue('nullable_option', null);
@@ -106,7 +107,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertNull($value);
     }
 
-    /** @test */
+    #[Test]
     public function option_handles_empty_string_values(): void
     {
         Option::setValue('empty_option', '');
@@ -115,7 +116,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertEquals('', $value);
     }
 
-    /** @test */
+    #[Test]
     public function option_handles_numeric_values(): void
     {
         Option::setValue('numeric_option', 12345);
@@ -124,7 +125,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertEquals(12345, $value);
     }
 
-    /** @test */
+    #[Test]
     public function option_handles_array_values(): void
     {
         $arrayValue = ['key1' => 'value1', 'key2' => 'value2'];
@@ -135,7 +136,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertEquals($arrayValue, json_decode($value, true));
     }
 
-    /** @test */
+    #[Test]
     public function settings_validation_prevents_sql_injection(): void
     {
         $this->actingAs($this->admin);
@@ -156,7 +157,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertNotNull(Option::all());
     }
 
-    /** @test */
+    #[Test]
     public function settings_validation_prevents_xss(): void
     {
         $this->actingAs($this->admin);
@@ -175,7 +176,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function email_settings_require_valid_email_format(): void
     {
         $this->actingAs($this->admin);
@@ -189,7 +190,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertSessionHasErrors('mail_from_address');
     }
 
-    /** @test */
+    #[Test]
     public function email_settings_require_supported_driver(): void
     {
         $this->actingAs($this->admin);
@@ -203,7 +204,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertSessionHasErrors('mail_driver');
     }
 
-    /** @test */
+    #[Test]
     public function system_diagnostics_checks_database_connection(): void
     {
         $response = $this->actingAs($this->admin)->get(route('system.diagnostics'));
@@ -212,7 +213,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertJsonPath('checks.database.status', 'ok');
     }
 
-    /** @test */
+    #[Test]
     public function system_diagnostics_checks_storage_writable(): void
     {
         $response = $this->actingAs($this->admin)->get(route('system.diagnostics'));
@@ -221,7 +222,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertJsonPath('checks.storage.status', 'ok');
     }
 
-    /** @test */
+    #[Test]
     public function system_diagnostics_checks_cache_working(): void
     {
         $response = $this->actingAs($this->admin)->get(route('system.diagnostics'));
@@ -230,7 +231,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertJsonPath('checks.cache.status', 'ok');
     }
 
-    /** @test */
+    #[Test]
     public function option_setValue_creates_new_record_when_not_exists(): void
     {
         $this->assertDatabaseMissing('options', ['name' => 'new_test_option']);
@@ -243,7 +244,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function option_setValue_updates_existing_record(): void
     {
         Option::create(['name' => 'existing_option', 'value' => 'old_value']);
@@ -259,7 +260,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertEquals(1, Option::where('name', 'existing_option')->count());
     }
 
-    /** @test */
+    #[Test]
     public function option_deleteOption_handles_non_existent_keys_gracefully(): void
     {
         $result = Option::deleteOption('non_existent_key');
@@ -267,7 +268,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /** @test */
+    #[Test]
     public function multiple_options_can_be_stored_and_retrieved(): void
     {
         $options = [
@@ -285,7 +286,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function settings_page_displays_existing_options(): void
     {
         Option::create(['name' => 'company_name', 'value' => 'Test Corp']);
@@ -297,7 +298,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertSee('Test Corp');
     }
 
-    /** @test */
+    #[Test]
     public function system_ajax_requires_admin(): void
     {
         $response = $this->actingAs($this->user)->post(route('system.ajax'), [
@@ -307,7 +308,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_get_system_info_with_correct_structure(): void
     {
         $response = $this->actingAs($this->admin)->post(route('system.ajax'), [

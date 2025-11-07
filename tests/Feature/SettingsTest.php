@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\Option;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SettingsTest extends TestCase
@@ -29,7 +30,7 @@ class SettingsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_view_main_settings_page(): void
     {
         // Arrange
@@ -43,7 +44,7 @@ class SettingsTest extends TestCase
         $response->assertSee('Test Company');
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_update_general_setting(): void
     {
         // Arrange
@@ -64,7 +65,7 @@ class SettingsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_view_email_settings_page(): void
     {
         // Arrange
@@ -77,7 +78,7 @@ class SettingsTest extends TestCase
         $response->assertOk();
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_update_email_settings(): void
     {
         // Arrange
@@ -110,7 +111,7 @@ class SettingsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_view_system_settings_page(): void
     {
         // Act
@@ -122,7 +123,7 @@ class SettingsTest extends TestCase
         $response->assertSee('Laravel');
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_user_cannot_access_settings_routes(): void
     {
         // Act
@@ -132,7 +133,7 @@ class SettingsTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function submitting_invalid_data_to_setting_fails_validation(): void
     {
         // Arrange
@@ -149,7 +150,7 @@ class SettingsTest extends TestCase
         $response->assertSessionHasErrors('mail_from_address');
     }
 
-    /** @test */
+    #[Test]
     public function submitting_invalid_driver_fails_validation(): void
     {
         // Arrange
@@ -166,7 +167,7 @@ class SettingsTest extends TestCase
         $response->assertSessionHasErrors('mail_driver');
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_clear_cache(): void
     {
         // Arrange
@@ -180,7 +181,7 @@ class SettingsTest extends TestCase
         $response->assertJson(['success' => true]);
     }
 
-    /** @test */
+    #[Test]
     public function settings_update_clears_cache(): void
     {
         // Arrange

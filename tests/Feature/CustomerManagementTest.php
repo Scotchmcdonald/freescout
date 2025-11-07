@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\Email;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CustomerManagementTest extends TestCase
@@ -26,7 +27,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function user_can_view_list_of_customers(): void
     {
         // Arrange
@@ -48,7 +49,7 @@ class CustomerManagementTest extends TestCase
         $response->assertSee('Doe');
     }
 
-    /** @test */
+    #[Test]
     public function user_can_view_single_customer_and_conversation_history(): void
     {
         // Arrange
@@ -70,7 +71,7 @@ class CustomerManagementTest extends TestCase
         $response->assertSee('Test Conversation');
     }
 
-    /** @test */
+    #[Test]
     public function user_can_update_customer_details(): void
     {
         // Arrange
@@ -103,7 +104,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function cannot_create_customer_with_duplicate_email_if_meant_to_be_unique(): void
     {
         // Arrange
@@ -127,7 +128,7 @@ class CustomerManagementTest extends TestCase
         $this->assertDatabaseCount('customers', 1);
     }
 
-    /** @test */
+    #[Test]
     public function merging_two_customers_reassigns_all_conversations(): void
     {
         // Arrange
@@ -187,7 +188,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function unauthenticated_user_cannot_access_customers_list(): void
     {
         // Act
@@ -198,7 +199,7 @@ class CustomerManagementTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    /** @test */
+    #[Test]
     public function unauthenticated_user_cannot_view_customer_details(): void
     {
         // Arrange
@@ -212,7 +213,7 @@ class CustomerManagementTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    /** @test */
+    #[Test]
     public function unauthenticated_user_cannot_update_customer(): void
     {
         // Arrange
@@ -229,7 +230,7 @@ class CustomerManagementTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    /** @test */
+    #[Test]
     public function cannot_update_customer_with_invalid_email_format(): void
     {
         // Arrange
@@ -249,7 +250,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('emails.0.email');
     }
 
-    /** @test */
+    #[Test]
     public function cannot_merge_customer_with_same_id(): void
     {
         // Arrange
@@ -266,7 +267,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('target_id');
     }
 
-    /** @test */
+    #[Test]
     public function cannot_merge_with_non_existent_customer(): void
     {
         // Arrange
@@ -283,7 +284,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('target_id');
     }
 
-    /** @test */
+    #[Test]
     public function user_can_search_customers(): void
     {
         // Arrange
@@ -305,7 +306,7 @@ class CustomerManagementTest extends TestCase
         $response->assertDontSee('Bob');
     }
 
-    /** @test */
+    #[Test]
     public function user_can_access_customer_edit_page(): void
     {
         // Arrange
@@ -323,7 +324,7 @@ class CustomerManagementTest extends TestCase
         $response->assertSee('Test');
     }
 
-    /** @test */
+    #[Test]
     public function unauthenticated_user_cannot_access_customer_edit_page(): void
     {
         // Arrange
@@ -337,7 +338,7 @@ class CustomerManagementTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    /** @test */
+    #[Test]
     public function updating_customer_with_empty_optional_fields_works(): void
     {
         // Arrange
@@ -365,7 +366,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function cannot_update_customer_without_first_name(): void
     {
         // Arrange
@@ -382,7 +383,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('first_name');
     }
 
-    /** @test */
+    #[Test]
     public function can_update_customer_with_valid_country_code(): void
     {
         // Arrange
@@ -403,7 +404,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function merge_fails_with_missing_source_id(): void
     {
         // Arrange
@@ -419,7 +420,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('source_id');
     }
 
-    /** @test */
+    #[Test]
     public function merge_fails_with_missing_target_id(): void
     {
         // Arrange
@@ -435,7 +436,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('target_id');
     }
 
-    /** @test */
+    #[Test]
     public function customer_list_is_paginated(): void
     {
         // Arrange
@@ -450,7 +451,7 @@ class CustomerManagementTest extends TestCase
         $response->assertSee('50'); // Should see pagination info
     }
 
-    /** @test */
+    #[Test]
     public function customer_show_page_loads_conversations(): void
     {
         // Arrange
@@ -468,7 +469,7 @@ class CustomerManagementTest extends TestCase
         $response->assertSee('Loaded Conversation');
     }
 
-    /** @test */
+    #[Test]
     public function updating_customer_with_social_profiles_works(): void
     {
         // Arrange
@@ -491,7 +492,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function updating_customer_with_websites_works(): void
     {
         // Arrange

@@ -7,13 +7,14 @@ namespace Tests\Feature;
 use App\Models\Customer;
 use App\Models\Email;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CustomerRegressionTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function customer_identification_from_incoming_email_creates_new_customer(): void
     {
         // Arrange
@@ -45,7 +46,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function customer_identification_from_incoming_email_finds_existing_customer(): void
     {
         // Arrange - Create an existing customer with email
@@ -73,7 +74,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('Existing', $foundCustomer->first_name);
     }
 
-    /** @test */
+    #[Test]
     public function customer_create_sanitizes_email_address(): void
     {
         // Arrange
@@ -94,7 +95,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function customer_create_returns_null_for_invalid_email(): void
     {
         // Arrange
@@ -113,7 +114,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function customer_create_handles_email_with_trailing_dots(): void
     {
         // Arrange
@@ -134,7 +135,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function customer_set_data_fills_empty_fields_only(): void
     {
         // Arrange
@@ -162,7 +163,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('New Notes', $customer->notes);
     }
 
-    /** @test */
+    #[Test]
     public function customer_set_data_replaces_all_fields_when_replace_data_is_true(): void
     {
         // Arrange
@@ -187,7 +188,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('New Company', $customer->company);
     }
 
-    /** @test */
+    #[Test]
     public function customer_set_data_uses_background_as_notes_if_notes_empty(): void
     {
         // Arrange
@@ -205,7 +206,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('Important background information', $customer->notes);
     }
 
-    /** @test */
+    #[Test]
     public function customer_set_data_does_not_set_last_name_if_first_name_exists(): void
     {
         // Arrange
@@ -225,7 +226,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('', $customer->last_name);
     }
 
-    /** @test */
+    #[Test]
     public function customer_set_data_does_not_set_first_name_if_last_name_exists(): void
     {
         // Arrange
@@ -245,7 +246,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('Doe', $customer->last_name);
     }
 
-    /** @test */
+    #[Test]
     public function email_sanitize_removes_dot_before_at_symbol(): void
     {
         // Arrange
@@ -258,7 +259,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('user..name@example.com', $sanitized);
     }
 
-    /** @test */
+    #[Test]
     public function email_sanitize_converts_to_lowercase(): void
     {
         // Arrange
@@ -271,7 +272,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('user@example.com', $sanitized);
     }
 
-    /** @test */
+    #[Test]
     public function email_sanitize_returns_false_for_invalid_format(): void
     {
         // Arrange
@@ -289,7 +290,7 @@ class CustomerRegressionTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function customer_create_handles_multiple_emails_in_data(): void
     {
         // Arrange
@@ -313,7 +314,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function customer_set_data_does_not_set_photo_url(): void
     {
         // Arrange
@@ -332,7 +333,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertNull($customer->photo_url);
     }
 
-    /** @test */
+    #[Test]
     public function customer_set_data_returns_false_when_no_changes(): void
     {
         // Arrange
@@ -352,7 +353,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /** @test */
+    #[Test]
     public function customer_create_associates_email_with_customer(): void
     {
         // Arrange
@@ -370,7 +371,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals($customer->id, $email->customer_id);
     }
 
-    /** @test */
+    #[Test]
     public function customer_create_reuses_existing_email_object(): void
     {
         // Arrange
@@ -393,7 +394,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertDatabaseCount('emails', 1);
     }
 
-    /** @test */
+    #[Test]
     public function email_sanitize_handles_null_input(): void
     {
         // Act
@@ -403,7 +404,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /** @test */
+    #[Test]
     public function customer_set_data_with_array_values_are_ignored_when_replace_true(): void
     {
         // Arrange
@@ -424,7 +425,7 @@ class CustomerRegressionTest extends TestCase
         // Array fields should not be set when replace_data is true
     }
 
-    /** @test */
+    #[Test]
     public function customer_create_handles_empty_data_array(): void
     {
         // Arrange
@@ -444,7 +445,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function email_sanitize_removes_multiple_trailing_dots(): void
     {
         // Arrange
@@ -457,7 +458,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('user@example.com', $sanitized);
     }
 
-    /** @test */
+    #[Test]
     public function customer_set_data_saves_when_save_parameter_is_true(): void
     {
         // Arrange
@@ -480,7 +481,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertNotEquals($originalUpdatedAt, $customer->updated_at);
     }
 
-    /** @test */
+    #[Test]
     public function customer_set_data_does_not_save_when_save_parameter_is_false(): void
     {
         // Arrange

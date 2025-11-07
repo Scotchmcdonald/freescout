@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\Email;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CustomerAjaxTest extends TestCase
@@ -26,7 +27,7 @@ class CustomerAjaxTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function ajax_search_returns_matching_customers_by_first_name(): void
     {
         // Arrange
@@ -56,7 +57,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertEquals('Alice Johnson', $customers[0]['name']);
     }
 
-    /** @test */
+    #[Test]
     public function ajax_search_returns_matching_customers_by_last_name(): void
     {
         // Arrange
@@ -82,7 +83,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertStringContainsString('Doe', $customers[0]['name']);
     }
 
-    /** @test */
+    #[Test]
     public function ajax_search_limits_results_to_25(): void
     {
         // Arrange
@@ -102,7 +103,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertLessThanOrEqual(25, count($customers));
     }
 
-    /** @test */
+    #[Test]
     public function ajax_conversations_returns_customer_conversations(): void
     {
         // Arrange
@@ -140,7 +141,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertEquals(2, count($conversations));
     }
 
-    /** @test */
+    #[Test]
     public function ajax_conversations_orders_by_last_reply_at_desc(): void
     {
         // Arrange
@@ -173,7 +174,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertEquals('Old Conversation', $conversations[1]['subject']);
     }
 
-    /** @test */
+    #[Test]
     public function ajax_conversations_limits_to_50_results(): void
     {
         // Arrange
@@ -195,7 +196,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertLessThanOrEqual(50, count($conversations));
     }
 
-    /** @test */
+    #[Test]
     public function ajax_returns_error_for_invalid_action(): void
     {
         // Act
@@ -211,7 +212,7 @@ class CustomerAjaxTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function ajax_requires_authentication(): void
     {
         // Act
@@ -225,7 +226,7 @@ class CustomerAjaxTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    /** @test */
+    #[Test]
     public function ajax_search_returns_empty_array_when_no_matches(): void
     {
         // Arrange
@@ -248,7 +249,7 @@ class CustomerAjaxTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function ajax_search_returns_customer_with_email(): void
     {
         // Arrange
@@ -274,7 +275,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertEquals('jane@example.com', $customers[0]['email']);
     }
 
-    /** @test */
+    #[Test]
     public function ajax_conversations_returns_empty_array_for_customer_with_no_conversations(): void
     {
         // Arrange

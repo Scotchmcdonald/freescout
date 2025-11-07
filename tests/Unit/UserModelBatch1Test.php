@@ -8,13 +8,14 @@ use App\Models\User;
 use App\Models\Mailbox;
 use App\Models\Conversation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserModelBatch1Test extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function user_has_is_admin_method(): void
     {
         // Arrange
@@ -26,7 +27,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertFalse($regularUser->isAdmin());
     }
 
-    /** @test */
+    #[Test]
     public function user_has_is_active_method(): void
     {
         // Arrange
@@ -38,7 +39,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertFalse($inactiveUser->isActive());
     }
 
-    /** @test */
+    #[Test]
     public function user_has_get_full_name_method(): void
     {
         // Arrange
@@ -55,7 +56,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertEquals('John Doe', $fullName);
     }
 
-    /** @test */
+    #[Test]
     public function user_get_full_name_returns_email_when_name_empty(): void
     {
         // Arrange
@@ -72,7 +73,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertEquals('john@example.com', $fullName);
     }
 
-    /** @test */
+    #[Test]
     public function user_has_full_name_accessor(): void
     {
         // Arrange
@@ -85,7 +86,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertEquals('Jane Smith', $user->full_name);
     }
 
-    /** @test */
+    #[Test]
     public function user_has_name_attribute_accessor(): void
     {
         // Arrange
@@ -99,7 +100,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertEquals('Jane Smith', $user->name);
     }
 
-    /** @test */
+    #[Test]
     public function user_has_mailboxes_relationship(): void
     {
         // Arrange
@@ -115,7 +116,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertTrue($user->mailboxes->contains($mailbox));
     }
 
-    /** @test */
+    #[Test]
     public function user_has_conversations_relationship(): void
     {
         // Arrange
@@ -132,7 +133,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertTrue($user->conversations->contains($conversation));
     }
 
-    /** @test */
+    #[Test]
     public function user_has_folders_relationship(): void
     {
         // Arrange
@@ -145,7 +146,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $relationship);
     }
 
-    /** @test */
+    #[Test]
     public function user_has_followed_conversations_relationship(): void
     {
         // Arrange
@@ -158,7 +159,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $relationship);
     }
 
-    /** @test */
+    #[Test]
     public function user_has_threads_relationship(): void
     {
         // Arrange
@@ -171,7 +172,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $relationship);
     }
 
-    /** @test */
+    #[Test]
     public function user_has_subscriptions_relationship(): void
     {
         // Arrange
@@ -184,7 +185,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $relationship);
     }
 
-    /** @test */
+    #[Test]
     public function user_password_is_automatically_hashed(): void
     {
         // Arrange & Act
@@ -197,7 +198,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertTrue(\Illuminate\Support\Facades\Hash::check('plaintext-password', $user->password));
     }
 
-    /** @test */
+    #[Test]
     public function user_role_constants_are_defined(): void
     {
         // Assert
@@ -205,7 +206,7 @@ class UserModelBatch1Test extends TestCase
         $this->assertEquals(2, User::ROLE_ADMIN);
     }
 
-    /** @test */
+    #[Test]
     public function user_status_constants_are_defined(): void
     {
         // Assert

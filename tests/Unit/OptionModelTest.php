@@ -6,6 +6,7 @@ namespace Tests\Unit;
 
 use App\Models\Option;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class OptionModelTest extends TestCase
@@ -29,7 +30,7 @@ class OptionModelTest extends TestCase
         $this->assertEquals('Freescout', $option->value);
     }
 
-    /** @test */
+    #[Test]
     public function option_can_store_key_value_pairs(): void
     {
         $option = Option::create([
@@ -41,7 +42,7 @@ class OptionModelTest extends TestCase
         $this->assertEquals('test_value', $option->value);
     }
 
-    /** @test */
+    #[Test]
     public function option_can_retrieve_value_by_name(): void
     {
         Option::create([
@@ -54,7 +55,7 @@ class OptionModelTest extends TestCase
         $this->assertEquals('Acme Corp', $value);
     }
 
-    /** @test */
+    #[Test]
     public function option_returns_default_when_key_not_found(): void
     {
         $value = Option::getValue('non_existent_key', 'default_value');
@@ -62,7 +63,7 @@ class OptionModelTest extends TestCase
         $this->assertEquals('default_value', $value);
     }
 
-    /** @test */
+    #[Test]
     public function option_can_set_value_by_name(): void
     {
         Option::setValue('app_name', 'FreeScout');
@@ -73,7 +74,7 @@ class OptionModelTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function option_can_update_existing_value(): void
     {
         Option::create([
@@ -92,7 +93,7 @@ class OptionModelTest extends TestCase
         $this->assertEquals(1, Option::where('name', 'company_name')->count());
     }
 
-    /** @test */
+    #[Test]
     public function option_can_delete_by_name(): void
     {
         Option::create([
@@ -108,7 +109,7 @@ class OptionModelTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function option_delete_returns_false_when_key_not_found(): void
     {
         $deleted = Option::deleteOption('non_existent_key');

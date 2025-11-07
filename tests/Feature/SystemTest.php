@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SystemTest extends TestCase
@@ -28,7 +29,7 @@ class SystemTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_view_system_status_page(): void
     {
         // Act
@@ -40,7 +41,7 @@ class SystemTest extends TestCase
         $response->assertViewHas('systemInfo');
     }
 
-    /** @test */
+    #[Test]
     public function system_status_page_displays_php_version(): void
     {
         // Act
@@ -51,7 +52,7 @@ class SystemTest extends TestCase
         $response->assertSee(PHP_VERSION);
     }
 
-    /** @test */
+    #[Test]
     public function system_status_page_displays_laravel_version(): void
     {
         // Act
@@ -62,7 +63,7 @@ class SystemTest extends TestCase
         $response->assertSee(app()->version());
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_run_system_diagnostics(): void
     {
         // Act
@@ -82,7 +83,7 @@ class SystemTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_view_system_status(): void
     {
         // Act
@@ -92,7 +93,7 @@ class SystemTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_view_system_logs(): void
     {
         // Act
@@ -102,7 +103,7 @@ class SystemTest extends TestCase
         $response->assertOk();
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_access_system_logs(): void
     {
         // Act
@@ -112,7 +113,7 @@ class SystemTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_clear_cache_via_ajax(): void
     {
         // Arrange
@@ -128,7 +129,7 @@ class SystemTest extends TestCase
         $response->assertJson(['success' => true]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_optimize_application_via_ajax(): void
     {
         // Arrange
@@ -144,7 +145,7 @@ class SystemTest extends TestCase
         $response->assertJson(['success' => true]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_get_system_info_via_ajax(): void
     {
         // Arrange
@@ -169,7 +170,7 @@ class SystemTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_execute_system_ajax_commands(): void
     {
         // Arrange
@@ -184,7 +185,7 @@ class SystemTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function invalid_ajax_action_returns_error(): void
     {
         // Arrange

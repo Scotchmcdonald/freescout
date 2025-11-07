@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Option;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class OptionRegressionTest extends TestCase
@@ -22,7 +23,7 @@ class OptionRegressionTest extends TestCase
      * The modern version uses Option::getValue($name, $default).
      * Both should behave identically.
      */
-    /** @test */
+    #[Test]
     public function option_retrieval_matches_l5_behavior(): void
     {
         // Test 1: Get existing option
@@ -50,7 +51,7 @@ class OptionRegressionTest extends TestCase
      * The modern version uses Option::setValue($name, $value).
      * Both should create or update the option.
      */
-    /** @test */
+    #[Test]
     public function option_setting_matches_l5_behavior(): void
     {
         // Test 1: Set a new option
@@ -79,7 +80,7 @@ class OptionRegressionTest extends TestCase
      * The L5 version used Option::remove($name).
      * The modern version uses Option::deleteOption($name).
      */
-    /** @test */
+    #[Test]
     public function option_deletion_matches_l5_behavior(): void
     {
         // Arrange
@@ -104,7 +105,7 @@ class OptionRegressionTest extends TestCase
      * In modern app, we use Option::getValue('setting_key', $default).
      * Both should return the same default values.
      */
-    /** @test */
+    #[Test]
     public function settings_default_values_match_l5(): void
     {
         // Test default for non-existent company_name
@@ -119,7 +120,7 @@ class OptionRegressionTest extends TestCase
      * Regression Test: Verify that option values can be updated via controller.
      * This ensures the entire flow from L5 settings page works the same way.
      */
-    /** @test */
+    #[Test]
     public function settings_update_flow_matches_l5(): void
     {
         // Arrange
@@ -157,7 +158,7 @@ class OptionRegressionTest extends TestCase
      * In L5, boolean options were stored as integers (0 or 1).
      * The modern implementation should maintain this compatibility.
      */
-    /** @test */
+    #[Test]
     public function boolean_options_stored_as_integers_like_l5(): void
     {
         // Arrange
@@ -192,7 +193,7 @@ class OptionRegressionTest extends TestCase
      * In modern, Option::setValue() uses updateOrCreate().
      * Both should result in the same database state.
      */
-    /** @test */
+    #[Test]
     public function update_or_create_behavior_matches_l5(): void
     {
         // Test 1: Create new option

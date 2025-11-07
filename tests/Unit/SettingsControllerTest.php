@@ -7,6 +7,7 @@ namespace Tests\Unit;
 use App\Http\Controllers\SettingsController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SettingsControllerTest extends TestCase
@@ -41,7 +42,7 @@ class SettingsControllerTest extends TestCase
         $this->assertTrue(method_exists($controller, 'email'));
     }
 
-    /** @test */
+    #[Test]
     public function settings_controller_validates_company_name(): void
     {
         $rules = [
@@ -59,7 +60,7 @@ class SettingsControllerTest extends TestCase
         $this->assertTrue($validator->fails());
     }
 
-    /** @test */
+    #[Test]
     public function settings_controller_validates_next_ticket_number(): void
     {
         $rules = [
@@ -82,7 +83,7 @@ class SettingsControllerTest extends TestCase
         $this->assertTrue($validator->fails());
     }
 
-    /** @test */
+    #[Test]
     public function settings_controller_validates_email_driver(): void
     {
         $rules = [
@@ -100,7 +101,7 @@ class SettingsControllerTest extends TestCase
         $this->assertTrue($validator->fails());
     }
 
-    /** @test */
+    #[Test]
     public function settings_controller_validates_email_address_format(): void
     {
         $rules = [
@@ -118,7 +119,7 @@ class SettingsControllerTest extends TestCase
         $this->assertTrue($validator->fails());
     }
 
-    /** @test */
+    #[Test]
     public function settings_controller_validates_mail_port_is_integer(): void
     {
         $rules = [
@@ -136,7 +137,7 @@ class SettingsControllerTest extends TestCase
         $this->assertTrue($validator->fails());
     }
 
-    /** @test */
+    #[Test]
     public function settings_controller_validates_encryption_type(): void
     {
         $rules = [

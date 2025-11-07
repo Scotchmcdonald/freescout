@@ -8,6 +8,7 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Email;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CustomerModelTest extends TestCase
@@ -93,7 +94,7 @@ class CustomerModelTest extends TestCase
         $this->assertEquals('Springfield', $customer->city);
     }
 
-    /** @test */
+    #[Test]
     public function customer_has_conversations_relationship(): void
     {
         // Arrange
@@ -111,7 +112,7 @@ class CustomerModelTest extends TestCase
         $this->assertEquals(1, $result->count());
     }
 
-    /** @test */
+    #[Test]
     public function customer_full_name_accessor_works(): void
     {
         // Arrange
@@ -127,7 +128,7 @@ class CustomerModelTest extends TestCase
         $this->assertEquals('Jane Smith', $fullName);
     }
 
-    /** @test */
+    #[Test]
     public function customer_full_name_accessor_trims_whitespace(): void
     {
         // Arrange
@@ -144,7 +145,7 @@ class CustomerModelTest extends TestCase
         $this->assertStringNotContainsString('  ', $fullName);
     }
 
-    /** @test */
+    #[Test]
     public function customer_has_emails_relationship(): void
     {
         // Arrange
@@ -163,7 +164,7 @@ class CustomerModelTest extends TestCase
         $this->assertEquals('test@example.com', $result->first()->email);
     }
 
-    /** @test */
+    #[Test]
     public function customer_get_main_email_returns_primary_email(): void
     {
         // Arrange
@@ -186,7 +187,7 @@ class CustomerModelTest extends TestCase
         $this->assertEquals('primary@example.com', $mainEmail);
     }
 
-    /** @test */
+    #[Test]
     public function customer_get_main_email_returns_first_email_if_no_primary(): void
     {
         // Arrange
@@ -204,7 +205,7 @@ class CustomerModelTest extends TestCase
         $this->assertEquals('only@example.com', $mainEmail);
     }
 
-    /** @test */
+    #[Test]
     public function customer_get_main_email_returns_null_when_no_emails(): void
     {
         // Arrange
@@ -217,7 +218,7 @@ class CustomerModelTest extends TestCase
         $this->assertNull($mainEmail);
     }
 
-    /** @test */
+    #[Test]
     public function customer_has_threads_relationship(): void
     {
         // Arrange
@@ -230,7 +231,7 @@ class CustomerModelTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $result);
     }
 
-    /** @test */
+    #[Test]
     public function customer_has_channels_relationship(): void
     {
         // Arrange
@@ -243,7 +244,7 @@ class CustomerModelTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $result);
     }
 
-    /** @test */
+    #[Test]
     public function customer_get_first_name_returns_empty_string_when_null(): void
     {
         // Arrange
@@ -256,7 +257,7 @@ class CustomerModelTest extends TestCase
         $this->assertEquals('', $firstName);
     }
 
-    /** @test */
+    #[Test]
     public function customer_get_first_name_returns_actual_value(): void
     {
         // Arrange
@@ -269,7 +270,7 @@ class CustomerModelTest extends TestCase
         $this->assertEquals('John', $firstName);
     }
 
-    /** @test */
+    #[Test]
     public function customer_primary_email_attribute_returns_primary_email(): void
     {
         // Arrange
@@ -292,7 +293,7 @@ class CustomerModelTest extends TestCase
         $this->assertEquals('primary@example.com', $primaryEmail);
     }
 
-    /** @test */
+    #[Test]
     public function customer_primary_email_attribute_returns_null_when_no_primary(): void
     {
         // Arrange
@@ -310,7 +311,7 @@ class CustomerModelTest extends TestCase
         $this->assertNull($primaryEmail);
     }
 
-    /** @test */
+    #[Test]
     public function customer_casts_attributes_correctly(): void
     {
         // Arrange
@@ -326,7 +327,7 @@ class CustomerModelTest extends TestCase
         $this->assertIsArray($customer->social_profiles);
     }
 
-    /** @test */
+    #[Test]
     public function customer_fillable_includes_all_expected_fields(): void
     {
         // Arrange
