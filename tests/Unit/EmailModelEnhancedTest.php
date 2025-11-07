@@ -9,7 +9,7 @@ use App\Models\Email;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class EmailModelTest extends TestCase
+class EmailModelEnhancedTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -285,9 +285,10 @@ class EmailModelTest extends TestCase
     public function email_casts_attributes_correctly(): void
     {
         // Arrange
+        $customer = Customer::factory()->create();
         $email = Email::factory()->create([
             'type' => '1',
-            'customer_id' => '123',
+            'customer_id' => (string) $customer->id,
         ]);
 
         // Act & Assert
