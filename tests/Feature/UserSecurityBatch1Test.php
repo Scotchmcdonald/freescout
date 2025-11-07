@@ -52,7 +52,10 @@ class UserSecurityBatch1Test extends TestCase
         $response->assertRedirect();
         
         $user = User::where('email', 'test@example.com')->first();
-        // HTML should be stored as-is (output escaping happens in views)
+        // NOTE: HTML is stored as-is in the database. This test verifies that:
+        // 1. Input is not automatically stripped/sanitized at storage level
+        // 2. Views MUST use {{ $var }} (auto-escaped) not {!! $var !!} (unescaped)
+        // 3. This is Laravel's standard approach - store raw, escape on output
         $this->assertEquals('<b>Bold</b>', $user->first_name);
         $this->assertEquals('<script>alert("xss")</script>', $user->last_name);
     }

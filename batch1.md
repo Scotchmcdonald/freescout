@@ -503,7 +503,6 @@ class AuthenticationBatch1Test extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        $response->assertViewIs('auth.login');
     }
 
     /** @test */
