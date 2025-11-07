@@ -120,6 +120,8 @@ class Conversation extends Model
 
     /**
      * Get the folder that owns the conversation.
+     * 
+     * @return BelongsTo<Folder, $this>
      */
     public function folder(): BelongsTo
     {
@@ -128,6 +130,8 @@ class Conversation extends Model
 
     /**
      * Get the mailbox that owns the conversation.
+     * 
+     * @return BelongsTo<Mailbox, $this>
      */
     public function mailbox(): BelongsTo
     {
@@ -136,6 +140,8 @@ class Conversation extends Model
 
     /**
      * Get the user assigned to the conversation.
+     * 
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -144,6 +150,8 @@ class Conversation extends Model
 
     /**
      * Get the customer associated with the conversation.
+     * 
+     * @return BelongsTo<Customer, $this>
      */
     public function customer(): BelongsTo
     {
@@ -152,6 +160,8 @@ class Conversation extends Model
 
     /**
      * Get the user who created the conversation.
+     * 
+     * @return BelongsTo<User, $this>
      */
     public function createdByUser(): BelongsTo
     {
@@ -160,6 +170,8 @@ class Conversation extends Model
 
     /**
      * Get the user who closed the conversation.
+     * 
+     * @return BelongsTo<User, $this>
      */
     public function closedByUser(): BelongsTo
     {
@@ -168,6 +180,8 @@ class Conversation extends Model
 
     /**
      * Get the threads for the conversation.
+     * 
+     * @return HasMany<Thread, $this>
      */
     public function threads(): HasMany
     {
@@ -176,6 +190,8 @@ class Conversation extends Model
 
     /**
      * Get the users following this conversation.
+     * 
+     * @return BelongsToMany<User, $this>
      */
     public function followers(): BelongsToMany
     {

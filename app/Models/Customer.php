@@ -73,6 +73,8 @@ class Customer extends Model
 
     /**
      * Get the emails for this customer.
+     * 
+     * @return HasMany<Email, $this>
      */
     public function emails(): HasMany
     {
@@ -81,6 +83,8 @@ class Customer extends Model
 
     /**
      * Get the conversations for this customer.
+     * 
+     * @return HasMany<Conversation, $this>
      */
     public function conversations(): HasMany
     {
@@ -89,6 +93,8 @@ class Customer extends Model
 
     /**
      * Get the threads for this customer.
+     * 
+     * @return HasMany<Thread, $this>
      */
     public function threads(): HasMany
     {
@@ -97,6 +103,8 @@ class Customer extends Model
 
     /**
      * Get the channels associated with this customer.
+     * 
+     * @return BelongsToMany<Channel, $this>
      */
     public function channels(): BelongsToMany
     {

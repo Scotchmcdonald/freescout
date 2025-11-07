@@ -40,6 +40,8 @@ class Email extends Model
 
     /**
      * Get the customer that owns the email.
+     * 
+     * @return BelongsTo<Customer, $this>
      */
     public function customer(): BelongsTo
     {

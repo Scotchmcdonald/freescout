@@ -49,6 +49,8 @@ class Attachment extends Model
 
     /**
      * Get the thread that owns the attachment.
+     * 
+     * @return BelongsTo<Thread, $this>
      */
     public function thread(): BelongsTo
     {

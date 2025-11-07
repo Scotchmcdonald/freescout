@@ -95,6 +95,8 @@ class Thread extends Model
 
     /**
      * Get the conversation that owns the thread.
+     * 
+     * @return BelongsTo<Conversation, $this>
      */
     public function conversation(): BelongsTo
     {
@@ -103,6 +105,8 @@ class Thread extends Model
 
     /**
      * Get the user that created the thread.
+     * 
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -111,6 +115,8 @@ class Thread extends Model
 
     /**
      * Get the customer associated with the thread.
+     * 
+     * @return BelongsTo<Customer, $this>
      */
     public function customer(): BelongsTo
     {
@@ -119,6 +125,8 @@ class Thread extends Model
 
     /**
      * Get the user who created the thread (for email replies from users).
+     * 
+     * @return BelongsTo<User, $this>
      */
     public function createdByUser(): BelongsTo
     {
@@ -127,6 +135,8 @@ class Thread extends Model
 
     /**
      * Get the user who edited the thread.
+     * 
+     * @return BelongsTo<User, $this>
      */
     public function editedByUser(): BelongsTo
     {
@@ -135,6 +145,8 @@ class Thread extends Model
 
     /**
      * Get the attachments for the thread.
+     * 
+     * @return HasMany<Attachment, $this>
      */
     public function attachments(): HasMany
     {

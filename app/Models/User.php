@@ -79,6 +79,8 @@ class User extends Authenticatable
 
     /**
      * Get the mailboxes that the user has access to.
+     * 
+     * @return BelongsToMany<Mailbox, $this>
      */
     public function mailboxes(): BelongsToMany
     {
@@ -89,6 +91,8 @@ class User extends Authenticatable
 
     /**
      * Get the folders created by this user.
+     * 
+     * @return HasMany<Folder, $this>
      */
     public function folders(): HasMany
     {
@@ -97,6 +101,8 @@ class User extends Authenticatable
 
     /**
      * Get the conversations assigned to this user.
+     * 
+     * @return HasMany<Conversation, $this>
      */
     public function conversations(): HasMany
     {
@@ -105,6 +111,8 @@ class User extends Authenticatable
 
     /**
      * Get the conversations this user is following.
+     * 
+     * @return BelongsToMany<Conversation, $this>
      */
     public function followedConversations(): BelongsToMany
     {
@@ -114,6 +122,8 @@ class User extends Authenticatable
 
     /**
      * Get the threads created by this user.
+     * 
+     * @return HasMany<Thread, $this>
      */
     public function threads(): HasMany
     {

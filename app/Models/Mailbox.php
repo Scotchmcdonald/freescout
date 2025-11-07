@@ -123,6 +123,8 @@ class Mailbox extends Model
 
     /**
      * Get the users that have access to this mailbox.
+     * 
+     * @return BelongsToMany<User, $this>
      */
     public function users(): BelongsToMany
     {
@@ -133,6 +135,8 @@ class Mailbox extends Model
 
     /**
      * Get the folders for this mailbox.
+     * 
+     * @return HasMany<Folder, $this>
      */
     public function folders(): HasMany
     {
@@ -141,6 +145,8 @@ class Mailbox extends Model
 
     /**
      * Get the conversations for this mailbox.
+     * 
+     * @return HasMany<Conversation, $this>
      */
     public function conversations(): HasMany
     {

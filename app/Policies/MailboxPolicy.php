@@ -30,7 +30,10 @@ class MailboxPolicy
             return true;
         }
 
-        $pivot = $user->mailboxes->find($mailbox->id)?->pivot;
+        /** @var Mailbox|null $mailboxWithPivot */
+        $mailboxWithPivot = $user->mailboxes->find($mailbox->id);
+        // @phpstan-ignore-next-line - Pivot property exists on BelongsToMany relationship models
+        $pivot = $mailboxWithPivot?->pivot;
 
         return $pivot && $pivot->access >= self::ACCESS_VIEW;
     }
@@ -52,7 +55,10 @@ class MailboxPolicy
             return true;
         }
 
-        $pivot = $user->mailboxes->find($mailbox->id)?->pivot;
+        /** @var Mailbox|null $mailboxWithPivot */
+        $mailboxWithPivot = $user->mailboxes->find($mailbox->id);
+        // @phpstan-ignore-next-line - Pivot property exists on BelongsToMany relationship models
+        $pivot = $mailboxWithPivot?->pivot;
 
         return $pivot && $pivot->access >= self::ACCESS_ADMIN;
     }
@@ -90,7 +96,10 @@ class MailboxPolicy
             return true;
         }
 
-        $pivot = $user->mailboxes->find($mailbox->id)?->pivot;
+        /** @var Mailbox|null $mailboxWithPivot */
+        $mailboxWithPivot = $user->mailboxes->find($mailbox->id);
+        // @phpstan-ignore-next-line - Pivot property exists on BelongsToMany relationship models
+        $pivot = $mailboxWithPivot?->pivot;
 
         return $pivot && $pivot->access >= self::ACCESS_REPLY;
     }
