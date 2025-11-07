@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Models\Subscription;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SubscriptionModelTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_model_can_be_instantiated(): void
     {
         $subscription = new Subscription();
@@ -26,5 +30,130 @@ class SubscriptionModelTest extends TestCase
         $this->assertEquals(1, $subscription->user_id);
         $this->assertEquals(1, $subscription->medium);
         $this->assertEquals(2, $subscription->event);
+    }
+
+    public function test_is_email_returns_true_for_email_medium(): void
+    {
+        $subscription = Subscription::factory()->make(['medium' => 1]);
+
+        $this->assertTrue($subscription->isEmail());
+    }
+
+    public function test_is_email_returns_false_for_non_email_medium(): void
+    {
+        $subscription = Subscription::factory()->make(['medium' => 2]);
+        $this->assertFalse($subscription->isEmail());
+
+        $subscription = Subscription::factory()->make(['medium' => 3]);
+        $this->assertFalse($subscription->isEmail());
+    }
+
+    public function test_is_browser_returns_true_for_browser_medium(): void
+    {
+        $subscription = Subscription::factory()->make(['medium' => 2]);
+
+        $this->assertTrue($subscription->isBrowser());
+    }
+
+    public function test_is_browser_returns_false_for_non_browser_medium(): void
+    {
+        $subscription = Subscription::factory()->make(['medium' => 1]);
+        $this->assertFalse($subscription->isBrowser());
+
+        $subscription = Subscription::factory()->make(['medium' => 3]);
+        $this->assertFalse($subscription->isBrowser());
+    }
+
+    public function test_is_mobile_returns_true_for_mobile_medium(): void
+    {
+        $subscription = Subscription::factory()->make(['medium' => 3]);
+
+        $this->assertTrue($subscription->isMobile());
+    }
+
+    public function test_is_mobile_returns_false_for_non_mobile_medium(): void
+    {
+        $subscription = Subscription::factory()->make(['medium' => 1]);
+        $this->assertFalse($subscription->isMobile());
+
+        $subscription = Subscription::factory()->make(['medium' => 2]);
+        $this->assertFalse($subscription->isMobile());
+    }
+
+    public function test_belongs_to_user(): void
+    {
+        $user = User::factory()->create();
+        $subscription = Subscription::factory()->for($user)->create();
+
+        $this->assertInstanceOf(User::class, $subscription->user);
+        $this->assertEquals($user->id, $subscription->user->id);
+    }
+
+    public function test_medium_and_event_cast_to_integer(): void
+    {
+        $subscription = Subscription::factory()->create([
+            'medium' => '1',
+            'event' => '2',
+        ]);
+
+        $this->assertIsInt($subscription->medium);
+        $this->assertIsInt($subscription->event);
+        $this->assertEquals(1, $subscription->medium);
+        $this->assertEquals(2, $subscription->event);
+    }
+
+    public function test_subscription_medium_edge_case_values(): void
+    {
+        // Test boundary values for medium
+        $sub1 = Subscription::factory()->create(['medium' => 1]);
+        $this->assertTrue($sub1->isEmail());
+
+        $sub2 = Subscription::factory()->create(['medium' => 2]);
+        $this->assertTrue($sub2->isBrowser());
+
+        $sub3 = Subscription::factory()->create(['medium' => 3]);
+        $this->assertTrue($sub3->isMobile());
+    }
+
+    public function test_subscription_with_various_event_values(): void
+    {
+        // Test that event field accepts various numeric values (tinyint unsigned: 0-255)
+        $sub1 = Subscription::factory()->create(['event' => 1]);
+        $this->assertEquals(1, $sub1->event);
+
+        $sub2 = Subscription::factory()->create(['event' => 10]);
+        $this->assertEquals(10, $sub2->event);
+
+        $sub3 = Subscription::factory()->create(['event' => 255]);
+        $this->assertEquals(255, $sub3->event);
+    }
+
+    public function test_multiple_subscriptions_for_same_user(): void
+    {
+        $user = User::factory()->create();
+        
+        Subscription::factory()->create([
+            'user_id' => $user->id,
+            'medium' => 1,
+            'event' => 1,
+        ]);
+        
+        Subscription::factory()->create([
+            'user_id' => $user->id,
+            'medium' => 2,
+            'event' => 2,
+        ]);
+
+        $subscriptions = $user->subscriptions;
+
+        $this->assertCount(2, $subscriptions);
+    }
+
+    public function test_created_at_and_updated_at_timestamps(): void
+    {
+        $subscription = Subscription::factory()->create();
+
+        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $subscription->created_at);
+        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $subscription->updated_at);
     }
 }
