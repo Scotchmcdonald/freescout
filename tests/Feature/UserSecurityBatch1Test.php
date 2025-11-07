@@ -117,9 +117,6 @@ class UserSecurityBatch1Test extends TestCase
         $this->assertGuest();
         $newSessionId = session()->getId();
         $this->assertNotEquals($sessionId, $newSessionId);
-        
-        // Verify old session is no longer valid
-        $this->assertGuest();
     }
 
     public function test_failed_login_attempts_do_not_reveal_user_existence(): void
