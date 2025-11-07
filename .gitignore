@@ -2,6 +2,10 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
 # We are committing /vendor directory to make installation process super easy, even on a shared hosting:
 # - https://www.codeenigma.com/build/blog/do-you-really-need-composer-production
 # - https://getcomposer.org/doc/faqs/should-i-commit-the-dependencies-in-my-vendor-directory.md
