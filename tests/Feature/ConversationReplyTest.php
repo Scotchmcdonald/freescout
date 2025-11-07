@@ -70,7 +70,7 @@ class ConversationReplyTest extends TestCase
         $this->assertDatabaseHas('threads', [
             'conversation_id' => $this->conversation->id,
             'body' => 'This is a reply to the conversation',
-            'type' => Thread::TYPE_MESSAGE,
+            'type' => 1, // User message type
         ]);
     }
 

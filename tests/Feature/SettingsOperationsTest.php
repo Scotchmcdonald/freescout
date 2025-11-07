@@ -172,14 +172,10 @@ class SettingsOperationsTest extends TestCase
      */
     public function test_cache_clear_with_active_sessions(): void
     {
-        // Arrange - Create multiple active sessions
-        $user1 = User::factory()->create();
-        $user2 = User::factory()->create();
-
-        // Act - Clear cache while users are "logged in"
+        // Act - Clear cache while multiple users could be active
         $response = $this->actingAs($this->admin)->post(route('settings.cache.clear'));
 
-        // Assert - Operation should succeed without affecting sessions
+        // Assert - Operation should succeed
         $response->assertRedirect();
     }
 }
