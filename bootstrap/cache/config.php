@@ -69,7 +69,7 @@
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
     'cipher' => 'AES-256-CBC',
-    'key' => 'base64:W+puG8XPhqhEXBJC8vnzRoWmY3LmIro6Yy/WV1hQwsM=',
+    'key' => 'base64:6aPyP/i43RHm9WJXl4Qky8AAuX+8Zx7KFgCmttSiXR8=',
     'previous_keys' => 
     array (
     ),

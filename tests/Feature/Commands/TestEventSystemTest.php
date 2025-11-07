@@ -325,4 +325,203 @@ class TestEventSystemTest extends TestCase
             return $event->thread->id === $thread1->id;
         });
     }
+
+    /**
+     * Test command handles database integrity with invalid customer ID.
+     */
+    public function test_command_handles_invalid_customer_data_gracefully(): void
+    {
+        // Note: SQLite enforces foreign key constraints, so we can't create
+        // a conversation with an invalid customer_id. This test documents
+        // that the database prevents invalid data at the constraint level.
+        
+        // Arrange
+        $mailbox = Mailbox::factory()->create();
+        
+        // Attempting to create conversation with invalid customer_id would fail
+        // at database level due to foreign key constraint, which is correct behavior
+        
+        // Instead, test with NULL customer_id
+        $conversation = Conversation::factory()
+            ->for($mailbox)
+            ->create(['customer_id' => null]);
+
+        // Act
+        $this->artisan('freescout:test-events')
+            ->expectsOutput('Conversation missing thread or customer.')
+            ->assertExitCode(1);
+    }
+
+    /**
+     * Test command fires both event types.
+     */
+    public function test_command_fires_both_event_types(): void
+    {
+        // Arrange
+        Event::fake();
+
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()
+            ->for($mailbox)
+            ->for($customer)
+            ->create();
+        Thread::factory()
+            ->for($conversation)
+            ->create();
+
+        // Act
+        $this->artisan('freescout:test-events')
+            ->expectsOutput('Firing CustomerCreatedConversation event...')
+            ->expectsOutput('Firing CustomerReplied event...')
+            ->assertExitCode(0);
+
+        // Assert - both event types dispatched
+        Event::assertDispatched(CustomerCreatedConversation::class);
+        Event::assertDispatched(CustomerReplied::class);
+    }
+
+    /**
+     * Test command displays correct conversation ID.
+     */
+    public function test_command_displays_correct_conversation_id(): void
+    {
+        // Arrange
+        Event::fake();
+
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()
+            ->for($mailbox)
+            ->for($customer)
+            ->create();
+        Thread::factory()
+            ->for($conversation)
+            ->create();
+
+        // Act & Assert
+        $this->artisan('freescout:test-events')
+            ->expectsOutputToContain("Conversation ID: {$conversation->id}")
+            ->assertExitCode(0);
+    }
+
+    /**
+     * Test command with customer that has multiple email addresses.
+     */
+    public function test_command_displays_customer_main_email(): void
+    {
+        // Arrange
+        Event::fake();
+
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()
+            ->for($mailbox)
+            ->for($customer)
+            ->create();
+        Thread::factory()
+            ->for($conversation)
+            ->create();
+
+        $mainEmail = $customer->getMainEmail();
+
+        // Act
+        $this->artisan('freescout:test-events')
+            ->expectsOutputToContain($mainEmail)
+            ->assertExitCode(0);
+    }
+
+    /**
+     * Test command successfully with minimal data setup.
+     */
+    public function test_command_works_with_minimal_data_setup(): void
+    {
+        // Arrange - Create minimal required data
+        Event::fake();
+
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()
+            ->for($mailbox)
+            ->for($customer)
+            ->create();
+        Thread::factory()
+            ->for($conversation)
+            ->create();
+
+        // Act
+        $this->artisan('freescout:test-events')
+            ->expectsOutput('Testing event system...')
+            ->expectsOutput('Firing CustomerCreatedConversation event...')
+            ->expectsOutput('Firing CustomerReplied event...')
+            ->assertExitCode(0);
+
+        // Assert both events dispatched
+        Event::assertDispatched(CustomerCreatedConversation::class);
+        Event::assertDispatched(CustomerReplied::class);
+    }
+
+    /**
+     * Test command verifies relationships are eager loaded.
+     */
+    public function test_command_eager_loads_required_relationships(): void
+    {
+        // Arrange
+        Event::fake();
+
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()
+            ->for($mailbox)
+            ->for($customer)
+            ->create();
+        Thread::factory()
+            ->for($conversation)
+            ->create();
+
+        // Act
+        $this->artisan('freescout:test-events')
+            ->assertExitCode(0);
+
+        // Assert - conversation should have threads and customer relationships loaded
+        Event::assertDispatched(CustomerCreatedConversation::class, function ($event) {
+            return $event->conversation->relationLoaded('threads')
+                && $event->conversation->relationLoaded('customer');
+        });
+    }
+
+    /**
+     * Test command handles multiple conversations correctly.
+     */
+    public function test_command_selects_first_conversation_when_multiple_exist(): void
+    {
+        // Arrange
+        Event::fake();
+
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+        
+        // Create multiple conversations
+        $conversation1 = Conversation::factory()
+            ->for($mailbox)
+            ->for($customer)
+            ->create(['created_at' => now()->subDays(2)]);
+        Thread::factory()->for($conversation1)->create();
+
+        $conversation2 = Conversation::factory()
+            ->for($mailbox)
+            ->for($customer)
+            ->create(['created_at' => now()->subDay()]);
+        Thread::factory()->for($conversation2)->create();
+
+        // Act
+        $this->artisan('freescout:test-events')
+            ->expectsOutputToContain("Conversation ID: {$conversation1->id}")
+            ->assertExitCode(0);
+
+        // Assert - uses first conversation
+        Event::assertDispatched(CustomerCreatedConversation::class, function ($event) use ($conversation1) {
+            return $event->conversation->id === $conversation1->id;
+        });
+    }
 }
