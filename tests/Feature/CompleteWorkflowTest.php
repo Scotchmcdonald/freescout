@@ -377,11 +377,12 @@ class CompleteWorkflowTest extends TestCase
         // Create attachment directly (using database schema names, not model properties)
         $attachment = \DB::table('attachments')->insert([
             'thread_id' => $thread->id,
-            'filename' => 'screenshot.png',
+            'conversation_id' => null,
+            'file_name' => 'screenshot.png',
+            'file_dir' => 'attachments/test',
+            'file_size' => 12345,
             'mime_type' => 'image/png',
-            'size' => 12345,
-            'inline' => false,
-            'public' => false,
+            'embedded' => false,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -389,7 +390,7 @@ class CompleteWorkflowTest extends TestCase
         // Verify attachment is linked
         $this->assertDatabaseHas('attachments', [
             'thread_id' => $thread->id,
-            'filename' => 'screenshot.png',
+            'file_name' => 'screenshot.png',
         ]);
 
         // View conversation with attachment
@@ -676,11 +677,12 @@ class CompleteWorkflowTest extends TestCase
         for ($i = 1; $i <= 3; $i++) {
             \DB::table('attachments')->insert([
                 'thread_id' => $thread->id,
-                'filename' => "document{$i}.pdf",
+                'conversation_id' => null,
+                'file_name' => "document{$i}.pdf",
+                'file_dir' => "attachments/test{$i}",
+                'file_size' => 10000 + $i,
                 'mime_type' => 'application/pdf',
-                'size' => 10000 + $i,
-                'inline' => false,
-                'public' => false,
+                'embedded' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -702,8 +704,8 @@ class CompleteWorkflowTest extends TestCase
             ->where('thread_id', $thread->id)
             ->get();
         $this->assertCount(3, $attachmentRecords);
-        $this->assertEquals('document1.pdf', $attachmentRecords[0]->filename);
-        $this->assertEquals('document3.pdf', $attachmentRecords[2]->filename);
+        $this->assertEquals('document1.pdf', $attachmentRecords[0]->file_name);
+        $this->assertEquals('document3.pdf', $attachmentRecords[2]->file_name);
     }
 
     /**

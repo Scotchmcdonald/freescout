@@ -33,30 +33,33 @@ class AttachmentModelTest extends TestCase
     public function test_filename_size_and_mime_type_are_stored(): void
     {
         $attachment = Attachment::factory()->create([
-            'filename' => 'document.pdf',
-            'size' => 2048,
+            'file_name' => 'document.pdf',
+            'file_size' => 2048,
             'mime_type' => 'application/pdf',
         ]);
 
         $this->assertDatabaseHas('attachments', [
             'id' => $attachment->id,
-            'filename' => 'document.pdf',
-            'size' => 2048,
+            'file_name' => 'document.pdf',
+            'file_size' => 2048,
             'mime_type' => 'application/pdf',
         ]);
     }
 
-    public function test_inline_and_public_cast_to_boolean(): void
+    public function test_embedded_cast_to_boolean(): void
     {
         $attachment = Attachment::factory()->create([
-            'inline' => true,
-            'public' => false,
+            'embedded' => true,
         ]);
 
-        $this->assertIsBool($attachment->inline);
-        $this->assertIsBool($attachment->public);
-        $this->assertTrue($attachment->inline);
-        $this->assertFalse($attachment->public);
+        $this->assertIsBool($attachment->embedded);
+        $this->assertTrue($attachment->embedded);
+
+        $attachmentNotEmbedded = Attachment::factory()->create([
+            'embedded' => false,
+        ]);
+
+        $this->assertFalse($attachmentNotEmbedded->embedded);
     }
 
     public function test_image_mime_types_can_be_detected(): void
@@ -68,14 +71,13 @@ class AttachmentModelTest extends TestCase
         $this->assertFalse(str_starts_with($pdfAttachment->mime_type, 'image/'));
     }
 
-    public function test_width_and_height_for_images(): void
+    public function test_is_image_method_works(): void
     {
-        $attachment = Attachment::factory()->image()->create();
+        $imageAttachment = Attachment::factory()->image()->create();
+        $this->assertTrue($imageAttachment->isImage());
 
-        $this->assertNotNull($attachment->width);
-        $this->assertNotNull($attachment->height);
-        $this->assertEquals(1920, $attachment->width);
-        $this->assertEquals(1080, $attachment->height);
+        $pdfAttachment = Attachment::factory()->pdf()->create();
+        $this->assertFalse($pdfAttachment->isImage());
     }
 
     public function test_belongs_to_thread(): void
