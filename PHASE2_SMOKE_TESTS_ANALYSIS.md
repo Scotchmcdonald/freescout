@@ -636,11 +636,13 @@ public function test_update_changes_conversation_status(): void
 
 ## Summary Statistics
 
-- **Total smoke tests identified:** 25 (updated from 12)
+- **Total smoke tests identified:** 47 (updated from 25 in second review, 12 in first review)
 - **Most common issue:** Only asserting status codes (200/OK) without verifying content
 - **Second most common:** Not verifying database changes after data modification
 - **Third most common:** Not checking for form fields or UI elements
 - **Fourth most common:** Missing authentication state assertions
+- **Fifth most common:** Security tests only checking status codes without verifying no data leakage
+- **Sixth most common:** Validation tests not checking error message quality
 
 ## Priority Categories
 
@@ -650,30 +652,56 @@ public function test_update_changes_conversation_status(): void
 3. `test_profile_page_is_displayed()` - User profile display
 4. `test_user_can_view_conversations_list()` - Conversation listing  
 5. `test_user_can_view_conversation()` - Conversation detail view
+6. `test_search_finds_by_subject()` - Search functionality minimal check
+7. `test_admin_can_view_mailboxes_list()` - Mailbox listing
+8. `test_admin_can_view_users_list()` - User management listing
 
-### Medium Priority (Admin Functions)
-6. `test_admin_can_view_auto_reply_settings_page()` - Mailbox configuration
-7. `test_admin_can_view_email_settings_page()` - System settings
-8. `test_admin_can_view_mailbox_settings_page()` - Mailbox management
-9. `test_update_changes_conversation_status()` - Status updates
-10. `test_user_with_access_can_view_mailbox_detail()` - Mailbox access
+### Medium Priority (Admin Functions & Search)
+9. `test_admin_can_view_auto_reply_settings_page()` - Mailbox configuration
+10. `test_admin_can_view_email_settings_page()` - System settings
+11. `test_admin_can_view_mailbox_settings_page()` - Mailbox management
+12. `test_update_changes_conversation_status()` - Status updates
+13. `test_user_with_access_can_view_mailbox_detail()` - Mailbox access
+14. `test_admin_can_view_mailbox_detail()` - Mailbox detail view
+15. `test_admin_search_shows_all_mailboxes()` - Admin search scope
+16. `test_conversation_search_prevents_sql_injection()` - Security check only
 
-### Lower Priority (Secondary Flows & Security Tests)
-11. `test_registration_screen_can_be_rendered()` - Form rendering
-12. `test_login_screen_can_be_rendered()` - Login page
-13. `test_email_verification_screen_can_be_rendered()` - Email verification
-14. `test_reset_password_link_screen_can_be_rendered()` - Password reset
-15. `test_reset_password_screen_can_be_rendered()` - Password reset form
-16. `test_confirm_password_screen_can_be_rendered()` - Password confirmation
-17. `test_user_can_access_customer_edit_page()` - Customer editing
-18. `test_guest_can_view_login_page()` - Login page (duplicate)
-19. `test_password_can_be_confirmed()` - Password confirmation flow
-20. `test_correct_password_must_be_provided_to_update_password()` - Password validation
-21. `test_users_can_logout()` - Logout flow
-22. `test_authenticated_user_can_log_out()` - Logout flow (duplicate)
-23. `test_unauthenticated_user_cannot_view_mailbox_detail()` - Auth guard
-24. `test_mailbox_index_requires_authentication()` - Auth guard
-25. `test_guest_cannot_view_conversations()` - Auth guard
+### Lower Priority (Form Rendering & Auth Guards)
+17. `test_registration_screen_can_be_rendered()` - Form rendering
+18. `test_login_screen_can_be_rendered()` - Login page
+19. `test_email_verification_screen_can_be_rendered()` - Email verification
+20. `test_reset_password_link_screen_can_be_rendered()` - Password reset
+21. `test_reset_password_screen_can_be_rendered()` - Password reset form
+22. `test_confirm_password_screen_can_be_rendered()` - Password confirmation
+23. `test_user_can_access_customer_edit_page()` - Customer editing
+24. `test_guest_can_view_login_page()` - Login page (duplicate)
+25. `test_password_can_be_confirmed()` - Password confirmation flow
+26. `test_correct_password_must_be_provided_to_update_password()` - Password validation
+27. `test_users_can_logout()` - Logout flow
+28. `test_authenticated_user_can_log_out()` - Logout flow (duplicate)
+29. `test_unauthenticated_user_cannot_view_mailbox_detail()` - Auth guard
+30. `test_mailbox_index_requires_authentication()` - Auth guard
+31. `test_guest_cannot_view_conversations()` - Auth guard
+
+### Validation-Only Tests (New Category)
+32. `test_cannot_log_in_with_nonexistent_email()` - Login validation
+33. `test_login_requires_email()` - Email required
+34. `test_login_requires_password()` - Password required
+35. `test_auto_reply_requires_subject_when_enabled()` - Subject validation
+36. `test_auto_reply_requires_message_when_enabled()` - Message validation
+37. `test_auto_reply_subject_has_max_length()` - Length validation
+38. `test_auto_bcc_must_be_valid_email()` - Email format validation
+39. `test_password_is_not_confirmed_with_invalid_password()` - Password mismatch
+
+### Security Guard Tests (New Category)
+40. `test_user_cannot_view_conversation_in_unauthorized_mailbox()` - Authorization
+41. `test_non_admin_cannot_view_auto_reply_settings_page()` - Admin-only access
+42. `test_non_admin_cannot_create_mailbox()` - Creation restriction
+43. `test_user_without_access_cannot_view_mailbox_detail()` - Access control
+44. `test_non_admin_cannot_view_mailbox_settings_page()` - Settings access
+45. `test_non_admin_user_cannot_access_user_management_routes()` - User management access
+46. `test_non_admin_cannot_access_users_list()` - User list access (duplicate)
+47. `test_admin_cannot_delete_themselves()` - Self-deletion prevention
 
 ---
 
@@ -686,3 +714,473 @@ This analysis focused on identifying tests that use shallow assertions. Many oth
 - Testing both positive and negative cases
 
 The identified smoke tests should be enhanced to match the quality of the better-written tests already present in the test suite.
+
+---
+
+## THIRD REVIEW: Additional Smoke Tests Discovered
+
+### 26. tests/Feature/ConversationAdvancedTest.php
+
+#### `test_search_finds_by_subject()`
+**Current Implementation:**
+```php
+public function test_search_finds_by_subject(): void
+{
+    $this->actingAs($this->agent);
+    
+    $conversation = Conversation::factory()
+        ->for($this->mailbox)
+        ->create([
+            'subject' => 'Password Reset Help',
+            'state' => 2,
+        ]);
+    
+    $response = $this->get(route('conversations.search', ['q' => 'Password']));
+    
+    $response->assertOk();
+    $response->assertSee('Password Reset Help');
+}
+```
+
+**Issues:**
+- Creates conversation but only checks one is visible
+- Doesn't verify search functionality is working correctly
+- Should create multiple conversations and verify only matching ones appear
+- Should test partial matching and case-insensitivity
+
+---
+
+### 27. tests/Feature/ConversationAdvancedTest.php
+
+#### `test_admin_search_shows_all_mailboxes()`
+**Current Implementation:**
+```php
+public function test_admin_search_shows_all_mailboxes(): void
+{
+    $this->actingAs($this->admin);
+    
+    $otherMailbox = Mailbox::factory()->create();
+    $conversation = Conversation::factory()
+        ->for($otherMailbox)
+        ->create(['subject' => 'Admin Search Test', 'state' => 2]);
+    
+    $response = $this->get(route('conversations.search', ['q' => 'Admin']));
+    
+    $response->assertOk();
+    $response->assertSee('Admin Search Test');
+}
+```
+
+**Issues:**
+- Only checks status and one conversation appears
+- Doesn't verify admin can see conversations from ALL mailboxes
+- Should create conversations in multiple mailboxes and verify all appear
+
+---
+
+### 28. tests/Feature/ConversationControllerSecurityTest.php
+
+#### `test_conversation_search_prevents_sql_injection()`
+**Current Implementation:**
+```php
+public function test_conversation_search_prevents_sql_injection(): void
+{
+    // ... setup code ...
+    $maliciousInput = "' OR '1'='1";
+    
+    $response = $this->actingAs($user)->get(
+        route('conversations.index', $mailbox) . '?q=' . urlencode($maliciousInput)
+    );
+    
+    // Should return OK and handle safely, not throw SQL error
+    $response->assertOk();
+}
+```
+
+**Issues:**
+- Only checks that no SQL error is thrown
+- Doesn't verify the malicious input was properly escaped
+- Should verify expected results (likely empty or no matches)
+
+---
+
+### 29. tests/Feature/MailboxTest.php
+
+#### `test_admin_can_view_mailboxes_list()`
+**Current Implementation:**
+```php
+public function test_admin_can_view_mailboxes_list(): void
+{
+    $this->actingAs($this->admin);
+    
+    $mailbox = Mailbox::factory()->create();
+    
+    $response = $this->get(route('mailboxes.index'));
+    
+    $response->assertOk();
+    $response->assertSee($mailbox->name);
+}
+```
+
+**Issues:**
+- Only verifies one mailbox name is visible
+- Should verify multiple mailboxes are listed
+- Should check for pagination elements
+- Should verify mailbox email addresses are shown
+
+---
+
+### 30. tests/Feature/MailboxViewTest.php
+
+#### `test_admin_can_view_mailbox_detail()`
+**Current Implementation:**
+```php
+public function test_admin_can_view_mailbox_detail(): void
+{
+    $this->actingAs($this->admin);
+    
+    $response = $this->get(route('mailboxes.view', $this->mailbox));
+    
+    $response->assertStatus(200);
+    $response->assertSee('Support Mailbox');
+}
+```
+
+**Issues:**
+- Only checks status and mailbox name
+- Should verify mailbox email is shown
+- Should check for conversation count or list
+- Should verify settings/edit buttons are present
+
+---
+
+### 31. tests/Feature/UserManagementTest.php
+
+#### `test_admin_can_view_users_list()`
+**Current Implementation:**
+```php
+public function test_admin_can_view_users_list(): void
+{
+    $this->actingAs($this->admin);
+    
+    $user = User::factory()->create();
+    
+    $response = $this->get(route('users.index'));
+    
+    $response->assertOk();
+    $response->assertSee($user->email);
+}
+```
+
+**Issues:**
+- Only checks one user email is visible
+- Should verify user names are shown
+- Should check for role information display
+- Should verify action buttons (edit, delete) are present
+
+---
+
+## Validation-Only Tests (New Category)
+
+These tests only check for validation errors without verifying the underlying business logic or security implications.
+
+### 32. tests/Feature/AuthenticationBatch1Test.php
+
+#### `test_cannot_log_in_with_nonexistent_email()`
+**Current Implementation:**
+```php
+public function test_cannot_log_in_with_nonexistent_email(): void
+{
+    $response = $this->post('/login', [
+        'email' => 'nonexistent@example.com',
+        'password' => 'password',
+    ]);
+    
+    $this->assertGuest();
+    $response->assertSessionHasErrors();
+}
+```
+
+**Issues:**
+- Good test but could be enhanced
+- Should verify specific error message content
+- Should check rate limiting isn't triggered
+- Should verify no timing attacks are possible
+
+---
+
+### 33. tests/Feature/AuthenticationBatch1Test.php
+
+#### `test_login_requires_email()`
+**Current Implementation:**
+```php
+public function test_login_requires_email(): void
+{
+    $response = $this->post('/login', [
+        'password' => 'password123',
+    ]);
+    
+    $this->assertGuest();
+    $response->assertSessionHasErrors('email');
+}
+```
+
+**Issues:**
+- Basic validation test
+- Should verify error message is user-friendly
+- Could check for specific validation rule (required, email format)
+
+---
+
+### 34. tests/Feature/AuthenticationBatch1Test.php
+
+#### `test_login_requires_password()`
+**Current Implementation:**
+```php
+public function test_login_requires_password(): void
+{
+    $response = $this->post('/login', [
+        'email' => 'test@example.com',
+    ]);
+    
+    $this->assertGuest();
+    $response->assertSessionHasErrors('password');
+}
+```
+
+**Issues:**
+- Basic validation test
+- Should verify error message content
+
+---
+
+### 35-38. tests/Feature/MailboxAutoReplyTest.php
+
+#### Multiple validation tests:
+- `test_auto_reply_requires_subject_when_enabled()`
+- `test_auto_reply_requires_message_when_enabled()`
+- `test_auto_reply_subject_has_max_length()`
+- `test_auto_bcc_must_be_valid_email()`
+
+**Common Issues:**
+- Only check for validation errors
+- Don't verify the validation messages are helpful
+- Don't verify the form retains user input on error
+- Don't test edge cases (empty strings vs null, whitespace-only)
+
+---
+
+### 39. tests/Feature/Auth/PasswordConfirmationTest.php
+
+#### `test_password_is_not_confirmed_with_invalid_password()`
+**Current Implementation:**
+```php
+public function test_password_is_not_confirmed_with_invalid_password(): void
+{
+    $user = User::factory()->create();
+    
+    $response = $this->actingAs($user)->post('/confirm-password', [
+        'password' => 'wrong-password',
+    ]);
+    
+    $response->assertSessionHasErrors();
+}
+```
+
+**Issues:**
+- Only checks for errors
+- Should verify user remains on confirmation page
+- Should check specific error field
+- Should verify rate limiting after multiple failures
+
+---
+
+## Security Guard Tests (New Category)
+
+These tests verify authorization but don't check for data leakage or proper error messages.
+
+### 40. tests/Feature/ConversationTest.php
+
+#### `test_user_cannot_view_conversation_in_unauthorized_mailbox()`
+**Current Implementation:**
+```php
+public function test_user_cannot_view_conversation_in_unauthorized_mailbox(): void
+{
+    $this->actingAs($this->user);
+    
+    $otherMailbox = Mailbox::factory()->create();
+    $conversation = Conversation::factory()
+        ->for($otherMailbox)
+        ->create();
+    
+    $response = $this->get(route('conversations.show', $conversation));
+    
+    $response->assertForbidden();
+}
+```
+
+**Issues:**
+- Only checks 403 status
+- Should verify no conversation data is leaked in response
+- Should check error message is generic (not revealing internal info)
+
+---
+
+### 41. tests/Feature/MailboxAutoReplyTest.php
+
+#### `test_non_admin_cannot_view_auto_reply_settings_page()`
+**Current Implementation:**
+```php
+public function test_non_admin_cannot_view_auto_reply_settings_page(): void
+{
+    $user = User::factory()->create(['role' => User::ROLE_USER]);
+    $this->actingAs($user);
+    
+    $response = $this->get(route('mailboxes.auto_reply', $this->mailbox));
+    
+    $response->assertStatus(403);
+}
+```
+
+**Issues:**
+- Only checks 403 status
+- Should verify no settings data is leaked
+
+---
+
+### 42. tests/Feature/MailboxTest.php
+
+#### `test_non_admin_cannot_create_mailbox()`
+**Current Implementation:**
+```php
+public function test_non_admin_cannot_create_mailbox(): void
+{
+    $user = User::factory()->create(['role' => User::ROLE_USER]);
+    
+    $this->actingAs($user);
+    
+    $response = $this->post(route('mailboxes.store'), [
+        'name' => 'New Mailbox',
+        'email' => 'new@example.com',
+    ]);
+    
+    $response->assertForbidden();
+}
+```
+
+**Issues:**
+- Only checks 403 status
+- Should verify no mailbox was created in database
+- Should add `assertDatabaseMissing('mailboxes', ['email' => 'new@example.com'])`
+
+---
+
+### 43. tests/Feature/MailboxViewTest.php
+
+#### `test_user_without_access_cannot_view_mailbox_detail()`
+**Current Implementation:**
+```php
+public function test_user_without_access_cannot_view_mailbox_detail(): void
+{
+    $this->actingAs($this->regularUser);
+    
+    $response = $this->get(route('mailboxes.view', $this->mailbox));
+    
+    $response->assertStatus(403);
+}
+```
+
+**Issues:**
+- Only checks 403 status
+- Should verify no mailbox data is visible
+
+---
+
+### 44. tests/Feature/MailboxViewTest.php
+
+#### `test_non_admin_cannot_view_mailbox_settings_page()`
+**Current Implementation:**
+```php
+public function test_non_admin_cannot_view_mailbox_settings_page(): void
+{
+    $this->actingAs($this->regularUser);
+    
+    $response = $this->get(route('mailboxes.settings', $this->mailbox));
+    
+    $response->assertStatus(403);
+}
+```
+
+**Issues:**
+- Only checks 403 status
+- Should verify no settings data is leaked
+
+---
+
+### 45. tests/Feature/UserManagementAdminBatch1Test.php
+
+#### `test_non_admin_user_cannot_access_user_management_routes()`
+**Current Implementation:**
+```php
+public function test_non_admin_user_cannot_access_user_management_routes(): void
+{
+    $user = User::factory()->create(['role' => User::ROLE_USER]);
+    $this->actingAs($user);
+    
+    $response = $this->get(route('users.index'));
+    
+    $response->assertStatus(403);
+}
+```
+
+**Issues:**
+- Only checks 403 status
+- Should verify no user data is leaked
+
+---
+
+### 46. tests/Feature/UserManagementTest.php
+
+#### `test_non_admin_cannot_access_users_list()`
+**Current Implementation:**
+```php
+public function test_non_admin_cannot_access_users_list(): void
+{
+    $user = User::factory()->create(['role' => User::ROLE_USER]);
+    
+    $this->actingAs($user);
+    
+    $response = $this->get(route('users.index'));
+    
+    $response->assertForbidden();
+}
+```
+
+**Issues:**
+- Duplicate of test in UserManagementAdminBatch1Test
+- Only checks forbidden status
+
+---
+
+### 47. tests/Feature/UserManagementTest.php
+
+#### `test_admin_cannot_delete_themselves()`
+**Current Implementation:**
+```php
+public function test_admin_cannot_delete_themselves(): void
+{
+    $this->actingAs($this->admin);
+    
+    $response = $this->delete(route('users.destroy', $this->admin));
+    
+    $response->assertForbidden();
+}
+```
+
+**Issues:**
+- Only checks forbidden status
+- Should verify admin still exists in database
+- Should add `assertDatabaseHas('users', ['id' => $this->admin->id])`
+
+---
+
