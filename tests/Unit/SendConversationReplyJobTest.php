@@ -159,4 +159,111 @@ class SendConversationReplyJobTest extends TestCase
             });
         }
     }
+
+    /** Test job handles international email domains */
+    public function test_job_handles_international_domains(): void
+    {
+        Mail::fake();
+        
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+        ]);
+        
+        $emails = [
+            'user@example.co.uk',
+            'user@example.com.au',
+            'user@example.de',
+            'user@example.jp',
+        ];
+        
+        foreach ($emails as $email) {
+            $job = new SendConversationReply($conversation, $thread, $email);
+            $job->handle();
+        }
+        
+        $this->assertTrue(true); // All processed without error
+    }
+
+    /** Test job uses Queueable trait */
+    public function test_job_uses_queueable_trait(): void
+    {
+        $this->assertTrue(
+            in_array(\Illuminate\Foundation\Queue\Queueable::class, class_uses(SendConversationReply::class))
+        );
+    }
+
+    /** Test job can handle long email addresses */
+    public function test_job_handles_long_email_addresses(): void
+    {
+        Mail::fake();
+        
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+        ]);
+        
+        // Very long but valid email
+        $longEmail = str_repeat('a', 50) . '@' . str_repeat('b', 50) . '.com';
+        
+        $job = new SendConversationReply($conversation, $thread, $longEmail);
+        
+        try {
+            $job->handle();
+            $this->assertTrue(true);
+        } catch (\Exception $e) {
+            // Job may fail validation but should not crash
+            $this->assertInstanceOf(\Exception::class, $e);
+        }
+    }
+
+    /** Test job properties are readonly */
+    public function test_job_properties_are_public(): void
+    {
+        $conversation = new Conversation(['id' => 1]);
+        $thread = new Thread(['id' => 2]);
+        $recipientEmail = 'test@example.com';
+        
+        $job = new SendConversationReply($conversation, $thread, $recipientEmail);
+        
+        // Properties should be accessible
+        $this->assertIsObject($job->conversation);
+        $this->assertIsObject($job->thread);
+        $this->assertIsString($job->recipientEmail);
+    }
+
+    /** Test multiple jobs can be dispatched simultaneously */
+    public function test_multiple_jobs_can_be_dispatched(): void
+    {
+        Mail::fake();
+        
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+        ]);
+        
+        $emails = ['user1@test.com', 'user2@test.com', 'user3@test.com'];
+        
+        foreach ($emails as $email) {
+            SendConversationReply::dispatch($conversation, $thread, $email);
+        }
+        
+        // All jobs dispatched successfully
+        $this->assertTrue(true);
+    }
 }

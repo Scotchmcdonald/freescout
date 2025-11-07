@@ -198,4 +198,121 @@ class SendAutoReplyJobTest extends TestCase
         
         $job->failed($exception);
     }
+
+    /** Test job validates customer email format */
+    public function test_job_validates_customer_email_format(): void
+    {
+        Log::shouldReceive('warning')->atLeast()->once();
+        Log::shouldReceive('info')->zeroOrMoreTimes();
+        
+        $conversation = new Conversation([
+            'id' => 1,
+            'customer_email' => '', // Empty email
+        ]);
+        $thread = new Thread(['id' => 2]);
+        $mailbox = new Mailbox(['id' => 3]);
+        $customer = new Customer(['id' => 4]);
+
+        Mail::fake();
+        $smtpService = new SmtpService();
+        
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle($smtpService);
+        
+        Mail::assertNothingSent();
+    }
+
+    /** Test job handles empty meta array */
+    public function test_job_handles_empty_meta_array(): void
+    {
+        Log::shouldReceive('warning')->atLeast()->once();
+        Log::shouldReceive('info')->zeroOrMoreTimes();
+        
+        $conversation = new Conversation([
+            'id' => 1,
+            'meta' => [], // Empty meta, not disabled
+            'customer_email' => null,
+        ]);
+        $thread = new Thread(['id' => 2]);
+        $mailbox = new Mailbox(['id' => 3]);
+        $customer = new Customer(['id' => 4]);
+
+        Mail::fake();
+        $smtpService = new SmtpService();
+        
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle($smtpService);
+        
+        // Should abort due to missing email, not meta
+        Mail::assertNothingSent();
+    }
+
+    /** Test job handles null meta */
+    public function test_job_handles_null_meta(): void
+    {
+        Log::shouldReceive('warning')->atLeast()->once();
+        Log::shouldReceive('info')->zeroOrMoreTimes();
+        
+        $conversation = new Conversation([
+            'id' => 1,
+            'meta' => null, // Null meta
+            'customer_email' => null,
+        ]);
+        $thread = new Thread(['id' => 2]);
+        $mailbox = new Mailbox(['id' => 3]);
+        $customer = new Customer(['id' => 4]);
+
+        Mail::fake();
+        $smtpService = new SmtpService();
+        
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle($smtpService);
+        
+        Mail::assertNothingSent();
+    }
+
+    /** Test job preserves models through serialization */
+    public function test_job_serializes_models_correctly(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+        ]);
+        
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        
+        // Test that models are accessible
+        $this->assertEquals($conversation->id, $job->conversation->id);
+        $this->assertEquals($thread->id, $job->thread->id);
+        $this->assertEquals($mailbox->id, $job->mailbox->id);
+        $this->assertEquals($customer->id, $job->customer->id);
+    }
+
+    /** Test job has correct queue traits */
+    public function test_job_uses_queueable_trait(): void
+    {
+        $this->assertTrue(
+            in_array(\Illuminate\Bus\Queueable::class, class_uses(SendAutoReply::class))
+        );
+    }
+
+    /** Test job timeout is reasonable */
+    public function test_job_timeout_is_set_correctly(): void
+    {
+        $conversation = new Conversation(['id' => 1]);
+        $thread = new Thread(['id' => 2]);
+        $mailbox = new Mailbox(['id' => 3]);
+        $customer = new Customer(['id' => 4]);
+        
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        
+        $this->assertEquals(120, $job->timeout);
+        $this->assertGreaterThan(0, $job->timeout);
+        $this->assertLessThanOrEqual(300, $job->timeout); // Reasonable max
+    }
 }

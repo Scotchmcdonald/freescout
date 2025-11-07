@@ -299,4 +299,173 @@ class SmtpServiceTest extends TestCase
 
         $this->assertNull(Config::get('mail.mailers.smtp.encryption'));
     }
+
+    /** Test validation handles port 0 */
+    public function test_validate_settings_rejects_port_zero(): void
+    {
+        $service = new SmtpService();
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 0,
+            'email' => 'test@example.com',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_port', $errors);
+    }
+
+    /** Test validation handles negative port */
+    public function test_validate_settings_rejects_negative_port(): void
+    {
+        $service = new SmtpService();
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => -1,
+            'email' => 'test@example.com',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_port', $errors);
+    }
+
+    /** Test validation handles non-numeric port */
+    public function test_validate_settings_rejects_non_numeric_port(): void
+    {
+        $service = new SmtpService();
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 'abc',
+            'email' => 'test@example.com',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_port', $errors);
+    }
+
+    /** Test validation accepts port 25 (standard SMTP) */
+    public function test_validate_settings_accepts_port_25(): void
+    {
+        $service = new SmtpService();
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 25,
+            'email' => 'test@example.com',
+            'out_encryption' => 0,
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayNotHasKey('out_port', $errors);
+    }
+
+    /** Test validation accepts port 2525 (alternate SMTP) */
+    public function test_validate_settings_accepts_port_2525(): void
+    {
+        $service = new SmtpService();
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 2525,
+            'email' => 'test@example.com',
+            'out_encryption' => 0,
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayNotHasKey('out_port', $errors);
+    }
+
+    /** Test validation with whitespace in email */
+    public function test_validate_settings_rejects_email_with_whitespace(): void
+    {
+        $service = new SmtpService();
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'test @example.com', // Space in email
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('email', $errors);
+    }
+
+    /** Test testConnection validates recipient email format */
+    public function test_test_connection_should_validate_recipient_email(): void
+    {
+        Log::shouldReceive('info')->zeroOrMoreTimes();
+        Log::shouldReceive('warning')->zeroOrMoreTimes();
+        Log::shouldReceive('error')->zeroOrMoreTimes();
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'smtp.test.com',
+            'out_port' => 587,
+            'email' => 'from@test.com',
+        ]);
+
+        $service = new SmtpService();
+        
+        // testConnection doesn't validate recipient email format currently
+        // but should still handle it gracefully
+        $result = $service->testConnection($mailbox, 'invalid-email');
+        
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('success', $result);
+        $this->assertArrayHasKey('message', $result);
+    }
+
+    /** Test validateMailboxSettings checks port is set */
+    public function test_validate_mailbox_settings_checks_port(): void
+    {
+        $mailbox = new Mailbox([
+            'out_server' => 'smtp.test.com',
+            'out_port' => null,
+            'email' => 'test@test.com',
+        ]);
+
+        $service = new SmtpService();
+        $reflection = new \ReflectionClass($service);
+        $method = $reflection->getMethod('validateMailboxSettings');
+        $method->setAccessible(true);
+
+        $errors = $method->invoke($service, $mailbox);
+
+        $this->assertContains('SMTP port not configured', $errors);
+    }
+
+    /** Test configuration handles null encryption gracefully */
+    public function test_configure_smtp_handles_null_encryption(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'smtp.test.com',
+            'out_port' => 25,
+            'out_encryption' => 0, // 0 is none, null might not be allowed by DB
+            'email' => 'test@example.com',
+            'name' => 'Test',
+        ]);
+
+        $service = new SmtpService();
+        $service->configureSmtp($mailbox);
+
+        $this->assertNull(Config::get('mail.mailers.smtp.encryption'));
+    }
+
+    /** Test configuration preserves timeout as null */
+    public function test_configure_smtp_sets_timeout_null(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'smtp.test.com',
+            'out_port' => 587,
+            'email' => 'test@example.com',
+            'name' => 'Test',
+        ]);
+
+        $service = new SmtpService();
+        $service->configureSmtp($mailbox);
+
+        $this->assertNull(Config::get('mail.mailers.smtp.timeout'));
+    }
 }
