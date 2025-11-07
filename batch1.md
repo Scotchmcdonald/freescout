@@ -241,7 +241,6 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Models\User;
-use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
@@ -798,7 +797,7 @@ class ProfileManagementBatch1Test extends TestCase
         // Assert
         $user->refresh();
         $this->assertNotNull($user->email_verified_at);
-        $this->assertEquals($verifiedAt->timestamp, $user->email_verified_at->timestamp);
+        $this->assertTrue($verifiedAt->equalTo($user->email_verified_at));
     }
 }
 ```
