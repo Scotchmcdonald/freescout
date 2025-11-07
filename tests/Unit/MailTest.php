@@ -305,4 +305,179 @@ class MailTest extends TestCase
         $this->assertEquals($conversation->id, $unserialized->conversation->id);
         $this->assertEquals($thread->id, $unserialized->thread->id);
     }
+
+    /** Test AutoReply with empty subject fallback */
+    public function test_auto_reply_handles_empty_conversation_subject(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => '']);
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'auto_reply_subject' => null]);
+        $customer = new Customer(['id' => 1]);
+        
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $envelope = $mail->envelope();
+        
+        $this->assertEquals('Re: ', $envelope->subject);
+    }
+
+    /** Test AutoReply with empty custom subject uses default */
+    public function test_auto_reply_with_empty_custom_subject_uses_default(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Original']);
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'auto_reply_subject' => '']);
+        $customer = new Customer(['id' => 1]);
+        
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $envelope = $mail->envelope();
+        
+        // Empty string is falsy, so should use default
+        $this->assertEquals('Re: Original', $envelope->subject);
+    }
+
+    /** Test AutoReply with empty custom message uses default */
+    public function test_auto_reply_with_empty_custom_message_uses_default(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'auto_reply_message' => '']);
+        $customer = new Customer(['id' => 1]);
+        
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $content = $mail->content();
+        
+        // Empty string is falsy, so should use default
+        $this->assertEquals(
+            'We have received your message and will get back to you shortly.',
+            $content->with['message']
+        );
+    }
+
+    /** Test AutoReply with Message-ID header is skipped */
+    public function test_auto_reply_skips_message_id_header(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support']);
+        $customer = new Customer(['id' => 1]);
+        $headers = [
+            'Message-ID' => '<test@example.com>',
+            'X-Custom' => 'Value',
+        ];
+        
+        $mail = new AutoReply($conversation, $mailbox, $customer, $headers);
+        
+        // Message-ID should be in headers array but will be skipped in build()
+        $this->assertArrayHasKey('Message-ID', $mail->headers);
+        $this->assertArrayHasKey('X-Custom', $mail->headers);
+    }
+
+    /** Test AutoReply with empty headers array */
+    public function test_auto_reply_with_empty_headers(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support']);
+        $customer = new Customer(['id' => 1]);
+        
+        $mail = new AutoReply($conversation, $mailbox, $customer, []);
+        
+        $this->assertIsArray($mail->headers);
+        $this->assertEmpty($mail->headers);
+    }
+
+    /** Test AutoReply build method consistency with envelope */
+    public function test_auto_reply_build_uses_same_subject_as_envelope(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Test Subject']);
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'auto_reply_subject' => 'Custom']);
+        $customer = new Customer(['id' => 1]);
+        
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $envelope = $mail->envelope();
+        
+        // Both envelope() and build() should use the same subject logic
+        $this->assertEquals('Custom', $envelope->subject);
+    }
+
+    /** Test AutoReply with special characters in subject */
+    public function test_auto_reply_handles_special_characters_in_subject(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Test <script>alert("xss")</script> Subject']);
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'auto_reply_subject' => null]);
+        $customer = new Customer(['id' => 1]);
+        
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $envelope = $mail->envelope();
+        
+        $this->assertEquals('Re: Test <script>alert("xss")</script> Subject', $envelope->subject);
+    }
+
+    /** Test AutoReply with unicode characters in subject */
+    public function test_auto_reply_handles_unicode_in_subject(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Test 日本語 Subject 中文']);
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'auto_reply_subject' => null]);
+        $customer = new Customer(['id' => 1]);
+        
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $envelope = $mail->envelope();
+        
+        $this->assertEquals('Re: Test 日本語 Subject 中文', $envelope->subject);
+    }
+
+    /** Test AutoReply with very long subject */
+    public function test_auto_reply_handles_long_subject(): void
+    {
+        $longSubject = str_repeat('Very Long Subject ', 50); // ~900 characters
+        $conversation = new Conversation(['id' => 1, 'subject' => $longSubject]);
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'auto_reply_subject' => null]);
+        $customer = new Customer(['id' => 1]);
+        
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $envelope = $mail->envelope();
+        
+        $this->assertEquals('Re: ' . $longSubject, $envelope->subject);
+    }
+
+    /** Test ConversationReplyNotification with empty subject */
+    public function test_conversation_reply_notification_handles_empty_subject(): void
+    {
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'email' => 'support@example.com']);
+        $conversation = new Conversation(['id' => 1, 'subject' => '', 'mailbox_id' => 1]);
+        $conversation->setRelation('mailbox', $mailbox);
+        $thread = new Thread(['id' => 1, 'body' => 'Reply message']);
+        
+        $mail = new ConversationReplyNotification($conversation, $thread);
+        $envelope = $mail->envelope();
+        
+        $this->assertEquals('Re: ', $envelope->subject);
+    }
+
+    /** Test ConversationReplyNotification with null subject */
+    public function test_conversation_reply_notification_handles_null_subject(): void
+    {
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'email' => 'support@example.com']);
+        $conversation = new Conversation(['id' => 1, 'subject' => null, 'mailbox_id' => 1]);
+        $conversation->setRelation('mailbox', $mailbox);
+        $thread = new Thread(['id' => 1, 'body' => 'Reply message']);
+        
+        $mail = new ConversationReplyNotification($conversation, $thread);
+        $envelope = $mail->envelope();
+        
+        $this->assertEquals('Re: ', $envelope->subject);
+    }
+
+    /** Test ConversationReplyNotification with special characters in subject */
+    public function test_conversation_reply_notification_handles_special_chars(): void
+    {
+        $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'email' => 'support@example.com']);
+        $conversation = new Conversation([
+            'id' => 1,
+            'subject' => 'Test & Special <Characters>',
+            'mailbox_id' => 1,
+        ]);
+        $conversation->setRelation('mailbox', $mailbox);
+        $thread = new Thread(['id' => 1, 'body' => 'Reply message']);
+        
+        $mail = new ConversationReplyNotification($conversation, $thread);
+        $envelope = $mail->envelope();
+        
+        $this->assertEquals('Re: Test & Special <Characters>', $envelope->subject);
+    }
 }

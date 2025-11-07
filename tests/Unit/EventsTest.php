@@ -309,4 +309,314 @@ class EventsTest extends TestCase
         $this->assertNotNull($broadcastData['updated_at']);
         $this->assertIsString($broadcastData['updated_at']);
     }
+
+    /** Test ConversationUpdated with null meta */
+    public function test_conversation_updated_with_null_meta(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'mailbox_id' => 1]);
+        $event = new ConversationUpdated($conversation, 'status_changed', null);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('meta', $broadcastData);
+        $this->assertNull($broadcastData['meta']);
+    }
+
+    /** Test ConversationUpdated with empty meta array */
+    public function test_conversation_updated_with_empty_meta(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'mailbox_id' => 1]);
+        $event = new ConversationUpdated($conversation, 'assigned', []);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('meta', $broadcastData);
+        $this->assertIsArray($broadcastData['meta']);
+        $this->assertEmpty($broadcastData['meta']);
+    }
+
+    /** Test ConversationUpdated with default update type */
+    public function test_conversation_updated_default_update_type(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'mailbox_id' => 1]);
+        $event = new ConversationUpdated($conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        // Default is 'status_changed'
+        $this->assertEquals('status_changed', $broadcastData['update_type']);
+    }
+
+    /** Test ConversationUpdated with null user_id */
+    public function test_conversation_updated_with_null_user_id(): void
+    {
+        $conversation = new Conversation([
+            'id' => 1,
+            'mailbox_id' => 1,
+            'user_id' => null,
+        ]);
+        
+        $event = new ConversationUpdated($conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('user_id', $broadcastData);
+        $this->assertNull($broadcastData['user_id']);
+    }
+
+    /** Test ConversationUpdated with null customer_id */
+    public function test_conversation_updated_with_null_customer_id(): void
+    {
+        $conversation = new Conversation([
+            'id' => 1,
+            'mailbox_id' => 1,
+            'customer_id' => null,
+        ]);
+        
+        $event = new ConversationUpdated($conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('customer_id', $broadcastData);
+        $this->assertNull($broadcastData['customer_id']);
+    }
+
+    /** Test NewMessageReceived with null thread body */
+    public function test_new_message_received_with_null_body(): void
+    {
+        $mailbox = new Mailbox(['name' => 'Support']);
+        $mailbox->id = 1;
+        
+        $thread = new Thread([
+            'type' => 1,
+            'from' => 'test@example.com',
+            'body' => null,
+        ]);
+        $thread->id = 1;
+        
+        $conversation = new Conversation([
+            'number' => 100,
+            'subject' => 'Test',
+            'mailbox_id' => 1,
+        ]);
+        $conversation->id = 1;
+        $conversation->setRelation('mailbox', $mailbox);
+        
+        $event = new NewMessageReceived($thread, $conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('preview', $broadcastData);
+        $this->assertEquals('', $broadcastData['preview']); // Empty string from null
+    }
+
+    /** Test NewMessageReceived with HTML in body strips tags */
+    public function test_new_message_received_strips_html_from_preview(): void
+    {
+        $mailbox = new Mailbox(['name' => 'Support']);
+        $mailbox->id = 1;
+        
+        $thread = new Thread([
+            'type' => 1,
+            'from' => 'test@example.com',
+            'body' => '<p>This is <strong>HTML</strong> content with <a href="#">links</a></p>',
+        ]);
+        $thread->id = 1;
+        
+        $conversation = new Conversation([
+            'number' => 100,
+            'subject' => 'Test',
+            'mailbox_id' => 1,
+        ]);
+        $conversation->id = 1;
+        $conversation->setRelation('mailbox', $mailbox);
+        
+        $event = new NewMessageReceived($thread, $conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('preview', $broadcastData);
+        $this->assertEquals('This is HTML content with links', $broadcastData['preview']);
+        $this->assertStringNotContainsString('<', $broadcastData['preview']);
+    }
+
+    /** Test NewMessageReceived with empty body */
+    public function test_new_message_received_with_empty_body(): void
+    {
+        $mailbox = new Mailbox(['name' => 'Support']);
+        $mailbox->id = 1;
+        
+        $thread = new Thread([
+            'type' => 1,
+            'from' => 'test@example.com',
+            'body' => '',
+        ]);
+        $thread->id = 1;
+        
+        $conversation = new Conversation([
+            'number' => 100,
+            'subject' => 'Test',
+            'mailbox_id' => 1,
+        ]);
+        $conversation->id = 1;
+        $conversation->setRelation('mailbox', $mailbox);
+        
+        $event = new NewMessageReceived($thread, $conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('preview', $broadcastData);
+        $this->assertEquals('', $broadcastData['preview']);
+    }
+
+    /** Test NewMessageReceived with null created_at */
+    public function test_new_message_received_with_null_created_at(): void
+    {
+        $mailbox = new Mailbox(['name' => 'Support']);
+        $mailbox->id = 1;
+        
+        $thread = new Thread([
+            'type' => 1,
+            'from' => 'test@example.com',
+            'body' => 'Test',
+        ]);
+        $thread->id = 1;
+        $thread->created_at = null;
+        
+        $conversation = new Conversation([
+            'number' => 100,
+            'subject' => 'Test',
+            'mailbox_id' => 1,
+        ]);
+        $conversation->id = 1;
+        $conversation->setRelation('mailbox', $mailbox);
+        
+        $event = new NewMessageReceived($thread, $conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('created_at', $broadcastData);
+        $this->assertNull($broadcastData['created_at']);
+    }
+
+    /** Test NewMessageReceived with null customer name */
+    public function test_new_message_received_with_null_customer(): void
+    {
+        $mailbox = new Mailbox(['name' => 'Support']);
+        $mailbox->id = 1;
+        
+        $thread = new Thread([
+            'type' => 1,
+            'from' => 'test@example.com',
+            'body' => 'Test',
+        ]);
+        $thread->id = 1;
+        $thread->setRelation('customer', null);
+        
+        $conversation = new Conversation([
+            'number' => 100,
+            'subject' => 'Test',
+            'mailbox_id' => 1,
+        ]);
+        $conversation->id = 1;
+        $conversation->setRelation('mailbox', $mailbox);
+        
+        $event = new NewMessageReceived($thread, $conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('customer_name', $broadcastData);
+        $this->assertNull($broadcastData['customer_name']);
+    }
+
+    /** Test NewMessageReceived with null user name */
+    public function test_new_message_received_with_null_user(): void
+    {
+        $mailbox = new Mailbox(['name' => 'Support']);
+        $mailbox->id = 1;
+        
+        $thread = new Thread([
+            'type' => 1,
+            'from' => 'test@example.com',
+            'body' => 'Test',
+        ]);
+        $thread->id = 1;
+        $thread->setRelation('user', null);
+        
+        $conversation = new Conversation([
+            'number' => 100,
+            'subject' => 'Test',
+            'mailbox_id' => 1,
+        ]);
+        $conversation->id = 1;
+        $conversation->setRelation('mailbox', $mailbox);
+        
+        $event = new NewMessageReceived($thread, $conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('user_name', $broadcastData);
+        $this->assertNull($broadcastData['user_name']);
+    }
+
+    /** Test NewMessageReceived with special characters in subject */
+    public function test_new_message_received_with_special_chars_in_subject(): void
+    {
+        $mailbox = new Mailbox(['name' => 'Support & Help']);
+        $mailbox->id = 1;
+        
+        $thread = new Thread([
+            'type' => 1,
+            'from' => 'test@example.com',
+            'body' => 'Test',
+        ]);
+        $thread->id = 1;
+        
+        $conversation = new Conversation([
+            'number' => 100,
+            'subject' => 'Test <Special> & "Chars"',
+            'mailbox_id' => 1,
+        ]);
+        $conversation->id = 1;
+        $conversation->setRelation('mailbox', $mailbox);
+        
+        $event = new NewMessageReceived($thread, $conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertEquals('Test <Special> & "Chars"', $broadcastData['conversation_subject']);
+        $this->assertEquals('Support & Help', $broadcastData['mailbox_name']);
+    }
+
+    /** Test UserViewingConversation with zero conversation id */
+    public function test_user_viewing_conversation_with_zero_conversation_id(): void
+    {
+        $user = new \App\Models\User(['first_name' => 'John', 'last_name' => 'Doe', 'email' => 'john@example.com']);
+        $user->id = 1;
+        
+        $event = new UserViewingConversation(0, $user);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertEquals(0, $broadcastData['conversation_id']);
+    }
+
+    /** Test ConversationUpdated with null updated_at */
+    public function test_conversation_updated_with_null_updated_at(): void
+    {
+        $conversation = new Conversation([
+            'id' => 1,
+            'mailbox_id' => 1,
+        ]);
+        $conversation->updated_at = null;
+        
+        $event = new ConversationUpdated($conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('updated_at', $broadcastData);
+        $this->assertNull($broadcastData['updated_at']);
+    }
+
+    /** Test ConversationUpdated with empty subject */
+    public function test_conversation_updated_with_empty_subject(): void
+    {
+        $conversation = new Conversation([
+            'id' => 1,
+            'mailbox_id' => 1,
+            'subject' => '',
+        ]);
+        
+        $event = new ConversationUpdated($conversation);
+        $broadcastData = $event->broadcastWith();
+        
+        $this->assertArrayHasKey('subject', $broadcastData);
+        $this->assertEquals('', $broadcastData['subject']);
+    }
 }
