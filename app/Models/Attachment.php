@@ -14,20 +14,26 @@ class Attachment extends Model
 
     protected $fillable = [
         'thread_id',
-        'conversation_id',
-        'file_name',
-        'file_dir',
-        'file_size',
+        'filename',
         'mime_type',
-        'embedded',
+        'size',
+        'width',
+        'height',
+        'inline',
+        'public',
+        'data',
+        'url',
     ];
 
     protected function casts(): array
     {
         return [
             'thread_id' => 'integer',
-            'file_size' => 'integer',
-            'embedded' => 'boolean',
+            'size' => 'integer',
+            'width' => 'integer',
+            'height' => 'integer',
+            'inline' => 'boolean',
+            'public' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -46,7 +52,10 @@ class Attachment extends Model
      */
     public function getFullPathAttribute(): string
     {
-        return storage_path("app/{$this->file_dir}/{$this->file_name}");
+        if ($this->url) {
+            return $this->url;
+        }
+        return storage_path("app/attachments/{$this->filename}");
     }
 
     /**
@@ -54,7 +63,7 @@ class Attachment extends Model
      */
     public function getHumanFileSizeAttribute(): string
     {
-        $bytes = $this->file_size;
+        $bytes = $this->size;
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
