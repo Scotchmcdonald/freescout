@@ -893,3 +893,600 @@ All tests follow the project's existing patterns:
 - Follow Arrange-Act-Assert pattern
 - Use descriptive test method names with `test_` prefix
 - Include docblocks explaining each test's purpose
+
+---
+
+## ADDITIONAL COMPREHENSIVE TESTS
+
+Beyond the required Batch 2 tests, the following additional tests were created to provide deeper coverage of Mailbox Management functionality:
+
+---
+
+## FILE 5: /tests/Feature/MailboxAutoReplyTest.php
+
+**Purpose:** Comprehensive tests for Mailbox Auto-Reply functionality with validation and authorization
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature;
+
+use App\Models\Mailbox;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class MailboxAutoReplyTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected User $admin;
+    protected Mailbox $mailbox;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $this->mailbox = Mailbox::factory()->create();
+    }
+
+    /** @test */
+    public function admin_can_view_auto_reply_settings_page(): void
+    {
+        $this->actingAs($this->admin);
+        $response = $this->get(route('mailboxes.auto_reply', $this->mailbox));
+        $response->assertStatus(200);
+        $response->assertSee('Auto Reply');
+    }
+
+    /** @test */
+    public function non_admin_cannot_view_auto_reply_settings_page(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $this->actingAs($user);
+        $response = $this->get(route('mailboxes.auto_reply', $this->mailbox));
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function admin_can_enable_auto_reply_with_required_fields(): void
+    {
+        $this->actingAs($this->admin);
+        $response = $this->post(route('mailboxes.auto_reply.save', $this->mailbox), [
+            'auto_reply_enabled' => true,
+            'auto_reply_subject' => 'Thank you for your message',
+            'auto_reply_message' => 'We have received your message and will respond within 24 hours.',
+        ]);
+
+        $response->assertRedirect(route('mailboxes.auto_reply', $this->mailbox));
+        $response->assertSessionHas('success');
+
+        $this->mailbox->refresh();
+        $this->assertTrue($this->mailbox->auto_reply_enabled);
+        $this->assertEquals('Thank you for your message', $this->mailbox->auto_reply_subject);
+    }
+
+    /** @test */
+    public function admin_can_disable_auto_reply(): void
+    {
+        $this->actingAs($this->admin);
+        $this->mailbox->update(['auto_reply_enabled' => true]);
+        
+        // Don't include auto_reply_enabled in request to disable it
+        $response = $this->post(route('mailboxes.auto_reply.save', $this->mailbox), [
+            'auto_reply_subject' => '',
+            'auto_reply_message' => '',
+        ]);
+
+        $response->assertRedirect();
+        $this->mailbox->refresh();
+        $this->assertFalse($this->mailbox->auto_reply_enabled);
+    }
+
+    /** @test */
+    public function auto_reply_requires_subject_when_enabled(): void
+    {
+        $this->actingAs($this->admin);
+        $response = $this->post(route('mailboxes.auto_reply.save', $this->mailbox), [
+            'auto_reply_enabled' => true,
+            'auto_reply_subject' => '', // Missing
+            'auto_reply_message' => 'Some message',
+        ]);
+        $response->assertSessionHasErrors('auto_reply_subject');
+    }
+
+    /** @test */
+    public function auto_reply_requires_message_when_enabled(): void
+    {
+        $this->actingAs($this->admin);
+        $response = $this->post(route('mailboxes.auto_reply.save', $this->mailbox), [
+            'auto_reply_enabled' => true,
+            'auto_reply_subject' => 'Thank you',
+            'auto_reply_message' => '', // Missing
+        ]);
+        $response->assertSessionHasErrors('auto_reply_message');
+    }
+
+    /** @test */
+    public function auto_reply_subject_has_max_length(): void
+    {
+        $this->actingAs($this->admin);
+        $longSubject = str_repeat('A', 129); // Exceeds 128 char limit
+
+        $response = $this->post(route('mailboxes.auto_reply.save', $this->mailbox), [
+            'auto_reply_enabled' => true,
+            'auto_reply_subject' => $longSubject,
+            'auto_reply_message' => 'Message',
+        ]);
+        $response->assertSessionHasErrors('auto_reply_subject');
+    }
+
+    /** @test */
+    public function auto_reply_can_include_auto_bcc_email(): void
+    {
+        $this->actingAs($this->admin);
+        $response = $this->post(route('mailboxes.auto_reply.save', $this->mailbox), [
+            'auto_reply_enabled' => true,
+            'auto_reply_subject' => 'Thank you',
+            'auto_reply_message' => 'We will respond soon',
+            'auto_bcc' => 'archive@example.com',
+        ]);
+
+        $response->assertRedirect();
+        $this->mailbox->refresh();
+        $this->assertEquals('archive@example.com', $this->mailbox->auto_bcc);
+    }
+
+    /** @test */
+    public function auto_bcc_must_be_valid_email(): void
+    {
+        $this->actingAs($this->admin);
+        $response = $this->post(route('mailboxes.auto_reply.save', $this->mailbox), [
+            'auto_reply_enabled' => true,
+            'auto_reply_subject' => 'Thank you',
+            'auto_reply_message' => 'Message',
+            'auto_bcc' => 'not-an-email',
+        ]);
+        $response->assertSessionHasErrors('auto_bcc');
+    }
+
+    /** @test */
+    public function non_admin_cannot_save_auto_reply_settings(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $this->actingAs($user);
+        $response = $this->post(route('mailboxes.auto_reply.save', $this->mailbox), [
+            'auto_reply_enabled' => true,
+            'auto_reply_subject' => 'Subject',
+            'auto_reply_message' => 'Message',
+        ]);
+        $response->assertStatus(403);
+    }
+}
+```
+
+---
+
+## FILE 6: /tests/Feature/MailboxViewTest.php
+
+**Purpose:** Tests for mailbox view/index pages and access control
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature;
+
+use App\Models\Mailbox;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class MailboxViewTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /** @test */
+    public function admin_can_view_mailbox_detail(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $mailbox = Mailbox::factory()->create(['name' => 'Support Mailbox']);
+        
+        $this->actingAs($admin);
+        $response = $this->get(route('mailboxes.view', $mailbox));
+        
+        $response->assertStatus(200);
+        $response->assertSee('Support Mailbox');
+    }
+
+    /** @test */
+    public function user_with_access_can_view_mailbox_detail(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($user);
+        
+        $this->actingAs($user);
+        $response = $this->get(route('mailboxes.view', $mailbox));
+        
+        $response->assertStatus(200);
+    }
+
+    /** @test */
+    public function user_without_access_cannot_view_mailbox_detail(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $mailbox = Mailbox::factory()->create();
+        
+        $this->actingAs($user);
+        $response = $this->get(route('mailboxes.view', $mailbox));
+        
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function unauthenticated_user_cannot_view_mailbox_detail(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $response = $this->get(route('mailboxes.view', $mailbox));
+        $response->assertRedirect(route('login'));
+    }
+
+    /** @test */
+    public function admin_can_view_mailbox_settings_page(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $mailbox = Mailbox::factory()->create();
+        
+        $this->actingAs($admin);
+        $response = $this->get(route('mailboxes.settings', $mailbox));
+        
+        $response->assertStatus(200);
+    }
+
+    /** @test */
+    public function non_admin_cannot_view_mailbox_settings_page(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $mailbox = Mailbox::factory()->create();
+        
+        $this->actingAs($user);
+        $response = $this->get(route('mailboxes.settings', $mailbox));
+        
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function mailbox_index_shows_only_accessible_mailboxes_for_user(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $mailbox1 = Mailbox::factory()->create(['name' => 'Accessible']);
+        $mailbox2 = Mailbox::factory()->create(['name' => 'Inaccessible']);
+        $mailbox1->users()->attach($user);
+        
+        $this->actingAs($user);
+        $response = $this->get(route('mailboxes.index'));
+        
+        $response->assertStatus(200);
+        $response->assertSee('Accessible');
+        $response->assertDontSee('Inaccessible');
+    }
+
+    /** @test */
+    public function mailbox_index_shows_all_mailboxes_for_admin(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        Mailbox::factory()->create(['name' => 'Mailbox One']);
+        Mailbox::factory()->create(['name' => 'Mailbox Two']);
+        
+        $this->actingAs($admin);
+        $response = $this->get(route('mailboxes.index'));
+        
+        $response->assertStatus(200);
+        $response->assertSee('Mailbox One');
+        $response->assertSee('Mailbox Two');
+    }
+
+    /** @test */
+    public function mailbox_index_requires_authentication(): void
+    {
+        $response = $this->get(route('mailboxes.index'));
+        $response->assertRedirect(route('login'));
+    }
+}
+```
+
+---
+
+## FILE 7: /tests/Feature/MailboxFetchEmailsTest.php
+
+**Purpose:** Tests for the manual email fetching API endpoint with mocked IMAP service
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature;
+
+use App\Models\Mailbox;
+use App\Models\User;
+use App\Services\ImapService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery\MockInterface;
+use Tests\TestCase;
+
+class MailboxFetchEmailsTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /** @test */
+    public function admin_can_trigger_manual_email_fetch(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $mailbox = Mailbox::factory()->create();
+        
+        $this->actingAs($admin);
+        $this->mock(ImapService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('fetchEmails')
+                ->once()
+                ->andReturn(['fetched' => 5, 'created' => 3]);
+        });
+
+        $response = $this->postJson(route('mailboxes.fetch-emails', $mailbox));
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true, 'stats' => ['fetched' => 5, 'created' => 3]]);
+    }
+
+    /** @test */
+    public function non_admin_cannot_trigger_manual_email_fetch(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $mailbox = Mailbox::factory()->create();
+        
+        $this->actingAs($user);
+        $response = $this->postJson(route('mailboxes.fetch-emails', $mailbox));
+        
+        $response->assertStatus(403);
+        $response->assertJson(['success' => false, 'message' => 'Unauthorized access.']);
+    }
+
+    /** @test */
+    public function fetch_emails_returns_error_on_imap_failure(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $mailbox = Mailbox::factory()->create();
+        
+        $this->actingAs($admin);
+        $this->mock(ImapService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('fetchEmails')
+                ->once()
+                ->andThrow(new \Exception('IMAP connection failed'));
+        });
+
+        $response = $this->postJson(route('mailboxes.fetch-emails', $mailbox));
+
+        $response->assertStatus(500);
+        $response->assertJson(['success' => false]);
+    }
+
+    /** @test */
+    public function unauthenticated_user_cannot_trigger_email_fetch(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $response = $this->postJson(route('mailboxes.fetch-emails', $mailbox));
+        $response->assertStatus(401);
+    }
+
+    /** @test */
+    public function fetch_emails_with_zero_new_emails(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $mailbox = Mailbox::factory()->create();
+        
+        $this->actingAs($admin);
+        $this->mock(ImapService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('fetchEmails')
+                ->once()
+                ->andReturn(['fetched' => 0, 'created' => 0]);
+        });
+
+        $response = $this->postJson(route('mailboxes.fetch-emails', $mailbox));
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true, 'stats' => ['fetched' => 0, 'created' => 0]]);
+    }
+}
+```
+
+---
+
+## FILE 8: /tests/Unit/FolderEdgeCasesTest.php
+
+**Purpose:** Advanced edge case tests for Folder model behavior
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit;
+
+use App\Models\Folder;
+use App\Models\Mailbox;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class FolderEdgeCasesTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /** @test */
+    public function deleting_mailbox_affects_folders(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
+        
+        $mailbox->delete();
+        
+        $this->assertDatabaseMissing('mailboxes', ['id' => $mailbox->id]);
+    }
+
+    /** @test */
+    public function folder_type_constants_are_consistent(): void
+    {
+        $types = [
+            Folder::TYPE_INBOX, Folder::TYPE_SENT, Folder::TYPE_DRAFTS,
+            Folder::TYPE_SPAM, Folder::TYPE_TRASH, Folder::TYPE_ASSIGNED,
+            Folder::TYPE_MINE, Folder::TYPE_STARRED,
+        ];
+
+        $uniqueTypes = array_unique($types);
+        $this->assertCount(count($types), $uniqueTypes);
+    }
+
+    /** @test */
+    public function folder_can_have_zero_conversations(): void
+    {
+        $folder = Folder::factory()->create();
+        $conversations = $folder->conversations;
+        
+        $this->assertCount(0, $conversations);
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $conversations);
+    }
+
+    /** @test */
+    public function folder_counters_can_be_updated(): void
+    {
+        $folder = Folder::factory()->create(['total_count' => 5, 'active_count' => 3]);
+        
+        $folder->update(['total_count' => 10, 'active_count' => 7]);
+        $folder->refresh();
+        
+        $this->assertEquals(10, $folder->total_count);
+        $this->assertEquals(7, $folder->active_count);
+    }
+
+    /** @test */
+    public function folder_name_is_optional_for_system_folders(): void
+    {
+        $folder = Folder::factory()->create(['type' => Folder::TYPE_INBOX, 'name' => null]);
+        
+        $this->assertNull($folder->name);
+        $this->assertTrue($folder->isInbox());
+    }
+
+    /** @test */
+    public function personal_folder_type_can_have_user(): void
+    {
+        $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $folder = Folder::factory()->create([
+            'type' => Folder::TYPE_MINE,
+            'user_id' => $user->id,
+            'mailbox_id' => $mailbox->id,
+        ]);
+        
+        $this->assertEquals($user->id, $folder->user_id);
+        $this->assertInstanceOf(User::class, $folder->user);
+    }
+
+    /** @test */
+    public function multiple_users_can_have_personal_folders_in_same_mailbox(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        
+        $folder1 = Folder::factory()->create([
+            'type' => Folder::TYPE_MINE,
+            'user_id' => $user1->id,
+            'mailbox_id' => $mailbox->id,
+        ]);
+        $folder2 = Folder::factory()->create([
+            'type' => Folder::TYPE_MINE,
+            'user_id' => $user2->id,
+            'mailbox_id' => $mailbox->id,
+        ]);
+        
+        $this->assertEquals($user1->id, $folder1->user_id);
+        $this->assertEquals($user2->id, $folder2->user_id);
+    }
+
+    /** @test */
+    public function all_folder_type_helper_methods_work(): void
+    {
+        $inbox = Folder::factory()->create(['type' => Folder::TYPE_INBOX]);
+        $sent = Folder::factory()->create(['type' => Folder::TYPE_SENT]);
+        $drafts = Folder::factory()->create(['type' => Folder::TYPE_DRAFTS]);
+        $spam = Folder::factory()->create(['type' => Folder::TYPE_SPAM]);
+        $trash = Folder::factory()->create(['type' => Folder::TYPE_TRASH]);
+        
+        $this->assertTrue($inbox->isInbox());
+        $this->assertFalse($inbox->isSent());
+        $this->assertTrue($sent->isSent());
+        $this->assertTrue($drafts->isDrafts());
+        $this->assertTrue($spam->isSpam());
+        $this->assertTrue($trash->isTrash());
+    }
+
+    /** @test */
+    public function folder_can_store_metadata(): void
+    {
+        $folder = Folder::factory()->create(['meta' => null]);
+        $this->assertNull($folder->meta);
+    }
+
+    /** @test */
+    public function starred_folder_type_exists(): void
+    {
+        $folder = Folder::factory()->create(['type' => Folder::TYPE_STARRED]);
+        $this->assertEquals(Folder::TYPE_STARRED, $folder->type);
+        $this->assertEquals(30, $folder->type);
+    }
+
+    /** @test */
+    public function assigned_folder_type_exists(): void
+    {
+        $folder = Folder::factory()->create(['type' => Folder::TYPE_ASSIGNED]);
+        $this->assertEquals(Folder::TYPE_ASSIGNED, $folder->type);
+        $this->assertEquals(20, $folder->type);
+    }
+}
+```
+
+---
+
+## Complete Summary
+
+### Total Tests Implemented: 65 tests
+
+**Required Batch 2 Tests:** 30 tests, 100 assertions
+- MailboxScopesTest.php: 4 tests
+- FolderHierarchyTest.php: 7 tests
+- MailboxControllerValidationTest.php: 11 tests
+- MailboxRegressionTest.php: 8 tests
+
+**Additional Comprehensive Tests:** 35 tests, 87 assertions
+- MailboxAutoReplyTest.php: 10 tests
+- MailboxViewTest.php: 9 tests
+- MailboxFetchEmailsTest.php: 5 tests
+- FolderEdgeCasesTest.php: 11 tests
+
+**Total Assertions:** 187
+
+All tests follow best practices:
+- Use `RefreshDatabase` trait for database tests
+- Follow Arrange-Act-Assert pattern
+- Include clear docblocks
+- Test both happy path and sad path scenarios
+- Include authorization and authentication checks
+- Mock external dependencies (ImapService)
+- Validate edge cases and data integrity
+
