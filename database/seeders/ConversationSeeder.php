@@ -32,6 +32,8 @@ class ConversationSeeder extends Seeder
                 continue;
             }
 
+            /** @var \App\Models\Folder $inboxFolder */
+
             // Create 10 conversations per mailbox
             for ($i = 0; $i < 10; $i++) {
                 $customer = $customers->random();

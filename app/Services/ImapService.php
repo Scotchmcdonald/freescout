@@ -189,7 +189,7 @@ class ImapService
     /**
      * Create IMAP client for mailbox.
      */
-    protected function createClient(Mailbox $mailbox)
+    protected function createClient(Mailbox $mailbox): \Webklex\PHPIMAP\Client
     {
         $encryption = $this->getEncryption($mailbox->in_encryption);
 
@@ -224,7 +224,7 @@ class ImapService
     /**
      * Process an email message.
      */
-    protected function processMessage(Mailbox $mailbox, $message): void
+    protected function processMessage(Mailbox $mailbox, \Webklex\PHPIMAP\Message $message): void
     {
         DB::beginTransaction();
 
@@ -852,7 +852,7 @@ class ImapService
      * Create customer records for all participants in an email.
      * Matches original FreeScout implementation.
      */
-    protected function createCustomersFromMessage($message, Mailbox $mailbox): void
+    protected function createCustomersFromMessage(\Webklex\PHPIMAP\Message $message, Mailbox $mailbox): void
     {
         $mailboxEmails = [$mailbox->email];
 
@@ -882,7 +882,7 @@ class ImapService
     /**
      * Get email addresses with names from IMAP address objects.
      */
-    protected function getAddressesWithNames($addresses): array
+    protected function getAddressesWithNames(mixed $addresses): array
     {
         if (empty($addresses)) {
             return [];
@@ -939,7 +939,7 @@ class ImapService
     /**
      * Parse email addresses from IMAP Attribute object.
      */
-    protected function parseAddresses($addresses): array
+    protected function parseAddresses(mixed $addresses): array
     {
         if (empty($addresses)) {
             return [];

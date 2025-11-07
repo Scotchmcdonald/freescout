@@ -143,7 +143,12 @@ class Customer extends Model
     {
         $email = $this->emails()->where('type', 1)->first();
 
-        return $email?->email ?? $this->emails()->first()->email ?? null;
+        if ($email) {
+            return $email->email;
+        }
+
+        $firstEmail = $this->emails()->first();
+        return $firstEmail ? $firstEmail->email : null;
     }
 
     /**

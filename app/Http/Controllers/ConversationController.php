@@ -155,6 +155,10 @@ class ConversationController extends Controller
             // Get default folder
             $folder = $mailbox->folders()->where('type', 1)->first(); // Inbox type
 
+            if (!$folder) {
+                throw new \Exception('Inbox folder not found for mailbox: ' . $mailbox->name);
+            }
+
             // Create conversation
             $conversation = Conversation::create([
                 'mailbox_id' => $mailbox->id,
