@@ -133,7 +133,9 @@ class Customer extends Model
      */
     public function getPrimaryEmailAttribute(): ?string
     {
-        return $this->emails()->where('type', 1)->first()?->email;
+        /** @var \App\Models\Email|null $email */
+        $email = $this->emails()->where('type', 1)->first();
+        return $email?->email;
     }
 
     /**
@@ -141,12 +143,14 @@ class Customer extends Model
      */
     public function getMainEmail(): ?string
     {
+        /** @var \App\Models\Email|null $email */
         $email = $this->emails()->where('type', 1)->first();
 
         if ($email) {
             return $email->email;
         }
 
+        /** @var \App\Models\Email|null $firstEmail */
         $firstEmail = $this->emails()->first();
         return $firstEmail ? $firstEmail->email : null;
     }

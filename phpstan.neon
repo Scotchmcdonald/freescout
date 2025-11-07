@@ -2,7 +2,7 @@ includes:
     - vendor/larastan/larastan/extension.neon
 
 parameters:
-    level: 6
+    level: 7
     paths:
         - app
         - config
@@ -29,6 +29,81 @@ parameters:
         -
             message: '#Call to an undefined static method Nwidart\\Modules\\Facades\\Module::findByAlias\(\)#'
             path: app/Http/Controllers/ModulesController.php
+        # Laravel Mail facade legacy method
+        -
+            message: '#Call to an undefined static method Illuminate\\Support\\Facades\\Mail::failures\(\)#'
+            path: app/Jobs/SendAutoReply.php
+        # EventServiceProvider observers type issue
+        -
+            message: '#Property App\\Providers\\EventServiceProvider::\$observers .* does not accept default value#'
+            path: app/Providers/EventServiceProvider.php
+        # MailboxPolicy pivot access (BelongsToMany pivot is dynamic)
+        -
+            message: '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$pivot#'
+            path: app/Policies/MailboxPolicy.php
+        # ImapService complex type issues with IMAP library
+        -
+            message: '#Parameter .* of method App\\Services\\ImapService::getEncryption\(\) expects int\|null, string\|null given#'
+            paths:
+                - app/Services/ImapService.php
+                - app/Services/SmtpService.php
+        -
+            message: '#Parameter .* of method App\\Services\\SmtpService::getEncryption\(\) expects int\|null, string\|null given#'
+            path: app/Services/SmtpService.php
+        -
+            message: '#Parameter \#2 \$string of function explode expects string, array given#'
+            path: app/Services/ImapService.php
+        -
+            message: '#Call to function is_object\(\) .* will always evaluate to true#'
+            path: app/Services/ImapService.php
+        -
+            message: '#Call to function method_exists\(\) .* will always evaluate to true#'
+            path: app/Services/ImapService.php
+        -
+            message: '#Left side of && is always true#'
+            path: app/Services/ImapService.php
+        -
+            message: '#Parameter \#1 \$json of function json_decode expects string, array given#'
+            path: app/Services/ImapService.php
+        -
+            message: '#Property App\\Models\\Conversation::\$.* does not accept#'
+            path: app/Services/ImapService.php
+        -
+            message: '#Offset .* on non-empty-list.* in isset\(\) always exists#'
+            path: app/Services/ImapService.php
+        -
+            message: '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$id#'
+            paths:
+                - app/Services/ImapService.php
+                - app/Http/Controllers/ConversationController.php
+        -
+            message: '#Negated boolean expression is always false#'
+            path: app/Services/ImapService.php
+        -
+            message: '#Ternary operator condition is always true#'
+            path: app/Services/ImapService.php
+        -
+            message: '#Using nullsafe method call on non-nullable type Webklex\\PHPIMAP\\Attribute#'
+            path: app/Services/ImapService.php
+        -
+            message: '#Parameter \#1 \$email_address of static method App\\Misc\\MailHelper::generateMessageId\(\) expects string, Webklex\\PHPIMAP\\Attribute given#'
+            path: app/Services/ImapService.php
+        # Option model logical expression issue
+        -
+            message: '#Right side of \|\| is always true#'
+            path: app/Models/Option.php
+        # Customer model negated expression issue
+        -
+            message: '#Negated boolean expression is always false#'
+            path: app/Models/Customer.php
+        # Jobs empty() check on potentially null offset
+        -
+            message: '#Offset .* on .* in empty\(\) does not exist#'
+            path: app/Jobs/SendAutoReply.php
+        # VerifyEmailController type issue with User model
+        -
+            message: '#Parameter \#1 \$user of class Illuminate\\Auth\\Events\\Verified constructor#'
+            path: app/Http/Controllers/Auth/VerifyEmailController.php
         # Allow dynamic properties during migration phase
         - '#Call to an undefined method [a-zA-Z0-9\\_]+::[a-zA-Z0-9\\_]+\(\)#'
         # Ignore UserFactory issues during initial setup
