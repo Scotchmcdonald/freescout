@@ -189,4 +189,120 @@ class EventBroadcastingTest extends TestCase
         $this->assertInstanceOf(NewMessageReceived::class, $unserialized);
         $this->assertEquals($thread->id, $unserialized->thread->id);
     }
+
+    /** Test ConversationUpdated event can be dispatched */
+    public function test_conversation_updated_event_dispatched(): void
+    {
+        Event::fake();
+
+        $conversation = Conversation::factory()->create();
+
+        event(new \App\Events\ConversationUpdated($conversation));
+
+        Event::assertDispatched(\App\Events\ConversationUpdated::class);
+    }
+
+    /** Test ConversationUpdated event contains correct data */
+    public function test_conversation_updated_event_contains_correct_data(): void
+    {
+        Event::fake();
+
+        $conversation = Conversation::factory()->create();
+
+        event(new \App\Events\ConversationUpdated($conversation, 'status_changed'));
+
+        Event::assertDispatched(function (\App\Events\ConversationUpdated $event) use ($conversation) {
+            return $event->conversation->id === $conversation->id
+                && $event->updateType === 'status_changed';
+        });
+    }
+
+    /** Test UserViewingConversation event can be dispatched */
+    public function test_user_viewing_conversation_event_dispatched(): void
+    {
+        Event::fake();
+
+        $user = \App\Models\User::factory()->create();
+        $conversation = Conversation::factory()->create();
+
+        event(new \App\Events\UserViewingConversation($conversation->id, $user));
+
+        Event::assertDispatched(\App\Events\UserViewingConversation::class);
+    }
+
+    /** Test UserViewingConversation event contains user */
+    public function test_user_viewing_conversation_contains_user(): void
+    {
+        Event::fake();
+
+        $user = \App\Models\User::factory()->create();
+
+        event(new \App\Events\UserViewingConversation(123, $user, true));
+
+        Event::assertDispatched(function (\App\Events\UserViewingConversation $event) use ($user) {
+            return $event->user->id === $user->id
+                && $event->conversationId === 123
+                && $event->isReplying === true;
+        });
+    }
+
+    /** Test events implement ShouldBroadcast interface */
+    public function test_events_implement_should_broadcast(): void
+    {
+        $conversation = Conversation::factory()->create();
+        $thread = Thread::factory()->for($conversation)->create();
+
+        $newMessageEvent = new NewMessageReceived($thread, $conversation);
+        $conversationUpdatedEvent = new \App\Events\ConversationUpdated($conversation);
+        $user = \App\Models\User::factory()->create();
+        $userViewingEvent = new \App\Events\UserViewingConversation($conversation->id, $user);
+
+        $this->assertInstanceOf(\Illuminate\Contracts\Broadcasting\ShouldBroadcast::class, $newMessageEvent);
+        $this->assertInstanceOf(\Illuminate\Contracts\Broadcasting\ShouldBroadcast::class, $conversationUpdatedEvent);
+        $this->assertInstanceOf(\Illuminate\Contracts\Broadcasting\ShouldBroadcast::class, $userViewingEvent);
+    }
+
+    /** Test events have broadcast channels */
+    public function test_events_have_broadcast_channels(): void
+    {
+        $conversation = Conversation::factory()->create();
+        $conversationUpdatedEvent = new \App\Events\ConversationUpdated($conversation);
+        $user = \App\Models\User::factory()->create();
+        $userViewingEvent = new \App\Events\UserViewingConversation($conversation->id, $user);
+
+        $this->assertNotEmpty($conversationUpdatedEvent->broadcastOn());
+        $this->assertNotEmpty($userViewingEvent->broadcastOn());
+        $this->assertIsArray($conversationUpdatedEvent->broadcastOn());
+        $this->assertIsArray($userViewingEvent->broadcastOn());
+    }
+
+    /** Test ConversationUpdated can be serialized */
+    public function test_conversation_updated_can_be_serialized(): void
+    {
+        $conversation = Conversation::factory()->create();
+        $event = new \App\Events\ConversationUpdated($conversation, 'assigned', ['user_id' => 10]);
+
+        $serialized = serialize($event);
+        $unserialized = unserialize($serialized);
+
+        $this->assertInstanceOf(\App\Events\ConversationUpdated::class, $unserialized);
+        $this->assertEquals($conversation->id, $unserialized->conversation->id);
+        $this->assertEquals('assigned', $unserialized->updateType);
+        $this->assertEquals(['user_id' => 10], $unserialized->meta);
+    }
+
+    /** Test UserViewingConversation can be serialized */
+    public function test_user_viewing_conversation_can_be_serialized(): void
+    {
+        $user = \App\Models\User::factory()->create();
+        $event = new \App\Events\UserViewingConversation(456, $user, true);
+
+        $serialized = serialize($event);
+        $unserialized = unserialize($serialized);
+
+        $this->assertInstanceOf(\App\Events\UserViewingConversation::class, $unserialized);
+        $this->assertEquals(456, $unserialized->conversationId);
+        $this->assertEquals($user->id, $unserialized->user->id);
+        $this->assertTrue($unserialized->isReplying);
+    }
 }
