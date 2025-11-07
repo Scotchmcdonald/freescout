@@ -293,7 +293,7 @@ class ImapService
 
             // Parse name and limit length (first_name is VARCHAR(20) in database)
             $nameParts = explode(' ', $fromName, 2);
-            $firstName = $nameParts[0] ?? '';
+            $firstName = $nameParts[0];
             $lastName = $nameParts[1] ?? '';
 
             // Limit first name to 20 characters
@@ -449,7 +449,7 @@ class ImapService
                     $fromEmail = $originalSender['email'];
                     $fromName = $originalSender['name'];
                     $nameParts = explode(' ', $fromName, 2);
-                    $firstName = $nameParts[0] ?? '';
+                    $firstName = $nameParts[0];
                     $lastName = $nameParts[1] ?? '';
 
                     // Clean body
@@ -927,7 +927,7 @@ class ImapService
                 $nameParts = explode(' ', $name, 2);
                 $result[] = [
                     'email' => $email,
-                    'first_name' => isset($nameParts[0]) && strlen($nameParts[0]) <= 20 ? $nameParts[0] : substr($nameParts[0] ?? '', 0, 20),
+                    'first_name' => isset($nameParts[0]) && strlen($nameParts[0]) <= 20 ? $nameParts[0] : substr($nameParts[0], 0, 20),
                     'last_name' => isset($nameParts[1]) && strlen($nameParts[1]) <= 30 ? $nameParts[1] : substr($nameParts[1] ?? '', 0, 30),
                 ];
             }

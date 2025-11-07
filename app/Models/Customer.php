@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * 
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CustomerEmail> $emails
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Email> $emails
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
  */
 class Customer extends Model
@@ -143,7 +143,7 @@ class Customer extends Model
     {
         $email = $this->emails()->where('type', 1)->first();
 
-        return $email?->email ?? $this->emails()->first()?->email;
+        return $email?->email ?? $this->emails()->first()->email ?? null;
     }
 
     /**

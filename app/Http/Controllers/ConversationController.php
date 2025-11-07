@@ -432,7 +432,7 @@ class ConversationController extends Controller
         $conversation->source_via = $originalConversation->source_via;
         $conversation->source_type = $originalConversation->source_type;
         $conversation->customer_id = $originalConversation->customer_id;
-        $conversation->customer_email = $originalConversation->customer->email;
+        $conversation->customer_email = $originalConversation->customer_email;
         $conversation->status = 1; // Active
         $conversation->state = 2; // Published
         $conversation->cc = $thread->cc;

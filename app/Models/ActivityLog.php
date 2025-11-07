@@ -55,7 +55,7 @@ class ActivityLog extends Model
      */
     public function user(): ?\App\Models\User
     {
-        if ($this->causer_type === \App\Models\User::class) {
+        if ($this->causer_type === \App\Models\User::class && $this->causer instanceof \App\Models\User) {
             return $this->causer;
         }
         return null;
