@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use App\Models\Conversation;
 use App\Models\Customer;
+use App\Models\Email;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class CustomerModelTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_customer_has_first_name_attribute(): void
     {
         $customer = new Customer(['first_name' => 'John']);
@@ -86,5 +91,116 @@ class CustomerModelTest extends TestCase
         $customer = new Customer(['city' => 'Springfield']);
         
         $this->assertEquals('Springfield', $customer->city);
+    }
+
+    /** @test */
+    public function customer_has_conversations_relationship(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+        ]);
+
+        // Act
+        $result = $customer->conversations;
+
+        // Assert
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $result);
+        $this->assertTrue($result->contains($conversation));
+        $this->assertEquals(1, $result->count());
+    }
+
+    /** @test */
+    public function customer_full_name_accessor_works(): void
+    {
+        // Arrange
+        $customer = new Customer([
+            'first_name' => 'Jane',
+            'last_name' => 'Smith',
+        ]);
+
+        // Act
+        $fullName = $customer->full_name;
+
+        // Assert
+        $this->assertEquals('Jane Smith', $fullName);
+    }
+
+    /** @test */
+    public function customer_full_name_accessor_trims_whitespace(): void
+    {
+        // Arrange
+        $customer = new Customer([
+            'first_name' => 'Jane',
+            'last_name' => '',
+        ]);
+
+        // Act
+        $fullName = $customer->full_name;
+
+        // Assert
+        $this->assertEquals('Jane', $fullName);
+        $this->assertStringNotContainsString('  ', $fullName);
+    }
+
+    /** @test */
+    public function customer_has_emails_relationship(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+        $email = Email::factory()->create([
+            'customer_id' => $customer->id,
+            'email' => 'test@example.com',
+        ]);
+
+        // Act
+        $result = $customer->emails;
+
+        // Assert
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $result);
+        $this->assertTrue($result->contains($email));
+        $this->assertEquals('test@example.com', $result->first()->email);
+    }
+
+    /** @test */
+    public function customer_get_main_email_returns_primary_email(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+        Email::factory()->create([
+            'customer_id' => $customer->id,
+            'email' => 'primary@example.com',
+            'type' => 1, // Primary
+        ]);
+        Email::factory()->create([
+            'customer_id' => $customer->id,
+            'email' => 'secondary@example.com',
+            'type' => 2, // Secondary
+        ]);
+
+        // Act
+        $mainEmail = $customer->getMainEmail();
+
+        // Assert
+        $this->assertEquals('primary@example.com', $mainEmail);
+    }
+
+    /** @test */
+    public function customer_get_main_email_returns_first_email_if_no_primary(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+        Email::factory()->create([
+            'customer_id' => $customer->id,
+            'email' => 'only@example.com',
+            'type' => 2, // Secondary
+        ]);
+
+        // Act
+        $mainEmail = $customer->getMainEmail();
+
+        // Assert
+        $this->assertEquals('only@example.com', $mainEmail);
     }
 }
