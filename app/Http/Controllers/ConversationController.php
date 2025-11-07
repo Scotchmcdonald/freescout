@@ -185,7 +185,7 @@ class ConversationController extends Controller
                 'source_via' => 1, // User
                 'source_type' => 2, // Web
                 'customer_email' => $customerEmail,
-                'preview' => substr(strip_tags($validated['body']), 0, 255),
+                'preview' => mb_substr(strip_tags($validated['body']), 0, 255),
                 'created_by_user_id' => $user->id,
                 'last_reply_at' => now(),
             ]);

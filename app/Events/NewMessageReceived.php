@@ -71,7 +71,7 @@ class NewMessageReceived implements ShouldBroadcast
             'conversation_subject' => $this->conversation->subject,
             'thread_type' => $this->thread->type,
             'from' => $this->thread->from,
-            'preview' => substr(strip_tags($this->thread->body ?? ''), 0, 100),
+            'preview' => mb_substr(strip_tags($this->thread->body ?? ''), 0, 100),
             'customer_name' => $this->thread->customer?->getFullName(),
             'user_name' => $this->thread->user?->getFullName(),
             'mailbox_id' => $this->conversation->mailbox_id,

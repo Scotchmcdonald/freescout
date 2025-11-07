@@ -301,11 +301,11 @@ class ImapService
 
             // Limit first name to 20 characters
             if (strlen($firstName) > 20) {
-                $firstName = substr($firstName, 0, 20);
+                $firstName = mb_substr($firstName, 0, 20);
             }
             // Limit last name to 30 characters (database field size)
             if (strlen($lastName) > 30) {
-                $lastName = substr($lastName, 0, 30);
+                $lastName = mb_substr($lastName, 0, 30);
             }
 
             // Use the original FreeScout Customer::create() method
@@ -416,7 +416,7 @@ class ImapService
                     'source_via' => 2, // Customer
                     'source_type' => 1, // Email
                     'customer_email' => $fromEmail,
-                    'preview' => substr(strip_tags($message->getTextBody()), 0, 255),
+                    'preview' => mb_substr(strip_tags($message->getTextBody()), 0, 255),
                     'last_reply_at' => now(),
                 ]);
 
@@ -942,8 +942,8 @@ class ImapService
                 $nameParts = explode(' ', $name, 2);
                 $result[] = [
                     'email' => $email,
-                    'first_name' => isset($nameParts[0]) && strlen($nameParts[0]) <= 20 ? $nameParts[0] : substr($nameParts[0], 0, 20),
-                    'last_name' => isset($nameParts[1]) && strlen($nameParts[1]) <= 30 ? $nameParts[1] : substr($nameParts[1] ?? '', 0, 30),
+                    'first_name' => isset($nameParts[0]) && strlen($nameParts[0]) <= 20 ? $nameParts[0] : mb_substr($nameParts[0], 0, 20),
+                    'last_name' => isset($nameParts[1]) && strlen($nameParts[1]) <= 30 ? $nameParts[1] : mb_substr($nameParts[1] ?? '', 0, 30),
                 ];
             }
         }
