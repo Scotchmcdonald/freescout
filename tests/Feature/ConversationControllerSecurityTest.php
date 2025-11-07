@@ -26,6 +26,10 @@ class ConversationControllerSecurityTest extends TestCase
         $response = $this->get(route('conversations.index', $mailbox));
 
         $response->assertRedirect(route('login'));
+        
+        // Verify no data is leaked in the redirect
+        $this->assertStringNotContainsString($mailbox->name, $response->getContent());
+        $this->assertStringNotContainsString($mailbox->email, $response->getContent());
     }
 
     /**
@@ -50,13 +54,19 @@ class ConversationControllerSecurityTest extends TestCase
             'type' => Folder::TYPE_INBOX,
         ]);
 
-        $conversation = Conversation::factory()->for($mailbox2)->create();
+        $conversation = Conversation::factory()->for($mailbox2)->create([
+            'subject' => 'Secret Conversation',
+        ]);
 
         $response = $this->actingAs($user)->get(
             route('conversations.show', $conversation)
         );
 
         $response->assertForbidden();
+        
+        // Verify no conversation data is leaked in the forbidden response
+        $this->assertStringNotContainsString('Secret Conversation', $response->getContent());
+        $this->assertStringNotContainsString($conversation->subject, $response->getContent());
     }
 
     /**
@@ -98,6 +108,12 @@ class ConversationControllerSecurityTest extends TestCase
             'mailbox_id' => $mailbox->id,
             'type' => Folder::TYPE_INBOX,
         ]);
+        
+        // Create a legitimate conversation
+        $conversation = Conversation::factory()->for($mailbox)->create([
+            'subject' => 'Legitimate Conversation',
+            'state' => 2,
+        ]);
 
         $maliciousInput = "' OR '1'='1";
 
@@ -107,6 +123,16 @@ class ConversationControllerSecurityTest extends TestCase
 
         // Should return OK and handle safely, not throw SQL error
         $response->assertOk();
+        
+        // Verify the malicious input didn't cause SQL injection
+        // If it did, it would return all conversations including ones it shouldn't
+        $response->assertDontSee($maliciousInput);
+        
+        // Database should still be intact
+        $this->assertDatabaseHas('conversations', [
+            'id' => $conversation->id,
+            'subject' => 'Legitimate Conversation',
+        ]);
     }
 
     /**

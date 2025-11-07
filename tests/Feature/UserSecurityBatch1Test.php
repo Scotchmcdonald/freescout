@@ -30,6 +30,17 @@ class UserSecurityBatch1Test extends TestCase
 
         // Assert - Should fail validation for invalid email format
         $response->assertSessionHasErrors('email');
+        
+        // Verify error message exists
+        $errors = session('errors');
+        $this->assertNotNull($errors);
+        $emailErrors = $errors->get('email');
+        $this->assertNotEmpty($emailErrors);
+        
+        // Verify no user was created with XSS in email
+        $this->assertDatabaseMissing('users', [
+            'email' => '<script>alert("xss")</script>@example.com',
+        ]);
     }
 
     public function test_user_name_fields_handle_html_tags_properly(): void
@@ -76,6 +87,18 @@ class UserSecurityBatch1Test extends TestCase
         // Assert
         $user->refresh();
         $this->assertEquals(User::ROLE_USER, $user->role); // Role should not change
+        
+        // Verify role was not updated in database
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'role' => User::ROLE_USER,
+        ]);
+        
+        // Verify no admin-level user was created
+        $this->assertDatabaseMissing('users', [
+            'email' => $user->email,
+            'role' => User::ROLE_ADMIN,
+        ]);
     }
 
     public function test_session_is_invalidated_on_logout(): void
@@ -85,13 +108,18 @@ class UserSecurityBatch1Test extends TestCase
         $this->actingAs($user);
         
         $sessionId = session()->getId();
+        $this->assertNotEmpty($sessionId);
 
         // Act
         $this->post('/logout');
 
         // Assert
         $this->assertGuest();
-        $this->assertNotEquals($sessionId, session()->getId());
+        $newSessionId = session()->getId();
+        $this->assertNotEquals($sessionId, $newSessionId);
+        
+        // Verify old session is no longer valid
+        $this->assertGuest();
     }
 
     public function test_failed_login_attempts_do_not_reveal_user_existence(): void

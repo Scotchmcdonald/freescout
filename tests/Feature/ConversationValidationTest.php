@@ -40,6 +40,13 @@ class ConversationValidationTest extends TestCase
         );
 
         $response->assertSessionHasErrors('subject');
+        
+        // Verify error message is helpful
+        $errors = session('errors');
+        $this->assertNotNull($errors);
+        $subjectErrors = $errors->get('subject');
+        $this->assertNotEmpty($subjectErrors);
+        $this->assertIsArray($subjectErrors);
     }
 
     /** Test empty body validation */
@@ -67,6 +74,12 @@ class ConversationValidationTest extends TestCase
         );
 
         $response->assertSessionHasErrors('body');
+        
+        // Verify no conversation was created
+        $this->assertDatabaseMissing('conversations', [
+            'subject' => 'Test',
+            'mailbox_id' => $mailbox->id,
+        ]);
     }
 
     /** Test invalid email format */
@@ -95,6 +108,19 @@ class ConversationValidationTest extends TestCase
 
         // Laravel validates array elements individually, so error key is 'to.0'
         $response->assertSessionHasErrors('to.0');
+        
+        // Verify error message mentions email format
+        $errors = session('errors');
+        if ($errors) {
+            $emailErrors = $errors->get('to.0');
+            $this->assertNotEmpty($emailErrors);
+        }
+        
+        // Verify no conversation was created with invalid email
+        $this->assertDatabaseMissing('conversations', [
+            'subject' => 'Test',
+            'mailbox_id' => $mailbox->id,
+        ]);
     }
 
     /** Test subject length limit */
@@ -152,6 +178,19 @@ class ConversationValidationTest extends TestCase
         );
 
         $response->assertSessionHasErrors('body');
+        
+        // Test edge case: null body
+        $response2 = $this->actingAs($user)->post(
+            route('conversations.store', $mailbox),
+            [
+                'customer_id' => $customer->id,
+                'subject' => 'Test 2',
+                'body' => null,
+                'to' => [$customer->email],
+            ]
+        );
+        
+        $response2->assertSessionHasErrors('body');
     }
 
     /** Test multiple recipients */
