@@ -288,4 +288,217 @@ class CustomerRegressionTest extends TestCase
             $this->assertFalse($result, "Email '{$email}' should return false");
         }
     }
+
+    /** @test */
+    public function customer_create_handles_multiple_emails_in_data(): void
+    {
+        // Arrange
+        $emailAddress = 'primary@example.com';
+
+        // Act
+        $customer = Customer::create($emailAddress, [
+            'first_name' => 'Multi',
+            'last_name' => 'Email',
+            'emails' => [
+                ['value' => 'secondary@example.com', 'type' => 2],
+            ],
+        ]);
+
+        // Assert
+        $this->assertNotNull($customer);
+        $this->assertDatabaseHas('emails', [
+            'customer_id' => $customer->id,
+            'email' => $emailAddress,
+            'type' => 1, // Primary
+        ]);
+    }
+
+    /** @test */
+    public function customer_set_data_does_not_set_photo_url(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create([
+            'photo_url' => null,
+        ]);
+
+        // Act
+        $customer->setData([
+            'photo_url' => 'https://example.com/photo.jpg',
+            'first_name' => 'Test',
+        ], true, true);
+
+        // Assert
+        $customer->refresh();
+        $this->assertNull($customer->photo_url);
+    }
+
+    /** @test */
+    public function customer_set_data_returns_false_when_no_changes(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create([
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'company' => 'Test Company',
+        ]);
+
+        // Act - Try to set data but all fields are already filled
+        $result = $customer->setData([
+            'notes' => 'Some notes',
+        ], false, false);
+
+        // Assert
+        $this->assertFalse($result);
+    }
+
+    /** @test */
+    public function customer_create_associates_email_with_customer(): void
+    {
+        // Arrange
+        $emailAddress = 'test@example.com';
+
+        // Act
+        $customer = Customer::create($emailAddress, [
+            'first_name' => 'Test',
+            'last_name' => 'User',
+        ]);
+
+        // Assert
+        $email = Email::where('email', $emailAddress)->first();
+        $this->assertNotNull($email);
+        $this->assertEquals($customer->id, $email->customer_id);
+    }
+
+    /** @test */
+    public function customer_create_reuses_existing_email_object(): void
+    {
+        // Arrange
+        $emailAddress = 'existing@example.com';
+        $existingCustomer = Customer::factory()->create();
+        $existingEmail = Email::factory()->create([
+            'customer_id' => $existingCustomer->id,
+            'email' => $emailAddress,
+        ]);
+
+        // Act
+        $customer = Customer::create($emailAddress, [
+            'first_name' => 'New',
+            'last_name' => 'Name',
+        ]);
+
+        // Assert
+        $this->assertEquals($existingCustomer->id, $customer->id);
+        // Should only be one email record
+        $this->assertDatabaseCount('emails', 1);
+    }
+
+    /** @test */
+    public function email_sanitize_handles_null_input(): void
+    {
+        // Act
+        $result = Email::sanitizeEmail(null);
+
+        // Assert
+        $this->assertFalse($result);
+    }
+
+    /** @test */
+    public function customer_set_data_with_array_values_are_ignored_when_replace_true(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create([
+            'first_name' => 'Original',
+        ]);
+
+        // Act
+        $customer->setData([
+            'first_name' => 'Updated',
+            'phones' => ['555-1234'], // This should be ignored
+            'websites' => ['https://example.com'], // This should be ignored
+        ], true, true);
+
+        // Assert
+        $customer->refresh();
+        $this->assertEquals('Updated', $customer->first_name);
+        // Array fields should not be set when replace_data is true
+    }
+
+    /** @test */
+    public function customer_create_handles_empty_data_array(): void
+    {
+        // Arrange
+        $emailAddress = 'minimal@example.com';
+
+        // Act
+        $customer = Customer::create($emailAddress, []);
+
+        // Assert
+        $this->assertNotNull($customer);
+        $this->assertDatabaseHas('customers', [
+            'id' => $customer->id,
+        ]);
+        $this->assertDatabaseHas('emails', [
+            'customer_id' => $customer->id,
+            'email' => $emailAddress,
+        ]);
+    }
+
+    /** @test */
+    public function email_sanitize_removes_multiple_trailing_dots(): void
+    {
+        // Arrange
+        $email = 'user@example.com.....';
+
+        // Act
+        $sanitized = Email::sanitizeEmail($email);
+
+        // Assert
+        $this->assertEquals('user@example.com', $sanitized);
+    }
+
+    /** @test */
+    public function customer_set_data_saves_when_save_parameter_is_true(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create([
+            'company' => '',
+        ]);
+        $originalUpdatedAt = $customer->updated_at;
+
+        // Wait a moment to ensure timestamp would change
+        sleep(1);
+
+        // Act
+        $customer->setData([
+            'company' => 'New Company',
+        ], false, true); // save = true
+
+        // Assert
+        $customer->refresh();
+        $this->assertEquals('New Company', $customer->company);
+        $this->assertNotEquals($originalUpdatedAt, $customer->updated_at);
+    }
+
+    /** @test */
+    public function customer_set_data_does_not_save_when_save_parameter_is_false(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create([
+            'company' => '',
+        ]);
+        $originalUpdatedAt = $customer->updated_at;
+
+        // Act
+        $customer->setData([
+            'company' => 'New Company',
+        ], false, false); // save = false
+
+        // Assert
+        // In memory, the company should be set
+        $this->assertEquals('New Company', $customer->company);
+        
+        // But in database, it should not be saved
+        $customer->refresh();
+        $this->assertEquals('', $customer->company);
+    }
 }

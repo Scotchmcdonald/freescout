@@ -203,4 +203,160 @@ class CustomerModelTest extends TestCase
         // Assert
         $this->assertEquals('only@example.com', $mainEmail);
     }
+
+    /** @test */
+    public function customer_get_main_email_returns_null_when_no_emails(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+
+        // Act
+        $mainEmail = $customer->getMainEmail();
+
+        // Assert
+        $this->assertNull($mainEmail);
+    }
+
+    /** @test */
+    public function customer_has_threads_relationship(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+
+        // Act
+        $result = $customer->threads();
+
+        // Assert
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $result);
+    }
+
+    /** @test */
+    public function customer_has_channels_relationship(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+
+        // Act
+        $result = $customer->channels();
+
+        // Assert
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $result);
+    }
+
+    /** @test */
+    public function customer_get_first_name_returns_empty_string_when_null(): void
+    {
+        // Arrange
+        $customer = new Customer(['first_name' => null]);
+
+        // Act
+        $firstName = $customer->getFirstName();
+
+        // Assert
+        $this->assertEquals('', $firstName);
+    }
+
+    /** @test */
+    public function customer_get_first_name_returns_actual_value(): void
+    {
+        // Arrange
+        $customer = new Customer(['first_name' => 'John']);
+
+        // Act
+        $firstName = $customer->getFirstName();
+
+        // Assert
+        $this->assertEquals('John', $firstName);
+    }
+
+    /** @test */
+    public function customer_primary_email_attribute_returns_primary_email(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+        Email::factory()->create([
+            'customer_id' => $customer->id,
+            'email' => 'primary@example.com',
+            'type' => 1, // Primary
+        ]);
+        Email::factory()->create([
+            'customer_id' => $customer->id,
+            'email' => 'secondary@example.com',
+            'type' => 2, // Secondary
+        ]);
+
+        // Act
+        $primaryEmail = $customer->primary_email;
+
+        // Assert
+        $this->assertEquals('primary@example.com', $primaryEmail);
+    }
+
+    /** @test */
+    public function customer_primary_email_attribute_returns_null_when_no_primary(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+        Email::factory()->create([
+            'customer_id' => $customer->id,
+            'email' => 'secondary@example.com',
+            'type' => 2, // Secondary
+        ]);
+
+        // Act
+        $primaryEmail = $customer->primary_email;
+
+        // Assert
+        $this->assertNull($primaryEmail);
+    }
+
+    /** @test */
+    public function customer_casts_attributes_correctly(): void
+    {
+        // Arrange
+        $customer = new Customer([
+            'phones' => ['555-1234', '555-5678'],
+            'websites' => ['https://example.com'],
+            'social_profiles' => ['twitter' => '@user'],
+        ]);
+
+        // Assert
+        $this->assertIsArray($customer->phones);
+        $this->assertIsArray($customer->websites);
+        $this->assertIsArray($customer->social_profiles);
+    }
+
+    /** @test */
+    public function customer_fillable_includes_all_expected_fields(): void
+    {
+        // Arrange
+        $expectedFields = [
+            'first_name',
+            'last_name',
+            'company',
+            'job_title',
+            'photo_url',
+            'photo_type',
+            'channel',
+            'channel_id',
+            'phones',
+            'websites',
+            'social_profiles',
+            'address',
+            'city',
+            'state',
+            'zip',
+            'country',
+            'notes',
+        ];
+
+        // Act
+        $customer = new Customer();
+        $fillable = $customer->getFillable();
+
+        // Assert
+        foreach ($expectedFields as $field) {
+            $this->assertContains($field, $fillable, "Field '{$field}' should be fillable");
+        }
+    }
 }

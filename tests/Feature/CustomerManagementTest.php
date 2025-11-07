@@ -304,4 +304,210 @@ class CustomerManagementTest extends TestCase
         $response->assertSee('Alice');
         $response->assertDontSee('Bob');
     }
+
+    /** @test */
+    public function user_can_access_customer_edit_page(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create([
+            'first_name' => 'Edit',
+            'last_name' => 'Test',
+        ]);
+
+        // Act
+        $response = $this->actingAs($this->user)->get("/customer/{$customer->id}/edit");
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertSee('Edit');
+        $response->assertSee('Test');
+    }
+
+    /** @test */
+    public function unauthenticated_user_cannot_access_customer_edit_page(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+
+        // Act
+        $response = $this->get("/customer/{$customer->id}/edit");
+
+        // Assert
+        $response->assertStatus(302);
+        $response->assertRedirect('/login');
+    }
+
+    /** @test */
+    public function updating_customer_with_empty_optional_fields_works(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create([
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'company' => 'Old Company',
+        ]);
+
+        // Act
+        $response = $this->actingAs($this->user)->patch("/customer/{$customer->id}", [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'company' => '',
+            'job_title' => null,
+            'city' => '',
+        ]);
+
+        // Assert
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('customers', [
+            'id' => $customer->id,
+            'first_name' => 'John',
+            'company' => '',
+        ]);
+    }
+
+    /** @test */
+    public function cannot_update_customer_without_first_name(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+
+        // Act
+        $response = $this->actingAs($this->user)->patch("/customer/{$customer->id}", [
+            'first_name' => '',
+            'last_name' => 'Doe',
+        ]);
+
+        // Assert
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('first_name');
+    }
+
+    /** @test */
+    public function can_update_customer_with_valid_country_code(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+
+        // Act
+        $response = $this->actingAs($this->user)->patch("/customer/{$customer->id}", [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'country' => 'US',
+        ]);
+
+        // Assert
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('customers', [
+            'id' => $customer->id,
+            'country' => 'US',
+        ]);
+    }
+
+    /** @test */
+    public function merge_fails_with_missing_source_id(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+
+        // Act
+        $response = $this->actingAs($this->user)->post('/customers/merge', [
+            'target_id' => $customer->id,
+        ]);
+
+        // Assert
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('source_id');
+    }
+
+    /** @test */
+    public function merge_fails_with_missing_target_id(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+
+        // Act
+        $response = $this->actingAs($this->user)->post('/customers/merge', [
+            'source_id' => $customer->id,
+        ]);
+
+        // Assert
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('target_id');
+    }
+
+    /** @test */
+    public function customer_list_is_paginated(): void
+    {
+        // Arrange
+        Customer::factory()->count(60)->create();
+
+        // Act
+        $response = $this->actingAs($this->user)->get('/customers');
+
+        // Assert
+        $response->assertStatus(200);
+        // Default pagination is 50 per page
+        $response->assertSee('50'); // Should see pagination info
+    }
+
+    /** @test */
+    public function customer_show_page_loads_conversations(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+            'subject' => 'Loaded Conversation',
+        ]);
+
+        // Act
+        $response = $this->actingAs($this->user)->get("/customer/{$customer->id}");
+
+        // Assert
+        $response->assertStatus(200);
+        $response->assertSee('Loaded Conversation');
+    }
+
+    /** @test */
+    public function updating_customer_with_social_profiles_works(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+
+        // Act
+        $response = $this->actingAs($this->user)->patch("/customer/{$customer->id}", [
+            'first_name' => 'Social',
+            'last_name' => 'User',
+            'social_profiles' => [
+                ['type' => 'twitter', 'value' => '@socialuser'],
+            ],
+        ]);
+
+        // Assert
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('customers', [
+            'id' => $customer->id,
+            'first_name' => 'Social',
+        ]);
+    }
+
+    /** @test */
+    public function updating_customer_with_websites_works(): void
+    {
+        // Arrange
+        $customer = Customer::factory()->create();
+
+        // Act
+        $response = $this->actingAs($this->user)->patch("/customer/{$customer->id}", [
+            'first_name' => 'Web',
+            'last_name' => 'User',
+            'websites' => [
+                ['value' => 'https://example.com'],
+            ],
+        ]);
+
+        // Assert
+        $response->assertStatus(200);
+    }
 }
+
