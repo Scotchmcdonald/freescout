@@ -18,6 +18,19 @@ use Illuminate\View\View;
 class SettingsController extends Controller
 {
     /**
+     * Create a new controller instance.
+     */
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!$request->user() || !$request->user()->isAdmin()) {
+                abort(403, 'Unauthorized action.');
+            }
+            return $next($request);
+        });
+    }
+
+    /**
      * Display general settings.
      */
     public function index(): View

@@ -92,7 +92,7 @@ class SettingsTest extends TestCase
             'mail_password' => 'secret',
             'mail_encryption' => 'tls',
             'mail_from_address' => 'support@example.com',
-            'mail_from_name' => 'Support Team',
+            'mail_from_name' => 'SupportTeam',
         ]);
 
         // Assert

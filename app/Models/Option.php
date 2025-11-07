@@ -11,6 +11,12 @@ class Option extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'name';
+    
+    public $incrementing = false;
+    
+    protected $keyType = 'string';
+
     protected $fillable = [
         'name',
         'value',
@@ -39,10 +45,17 @@ class Option extends Model
      */
     public static function setValue(string $name, mixed $value): bool
     {
-        return static::updateOrCreate(
+        $option = static::firstOrCreate(
             ['name' => $name],
             ['value' => $value]
-        )->wasRecentlyCreated || true;
+        );
+        
+        if ($option->value !== $value) {
+            $option->value = $value;
+            $option->save();
+        }
+        
+        return true;
     }
 
     /**

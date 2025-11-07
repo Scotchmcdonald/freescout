@@ -18,6 +18,19 @@ use Illuminate\View\View;
 class SystemController extends Controller
 {
     /**
+     * Create a new controller instance.
+     */
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!$request->user() || !$request->user()->isAdmin()) {
+                abort(403, 'Unauthorized action.');
+            }
+            return $next($request);
+        });
+    }
+
+    /**
      * Display system status and tools.
      */
     public function index(): View
@@ -35,7 +48,7 @@ class SystemController extends Controller
         $systemInfo = [
             'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
-            'db_version' => DB::select('SELECT VERSION() as version')[0]->version ?? 'Unknown',
+            'db_version' => $this->getDatabaseVersion(),
             'disk_free' => disk_free_space('/'),
             'disk_total' => disk_total_space('/'),
             'memory_limit' => ini_get('memory_limit'),
@@ -43,6 +56,32 @@ class SystemController extends Controller
         ];
 
         return view('system.index', compact('stats', 'systemInfo'));
+    }
+
+    /**
+     * Get database version (compatible with different database drivers).
+     */
+    protected function getDatabaseVersion(): string
+    {
+        try {
+            $driver = config('database.default');
+            $connection = DB::connection($driver);
+            
+            if ($driver === 'sqlite') {
+                $result = $connection->select('SELECT sqlite_version() as version');
+                return 'SQLite ' . ($result[0]->version ?? 'Unknown');
+            } elseif ($driver === 'mysql') {
+                $result = $connection->select('SELECT VERSION() as version');
+                return $result[0]->version ?? 'Unknown';
+            } elseif ($driver === 'pgsql') {
+                $result = $connection->select('SELECT version() as version');
+                return $result[0]->version ?? 'Unknown';
+            }
+            
+            return 'Unknown';
+        } catch (\Exception $e) {
+            return 'Unknown';
+        }
     }
 
     /**
