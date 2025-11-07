@@ -1,4 +1,8 @@
 <?php return array (
+  'concurrency' => 
+  array (
+    'default' => 'process',
+  ),
   'cors' => 
   array (
     'paths' => 
@@ -27,6 +31,14 @@
     'max_age' => 0,
     'supports_credentials' => false,
   ),
+  'view' => 
+  array (
+    'paths' => 
+    array (
+      0 => '/home/runner/work/freescout/freescout/resources/views',
+    ),
+    'compiled' => '/home/runner/work/freescout/freescout/storage/framework/views',
+  ),
   'hashing' => 
   array (
     'driver' => 'bcrypt',
@@ -44,21 +56,9 @@
     ),
     'rehash_on_login' => true,
   ),
-  'concurrency' => 
-  array (
-    'default' => 'process',
-  ),
-  'view' => 
-  array (
-    'paths' => 
-    array (
-      0 => '/var/www/html/resources/views',
-    ),
-    'compiled' => '/var/www/html/storage/framework/views',
-  ),
   'app' => 
   array (
-    'name' => 'FreeScout',
+    'name' => 'Laravel',
     'env' => 'testing',
     'debug' => true,
     'url' => 'http://localhost',
@@ -69,7 +69,7 @@
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
     'cipher' => 'AES-256-CBC',
-    'key' => 'base64:rPsGoZIgpm1MAlwHxxyS8yn/1/Gd2bn8180hy1A3IwE=',
+    'key' => 'base64:W+puG8XPhqhEXBJC8vnzRoWmY3LmIro6Yy/WV1hQwsM=',
     'previous_keys' => 
     array (
     ),
@@ -191,21 +191,21 @@
   ),
   'broadcasting' => 
   array (
-    'default' => 'reverb',
+    'default' => 'log',
     'connections' => 
     array (
       'reverb' => 
       array (
         'driver' => 'reverb',
-        'key' => 'tbfbcarbkc2txv9iw6dz',
-        'secret' => '0rgzmbepfh3yvydhmpkc',
-        'app_id' => '231482',
+        'key' => NULL,
+        'secret' => NULL,
+        'app_id' => NULL,
         'options' => 
         array (
-          'host' => 'localhost',
-          'port' => '8080',
-          'scheme' => 'http',
-          'useTLS' => false,
+          'host' => NULL,
+          'port' => 443,
+          'scheme' => 'https',
+          'useTLS' => true,
         ),
         'client_options' => 
         array (
@@ -266,8 +266,8 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => '/var/www/html/storage/framework/cache/data',
-        'lock_path' => '/var/www/html/storage/framework/cache/data',
+        'path' => '/home/runner/work/freescout/freescout/storage/framework/cache/data',
+        'lock_path' => '/home/runner/work/freescout/freescout/storage/framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -315,14 +315,14 @@
   ),
   'database' => 
   array (
-    'default' => 'mysql',
+    'default' => 'sqlite',
     'connections' => 
     array (
       'sqlite' => 
       array (
         'driver' => 'sqlite',
         'url' => '',
-        'database' => 'freescout',
+        'database' => ':memory:',
         'prefix' => '',
         'foreign_key_constraints' => true,
         'busy_timeout' => NULL,
@@ -335,9 +335,9 @@
         'url' => '',
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'freescout',
+        'database' => ':memory:',
         'username' => 'root',
-        'password' => 'lKyctrx4stu4d4di7c5OV8OG',
+        'password' => '',
         'unix_socket' => '',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
@@ -355,9 +355,9 @@
         'url' => '',
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'freescout',
+        'database' => ':memory:',
         'username' => 'root',
-        'password' => 'lKyctrx4stu4d4di7c5OV8OG',
+        'password' => '',
         'unix_socket' => '',
         'charset' => 'utf8mb4',
         'collation' => 'utf8mb4_unicode_ci',
@@ -374,10 +374,10 @@
         'driver' => 'pgsql',
         'url' => '',
         'host' => '127.0.0.1',
-        'port' => '3306',
-        'database' => 'freescout',
+        'port' => '5432',
+        'database' => ':memory:',
         'username' => 'root',
-        'password' => 'lKyctrx4stu4d4di7c5OV8OG',
+        'password' => '',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -388,11 +388,11 @@
       array (
         'driver' => 'sqlsrv',
         'url' => '',
-        'host' => '127.0.0.1',
-        'port' => '3306',
-        'database' => 'freescout',
+        'host' => 'localhost',
+        'port' => '1433',
+        'database' => ':memory:',
         'username' => 'root',
-        'password' => 'lKyctrx4stu4d4di7c5OV8OG',
+        'password' => '',
         'charset' => 'utf8',
         'prefix' => '',
         'prefix_indexes' => true,
@@ -409,7 +409,7 @@
       'options' => 
       array (
         'cluster' => 'redis',
-        'prefix' => 'freescout_database_',
+        'prefix' => 'laravel_database_',
       ),
       'default' => 
       array (
@@ -439,7 +439,7 @@
       'local' => 
       array (
         'driver' => 'local',
-        'root' => '/var/www/html/storage/app/private',
+        'root' => '/home/runner/work/freescout/freescout/storage/app/private',
         'serve' => true,
         'throw' => false,
         'report' => false,
@@ -447,7 +447,7 @@
       'public' => 
       array (
         'driver' => 'local',
-        'root' => '/var/www/html/storage/app/public',
+        'root' => '/home/runner/work/freescout/freescout/storage/app/public',
         'url' => 'http://localhost/storage',
         'visibility' => 'public',
         'throw' => false,
@@ -469,7 +469,7 @@
     ),
     'links' => 
     array (
-      '/var/www/html/public/storage' => '/var/www/html/storage/app/public',
+      '/home/runner/work/freescout/freescout/public/storage' => '/home/runner/work/freescout/freescout/storage/app/public',
     ),
   ),
   'logging' => 
@@ -494,14 +494,14 @@
       'single' => 
       array (
         'driver' => 'single',
-        'path' => '/var/www/html/storage/logs/laravel.log',
+        'path' => '/home/runner/work/freescout/freescout/storage/logs/laravel.log',
         'level' => 'debug',
         'replace_placeholders' => true,
       ),
       'daily' => 
       array (
         'driver' => 'daily',
-        'path' => '/var/www/html/storage/logs/laravel.log',
+        'path' => '/home/runner/work/freescout/freescout/storage/logs/laravel.log',
         'level' => 'debug',
         'days' => 14,
         'replace_placeholders' => true,
@@ -566,7 +566,7 @@
       ),
       'emergency' => 
       array (
-        'path' => '/var/www/html/storage/logs/laravel.log',
+        'path' => '/home/runner/work/freescout/freescout/storage/logs/laravel.log',
       ),
     ),
   ),
@@ -642,7 +642,7 @@
       'theme' => 'default',
       'paths' => 
       array (
-        0 => '/var/www/html/resources/views/vendor/mail',
+        0 => '/home/runner/work/freescout/freescout/resources/views/vendor/mail',
       ),
     ),
   ),
@@ -652,7 +652,7 @@
     'stubs' => 
     array (
       'enabled' => false,
-      'path' => '/var/www/html/vendor/nwidart/laravel-modules/src/Commands/stubs',
+      'path' => '/home/runner/work/freescout/freescout/vendor/nwidart/laravel-modules/src/Commands/stubs',
       'files' => 
       array (
         'routes/web' => 'routes/web.php',
@@ -728,9 +728,9 @@
     ),
     'paths' => 
     array (
-      'modules' => '/var/www/html/Modules',
-      'assets' => '/var/www/html/public/modules',
-      'migration' => '/var/www/html/database/migrations',
+      'modules' => '/home/runner/work/freescout/freescout/Modules',
+      'assets' => '/home/runner/work/freescout/freescout/public/modules',
+      'migration' => '/home/runner/work/freescout/freescout/database/migrations',
       'app_folder' => 'app/',
       'generator' => 
       array (
@@ -1015,7 +1015,7 @@
       'enabled' => false,
       'paths' => 
       array (
-        0 => '/var/www/html/vendor/*/*',
+        0 => '/home/runner/work/freescout/freescout/vendor/*/*',
       ),
     ),
     'composer' => 
@@ -1038,7 +1038,7 @@
       'file' => 
       array (
         'class' => 'Nwidart\\Modules\\Activators\\FileActivator',
-        'statuses-file' => '/var/www/html/modules_statuses.json',
+        'statuses-file' => '/home/runner/work/freescout/freescout/modules_statuses.json',
       ),
     ),
     'activator' => 'file',
@@ -1093,13 +1093,13 @@
     ),
     'batching' => 
     array (
-      'database' => 'mysql',
+      'database' => 'sqlite',
       'table' => 'job_batches',
     ),
     'failed' => 
     array (
       'driver' => 'database-uuids',
-      'database' => 'mysql',
+      'database' => 'sqlite',
       'table' => 'failed_jobs',
     ),
   ),
@@ -1113,7 +1113,7 @@
         'host' => '0.0.0.0',
         'port' => 8080,
         'path' => '',
-        'hostname' => 'localhost',
+        'hostname' => NULL,
         'options' => 
         array (
           'tls' => 
@@ -1147,15 +1147,15 @@
       array (
         0 => 
         array (
-          'key' => 'tbfbcarbkc2txv9iw6dz',
-          'secret' => '0rgzmbepfh3yvydhmpkc',
-          'app_id' => '231482',
+          'key' => NULL,
+          'secret' => NULL,
+          'app_id' => NULL,
           'options' => 
           array (
-            'host' => 'localhost',
-            'port' => '8080',
-            'scheme' => 'http',
-            'useTLS' => false,
+            'host' => NULL,
+            'port' => 443,
+            'scheme' => 'https',
+            'useTLS' => true,
           ),
           'allowed_origins' => 
           array (
@@ -1200,7 +1200,7 @@
     'lifetime' => 120,
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => '/var/www/html/storage/framework/sessions',
+    'files' => '/home/runner/work/freescout/freescout/storage/framework/sessions',
     'connection' => '',
     'table' => 'sessions',
     'store' => '',
@@ -1209,7 +1209,7 @@
       0 => 2,
       1 => 100,
     ),
-    'cookie' => 'freescout_session',
+    'cookie' => 'laravel_session',
     'path' => '/',
     'domain' => '',
     'secure' => false,
@@ -1222,7 +1222,7 @@
     'encoding' => 'UTF-8',
     'finalize' => true,
     'ignoreNonStrings' => false,
-    'cachePath' => '/var/www/html/storage/app/purifier',
+    'cachePath' => '/home/runner/work/freescout/freescout/storage/app/purifier',
     'cacheFileMode' => 493,
     'settings' => 
     array (
