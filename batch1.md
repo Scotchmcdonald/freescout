@@ -322,6 +322,8 @@ class UserControllerValidationTest extends TestCase
         ];
 
         // Act
+        // Note: Status validation accepts 1 (ACTIVE) and 2 (INACTIVE) only
+        // STATUS_DELETED (3) is not allowed for user creation
         $validator = Validator::make($data, [
             'first_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -431,6 +433,8 @@ class UserControllerValidationTest extends TestCase
         ];
 
         // Act
+        // Note: Validation only accepts status 1 (ACTIVE) and 2 (INACTIVE)
+        // STATUS_DELETED (3) is intentionally excluded from user creation/update
         $validator = Validator::make($data, [
             'first_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -1583,8 +1587,8 @@ class PasswordResetRegressionBatch1Test extends TestCase
         $user = User::factory()->create(['email' => 'test@example.com']);
         $token = Password::broker()->createToken($user);
 
-        // Simulate token expiration by traveling back in time
-        $this->travel(-config('auth.passwords.users.expire') - 1)->minutes();
+        // Simulate token expiration by traveling forward in time
+        $this->travel(config('auth.passwords.users.expire') + 1)->minutes();
 
         // Act
         $response = $this->post('/reset-password', [
