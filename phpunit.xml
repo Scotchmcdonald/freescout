@@ -27,13 +27,13 @@
         <!--   - Best for: Rapid unit testing, TDD workflow -->
         <!--   - Install: sudo apt-get install php8.3-sqlite3 -->
         <!--   - Trade-off: Some feature tests may fail (MySQL-specific queries) -->
-        <!-- <env name="DB_CONNECTION" value="sqlite"/> -->
-        <!-- <env name="DB_DATABASE" value=":memory:"/> -->
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
         <!-- Option 2: MySQL (RECOMMENDED for full integration testing) -->
         <!--   - Best for: Complete feature test suite, CI/CD pipelines -->
         <!--   - Trade-off: Slower (first test ~5s vs 0.12s with SQLite) -->
         <!--   - To use: Comment out SQLite lines above, uncomment MySQL below -->
-        <env name="DB_CONNECTION" value="mysql"/>
+        <!-- <env name="DB_CONNECTION" value="mysql"/> -->
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
