@@ -17788,3 +17788,26 @@
 [2025-11-06 22:47:36] testing.WARNING: IMAP fetch skipped - no server configured {"mailbox_id":null,"mailbox_name":"Test Mailbox"} 
 [2025-11-06 22:47:38] testing.WARNING: SMTP test skipped due to invalid configuration {"mailbox_id":null,"errors":["SMTP server not configured","SMTP port not configured","From email address not configured"]} 
 [2025-11-06 22:47:38] testing.DEBUG: Configuring SMTP {"mailbox_id":null,"host":"smtp.example.com","port":587,"encryption":null,"username":"test@example.com","from_email":null} 
+[2025-11-07 00:14:08] production.ERROR: file_get_contents(/home/runner/work/freescout/freescout/.env): Failed to open stream: No such file or directory {"exception":"[object] (ErrorException(code: 0): file_get_contents(/home/runner/work/freescout/freescout/.env): Failed to open stream: No such file or directory at /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Foundation/Console/KeyGenerateCommand.php:100)
+[stacktrace]
+#0 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(258): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleError()
+#1 [internal function]: Illuminate\\Foundation\\Bootstrap\\HandleExceptions->Illuminate\\Foundation\\Bootstrap\\{closure}()
+#2 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Foundation/Console/KeyGenerateCommand.php(100): file_get_contents()
+#3 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Foundation/Console/KeyGenerateCommand.php(82): Illuminate\\Foundation\\Console\\KeyGenerateCommand->writeNewEnvironmentFileWith()
+#4 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Foundation/Console/KeyGenerateCommand.php(47): Illuminate\\Foundation\\Console\\KeyGenerateCommand->setKeyInEnvironmentFile()
+#5 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Illuminate\\Foundation\\Console\\KeyGenerateCommand->handle()
+#6 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#7 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure()
+#8 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#9 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Container/Container.php(696): Illuminate\\Container\\BoundMethod::call()
+#10 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Console/Command.php(213): Illuminate\\Container\\Container->call()
+#11 /home/runner/work/freescout/freescout/vendor/symfony/console/Command/Command.php(318): Illuminate\\Console\\Command->execute()
+#12 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Console/Command.php(182): Symfony\\Component\\Console\\Command\\Command->run()
+#13 /home/runner/work/freescout/freescout/vendor/symfony/console/Application.php(1073): Illuminate\\Console\\Command->run()
+#14 /home/runner/work/freescout/freescout/vendor/symfony/console/Application.php(356): Symfony\\Component\\Console\\Application->doRunCommand()
+#15 /home/runner/work/freescout/freescout/vendor/symfony/console/Application.php(195): Symfony\\Component\\Console\\Application->doRun()
+#16 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run()
+#17 /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle()
+#18 /home/runner/work/freescout/freescout/artisan(11): Illuminate\\Foundation\\Application->handleCommand()
+#19 {main}
+"} 
