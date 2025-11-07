@@ -287,9 +287,53 @@ public function test_user_can_access_customer_edit_page(): void
 
 ---
 
+### 11. tests/Feature/Auth/PasswordConfirmationTest.php
+
+#### `test_confirm_password_screen_can_be_rendered()`
+**Current Implementation:**
+```php
+public function test_confirm_password_screen_can_be_rendered(): void
+{
+    $user = User::factory()->create();
+    
+    $response = $this->actingAs($user)->get('/confirm-password');
+    
+    $response->assertStatus(200);
+}
+```
+
+**Issues:**
+- Only checks 200 status code
+- Doesn't verify password confirmation form is present
+- Doesn't check for password input field
+- Doesn't verify CSRF token or form elements
+
+---
+
+### 12. tests/Feature/AuthenticationBatch1Test.php
+
+#### `test_guest_can_view_login_page()`
+**Current Implementation:**
+```php
+public function test_guest_can_view_login_page(): void
+{
+    $response = $this->get('/login');
+    
+    $response->assertStatus(200);
+}
+```
+
+**Issues:**
+- Only checks 200 status code
+- Duplicate of `test_login_screen_can_be_rendered()` in AuthenticationTest.php
+- Doesn't verify login form elements are present
+- Doesn't check for email/password fields or submit button
+
+---
+
 ## Summary Statistics
 
-- **Total smoke tests identified:** 10
+- **Total smoke tests identified:** 12
 - **Most common issue:** Only asserting status codes (200/OK) without verifying content
 - **Second most common:** Not verifying database changes after actions
 - **Third most common:** Not checking for form fields or UI elements
@@ -311,6 +355,8 @@ public function test_user_can_access_customer_edit_page(): void
 8. `test_email_verification_screen_can_be_rendered()` - Email verification
 9. `test_reset_password_link_screen_can_be_rendered()` - Password reset
 10. `test_user_can_access_customer_edit_page()` - Customer editing
+11. `test_confirm_password_screen_can_be_rendered()` - Password confirmation
+12. `test_guest_can_view_login_page()` - Login page (duplicate test)
 
 ---
 
