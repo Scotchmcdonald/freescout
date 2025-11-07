@@ -271,4 +271,153 @@ class ConversationControllerMethodsTest extends TestCase
 
         $response->assertRedirect(route('login'));
     }
+
+    /**
+     * Edge case tests for ajax() method
+     */
+    public function test_ajax_handles_non_existent_conversation(): void
+    {
+        $this->actingAs($this->user);
+
+        $response = $this->postJson(route('conversations.ajax'), [
+            'action' => 'change_status',
+            'conversation_id' => 99999, // Non-existent ID
+            'status' => 2,
+        ]);
+
+        $response->assertNotFound();
+    }
+
+    public function test_ajax_change_status_with_invalid_status_value(): void
+    {
+        $this->actingAs($this->user);
+
+        $conversation = Conversation::factory()
+            ->for($this->mailbox)
+            ->create(['status' => 1]);
+
+        // The controller doesn't validate status values before updating
+        // Database will reject values outside the column's range
+        // This test documents the current behavior - database constraint prevents invalid values
+        $response = $this->postJson(route('conversations.ajax'), [
+            'action' => 'change_status',
+            'conversation_id' => $conversation->id,
+            'status' => 999, // Invalid status - exceeds tinyint range
+        ]);
+
+        // Controller returns 500 due to database constraint violation
+        $response->assertStatus(500);
+    }
+
+    public function test_ajax_change_user_with_null_user_id(): void
+    {
+        $this->actingAs($this->user);
+
+        $assignee = User::factory()->create();
+        $conversation = Conversation::factory()
+            ->for($this->mailbox)
+            ->create(['user_id' => $assignee->id]);
+
+        // Unassign user by setting to null
+        $response = $this->postJson(route('conversations.ajax'), [
+            'action' => 'change_user',
+            'conversation_id' => $conversation->id,
+            'user_id' => null,
+        ]);
+
+        $response->assertOk();
+        $this->assertDatabaseHas('conversations', [
+            'id' => $conversation->id,
+            'user_id' => null,
+        ]);
+    }
+
+    public function test_ajax_change_folder_with_non_existent_folder(): void
+    {
+        $this->actingAs($this->user);
+
+        $conversation = Conversation::factory()
+            ->for($this->mailbox)
+            ->create();
+
+        // The controller doesn't validate folder existence before updating
+        // Database foreign key constraint prevents invalid folder_id
+        // This test documents the current behavior
+        $response = $this->postJson(route('conversations.ajax'), [
+            'action' => 'change_folder',
+            'conversation_id' => $conversation->id,
+            'folder_id' => 99999, // Non-existent folder
+        ]);
+
+        // Controller returns error due to foreign key constraint violation
+        $response->assertStatus(500);
+    }
+
+    public function test_ajax_with_missing_action_parameter(): void
+    {
+        $this->actingAs($this->user);
+
+        $conversation = Conversation::factory()
+            ->for($this->mailbox)
+            ->create();
+
+        $response = $this->postJson(route('conversations.ajax'), [
+            'conversation_id' => $conversation->id,
+            // Missing 'action' parameter
+        ]);
+
+        $response->assertStatus(400);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'Invalid action',
+        ]);
+    }
+
+    public function test_ajax_handles_sql_injection_attempt(): void
+    {
+        $this->actingAs($this->user);
+
+        $conversation = Conversation::factory()
+            ->for($this->mailbox)
+            ->create();
+
+        // Test with SQL injection attempt in conversation_id
+        $response = $this->postJson(route('conversations.ajax'), [
+            'action' => 'change_status',
+            'conversation_id' => "1 OR 1=1",
+            'status' => 2,
+        ]);
+
+        // Laravel's Eloquent should handle this safely
+        $response->assertNotFound();
+    }
+
+    public function test_create_form_displays_user_folders_only(): void
+    {
+        $this->actingAs($this->user);
+
+        // Create a user-specific folder
+        $userFolder = Folder::factory()->create([
+            'mailbox_id' => $this->mailbox->id,
+            'type' => Folder::TYPE_ASSIGNED,
+            'user_id' => $this->user->id,
+        ]);
+
+        // Create another user's folder
+        $otherUser = User::factory()->create();
+        $otherUserFolder = Folder::factory()->create([
+            'mailbox_id' => $this->mailbox->id,
+            'type' => Folder::TYPE_MINE,
+            'user_id' => $otherUser->id,
+        ]);
+
+        $response = $this->get(route('conversations.create', $this->mailbox));
+
+        $response->assertOk();
+        $response->assertViewHas('folders', function ($folders) use ($userFolder, $otherUserFolder) {
+            // Should include user's own folder and public folders (user_id = null)
+            $folderIds = $folders->pluck('id')->toArray();
+            return in_array($userFolder->id, $folderIds) && !in_array($otherUserFolder->id, $folderIds);
+        });
+    }
 }

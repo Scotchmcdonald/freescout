@@ -273,4 +273,174 @@ class SettingsControllerMethodsTest extends TestCase
 
         $response->assertUnauthorized();
     }
+
+    /**
+     * Edge case tests for testSmtp() and testImap()
+     */
+    public function test_test_smtp_with_invalid_mailbox_id(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->postJson(route('settings.test-smtp'), [
+            'mailbox_id' => 99999, // Non-existent mailbox
+            'test_email' => 'test@example.com',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['mailbox_id']);
+    }
+
+    public function test_test_imap_with_invalid_mailbox_id(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->postJson(route('settings.test-imap'), [
+            'mailbox_id' => 99999, // Non-existent mailbox
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['mailbox_id']);
+    }
+
+    public function test_test_smtp_with_non_numeric_mailbox_id(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->postJson(route('settings.test-smtp'), [
+            'mailbox_id' => 'invalid',
+            'test_email' => 'test@example.com',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['mailbox_id']);
+    }
+
+    public function test_test_smtp_service_returns_failure(): void
+    {
+        $this->actingAs($this->admin);
+
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'smtp.example.com',
+        ]);
+
+        $mockService = $this->mock(SmtpService::class);
+        $mockService->shouldReceive('testConnection')
+            ->once()
+            ->andReturn([
+                'success' => false,
+                'message' => 'Authentication failed',
+            ]);
+
+        $response = $this->postJson(route('settings.test-smtp'), [
+            'mailbox_id' => $mailbox->id,
+            'test_email' => 'test@example.com',
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => false,
+            'message' => 'Authentication failed',
+        ]);
+    }
+
+    public function test_test_imap_service_returns_failure(): void
+    {
+        $this->actingAs($this->admin);
+
+        $mailbox = Mailbox::factory()->create([
+            'in_server' => 'imap.example.com',
+        ]);
+
+        $mockService = $this->mock(ImapService::class);
+        $mockService->shouldReceive('testConnection')
+            ->once()
+            ->andReturn([
+                'success' => false,
+                'message' => 'Connection refused',
+            ]);
+
+        $response = $this->postJson(route('settings.test-imap'), [
+            'mailbox_id' => $mailbox->id,
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => false,
+            'message' => 'Connection refused',
+        ]);
+    }
+
+    public function test_test_smtp_with_empty_server_string(): void
+    {
+        $this->actingAs($this->admin);
+
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => '', // Empty string
+        ]);
+
+        $response = $this->postJson(route('settings.test-smtp'), [
+            'mailbox_id' => $mailbox->id,
+            'test_email' => 'test@example.com',
+        ]);
+
+        $response->assertStatus(400);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'No SMTP server configured for this mailbox.',
+        ]);
+    }
+
+    public function test_test_imap_with_empty_server_string(): void
+    {
+        $this->actingAs($this->admin);
+
+        $mailbox = Mailbox::factory()->create([
+            'in_server' => '', // Empty string
+        ]);
+
+        $response = $this->postJson(route('settings.test-imap'), [
+            'mailbox_id' => $mailbox->id,
+        ]);
+
+        $response->assertStatus(400);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'No IMAP server configured for this mailbox.',
+        ]);
+    }
+
+    public function test_test_smtp_with_multiple_validation_errors(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->postJson(route('settings.test-smtp'), [
+            'mailbox_id' => 'invalid',
+            'test_email' => 'not-an-email',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['mailbox_id', 'test_email']);
+    }
+
+    public function test_test_smtp_with_special_characters_in_email(): void
+    {
+        $this->actingAs($this->admin);
+
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'smtp.example.com',
+        ]);
+
+        $mockService = $this->mock(SmtpService::class);
+        $mockService->shouldReceive('testConnection')
+            ->once()
+            ->andReturn(['success' => true, 'message' => 'Success']);
+
+        // Test with valid special characters in email
+        $response = $this->postJson(route('settings.test-smtp'), [
+            'mailbox_id' => $mailbox->id,
+            'test_email' => 'test+tag@example.co.uk',
+        ]);
+
+        $response->assertOk();
+    }
 }
