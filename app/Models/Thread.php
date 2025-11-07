@@ -171,7 +171,8 @@ class Thread extends Model
      */
     public function isAutoResponder(): bool
     {
-        return \App\Misc\MailHelper::isAutoResponder($this->headers);
+        $headers = is_array($this->headers) ? json_encode($this->headers) : $this->headers;
+        return \App\Misc\MailHelper::isAutoResponder($headers);
     }
 
     /**

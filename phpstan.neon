@@ -25,6 +25,10 @@ parameters:
     
     # Custom rules
     ignoreErrors:
+        # Module facade dynamic methods
+        -
+            message: '#Call to an undefined static method Nwidart\\Modules\\Facades\\Module::findByAlias\(\)#'
+            path: app/Http/Controllers/ModulesController.php
         # Allow dynamic properties during migration phase
         - '#Call to an undefined method [a-zA-Z0-9\\_]+::[a-zA-Z0-9\\_]+\(\)#'
         # Ignore UserFactory issues during initial setup

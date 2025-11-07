@@ -147,6 +147,8 @@ class ConversationController extends Controller
                 if (!$customer) {
                     throw new \Exception('Failed to create customer with email: ' . $customerEmail);
                 }
+                
+                assert($customer instanceof Customer);
             }
 
             // Get next conversation number

@@ -236,7 +236,7 @@ class SystemController extends Controller
                 
             case 'activity':
                 // Get recent activity logs
-                $activityLogs = \App\Models\ActivityLog::with(['user', 'causer'])
+                $activityLogs = \App\Models\ActivityLog::with(['causer'])
                     ->latest()
                     ->paginate(50);
                     
