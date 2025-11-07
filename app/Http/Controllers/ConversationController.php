@@ -155,6 +155,10 @@ class ConversationController extends Controller
             // Get default folder
             $folder = $mailbox->folders()->where('type', 1)->first(); // Inbox type
 
+            if (!$folder) {
+                throw new \Exception('Inbox folder not found for mailbox: ' . $mailbox->name);
+            }
+
             // Create conversation
             $conversation = Conversation::create([
                 'mailbox_id' => $mailbox->id,
@@ -432,7 +436,7 @@ class ConversationController extends Controller
         $conversation->source_via = $originalConversation->source_via;
         $conversation->source_type = $originalConversation->source_type;
         $conversation->customer_id = $originalConversation->customer_id;
-        $conversation->customer_email = $originalConversation->customer->email;
+        $conversation->customer_email = $originalConversation->customer_email;
         $conversation->status = 1; // Active
         $conversation->state = 2; // Published
         $conversation->cc = $thread->cc;

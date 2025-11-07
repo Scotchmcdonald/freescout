@@ -8,6 +8,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $thread_id
+ * @property int|null $conversation_id
+ * @property string $file_name
+ * @property string $file_dir
+ * @property int $file_size
+ * @property string|null $mime_type
+ * @property bool $embedded
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read \App\Models\Thread $thread
+ */
 class Attachment extends Model
 {
     use HasFactory;

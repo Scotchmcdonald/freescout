@@ -10,6 +10,41 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property int $number
+ * @property int $threads_count
+ * @property int $type
+ * @property int $folder_id
+ * @property int $mailbox_id
+ * @property int|null $user_id
+ * @property int $customer_id
+ * @property int $status
+ * @property int $state
+ * @property string $subject
+ * @property string $customer_email
+ * @property array|null $cc
+ * @property array|null $bcc
+ * @property string|null $preview
+ * @property bool $imported
+ * @property bool $has_attachments
+ * @property int|null $created_by_user_id
+ * @property int|null $created_by_customer_id
+ * @property int|null $source_via
+ * @property int|null $source_type
+ * @property int|null $channel
+ * @property int|null $closed_by_user_id
+ * @property \Illuminate\Support\Carbon|null $closed_at
+ * @property \Illuminate\Support\Carbon|null $user_updated_at
+ * @property \Illuminate\Support\Carbon|null $last_reply
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read \App\Models\Mailbox $mailbox
+ * @property-read \App\Models\Customer $customer
+ * @property-read \App\Models\User|null $user
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
+ */
 class Conversation extends Model
 {
     use HasFactory;

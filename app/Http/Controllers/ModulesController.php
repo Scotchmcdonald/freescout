@@ -18,7 +18,7 @@ class ModulesController extends Controller
     /**
      * Display a listing of modules.
      */
-    public function index()
+    public function index(): \Illuminate\View\View
     {
         $modules = Module::all();
         $modulesData = [];
@@ -42,8 +42,9 @@ class ModulesController extends Controller
     /**
      * Enable a module.
      */
-    public function enable(Request $request, string $alias)
+    public function enable(Request $request, string $alias): \Illuminate\Http\JsonResponse
     {
+        /** @var \Nwidart\Modules\Module|null $module */
         $module = Module::findByAlias($alias);
 
         if (!$module) {
@@ -78,8 +79,9 @@ class ModulesController extends Controller
     /**
      * Disable a module.
      */
-    public function disable(Request $request, string $alias)
+    public function disable(Request $request, string $alias): \Illuminate\Http\JsonResponse
     {
+        /** @var \Nwidart\Modules\Module|null $module */
         $module = Module::findByAlias($alias);
 
         if (!$module) {
@@ -111,8 +113,9 @@ class ModulesController extends Controller
     /**
      * Delete a module.
      */
-    public function delete(Request $request, string $alias)
+    public function delete(Request $request, string $alias): \Illuminate\Http\JsonResponse
     {
+        /** @var \Nwidart\Modules\Module|null $module */
         $module = Module::findByAlias($alias);
 
         if (!$module) {

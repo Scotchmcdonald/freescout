@@ -39,6 +39,7 @@ class DashboardController extends Controller
 
         // Get stats per mailbox
         $stats = [];
+        /** @var \App\Models\Mailbox $mailbox */
         foreach ($mailboxes as $mailbox) {
             $stats[$mailbox->id] = [
                 'active' => Conversation::where('mailbox_id', $mailbox->id)

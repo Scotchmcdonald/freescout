@@ -61,7 +61,7 @@ class AutoReply extends Mailable
     /**
      * Build the message (for custom headers).
      */
-    public function build()
+    public function build(): self
     {
         $subject = $this->mailbox->auto_reply_subject ?: 'Re: '.$this->conversation->subject;
         $message = $this->mailbox->auto_reply_message ?:

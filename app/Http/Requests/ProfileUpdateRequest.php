@@ -39,7 +39,7 @@ class ProfileUpdateRequest extends FormRequest
         if ($this->has('name') && ! $this->has('first_name')) {
             $nameParts = explode(' ', $this->name, 2);
             $this->merge([
-                'first_name' => $nameParts[0] ?? '',
+                'first_name' => $nameParts[0],
                 'last_name' => $nameParts[1] ?? '',
             ]);
         }

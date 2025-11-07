@@ -39,7 +39,7 @@ class RegisteredUserController extends Controller
         $nameParts = explode(' ', $request->name, 2);
 
         $user = User::create([
-            'first_name' => $nameParts[0] ?? '',
+            'first_name' => $nameParts[0],
             'last_name' => $nameParts[1] ?? '',
             'email' => $request->email,
             'password' => Hash::make($request->password),

@@ -32,6 +32,8 @@ class ConversationSeeder extends Seeder
                 continue;
             }
 
+            /** @var \App\Models\Folder $inboxFolder */
+
             // Create 10 conversations per mailbox
             for ($i = 0; $i < 10; $i++) {
                 $customer = $customers->random();
@@ -43,7 +45,7 @@ class ConversationSeeder extends Seeder
                     'folder_id' => $inboxFolder->id,
                     'user_id' => $user->id,
                     'customer_id' => $customer->id,
-                    'customer_email' => $customer->emails->first()?->email ?? fake()->email(),
+                    'customer_email' => $customer->emails->first()->email ?? fake()->email(),
                     'status' => $isClosed ? 3 : 1,
                     'closed_by_user_id' => $isClosed ? $user->id : null,
                     'closed_at' => $isClosed ? now() : null,

@@ -66,7 +66,7 @@ class SmtpService
                 'to_email' => $testEmailAddress,
                 'from_email' => $mailbox->email,
             ]);
-        } catch (\Swift_TransportException $e) {
+        } catch (\Symfony\Component\Mailer\Exception\TransportException $e) {
             $result['message'] = 'SMTP connection error: '.$e->getMessage();
             Log::error('SMTP transport error', [
                 'mailbox_id' => $mailbox->id,

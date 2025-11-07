@@ -189,7 +189,7 @@ class ImapService
     /**
      * Create IMAP client for mailbox.
      */
-    protected function createClient(Mailbox $mailbox)
+    protected function createClient(Mailbox $mailbox): \Webklex\PHPIMAP\Client
     {
         $encryption = $this->getEncryption($mailbox->in_encryption);
 
@@ -224,7 +224,7 @@ class ImapService
     /**
      * Process an email message.
      */
-    protected function processMessage(Mailbox $mailbox, $message): void
+    protected function processMessage(Mailbox $mailbox, \Webklex\PHPIMAP\Message $message): void
     {
         DB::beginTransaction();
 
@@ -293,7 +293,7 @@ class ImapService
 
             // Parse name and limit length (first_name is VARCHAR(20) in database)
             $nameParts = explode(' ', $fromName, 2);
-            $firstName = $nameParts[0] ?? '';
+            $firstName = $nameParts[0];
             $lastName = $nameParts[1] ?? '';
 
             // Limit first name to 20 characters
@@ -449,7 +449,7 @@ class ImapService
                     $fromEmail = $originalSender['email'];
                     $fromName = $originalSender['name'];
                     $nameParts = explode(' ', $fromName, 2);
-                    $firstName = $nameParts[0] ?? '';
+                    $firstName = $nameParts[0];
                     $lastName = $nameParts[1] ?? '';
 
                     // Clean body
@@ -852,7 +852,7 @@ class ImapService
      * Create customer records for all participants in an email.
      * Matches original FreeScout implementation.
      */
-    protected function createCustomersFromMessage($message, Mailbox $mailbox): void
+    protected function createCustomersFromMessage(\Webklex\PHPIMAP\Message $message, Mailbox $mailbox): void
     {
         $mailboxEmails = [$mailbox->email];
 
@@ -882,7 +882,7 @@ class ImapService
     /**
      * Get email addresses with names from IMAP address objects.
      */
-    protected function getAddressesWithNames($addresses): array
+    protected function getAddressesWithNames(mixed $addresses): array
     {
         if (empty($addresses)) {
             return [];
@@ -927,7 +927,7 @@ class ImapService
                 $nameParts = explode(' ', $name, 2);
                 $result[] = [
                     'email' => $email,
-                    'first_name' => isset($nameParts[0]) && strlen($nameParts[0]) <= 20 ? $nameParts[0] : substr($nameParts[0] ?? '', 0, 20),
+                    'first_name' => isset($nameParts[0]) && strlen($nameParts[0]) <= 20 ? $nameParts[0] : substr($nameParts[0], 0, 20),
                     'last_name' => isset($nameParts[1]) && strlen($nameParts[1]) <= 30 ? $nameParts[1] : substr($nameParts[1] ?? '', 0, 30),
                 ];
             }
@@ -939,7 +939,7 @@ class ImapService
     /**
      * Parse email addresses from IMAP Attribute object.
      */
-    protected function parseAddresses($addresses): array
+    protected function parseAddresses(mixed $addresses): array
     {
         if (empty($addresses)) {
             return [];
