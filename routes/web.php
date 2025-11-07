@@ -62,27 +62,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/user/{user}/permissions', [UserController::class, 'permissions'])->name('users.permissions');
     
     // Settings (admin only)
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
-    Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
-    Route::get('/settings/email', [SettingsController::class, 'email'])->name('settings.email');
-    Route::post('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email.update');
-    Route::get('/settings/system', [SettingsController::class, 'system'])->name('settings.system');
-    Route::post('/settings/cache/clear', [SettingsController::class, 'clearCache'])->name('settings.cache.clear');
-    Route::post('/settings/migrate', [SettingsController::class, 'migrate'])->name('settings.migrate');
-    Route::post('/settings/test-smtp', [SettingsController::class, 'testSmtp'])->name('settings.test-smtp');
-    Route::post('/settings/test-imap', [SettingsController::class, 'testImap'])->name('settings.test-imap');
-    Route::post('/settings/validate-smtp', [SettingsController::class, 'validateSmtp'])->name('settings.validate-smtp');
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+        Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::get('/settings/email', [SettingsController::class, 'email'])->name('settings.email');
+        Route::post('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email.update');
+        Route::get('/settings/system', [SettingsController::class, 'system'])->name('settings.system');
+        Route::post('/settings/cache/clear', [SettingsController::class, 'clearCache'])->name('settings.cache.clear');
+        Route::post('/settings/migrate', [SettingsController::class, 'migrate'])->name('settings.migrate');
+        Route::post('/settings/test-smtp', [SettingsController::class, 'testSmtp'])->name('settings.test-smtp');
+        Route::post('/settings/test-imap', [SettingsController::class, 'testImap'])->name('settings.test-imap');
+        Route::post('/settings/validate-smtp', [SettingsController::class, 'validateSmtp'])->name('settings.validate-smtp');
+    });
     
     // System (admin only)
-    Route::get('/system', [SystemController::class, 'index'])->name('system');
-    Route::get('/system/diagnostics', [SystemController::class, 'diagnostics'])->name('system.diagnostics');
-    Route::get('/system/logs', [SystemController::class, 'logs'])->name('system.logs');
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/system', [SystemController::class, 'index'])->name('system');
+        Route::get('/system/diagnostics', [SystemController::class, 'diagnostics'])->name('system.diagnostics');
+        Route::get('/system/logs', [SystemController::class, 'logs'])->name('system.logs');
+    });
     
     // Modules (admin only)
-    Route::get('/modules', [ModulesController::class, 'index'])->name('modules');
-    Route::post('/modules/{alias}/enable', [ModulesController::class, 'enable'])->name('modules.enable');
-    Route::post('/modules/{alias}/disable', [ModulesController::class, 'disable'])->name('modules.disable');
-    Route::delete('/modules/{alias}', [ModulesController::class, 'delete'])->name('modules.delete');
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/modules', [ModulesController::class, 'index'])->name('modules');
+        Route::post('/modules/{alias}/enable', [ModulesController::class, 'enable'])->name('modules.enable');
+        Route::post('/modules/{alias}/disable', [ModulesController::class, 'disable'])->name('modules.disable');
+        Route::delete('/modules/{alias}', [ModulesController::class, 'delete'])->name('modules.delete');
+    });
     
     // Mailbox Permissions
     Route::get('/mailboxes/{mailbox}/permissions', [MailboxController::class, 'permissions'])

@@ -153,10 +153,13 @@ class CustomerController extends Controller
                     ->where(function ($q) use ($query) {
                         $q->where('first_name', 'like', "%{$query}%")
                             ->orWhere('last_name', 'like', "%{$query}%")
-                            ->orWhere(DB::raw("JSON_EXTRACT(emails, '$[*].email')"), 'like', "%{$query}%");
+                            ->orWhereHas('emails', function ($q) use ($query) {
+                                $q->where('email', 'like', "%{$query}%");
+                            });
                     })
+                    ->with('emails')
                     ->limit(25)
-                    ->get(['id', 'first_name', 'last_name', 'emails']);
+                    ->get();
 
                 return response()->json([
                     'success' => true,
