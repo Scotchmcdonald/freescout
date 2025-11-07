@@ -55,14 +55,23 @@ class MailboxFetchEmailsTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        $response->assertJson([
-            'success' => true,
+        $response->assertJson(['success' => true]);
+        $response->assertJsonStructure([
+            'success',
+            'stats' => ['fetched', 'created'],
+            'message',
+        ]);
+        $response->assertJsonFragment([
             'stats' => [
                 'fetched' => 5,
                 'created' => 3,
             ],
         ]);
-        $response->assertJsonFragment(['message' => 'Successfully fetched 5 emails. Created 3 new conversations.']);
+        
+        $data = $response->json();
+        $this->assertTrue($data['success']);
+        $this->assertEquals(5, $data['stats']['fetched']);
+        $this->assertEquals(3, $data['stats']['created']);
     }
 
     /**

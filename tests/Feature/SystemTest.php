@@ -37,6 +37,12 @@ class SystemTest extends TestCase
 
         // Assert
         $response->assertOk();
+        $response->assertViewIs('system.index');
+        $response->assertSee('System Status');
+        $response->assertSee('PHP Version');
+        $response->assertSee('Laravel Version');
+        $response->assertSee(PHP_VERSION);
+        $response->assertSee(app()->version());
         $response->assertViewHas('stats');
         $response->assertViewHas('systemInfo');
     }
