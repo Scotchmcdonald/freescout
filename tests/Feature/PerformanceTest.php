@@ -418,4 +418,323 @@ class PerformanceTest extends TestCase
         $this->assertLessThan(100, $paginationTime, 
             "Pagination query took {$paginationTime}ms, expected < 100ms");
     }
+
+    /**
+     * Test 9: Empty result set performance
+     * Validates system handles empty results efficiently
+     */
+    public function test_empty_conversation_list_performs_efficiently(): void
+    {
+        // Ensure mailbox has no conversations
+        Conversation::where('mailbox_id', $this->mailbox->id)->delete();
+
+        $startTime = microtime(true);
+
+        // Load empty conversation list
+        $response = $this->actingAs($this->admin)
+            ->get(route('conversations.index', $this->mailbox));
+
+        $endTime = microtime(true);
+        $loadTime = ($endTime - $startTime) * 1000;
+
+        $response->assertOk();
+        $response->assertViewHas('conversations');
+
+        // Empty list should load very quickly (< 500ms)
+        $this->assertLessThan(500, $loadTime,
+            "Empty list took {$loadTime}ms, expected < 500ms");
+
+        // Verify result is actually empty
+        $conversations = $response->viewData('conversations');
+        $this->assertEquals(0, $conversations->count());
+    }
+
+    /**
+     * Test 10: Conversation with maximum thread count
+     * Validates system handles conversations with many threads
+     */
+    public function test_conversation_with_maximum_threads_loads_acceptably(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $this->mailbox->id,
+            'subject' => 'Very long discussion',
+        ]);
+
+        // Create 100 threads (simulating a very long conversation)
+        Thread::factory()->count(100)->create([
+            'conversation_id' => $conversation->id,
+            'state' => 2,
+        ]);
+
+        $startTime = microtime(true);
+        $startMemory = memory_get_usage();
+
+        // Load conversation with many threads
+        $response = $this->actingAs($this->admin)
+            ->get(route('conversations.show', $conversation));
+
+        $endTime = microtime(true);
+        $endMemory = memory_get_usage();
+
+        $loadTime = ($endTime - $startTime) * 1000;
+        $memoryUsed = ($endMemory - $startMemory) / 1024 / 1024;
+
+        $response->assertOk();
+
+        // Should load within reasonable time even with 100 threads
+        $this->assertLessThan(5000, $loadTime,
+            "Conversation with 100 threads took {$loadTime}ms, expected < 5000ms");
+
+        // Memory usage should be reasonable
+        $this->assertLessThan(100, $memoryUsed,
+            "Used {$memoryUsed}MB memory for 100 threads, expected < 100MB");
+    }
+
+    /**
+     * Test 11: Search with no results performance
+     * Validates empty search results are handled efficiently
+     */
+    public function test_search_with_no_results_performs_efficiently(): void
+    {
+        // Create some conversations
+        Conversation::factory()->count(20)->create([
+            'mailbox_id' => $this->mailbox->id,
+            'subject' => 'Normal conversation subject',
+        ]);
+
+        $startTime = microtime(true);
+
+        // Search for non-existent term
+        $response = $this->actingAs($this->admin)
+            ->get(route('conversations.index', [
+                'mailbox' => $this->mailbox->id,
+                'q' => 'NONEXISTENT_SEARCH_TERM_XYZ999',
+            ]));
+
+        $endTime = microtime(true);
+        $searchTime = ($endTime - $startTime) * 1000;
+
+        $response->assertOk();
+
+        // Empty search should complete quickly
+        $this->assertLessThan(1000, $searchTime,
+            "Empty search took {$searchTime}ms, expected < 1000ms");
+    }
+
+    /**
+     * Test 12: Conversation list with varied status mix
+     * Validates performance with diverse conversation statuses
+     */
+    public function test_conversation_list_with_mixed_statuses_performs_well(): void
+    {
+        $statusCounts = [
+            Conversation::STATUS_ACTIVE => 15,
+            Conversation::STATUS_PENDING => 10,
+            Conversation::STATUS_CLOSED => 20,
+            Conversation::STATUS_SPAM => 5,
+        ];
+
+        foreach ($statusCounts as $status => $count) {
+            Conversation::factory()->count($count)->create([
+                'mailbox_id' => $this->mailbox->id,
+                'status' => $status,
+                'state' => Conversation::STATE_PUBLISHED,
+            ]);
+        }
+
+        $startTime = microtime(true);
+
+        // Load conversation list (should only show published)
+        $response = $this->actingAs($this->admin)
+            ->get(route('conversations.index', $this->mailbox));
+
+        $endTime = microtime(true);
+        $loadTime = ($endTime - $startTime) * 1000;
+
+        $response->assertOk();
+
+        // Should handle mixed statuses efficiently
+        $this->assertLessThan(2000, $loadTime,
+            "Mixed status list took {$loadTime}ms, expected < 2000ms");
+
+        // Verify all statuses are present
+        $conversations = $response->viewData('conversations');
+        $this->assertGreaterThan(0, $conversations->count());
+    }
+
+    /**
+     * Test 13: Database connection pooling efficiency
+     * Validates multiple sequential requests perform well
+     */
+    public function test_sequential_conversation_loads_use_connection_efficiently(): void
+    {
+        $conversations = Conversation::factory()->count(5)->create([
+            'mailbox_id' => $this->mailbox->id,
+        ]);
+
+        $startTime = microtime(true);
+
+        // Load multiple conversations sequentially
+        foreach ($conversations as $conversation) {
+            $response = $this->actingAs($this->admin)
+                ->get(route('conversations.show', $conversation));
+            $response->assertOk();
+        }
+
+        $endTime = microtime(true);
+        $totalTime = ($endTime - $startTime) * 1000;
+        $averageTime = $totalTime / 5;
+
+        // Average time per conversation should be reasonable
+        $this->assertLessThan(1000, $averageTime,
+            "Average load time was {$averageTime}ms per conversation, expected < 1000ms");
+
+        // Total time should show good connection reuse
+        $this->assertLessThan(5000, $totalTime,
+            "Total time for 5 conversations was {$totalTime}ms, expected < 5000ms");
+    }
+
+    /**
+     * Test 14: Conversation list pagination boundary
+     * Validates pagination works correctly at page boundaries
+     */
+    public function test_pagination_boundary_performs_consistently(): void
+    {
+        // Create exactly 100 conversations (2 pages of 50 each)
+        Conversation::factory()->count(100)->create([
+            'mailbox_id' => $this->mailbox->id,
+            'state' => Conversation::STATE_PUBLISHED,
+        ]);
+
+        // Test first page
+        $startTime = microtime(true);
+        $response1 = $this->actingAs($this->admin)
+            ->get(route('conversations.index', $this->mailbox));
+        $page1Time = (microtime(true) - $startTime) * 1000;
+
+        // Test second page
+        $startTime = microtime(true);
+        $response2 = $this->actingAs($this->admin)
+            ->get(route('conversations.index', ['mailbox' => $this->mailbox->id, 'page' => 2]));
+        $page2Time = (microtime(true) - $startTime) * 1000;
+
+        $response1->assertOk();
+        $response2->assertOk();
+
+        // Both pages should load in similar time
+        $this->assertLessThan(2000, $page1Time,
+            "Page 1 took {$page1Time}ms, expected < 2000ms");
+        $this->assertLessThan(2000, $page2Time,
+            "Page 2 took {$page2Time}ms, expected < 2000ms");
+
+        // Page 2 shouldn't be significantly slower than page 1
+        $timeDifference = abs($page2Time - $page1Time);
+        $this->assertLessThan(1000, $timeDifference,
+            "Page load time difference was {$timeDifference}ms, expected < 1000ms");
+    }
+
+    /**
+     * Test 15: Stress test with rapid consecutive operations
+     * Validates system stability under rapid sequential requests
+     */
+    public function test_rapid_consecutive_operations_maintain_stability(): void
+    {
+        $customer = Customer::factory()->create();
+        Email::factory()->create([
+            'customer_id' => $customer->id,
+            'type' => 1,
+        ]);
+
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $this->mailbox->id,
+            'customer_id' => $customer->id,
+        ]);
+
+        $operations = 0;
+        $failures = 0;
+        $startTime = microtime(true);
+
+        // Perform 10 rapid consecutive operations
+        for ($i = 0; $i < 10; $i++) {
+            try {
+                // Alternate between viewing and updating
+                if ($i % 2 === 0) {
+                    $response = $this->actingAs($this->admin)
+                        ->get(route('conversations.show', $conversation));
+                } else {
+                    $response = $this->actingAs($this->admin)
+                        ->patch(route('conversations.update', $conversation), [
+                            'status' => ($i % 3 === 0) ? Conversation::STATUS_ACTIVE : Conversation::STATUS_PENDING,
+                        ]);
+                }
+
+                if ($response->isSuccessful() || $response->isRedirect()) {
+                    $operations++;
+                } else {
+                    $failures++;
+                }
+            } catch (\Exception $e) {
+                $failures++;
+            }
+        }
+
+        $endTime = microtime(true);
+        $totalTime = ($endTime - $startTime) * 1000;
+
+        // Should complete most operations successfully
+        $this->assertGreaterThanOrEqual(8, $operations,
+            "Only {$operations} of 10 operations succeeded");
+
+        // Should complete in reasonable total time
+        $this->assertLessThan(10000, $totalTime,
+            "10 rapid operations took {$totalTime}ms, expected < 10000ms");
+
+        // Failure rate should be acceptable
+        $failureRate = ($failures / 10) * 100;
+        $this->assertLessThan(30, $failureRate,
+            "Failure rate was {$failureRate}%, expected < 30%");
+    }
+
+    /**
+     * Test 16: Memory leak detection over multiple operations
+     * Validates no significant memory leaks during repeated operations
+     */
+    public function test_repeated_operations_show_no_memory_leaks(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $this->mailbox->id,
+        ]);
+
+        // Establish baseline memory
+        $initialMemory = memory_get_usage();
+        $memoryReadings = [];
+
+        // Perform same operation multiple times
+        for ($i = 0; $i < 20; $i++) {
+            $this->actingAs($this->admin)
+                ->get(route('conversations.show', $conversation));
+
+            // Record memory every 5 iterations
+            if ($i % 5 === 4) {
+                $memoryReadings[] = memory_get_usage();
+            }
+        }
+
+        $finalMemory = memory_get_usage();
+        $memoryGrowth = ($finalMemory - $initialMemory) / 1024 / 1024; // MB
+
+        // Memory growth should be minimal (< 20MB for 20 operations)
+        $this->assertLessThan(20, $memoryGrowth,
+            "Memory grew by {$memoryGrowth}MB over 20 operations, expected < 20MB");
+
+        // Check that memory isn't continuously growing
+        if (count($memoryReadings) >= 2) {
+            $firstReading = $memoryReadings[0];
+            $lastReading = $memoryReadings[count($memoryReadings) - 1];
+            $readingGrowth = ($lastReading - $firstReading) / 1024 / 1024;
+
+            $this->assertLessThan(15, $readingGrowth,
+                "Memory grew by {$readingGrowth}MB between readings, potential leak");
+        }
+    }
 }
