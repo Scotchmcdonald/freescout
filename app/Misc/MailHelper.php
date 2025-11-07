@@ -123,7 +123,7 @@ class MailHelper
             $vars['{%user.email%}'] = $data['user']->email ?? '';
             $vars['{%user.jobTitle%}'] = $data['user']->job_title ?? '';
             $vars['{%user.lastName%}'] = $data['user']->last_name ?? '';
-            $vars['{%user.photoUrl%}'] = method_exists($data['user'], 'getPhotoUrl') ? $data['user']->getPhotoUrl() : '';
+            $vars['{%user.photoUrl%}'] = (is_object($data['user']) && method_exists($data['user'], 'getPhotoUrl')) ? $data['user']->getPhotoUrl() : '';
         }
 
         // Allow modules to add custom variables via Eventy filters

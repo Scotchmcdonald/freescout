@@ -26,7 +26,9 @@ class ConversationSeeder extends Seeder
         }
 
         foreach ($mailboxes as $mailbox) {
-            $inboxFolder = $mailbox->folders()->where('type', 1)->first();
+            /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Folder> $folderQuery */
+            $folderQuery = $mailbox->folders();
+            $inboxFolder = $folderQuery->where('type', 1)->first();
 
             if (!$inboxFolder) {
                 continue;

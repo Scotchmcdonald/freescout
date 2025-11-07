@@ -204,6 +204,7 @@ class UserController extends Controller
 
             case 'toggle_status':
                 $userId = $request->input('user_id');
+                /** @var \App\Models\User $user */
                 $user = User::findOrFail($userId);
 
                 $this->authorize('update', $user);

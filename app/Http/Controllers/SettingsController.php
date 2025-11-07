@@ -178,6 +178,7 @@ class SettingsController extends Controller
         ]);
 
         try {
+            /** @var \App\Models\Mailbox $mailbox */
             $mailbox = Mailbox::findOrFail($validated['mailbox_id']);
 
             if (empty($mailbox->out_server)) {
@@ -208,6 +209,7 @@ class SettingsController extends Controller
         ]);
 
         try {
+            /** @var \App\Models\Mailbox $mailbox */
             $mailbox = Mailbox::findOrFail($validated['mailbox_id']);
 
             if (empty($mailbox->in_server)) {
@@ -276,6 +278,7 @@ class SettingsController extends Controller
             if (isset($mapping[$key]) && ! empty($value)) {
                 $envKey = $mapping[$key];
                 $pattern = "/^{$envKey}=.*/m";
+                $content = $content ?: ''; // Ensure content is string
 
                 if (preg_match($pattern, $content)) {
                     $content = preg_replace($pattern, "{$envKey}={$value}", $content);

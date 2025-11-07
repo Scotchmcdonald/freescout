@@ -81,9 +81,11 @@ class SendAutoReply implements ShouldQueue
             ];
 
             // Create Message-ID for the auto reply
+            $atPos = strrchr($this->mailbox->email, '@');
+            $domain = $atPos !== false ? substr($atPos, 1) : 'localhost';
             $messageId = 'auto-reply-'.$this->thread->id.'-'.
                 \App\Misc\MailHelper::getMessageIdHash($this->thread->id).
-                '@'.substr(strrchr($this->mailbox->email, '@'), 1);
+                '@'.$domain;
 
             $headers['Message-ID'] = $messageId;
 

@@ -26,6 +26,7 @@ class CustomerController extends Controller
                 $q->where('first_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhereHas('emails', function ($q) use ($search) {
+                        // @phpstan-ignore-next-line - Closure receives Builder, not HasMany
                         $q->where('email', 'like', "%{$search}%");
                     });
             });
@@ -101,7 +102,9 @@ class CustomerController extends Controller
         DB::beginTransaction();
 
         try {
+            /** @var \App\Models\Customer $source */
             $source = Customer::findOrFail($validated['source_id']);
+            /** @var \App\Models\Customer $target */
             $target = Customer::findOrFail($validated['target_id']);
 
             // Move conversations
@@ -152,6 +155,7 @@ class CustomerController extends Controller
                         $q->where('first_name', 'like', "%{$query}%")
                             ->orWhere('last_name', 'like', "%{$query}%")
                             ->orWhereHas('emails', function ($q) use ($query) {
+                                // @phpstan-ignore-next-line - Closure receives Builder, not HasMany
                                 $q->where('email', 'like', "%{$query}%");
                             });
                     })

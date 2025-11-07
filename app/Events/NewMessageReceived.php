@@ -37,7 +37,9 @@ class NewMessageReceived implements ShouldBroadcast
         ];
 
         // Broadcast to all users in the mailbox
-        $users = $this->conversation->mailbox->users()->pluck('id');
+        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\User> $usersQuery */
+        $usersQuery = $this->conversation->mailbox->users();
+        $users = $usersQuery->pluck('id');
         foreach ($users as $userId) {
             $channels[] = new PrivateChannel('user.'.$userId);
         }

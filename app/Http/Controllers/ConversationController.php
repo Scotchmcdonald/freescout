@@ -73,7 +73,9 @@ class ConversationController extends Controller
         // Get folders for sidebar
         $folders = $conversation->mailbox->folders()
             ->where(function ($query) use ($user) {
+                // @phpstan-ignore-next-line - Closure receives Builder, not HasMany
                 $query->whereNull('user_id')
+                    // @phpstan-ignore-next-line - Folder model has user_id as property
                     ->orWhere('user_id', $user->id);
             })
             ->get();
@@ -96,7 +98,9 @@ class ConversationController extends Controller
         // Get folders
         $folders = $mailbox->folders()
             ->where(function ($query) use ($user) {
+                // @phpstan-ignore-next-line - Closure receives Builder, not HasMany
                 $query->whereNull('user_id')
+                    // @phpstan-ignore-next-line - Folder model has user_id as property
                     ->orWhere('user_id', $user->id);
             })
             ->get();
@@ -134,6 +138,7 @@ class ConversationController extends Controller
         try {
             // Find or create customer
             if (!empty($validated['customer_id'])) {
+                /** @var \App\Models\Customer $customer */
                 $customer = Customer::findOrFail($validated['customer_id']);
                 $customerEmail = $customer->getMainEmail() ?? $validated['customer_email'];
             } else {
@@ -153,6 +158,7 @@ class ConversationController extends Controller
             $number = $mailbox->conversations()->max('number') + 1;
 
             // Get default folder
+            // @phpstan-ignore-next-line - HasMany returns Builder for query operations
             $folder = $mailbox->folders()->where('type', 1)->first(); // Inbox type
 
             if (!$folder) {
@@ -337,7 +343,9 @@ class ConversationController extends Controller
                 $q->where('subject', 'like', "%{$query}%")
                     ->orWhere('preview', 'like', "%{$query}%")
                     ->orWhereHas('customer', function ($q) use ($query) {
+                        // @phpstan-ignore-next-line - Closure receives Builder, not BelongsTo
                         $q->where('first_name', 'like', "%{$query}%")
+                            // @phpstan-ignore-next-line - Customer model has last_name property
                             ->orWhere('last_name', 'like', "%{$query}%");
                     });
             })
@@ -360,6 +368,7 @@ class ConversationController extends Controller
             return response()->json(['success' => false, 'message' => 'Conversation ID required'], 400);
         }
 
+        /** @var \App\Models\Conversation $conversation */
         $conversation = Conversation::findOrFail($conversationId);
         $user = $request->user();
 

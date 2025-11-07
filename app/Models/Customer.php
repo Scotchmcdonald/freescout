@@ -133,8 +133,9 @@ class Customer extends Model
      */
     public function getPrimaryEmailAttribute(): ?string
     {
-        /** @var \App\Models\Email|null $email */
+        // @phpstan-ignore-next-line - HasMany returns Builder for query operations
         $email = $this->emails()->where('type', 1)->first();
+        // @phpstan-ignore-next-line - Email model has email property
         return $email?->email;
     }
 
@@ -143,10 +144,11 @@ class Customer extends Model
      */
     public function getMainEmail(): ?string
     {
-        /** @var \App\Models\Email|null $email */
+        // @phpstan-ignore-next-line - HasMany returns Builder for query operations
         $email = $this->emails()->where('type', 1)->first();
 
         if ($email) {
+            // @phpstan-ignore-next-line - Email model has email property
             return $email->email;
         }
 

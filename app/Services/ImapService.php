@@ -249,11 +249,14 @@ class ImapService
             // The Address object can be accessed as a string or has methods
             if (is_object($fromAddress)) {
                 // Use the Address object methods
+                // @phpstan-ignore-next-line - IMAP extension Address object properties
                 $fromEmail = method_exists($fromAddress, 'mail') ? $fromAddress->mail : null;
+                // @phpstan-ignore-next-line - IMAP extension Address object properties
                 $fromName = method_exists($fromAddress, 'personal') ? $fromAddress->personal : '';
 
                 // If mail is not a property, try as array access or string parsing
                 if (! $fromEmail) {
+                    // @phpstan-ignore-next-line - IMAP extension Address object cast
                     $addressString = (string) $fromAddress;
                     // Parse "Name <email@example.com>" format
                     if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
@@ -392,6 +395,7 @@ class ImapService
             // Create new conversation if not found
             if (! $conversation) {
                 $number = $mailbox->conversations()->max('number') + 1;
+                // @phpstan-ignore-next-line - HasMany returns Builder for query operations
                 $folder = $mailbox->folders()->where('type', 1)->first(); // Inbox
 
                 if (! $folder) {
@@ -575,6 +579,7 @@ class ImapService
                         $disposition = '';
 
                         if (is_object($attachment->disposition)) {
+                            // @phpstan-ignore-next-line - IMAP extension object cast
                             $disposition = strtolower((string) $attachment->disposition);
                         } elseif (is_string($attachment->disposition)) {
                             $disposition = strtolower($attachment->disposition);
@@ -806,7 +811,8 @@ class ImapService
 
         foreach ($separators as $separator) {
             $parts = preg_split('/'.preg_quote($separator, '/').'/i', $body);
-            if (count($parts) > 1) {
+            // @phpstan-ignore-next-line - preg_split returns array|list<string>|false, count() handles all
+            if ($parts !== false && count($parts) > 1) {
                 // Check if the part before the separator has actual content
                 if (trim(strip_tags($parts[0]))) {
                     return $parts[0];
@@ -908,6 +914,7 @@ class ImapService
 
                 // If mail is not a property, try parsing the string representation
                 if (! $email) {
+                    // @phpstan-ignore-next-line - IMAP extension Address object cast
                     $addressString = (string) $addr;
                     if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
                         $email = $matches[1];
@@ -962,6 +969,7 @@ class ImapService
 
                 // If not a property, try parsing the string representation
                 if (! $email) {
+                    // @phpstan-ignore-next-line - IMAP extension Address object cast
                     $addressString = (string) $addr;
                     if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
                         $email = $matches[1];

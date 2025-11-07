@@ -25,6 +25,8 @@ class ThreadObserver
     public function deleted(Thread $thread): void
     {
         // Decrement the conversation's thread count
-        $thread->conversation()->decrement('threads_count');
+        /** @var \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Conversation, \App\Models\Thread> $conversationQuery */
+        $conversationQuery = $thread->conversation();
+        $conversationQuery->decrement('threads_count');
     }
 }

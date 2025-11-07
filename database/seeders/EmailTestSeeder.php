@@ -78,7 +78,7 @@ class EmailTestSeeder extends Seeder
         }
 
         // Attach user to mailbox
-        if (!$mailbox->users()->where('user_id', $user->id)->exists()) {
+        if (!$mailbox->users()->wherePivot('user_id', $user->id)->exists()) {
             $mailbox->users()->attach($user->id);
             $this->command->info("Attached user to mailbox");
         }

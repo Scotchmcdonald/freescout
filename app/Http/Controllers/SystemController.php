@@ -219,6 +219,7 @@ class SystemController extends Controller
 
                 if (file_exists($logFile)) {
                     $content = file_get_contents($logFile);
+                    $content = $content !== false ? $content : '';
                     $lines = array_slice(explode("\n", $content), -100); // Last 100 lines
                 }
                 
