@@ -20,6 +20,7 @@ class MailboxController extends Controller
      */
     public function index(Request $request): View
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         $mailboxes = $user->isAdmin()
@@ -34,6 +35,7 @@ class MailboxController extends Controller
      */
     public function show(Request $request, Mailbox $mailbox): View
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access
@@ -61,6 +63,7 @@ class MailboxController extends Controller
      */
     public function settings(Request $request, Mailbox $mailbox): View
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access (admin only for settings)
@@ -174,6 +177,7 @@ class MailboxController extends Controller
      */
     public function fetchEmails(Request $request, Mailbox $mailbox, ImapService $imapService): JsonResponse
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access (admin only)

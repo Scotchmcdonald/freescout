@@ -17,6 +17,7 @@ class DashboardController extends Controller
      */
     public function index(Request $request): View
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Get mailboxes the user has access to

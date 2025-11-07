@@ -367,8 +367,9 @@ class ImapService
             $subject = $message->getSubject() ?: '(No Subject)';
 
             // Check if this is a reply (has In-Reply-To or References header)
-            $inReplyTo = $message->getHeader()->get('in_reply_to')?->first();
-            $references = $message->getHeader()->get('references')?->first();
+            $header = $message->getHeader();
+            $inReplyTo = $header?->get('in_reply_to')?->first();
+            $references = $header?->get('references')?->first();
 
             $conversation = null;
 
@@ -457,7 +458,7 @@ class ImapService
                     $lastName = $nameParts[1] ?? '';
 
                     // Clean body
-                    $body = trim(preg_replace("/@fwd([\s<]+)/su", '$1', $body));
+                    $body = trim((string) preg_replace("/@fwd([\s<]+)/su", '$1', $body));
                 }
             }
 
@@ -725,6 +726,10 @@ class ImapService
             $client->connect();
 
             $folder = $client->getFolder('INBOX');
+            
+            if (!$folder) {
+                throw new \Exception('Could not access INBOX folder');
+            }
 
             // Try to get unseen messages count like in original FreeScout
             $messages_query = $folder->query()
@@ -749,7 +754,7 @@ class ImapService
                 $result['message'] = "Connected successfully. Found {$messageCount} messages in INBOX ({$unseenCount} unread).";
             } catch (\Exception $e) {
                 // If charset issue, try without charset
-                if (stristr($e->getMessage(), 'charset')) {
+                if ($folder && stristr($e->getMessage(), 'charset')) {
                     $messages = $folder->query()
                         ->since(now()->subDays(1))
                         ->leaveUnread()
@@ -830,8 +835,8 @@ class ImapService
     protected function getOriginalSenderFromFwd(string $body): ?array
     {
         // Clean up body for better matching
-        $cleanBody = preg_replace("/[\"']cid:/", '!', $body);
-        $cleanBody = preg_replace("/@fwd([\s<]+)/isu", '$1', $cleanBody);
+        $cleanBody = (string) preg_replace("/[\"']cid:/", '!', $body);
+        $cleanBody = (string) preg_replace("/@fwd([\s<]+)/isu", '$1', $cleanBody);
 
         // Regex to find "From: Name <email@example.com>"
         if (preg_match('/From:\s*(.*?)\s*<([^>]+)>/i', $cleanBody, $matches)) {

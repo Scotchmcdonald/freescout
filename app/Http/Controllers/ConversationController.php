@@ -22,6 +22,8 @@ class ConversationController extends Controller
      */
     public function index(Request $request, Mailbox $mailbox): View
     {
+        /** @var \App\Models\User $user */
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access to mailbox
@@ -43,6 +45,7 @@ class ConversationController extends Controller
      */
     public function show(Request $request, Conversation $conversation): View|RedirectResponse
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access - user must be attached to the mailbox
@@ -88,6 +91,7 @@ class ConversationController extends Controller
      */
     public function create(Request $request, Mailbox $mailbox): View
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access
@@ -113,6 +117,7 @@ class ConversationController extends Controller
      */
     public function store(Request $request, Mailbox $mailbox): RedirectResponse
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access
@@ -221,6 +226,7 @@ class ConversationController extends Controller
      */
     public function update(Request $request, Conversation $conversation): RedirectResponse
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access
@@ -246,6 +252,7 @@ class ConversationController extends Controller
      */
     public function reply(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access
@@ -328,6 +335,7 @@ class ConversationController extends Controller
      */
     public function search(Request $request): View
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
         $query = $request->input('q');
 
@@ -370,6 +378,7 @@ class ConversationController extends Controller
 
         /** @var \App\Models\Conversation $conversation */
         $conversation = Conversation::findOrFail($conversationId);
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access
@@ -428,6 +437,7 @@ class ConversationController extends Controller
      */
     public function clone(Request $request, Mailbox $mailbox, Thread $thread): RedirectResponse
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access to mailbox
@@ -495,6 +505,7 @@ class ConversationController extends Controller
      */
     public function destroy(Request $request, Conversation $conversation): RedirectResponse
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
         // Check access - user must be attached to the mailbox

@@ -178,7 +178,7 @@ class MailHelper
         // Remove non-replaced placeholders.
         if ($remove_non_replaced) {
             $result = preg_replace('#\{%[^\.%\}]+\.[^%\}]+%\}#', '', $result);
-            $result = trim($result);
+            $result = $result !== null ? trim($result) : '';
         }
 
         return $result;

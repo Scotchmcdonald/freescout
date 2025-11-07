@@ -78,10 +78,10 @@ class Email extends Model
         $email = $email !== false ? $email : '';
         $email = mb_strtolower($email, 'UTF-8');
         // Remove trailing dots.
-        $email = preg_replace("/\.+$/", '', $email);
+        $email = preg_replace("/\.+$/", '', $email) ?? '';
         // Remove dot before @
-        $email = preg_replace("/\.+@/", '@', $email);
+        $email = preg_replace("/\.+@/", '@', $email) ?? '';
 
-        return $email;
+        return $email ?: false;
     }
 }

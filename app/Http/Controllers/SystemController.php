@@ -109,7 +109,9 @@ class SystemController extends Controller
     {
         $action = $request->input('action');
 
-        if (! $request->user()->isAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        if (! $user->isAdmin()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
