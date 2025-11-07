@@ -74,8 +74,12 @@ class ConversationAdvancedTest extends TestCase
         $response = $this->get(route('conversations.index', $this->mailbox));
 
         $response->assertOk();
+        $response->assertViewIs('conversations.index');
         $response->assertSee($published->subject);
         $response->assertDontSee($draft->subject);
+        $response->assertViewHas('conversations', function ($conversations) use ($published, $draft) {
+            return $conversations->contains($published) && !$conversations->contains($draft);
+        });
     }
 
     /** Test conversation listing ordering by last_reply_at */
@@ -102,6 +106,13 @@ class ConversationAdvancedTest extends TestCase
         $response = $this->get(route('conversations.index', $this->mailbox));
 
         $response->assertOk();
+        $response->assertViewIs('conversations.index');
+        $response->assertViewHas('conversations', function ($conversations) use ($newer, $older) {
+            $ids = $conversations->pluck('id')->toArray();
+            $newerIndex = array_search($newer->id, $ids);
+            $olderIndex = array_search($older->id, $ids);
+            return $newerIndex !== false && $olderIndex !== false && $newerIndex < $olderIndex;
+        });
         
         // Newer should appear before older in the HTML
         $content = $response->getContent();
@@ -172,6 +183,7 @@ class ConversationAdvancedTest extends TestCase
         $response = $this->get(route('conversations.show', $conversation));
 
         $response->assertOk();
+        $response->assertViewIs('conversations.show');
         
         // Check threads appear in chronological order
         $content = $response->getContent();
@@ -309,6 +321,12 @@ class ConversationAdvancedTest extends TestCase
 
         $response->assertRedirect();
 
+        // Verify status was updated in database
+        $this->assertDatabaseHas('conversations', [
+            'id' => $conversation->id,
+            'status' => Conversation::STATUS_PENDING,
+        ]);
+
         $conversation->refresh();
         $this->assertEquals(Conversation::STATUS_PENDING, $conversation->status);
     }
@@ -424,13 +442,16 @@ class ConversationAdvancedTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertJson([
-            'success' => true,
-        ]);
+        $response->assertJson(['success' => true]);
         $response->assertJsonStructure([
             'success',
             'thread' => ['id', 'body', 'user'],
         ]);
+        
+        // Verify the response data
+        $data = $response->json();
+        $this->assertTrue($data['success']);
+        $this->assertEquals('AJAX reply test', $data['thread']['body']);
     }
 
     /** Test reply with type=2 creates internal note */
@@ -461,17 +482,29 @@ class ConversationAdvancedTest extends TestCase
     {
         $this->actingAs($this->agent);
 
-        $conversation = Conversation::factory()
+        $targetConv = Conversation::factory()
             ->for($this->mailbox)
             ->create([
                 'subject' => 'Password Reset Help',
+                'state' => 2,
+            ]);
+            
+        $otherConv = Conversation::factory()
+            ->for($this->mailbox)
+            ->create([
+                'subject' => 'Billing Question',
                 'state' => 2,
             ]);
 
         $response = $this->get(route('conversations.search', ['q' => 'Password']));
 
         $response->assertOk();
+        $response->assertViewIs('conversations.search');
         $response->assertSee('Password Reset Help');
+        $response->assertDontSee('Billing Question');
+        $response->assertViewHas('conversations', function ($conversations) use ($targetConv, $otherConv) {
+            return $conversations->contains($targetConv) && !$conversations->contains($otherConv);
+        });
     }
 
     /** Test search finds conversations by customer name */
@@ -533,19 +566,31 @@ class ConversationAdvancedTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        // Create conversation in a mailbox the admin isn't explicitly attached to
-        $otherMailbox = Mailbox::factory()->create();
-        $conversation = Conversation::factory()
-            ->for($otherMailbox)
+        // Create conversations in multiple mailboxes
+        $mailbox1Conv = Conversation::factory()
+            ->for($this->mailbox)
             ->create([
-                'subject' => 'Cross-Mailbox Search Test',
+                'subject' => 'Mailbox 1 Search Test',
                 'state' => 2,
             ]);
 
-        $response = $this->get(route('conversations.search', ['q' => 'Cross-Mailbox']));
+        $otherMailbox = Mailbox::factory()->create();
+        $mailbox2Conv = Conversation::factory()
+            ->for($otherMailbox)
+            ->create([
+                'subject' => 'Mailbox 2 Search Test',
+                'state' => 2,
+            ]);
+
+        $response = $this->get(route('conversations.search', ['q' => 'Search Test']));
 
         $response->assertOk();
-        $response->assertSee('Cross-Mailbox Search Test');
+        $response->assertViewIs('conversations.search');
+        $response->assertSee('Mailbox 1 Search Test');
+        $response->assertSee('Mailbox 2 Search Test');
+        $response->assertViewHas('conversations', function ($conversations) use ($mailbox1Conv, $mailbox2Conv) {
+            return $conversations->contains($mailbox1Conv) && $conversations->contains($mailbox2Conv);
+        });
     }
 
     /** Test search pagination works correctly */
