@@ -1424,6 +1424,15 @@ class Helper
             fclose($connection);
             return true;
         } else {
+            // Log connection failure for debugging purposes
+            if ($errno !== 0) {
+                \Log::debug('Port check failed', [
+                    'host' => $host,
+                    'port' => $port,
+                    'errno' => $errno,
+                    'error' => $errstr
+                ]);
+            }
             return false;
         }
     }
