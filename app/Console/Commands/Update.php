@@ -44,7 +44,7 @@ class Update extends Command
             return;
         }
 
-        @ini_set('memory_limit', '128M');
+        ini_set('memory_limit', '128M');
 
         if (\Updater::isNewVersionAvailable(config('app.version'))) {
             $this->info('Updating... This may take several minutes');

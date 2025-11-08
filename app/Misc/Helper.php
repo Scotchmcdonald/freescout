@@ -1417,7 +1417,9 @@ class Helper
      */
     public static function checkPort($host, $port, $timeout = 10)
     {
-        $connection = @fsockopen($host, $port);
+        $errno = 0;
+        $errstr = '';
+        $connection = fsockopen($host, $port, $errno, $errstr, $timeout);
         if (is_resource($connection)) {
             fclose($connection);
             return true;

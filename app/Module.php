@@ -288,9 +288,9 @@ class Module extends Model
                 try {
                     if (!file_exists($from) || !is_link($from)) {
                         if (is_dir($from)) {
-                            @rename($from, $from.'_'.date('YmdHis'));
+                            rename($from, $from.'_'.date('YmdHis'));
                         } else {
-                            @unlink($from);
+                            unlink($from);
                         }
                         $create = true;
                     } 
@@ -334,13 +334,13 @@ class Module extends Model
         try {
             // If module's Public is symlink.
             if (is_link($to)) {
-                @unlink($to);
+                unlink($to);
             }
 
             // Symlimk may exist but lead to the module folder in a wrong case.
             // So we need first try to remove it.
             if (!file_exists($from)) {
-                @unlink($from);
+                unlink($from);
             }
 
             if (file_exists($from)) {
@@ -354,7 +354,7 @@ class Module extends Model
                 } catch (\Exception $e) {
                     // If it's a broken symlink.
                     if (is_link($to)) {
-                        @unlink($to);
+                        unlink($to);
                     }
                 }
             }

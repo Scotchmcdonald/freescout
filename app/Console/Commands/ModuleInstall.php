@@ -96,16 +96,16 @@ class ModuleInstall extends Command
         try {
             // If module's Public is symlink.
             if (is_link($to)) {
-                @unlink($to);
+                unlink($to);
             }
             
             // Symlimk may exist but lead to the module folder in a wrong case.
             // So we need first try to remove it.
             if (!file_exists($from) || !is_link($from)) {
                 if (is_dir($from)) {
-                    @rename($from, $from.'_'.date('YmdHis'));
+                    rename($from, $from.'_'.date('YmdHis'));
                 } else {
-                    @unlink($from);
+                    unlink($from);
                 }
             }
 
@@ -121,7 +121,7 @@ class ModuleInstall extends Command
                 } catch (\Exception $e) {
                     // If it's a broken symlink.
                     if (is_link($to)) {
-                        @unlink($to);
+                        unlink($to);
                     }
                 }
             }
