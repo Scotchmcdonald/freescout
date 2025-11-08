@@ -56,14 +56,11 @@ return new class extends Migration
         // Modules - FreeScout modules/plugins
         Schema::create('modules', function (Blueprint $table) {
             $table->id();
-            $table->string('alias', 255)->unique();
-            $table->string('name', 255);
-            $table->text('description')->nullable();
-            $table->string('version', 11);
-            $table->string('author', 255)->nullable();
+            $table->string('alias', 191)->unique();
             $table->boolean('active')->default(false);
-            $table->json('settings')->nullable();
-            $table->timestamps();
+            // Module license is activated
+            $table->boolean('activated')->default(false);
+            $table->string('license', 32)->nullable();
         });
 
         // Polycast events - broadcasting events

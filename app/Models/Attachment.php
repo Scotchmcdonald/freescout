@@ -10,29 +10,32 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
- * @property int $thread_id
- * @property int|null $conversation_id
+ * @property int|null $thread_id
+ * @property int|null $user_id
+ * @property string|null $file_dir
  * @property string $file_name
- * @property string $file_dir
- * @property int $file_size
- * @property string|null $mime_type
+ * @property string $mime_type
+ * @property int $type
+ * @property int|null $size
  * @property bool $embedded
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * 
  * @property-read \App\Models\Thread $thread
+ * @property-read \App\Models\User $user
  */
 class Attachment extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'thread_id',
-        'conversation_id',
-        'file_name',
+        'user_id',
         'file_dir',
-        'file_size',
+        'file_name',
         'mime_type',
+        'type',
+        'size',
         'embedded',
     ];
 
@@ -40,10 +43,10 @@ class Attachment extends Model
     {
         return [
             'thread_id' => 'integer',
-            'file_size' => 'integer',
+            'user_id' => 'integer',
+            'type' => 'integer',
+            'size' => 'integer',
             'embedded' => 'boolean',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
         ];
     }
 
@@ -55,6 +58,16 @@ class Attachment extends Model
     public function thread(): BelongsTo
     {
         return $this->belongsTo(Thread::class);
+    }
+
+    /**
+     * Get the user that owns the attachment.
+     * 
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -70,7 +83,7 @@ class Attachment extends Model
      */
     public function getHumanFileSizeAttribute(): string
     {
-        $bytes = $this->file_size;
+        $bytes = $this->size;
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
