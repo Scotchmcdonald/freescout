@@ -15,17 +15,17 @@ return new class extends Migration
         // Attachments - files attached to conversations/threads
         Schema::create('attachments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('thread_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('file_dir', 20)->nullable(); // examples: 1/2, 1/2/3
+            $table->foreignId('thread_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('conversation_id')->nullable()->constrained()->nullOnDelete();
             $table->string('file_name', 255);
-            $table->string('mime_type', 127);
-            $table->unsignedInteger('type');
-            $table->unsignedInteger('size')->nullable();
+            $table->string('file_dir', 255);
+            $table->unsignedInteger('file_size');
+            $table->string('mime_type', 100)->nullable();
             $table->boolean('embedded')->default(false);
+            $table->timestamps();
 
-            // Indexes
-            $table->index(['thread_id', 'embedded']);
+            $table->index('thread_id');
+            $table->index('conversation_id');
         });
 
         // Activity logs - audit trail of all actions
@@ -52,16 +52,22 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('message_id', 998)->nullable();
             $table->string('email', 191);
-            $table->unsignedTinyInteger('mail_type');
+            $table->string('subject', 255)->nullable();
+            $table->unsignedTinyInteger('mail_type')->nullable();
             $table->unsignedTinyInteger('status'); // 1=sent, 2=failed
-            $table->string('status_message', 255)->nullable();
+            $table->text('status_message')->nullable();
             $table->string('smtp_queue_id', 100)->nullable();
+            $table->unsignedInteger('opens')->default(0);
+            $table->unsignedInteger('clicks')->default(0);
+            $table->timestamp('opened_at')->nullable();
+            $table->timestamp('clicked_at')->nullable();
+            $table->json('meta')->nullable();
             $table->timestamps();
 
             $table->index('thread_id');
             $table->index('email');
             $table->index('status');
-            $table->index(['customer_id', 'mail_type', 'created_at']);
+            $table->index('customer_id');
         });
 
         // Add prefix index for message_id (MySQL requires prefix for TEXT columns)
