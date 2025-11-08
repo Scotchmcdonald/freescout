@@ -32,10 +32,25 @@ class SystemController extends Controller
             'unassigned_conversations' => Conversation::whereNull('user_id')->where('status', 1)->count(),
         ];
 
+        // Get database version based on driver
+        $dbVersion = 'Unknown';
+        try {
+            $driver = DB::connection()->getDriverName();
+            if ($driver === 'mysql') {
+                $dbVersion = DB::select('SELECT VERSION() as version')[0]->version ?? 'Unknown';
+            } elseif ($driver === 'sqlite') {
+                $dbVersion = DB::select('SELECT sqlite_version() as version')[0]->version ?? 'Unknown';
+            } elseif ($driver === 'pgsql') {
+                $dbVersion = DB::select('SELECT version()')[0]->version ?? 'Unknown';
+            }
+        } catch (\Exception $e) {
+            $dbVersion = 'Unknown';
+        }
+
         $systemInfo = [
             'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
-            'db_version' => DB::select('SELECT VERSION() as version')[0]->version ?? 'Unknown',
+            'db_version' => $dbVersion,
             'disk_free' => disk_free_space('/'),
             'disk_total' => disk_total_space('/'),
             'memory_limit' => ini_get('memory_limit'),

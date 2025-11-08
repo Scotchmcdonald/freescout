@@ -60,7 +60,9 @@ return new class extends Migration
             $table->string('name', 255);
             $table->text('description')->nullable();
             $table->string('version', 11);
+            $table->string('author', 255)->nullable();
             $table->boolean('active')->default(false);
+            $table->json('settings')->nullable();
             $table->timestamps();
         });
 
