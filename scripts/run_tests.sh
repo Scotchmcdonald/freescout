@@ -11,7 +11,7 @@ AVAILABLE_TESTS=("phpstan-bodyscan" "phpstan-analyse" "artisan-test")
 declare -A TEST_COMMANDS=(
     ["phpstan-bodyscan"]="vendor/bin/phpstan-bodyscan analyse"
     ["phpstan-analyse"]="vendor/bin/phpstan analyse --memory-limit=2G"
-    ["artisan-test"]="php artisan test --coverage-html coverage-report"
+    ["artisan-test"]="php artisan test --coverage-html reports/coverage-report"
 )
 declare -A TEST_NAMES=(
     ["phpstan-bodyscan"]="PHPStan Bodyscan"
@@ -20,6 +20,7 @@ declare -A TEST_NAMES=(
 )
 
 LOG_DIR="reports"
+COVERAGE_DIR="$LOG_DIR/coverage-report"
 SELECTED_TESTS=()
 
 # --- Functions ---
@@ -106,8 +107,15 @@ for test in "${SELECTED_TESTS[@]}"; do
 done
 echo ""
 
+# Clean up old reports and coverage
 rm -rf $LOG_DIR
 mkdir -p $LOG_DIR
+
+# Also clean up old coverage report in root if it exists
+if [ -d "coverage-report" ]; then
+    echo "Cleaning up old coverage report from root directory..."
+    rm -rf coverage-report
+fi
 
 # Run tests in parallel
 pids=()
