@@ -1425,7 +1425,7 @@ class Helper
             return true;
         } else {
             // Log connection failure for debugging purposes
-            if ($errno !== 0) {
+            if ($errno !== 0 && config('app.debug')) {
                 \Log::debug('Port check failed', [
                     'host' => $host,
                     'port' => $port,
