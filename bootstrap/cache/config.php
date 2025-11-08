@@ -315,14 +315,14 @@
   ),
   'database' => 
   array (
-    'default' => 'mysql',
+    'default' => 'sqlite',
     'connections' => 
     array (
       'sqlite' => 
       array (
         'driver' => 'sqlite',
         'url' => '',
-        'database' => 'freescout',
+        'database' => ':memory:',
         'prefix' => '',
         'foreign_key_constraints' => true,
         'busy_timeout' => NULL,
@@ -335,7 +335,7 @@
         'url' => '',
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'freescout',
+        'database' => ':memory:',
         'username' => 'root',
         'password' => 'lKyctrx4stu4d4di7c5OV8OG',
         'unix_socket' => '',
@@ -355,7 +355,7 @@
         'url' => '',
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'freescout',
+        'database' => ':memory:',
         'username' => 'root',
         'password' => 'lKyctrx4stu4d4di7c5OV8OG',
         'unix_socket' => '',
@@ -375,7 +375,7 @@
         'url' => '',
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'freescout',
+        'database' => ':memory:',
         'username' => 'root',
         'password' => 'lKyctrx4stu4d4di7c5OV8OG',
         'charset' => 'utf8',
@@ -390,7 +390,7 @@
         'url' => '',
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'freescout',
+        'database' => ':memory:',
         'username' => 'root',
         'password' => 'lKyctrx4stu4d4di7c5OV8OG',
         'charset' => 'utf8',
@@ -1093,13 +1093,13 @@
     ),
     'batching' => 
     array (
-      'database' => 'mysql',
+      'database' => 'sqlite',
       'table' => 'job_batches',
     ),
     'failed' => 
     array (
       'driver' => 'database-uuids',
-      'database' => 'mysql',
+      'database' => 'sqlite',
       'table' => 'failed_jobs',
     ),
   ),

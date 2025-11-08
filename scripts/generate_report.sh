@@ -44,26 +44,62 @@ if is_selected "phpstan-bodyscan"; then
         grep -A 11 "Level.*Error count.*Increment" "$REPORT_DIR/phpstan-bodyscan.log" | tail -n 11 >> $REPORT_FILE
         echo "" >> $REPORT_FILE
         
-        # Now extract detailed errors for each level
+        # Extract detailed errors from bodyscan (runs bare PHPStan without ignores)
         echo "### Detailed Errors by Level" >> $REPORT_FILE
         echo "" >> $REPORT_FILE
         
-        for level in {0..9}; do
-            echo "Running PHPStan level $level analysis for detailed errors..." >&2
-            if vendor/bin/phpstan analyse --memory-limit=2G --error-format=table --level=$level --no-progress 2>&1 | grep -q "File"; then
-                ERROR_OUTPUT=$(vendor/bin/phpstan analyse --memory-limit=2G --error-format=table --level=$level --no-progress 2>&1)
-                ERROR_COUNT=$(echo "$ERROR_OUTPUT" | grep -oP '\d+(?= error)' | head -1 || echo "0")
-                
-                if [ "$ERROR_COUNT" != "0" ]; then
-                    echo "#### Level $level - $ERROR_COUNT errors" >> $REPORT_FILE
-                    echo "" >> $REPORT_FILE
-                    echo "\`\`\`" >> $REPORT_FILE
-                    echo "$ERROR_OUTPUT" | grep -A 1000 "File" | grep -v "^\[" >> $REPORT_FILE
-                    echo "\`\`\`" >> $REPORT_FILE
-                    echo "" >> $REPORT_FILE
+        # Find the highest level with errors from bodyscan summary
+        HIGHEST_LEVEL=0
+        HIGHEST_ERROR_COUNT=0
+        while IFS='|' read -r _ level errors _; do
+            level=$(echo "$level" | xargs)
+            errors=$(echo "$errors" | xargs)
+            if [[ "$level" =~ ^[0-9]+$ ]] && [[ "$errors" =~ ^[0-9]+$ ]] && [ "$errors" -gt 0 ]; then
+                if [ "$errors" -gt "$HIGHEST_ERROR_COUNT" ]; then
+                    HIGHEST_LEVEL=$level
+                    HIGHEST_ERROR_COUNT=$errors
                 fi
             fi
-        done
+        done < <(grep "|" "$REPORT_DIR/phpstan-bodyscan.log" | tail -10)
+        
+        if [ "$HIGHEST_ERROR_COUNT" -gt 0 ]; then
+            echo "Running bare PHPStan analysis at level $HIGHEST_LEVEL (highest failing level with $HIGHEST_ERROR_COUNT errors)..." >&2
+            echo "" >> $REPORT_FILE
+            echo "**Note:** Bodyscan runs PHPStan in bare mode (no config ignores) to show all potential issues." >> $REPORT_FILE
+            echo "" >> $REPORT_FILE
+            
+            # Create a minimal bare config without ignores
+            cat > /tmp/phpstan-bare.neon << 'BAREEOF'
+parameters:
+    level: 6
+    paths:
+        - /var/www/html/app
+BAREEOF
+            
+            # Run PHPStan with bare config
+            ERROR_OUTPUT=$(vendor/bin/phpstan analyse -c /tmp/phpstan-bare.neon --memory-limit=2G --error-format=table --level=$HIGHEST_LEVEL --no-progress --no-ansi 2>&1 || true)
+            
+            if echo "$ERROR_OUTPUT" | grep -q "Line"; then
+                echo "#### Level $HIGHEST_LEVEL - Detailed Errors (Bare Analysis)" >> $REPORT_FILE
+                echo "" >> $REPORT_FILE
+                echo "\`\`\`" >> $REPORT_FILE
+                # Show first 150 lines of errors (approximately 30-40 errors with context)
+                echo "$ERROR_OUTPUT" | head -150 >> $REPORT_FILE
+                echo "\`\`\`" >> $REPORT_FILE
+                echo "" >> $REPORT_FILE
+                
+                if [ "$HIGHEST_ERROR_COUNT" -gt 40 ]; then
+                    echo "*(Showing first ~40 errors of $HIGHEST_ERROR_COUNT total - run full bodyscan for complete list)*" >> $REPORT_FILE
+                    echo "" >> $REPORT_FILE
+                fi
+            else
+                echo "⚠️ Could not extract detailed errors. Run \`vendor/bin/phpstan-bodyscan analyse\` manually." >> $REPORT_FILE
+                echo "" >> $REPORT_FILE
+            fi
+        else
+            echo "✅ No errors found at any level." >> $REPORT_FILE
+            echo "" >> $REPORT_FILE
+        fi
     else
         echo "✅ PHPStan Bodyscan completed without any output." >> $REPORT_FILE
     fi
@@ -111,30 +147,43 @@ if is_selected "artisan-test"; then
             echo "### ❌ Failed Tests Details" >> $REPORT_FILE
             echo "" >> $REPORT_FILE
             
-            # Extract each failed test with its error message
+            # Count total failures
+            FAIL_COUNT=$(grep -c "FAILED" "$REPORT_DIR/artisan-test.log" || echo "0")
+            echo "**Total Failures: $FAIL_COUNT**" >> $REPORT_FILE
+            echo "" >> $REPORT_FILE
+            
+            # Extract each failed test with FULL error message (not truncated)
             echo "\`\`\`" >> $REPORT_FILE
-            grep -B 1 "FAILED" "$REPORT_DIR/artisan-test.log" | grep -v "^--$" >> $REPORT_FILE
+            grep "FAILED" "$REPORT_DIR/artisan-test.log" | sed 's/^[[:space:]]*//' | head -50 >> $REPORT_FILE
+            if [ "$FAIL_COUNT" -gt 50 ]; then
+                echo "" >> $REPORT_FILE
+                echo "... and $((FAIL_COUNT - 50)) more failures (see full log)" >> $REPORT_FILE
+            fi
             echo "\`\`\`" >> $REPORT_FILE
             echo "" >> $REPORT_FILE
             
             # Group errors by type
-            echo "### Error Summary by Type" >> $REPORT_FILE
+            echo "### Error Analysis" >> $REPORT_FILE
             echo "" >> $REPORT_FILE
             
-            ERROR_TYPES=$(grep "FAILED" "$REPORT_DIR/artisan-test.log" | awk '{for(i=1;i<=NF;i++) if($i ~ /Error|Exception/) print $i}' | sort | uniq -c | sort -rn)
+            # Extract actual exception types and count them
+            ERROR_TYPES=$(grep "FAILED" "$REPORT_DIR/artisan-test.log" | grep -oE '[A-Z][a-zA-Z]*Exception|[A-Z][a-zA-Z]*Error' | sort | uniq -c | sort -rn)
             
             if [ -n "$ERROR_TYPES" ]; then
+                echo "**Error Types:**" >> $REPORT_FILE
                 echo "\`\`\`" >> $REPORT_FILE
                 echo "$ERROR_TYPES" >> $REPORT_FILE
                 echo "\`\`\`" >> $REPORT_FILE
+                echo "" >> $REPORT_FILE
             fi
             
-            # Extract unique error messages
+            # Extract the actual error messages from the log (look for the detailed error output)
+            echo "### Sample Error Details" >> $REPORT_FILE
             echo "" >> $REPORT_FILE
-            echo "### Unique Error Messages" >> $REPORT_FILE
-            echo "" >> $REPORT_FILE
+            echo "First error detail from log:" >> $REPORT_FILE
             echo "\`\`\`" >> $REPORT_FILE
-            grep "FAILED" "$REPORT_DIR/artisan-test.log" | sed 's/.*FAILED[^>]*> //' | sort -u >> $REPORT_FILE
+            # Find first detailed error (starts after FAILED line)
+            sed -n '/FAILED.*QueryException/,/^[[:space:]]*$/p' "$REPORT_DIR/artisan-test.log" | head -20 >> $REPORT_FILE
             echo "\`\`\`" >> $REPORT_FILE
         fi
         echo "" >> $REPORT_FILE
@@ -148,19 +197,23 @@ if is_selected "artisan-test"; then
     echo "" >> $REPORT_FILE
     
     # Check if coverage was generated (only happens when tests pass)
-    if [ -f "$COVERAGE_DASHBOARD" ] && [ -s "$COVERAGE_DASHBOARD" ]; then
-        # Extract metrics using grep and sed
-        LINES=$(grep -A 2 'Lines' $COVERAGE_DASHBOARD 2>/dev/null | tail -n 1 | sed -e 's/<[^>]*>//g' | xargs)
-        FUNCTIONS=$(grep -A 2 'Functions' $COVERAGE_DASHBOARD 2>/dev/null | tail -n 1 | sed -e 's/<[^>]*>//g' | xargs)
-        CLASSES=$(grep -A 2 'Classes' $COVERAGE_DASHBOARD 2>/dev/null | tail -n 1 | sed -e 's/<[^>]*>//g' | xargs)
+    COVERAGE_INDEX="$COVERAGE_DIR/index.html"
+    if [ -f "$COVERAGE_INDEX" ] && [ -s "$COVERAGE_INDEX" ]; then
+        # Extract metrics from index.html Total row
+        TOTAL_ROW=$(grep -A 10 'class="warning">Total' $COVERAGE_INDEX 2>/dev/null | head -15)
+        
+        # Extract percentages from the Total row using aria-valuenow
+        TOTAL_LINES_PERCENTAGE=$(echo "$TOTAL_ROW" | grep -oP 'aria-valuenow="\K[0-9.]+' | head -1)
+        TOTAL_FUNCTIONS_PERCENTAGE=$(echo "$TOTAL_ROW" | grep -oP 'aria-valuenow="\K[0-9.]+' | sed -n '2p')
+        TOTAL_CLASSES_PERCENTAGE=$(echo "$TOTAL_ROW" | grep -oP 'aria-valuenow="\K[0-9.]+' | sed -n '3p')
+        
+        # Extract covered/total numbers (handle &nbsp; entities)
+        LINES=$(echo "$TOTAL_ROW" | grep -oP '<div align="right">\K[^<]+' | sed 's/&nbsp;//g' | grep '/' | head -1 | xargs)
+        FUNCTIONS=$(echo "$TOTAL_ROW" | grep -oP '<div align="right">\K[^<]+' | sed 's/&nbsp;//g' | grep '/' | sed -n '2p' | xargs)
+        CLASSES=$(echo "$TOTAL_ROW" | grep -oP '<div align="right">\K[^<]+' | sed 's/&nbsp;//g' | grep '/' | sed -n '3p' | xargs)
 
-        # Extract total percentages from progress bars
-        TOTAL_LINES_PERCENTAGE=$(grep 'Lines' $COVERAGE_DASHBOARD -A 4 2>/dev/null | grep 'width' | sed 's/.*width: \(.*\)%.*/\1/' | head -1)
-        TOTAL_FUNCTIONS_PERCENTAGE=$(grep 'Functions' $COVERAGE_DASHBOARD -A 4 2>/dev/null | grep 'width' | sed 's/.*width: \(.*\)%.*/\1/' | head -1)
-        TOTAL_CLASSES_PERCENTAGE=$(grep 'Classes' $COVERAGE_DASHBOARD -A 4 2>/dev/null | grep 'width' | sed 's/.*width: \(.*\)%.*/\1/' | head -1)
-
-        # Only show coverage if we got valid data
-        if [ -n "$TOTAL_LINES_PERCENTAGE" ] && [ -n "$LINES" ]; then
+        # Show coverage if we got valid data
+        if [ -n "$TOTAL_LINES_PERCENTAGE" ]; then
             echo "### Overall Metrics" >> $REPORT_FILE
             echo "" >> $REPORT_FILE
             echo "| Metric    | Coverage      | Covered / Total |" >> $REPORT_FILE
