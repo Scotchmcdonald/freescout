@@ -4,13 +4,34 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+/**
+ * @property int $id
+ * @property string $first_name
+ * @property string $last_name
+ * @property string $email
+ * @property string $password
+ * @property int $role
+ * @property int $status
+ * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mailbox> $mailboxes
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Folder> $folders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
+ * 
+ * @method static \Illuminate\Database\Eloquent\Builder|User create(array $attributes = [])
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ */
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;

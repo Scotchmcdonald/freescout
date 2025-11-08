@@ -42,6 +42,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\User|null $user
  * @property-read \App\Models\Customer|null $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Attachment> $attachments
+ * 
+ * @method static \Illuminate\Database\Eloquent\Builder|Thread create(array $attributes = [])
+ * @mixin \Illuminate\Database\Eloquent\Builder
  */
 class Thread extends Model
 {

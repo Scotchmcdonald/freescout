@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
@@ -40,10 +40,11 @@ class RegisteredUserController extends Controller
         $nameParts = explode(' ', is_string($name) ? $name : '', 2);
 
         $password = $request->input('password');
+        $email = $request->input('email');
         $user = User::create([
             'first_name' => $nameParts[0],
             'last_name' => $nameParts[1] ?? '',
-            'email' => $request->email,
+            'email' => is_string($email) ? $email : '',
             'password' => Hash::make(is_string($password) ? $password : ''),
             'role' => User::ROLE_USER,
             'status' => User::STATUS_ACTIVE,

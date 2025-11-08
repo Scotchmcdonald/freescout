@@ -50,6 +50,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Folder> $folders
+ * 
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailbox find(int $id, array $columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailbox where(string $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|Mailbox whereNotNull(string $column, string $boolean = 'and')
+ * @mixin \Illuminate\Database\Eloquent\Builder
  */
 class Mailbox extends Model
 {

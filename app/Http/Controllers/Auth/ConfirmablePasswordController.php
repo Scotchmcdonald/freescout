@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
 
 class ConfirmablePasswordController extends Controller
 {
@@ -27,9 +27,11 @@ class ConfirmablePasswordController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
         
+        $password = $request->input('password');
+        
         if (! Auth::guard('web')->validate([
             'email' => $user->email,
-            'password' => $request->password,
+            'password' => $password,
         ])) {
             throw ValidationException::withMessages([
                 'password' => __('auth.password'),

@@ -10,6 +10,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property int $mailbox_id
+ * @property int|null $user_id
+ * @property int $type
+ * @property string $name
+ * @property int $total_count
+ * @property int $active_count
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * 
+ * @property-read \App\Models\Mailbox $mailbox
+ * @property-read \App\Models\User|null $user
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
+ */
 class Folder extends Model
 {
     use HasFactory;

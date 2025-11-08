@@ -17,6 +17,13 @@ class ConversationUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    /**
+     * Create a new event instance.
+     *
+     * @param Conversation $conversation
+     * @param string $updateType
+     * @param array<string, mixed>|null $meta
+     */
     public function __construct(
         public Conversation $conversation,
         public string $updateType = 'status_changed', // status_changed, assigned, new_thread, etc

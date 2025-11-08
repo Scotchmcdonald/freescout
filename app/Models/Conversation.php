@@ -37,6 +37,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $closed_at
  * @property \Illuminate\Support\Carbon|null $user_updated_at
  * @property \Illuminate\Support\Carbon|null $last_reply
+ * @property \Illuminate\Support\Carbon|null $last_reply_at
+ * @property int|null $last_reply_from
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * 
@@ -44,6 +46,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\Customer $customer
  * @property-read \App\Models\User|null $user
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
+ * 
+ * @method static \Illuminate\Database\Eloquent\Builder|Conversation create(array $attributes = [])
+ * @mixin \Illuminate\Database\Eloquent\Builder
  */
 class Conversation extends Model
 {
