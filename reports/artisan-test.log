@@ -1,0 +1,137 @@
+
+   FAIL  Tests\Unit\ActivityLogModelTest
+  ✓ model can be instantiated                                            5.58s  
+  ✓ model has fillable attributes                                        0.01s  
+  ⨯ properties cast to json                                              0.01s  
+  ⨯ scope in log filters by log name                                     0.01s  
+  ⨯ scope caused by filters by causer                                    0.07s  
+  ⨯ scope for subject filters by subject                                 0.03s  
+  ⨯ user method returns user when causer is user                         0.01s  
+  ⨯ user method returns null when causer is not user                     0.02s  
+  ⨯ subject morph relationship                                           0.02s  
+  ⨯ causer morph relationship                                            0.01s  
+  ⨯ activity log with null properties                                    0.01s  
+  ⨯ activity log with empty properties array                             0.01s  
+  ⨯ activity log with null batch uuid                                    0.01s  
+  ⨯ activity log with batch uuid                                         0.01s  
+  ⨯ multiple activity logs for same subject                              0.02s  
+  ⨯ scope filters can be combined                                        0.02s  
+  ⨯ created at and updated at cast to datetime                           0.01s  
+
+   FAIL  Tests\Unit\AttachmentModelTest
+  ✓ model can be instantiated                                            0.02s  
+  ✓ model has fillable attributes                                        0.01s  
+  ⨯ filename size and mime type are stored                               0.01s  
+  ⨯ inline and public cast to boolean                                    0.01s  
+  ⨯ image mime types can be detected                                     0.01s  
+  ⨯ width and height for images                                          0.01s  
+  ⨯ belongs to thread                                                    0.03s  
+
+   PASS  Tests\Unit\ChannelModelTest
+  ✓ model can be instantiated                                            0.01s  
+  ✓ model has fillable attributes                                        0.01s  
+
+   PASS  Tests\Unit\ConversationModelTest
+  ✓ conversation status constants                                        0.01s  
+  ✓ conversation state constants                                         0.01s  
+  ✓ conversation has number                                              0.01s  
+  ✓ conversation has subject                                             0.01s  
+  ✓ conversation has status                                              0.01s  
+  ✓ conversation has mailbox id                                          0.01s  
+  ✓ conversation has customer id                                         0.01s  
+  ✓ conversation has user id                                             0.01s  
+  ✓ conversation has threads count                                       0.01s  
+  ✓ conversation has preview                                             0.01s  
+  ✓ conversation has last reply at                                       0.01s  
+  ✓ conversation has closed at                                           0.01s  
+  ✓ is active returns true for active status                             0.02s  
+  ✓ is active returns false for non active status                        0.02s  
+  ✓ is closed returns true for closed status                             0.02s  
+  ✓ is closed returns false for non closed status                        0.02s  
+  ✓ cc and bcc cast to json                                              0.02s  
+  ✓ imported and has attachments cast to boolean                         0.02s  
+  ✓ update folder assigns correct folder for active assigned conversati… 0.02s  
+  ✓ update folder assigns correct folder for active unassigned conversa… 0.02s  
+  ✓ update folder assigns correct folder for closed conversation         0.02s  
+  ✓ update folder assigns correct folder for spam conversation           0.02s  
+  ✓ update folder keeps folder when no matching folder exists            0.02s  
+  ✓ conversation with null cc and bcc                                    0.02s  
+  ✓ conversation with empty arrays for cc and bcc                        0.02s  
+  ✓ conversation status pending                                          0.02s  
+  ✓ conversation status spam                                             0.02s  
+  ✓ conversation with null user id is unassigned                         0.02s  
+  ✓ conversation number is integer                                       0.02s  
+  ✓ conversation threads count is integer                                0.02s  
+
+   PASS  Tests\Unit\CustomerControllerTest
+  ✓ controller can be instantiated                                       0.04s  
+  ✓ index method exists                                                  0.01s  
+  ✓ show method exists
+  ✓ edit method exists
+  ✓ update method exists
+
+   PASS  Tests\Unit\CustomerModelTest
+  ✓ customer has first name attribute                                    0.01s  
+  ✓ customer has last name attribute                                     0.01s  
+  ✓ customer has company attribute                                       0.01s  
+  ✓ customer has phones attribute                                        0.01s  
+  ✓ customer get full name with both names                               0.01s  
+  ✓ customer get full name with only first name                          0.01s  
+  ✓ customer get full name with only last name                           0.01s  
+  ✓ customer has notes attribute                                         0.01s  
+  ✓ customer has address attribute                                       0.01s  
+  ✓ customer has city attribute                                          0.01s  
+  ✓ customer has conversations relationship                              0.02s  
+  ✓ customer full name accessor works                                    0.01s  
+  ✓ customer full name accessor trims whitespace                         0.01s  
+  ✓ customer has emails relationship                                     0.02s  
+  ✓ customer get main email returns primary email                        0.01s  
+  ✓ customer get main email returns first email if no primary            0.01s  
+  ✓ customer get main email returns null when no emails                  0.01s  
+  ✓ customer has threads relationship                                    0.01s  
+  ✓ customer has channels relationship                                   0.01s  
+  ✓ customer get first name returns empty string when null               0.01s  
+  ✓ customer get first name returns actual value                         0.01s  
+  ✓ customer primary email attribute returns primary email               0.01s  
+  ✓ customer primary email attribute returns null when no primary        0.01s  
+  ✓ customer casts attributes correctly                                  0.01s  
+  ✓ customer fillable includes all expected fields                       0.01s  
+
+   PASS  Tests\Unit\DashboardControllerTest
+  ✓ controller can be instantiated                                       0.02s  
+  ✓ index method exists                                                  0.01s  
+
+   PASS  Tests\Unit\EmailModelEnhancedTest
+  ✓ email has customer relationship                                      0.01s  
+  ✓ email is primary returns true for type 1                             0.01s  
+  ✓ email is primary returns false for type 2                            0.01s  
+  ✓ email is secondary returns true for type 2                           0.01s  
+  ✓ email is secondary returns false for type 1                          0.01s  
+  ✓ email sanitize converts mixed case to lowercase                      0.01s  
+  ✓ email sanitize removes trailing dots                                 0.01s  
+  ✓ email sanitize removes dots before at symbol                         0.01s  
+  ✓ email sanitize preserves dots in local part                          0.01s  
+  ✓ email sanitize returns false for missing at symbol                   0.01s  
+  ✓ email sanitize returns false for empty string                        0.01s  
+  ✓ email sanitize returns false for null                                0.01s  
+  ✓ email sanitize accepts valid simple email                            0.01s  
+  ✓ email sanitize accepts email with subdomain                          0.01s  
+  ✓ email sanitize accepts email with plus sign                          0.01s  
+  ✓ email sanitize accepts email with numbers                            0.01s  
+  ✓ email sanitize accepts email with hyphen                             0.01s  
+  ✓ email sanitize accepts email with underscore                         0.01s  
+  ✓ email sanitize returns false for only at symbol                      0.01s  
+  ✓ email sanitize returns false for at at start                         0.01s  
+  ✓ email sanitize returns false for at at end                           0.01s  
+  ✓ email casts attributes correctly                                     0.01s  
+  ✓ email fillable includes expected fields                              0.01s  
+  ✓ email can be created with factory                                    0.02s  
+  ✓ email factory creates primary email by default                       0.01s  
+  ✓ email factory can create secondary email                             0.01s  
+  ✓ email sanitize handles unicode characters                            0.01s  
+  ✓ multiple emails can belong to same customer                          0.02s  
+
+   PASS  Tests\Unit\EmailModelTest
+  ✓ email has email attribute                                            0.02s  
+  ✓ email has customer id attribute                                      0.01s  
+  ✓ email can set all attributes                                         0.01s  
