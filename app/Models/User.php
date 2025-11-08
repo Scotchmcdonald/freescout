@@ -19,6 +19,16 @@ use Illuminate\Notifications\Notifiable;
  * @property string $password
  * @property int $role
  * @property int $status
+ * @property string|null $remember_token
+ * @property string|null $timezone
+ * @property string|null $photo_url
+ * @property int|null $type
+ * @property int|null $invite_state
+ * @property string|null $locale
+ * @property string|null $job_title
+ * @property string|null $phone
+ * @property int|null $time_format
+ * @property bool $enable_kb_shortcuts
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

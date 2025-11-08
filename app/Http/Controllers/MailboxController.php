@@ -27,7 +27,9 @@ class MailboxController extends Controller
             ? Mailbox::with('users')->get()
             : $user->mailboxes;
 
-        return view('mailboxes.index', compact('mailboxes'));
+        /** @var view-string $viewName */
+        $viewName = 'mailboxes.index';
+        return view($viewName, compact('mailboxes'));
     }
 
     /**
@@ -55,7 +57,9 @@ class MailboxController extends Controller
         // Get folders for this mailbox
         $folders = $mailbox->folders;
 
-        return view('mailboxes.show', compact('mailbox', 'conversations', 'folders'));
+        /** @var view-string $viewName */
+        $viewName = 'mailboxes.show';
+        return view($viewName, compact('mailbox', 'conversations', 'folders'));
     }
 
     /**
@@ -71,7 +75,9 @@ class MailboxController extends Controller
             abort(403);
         }
 
-        return view('mailboxes.settings', compact('mailbox'));
+        /** @var view-string $viewName */
+        $viewName = 'mailboxes.settings';
+        return view($viewName, compact('mailbox'));
     }
 
     /**
@@ -223,7 +229,9 @@ class MailboxController extends Controller
     {
         $this->authorize('update', $mailbox);
 
-        return view('mailboxes.connection_incoming', compact('mailbox'));
+        /** @var view-string $viewName */
+        $viewName = 'mailboxes.connection_incoming';
+        return view($viewName, compact('mailbox'));
     }
 
     /**
@@ -268,7 +276,9 @@ class MailboxController extends Controller
     {
         $this->authorize('update', $mailbox);
 
-        return view('mailboxes.connection_outgoing', compact('mailbox'));
+        /** @var view-string $viewName */
+        $viewName = 'mailboxes.connection_outgoing';
+        return view($viewName, compact('mailbox'));
     }
 
     /**
@@ -328,7 +338,9 @@ class MailboxController extends Controller
             ->orderBy('last_name')
             ->get();
 
-        return view('mailboxes.permissions', compact('mailbox', 'users'));
+        /** @var view-string $viewName */
+        $viewName = 'mailboxes.permissions';
+        return view($viewName, compact('mailbox', 'users'));
     }
 
     /**
@@ -363,7 +375,9 @@ class MailboxController extends Controller
     {
         $this->authorize('update', $mailbox);
 
-        return view('mailboxes.auto_reply', compact('mailbox'));
+        /** @var view-string $viewName */
+        $viewName = 'mailboxes.auto_reply';
+        return view($viewName, compact('mailbox'));
     }
 
     /**

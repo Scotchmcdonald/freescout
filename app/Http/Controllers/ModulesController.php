@@ -33,7 +33,9 @@ class ModulesController extends Controller
             ];
         }
 
-        return view('modules.index', [
+        /** @var view-string $viewName */
+        $viewName = 'modules.index';
+        return view($viewName, [
             'modules' => $modulesData,
         ]);
     }

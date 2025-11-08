@@ -24,7 +24,9 @@ class SettingsController extends Controller
     {
         $settings = Option::query()->pluck('value', 'name')->toArray();
 
-        return view('settings.index', compact('settings'));
+        /** @var view-string $viewName */
+        $viewName = 'settings.index';
+        return view($viewName, compact('settings'));
     }
 
     /**
@@ -70,7 +72,9 @@ class SettingsController extends Controller
             'mail_from_name',
         ])->pluck('value', 'name')->toArray();
 
-        return view('settings.email', compact('settings'));
+        /** @var view-string $viewName */
+        $viewName = 'settings.email';
+        return view($viewName, compact('settings'));
     }
 
     /**
@@ -120,7 +124,9 @@ class SettingsController extends Controller
             'session_driver' => config('session.driver'),
         ];
 
-        return view('settings.system', compact('settings'));
+        /** @var view-string $viewName */
+        $viewName = 'settings.system';
+        return view($viewName, compact('settings'));
     }
 
     /**

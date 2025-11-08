@@ -37,7 +37,9 @@ class ConversationController extends Controller
             ->orderBy('last_reply_at', 'desc')
             ->paginate(50);
 
-        return view('conversations.index', compact('conversations', 'mailbox'));
+        /** @var view-string $viewName */
+        $viewName = 'conversations.index';
+        return view($viewName, compact('conversations', 'mailbox'));
     }
 
     /**
@@ -83,7 +85,9 @@ class ConversationController extends Controller
             })
             ->get();
 
-        return view('conversations.show', compact('conversation', 'folders'));
+        /** @var view-string $viewName */
+        $viewName = 'conversations.show';
+        return view($viewName, compact('conversation', 'folders'));
     }
 
     /**
@@ -109,7 +113,9 @@ class ConversationController extends Controller
             })
             ->get();
 
-        return view('conversations.create', compact('mailbox', 'folders'));
+        /** @var view-string $viewName */
+        $viewName = 'conversations.create';
+        return view($viewName, compact('mailbox', 'folders'));
     }
 
     /**
@@ -376,7 +382,9 @@ class ConversationController extends Controller
             ->orderBy('last_reply_at', 'desc')
             ->paginate(50);
 
-        return view('conversations.search', compact('conversations', 'query'));
+        /** @var view-string $viewName */
+        $viewName = 'conversations.search';
+        return view($viewName, compact('conversations', 'query'));
     }
 
     /**

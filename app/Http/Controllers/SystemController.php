@@ -57,7 +57,9 @@ class SystemController extends Controller
             'max_execution_time' => ini_get('max_execution_time'),
         ];
 
-        return view('system.index', compact('stats', 'systemInfo'));
+        /** @var view-string $viewName */
+        $viewName = 'system.index';
+        return view($viewName, compact('stats', 'systemInfo'));
     }
 
     /**
@@ -264,6 +266,8 @@ class SystemController extends Controller
         
         $data['currentType'] = $type;
 
-        return view('system.logs', $data);
+        /** @var view-string $viewName */
+        $viewName = 'system.logs';
+        return view($viewName, $data);
     }
 }

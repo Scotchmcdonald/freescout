@@ -2,8 +2,8 @@
 
 namespace App\View\Components;
 
+use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
-use Illuminate\View\View;
 
 class AppLayout extends Component
 {
@@ -12,6 +12,8 @@ class AppLayout extends Component
      */
     public function render(): View
     {
-        return view('layouts.app');
+        /** @var view-string $viewName */
+        $viewName = 'layouts.app';
+        return view($viewName);
     }
 }

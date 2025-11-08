@@ -22,7 +22,9 @@ class UserController extends Controller
 
         $users = User::orderBy('created_at', 'desc')->paginate(50);
 
-        return view('users.index', compact('users'));
+        /** @var view-string $viewName */
+        $viewName = 'users.index';
+        return view($viewName, compact('users'));
     }
 
     /**
@@ -32,7 +34,9 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
 
-        return view('users.create');
+        /** @var view-string $viewName */
+        $viewName = 'users.create';
+        return view($viewName);
     }
 
     /**
@@ -73,7 +77,9 @@ class UserController extends Controller
 
         $user->load('mailboxes', 'conversations');
 
-        return view('users.show', compact('user'));
+        /** @var view-string $viewName */
+        $viewName = 'users.show';
+        return view($viewName, compact('user'));
     }
 
     /**
@@ -83,7 +89,9 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        return view('users.edit', compact('user'));
+        /** @var view-string $viewName */
+        $viewName = 'users.edit';
+        return view($viewName, compact('user'));
     }
 
     /**
@@ -189,16 +197,20 @@ class UserController extends Controller
                     ->limit(25)
                     ->get(['id', 'first_name', 'last_name', 'email', 'photo_url']);
 
+                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users */
+                $mappedUsers = [];
+                foreach ($users as $user) {
+                    $mappedUsers[] = [
+                        'id' => $user->id,
+                        'name' => $user->getFullName(),
+                        'email' => $user->email,
+                        'photo_url' => $user->photo_url,
+                    ];
+                }
+                
                 return response()->json([
                     'success' => true,
-                    'users' => $users->map(function ($user) {
-                        return [
-                            'id' => $user->id,
-                            'name' => $user->getFullName(),
-                            'email' => $user->email,
-                            'photo_url' => $user->photo_url,
-                        ];
-                    }),
+                    'users' => $mappedUsers,
                 ]);
 
             case 'toggle_status':

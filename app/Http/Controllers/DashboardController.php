@@ -55,7 +55,9 @@ class DashboardController extends Controller
             ];
         }
 
-        return view('dashboard', compact(
+        /** @var view-string $viewName */
+        $viewName = 'dashboard';
+        return view($viewName, compact(
             'user',
             'mailboxes',
             'activeConversations',

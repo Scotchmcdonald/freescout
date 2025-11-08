@@ -37,7 +37,9 @@ class CustomerController extends Controller
 
         $customers = $query->orderBy('created_at', 'desc')->paginate(50);
 
-        return view('customers.index', compact('customers'));
+        /** @var view-string $viewName */
+        $viewName = 'customers.index';
+        return view($viewName, compact('customers'));
     }
 
     /**
@@ -76,7 +78,9 @@ class CustomerController extends Controller
     {
         $customer->load('conversations.mailbox', 'conversations.folder');
 
-        return view('customers.show', compact('customer'));
+        /** @var view-string $viewName */
+        $viewName = 'customers.show';
+        return view($viewName, compact('customer'));
     }
 
     /**
@@ -84,7 +88,9 @@ class CustomerController extends Controller
      */
     public function edit(Customer $customer): View
     {
-        return view('customers.edit', compact('customer'));
+        /** @var view-string $viewName */
+        $viewName = 'customers.edit';
+        return view($viewName, compact('customer'));
     }
 
     /**

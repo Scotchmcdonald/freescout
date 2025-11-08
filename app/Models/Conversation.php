@@ -39,6 +39,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $last_reply
  * @property \Illuminate\Support\Carbon|null $last_reply_at
  * @property int|null $last_reply_from
+ * @property array|null $read_by_user
+ * @property array|null $meta
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * 
