@@ -1,7 +1,2 @@
 Note: Using configuration file /home/runner/work/freescout/freescout/phpstan.neon.
-   0/102 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%
- 102/102 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100%
-
-
- [OK] No errors                                                                 
-
+Exception thrown in /home/runner/work/freescout/freescout/vendor/laravel/framework/src/Illuminate/Foundation/PackageManifest.php on line 179 while loading bootstrap file /home/runner/work/freescout/freescout/vendor/larastan/larastan/bootstrap.php: The /home/runner/work/freescout/freescout/bootstrap/cache directory must be present and writable.
