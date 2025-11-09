@@ -29,7 +29,7 @@ class CustomerController extends Controller
                 $q->where('first_name', 'like', "%{$searchTerm}%")
                     ->orWhere('last_name', 'like', "%{$searchTerm}%")
                     ->orWhereHas('emails', function ($q) use ($searchTerm) {
-                        // @phpstan-ignore-next-line - Closure receives Builder, not HasMany
+                        // @phpstan-ignore-next-line
                         $q->where('email', 'like', "%{$searchTerm}%");
                     });
             });
@@ -190,7 +190,7 @@ class CustomerController extends Controller
                         $q->where('first_name', 'like', "%{$searchQuery}%")
                             ->orWhere('last_name', 'like', "%{$searchQuery}%")
                             ->orWhereHas('emails', function ($q) use ($searchQuery) {
-                                // @phpstan-ignore-next-line - Closure receives Builder, not HasMany
+                                // @phpstan-ignore-next-line
                                 $q->where('email', 'like', "%{$searchQuery}%");
                             });
                     })
@@ -199,8 +199,7 @@ class CustomerController extends Controller
                     ->get();
 
                 return response()->json([
-                    'results' => $customers->map(function ($customer) {
-                        /** @var \App\Models\Customer $customer */
+                    'results' => $customers->map(function (\App\Models\Customer $customer) {
                         return [
                             'id' => $customer->id,
                             'text' => $customer->getFullName() . ' (' . $customer->getMainEmail() . ')',

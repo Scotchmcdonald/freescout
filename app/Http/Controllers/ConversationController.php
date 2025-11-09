@@ -78,9 +78,7 @@ class ConversationController extends Controller
         // Get folders for sidebar
         $folders = $conversation->mailbox->folders()
             ->where(function ($query) use ($user) {
-                // @phpstan-ignore-next-line - Closure receives Builder, not HasMany
                 $query->whereNull('user_id')
-                    // @phpstan-ignore-next-line - Folder model has user_id as property
                     ->orWhere('user_id', $user->id);
             })
             ->get();
@@ -106,9 +104,7 @@ class ConversationController extends Controller
         // Get folders
         $folders = $mailbox->folders()
             ->where(function ($query) use ($user) {
-                // @phpstan-ignore-next-line - Closure receives Builder, not HasMany
                 $query->whereNull('user_id')
-                    // @phpstan-ignore-next-line - Folder model has user_id as property
                     ->orWhere('user_id', $user->id);
             })
             ->get();
@@ -170,7 +166,6 @@ class ConversationController extends Controller
             $number = (is_int($maxNumber) ? $maxNumber : 0) + 1;
 
             // Get default folder
-            // @phpstan-ignore-next-line - HasMany returns Builder for query operations
             $folder = $mailbox->folders()->where('type', 1)->first(); // Inbox type
 
             if (!$folder) {
@@ -375,9 +370,9 @@ class ConversationController extends Controller
                 $q->where('subject', 'like', "%{$searchQuery}%")
                     ->orWhere('preview', 'like', "%{$searchQuery}%")
                     ->orWhereHas('customer', function ($customerQuery) use ($searchQuery) {
-                        // @phpstan-ignore-next-line - Closure receives Builder, Customer model properties accessed
+                        // @phpstan-ignore-next-line
                         $customerQuery->where('first_name', 'like', "%{$searchQuery}%")
-                            // @phpstan-ignore-next-line - Customer model has last_name property
+                            // @phpstan-ignore-next-line
                             ->orWhere('last_name', 'like', "%{$searchQuery}%");
                     });
             });

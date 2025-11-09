@@ -857,7 +857,6 @@ class ImapService
 
         foreach ($separators as $separator) {
             $parts = preg_split('/'.preg_quote($separator, '/').'/i', $body);
-            // @phpstan-ignore-next-line - preg_split returns array|list<string>|false, count() handles all
             if ($parts !== false && count($parts) > 1) {
                 // Check if the part before the separator has actual content
                 if (trim(strip_tags($parts[0]))) {

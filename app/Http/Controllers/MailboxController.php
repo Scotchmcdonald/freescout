@@ -46,10 +46,8 @@ class MailboxController extends Controller
         }
 
         // Get conversations for this mailbox
-        // @phpstan-ignore-next-line - HasMany returns Builder for query operations
         $conversations = $mailbox->conversations()
             ->with(['customer', 'user', 'folder'])
-            // @phpstan-ignore-next-line - Conversation model has state property
             ->where('state', 2) // Published
             ->orderBy('last_reply_at', 'desc')
             ->paginate(50);
