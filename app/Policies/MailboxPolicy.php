@@ -16,16 +16,20 @@ class MailboxPolicy
     /**
      * Determine whether the user can view any mailboxes.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
-        return true; // All authenticated users can view mailboxes
+        return $user !== null; // All authenticated users can view mailboxes
     }
 
     /**
      * Determine whether the user can view the mailbox.
      */
-    public function view(User $user, Mailbox $mailbox): bool
+    public function view(?User $user, Mailbox $mailbox): bool
     {
+        if ($user === null) {
+            return false;
+        }
+
         if ($user->isAdmin()) {
             return true;
         }
@@ -41,16 +45,20 @@ class MailboxPolicy
     /**
      * Determine whether the user can create mailboxes.
      */
-    public function create(User $user): bool
+    public function create(?User $user): bool
     {
-        return $user->isAdmin();
+        return $user?->isAdmin() ?? false;
     }
 
     /**
      * Determine whether the user can update the mailbox.
      */
-    public function update(User $user, Mailbox $mailbox): bool
+    public function update(?User $user, Mailbox $mailbox): bool
     {
+        if ($user === null) {
+            return false;
+        }
+
         if ($user->isAdmin()) {
             return true;
         }
@@ -66,32 +74,36 @@ class MailboxPolicy
     /**
      * Determine whether the user can delete the mailbox.
      */
-    public function delete(User $user, Mailbox $mailbox): bool
+    public function delete(?User $user, Mailbox $mailbox): bool
     {
-        return $user->isAdmin();
+        return $user?->isAdmin() ?? false;
     }
 
     /**
      * Determine whether the user can restore the mailbox.
      */
-    public function restore(User $user, Mailbox $mailbox): bool
+    public function restore(?User $user, Mailbox $mailbox): bool
     {
-        return $user->isAdmin();
+        return $user?->isAdmin() ?? false;
     }
 
     /**
      * Determine whether the user can permanently delete the mailbox.
      */
-    public function forceDelete(User $user, Mailbox $mailbox): bool
+    public function forceDelete(?User $user, Mailbox $mailbox): bool
     {
-        return $user->isAdmin();
+        return $user?->isAdmin() ?? false;
     }
 
     /**
      * Determine whether the user can reply to conversations in the mailbox.
      */
-    public function reply(User $user, Mailbox $mailbox): bool
+    public function reply(?User $user, Mailbox $mailbox): bool
     {
+        if ($user === null) {
+            return false;
+        }
+
         if ($user->isAdmin()) {
             return true;
         }

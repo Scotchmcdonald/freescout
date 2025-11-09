@@ -39,7 +39,7 @@ Running PHPStan level 1: ....
 Running PHPStan level 1: .....
 Running PHPStan level 1:    
 Running PHPStan level 1: .  
-Running PHPStan level 1: found 1 errors
+Running PHPStan level 1: found 0 errors
 Running PHPStan level 2:    
 Running PHPStan level 2: .  
 Running PHPStan level 2: .. 
@@ -60,7 +60,7 @@ Running PHPStan level 2: ....
 Running PHPStan level 2: .....
 Running PHPStan level 2:    
 Running PHPStan level 2: .  
-Running PHPStan level 2: found 5 errors
+Running PHPStan level 2: found 2 errors
 Running PHPStan level 3:    
 Running PHPStan level 3: .  
 Running PHPStan level 3: .. 
@@ -81,7 +81,7 @@ Running PHPStan level 3: ....
 Running PHPStan level 3: .....
 Running PHPStan level 3:    
 Running PHPStan level 3: .  
-Running PHPStan level 3: found 9 errors
+Running PHPStan level 3: found 2 errors
 Running PHPStan level 4:    
 Running PHPStan level 4: .  
 Running PHPStan level 4: .. 
@@ -102,7 +102,7 @@ Running PHPStan level 4: ....
 Running PHPStan level 4: .....
 Running PHPStan level 4:    
 Running PHPStan level 4: .  
-Running PHPStan level 4: found 20 errors
+Running PHPStan level 4: found 7 errors
 Running PHPStan level 5:    
 Running PHPStan level 5: .  
 Running PHPStan level 5: .. 
@@ -123,7 +123,7 @@ Running PHPStan level 5: ....
 Running PHPStan level 5: .....
 Running PHPStan level 5:    
 Running PHPStan level 5: .  
-Running PHPStan level 5: found 28 errors
+Running PHPStan level 5: found 9 errors
 Running PHPStan level 6:    
 Running PHPStan level 6: .  
 Running PHPStan level 6: .. 
@@ -144,7 +144,7 @@ Running PHPStan level 6: ....
 Running PHPStan level 6: .....
 Running PHPStan level 6:    
 Running PHPStan level 6: .  
-Running PHPStan level 6: found 85 errors
+Running PHPStan level 6: found 54 errors
 Running PHPStan level 7:    
 Running PHPStan level 7: .  
 Running PHPStan level 7: .. 
@@ -165,7 +165,7 @@ Running PHPStan level 7: ....
 Running PHPStan level 7: .....
 Running PHPStan level 7:    
 Running PHPStan level 7: .  
-Running PHPStan level 7: found 85 errors
+Running PHPStan level 7: found 54 errors
 Running PHPStan level 8:    
 Running PHPStan level 8: .  
 Running PHPStan level 8: .. 
@@ -186,19 +186,19 @@ Running PHPStan level 8: ....
 Running PHPStan level 8: .....
 Running PHPStan level 8:    
 Running PHPStan level 8: .  
-Running PHPStan level 8: found 85 errors
+Running PHPStan level 8: found 54 errors
 
 
 +-------+-------------+-----------+
 | Level | Error count | Increment |
 +-------+-------------+-----------+
 |     0 |           0 |         - |
-|     1 |           1 |       + 1 |
-|     2 |           5 |       + 4 |
-|     3 |           9 |       + 4 |
-|     4 |          20 |      + 11 |
-|     5 |          28 |       + 8 |
-|     6 |          85 |      + 57 |
-|     7 |          85 |         - |
-|     8 |          85 |         - |
+|     1 |           0 |         - |
+|     2 |           2 |       + 2 |
+|     3 |           2 |         - |
+|     4 |           7 |       + 5 |
+|     5 |           9 |       + 2 |
+|     6 |          54 |      + 45 |
+|     7 |          54 |         - |
+|     8 |          54 |         - |
 +-------+-------------+-----------+

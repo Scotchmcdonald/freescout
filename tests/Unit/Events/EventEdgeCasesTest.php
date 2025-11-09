@@ -21,19 +21,19 @@ class EventEdgeCasesTest extends TestCase
     public function test_new_message_received_event_with_null_preview()
     {
         $thread = Thread::factory()->create(['body' => '']);
-        $event = new NewMessageReceived($thread);
+        $event = new NewMessageReceived($thread, $thread->conversation);
         
         $this->assertNotNull($event->thread);
-        $this->assertEquals('', $event->preview);
+        $this->assertEquals('', $event->broadcastWith()['preview']);
     }
 
     public function test_new_message_received_event_with_very_long_body()
     {
         $longBody = str_repeat('a', 500);
         $thread = Thread::factory()->create(['body' => $longBody]);
-        $event = new NewMessageReceived($thread);
+        $event = new NewMessageReceived($thread, $thread->conversation);
         
-        $this->assertEquals(100, strlen($event->preview));
+        $this->assertEquals(100, strlen($event->broadcastWith()['preview']));
     }
 
     public function test_conversation_updated_event_with_minimal_data()
@@ -50,11 +50,10 @@ class EventEdgeCasesTest extends TestCase
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create(['user_id' => null]);
         
-        $event = new UserViewingConversation($user, $conversation);
+        $event = new UserViewingConversation($conversation->id, $user);
         
         $this->assertNotNull($event->user);
-        $this->assertNotNull($event->conversation);
-        $this->assertNull($event->conversation->user_id);
+        $this->assertEquals($conversation->id, $event->conversationId);
     }
 
     public function test_event_listeners_are_registered()
@@ -66,7 +65,7 @@ class EventEdgeCasesTest extends TestCase
         ]);
         
         $thread = Thread::factory()->create();
-        event(new NewMessageReceived($thread));
+        event(new NewMessageReceived($thread, $thread->conversation));
         
         Event::assertDispatched(NewMessageReceived::class);
     }
@@ -74,7 +73,7 @@ class EventEdgeCasesTest extends TestCase
     public function test_events_can_be_serialized()
     {
         $thread = Thread::factory()->create();
-        $event = new NewMessageReceived($thread);
+        $event = new NewMessageReceived($thread, $thread->conversation);
         
         $serialized = serialize($event);
         $unserialized = unserialize($serialized);
@@ -90,9 +89,9 @@ class EventEdgeCasesTest extends TestCase
         $conversation = Conversation::factory()->create();
         $user = User::factory()->create();
         
-        event(new NewMessageReceived($thread));
+        event(new NewMessageReceived($thread, $thread->conversation));
         event(new ConversationUpdated($conversation));
-        event(new UserViewingConversation($user, $conversation));
+        event(new UserViewingConversation($conversation->id, $user));
         
         Event::assertDispatched(NewMessageReceived::class);
         Event::assertDispatched(ConversationUpdated::class);
@@ -102,11 +101,11 @@ class EventEdgeCasesTest extends TestCase
     public function test_event_broadcast_data_is_array()
     {
         $thread = Thread::factory()->create();
-        $event = new NewMessageReceived($thread);
+        $event = new NewMessageReceived($thread, $thread->conversation);
         
         $broadcastData = $event->broadcastWith();
         
         $this->assertIsArray($broadcastData);
-        $this->assertArrayHasKey('thread', $broadcastData);
+        $this->assertArrayHasKey('thread_id', $broadcastData);
     }
 }

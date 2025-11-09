@@ -354,11 +354,10 @@ class ConversationController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
-        $query = $request->input('q', '');
-        $searchQuery = is_string($query) ? $query : '';
+        $searchQuery = $request->input('q', '');
 
-        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Conversation> $query */
-        $query = Conversation::query()
+        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Conversation> $queryBuilder */
+        $queryBuilder = Conversation::query()
             ->whereIn(
                 'mailbox_id',
                 $user->isAdmin()
@@ -377,14 +376,14 @@ class ConversationController extends Controller
                     });
             });
         
-        $conversations = $query
+        $conversations = $queryBuilder
             ->with(['mailbox', 'customer', 'user', 'folder'])
             ->orderBy('last_reply_at', 'desc')
             ->paginate(50);
 
         /** @var view-string $viewName */
         $viewName = 'conversations.search';
-        return view($viewName, compact('conversations', 'query'));
+        return view($viewName, ['conversations' => $conversations, 'query' => $searchQuery]);
     }
 
     /**

@@ -23,7 +23,7 @@ class UserControllerTest extends TestCase
 
     public function test_index_requires_authentication(): void
     {
-        $response = $this->get(route('users'));
+        $response = $this->get(route('users.index'));
 
         $response->assertRedirect(route('login'));
     }
@@ -32,7 +32,7 @@ class UserControllerTest extends TestCase
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
-        $response = $this->actingAs($admin)->get(route('users'));
+        $response = $this->actingAs($admin)->get(route('users.index'));
 
         $response->assertStatus(200);
     }
@@ -41,7 +41,7 @@ class UserControllerTest extends TestCase
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
-        $response = $this->actingAs($user)->get(route('users'));
+        $response = $this->actingAs($user)->get(route('users.index'));
 
         $response->assertStatus(403);
     }
@@ -69,7 +69,8 @@ class UserControllerTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
         $response = $this->actingAs($user)->post(route('users.store'), [
-            'name' => 'New User',
+            'first_name' => 'New',
+            'last_name' => 'User',
             'email' => 'newuser@example.com',
             'password' => 'password',
         ]);
@@ -82,15 +83,18 @@ class UserControllerTest extends TestCase
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
         $response = $this->actingAs($admin)->post(route('users.store'), [
-            'name' => 'Test User',
+            'first_name' => 'Test',
+            'last_name' => 'User',
             'email' => 'testuser@example.com',
             'password' => 'SecurePass123!',
             'password_confirmation' => 'SecurePass123!',
             'role' => User::ROLE_USER,
+            'status' => User::STATUS_ACTIVE,
         ]);
 
         $this->assertDatabaseHas('users', [
-            'name' => 'Test User',
+            'first_name' => 'Test',
+            'last_name' => 'User',
             'email' => 'testuser@example.com',
         ]);
     }
@@ -130,7 +134,8 @@ class UserControllerTest extends TestCase
         $targetUser = User::factory()->create();
 
         $response = $this->actingAs($user)->put(route('users.update', $targetUser), [
-            'name' => 'Updated Name',
+            'first_name' => 'Updated',
+            'last_name' => 'Name',
         ]);
 
         $response->assertStatus(403);
@@ -139,16 +144,20 @@ class UserControllerTest extends TestCase
     public function test_update_modifies_user_data(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        $user = User::factory()->create(['name' => 'Original Name']);
+        $user = User::factory()->create(['first_name' => 'Original', 'last_name' => 'Name']);
 
         $response = $this->actingAs($admin)->put(route('users.update', $user), [
-            'name' => 'Updated Name',
+            'first_name' => 'Updated',
+            'last_name' => 'Name',
             'email' => $user->email,
+            'role' => $user->role,
+            'status' => $user->status,
         ]);
 
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
-            'name' => 'Updated Name',
+            'first_name' => 'Updated',
+            'last_name' => 'Name',
         ]);
     }
 

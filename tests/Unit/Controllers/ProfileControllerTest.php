@@ -24,7 +24,8 @@ class ProfileControllerTest extends TestCase
     public function test_update_modifies_profile_data()
     {
         $user = User::factory()->create([
-            'name' => 'Old Name',
+            'first_name' => 'Old',
+            'last_name' => 'Name',
             'email' => 'old@example.com',
         ]);
         $this->actingAs($user);
@@ -81,7 +82,8 @@ class ProfileControllerTest extends TestCase
     public function test_update_preserves_unchanged_fields()
     {
         $user = User::factory()->create([
-            'name' => 'Test User',
+            'first_name' => 'Test',
+            'last_name' => 'User',
             'email' => 'test@example.com',
         ]);
         $this->actingAs($user);

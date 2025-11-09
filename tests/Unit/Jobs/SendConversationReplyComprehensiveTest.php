@@ -22,7 +22,7 @@ class SendConversationReplyComprehensiveTest extends TestCase
         $conversation = Conversation::factory()->create(['subject' => 'Test Subject']);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user);
+        $job = new SendConversationReply($conversation, $thread, $user->email);
 
         $this->assertEquals($conversation->id, $job->conversation->id);
         $this->assertEquals('Test Subject', $job->conversation->subject);
@@ -37,7 +37,7 @@ class SendConversationReplyComprehensiveTest extends TestCase
             'body' => 'Test reply body',
         ]);
 
-        $job = new SendConversationReply($conversation, $thread, $user);
+        $job = new SendConversationReply($conversation, $thread, $user->email);
 
         $this->assertEquals($thread->id, $job->thread->id);
         $this->assertEquals('Test reply body', $job->thread->body);
@@ -49,10 +49,9 @@ class SendConversationReplyComprehensiveTest extends TestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user);
+        $job = new SendConversationReply($conversation, $thread, $user->email);
 
-        $this->assertEquals($user->id, $job->user->id);
-        $this->assertEquals('agent@example.com', $job->user->email);
+        $this->assertEquals($user->email, $job->recipientEmail);
     }
 
     public function test_job_can_be_dispatched_to_queue(): void
@@ -63,7 +62,7 @@ class SendConversationReplyComprehensiveTest extends TestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        SendConversationReply::dispatch($conversation, $thread, $user);
+        SendConversationReply::dispatch($conversation, $thread, $user->email);
 
         Queue::assertPushed(SendConversationReply::class);
     }
@@ -74,7 +73,7 @@ class SendConversationReplyComprehensiveTest extends TestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user);
+        $job = new SendConversationReply($conversation, $thread, $user->email);
 
         $reflection = new \ReflectionClass($job);
         $property = $reflection->getProperty('conversation');
@@ -88,7 +87,7 @@ class SendConversationReplyComprehensiveTest extends TestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user);
+        $job = new SendConversationReply($conversation, $thread, $user->email);
 
         $reflection = new \ReflectionClass($job);
         $property = $reflection->getProperty('thread');
@@ -102,10 +101,10 @@ class SendConversationReplyComprehensiveTest extends TestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user);
+        $job = new SendConversationReply($conversation, $thread, $user->email);
 
         $reflection = new \ReflectionClass($job);
-        $property = $reflection->getProperty('user');
+        $property = $reflection->getProperty('recipientEmail');
 
         $this->assertTrue($property->isPublic());
     }
@@ -116,11 +115,11 @@ class SendConversationReplyComprehensiveTest extends TestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user);
+        $job = new SendConversationReply($conversation, $thread, $user->email);
 
         $this->assertNotNull($job->conversation);
         $this->assertNotNull($job->thread);
-        $this->assertNotNull($job->user);
+        $this->assertNotNull($job->recipientEmail);
     }
 
     public function test_job_thread_belongs_to_conversation(): void
@@ -129,7 +128,7 @@ class SendConversationReplyComprehensiveTest extends TestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user);
+        $job = new SendConversationReply($conversation, $thread, $user->email);
 
         $this->assertEquals($job->conversation->id, $job->thread->conversation_id);
     }

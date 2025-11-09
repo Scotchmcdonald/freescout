@@ -17,7 +17,8 @@ class RegistrationTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('auth.register');
         $response->assertSee('Register');
-        $response->assertSee('Name');
+        $response->assertSee('First Name');
+        $response->assertSee('Last Name');
         $response->assertSee('Email');
         $response->assertSee('Password');
     }
@@ -25,7 +26,8 @@ class RegistrationTest extends TestCase
     public function test_new_users_can_register(): void
     {
         $response = $this->post('/register', [
-            'name' => 'Test User',
+            'first_name' => 'Test',
+            'last_name' => 'User',
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',

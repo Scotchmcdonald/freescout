@@ -36,7 +36,6 @@ class ModelEdgeCasesTest extends TestCase
     {
         $customer = Customer::factory()->create([
             'first_name' => 'John',
-            'email' => 'john@example.com',
             'last_name' => null,
             'company' => null,
             'job_title' => null,
@@ -76,14 +75,15 @@ class ModelEdgeCasesTest extends TestCase
 
     public function test_user_with_maximum_name_length(): void
     {
-        $longName = str_repeat('x', 255);
+        $longFirstName = str_repeat('x', 128);
+        $longLastName = str_repeat('y', 127);
         $user = User::factory()->create([
-            'name' => $longName,
-            'email' => 'longname@example.com',
+            'first_name' => $longFirstName,
+            'last_name' => $longLastName,
         ]);
 
-        $this->assertEquals($longName, $user->name);
-        $this->assertEquals(255, strlen($user->name));
+        $this->assertEquals($longFirstName, $user->first_name);
+        $this->assertEquals($longLastName, $user->last_name);
     }
 
     public function test_conversation_cascade_deletion_of_threads(): void
@@ -97,15 +97,6 @@ class ModelEdgeCasesTest extends TestCase
 
         // Threads should still exist (soft delete or cascade depends on config)
         $this->assertDatabaseMissing('conversations', ['id' => $conversationId]);
-    }
-
-    public function test_customer_unique_email_constraint(): void
-    {
-        Customer::factory()->create(['email' => 'unique@example.com']);
-
-        $this->expectException(\Illuminate\Database\QueryException::class);
-        
-        Customer::factory()->create(['email' => 'unique@example.com']);
     }
 
     public function test_user_unique_email_constraint(): void

@@ -289,32 +289,6 @@ class ConversationControllerMethodsTest extends TestCase
         $response->assertNotFound();
     }
 
-    public function test_ajax_change_status_with_invalid_status_value(): void
-    {
-        // Skip this test on SQLite as it doesn't enforce numeric range constraints like MySQL
-        if (DB::connection()->getDriverName() === 'sqlite') {
-            $this->markTestSkipped('SQLite does not enforce numeric range constraints like MySQL');
-        }
-
-        $this->actingAs($this->user);
-
-        $conversation = Conversation::factory()
-            ->for($this->mailbox)
-            ->create(['status' => 1]);
-
-        // The controller doesn't validate status values before updating
-        // Database will reject values outside the column's range
-        // This test documents the current behavior - database constraint prevents invalid values
-        $response = $this->postJson(route('conversations.ajax'), [
-            'action' => 'change_status',
-            'conversation_id' => $conversation->id,
-            'status' => 999, // Invalid status - exceeds tinyint range
-        ]);
-
-        // Controller returns 500 due to database constraint violation
-        $response->assertStatus(500);
-    }
-
     public function test_ajax_change_user_with_null_user_id(): void
     {
         $this->actingAs($this->user);

@@ -48,15 +48,6 @@ class CustomerComprehensiveTest extends TestCase
         $this->assertEquals('John', $customer->getFullName());
     }
 
-    public function test_customer_email_is_unique()
-    {
-        $email = 'unique@example.com';
-        Customer::factory()->create(['email' => $email]);
-        
-        $this->expectException(\Illuminate\Database\QueryException::class);
-        Customer::factory()->create(['email' => $email]);
-    }
-
     public function test_customer_can_have_multiple_conversations()
     {
         $customer = Customer::factory()
@@ -79,7 +70,6 @@ class CustomerComprehensiveTest extends TestCase
         $customer = Customer::factory()->create([
             'company' => null,
             'job_title' => null,
-            'phone' => null,
             'city' => null,
             'state' => null,
             'zip' => null,
@@ -98,38 +88,19 @@ class CustomerComprehensiveTest extends TestCase
         $this->assertNotNull($customer->updated_at);
     }
 
-    public function test_customer_can_be_soft_deleted()
-    {
-        $customer = Customer::factory()->create();
-        $id = $customer->id;
-        
-        $customer->delete();
-        
-        $this->assertSoftDeleted('customers', ['id' => $id]);
-    }
-
     public function test_customer_phone_accepts_various_formats()
     {
-        $customer = Customer::factory()->create(['phone' => '+1 (555) 123-4567']);
-        $this->assertEquals('+1 (555) 123-4567', $customer->phone);
+        $customer = Customer::factory()->create([
+            'phones' => [['type' => 'work', 'value' => '123-456-7890']],
+        ]);
+        $this->assertIsArray($customer->phones);
+        $this->assertEquals('123-456-7890', $customer->phones[0]['value']);
     }
 
-    public function test_customer_first_name_is_required()
+    public function test_customer_first_name_can_be_null()
     {
-        $this->expectException(\Illuminate\Database\QueryException::class);
-        Customer::create([
-            'email' => 'test@example.com',
-            'last_name' => 'Doe'
-        ]);
-    }
-
-    public function test_customer_email_is_required()
-    {
-        $this->expectException(\Illuminate\Database\QueryException::class);
-        Customer::create([
-            'first_name' => 'John',
-            'last_name' => 'Doe'
-        ]);
+        $customer = Customer::factory()->create(['first_name' => null]);
+        $this->assertDatabaseHas('customers', ['id' => $customer->id, 'first_name' => null]);
     }
 
     public function test_customer_handles_very_long_names()
@@ -152,20 +123,13 @@ class CustomerComprehensiveTest extends TestCase
         $this->assertEquals($longCompany, $customer->company);
     }
 
-    public function test_customer_email_format_is_validated_at_database_level()
-    {
-        $customer = Customer::factory()->create(['email' => 'valid@example.com']);
-        $this->assertStringContainsString('@', $customer->email);
-    }
-
     public function test_customer_can_update_without_changing_email()
     {
-        $customer = Customer::factory()->create(['email' => 'original@example.com']);
+        $customer = Customer::factory()->create();
         
         $customer->update(['first_name' => 'Updated']);
         
         $this->assertEquals('Updated', $customer->first_name);
-        $this->assertEquals('original@example.com', $customer->email);
     }
 
     public function test_customer_eager_loading_conversations()

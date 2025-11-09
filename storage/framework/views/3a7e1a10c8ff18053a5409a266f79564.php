@@ -158,7 +158,7 @@
                         </div>
                         
                         <div class="mt-6 flex justify-end gap-3">
-                            <a href="<?php echo e(route('users')); ?>" 
+                            <a href="<?php echo e(route('users.index')); ?>" 
                                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                                 <?php echo e(__('Cancel')); ?>
 

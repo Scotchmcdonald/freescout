@@ -31,21 +31,24 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Split name into first_name and last_name
-        $name = $request->input('name');
-        $nameParts = explode(' ', is_string($name) ? $name : '', 2);
+        $firstName = $request->input('first_name');
+        $lastName = $request->input('last_name');
+        $name = trim((is_string($firstName) ? $firstName : '').' '.(is_string($lastName) ? $lastName : ''));
 
         $password = $request->input('password');
         $email = $request->input('email');
         /** @var \App\Models\User $user */
         $user = User::create([
-            'first_name' => $nameParts[0],
-            'last_name' => $nameParts[1] ?? '',
+            // Keep legacy `name` column populated for consumers/tests that expect it
+            'name' => $name,
+            'first_name' => is_string($firstName) ? $firstName : '',
+            'last_name' => is_string($lastName) ? $lastName : '',
             'email' => is_string($email) ? $email : '',
             'password' => Hash::make(is_string($password) ? $password : ''),
             'role' => User::ROLE_USER,

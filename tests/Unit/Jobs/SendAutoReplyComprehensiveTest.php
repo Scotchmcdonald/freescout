@@ -22,8 +22,8 @@ class SendAutoReplyComprehensiveTest extends TestCase
     {
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id, 'customer_id' => $customer->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id, 'customer_id' => $customer->id]);
 
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 
@@ -35,10 +35,11 @@ class SendAutoReplyComprehensiveTest extends TestCase
     {
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create();
+        $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
-            'type' => Thread::TYPE_CUSTOMER,
+            'type' => 4, // Customer message
+            'customer_id' => $customer->id,
         ]);
 
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
@@ -51,8 +52,8 @@ class SendAutoReplyComprehensiveTest extends TestCase
     {
         $mailbox = Mailbox::factory()->create(['name' => 'Support Mailbox']);
         $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create();
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id, 'customer_id' => $customer->id]);
 
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 
@@ -63,14 +64,13 @@ class SendAutoReplyComprehensiveTest extends TestCase
     public function test_job_stores_customer_correctly(): void
     {
         $mailbox = Mailbox::factory()->create();
-        $customer = Customer::factory()->create(['email' => 'customer@example.com']);
-        $conversation = Conversation::factory()->create();
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id, 'customer_id' => $customer->id]);
 
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 
         $this->assertEquals($customer->id, $job->customer->id);
-        $this->assertEquals('customer@example.com', $job->customer->email);
     }
 
     public function test_job_can_be_dispatched_to_queue(): void
@@ -79,8 +79,8 @@ class SendAutoReplyComprehensiveTest extends TestCase
 
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create();
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id, 'customer_id' => $customer->id]);
 
         SendAutoReply::dispatch($conversation, $thread, $mailbox, $customer);
 
@@ -91,8 +91,8 @@ class SendAutoReplyComprehensiveTest extends TestCase
     {
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create();
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id, 'customer_id' => $customer->id]);
 
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 
@@ -106,8 +106,8 @@ class SendAutoReplyComprehensiveTest extends TestCase
     {
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create();
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id, 'customer_id' => $customer->id]);
 
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 
@@ -121,8 +121,8 @@ class SendAutoReplyComprehensiveTest extends TestCase
     {
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create();
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id, 'customer_id' => $customer->id]);
 
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 
@@ -136,8 +136,8 @@ class SendAutoReplyComprehensiveTest extends TestCase
     {
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create();
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id, 'customer_id' => $customer->id]);
 
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 

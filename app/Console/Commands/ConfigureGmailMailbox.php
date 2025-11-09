@@ -27,9 +27,15 @@ class ConfigureGmailMailbox extends Command
     public function handle(): int
     {
         $mailboxId = $this->argument('mailbox_id');
-        
+
+        if (! is_numeric($mailboxId)) {
+            $this->error("Mailbox with ID {$mailboxId} not found!");
+
+            return 1;
+        }
+
         // Ensure mailboxId is an integer
-        $mailboxIdInt = is_numeric($mailboxId) ? (int) $mailboxId : 0;
+        $mailboxIdInt = (int) $mailboxId;
 
         /** @var \App\Models\Mailbox|null $mailbox */
         $mailbox = Mailbox::find($mailboxIdInt);

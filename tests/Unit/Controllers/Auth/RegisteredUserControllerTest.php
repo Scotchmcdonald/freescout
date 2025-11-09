@@ -23,33 +23,49 @@ class RegisteredUserControllerTest extends TestCase
     public function test_store_creates_user_with_valid_data()
     {
         $response = $this->post(route('register'), [
-            'name' => 'John Doe',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
 
         $this->assertDatabaseHas('users', [
-            'name' => 'John Doe',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
             'email' => 'john@example.com',
         ]);
     }
 
-    public function test_store_validates_name_required()
+    public function test_store_validates_first_name_required()
     {
         $response = $this->post(route('register'), [
+            'last_name' => 'Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertSessionHasErrors('name');
+        $response->assertSessionHasErrors('first_name');
+    }
+
+    public function test_store_validates_last_name_required()
+    {
+        $response = $this->post(route('register'), [
+            'first_name' => 'John',
+            'email' => 'john@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ]);
+
+        $response->assertSessionHasErrors('last_name');
     }
 
     public function test_store_validates_email_required()
     {
         $response = $this->post(route('register'), [
-            'name' => 'John Doe',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ]);
@@ -62,7 +78,8 @@ class RegisteredUserControllerTest extends TestCase
         User::factory()->create(['email' => 'john@example.com']);
 
         $response = $this->post(route('register'), [
-            'name' => 'John Doe',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
@@ -74,7 +91,8 @@ class RegisteredUserControllerTest extends TestCase
     public function test_store_validates_password_required()
     {
         $response = $this->post(route('register'), [
-            'name' => 'John Doe',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
             'email' => 'john@example.com',
         ]);
 
@@ -84,7 +102,8 @@ class RegisteredUserControllerTest extends TestCase
     public function test_store_validates_password_confirmed()
     {
         $response = $this->post(route('register'), [
-            'name' => 'John Doe',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
             'password_confirmation' => 'different',
@@ -96,7 +115,8 @@ class RegisteredUserControllerTest extends TestCase
     public function test_store_auto_logs_in_user_after_registration()
     {
         $this->post(route('register'), [
-            'name' => 'John Doe',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
@@ -108,7 +128,8 @@ class RegisteredUserControllerTest extends TestCase
     public function test_store_hashes_password()
     {
         $this->post(route('register'), [
-            'name' => 'John Doe',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
             'email' => 'john@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
