@@ -185,6 +185,7 @@ class CustomerController extends Controller
                 $query = $request->input('q', '');
                 $searchQuery = is_string($query) ? $query : '';
 
+                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Customer> $customers */
                 $customers = Customer::query()
                     ->where(function ($q) use ($searchQuery) {
                         $q->where('first_name', 'like', "%{$searchQuery}%")

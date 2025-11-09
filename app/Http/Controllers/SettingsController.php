@@ -245,6 +245,8 @@ class SettingsController extends Controller
 
     /**
      * Update .env file with new values.
+     * 
+     * @param array<string, mixed> $data
      */
     protected function updateEnvFile(array $data): void
     {

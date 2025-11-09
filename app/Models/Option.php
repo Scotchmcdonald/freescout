@@ -7,6 +7,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder<Option> whereIn(string $column, mixed $values)
+ * @method static Option updateOrCreate(array $attributes, array $values = [])
+ */
 class Option extends Model
 {
     use HasFactory;
