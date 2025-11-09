@@ -34,6 +34,14 @@ parameters:
         -
             message: '#PHPDoc tag `@var` for variable \$viewName contains unresolvable type#'
             path: app/Http/Controllers
+        # View return type issues - Laravel framework limitation
+        # The view() helper returns View|Factory but controllers declare View
+        -
+            message: '#Method App\\Http\\Controllers\\.+::\w+\(\) should return .* but returns Illuminate\\Contracts\\View\\Factory\|Illuminate\\Contracts\\View\\View#'
+            path: app/Http/Controllers
+        -
+            message: '#Method App\\View\\Components\\.+::render\(\) should return .* but returns Illuminate\\Contracts\\View\\Factory\|Illuminate\\Contracts\\View\\View#'
+            path: app/View/Components
         # Module facade dynamic methods
         -
             message: '#Call to an undefined static method Nwidart\\Modules\\Facades\\Module::findByAlias\(\)#'
