@@ -25,6 +25,9 @@ class ActivityLog extends Model
         'batch_uuid',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
@@ -63,19 +66,23 @@ class ActivityLog extends Model
 
     /**
      * Scope to filter by log name.
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog> $query
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>
      */
     public function scopeInLog(\Illuminate\Database\Eloquent\Builder $query, string $logName): \Illuminate\Database\Eloquent\Builder
     {
-        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog> $query */
         return $query->where('log_name', $logName);
     }
 
     /**
      * Scope to filter by causer.
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog> $query
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>
      */
     public function scopeCausedBy(\Illuminate\Database\Eloquent\Builder $query, Model $causer): \Illuminate\Database\Eloquent\Builder
     {
-        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog> $query */
         return $query->where('causer_type', get_class($causer))
             ->where('causer_id', $causer->getKey());
     }

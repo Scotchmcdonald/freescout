@@ -49,8 +49,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\User|null $user
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
  * 
- * @method static \Illuminate\Database\Eloquent\Builder|Conversation create(array $attributes = [])
- * @mixin \Illuminate\Database\Eloquent\Builder
+ * @method static \Illuminate\Database\Eloquent\Builder<Conversation>|Conversation create(array<string, mixed> $attributes = [])
+ * @mixin \Illuminate\Database\Eloquent\Builder<Conversation>
  */
 class Conversation extends Model
 {
@@ -100,6 +100,9 @@ class Conversation extends Model
         'meta',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
@@ -208,6 +211,8 @@ class Conversation extends Model
 
     /**
      * Get the folders this conversation belongs to.
+     * 
+     * @return BelongsToMany<Folder, $this>
      */
     public function folders(): BelongsToMany
     {

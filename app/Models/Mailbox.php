@@ -52,10 +52,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Folder> $folders
  * 
- * @method static \Illuminate\Database\Eloquent\Builder|Mailbox find(int $id, array $columns = ['*'])
- * @method static \Illuminate\Database\Eloquent\Builder|Mailbox where(string $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
- * @method static \Illuminate\Database\Eloquent\Builder|Mailbox whereNotNull(string $column, string $boolean = 'and')
- * @mixin \Illuminate\Database\Eloquent\Builder
+ * @method static \Illuminate\Database\Eloquent\Builder<Mailbox>|Mailbox find(int $id, array<int, string> $columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder<Mailbox>|Mailbox where(string $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder<Mailbox>|Mailbox whereNotNull(string $column, string $boolean = 'and')
+ * @mixin \Illuminate\Database\Eloquent\Builder<Mailbox>
  */
 class Mailbox extends Model
 {
@@ -101,6 +101,9 @@ class Mailbox extends Model
         'meta',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
@@ -163,7 +166,7 @@ class Mailbox extends Model
      * Get the "From" name and email for outgoing mail.
      * 
      * @param User|null $user User sending the email (optional)
-     * @return array ['address' => string, 'name' => string]
+     * @return array{address: string, name: string}
      */
     public function getMailFrom(?User $user = null): array
     {

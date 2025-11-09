@@ -43,8 +43,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \App\Models\Customer|null $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Attachment> $attachments
  * 
- * @method static \Illuminate\Database\Eloquent\Builder|Thread create(array $attributes = [])
- * @mixin \Illuminate\Database\Eloquent\Builder
+ * @method static \Illuminate\Database\Eloquent\Builder<Thread>|Thread create(array<string, mixed> $attributes = [])
+ * @mixin \Illuminate\Database\Eloquent\Builder<Thread>
  */
 class Thread extends Model
 {
@@ -77,6 +77,9 @@ class Thread extends Model
         'has_attachments',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [

@@ -34,8 +34,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Email> $emails
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
  * 
- * @method static \Illuminate\Database\Eloquent\Builder|Customer findOrFail(int $id, array $columns = ['*'])
- * @mixin \Illuminate\Database\Eloquent\Builder
+ * @method static \Illuminate\Database\Eloquent\Builder<Customer>|Customer findOrFail(int $id, array<int, string> $columns = ['*'])
+ * @mixin \Illuminate\Database\Eloquent\Builder<Customer>
  */
 class Customer extends Model
 {
@@ -61,6 +61,9 @@ class Customer extends Model
         'notes',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [

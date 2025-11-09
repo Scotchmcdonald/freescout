@@ -30,6 +30,9 @@ class Channel extends Model
         'active',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
@@ -43,6 +46,8 @@ class Channel extends Model
 
     /**
      * Get the customers using this channel.
+     * 
+     * @return BelongsToMany<Customer, $this>
      */
     public function customers(): BelongsToMany
     {

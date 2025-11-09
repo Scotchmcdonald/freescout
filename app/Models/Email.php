@@ -28,6 +28,9 @@ class Email extends Model
         'type',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [

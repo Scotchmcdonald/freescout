@@ -36,6 +36,9 @@ class Attachment extends Model
         'embedded',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [

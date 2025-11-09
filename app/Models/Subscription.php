@@ -18,6 +18,9 @@ class Subscription extends Model
         'event',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
@@ -31,6 +34,8 @@ class Subscription extends Model
 
     /**
      * Get the user that owns the subscription.
+     * 
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

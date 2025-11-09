@@ -38,8 +38,8 @@ use Illuminate\Notifications\Notifiable;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
  * 
- * @method static \Illuminate\Database\Eloquent\Builder|User create(array $attributes = [])
- * @mixin \Illuminate\Database\Eloquent\Builder
+ * @method static \Illuminate\Database\Eloquent\Builder<User>|User create(array<string, mixed> $attributes = [])
+ * @mixin \Illuminate\Database\Eloquent\Builder<User>
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -92,6 +92,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the attributes that should be cast.
+     * 
+     * @return array<string, string>
      */
     protected function casts(): array
     {
@@ -163,6 +165,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the subscriptions for this user.
+     * 
+     * @return HasMany<Subscription, $this>
      */
     public function subscriptions(): HasMany
     {

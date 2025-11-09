@@ -49,6 +49,9 @@ class Folder extends Model
         'meta',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
