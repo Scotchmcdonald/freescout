@@ -48,48 +48,48 @@ if is_selected "phpstan-bodyscan"; then
         echo "### Detailed Errors by Level" >> $REPORT_FILE
         echo "" >> $REPORT_FILE
         
-        # Find the highest level with errors from bodyscan summary
-        HIGHEST_LEVEL=0
-        HIGHEST_ERROR_COUNT=0
+        # Always run bodyscan at level 9 (maximum strictness)
+        BODYSCAN_LEVEL=9
+        
+        # Extract error count at level 9 from bodyscan summary
+        LEVEL_9_ERROR_COUNT=0
         while IFS='|' read -r _ level errors _; do
             level=$(echo "$level" | xargs)
             errors=$(echo "$errors" | xargs)
-            if [[ "$level" =~ ^[0-9]+$ ]] && [[ "$errors" =~ ^[0-9]+$ ]] && [ "$errors" -gt 0 ]; then
-                if [ "$errors" -gt "$HIGHEST_ERROR_COUNT" ]; then
-                    HIGHEST_LEVEL=$level
-                    HIGHEST_ERROR_COUNT=$errors
-                fi
+            if [[ "$level" == "9" ]] && [[ "$errors" =~ ^[0-9]+$ ]]; then
+                LEVEL_9_ERROR_COUNT=$errors
+                break
             fi
         done < <(grep "|" "$REPORT_DIR/phpstan-bodyscan.log" | tail -10)
         
-        if [ "$HIGHEST_ERROR_COUNT" -gt 0 ]; then
-            echo "Running bare PHPStan analysis at level $HIGHEST_LEVEL (highest failing level with $HIGHEST_ERROR_COUNT errors)..." >&2
+        if [ "$LEVEL_9_ERROR_COUNT" -gt 0 ] || [ "$LEVEL_9_ERROR_COUNT" -eq 0 ]; then
+            echo "Running bare PHPStan analysis at level $BODYSCAN_LEVEL (maximum strictness - $LEVEL_9_ERROR_COUNT errors detected)..." >&2
             echo "" >> $REPORT_FILE
-            echo "**Note:** Bodyscan runs PHPStan in bare mode (no config ignores) to show all potential issues." >> $REPORT_FILE
+            echo "**Note:** Bodyscan runs PHPStan at level 9 in bare mode (no config ignores) to show all potential issues." >> $REPORT_FILE
             echo "" >> $REPORT_FILE
             
-            # Create a minimal bare config without ignores
+            # Create a minimal bare config without ignores at level 9
             cat > /tmp/phpstan-bare.neon << 'BAREEOF'
 parameters:
-    level: 6
+    level: 9
     paths:
         - /var/www/html/app
 BAREEOF
             
-            # Run PHPStan with bare config
-            ERROR_OUTPUT=$(vendor/bin/phpstan analyse -c /tmp/phpstan-bare.neon --memory-limit=2G --error-format=table --level=$HIGHEST_LEVEL --no-progress --no-ansi 2>&1 || true)
+            # Run PHPStan with bare config at level 9
+            ERROR_OUTPUT=$(vendor/bin/phpstan analyse -c /tmp/phpstan-bare.neon --memory-limit=2G --error-format=table --level=9 --no-progress --no-ansi 2>&1 || true)
             
             if echo "$ERROR_OUTPUT" | grep -q "Line"; then
-                echo "#### Level $HIGHEST_LEVEL - Detailed Errors (Bare Analysis)" >> $REPORT_FILE
+                echo "#### Level 9 - Detailed Errors (Bare Analysis)" >> $REPORT_FILE
                 echo "" >> $REPORT_FILE
                 echo "\`\`\`" >> $REPORT_FILE
-                # Show first 150 lines of errors (approximately 30-40 errors with context)
+                # Show first 150 lines of errors (approximately 30-40 errors)
                 echo "$ERROR_OUTPUT" | head -150 >> $REPORT_FILE
                 echo "\`\`\`" >> $REPORT_FILE
                 echo "" >> $REPORT_FILE
                 
-                if [ "$HIGHEST_ERROR_COUNT" -gt 40 ]; then
-                    echo "*(Showing first ~40 errors of $HIGHEST_ERROR_COUNT total - run full bodyscan for complete list)*" >> $REPORT_FILE
+                if [ "$LEVEL_9_ERROR_COUNT" -gt 40 ]; then
+                    echo "*(Showing first ~40 errors of $LEVEL_9_ERROR_COUNT total - run full bodyscan for complete list)*" >> $REPORT_FILE
                     echo "" >> $REPORT_FILE
                 fi
             else
