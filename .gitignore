@@ -40,3 +40,5 @@ Thumbs.db
 /resources/lang/module.*
 .phpunit.result.cache
 /.phpunit.cache
+/database/database.sqlite
+/bootstrap/cache/*
