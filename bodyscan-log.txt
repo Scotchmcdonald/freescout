@@ -144,3 +144,21 @@ Project directory "/home/runner/work/freescout/freescout" - PHPStan level 7: 85 
 
 Project directory "/home/runner/work/freescout/freescout" - PHPStan level 8: 85 errors
 
+Project directory "/home/runner/work/freescout/freescout" - PHPStan level 0: 0 errors
+
+Project directory "/home/runner/work/freescout/freescout" - PHPStan level 1: 1 errors
+
+Project directory "/home/runner/work/freescout/freescout" - PHPStan level 2: 5 errors
+
+Project directory "/home/runner/work/freescout/freescout" - PHPStan level 3: 9 errors
+
+Project directory "/home/runner/work/freescout/freescout" - PHPStan level 4: 20 errors
+
+Project directory "/home/runner/work/freescout/freescout" - PHPStan level 5: 28 errors
+
+Project directory "/home/runner/work/freescout/freescout" - PHPStan level 6: 85 errors
+
+Project directory "/home/runner/work/freescout/freescout" - PHPStan level 7: 85 errors
+
+Project directory "/home/runner/work/freescout/freescout" - PHPStan level 8: 85 errors
+

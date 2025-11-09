@@ -4,9 +4,9 @@
    PASS  Tests\Unit\ActivityLogModelTest
   ✓ model can be instantiated                                            0.18s  
   ✓ model has fillable attributes                                        0.01s  
-  ✓ properties cast to json                                              0.02s  
+  ✓ properties cast to json                                              0.03s  
   ✓ scope in log filters by log name                                     0.02s  
-  ✓ scope caused by filters by causer                                    0.05s  
+  ✓ scope caused by filters by causer                                    0.04s  
   ✓ scope for subject filters by subject                                 0.03s  
   ✓ user method returns user when causer is user                         0.01s  
   ✓ user method returns null when causer is not user                     0.02s  
@@ -17,20 +17,20 @@
   ✓ activity log with null batch uuid                                    0.01s  
   ✓ activity log with batch uuid                                         0.01s  
   ✓ multiple activity logs for same subject                              0.02s  
-  ✓ scope filters can be combined                                        0.02s  
+  ✓ scope filters can be combined                                        0.03s  
   ✓ created at and updated at cast to datetime                           0.01s  
 
    PASS  Tests\Unit\AttachmentModelTest
-  ✓ model can be instantiated                                            0.03s  
+  ✓ model can be instantiated                                            0.04s  
   ✓ model has fillable attributes                                        0.01s  
-  ✓ filename size and mime type are stored                               0.02s  
-  ✓ embedded cast to boolean                                             0.04s  
+  ✓ filename size and mime type are stored                               0.03s  
+  ✓ embedded cast to boolean                                             0.05s  
   ✓ image mime types can be detected                                     0.04s  
-  ✓ is image method works                                                0.06s  
-  ✓ belongs to thread                                                    0.03s  
+  ✓ is image method works                                                0.04s  
+  ✓ belongs to thread                                                    0.02s  
 
    PASS  Tests\Unit\ChannelModelTest
-  ✓ model can be instantiated                                            0.02s  
+  ✓ model can be instantiated                                            0.01s  
   ✓ model has fillable attributes                                        0.01s  
 
    PASS  Tests\Unit\ConversationModelTest
@@ -46,15 +46,15 @@
   ✓ conversation has preview                                             0.01s  
   ✓ conversation has last reply at                                       0.01s  
   ✓ conversation has closed at                                           0.01s  
-  ✓ is active returns true for active status                             0.02s  
+  ✓ is active returns true for active status                             0.03s  
   ✓ is active returns false for non active status                        0.03s  
-  ✓ is closed returns true for closed status                             0.03s  
-  ✓ is closed returns false for non closed status                        0.07s  
-  ✓ cc and bcc cast to json                                              0.06s  
-  ✓ imported and has attachments cast to boolean                         0.06s  
-  ✓ update folder assigns correct folder for active assigned conversati… 0.04s  
-  ✓ update folder assigns correct folder for active unassigned conversa… 0.05s  
-  ✓ update folder assigns correct folder for closed conversation         0.03s  
+  ✓ is closed returns true for closed status                             0.02s  
+  ✓ is closed returns false for non closed status                        0.04s  
+  ✓ cc and bcc cast to json                                              0.03s  
+  ✓ imported and has attachments cast to boolean                         0.05s  
+  ✓ update folder assigns correct folder for active assigned conversati… 0.03s  
+  ✓ update folder assigns correct folder for active unassigned conversa… 0.04s  
+  ✓ update folder assigns correct folder for closed conversation         0.04s  
   ✓ update folder assigns correct folder for spam conversation           0.03s  
   ✓ update folder keeps folder when no matching folder exists            0.03s  
   ✓ conversation with null cc and bcc                                    0.03s  
@@ -63,12 +63,12 @@
   ✓ conversation status spam                                             0.03s  
   ✓ conversation with null user id is unassigned                         0.03s  
   ✓ conversation number is integer                                       0.03s  
-  ✓ conversation threads count is integer                                0.06s  
+  ✓ conversation threads count is integer                                0.03s  
 
    PASS  Tests\Unit\CustomerControllerTest
   ✓ controller can be instantiated                                       0.07s  
   ✓ index method exists                                                  0.01s  
-  ✓ show method exists                                                   0.01s  
+  ✓ show method exists                                                   0.02s  
   ✓ edit method exists                                                   0.01s  
   ✓ update method exists                                                 0.01s  
 
@@ -80,13 +80,13 @@
   ✓ customer get full name with both names                               0.01s  
   ✓ customer get full name with only first name                          0.01s  
   ✓ customer get full name with only last name                           0.01s  
-  ✓ customer has notes attribute                                         0.02s  
-  ✓ customer has address attribute                                       0.01s  
-  ✓ customer has city attribute                                          0.02s  
+  ✓ customer has notes attribute                                         0.01s  
+  ✓ customer has address attribute                                       0.02s  
+  ✓ customer has city attribute                                          0.03s  
   ✓ customer has conversations relationship                              0.05s  
-  ✓ customer full name accessor works                                    0.02s  
+  ✓ customer full name accessor works                                    0.01s  
   ✓ customer full name accessor trims whitespace                         0.01s  
-  ✓ customer has emails relationship                                     0.02s  
+  ✓ customer has emails relationship                                     0.03s  
   ✓ customer get main email returns primary email                        0.02s  
   ✓ customer get main email returns first email if no primary            0.02s  
   ✓ customer get main email returns null when no emails                  0.02s  
@@ -96,7 +96,7 @@
   ✓ customer get first name returns actual value                         0.01s  
   ✓ customer primary email attribute returns primary email               0.02s  
   ✓ customer primary email attribute returns null when no primary        0.02s  
-  ✓ customer casts attributes correctly                                  0.01s  
+  ✓ customer casts attributes correctly                                  0.03s  
   ✓ customer fillable includes all expected fields                       0.01s  
 
    PASS  Tests\Unit\DashboardControllerTest
@@ -106,37 +106,37 @@
    PASS  Tests\Unit\EmailModelEnhancedTest
   ✓ email has customer relationship                                      0.02s  
   ✓ email is primary returns true for type 1                             0.01s  
-  ✓ email is primary returns false for type 2                            0.01s  
-  ✓ email is secondary returns true for type 2                           0.01s  
-  ✓ email is secondary returns false for type 1                          0.01s  
+  ✓ email is primary returns false for type 2                            0.02s  
+  ✓ email is secondary returns true for type 2                           0.03s  
+  ✓ email is secondary returns false for type 1                          0.03s  
   ✓ email sanitize converts mixed case to lowercase                      0.03s  
-  ✓ email sanitize removes trailing dots                                 0.03s  
+  ✓ email sanitize removes trailing dots                                 0.02s  
   ✓ email sanitize removes dots before at symbol                         0.01s  
   ✓ email sanitize preserves dots in local part                          0.01s  
   ✓ email sanitize returns false for missing at symbol                   0.01s  
   ✓ email sanitize returns false for empty string                        0.01s  
   ✓ email sanitize returns false for null                                0.01s  
-  ✓ email sanitize accepts valid simple email                            0.02s  
-  ✓ email sanitize accepts email with subdomain                          0.03s  
-  ✓ email sanitize accepts email with plus sign                          0.03s  
-  ✓ email sanitize accepts email with numbers                            0.03s  
-  ✓ email sanitize accepts email with hyphen                             0.03s  
-  ✓ email sanitize accepts email with underscore                         0.03s  
-  ✓ email sanitize returns false for only at symbol                      0.03s  
-  ✓ email sanitize returns false for at at start                         0.03s  
-  ✓ email sanitize returns false for at at end                           0.03s  
-  ✓ email casts attributes correctly                                     0.02s  
-  ✓ email fillable includes expected fields                              0.01s  
-  ✓ email can be created with factory                                    0.02s  
-  ✓ email factory creates primary email by default                       0.04s  
-  ✓ email factory can create secondary email                             0.03s  
+  ✓ email sanitize accepts valid simple email                            0.01s  
+  ✓ email sanitize accepts email with subdomain                          0.01s  
+  ✓ email sanitize accepts email with plus sign                          0.01s  
+  ✓ email sanitize accepts email with numbers                            0.01s  
+  ✓ email sanitize accepts email with hyphen                             0.01s  
+  ✓ email sanitize accepts email with underscore                         0.01s  
+  ✓ email sanitize returns false for only at symbol                      0.01s  
+  ✓ email sanitize returns false for at at start                         0.01s  
+  ✓ email sanitize returns false for at at end                           0.01s  
+  ✓ email casts attributes correctly                                     0.03s  
+  ✓ email fillable includes expected fields                              0.03s  
+  ✓ email can be created with factory                                    0.03s  
+  ✓ email factory creates primary email by default                       0.02s  
+  ✓ email factory can create secondary email                             0.02s  
   ✓ email sanitize handles unicode characters                            0.01s  
   ✓ multiple emails can belong to same customer                          0.02s  
 
    PASS  Tests\Unit\EmailModelTest
-  ✓ email has email attribute                                            0.10s  
-  ✓ email has customer id attribute                                      0.02s  
-  ✓ email can set all attributes                                         0.01s  
+  ✓ email has email attribute                                            0.09s  
+  ✓ email has customer id attribute                                      0.03s  
+  ✓ email can set all attributes                                         0.02s  
 
    PASS  Tests\Unit\EventBroadcastingEnhancedTest
   ✓ new message received has correct properties                          0.02s  
@@ -150,21 +150,21 @@
   ✓ user viewing conversation broadcasts on presence channel             0.01s  
 
    PASS  Tests\Unit\EventBroadcastingTest
-  ✓ customer created conversation event dispatched                       0.12s  
+  ✓ customer created conversation event dispatched                       0.08s  
   ✓ customer replied event dispatched                                    0.04s  
   ✓ new message received event dispatched                                0.04s  
   ✓ event contains correct conversation data                             0.04s  
   ✓ event contains correct thread data                                   0.04s  
   ✓ multiple events can be dispatched                                    0.04s  
-  ✓ event not dispatched when not triggered                              0.08s  
-  ✓ event listeners are registered                                       0.01s  
-  ✓ customer created conversation event properties                       0.04s  
-  ✓ customer replied event properties                                    0.06s  
-  ✓ new message received event properties                                0.08s  
-  ✓ events can be serialized                                             0.04s  
+  ✓ event not dispatched when not triggered                              0.05s  
+  ✓ event listeners are registered                                       0.03s  
+  ✓ customer created conversation event properties                       0.06s  
+  ✓ customer replied event properties                                    0.05s  
+  ✓ new message received event properties                                0.04s  
+  ✓ events can be serialized                                             0.08s  
 
    PASS  Tests\Unit\EventsTest
-  ✓ conversation updated event has conversation                          0.04s  
+  ✓ conversation updated event has conversation                          0.03s  
   ✓ conversation updated broadcasts on correct channel                   0.01s  
   ✓ customer created conversation event has properties                   0.01s  
   ✓ customer replied event has thread                                    0.01s  
@@ -176,11 +176,11 @@
   ✓ deleting mailbox affects folders                                     0.03s  
   ✓ folder type constants are consistent                                 0.01s  
   ✓ folder can have zero conversations                                   0.02s  
-  ✓ folder counters can be updated                                       0.04s  
-  ✓ folder name is optional for system folders                           0.03s  
-  ✓ personal folder type can have user                                   0.05s  
-  ✓ multiple users can have personal folders in same mailbox             0.05s  
-  ✓ all folder type helper methods work                                  0.03s  
+  ✓ folder counters can be updated                                       0.02s  
+  ✓ folder name is optional for system folders                           0.02s  
+  ✓ personal folder type can have user                                   0.02s  
+  ✓ multiple users can have personal folders in same mailbox             0.03s  
+  ✓ all folder type helper methods work                                  0.07s  
   ✓ folder can store metadata                                            0.02s  
   ✓ starred folder type exists                                           0.02s  
   ✓ assigned folder type exists                                          0.02s  
@@ -206,11 +206,11 @@
   ✓ listener constructor no parameters                                   0.01s  
   ✓ listener class exists                                                0.01s  
   ✓ handle method signature                                              0.01s  
-  ✓ listener processes multiple events                                   0.07s  
+  ✓ listener processes multiple events                                   0.08s  
   ✓ listener handles event gracefully                                    0.04s  
   ✓ listener handles different thread types                              0.06s  
   ✓ listener handles rapid successive events                             0.11s  
-  ✓ listener is stateless                                                0.05s  
+  ✓ listener is stateless                                                0.06s  
   ✓ listener can be instantiated multiple times                          0.01s  
   ✓ listener handles events from different mailboxes                     0.09s  
 
@@ -247,7 +247,7 @@
   ✓ conversation reply notification envelope has subject                 0.05s  
   ✓ conversation reply notification envelope has from address            0.01s  
   ✓ conversation reply notification envelope has reply to address        0.01s  
-  ✓ conversation reply notification content returns markdown view        0.01s  
+  ✓ conversation reply notification content returns markdown view        0.02s  
   ✓ conversation reply notification content includes conversation        0.01s  
   ✓ conversation reply notification content includes thread              0.01s  
   ✓ conversation reply notification attachments returns empty array      0.01s  
@@ -299,12 +299,12 @@
   ✓ in protocol must be valid                                            0.01s  
   ✓ out method must be valid                                             0.01s  
   ✓ in encryption must be valid                                          0.01s  
-  ✓ out encryption must be valid                                         0.02s  
-  ✓ auto reply enabled must be boolean                                   0.01s  
+  ✓ out encryption must be valid                                         0.01s  
+  ✓ auto reply enabled must be boolean                                   0.02s  
   ✓ valid mailbox data passes validation                                 0.02s  
 
    PASS  Tests\Unit\MailboxModelTest
-  ✓ mailbox has name                                                     0.07s  
+  ✓ mailbox has name                                                     0.06s  
   ✓ mailbox has email                                                    0.01s  
   ✓ mailbox has from name                                                0.01s  
   ✓ mailbox has signature                                                0.01s  
@@ -318,7 +318,7 @@
   ✓ mailbox has status                                                   0.01s  
 
    PASS  Tests\Unit\MailboxPolicyTest
-  ✓ admin can view any mailboxes                                         0.03s  
+  ✓ admin can view any mailboxes                                         0.04s  
   ✓ non admin can view any mailboxes                                     0.01s  
   ✓ admin can create mailbox                                             0.01s  
   ✓ non admin cannot create mailbox                                      0.01s  
@@ -329,9 +329,16 @@
 
    PASS  Tests\Unit\MailboxScopesTest
   ✓ mailboxes can be filtered by user                                    0.05s  
-  ✓ admin users have access to all mailboxes                             0.03s  
+  ✓ admin users have access to all mailboxes                             0.04s  
   ✓ user with no mailboxes returns empty collection                      0.03s  
   ✓ mailboxes can be ordered by name                                     0.02s  
+
+   PASS  Tests\Unit\Middleware\EnsureUserIsAdminTest
+  ✓ admin user can pass through middleware                               0.02s  
+  ✓ non admin user is blocked                                            0.01s  
+  ✓ guest user is blocked                                                0.01s  
+  ✓ middleware passes request to next handler                            0.01s  
+  ✓ middleware validates user role strictly                              0.01s  
 
    PASS  Tests\Unit\ModelRelationshipsTest
   ✓ conversation belongs to mailbox                                      0.04s  
@@ -348,14 +355,14 @@
   ✓ conversation can be unassigned                                       0.03s  
   ✓ empty relationships return empty collections                         0.03s  
   ✓ mailbox user pivot data                                              0.02s  
-  ✓ conversation belongs to folder                                       0.04s  
+  ✓ conversation belongs to folder                                       0.03s  
   ✓ folder has many conversations                                        0.05s  
-  ✓ thread can belong to user                                            0.05s  
-  ✓ thread can belong to customer                                        0.04s  
+  ✓ thread can belong to user                                            0.07s  
+  ✓ thread can belong to customer                                        0.05s  
   ✓ mailbox deletion cascades to conversations                           0.04s  
   ✓ conversation deletion cascades to threads                            0.05s  
   ✓ conversation followers relationship                                  0.04s  
-  ✓ conversation belongs to many folders                                 0.07s  
+  ✓ conversation belongs to many folders                                 0.04s  
   ✓ conversation created by user relationship                            0.04s  
   ✓ conversation closed by user relationship                             0.04s  
   ✓ mailbox active conversations query                                   0.05s  
@@ -365,39 +372,39 @@
   ✓ conversation with null user relationship                             0.03s  
   ✓ conversation with null closed by user                                0.03s  
   ✓ activity log subject polymorphic with different models               0.04s  
-  ✓ mailbox users detach                                                 0.03s  
-  ✓ mailbox users sync                                                   0.04s  
+  ✓ mailbox users detach                                                 0.02s  
+  ✓ mailbox users sync                                                   0.03s  
   ✓ orphaned threads handling                                            0.04s  
   ✓ relationship counting without loading                                0.09s  
   ✓ relationship existence queries                                       0.07s  
-  ✓ relationship where has queries                                       0.06s  
+  ✓ relationship where has queries                                       0.07s  
 
    PASS  Tests\Unit\ModuleModelTest
   ✓ model can be instantiated                                            0.08s  
   ✓ model has fillable attributes                                        0.01s  
   ✓ active cast to boolean                                               0.02s  
-  ✓ description is stored                                                0.01s  
-  ✓ is active returns true when active                                   0.01s  
-  ✓ is active returns false when inactive                                0.01s  
+  ✓ description is stored                                                0.02s  
+  ✓ is active returns true when active                                   0.02s  
+  ✓ is active returns false when inactive                                0.02s  
   ✓ activate sets active to true                                         0.02s  
   ✓ deactivate sets active to false                                      0.02s  
-  ✓ activate already active module                                       0.01s  
-  ✓ deactivate already inactive module                                   0.01s  
-  ✓ module with null description                                         0.01s  
+  ✓ activate already active module                                       0.02s  
+  ✓ deactivate already inactive module                                   0.02s  
+  ✓ module with null description                                         0.02s  
   ✓ module alias is unique                                               0.02s  
   ✓ module version format                                                0.02s  
   ✓ created at and updated at timestamps                                 0.02s  
   ✓ module name and alias relationship                                   0.02s  
 
    PASS  Tests\Unit\OptionModelTest
-  ✓ model can be instantiated                                            0.09s  
-  ✓ model has fillable attributes                                        0.03s  
-  ✓ option can store key value pairs                                     0.04s  
-  ✓ option can retrieve value by name                                    0.02s  
+  ✓ model can be instantiated                                            0.07s  
+  ✓ model has fillable attributes                                        0.01s  
+  ✓ option can store key value pairs                                     0.01s  
+  ✓ option can retrieve value by name                                    0.01s  
   ✓ option returns default when key not found                            0.01s  
-  ✓ option can set value by name                                         0.03s  
-  ✓ option can update existing value                                     0.03s  
-  ✓ option can delete by name                                            0.02s  
+  ✓ option can set value by name                                         0.01s  
+  ✓ option can update existing value                                     0.01s  
+  ✓ option can delete by name                                            0.01s  
   ✓ option delete returns false when key not found                       0.01s  
 
    PASS  Tests\Unit\Providers\AppServiceProviderTest
@@ -406,8 +413,30 @@
   ✓ boot method executes without error                                   0.01s  
   ✓ service provider is loaded or deferred                               0.01s  
 
+   PASS  Tests\Unit\Requests\LoginRequestTest
+  ✓ login request authorization returns true                             0.02s  
+  ✓ login request validation rules                                       0.01s  
+  ✓ login request validates email format                                 0.01s  
+  ✓ login request requires email                                         0.01s  
+  ✓ login request requires password                                      0.01s  
+  ✓ login request accepts valid credentials                              0.02s  
+  ✓ throttle key is generated from email and ip                          0.03s  
+  ✓ throttle key lowercases email                                        0.03s  
+
+   PASS  Tests\Unit\Requests\ProfileUpdateRequestTest
+  ✓ profile update request validation rules                              0.04s  
+  ✓ name is required                                                     0.02s  
+  ✓ email is required                                                    0.02s  
+  ✓ email must be valid format                                           0.02s  
+  ✓ email must be unique except current user                             0.03s  
+  ✓ name is split into first and last name                               0.02s  
+  ✓ name split handles single name                                       0.02s  
+  ✓ name split handles multiple spaces                                   0.02s  
+  ✓ first name not overridden if provided                                0.02s  
+  ✓ last name can be nullable                                            0.02s  
+
    PASS  Tests\Unit\SendAutoReplyJobTest
-  ✓ job has required properties                                          0.02s  
+  ✓ job has required properties                                          0.03s  
   ✓ job has timeout property                                             0.01s  
   ✓ handle method exists                                                 0.01s  
   ✓ failed method exists                                                 0.01s  
@@ -420,50 +449,50 @@
   ✓ job has required properties                                          0.02s  
   ✓ job implements should queue                                          0.01s  
   ✓ job is dispatchable                                                  0.01s  
-  ✓ handle method exists                                                 0.01s  
-  ✓ job sends email to recipient                                         0.04s  
+  ✓ handle method exists                                                 0.05s  
+  ✓ job sends email to recipient                                         0.09s  
   ✓ job sends conversation reply notification                            0.04s  
   ✓ job can be dispatched                                                0.05s  
   ✓ job handles various email formats                                    0.04s  
-  ✓ job handles international domains                                    0.03s  
+  ✓ job handles international domains                                    0.04s  
   ✓ job uses queueable trait                                             0.01s  
-  ✓ job handles long email addresses                                     0.04s  
+  ✓ job handles long email addresses                                     0.05s  
   ✓ job properties are public                                            0.01s  
   ✓ multiple jobs can be dispatched                                      0.05s  
 
    PASS  Tests\Unit\SendLogModelTest
-  ✓ model can be instantiated                                            0.04s  
+  ✓ model can be instantiated                                            0.03s  
   ✓ model has fillable attributes                                        0.01s  
-  ✓ is sent returns true for sent status                                 0.08s  
-  ✓ is sent returns false for non sent status                            0.07s  
+  ✓ is sent returns true for sent status                                 0.04s  
+  ✓ is sent returns false for non sent status                            0.04s  
   ✓ is failed returns true for failed status                             0.04s  
   ✓ is failed returns false for non failed status                        0.04s  
-  ✓ mail type field exists                                               0.05s  
-  ✓ subject field exists                                                 0.05s  
+  ✓ mail type field exists                                               0.04s  
+  ✓ subject field exists                                                 0.04s  
   ✓ belongs to thread                                                    0.04s  
-  ✓ belongs to customer                                                  0.05s  
-  ✓ belongs to user                                                      0.05s  
-  ✓ send log with null customer id                                       0.07s  
+  ✓ belongs to customer                                                  0.04s  
+  ✓ belongs to user                                                      0.04s  
+  ✓ send log with null customer id                                       0.04s  
   ✓ send log with null user id                                           0.04s  
   ✓ send log with null status message                                    0.04s  
   ✓ send log with status message                                         0.04s  
   ✓ send log mail type values                                            0.09s  
-  ✓ send log status values                                               0.10s  
-  ✓ send log with smtp queue id                                          0.05s  
-  ✓ send log with null smtp queue id                                     0.05s  
-  ✓ multiple send logs for same thread                                   0.05s  
-  ✓ created at and updated at timestamps                                 0.04s  
+  ✓ send log status values                                               0.05s  
+  ✓ send log with smtp queue id                                          0.02s  
+  ✓ send log with null smtp queue id                                     0.02s  
+  ✓ multiple send logs for same thread                                   0.03s  
+  ✓ created at and updated at timestamps                                 0.02s  
 
    PASS  Tests\Unit\SettingsControllerTest
-  ✓ controller can be instantiated                                       0.05s  
+  ✓ controller can be instantiated                                       0.03s  
   ✓ index method exists                                                  0.01s  
   ✓ update method exists                                                 0.01s  
   ✓ email method exists                                                  0.01s  
-  ✓ settings controller validates company name                           0.02s  
-  ✓ settings controller validates next ticket number                     0.02s  
+  ✓ settings controller validates company name                           0.01s  
+  ✓ settings controller validates next ticket number                     0.01s  
   ✓ settings controller validates email driver                           0.01s  
   ✓ settings controller validates email address format                   0.01s  
-  ✓ settings controller validates mail port is integer                   0.01s  
+  ✓ settings controller validates mail port is integer                   0.02s  
   ✓ settings controller validates encryption type                        0.01s  
 
    PASS  Tests\Unit\SmtpServiceTest
@@ -480,15 +509,15 @@
   ✓ is browser returns false for non browser medium                      0.01s  
   ✓ is mobile returns true for mobile medium                             0.01s  
   ✓ is mobile returns false for non mobile medium                        0.01s  
-  ✓ belongs to user                                                      0.02s  
+  ✓ belongs to user                                                      0.01s  
   ✓ medium and event cast to integer                                     0.01s  
-  ✓ subscription medium edge case values                                 0.02s  
-  ✓ subscription with various event values                               0.02s  
+  ✓ subscription medium edge case values                                 0.01s  
+  ✓ subscription with various event values                               0.01s  
   ✓ multiple subscriptions for same user                                 0.01s  
   ✓ created at and updated at timestamps                                 0.01s  
 
    PASS  Tests\Unit\ThreadModelTest
-  ✓ thread has conversation id                                           0.04s  
+  ✓ thread has conversation id                                           0.02s  
   ✓ thread has user id                                                   0.01s  
   ✓ thread has customer id                                               0.01s  
   ✓ thread has type                                                      0.01s  
@@ -506,14 +535,14 @@
   ✓ is note returns false for non note type                              0.03s  
   ✓ to cc bcc cast to json                                               0.02s  
   ✓ meta cast to array                                                   0.02s  
-  ✓ belongs to conversation                                              0.02s  
-  ✓ belongs to created by user                                           0.02s  
-  ✓ belongs to edited by user                                            0.02s  
-  ✓ has many attachments                                                 0.02s  
+  ✓ belongs to conversation                                              0.03s  
+  ✓ belongs to created by user                                           0.03s  
+  ✓ belongs to edited by user                                            0.03s  
+  ✓ has many attachments                                                 0.03s  
   ✓ is bounce returns false when no bounce in meta                       0.02s  
   ✓ is bounce returns true when bounce in meta                           0.02s  
   ✓ is bounce returns false when bounce is false in meta                 0.02s  
-  ✓ is bounce handles null meta                                          0.02s  
+  ✓ is bounce handles null meta                                          0.04s  
   ✓ thread with null opened at                                           0.02s  
   ✓ thread with opened at datetime                                       0.02s  
   ✓ thread type constants                                                0.04s  
@@ -531,13 +560,13 @@
   ✓ deleted handles missing conversation                                 0.01s  
 
    PASS  Tests\Unit\UserModelBatch1Test
-  ✓ user has is admin method                                             0.03s  
+  ✓ user has is admin method                                             0.01s  
   ✓ user has is active method                                            0.01s  
   ✓ user has get full name method                                        0.01s  
   ✓ user get full name returns email when name empty                     0.01s  
   ✓ user has full name accessor                                          0.01s  
   ✓ user has name attribute accessor                                     0.01s  
-  ✓ user has mailboxes relationship                                      0.02s  
+  ✓ user has mailboxes relationship                                      0.01s  
   ✓ user has conversations relationship                                  0.02s  
   ✓ user has folders relationship                                        0.01s  
   ✓ user has followed conversations relationship                         0.01s  
@@ -550,7 +579,7 @@
    PASS  Tests\Unit\UserModelTest
   ✓ user is admin returns true for admin role                            0.02s  
   ✓ user is admin returns false for regular user                         0.01s  
-  ✓ user is active returns true for active status                        0.01s  
+  ✓ user is active returns true for active status                        0.02s  
   ✓ user is active returns false for inactive status                     0.01s  
   ✓ user get full name returns first and last name                       0.01s  
   ✓ user get full name returns email when no name                        0.01s  
@@ -570,9 +599,9 @@
 
    PASS  Tests\Feature\Auth\AuthenticationTest
   ✓ login screen can be rendered                                         0.04s  
-  ✓ users can authenticate using the login screen                        0.04s  
+  ✓ users can authenticate using the login screen                        0.02s  
   ✓ users can not authenticate with invalid password                     0.22s  
-  ✓ users can logout                                                     0.01s  
+  ✓ users can logout                                                     0.02s  
 
    PASS  Tests\Feature\Auth\EmailVerificationNotificationTest
   ✓ email verification notification can be sent                          0.02s  
@@ -585,9 +614,9 @@
   ✓ email is not verified with invalid hash                              0.02s  
 
    PASS  Tests\Feature\Auth\PasswordConfirmationTest
-  ✓ confirm password screen can be rendered                              0.02s  
-  ✓ password can be confirmed                                            0.02s  
-  ✓ password is not confirmed with invalid password                      0.22s  
+  ✓ confirm password screen can be rendered                              0.03s  
+  ✓ password can be confirmed                                            0.01s  
+  ✓ password is not confirmed with invalid password                      0.21s  
 
    PASS  Tests\Feature\Auth\PasswordResetTest
   ✓ reset password link screen can be rendered                           0.02s  
@@ -596,7 +625,7 @@
   ✓ password can be reset with valid token                               0.22s  
 
    PASS  Tests\Feature\Auth\PasswordUpdateTest
-  ✓ password can be updated                                              0.02s  
+  ✓ password can be updated                                              0.03s  
   ✓ correct password must be provided to update password                 0.02s  
 
    PASS  Tests\Feature\Auth\RegistrationTest
@@ -607,22 +636,22 @@
   ✓ guest can view login page                                            0.02s  
   ✓ user can successfully log in with valid credentials                  0.02s  
   ✓ authenticated user can log out                                       0.01s  
-  ✓ cannot log in with invalid credentials                               0.23s  
-  ✓ cannot log in with nonexistent email                                 0.21s  
+  ✓ cannot log in with invalid credentials                               0.22s  
+  ✓ cannot log in with nonexistent email                                 0.22s  
   ✓ login requires email                                                 0.01s  
   ✓ login requires password                                              0.01s  
 
    PASS  Tests\Feature\Commands\ConfigureGmailMailboxTest
-  ✓ command runs successfully with valid inputs                          0.07s  
-  ✓ command uses default mailbox id when not provided                    0.04s  
-  ✓ command fails with invalid mailbox id                                0.02s  
-  ✓ command rejects invalid email address                                0.03s  
-  ✓ command rejects empty password                                       0.04s  
-  ✓ command displays configuration summary                               0.07s  
-  ✓ command shows app password instructions                              0.08s  
-  ✓ command shows next steps after configuration                         0.07s  
-  ✓ command accepts various email formats                                0.08s  
-  ✓ command updates both incoming and outgoing settings                  0.06s  
+  ✓ command runs successfully with valid inputs                          0.05s  
+  ✓ command uses default mailbox id when not provided                    0.02s  
+  ✓ command fails with invalid mailbox id                                0.03s  
+  ✓ command rejects invalid email address                                0.02s  
+  ✓ command rejects empty password                                       0.02s  
+  ✓ command displays configuration summary                               0.04s  
+  ✓ command shows app password instructions                              0.07s  
+  ✓ command shows next steps after configuration                         0.06s  
+  ✓ command accepts various email formats                                0.07s  
+  ✓ command updates both incoming and outgoing settings                  0.04s  
   ✓ command handles email with special characters                        0.04s  
   ✓ command accepts password with whitespace                             0.04s  
   ✓ command handles non numeric mailbox id                               0.03s  
@@ -634,62 +663,62 @@
   ✓ command fetches from all mailboxes when no id specified              0.05s  
   ✓ command test mode only tests connection                              0.03s  
   ✓ command handles connection failure in test mode                      0.03s  
-  ✓ command warns when no mailboxes configured                           0.04s  
+  ✓ command warns when no mailboxes configured                           0.02s  
   ✓ command skips mailboxes without imap server                          0.03s  
   ✓ command handles errors during fetch                                  0.04s  
   ✓ command displays summary statistics                                  0.05s  
   ✓ command handles zero new emails                                      0.04s  
   ✓ command returns zero exit code on success                            0.03s  
   ✓ command with nonexistent mailbox id                                  0.02s  
-  ✓ command processes multiple mailboxes in sequence                     0.06s  
+  ✓ command processes multiple mailboxes in sequence                     0.07s  
   ✓ command handles exception from imap service                          0.03s  
   ✓ command test mode with multiple mailboxes                            0.04s  
   ✓ command skips summary in test mode                                   0.03s  
   ✓ command filters mailboxes with imap configuration                    0.05s  
   ✓ command displays empty line between mailboxes                        0.03s  
   ✓ command test mode with mixed connection results                      0.05s  
-  ✓ command handles large number of errors                               0.12s  
+  ✓ command handles large number of errors                               0.10s  
 
    PASS  Tests\Feature\Commands\TestEventSystemTest
   ✓ command fires events with existing conversation                      0.09s  
   ✓ command fails when no conversations exist                            0.03s  
-  ✓ command fails when conversation has no threads                       0.05s  
+  ✓ command fails when conversation has no threads                       0.06s  
   ✓ command fails when conversation has no customer                      0.04s  
-  ✓ command dispatches both events                                       0.06s  
+  ✓ command dispatches both events                                       0.05s  
   ✓ command displays customer email                                      0.06s  
   ✓ command uses first conversation with threads                         0.07s  
-  ✓ command loads conversation with relationships                        0.06s  
-  ✓ command outputs testing message                                      0.07s  
+  ✓ command loads conversation with relationships                        0.05s  
+  ✓ command outputs testing message                                      0.06s  
   ✓ command outputs log file location                                    0.06s  
   ✓ command with multiple threads in conversation                        0.06s  
   ✓ command handles invalid customer data gracefully                     0.04s  
   ✓ command fires both event types                                       0.06s  
-  ✓ command displays correct conversation id                             0.06s  
-  ✓ command displays customer main email                                 0.05s  
+  ✓ command displays correct conversation id                             0.05s  
+  ✓ command displays customer main email                                 0.07s  
   ✓ command works with minimal data setup                                0.06s  
   ✓ command eager loads required relationships                           0.05s  
   ✓ command selects first conversation when multiple exist               0.08s  
 
    PASS  Tests\Feature\CompleteWorkflowTest
-  ✓ full customer inquiry workflow                                       0.15s  
-  ✓ auto reply workflow                                                  0.05s  
-  ✓ conversation assignment workflow                                     0.09s  
+  ✓ full customer inquiry workflow                                       0.14s  
+  ✓ auto reply workflow                                                  0.04s  
+  ✓ conversation assignment workflow                                     0.08s  
   ✓ multi user collaboration workflow                                    0.09s  
   ✓ email threading workflow                                             0.09s  
-  ✓ attachment handling workflow                                         0.09s  
-  ✓ user authentication to conversation workflow                         0.15s  
+  ✓ attachment handling workflow                                         0.08s  
+  ✓ user authentication to conversation workflow                         0.13s  
   ✓ settings update affects system behavior                              0.10s  
-  ✓ conversation handles deleted customer gracefully                     0.63s  
+  ✓ conversation handles deleted customer gracefully                     0.65s  
   ✓ unassigned conversation can be claimed by any agent                  0.08s  
-  ✓ reply to closed conversation reopens it                              0.06s  
-  ✓ thread can handle multiple attachments                               0.08s  
-  ✓ conversation handles concurrent status updates                       0.07s  
+  ✓ reply to closed conversation reopens it                              0.05s  
+  ✓ thread can handle multiple attachments                               0.07s  
+  ✓ conversation handles concurrent status updates                       0.06s  
   ✓ conversation with empty thread body validation                       0.05s  
-  ✓ user loses mailbox access during workflow                            0.08s  
-  ✓ conversation list excludes draft conversations                       0.06s  
+  ✓ user loses mailbox access during workflow                            0.09s  
+  ✓ conversation list excludes draft conversations                       0.07s  
 
    PASS  Tests\Feature\ConversationAdvancedTest
-  ✓ conversation index shows only published conversations                0.13s  
+  ✓ conversation index shows only published conversations                0.11s  
   ✓ conversation index orders by most recent                             0.08s  
   ✓ viewing conversation marks notifications as read                     0.07s  
   ✓ conversation show loads threads in order                             0.09s  
@@ -697,21 +726,21 @@
   ✓ store uses existing customer                                         0.05s  
   ✓ store auto increments conversation number                            0.07s  
   ✓ store rolls back on error                                            0.04s  
-  ✓ update changes conversation status                                   0.06s  
-  ✓ update reassigns conversation                                        0.08s  
+  ✓ update changes conversation status                                   0.05s  
+  ✓ update reassigns conversation                                        0.05s  
   ✓ update moves conversation to folder                                  0.05s  
   ✓ reply creates thread and updates timestamps                          0.06s  
-  ✓ reply can update status to closed                                    0.06s  
+  ✓ reply can update status to closed                                    0.08s  
   ✓ reply returns json for ajax requests                                 0.08s  
   ✓ reply can create internal note                                       0.06s  
   ✓ search finds by subject                                              0.08s  
   ✓ search finds by customer name                                        0.07s  
   ✓ search only shows authorized mailboxes                               0.08s  
   ✓ admin search shows all mailboxes                                     0.08s  
-  ✓ search paginates results                                             0.92s  
+  ✓ search paginates results                                             0.90s  
 
    WARN  Tests\Feature\ConversationControllerMethodsTest
-  ✓ admin can view create conversation form                              0.11s  
+  ✓ admin can view create conversation form                              0.08s  
   ✓ non admin with mailbox access can view create form                   0.05s  
   ✓ user without mailbox access cannot view create form                  0.04s  
   ✓ guest cannot view create form                                        0.03s  
@@ -720,42 +749,42 @@
   ✓ ajax change folder moves conversation                                0.05s  
   ✓ ajax delete soft deletes conversation                                0.05s  
   ✓ ajax requires conversation id                                        0.03s  
-  ✓ ajax rejects invalid action                                          0.05s  
+  ✓ ajax rejects invalid action                                          0.04s  
   ✓ ajax unauthorized user gets forbidden                                0.05s  
   ✓ guest cannot clone conversation                                      0.05s  
-  ✓ ajax handles non existent conversation                               0.03s  
+  ✓ ajax handles non existent conversation                               0.04s  
   - ajax change status with invalid status value → SQLite does not enfo… 0.03s  
-  ✓ ajax change user with null user id                                   0.05s  
-  ✓ ajax change folder with non existent folder                          0.05s  
-  ✓ ajax with missing action parameter                                   0.04s  
+  ✓ ajax change user with null user id                                   0.07s  
+  ✓ ajax change folder with non existent folder                          0.06s  
+  ✓ ajax with missing action parameter                                   0.05s  
   ✓ ajax handles sql injection attempt                                   0.05s  
-  ✓ create form displays user folders only                               0.05s  
+  ✓ create form displays user folders only                               0.04s  
 
    PASS  Tests\Feature\ConversationControllerSecurityTest
-  ✓ guest cannot view conversations                                      0.06s  
-  ✓ user cannot view unauthorized mailbox conversations                  0.06s  
+  ✓ guest cannot view conversations                                      0.05s  
+  ✓ user cannot view unauthorized mailbox conversations                  0.05s  
   ✓ user cannot update conversation in unauthorized mailbox              0.05s  
   ✓ conversation search prevents sql injection                           0.06s  
   ✓ conversation subject sanitizes xss                                   0.05s  
-  ✓ conversation creation requires csrf token                            0.06s  
-  ✓ user cannot delete unauthorized conversation                         0.05s  
-  ✓ admin can access all conversations                                   0.04s  
+  ✓ conversation creation requires csrf token                            0.04s  
+  ✓ user cannot delete unauthorized conversation                         0.06s  
+  ✓ admin can access all conversations                                   0.05s  
 
    PASS  Tests\Feature\ConversationEdgeCasesTest
-  ✓ conversation with very long subject is handled                       0.06s  
-  ✓ conversation list with many conversations uses pagination            0.44s  
+  ✓ conversation with very long subject is handled                       0.08s  
+  ✓ conversation list with many conversations uses pagination            0.48s  
   ✓ conversation with no threads displays correctly                      0.06s  
   ✓ conversation status change validates values                          0.05s  
-  ✓ conversation list handles empty mailbox                              0.04s  
-  ✓ conversation with special characters in subject is escaped           0.06s  
-  ✓ conversation with closed status excludes from active list            0.07s  
-  ✓ guest cannot access conversation list                                0.03s  
+  ✓ conversation list handles empty mailbox                              0.03s  
+  ✓ conversation with special characters in subject is escaped           0.04s  
+  ✓ conversation with closed status excludes from active list            0.06s  
+  ✓ guest cannot access conversation list                                0.01s  
 
    PASS  Tests\Feature\ConversationReplyTest
-  ✓ user can reply to conversation                                       0.07s  
+  ✓ user can reply to conversation                                       0.04s  
   ✓ reply validates body is required                                     0.03s  
   ✓ reply can change conversation status                                 0.03s  
-  ✓ reply assigns conversation to replying user                          0.03s  
+  ✓ reply assigns conversation to replying user                          0.04s  
   ✓ unauthorized user cannot reply to conversation                       0.03s  
   ✓ guest cannot reply to conversation                                   0.03s  
   ✓ reply updates conversation timestamp                                 1.03s  
@@ -764,18 +793,18 @@
   ✓ unauthorized user cannot update conversation                         0.03s  
 
    PASS  Tests\Feature\ConversationTest
-  ✓ user can view conversations list                                     0.06s  
+  ✓ user can view conversations list                                     0.05s  
   ✓ user can create conversation                                         0.03s  
-  ✓ user can view conversation                                           0.04s  
-  ✓ user can reply to conversation                                       0.03s  
-  ✓ user can update conversation status                                  0.03s  
-  ✓ user can assign conversation                                         0.03s  
+  ✓ user can view conversation                                           0.06s  
+  ✓ user can reply to conversation                                       0.04s  
+  ✓ user can update conversation status                                  0.04s  
+  ✓ user can assign conversation                                         0.04s  
   ✓ user cannot view conversation in unauthorized mailbox                0.03s  
   ✓ conversation increments thread count                                 0.03s  
-  ✓ closed conversation shows correct badge                              0.03s  
+  ✓ closed conversation shows correct badge                              0.04s  
 
    PASS  Tests\Feature\ConversationValidationTest
-  ✓ conversation requires subject                                        0.03s  
+  ✓ conversation requires subject                                        0.05s  
   ✓ conversation requires body                                           0.02s  
   ✓ conversation validates email format                                  0.02s  
   ✓ conversation subject has reasonable length                           0.02s  
@@ -789,7 +818,7 @@
    PASS  Tests\Feature\CustomerAjaxTest
   ✓ ajax search returns matching customers by first name                 0.03s  
   ✓ ajax search returns matching customers by last name                  0.02s  
-  ✓ ajax search limits results to 25                                     0.09s  
+  ✓ ajax search limits results to 25                                     0.07s  
   ✓ ajax conversations returns customer conversations                    0.06s  
   ✓ ajax conversations orders by last reply at desc                      0.05s  
   ✓ ajax conversations limits to 50 results                              0.97s  
@@ -801,7 +830,7 @@
 
    PASS  Tests\Feature\CustomerEdgeCasesTest
   ✓ customer with very long name is handled                              0.03s  
-  ✓ customer list displays with many records                             0.08s  
+  ✓ customer list displays with many records                             0.10s  
   ✓ customer with special characters in name is escaped                  0.02s  
   ✓ customer with null optional fields displays correctly                0.02s  
   ✓ customer list handles no customers                                   0.02s  
@@ -816,12 +845,12 @@
   ✓ cannot create customer with duplicate email if meant to be unique    0.01s  
   ✓ merging two customers reassigns all conversations                    0.04s  
   ✓ unauthenticated user cannot access customers list                    0.02s  
-  ✓ unauthenticated user cannot view customer details                    0.03s  
+  ✓ unauthenticated user cannot view customer details                    0.02s  
   ✓ unauthenticated user cannot update customer                          0.02s  
   ✓ cannot update customer with invalid email format                     0.02s  
   ✓ cannot merge customer with same id                                   0.02s  
   ✓ cannot merge with non existent customer                              0.02s  
-  ✓ user can search customers                                            0.02s  
+  ✓ user can search customers                                            0.03s  
   ✓ user can access customer edit page                                   0.03s  
   ✓ unauthenticated user cannot access customer edit page                0.02s  
   ✓ updating customer with empty optional fields works                   0.02s  
@@ -829,7 +858,7 @@
   ✓ can update customer with valid country code                          0.02s  
   ✓ merge fails with missing source id                                   0.02s  
   ✓ merge fails with missing target id                                   0.02s  
-  ✓ customer list is paginated                                           0.14s  
+  ✓ customer list is paginated                                           0.15s  
   ✓ customer show page loads conversations                               0.03s  
   ✓ updating customer with social profiles works                         0.02s  
   ✓ updating customer with websites works                                0.02s  
@@ -850,7 +879,7 @@
   ✓ email sanitize returns false for invalid format                      0.01s  
   ✓ customer create handles multiple emails in data                      0.01s  
   ✓ customer set data does not set photo url                             0.01s  
-  ✓ customer set data returns false when no changes                      0.03s  
+  ✓ customer set data returns false when no changes                      0.01s  
   ✓ customer create associates email with customer                       0.01s  
   ✓ customer create reuses existing email object                         0.01s  
   ✓ email sanitize handles null input                                    0.01s  
@@ -863,8 +892,8 @@
    PASS  Tests\Feature\DashboardTest
   ✓ admin can view dashboard with all mailboxes                          0.05s  
   ✓ user can view dashboard with assigned mailboxes only                 0.03s  
-  ✓ dashboard displays active conversations count                        0.06s  
-  ✓ dashboard displays unassigned conversations count                    0.05s  
+  ✓ dashboard displays active conversations count                        0.07s  
+  ✓ dashboard displays unassigned conversations count                    0.04s  
   ✓ dashboard provides per mailbox statistics                            0.05s  
   ✓ dashboard only counts published conversations                        0.04s  
   ✓ dashboard requires authentication                                    0.02s  
@@ -878,7 +907,7 @@
   ✓ guest access to protected customer route redirects to login          0.01s  
   ✓ unauthorized mailbox conversation access is prevented                0.03s  
   ✓ invalid email format in customer creation validates                  0.02s  
-  ✓ empty required customer field returns validation error               0.03s  
+  ✓ empty required customer field returns validation error               0.02s  
   ✓ ajax search with empty query handled gracefully                      0.01s  
   ✓ sql injection attempt in customer search handled safely              0.01s  
   ✓ xss attempt in customer name is escaped                              0.02s  
@@ -891,7 +920,7 @@
 
    PASS  Tests\Feature\MailboxAutoReplyTest
   ✓ admin can view auto reply settings page                              0.02s  
-  ✓ non admin cannot view auto reply settings page                       0.02s  
+  ✓ non admin cannot view auto reply settings page                       0.03s  
   ✓ admin can enable auto reply with required fields                     0.02s  
   ✓ admin can disable auto reply                                         0.02s  
   ✓ auto reply requires subject when enabled                             0.02s  
@@ -908,7 +937,7 @@
   ✓ mailbox creation requires unique email                               0.02s  
   ✓ admin can update mailbox                                             0.02s  
   ✓ non admin cannot update mailbox                                      0.02s  
-  ✓ mailbox update validates data                                        0.04s  
+  ✓ mailbox update validates data                                        0.02s  
   ✓ admin can delete mailbox                                             0.02s  
   ✓ non admin cannot delete mailbox                                      0.02s  
   ✓ guest cannot access mailbox crud operations                          0.02s  
@@ -919,7 +948,7 @@
   ✓ non admins cannot update connection settings                         0.03s  
   ✓ admin can view incoming connection settings page                     0.03s  
   ✓ admin can update incoming connection settings                        0.02s  
-  ✓ incoming connection validation fails with invalid data               0.02s  
+  ✓ incoming connection validation fails with invalid data               0.03s  
   ✓ admin can view outgoing connection settings page                     0.03s  
   ✓ admin can update outgoing connection settings                        0.02s  
   ✓ outgoing connection validation fails with invalid data               0.02s  
@@ -936,7 +965,7 @@
   ✓ non admin cannot view permissions page                               0.02s  
   ✓ admin can update permissions                                         0.02s  
   ✓ user with view access can view mailbox                               0.03s  
-  ✓ user without view access cannot view mailbox                         0.04s  
+  ✓ user without view access cannot view mailbox                         0.02s  
   ✓ user with reply access can reply                                     0.02s  
   ✓ user with view access cannot reply                                   0.02s  
   ✓ user with admin access can update mailbox settings                   0.02s  
@@ -945,7 +974,7 @@
    PASS  Tests\Feature\MailboxRegressionTest
   ✓ mailbox permission logic matches l5 version                          0.06s  
   ✓ mailbox user pivot maintains l5 compatibility                        0.01s  
-  ✓ folder structure matches l5 version                                  0.01s  
+  ✓ folder structure matches l5 version                                  0.02s  
   ✓ conversation folder relationship matches l5                          0.01s  
   ✓ mailbox passwords are encrypted                                      0.02s  
   ✓ mailbox get mail from matches l5 behavior                            0.01s  
@@ -953,13 +982,13 @@
   ✓ mailbox uses mailbox name as fallback                                0.01s  
 
    PASS  Tests\Feature\MailboxTest
-  ✓ admin can view mailboxes list                                        0.03s  
+  ✓ admin can view mailboxes list                                        0.05s  
   ✓ admin can create mailbox                                             0.02s  
   ✓ admin can update mailbox                                             0.02s  
   ✓ admin can delete mailbox                                             0.02s  
   ✓ non admin cannot create mailbox                                      0.02s  
   ✓ mailbox requires unique email                                        0.02s  
-  ✓ mailbox can have users attached                                      0.02s  
+  ✓ mailbox can have users attached                                      0.01s  
   ✓ mailbox auto reply settings                                          0.02s  
 
    PASS  Tests\Feature\MailboxViewTest
@@ -969,7 +998,7 @@
   ✓ unauthenticated user cannot view mailbox detail                      0.02s  
   ✓ admin can view mailbox settings page                                 0.02s  
   ✓ non admin cannot view mailbox settings page                          0.02s  
-  ✓ mailbox index shows only accessible mailboxes for user               0.04s  
+  ✓ mailbox index shows only accessible mailboxes for user               0.03s  
   ✓ mailbox index shows all mailboxes for admin                          0.03s  
   ✓ mailbox index requires authentication                                0.02s  
 
@@ -980,9 +1009,9 @@
   ✓ modules list displays module metadata                                0.02s  
   ✓ enable module returns error for non existent module                  0.01s  
   ✓ disable module returns error for non existent module                 0.01s  
-  ✓ delete module returns error for non existent module                  0.02s  
-  ✓ non admin cannot enable modules                                      0.02s  
-  ✓ non admin cannot disable modules                                     0.02s  
+  ✓ delete module returns error for non existent module                  0.01s  
+  ✓ non admin cannot enable modules                                      0.01s  
+  ✓ non admin cannot disable modules                                     0.03s  
   ✓ non admin cannot delete modules                                      0.02s  
   ✓ guest cannot enable modules                                          0.01s  
   ✓ guest cannot disable modules                                         0.01s  
@@ -1003,7 +1032,7 @@
   ✓ update or create behavior matches l5                                 0.01s  
 
    PASS  Tests\Feature\PaginationAndFilteringTest
-  ✓ conversation list with page 2 navigation                             0.33s  
+  ✓ conversation list with page 2 navigation                             0.31s  
   ✓ customer ajax search with multiple matching results                  0.08s  
   ✓ conversation search with partial match                               0.04s  
   ✓ mailbox conversations filter by assignment status                    0.04s  
@@ -1012,29 +1041,29 @@
   ✓ conversation list excludes draft conversations by default            0.04s  
 "Performance Benchmarks:" // tests/Feature/PerformanceTest.php:378
 array:4 [
-  "dashboard" => 10.379791259766
-  "conversation_list" => 11.22522354126
-  "conversation_view" => 14.15491104126
-  "reply_creation" => 7.4429512023926
+  "dashboard" => 10.294914245605
+  "conversation_list" => 11.173963546753
+  "conversation_view" => 13.805150985718
+  "reply_creation" => 7.4300765991211
 ] // tests/Feature/PerformanceTest.php:378
 
    PASS  Tests\Feature\PerformanceTest
-  ✓ large conversation list loads efficiently                            0.42s  
-  ✓ search performs efficiently with large dataset                       0.27s  
-  ✓ mailbox with many conversations remains responsive                   0.37s  
+  ✓ large conversation list loads efficiently                            0.43s  
+  ✓ search performs efficiently with large dataset                       0.26s  
+  ✓ mailbox with many conversations remains responsive                   0.36s  
   ✓ conversation with many threads loads correctly                       0.12s  
-  ✓ conversation list avoids n plus one queries                          0.18s  
+  ✓ conversation list avoids n plus one queries                          0.17s  
   ✓ memory usage remains stable during operations                        0.15s  
-  ✓ common operations meet response time benchmarks                      0.09s  
+  ✓ common operations meet response time benchmarks                      0.08s  
   ✓ database queries use indexes effectively                             0.16s  
   ✓ empty conversation list performs efficiently                         0.02s  
-  ✓ conversation with maximum threads loads acceptably                   0.46s  
+  ✓ conversation with maximum threads loads acceptably                   0.45s  
   ✓ search with no results performs efficiently                          0.18s  
-  ✓ conversation list with mixed statuses performs well                  0.41s  
+  ✓ conversation list with mixed statuses performs well                  0.40s  
   ✓ sequential conversation loads use connection efficiently             0.11s  
   ✓ pagination boundary performs consistently                            0.79s  
   ✓ rapid consecutive operations maintain stability                      0.10s  
-  ✓ repeated operations show no memory leaks                             0.24s  
+  ✓ repeated operations show no memory leaks                             0.26s  
 
    PASS  Tests\Feature\ProfileTest
   ✓ profile page is displayed                                            0.04s  
@@ -1044,7 +1073,7 @@ array:4 [
   ✓ correct password must be provided to delete account                  0.02s  
 
    PASS  Tests\Feature\SecurityAndEdgeCasesTest
-  ✓ guest cannot access settings routes                                  0.03s  
+  ✓ guest cannot access settings routes                                  0.02s  
   ✓ guest cannot access system routes                                    0.02s  
   ✓ non admin cannot update settings                                     0.02s  
   ✓ non admin cannot access email settings                               0.02s  
@@ -1061,20 +1090,20 @@ array:4 [
   ✓ email settings require valid email format                            0.02s  
   ✓ email settings require supported driver                              0.02s  
   ✓ system diagnostics checks database connection                        0.01s  
-  ✓ system diagnostics checks storage writable                           0.01s  
-  ✓ system diagnostics checks cache working                              0.01s  
+  ✓ system diagnostics checks storage writable                           0.02s  
+  ✓ system diagnostics checks cache working                              0.03s  
   ✓ option set value creates new record when not exists                  0.01s  
   ✓ option set value updates existing record                             0.01s  
   ✓ option delete option handles non existent keys gracefully            0.01s  
   ✓ multiple options can be stored and retrieved                         0.01s  
   ✓ settings page displays existing options                              0.02s  
   ✓ system ajax requires admin                                           0.02s  
-  ✓ admin can get system info with correct structure                     0.02s  
+  ✓ admin can get system info with correct structure                     0.01s  
 
    PASS  Tests\Feature\SettingsControllerMethodsTest
   ✓ admin can test smtp connection                                       0.04s  
-  ✓ test smtp validates required fields                                  0.02s  
-  ✓ test smtp validates email format                                     0.04s  
+  ✓ test smtp validates required fields                                  0.01s  
+  ✓ test smtp validates email format                                     0.02s  
   ✓ test smtp fails when no server configured                            0.02s  
   ✓ test smtp handles service exceptions                                 0.02s  
   ✓ non admin cannot test smtp                                           0.02s  
@@ -1086,18 +1115,18 @@ array:4 [
   ✓ guest cannot test smtp                                               0.02s  
   ✓ guest cannot test imap                                               0.02s  
   ✓ test smtp with invalid mailbox id                                    0.02s  
-  ✓ test imap with invalid mailbox id                                    0.02s  
-  ✓ test smtp with non numeric mailbox id                                0.02s  
+  ✓ test imap with invalid mailbox id                                    0.01s  
+  ✓ test smtp with non numeric mailbox id                                0.01s  
   ✓ test smtp service returns failure                                    0.02s  
   ✓ test imap service returns failure                                    0.02s  
-  ✓ test smtp with empty server string                                   0.02s  
+  ✓ test smtp with empty server string                                   0.03s  
   ✓ test imap with empty server string                                   0.02s  
   ✓ test smtp with multiple validation errors                            0.02s  
   ✓ test smtp with special characters in email                           0.02s  
 
    PASS  Tests\Feature\SettingsOperationsTest
   ✓ admin can clear cache                                                0.05s  
-  ✓ non admin cannot clear cache                                         0.05s  
+  ✓ non admin cannot clear cache                                         0.04s  
   ✓ guest cannot clear cache                                             0.03s  
   ✓ admin can run migrations                                             0.03s  
   ✓ non admin cannot run migrations                                      0.03s  
@@ -1112,12 +1141,12 @@ array:4 [
   ✓ admin can view main settings page                                    0.08s  
   ✓ admin can update general setting                                     0.03s  
   ✓ admin can view email settings page                                   0.04s  
-  ✓ admin can update email settings                                      0.04s  
+  ✓ admin can update email settings                                      0.03s  
   ✓ admin can view system settings page                                  0.03s  
   ✓ non admin user cannot access settings routes                         0.03s  
   ✓ submitting invalid data to setting fails validation                  0.03s  
   ✓ submitting invalid driver fails validation                           0.03s  
-  ✓ admin can clear cache                                                0.04s  
+  ✓ admin can clear cache                                                0.03s  
   ✓ settings update clears cache                                         0.03s  
 
    PASS  Tests\Feature\SystemTest
@@ -1126,47 +1155,47 @@ array:4 [
   ✓ system status page displays laravel version                          0.03s  
   ✓ admin can run system diagnostics                                     0.03s  
   ✓ non admin cannot view system status                                  0.03s  
-  ✓ admin can view system logs                                           0.04s  
+  ✓ admin can view system logs                                           0.05s  
   ✓ non admin cannot access system logs                                  0.03s  
   ✓ admin can clear cache via ajax                                       0.04s  
-  ✓ admin can optimize application via ajax                              0.85s  
+  ✓ admin can optimize application via ajax                              0.83s  
   ✓ admin can get system info via ajax                                   0.02s  
   ✓ non admin cannot execute system ajax commands                        0.02s  
-  ✓ invalid ajax action returns error                                    0.03s  
+  ✓ invalid ajax action returns error                                    0.01s  
 
    PASS  Tests\Feature\UserControllerMethodsTest
-  ✓ non admin cannot view create user form                               0.05s  
-  ✓ guest cannot view create user form                                   0.02s  
-  ✓ admin can view user details                                          0.03s  
-  ✓ user can view own profile                                            0.03s  
-  ✓ user cannot view other user profile                                  0.03s  
-  ✓ show includes related data                                           0.04s  
-  ✓ admin can view edit user form                                        0.05s  
-  ✓ user can edit own profile                                            0.04s  
-  ✓ user cannot edit other user                                          0.03s  
-  ✓ guest cannot view edit user form                                     0.03s  
-  ✓ show with non existent user                                          0.03s  
-  ✓ edit with non existent user                                          0.03s  
-  ✓ show inactive user                                                   0.04s  
-  ✓ edit inactive user                                                   0.04s  
-  ✓ show with deleted related data                                       0.04s  
-  ✓ show user with no mailboxes                                          0.04s  
-  ✓ show user with multiple mailboxes                                    0.05s  
-  ✓ regular user cannot view admin profile                               0.03s  
-  ✓ regular user cannot edit admin profile                               0.03s  
-  ✓ show includes conversations relationship                             0.04s  
-  ✓ user can view own profile with special characters in name            0.04s  
-  ✓ edit form for user with boundary field values                        0.04s  
+  ✓ non admin cannot view create user form                               0.03s  
+  ✓ guest cannot view create user form                                   0.01s  
+  ✓ admin can view user details                                          0.02s  
+  ✓ user can view own profile                                            0.02s  
+  ✓ user cannot view other user profile                                  0.02s  
+  ✓ show includes related data                                           0.03s  
+  ✓ admin can view edit user form                                        0.03s  
+  ✓ user can edit own profile                                            0.02s  
+  ✓ user cannot edit other user                                          0.02s  
+  ✓ guest cannot view edit user form                                     0.02s  
+  ✓ show with non existent user                                          0.02s  
+  ✓ edit with non existent user                                          0.02s  
+  ✓ show inactive user                                                   0.02s  
+  ✓ edit inactive user                                                   0.02s  
+  ✓ show with deleted related data                                       0.03s  
+  ✓ show user with no mailboxes                                          0.02s  
+  ✓ show user with multiple mailboxes                                    0.03s  
+  ✓ regular user cannot view admin profile                               0.02s  
+  ✓ regular user cannot edit admin profile                               0.02s  
+  ✓ show includes conversations relationship                             0.02s  
+  ✓ user can view own profile with special characters in name            0.02s  
+  ✓ edit form for user with boundary field values                        0.02s  
 
    PASS  Tests\Feature\UserManagementAdminBatch1Test
-  ✓ admin user can create a new user                                     0.07s  
-  ✓ admin user can create user with admin role                           0.03s  
-  ✓ admin user can update an existing user                               0.03s  
+  ✓ admin user can create a new user                                     0.04s  
+  ✓ admin user can create user with admin role                           0.02s  
+  ✓ admin user can update an existing user                               0.02s  
   ✓ admin can change user role                                           0.03s  
   ✓ admin can change user status                                         0.03s  
   ✓ created user password is properly hashed                             0.03s  
-  ✓ non admin user cannot access user management routes                  0.03s  
-  ✓ non admin user cannot create users                                   0.03s  
+  ✓ non admin user cannot access user management routes                  0.02s  
+  ✓ non admin user cannot create users                                   0.02s  
   ✓ non admin user cannot update other users                             0.03s  
   ✓ admin can assign user to mailboxes                                   0.07s  
 
@@ -1188,16 +1217,16 @@ array:4 [
   ✓ admin can remove all mailbox permissions                             0.04s  
   ✓ non admin cannot assign permissions                                  0.04s  
   ✓ guest cannot assign permissions                                      0.03s  
-  ✓ permission assignment handles invalid mailbox ids                    0.04s  
-  ✓ admin role provides broader access                                   0.02s  
+  ✓ permission assignment handles invalid mailbox ids                    0.03s  
+  ✓ admin role provides broader access                                   0.03s  
 
    PASS  Tests\Feature\UserSecurityBatch1Test
   ✓ user email is sanitized against xss                                  0.04s  
   ✓ user name fields handle html tags properly                           0.03s  
   ✓ mass assignment protection prevents role escalation                  0.03s  
-  ✓ session is invalidated on logout                                     0.03s  
+  ✓ session is invalidated on logout                                     0.02s  
   ✓ failed login attempts do not reveal user existence                   0.44s  
 
-  Tests:    3 skipped, 1003 passed (2490 assertions)
-  Duration: 42.15s
+  Tests:    3 skipped, 1026 passed (2539 assertions)
+  Duration: 41.05s
 
