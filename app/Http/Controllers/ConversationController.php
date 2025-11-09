@@ -178,6 +178,7 @@ class ConversationController extends Controller
             }
 
             // Create conversation
+            /** @var \App\Models\Conversation $conversation */
             $conversation = Conversation::create([
                 'mailbox_id' => $mailbox->id,
                 'customer_id' => $customer->id,
@@ -361,7 +362,8 @@ class ConversationController extends Controller
         $query = $request->input('q', '');
         $searchQuery = is_string($query) ? $query : '';
 
-        $conversations = Conversation::query()
+        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Conversation> $query */
+        $query = Conversation::query()
             ->whereIn(
                 'mailbox_id',
                 $user->isAdmin()
@@ -372,13 +374,15 @@ class ConversationController extends Controller
             ->where(function ($q) use ($searchQuery) {
                 $q->where('subject', 'like', "%{$searchQuery}%")
                     ->orWhere('preview', 'like', "%{$searchQuery}%")
-                    ->orWhereHas('customer', function ($q) use ($searchQuery) {
-                        // @phpstan-ignore-next-line - Closure receives Builder, not BelongsTo
-                        $q->where('first_name', 'like', "%{$searchQuery}%")
+                    ->orWhereHas('customer', function ($customerQuery) use ($searchQuery) {
+                        // @phpstan-ignore-next-line - Closure receives Builder, Customer model properties accessed
+                        $customerQuery->where('first_name', 'like', "%{$searchQuery}%")
                             // @phpstan-ignore-next-line - Customer model has last_name property
                             ->orWhere('last_name', 'like', "%{$searchQuery}%");
                     });
-            })
+            });
+        
+        $conversations = $query
             ->with(['mailbox', 'customer', 'user', 'folder'])
             ->orderBy('last_reply_at', 'desc')
             ->paginate(50);

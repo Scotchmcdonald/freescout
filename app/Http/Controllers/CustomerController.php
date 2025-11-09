@@ -55,18 +55,14 @@ class CustomerController extends Controller
             'email' => 'required|email|unique:customer_emails,email',
         ]);
 
-        /** @phpstan-ignore-next-line */
-        $customer = Customer::create([
+        $customer = Customer::create($validated['email'], [
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'] ?? '',
         ]);
-
-        /** @phpstan-ignore-next-line */
-        /** @phpstan-ignore-next-line */
-        $customer->emails()->create([
-            'email' => $validated['email'],
-            'type' => 1, // 1 for primary
-        ]);
+        
+        if (!$customer) {
+            return back()->withErrors(['email' => 'Invalid email address']);
+        }
 
         return redirect()->route('customers.show', $customer);
     }
@@ -204,6 +200,7 @@ class CustomerController extends Controller
 
                 return response()->json([
                     'results' => $customers->map(function ($customer) {
+                        /** @var \App\Models\Customer $customer */
                         return [
                             'id' => $customer->id,
                             'text' => $customer->getFullName() . ' (' . $customer->getMainEmail() . ')',
