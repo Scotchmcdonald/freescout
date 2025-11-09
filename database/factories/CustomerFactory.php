@@ -32,7 +32,7 @@ class CustomerFactory extends Factory
             'social_profiles' => null,
             'address' => fake()->optional()->streetAddress(),
             'city' => fake()->optional()->city(),
-            'state' => fake()->optional()->stateAbbr(),
+            'state' => fake()->optional()->lexify('??'),
             'zip' => fake()->optional()->postcode(),
             'country' => fake()->optional()->countryCode(),
             'notes' => fake()->optional()->paragraph(),

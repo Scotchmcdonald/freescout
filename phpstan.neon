@@ -46,6 +46,13 @@ parameters:
         -
             message: '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$pivot#'
             path: app/Policies/MailboxPolicy.php
+        # Third-party IMAP library missing method definitions
+        -
+            message: '#Call to an undefined method Webklex\\PHPIMAP\\Query\\WhereQuery::setCharset\(\)#'
+            path: app/Services/ImapService.php
+        -
+            message: '#Call to an undefined method Webklex\\PHPIMAP\\Message::getRawHeader\(\)#'
+            path: app/Services/ImapService.php
         # ImapService complex type issues with IMAP library
         -
             message: '#Parameter .* of method App\\Services\\ImapService::getEncryption\(\) expects int\|null, string\|null given#'
@@ -96,15 +103,8 @@ parameters:
 
 
 
-        # VerifyEmailController type issue with User model
-        -
-            message: '#Parameter \#1 \$user of class Illuminate\\Auth\\Events\\Verified constructor#'
-            path: app/Http/Controllers/Auth/VerifyEmailController.php
-        # Allow dynamic properties during migration phase
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::[a-zA-Z0-9\\_]+\(\)#'
-        # Ignore UserFactory issues during initial setup
-        - '#PHPDoc tag @use has invalid type Database\\Factories\\UserFactory#'
-        - '#Type Database\\Factories\\UserFactory .* is not subtype#'
+
+
         # Ignore missing typehints during migration
         -
             identifier: missingType.iterableValue
