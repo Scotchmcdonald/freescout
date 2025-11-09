@@ -121,13 +121,8 @@ class SendAutoReply implements ShouldQueue
                     $status = 2; // SendLog::STATUS_SEND_ERROR
                     $statusMessage = $exception->getMessage();
                 } else {
-                    $mailFailures = Mail::failures();
-
-                    if (! empty($mailFailures) && in_array($recipient, $mailFailures)) {
-                        $status = 2; // SendLog::STATUS_SEND_ERROR
-                    } else {
-                        $status = 1; // SendLog::STATUS_ACCEPTED
-                    }
+                    // If no exception was thrown, the email was accepted
+                    $status = 1; // SendLog::STATUS_ACCEPTED
                 }
 
                 $customerId = ($customerEmail == $recipient) ? $this->customer->id : null;

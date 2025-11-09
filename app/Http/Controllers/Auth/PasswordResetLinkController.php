@@ -15,9 +15,8 @@ class PasswordResetLinkController extends Controller
      */
     public function create(): View
     {
-        /** @var view-string $viewName */
-        $viewName = 'auth.forgot-password';
-        return view($viewName);
+        /** @var \Illuminate\Contracts\View\View */
+        return view('auth.forgot-password');
     }
 
     /**

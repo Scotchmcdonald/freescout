@@ -9,6 +9,7 @@ parameters:
         - database
         - routes
     
+    
     # Ignore patterns
     excludePaths:
         - archive/*
@@ -23,20 +24,24 @@ parameters:
     # Ignore errors during initial setup
     reportUnmatchedIgnoredErrors: false
     
-    # Custom rules
+    # Custom rules - merged from both sections
     ignoreErrors:
+        # View-string type issues in Auth controllers
+        # These are false positives - literal strings are valid view names
+        -
+            message: '#Parameter \#1 \$view of function view expects view-string\|null, string given#'
+            paths:
+                - app/Http/Controllers/Auth/AuthenticatedSessionController.php
+                - app/Http/Controllers/Auth/ConfirmablePasswordController.php
+                - app/Http/Controllers/Auth/EmailVerificationPromptController.php
+                - app/Http/Controllers/Auth/NewPasswordController.php
+                - app/Http/Controllers/Auth/PasswordResetLinkController.php
         # Module facade dynamic methods
         -
             message: '#Call to an undefined static method Nwidart\\Modules\\Facades\\Module::findByAlias\(\)#'
             path: app/Http/Controllers/ModulesController.php
-        # Laravel Mail facade legacy method
-        -
-            message: '#Call to an undefined static method Illuminate\\Support\\Facades\\Mail::failures\(\)#'
-            path: app/Jobs/SendAutoReply.php
-        # EventServiceProvider observers type issue
-        -
-            message: '#Property App\\Providers\\EventServiceProvider::\$observers .* does not accept default value#'
-            path: app/Providers/EventServiceProvider.php
+
+
         # MailboxPolicy pivot access (BelongsToMany pivot is dynamic)
         -
             message: '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$pivot#'
@@ -88,18 +93,9 @@ parameters:
         -
             message: '#Parameter \#1 \$email_address of static method App\\Misc\\MailHelper::generateMessageId\(\) expects string, Webklex\\PHPIMAP\\Attribute given#'
             path: app/Services/ImapService.php
-        # Option model logical expression issue
-        -
-            message: '#Right side of \|\| is always true#'
-            path: app/Models/Option.php
-        # Customer model negated expression issue
-        -
-            message: '#Negated boolean expression is always false#'
-            path: app/Models/Customer.php
-        # Jobs empty() check on potentially null offset
-        -
-            message: '#Offset .* on .* in empty\(\) does not exist#'
-            path: app/Jobs/SendAutoReply.php
+
+
+
         # VerifyEmailController type issue with User model
         -
             message: '#Parameter \#1 \$user of class Illuminate\\Auth\\Events\\Verified constructor#'

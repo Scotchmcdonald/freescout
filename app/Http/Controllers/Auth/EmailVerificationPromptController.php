@@ -21,8 +21,7 @@ class EmailVerificationPromptController extends Controller
             return redirect()->intended(route('dashboard', absolute: false));
         }
         
-        /** @var view-string $viewName */
-        $viewName = 'auth.verify-email';
-        return view($viewName);
+        /** @var \Illuminate\Contracts\View\View */
+        return view('auth.verify-email');
     }
 }

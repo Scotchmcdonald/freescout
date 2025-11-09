@@ -183,6 +183,7 @@ class Customer extends Model
 
         $email_obj = Email::where('email', $email)->first();
         if ($email_obj) {
+            /** @var \App\Models\Customer|null $customer */
             $customer = $email_obj->customer;
 
             // In case somehow the email has no customer.

@@ -35,7 +35,7 @@ class EventServiceProvider extends ServiceProvider
     /**
      * The model observers for the application.
      *
-     * @var array<class-string, class-string>
+     * @var array<class-string, class-string|array<int, class-string>>
      */
     protected $observers = [
         Thread::class => [ThreadObserver::class],

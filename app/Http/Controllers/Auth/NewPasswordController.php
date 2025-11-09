@@ -20,9 +20,8 @@ class NewPasswordController extends Controller
      */
     public function create(Request $request): View
     {
-        /** @var view-string $viewName */
-        $viewName = 'auth.reset-password';
-        return view($viewName, ['request' => $request]);
+        /** @var \Illuminate\Contracts\View\View */
+        return view('auth.reset-password', ['request' => $request]);
     }
 
     /**

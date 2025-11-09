@@ -60,10 +60,12 @@ class Option extends Model
      */
     public static function setValue(string $name, mixed $value): bool
     {
-        return static::updateOrCreate(
+        static::updateOrCreate(
             ['name' => $name],
             ['value' => $value]
-        )->wasRecentlyCreated || true;
+        );
+        
+        return true;
     }
 
     /**

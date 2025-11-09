@@ -16,9 +16,8 @@ class ConfirmablePasswordController extends Controller
      */
     public function show(): View
     {
-        /** @var view-string $viewName */
-        $viewName = 'auth.confirm-password';
-        return view($viewName);
+        /** @var \Illuminate\Contracts\View\View */
+        return view('auth.confirm-password');
     }
 
     /**
