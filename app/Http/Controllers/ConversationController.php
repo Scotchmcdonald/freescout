@@ -284,6 +284,7 @@ class ConversationController extends Controller
 
         try {
             // Create thread
+            /** @var \App\Models\Thread $thread */
             $thread = Thread::create([
                 'conversation_id' => $conversation->id,
                 'user_id' => $user->id,
@@ -445,6 +446,12 @@ class ConversationController extends Controller
         ]);
 
         $file = $request->file('file');
+        
+        // Ensure file is an UploadedFile instance
+        if (!$file instanceof \Illuminate\Http\UploadedFile) {
+            return response()->json(['success' => false, 'message' => 'Invalid file upload'], 400);
+        }
+        
         $path = $file->store('attachments', 'public');
 
         return response()->json([

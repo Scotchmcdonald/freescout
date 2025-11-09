@@ -52,6 +52,7 @@ class FetchEmails extends Command
         $totalErrors = 0;
 
         foreach ($mailboxes as $mailbox) {
+            /** @var \App\Models\Mailbox $mailbox */
             $this->line('');
             $this->info("Processing mailbox: {$mailbox->name} ({$mailbox->email})");
 

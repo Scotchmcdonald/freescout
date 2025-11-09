@@ -19,9 +19,8 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        /** @var view-string $viewName */
-        $viewName = 'auth.register';
-        return view($viewName);
+        /** @var \Illuminate\Contracts\View\View */
+        return view('auth.register');
     }
 
     /**
@@ -43,6 +42,7 @@ class RegisteredUserController extends Controller
 
         $password = $request->input('password');
         $email = $request->input('email');
+        /** @var \App\Models\User $user */
         $user = User::create([
             'first_name' => $nameParts[0],
             'last_name' => $nameParts[1] ?? '',
