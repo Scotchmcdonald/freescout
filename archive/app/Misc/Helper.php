@@ -1417,11 +1417,22 @@ class Helper
      */
     public static function checkPort($host, $port, $timeout = 10)
     {
-        $connection = @fsockopen($host, $port);
+        $errno = 0;
+        $errstr = '';
+        $connection = fsockopen($host, $port, $errno, $errstr, $timeout);
         if (is_resource($connection)) {
             fclose($connection);
             return true;
         } else {
+            // Log connection failure for debugging purposes
+            if ($errno !== 0 && config('app.debug')) {
+                \Log::debug('Port check failed', [
+                    'host' => $host,
+                    'port' => $port,
+                    'errno' => $errno,
+                    'error' => $errstr
+                ]);
+            }
             return false;
         }
     }
