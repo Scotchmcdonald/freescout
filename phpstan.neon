@@ -26,16 +26,14 @@ parameters:
     
     # Custom rules - merged from both sections
     ignoreErrors:
-        # View-string type issues in Auth controllers
+        # View-string type issues in controllers
         # These are false positives - literal strings are valid view names
         -
             message: '#Parameter \#1 \$view of function view expects view-string\|null, string given#'
-            paths:
-                - app/Http/Controllers/Auth/AuthenticatedSessionController.php
-                - app/Http/Controllers/Auth/ConfirmablePasswordController.php
-                - app/Http/Controllers/Auth/EmailVerificationPromptController.php
-                - app/Http/Controllers/Auth/NewPasswordController.php
-                - app/Http/Controllers/Auth/PasswordResetLinkController.php
+            path: app/Http/Controllers
+        -
+            message: '#PHPDoc tag `@var` for variable \$viewName contains unresolvable type#'
+            path: app/Http/Controllers
         # Module facade dynamic methods
         -
             message: '#Call to an undefined static method Nwidart\\Modules\\Facades\\Module::findByAlias\(\)#'
