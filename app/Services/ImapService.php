@@ -17,6 +17,8 @@ class ImapService
 {
     /**
      * Fetch emails from a mailbox.
+     * 
+     * @return array{fetched: int, created: int, errors: int, messages: array<int, string>}
      */
     public function fetchEmails(Mailbox $mailbox): array
     {
@@ -53,7 +55,16 @@ class ImapService
                 'mailbox_id' => $mailbox->id,
             ]);
 
-            $folderPaths = $mailbox->in_imap_folders ? explode(',', $mailbox->in_imap_folders) : ['INBOX'];
+            // Safely explode folders - handle string or array
+            $folderPathsRaw = $mailbox->in_imap_folders;
+            if (is_array($folderPathsRaw)) {
+                $folderPaths = $folderPathsRaw;
+                // @phpstan-ignore-next-line - in_imap_folders can be null from DB despite PHPDoc
+            } elseif ($folderPathsRaw && trim((string) $folderPathsRaw) !== '') {
+                $folderPaths = explode(',', (string) $folderPathsRaw);
+            } else {
+                $folderPaths = ['INBOX'];
+            }
 
             foreach ($folderPaths as $folderPath) {
                 $folder = $client->getFolder($folderPath);
@@ -211,9 +222,16 @@ class ImapService
 
     /**
      * Get encryption protocol.
+     * 
+     * @param int|string|null $encryption
      */
-    protected function getEncryption(?int $encryption): ?string
+    protected function getEncryption(int|string|null $encryption): ?string
     {
+        // Convert string to int if needed
+        if (is_string($encryption)) {
+            $encryption = (int) $encryption;
+        }
+        
         return match ($encryption) {
             1 => 'ssl',
             2 => 'tls',
@@ -233,10 +251,13 @@ class ImapService
             $from = $message->getFrom();
 
             // Convert to array if it's an Attribute object
-            if (is_object($from) && method_exists($from, 'toArray')) {
-                $from = $from->toArray();
-            } elseif (is_object($from) && get_class($from) === 'Webklex\PHPIMAP\Attribute') {
-                $from = $from->get();
+            // Note: The IMAP library returns Attribute objects that can be converted to arrays
+            if (is_object($from)) {
+                if (method_exists($from, 'toArray')) {
+                    $from = $from->toArray();
+                } elseif (method_exists($from, 'get')) {
+                    $from = $from->get();
+                }
             }
 
             if (! is_array($from) || empty($from)) {
@@ -285,6 +306,7 @@ class ImapService
             ]);
 
             // Check if sender is an internal user
+            /** @var \App\Models\User|null $senderUser */
             $senderUser = \App\Models\User::where('email', $fromEmail)->first();
             
             if ($senderUser) {
@@ -324,13 +346,17 @@ class ImapService
             ]);
 
             // Check if conversation already exists by Message-ID
-            $messageId = $message->getMessageId();
+            $messageIdRaw = $message->getMessageId();
+            
+            // Convert Attribute to string if needed (IMAP library returns Attribute objects)
+            $messageId = (string) $messageIdRaw;
 
-            if (! $messageId) {
+            if (!$messageId || trim($messageId) === '') {
                 Log::warning('Message has no Message-ID header, generating one');
                 $messageId = '<'.uniqid('freescout-', true).'@'.($mailbox->in_server ?? 'localhost').'>';
             }
 
+            /** @var \App\Models\Thread|null $existingThread */
             $existingThread = Thread::where('message_id', $messageId)->first();
 
             // Handle messages sent to multiple mailboxes (e.g. via BCC)
@@ -343,7 +369,9 @@ class ImapService
 
                 // If current mailbox is not in To/Cc and the existing thread is in another mailbox,
                 // it's likely a BCC, so we should import it.
-                if (! in_array($mailbox->email, $recipients) && $existingThread->conversation->mailbox_id != $mailbox->id) {
+                /** @var \App\Models\Conversation $existingConversation */
+                $existingConversation = $existingThread->conversation;
+                if (! in_array($mailbox->email, $recipients) && $existingConversation->mailbox_id != $mailbox->id) {
                     $isExtraImport = true;
                     // Generate an artificial message ID to avoid unique constraint violation
                     $messageId = \App\Misc\MailHelper::generateMessageId($messageId, $mailbox->id.$messageId);
@@ -363,8 +391,12 @@ class ImapService
                 }
             }
 
-            // Get subject
-            $subject = $message->getSubject() ?: '(No Subject)';
+            // Get subject (IMAP library returns Attribute objects)
+            $subjectRaw = $message->getSubject();
+            $subject = (string) $subjectRaw;
+            if (!$subject || trim($subject) === '') {
+                $subject = '(No Subject)';
+            }
 
             // Check if this is a reply (has In-Reply-To or References header)
             $header = $message->getHeader();
@@ -381,9 +413,11 @@ class ImapService
 
                 // Try to find existing conversation
                 $replyToMessageId = $inReplyTo ?: $references;
+                /** @var \App\Models\Thread|null $parentThread */
                 $parentThread = Thread::where('message_id', $replyToMessageId)->first();
 
                 if ($parentThread) {
+                    /** @var \App\Models\Conversation $conversation */
                     $conversation = $parentThread->conversation;
                     Log::debug('Found existing conversation for reply', [
                         'conversation_id' => $conversation->id,
@@ -397,13 +431,14 @@ class ImapService
             if (! $conversation) {
                 $maxNumber = $mailbox->conversations()->max('number');
                 $number = (is_int($maxNumber) ? $maxNumber : 0) + 1;
-                // @phpstan-ignore-next-line - HasMany returns Builder for query operations
+                /** @var \App\Models\Folder|null $folder */
                 $folder = $mailbox->folders()->where('type', 1)->first(); // Inbox
 
                 if (! $folder) {
                     throw new \Exception("No inbox folder found for mailbox {$mailbox->id}");
                 }
 
+                /** @var \App\Models\Conversation $conversation */
                 $conversation = Conversation::create([
                     'mailbox_id' => $mailbox->id,
                     'customer_id' => $customer->id,
@@ -484,16 +519,14 @@ class ImapService
                 $conversation->last_reply_from = 2; // Customer
 
                 // Update CC list - merge existing CC with new recipients
-                $existingCc = $conversation->cc ? json_decode($conversation->cc, true) : [];
-                if (!is_array($existingCc)) {
-                    $existingCc = [];
-                }
+                $existingCcRaw = $conversation->cc;
+                $existingCc = is_array($existingCcRaw) ? $existingCcRaw : [];
                 $newCc = array_unique(array_merge($existingCc, $cc, array_diff($to, [$mailbox->email])));
-                $conversation->cc = ! empty($newCc) ? json_encode($newCc) : null;
+                $conversation->cc = ! empty($newCc) ? $newCc : null;
 
                 // Update BCC only if the new message has BCC
                 if (! empty($bcc)) {
-                    $conversation->bcc = json_encode($bcc);
+                    $conversation->bcc = $bcc;
                 }
 
                 $conversation->save();
@@ -516,7 +549,9 @@ class ImapService
                 'cc' => ! empty($cc) ? json_encode($cc) : null,
                 'bcc' => ! empty($bcc) ? json_encode($bcc) : null,
                 'message_id' => $messageId,
-                'headers' => $message->getRawHeader(),
+                'headers' => method_exists($message, 'getRawHeader') 
+                    ? $message->getRawHeader() 
+                    : ($message->getHeader() && method_exists($message->getHeader(), '__toString') ? (string) $message->getHeader() : ''),
                 'first' => $conversation->threads_count === 0,
             ];
 
@@ -537,6 +572,7 @@ class ImapService
                 $threadData['source_type'] = 1; // Email
             }
 
+            /** @var \App\Models\Thread $thread */
             $thread = Thread::create($threadData);
 
             Log::info('Created thread', [
@@ -715,6 +751,8 @@ class ImapService
 
     /**
      * Test IMAP connection.
+     * 
+     * @return array{success: bool, message: string}
      */
     public function testConnection(Mailbox $mailbox): array
     {
@@ -757,7 +795,7 @@ class ImapService
                 $result['message'] = "Connected successfully. Found {$messageCount} messages in INBOX ({$unseenCount} unread).";
             } catch (\Exception $e) {
                 // If charset issue, try without charset
-                if ($folder && stristr($e->getMessage(), 'charset')) {
+                if (stristr($e->getMessage(), 'charset')) {
                     $messages = $folder->query()
                         ->since(now()->subDays(1))
                         ->leaveUnread()
@@ -834,6 +872,8 @@ class ImapService
     /**
      * Get original sender from a forwarded email body.
      * Matches original FreeScout implementation.
+     * 
+     * @return array{email: string, name: string}|null
      */
     protected function getOriginalSenderFromFwd(string $body): ?array
     {
@@ -851,12 +891,15 @@ class ImapService
 
         // Regex to find just an email address
         if (preg_match("/[\"'<:;]([^\"'<:;!@\s]+@[^\"'>:&@\s]+)[\"'>:&]/", $cleanBody, $matches)) {
-            $email = preg_replace('#.*&lt;(.*)&gt.*#', '$1', $matches[1]);
-
-            return [
-                'name' => '',
-                'email' => \App\Models\Email::sanitizeEmail($email),
-            ];
+            $emailRaw = preg_replace('#.*&lt;(.*)&gt.*#', '$1', $matches[1]);
+            $emailSanitized = is_string($emailRaw) ? \App\Models\Email::sanitizeEmail($emailRaw) : false;
+            
+            if ($emailSanitized) {
+                return [
+                    'name' => '',
+                    'email' => $emailSanitized,
+                ];
+            }
         }
 
         return null;
@@ -895,6 +938,8 @@ class ImapService
 
     /**
      * Get email addresses with names from IMAP address objects.
+     * 
+     * @return array<int, array{email: string, first_name: string, last_name: string}>
      */
     protected function getAddressesWithNames(mixed $addresses): array
     {
@@ -938,12 +983,14 @@ class ImapService
                 $email = $addr;
             }
 
-            if ($email) {
+            if (is_string($email)) {
                 $nameParts = explode(' ', $name, 2);
+                $firstName = isset($nameParts[0]) ? $nameParts[0] : '';
+                $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
                 $result[] = [
                     'email' => $email,
-                    'first_name' => isset($nameParts[0]) && strlen($nameParts[0]) <= 20 ? $nameParts[0] : mb_substr($nameParts[0], 0, 20),
-                    'last_name' => isset($nameParts[1]) && strlen($nameParts[1]) <= 30 ? $nameParts[1] : mb_substr($nameParts[1] ?? '', 0, 30),
+                    'first_name' => strlen($firstName) <= 20 ? $firstName : mb_substr($firstName, 0, 20),
+                    'last_name' => strlen($lastName) <= 30 ? $lastName : mb_substr($lastName, 0, 30),
                 ];
             }
         }
@@ -953,6 +1000,8 @@ class ImapService
 
     /**
      * Parse email addresses from IMAP Attribute object.
+     * 
+     * @return array<int, string>
      */
     protected function parseAddresses(mixed $addresses): array
     {
@@ -986,12 +1035,12 @@ class ImapService
                     }
                 }
 
-                if ($email) {
+                if (is_string($email)) {
                     $result[] = $email;
                 }
             } elseif (is_array($addr)) {
                 $email = $addr['mail'] ?? $addr['email'] ?? null;
-                if ($email) {
+                if (is_string($email)) {
                     $result[] = $email;
                 }
             } elseif (is_string($addr)) {
