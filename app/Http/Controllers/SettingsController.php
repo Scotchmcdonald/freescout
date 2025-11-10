@@ -13,20 +13,19 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class SettingsController extends Controller
 {
     /**
      * Display general settings.
      */
-    public function index(): View
+    public function index(): View|ViewFactory
     {
         $settings = Option::query()->pluck('value', 'name')->toArray();
 
-        /** @var view-string $viewName */
-        $viewName = 'settings.index';
-        return view($viewName, compact('settings'));
+        return view('settings.index', compact('settings'));
     }
 
     /**
@@ -59,7 +58,7 @@ class SettingsController extends Controller
     /**
      * Display email settings.
      */
-    public function email(): View
+    public function email(): View|ViewFactory
     {
         $settings = Option::whereIn('name', [
             'mail_driver',
@@ -72,9 +71,7 @@ class SettingsController extends Controller
             'mail_from_name',
         ])->pluck('value', 'name')->toArray();
 
-        /** @var view-string $viewName */
-        $viewName = 'settings.email';
-        return view($viewName, compact('settings'));
+        return view('settings.email', compact('settings'));
     }
 
     /**
@@ -113,7 +110,7 @@ class SettingsController extends Controller
     /**
      * Display system settings.
      */
-    public function system(): View
+    public function system(): View|ViewFactory
     {
         $settings = [
             'php_version' => PHP_VERSION,
@@ -124,9 +121,7 @@ class SettingsController extends Controller
             'session_driver' => config('session.driver'),
         ];
 
-        /** @var view-string $viewName */
-        $viewName = 'settings.system';
-        return view($viewName, compact('settings'));
+        return view('settings.system', compact('settings'));
     }
 
     /**
@@ -272,6 +267,7 @@ class SettingsController extends Controller
         foreach ($data as $key => $value) {
             if (isset($mapping[$key]) && ! empty($value)) {
                 $envKey = $mapping[$key];
+                $value = is_string($value) ? $value : (string) $value;
                 $pattern = "/^{$envKey}=.*/m";
                 $content = $content ?: ''; // Ensure content is string
 

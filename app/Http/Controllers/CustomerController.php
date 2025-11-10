@@ -10,14 +10,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class CustomerController extends Controller
 {
     /**
      * Display a listing of customers.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|ViewFactory
     {
         $query = Customer::query();
         $search = $request->input('search', '');
@@ -37,9 +38,7 @@ class CustomerController extends Controller
 
         $customers = $query->orderBy('created_at', 'desc')->paginate(50);
 
-        /** @var view-string $viewName */
-        $viewName = 'customers.index';
-        return view($viewName, compact('customers'));
+        return view('customers.index', compact('customers'));
     }
 
     /**
@@ -70,23 +69,19 @@ class CustomerController extends Controller
     /**
      * Display the specified customer.
      */
-    public function show(Customer $customer): View
+    public function show(Customer $customer): View|ViewFactory
     {
         $customer->load('conversations.mailbox', 'conversations.folder');
 
-        /** @var view-string $viewName */
-        $viewName = 'customers.show';
-        return view($viewName, compact('customer'));
+        return view('customers.show', compact('customer'));
     }
 
     /**
      * Show the form for editing the specified customer.
      */
-    public function edit(Customer $customer): View
+    public function edit(Customer $customer): View|ViewFactory
     {
-        /** @var view-string $viewName */
-        $viewName = 'customers.edit';
-        return view($viewName, compact('customer'));
+        return view('customers.edit', compact('customer'));
     }
 
     /**

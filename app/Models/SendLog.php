@@ -28,6 +28,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Thread $thread
  * @property-read \App\Models\Customer|null $customer
  * @property-read \App\Models\User|null $user
+ * 
+ * @mixin \Illuminate\Database\Eloquent\Builder
  */
 class SendLog extends Model
 {

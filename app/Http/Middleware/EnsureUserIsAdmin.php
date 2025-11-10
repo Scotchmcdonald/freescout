@@ -18,7 +18,10 @@ class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || $request->user()->role !== User::ROLE_ADMIN) {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+
+        if (! $user || ! $user->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 

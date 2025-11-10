@@ -1,0 +1,29 @@
+Warning: TTY mode requires /dev/tty to be read/writable.
+
+   FAIL  Tests\Browser\ExampleTest
+  ⨯ basic example                                                        0.28s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Browser\ExampleTest > basic example   WebDriverCurlException   
+  Curl error thrown for http POST to /session with params: {"capabilities":{"firstMatch":[{"browserName":"chrome","goog:chromeOptions":{"args":["--window-size=1920,1080","--disable-search-engine-choice-screen","--disable-smooth-scrolling","--disable-gpu","--headless=new"]}}]},"desiredCapabilities":{"browserName":"chrome","platform":"ANY","goog:chromeOptions":{"args":["--window-size=1920,1080","--disable-search-engine-choice-screen","--disable-smooth-scrolling","--disable-gpu","--headless=new"]}}}
+
+Failed to connect to localhost port 9515 after 0 ms: Couldn't connect to server
+
+  at vendor/php-webdriver/webdriver/lib/Exception/Internal/WebDriverCurlException.php:20
+     16▕         }
+     17▕ 
+     18▕         $message .= "\n\n" . $curlError;
+     19▕ 
+  ➜  20▕         return new self($message);
+     21▕     }
+     22▕ }
+     23▕
+
+      [2m+3 vendor frames [22m
+  4   tests/DuskTestCase.php:41
+      [2m+1 vendor frames [22m
+  6   tests/Browser/ExampleTest.php:16
+
+
+  Tests:    1 failed (0 assertions)
+  Duration: 0.32s
+

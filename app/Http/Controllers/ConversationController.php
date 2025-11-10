@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -20,9 +21,8 @@ class ConversationController extends Controller
     /**
      * Display a listing of conversations.
      */
-    public function index(Request $request, Mailbox $mailbox): View
+    public function index(Request $request, Mailbox $mailbox): View|ViewFactory
     {
-        /** @var \App\Models\User $user */
         /** @var \App\Models\User $user */
         $user = $request->user();
 
@@ -37,15 +37,13 @@ class ConversationController extends Controller
             ->orderBy('last_reply_at', 'desc')
             ->paginate(50);
 
-        /** @var view-string $viewName */
-        $viewName = 'conversations.index';
-        return view($viewName, compact('conversations', 'mailbox'));
+        return view('conversations.index', compact('conversations', 'mailbox'));
     }
 
     /**
      * View a conversation.
      */
-    public function show(Request $request, Conversation $conversation): View|RedirectResponse
+    public function show(Request $request, Conversation $conversation): View|RedirectResponse|ViewFactory
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
@@ -83,15 +81,13 @@ class ConversationController extends Controller
             })
             ->get();
 
-        /** @var view-string $viewName */
-        $viewName = 'conversations.show';
-        return view($viewName, compact('conversation', 'folders'));
+        return view('conversations.show', compact('conversation', 'folders'));
     }
 
     /**
      * Create a new conversation.
      */
-    public function create(Request $request, Mailbox $mailbox): View
+    public function create(Request $request, Mailbox $mailbox): View|ViewFactory
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
@@ -109,9 +105,7 @@ class ConversationController extends Controller
             })
             ->get();
 
-        /** @var view-string $viewName */
-        $viewName = 'conversations.create';
-        return view($viewName, compact('mailbox', 'folders'));
+        return view('conversations.create', compact('mailbox', 'folders'));
     }
 
     /**
@@ -350,11 +344,11 @@ class ConversationController extends Controller
     /**
      * Search conversations.
      */
-    public function search(Request $request): View
+    public function search(Request $request): View|ViewFactory
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
-        $searchQuery = $request->input('q', '');
+        $searchQuery = (string) $request->input('q', '');
 
         /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Conversation> $queryBuilder */
         $queryBuilder = Conversation::query()
@@ -369,9 +363,7 @@ class ConversationController extends Controller
                 $q->where('subject', 'like', "%{$searchQuery}%")
                     ->orWhere('preview', 'like', "%{$searchQuery}%")
                     ->orWhereHas('customer', function ($customerQuery) use ($searchQuery) {
-                        // @phpstan-ignore-next-line
                         $customerQuery->where('first_name', 'like', "%{$searchQuery}%")
-                            // @phpstan-ignore-next-line
                             ->orWhere('last_name', 'like', "%{$searchQuery}%");
                     });
             });
@@ -381,9 +373,7 @@ class ConversationController extends Controller
             ->orderBy('last_reply_at', 'desc')
             ->paginate(50);
 
-        /** @var view-string $viewName */
-        $viewName = 'conversations.search';
-        return view($viewName, ['conversations' => $conversations, 'query' => $searchQuery]);
+        return view('conversations.search', ['conversations' => $conversations, 'query' => $searchQuery]);
     }
 
     /**

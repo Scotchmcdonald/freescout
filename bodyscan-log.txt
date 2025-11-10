@@ -90,3 +90,63 @@ Project directory "/var/www/html" - PHPStan level 7: 54 errors
 
 Project directory "/var/www/html" - PHPStan level 8: 54 errors
 
+Project directory "/var/www/html" - PHPStan level 0: 0 errors
+
+Project directory "/var/www/html" - PHPStan level 1: 0 errors
+
+Project directory "/var/www/html" - PHPStan level 2: 2 errors
+
+Project directory "/var/www/html" - PHPStan level 3: 2 errors
+
+Project directory "/var/www/html" - PHPStan level 4: 6 errors
+
+Project directory "/var/www/html" - PHPStan level 5: 8 errors
+
+Project directory "/var/www/html" - PHPStan level 6: 53 errors
+
+Project directory "/var/www/html" - PHPStan level 7: 53 errors
+
+Project directory "/var/www/html" - PHPStan level 8: 53 errors
+
+Project directory "/var/www/html" - PHPStan level 0: 0 errors
+
+Project directory "/var/www/html" - PHPStan level 1: 0 errors
+
+Project directory "/var/www/html" - PHPStan level 2: 2 errors
+
+Project directory "/var/www/html" - PHPStan level 3: 2 errors
+
+Project directory "/var/www/html" - PHPStan level 4: 6 errors
+
+Project directory "/var/www/html" - PHPStan level 5: 8 errors
+
+Project directory "/var/www/html" - PHPStan level 6: 53 errors
+
+Project directory "/var/www/html" - PHPStan level 7: 53 errors
+
+Project directory "/var/www/html" - PHPStan level 8: 53 errors
+
+Project directory "/var/www/html" - PHPStan level 0: 0 errors
+
+Project directory "/var/www/html" - PHPStan level 1: 0 errors
+
+Project directory "/var/www/html" - PHPStan level 2: 2 errors
+
+Project directory "/var/www/html" - PHPStan level 3: 2 errors
+
+Project directory "/var/www/html" - PHPStan level 4: 6 errors
+
+Project directory "/var/www/html" - PHPStan level 5: 8 errors
+
+Project directory "/var/www/html" - PHPStan level 6: 53 errors
+
+Project directory "/var/www/html" - PHPStan level 7: 55 errors
+
+Project directory "/var/www/html" - PHPStan level 8: 55 errors
+
+Project directory "/var/www/html" - PHPStan level 0: 0 errors
+
+Project directory "/var/www/html" - PHPStan level 1: 0 errors
+
+Project directory "/var/www/html" - PHPStan level 2: 2 errors
+

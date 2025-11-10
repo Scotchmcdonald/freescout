@@ -9,34 +9,31 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of users.
      */
-    public function index(): View
+    public function index(): View|Factory
     {
         $this->authorize('viewAny', User::class);
 
         $users = User::orderBy('created_at', 'desc')->paginate(50);
 
-        /** @var view-string $viewName */
-        $viewName = 'users.index';
-        return view($viewName, compact('users'));
+        return view('users.index', compact('users'));
     }
 
     /**
      * Show the form for creating a new user.
      */
-    public function create(): View
+    public function create(): View|Factory
     {
         $this->authorize('create', User::class);
 
-        /** @var view-string $viewName */
-        $viewName = 'users.create';
-        return view($viewName);
+        return view('users.create');
     }
 
     /**
@@ -71,27 +68,23 @@ class UserController extends Controller
     /**
      * Display the specified user.
      */
-    public function show(User $user): View
+    public function show(User $user): View|Factory
     {
         $this->authorize('view', $user);
 
         $user->load('mailboxes', 'conversations');
 
-        /** @var view-string $viewName */
-        $viewName = 'users.show';
-        return view($viewName, compact('user'));
+        return view('users.show', compact('user'));
     }
 
     /**
      * Show the form for editing the specified user.
      */
-    public function edit(User $user): View
+    public function edit(User $user): View|Factory
     {
         $this->authorize('update', $user);
 
-        /** @var view-string $viewName */
-        $viewName = 'users.edit';
-        return view($viewName, compact('user'));
+        return view('users.edit', compact('user'));
     }
 
     /**

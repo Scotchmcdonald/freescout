@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Nwidart\Modules\Facades\Module;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class ModulesController extends Controller
 {
@@ -17,7 +19,7 @@ class ModulesController extends Controller
     /**
      * Display a listing of modules.
      */
-    public function index(): \Illuminate\View\View
+    public function index(): View|ViewFactory
     {
         $modules = Module::all();
         $modulesData = [];
@@ -33,9 +35,7 @@ class ModulesController extends Controller
             ];
         }
 
-        /** @var view-string $viewName */
-        $viewName = 'modules.index';
-        return view($viewName, [
+        return view('modules.index', [
             'modules' => $modulesData,
         ]);
     }

@@ -8,14 +8,15 @@ use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class DashboardController extends Controller
 {
     /**
      * Show the dashboard.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|ViewFactory
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
@@ -55,9 +56,7 @@ class DashboardController extends Controller
             ];
         }
 
-        /** @var view-string $viewName */
-        $viewName = 'dashboard';
-        return view($viewName, compact(
+        return view('dashboard', compact(
             'user',
             'mailboxes',
             'activeConversations',

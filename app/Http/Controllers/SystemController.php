@@ -13,14 +13,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory;
 
 class SystemController extends Controller
 {
     /**
      * Display system status and tools.
      */
-    public function index(): View
+    public function index(): View|Factory
     {
         $stats = [
             'users' => User::count(),
@@ -57,7 +58,6 @@ class SystemController extends Controller
             'max_execution_time' => ini_get('max_execution_time'),
         ];
 
-        /** @var view-string $viewName */
         $viewName = 'system.index';
         return view($viewName, compact('stats', 'systemInfo'));
     }
@@ -225,7 +225,7 @@ class SystemController extends Controller
     /**
      * View application logs.
      */
-    public function logs(Request $request): View
+    public function logs(Request $request): View|Factory
     {
         $type = $request->get('type', 'application');
         
@@ -266,7 +266,6 @@ class SystemController extends Controller
         
         $data['currentType'] = $type;
 
-        /** @var view-string $viewName */
         $viewName = 'system.logs';
         return view($viewName, $data);
     }

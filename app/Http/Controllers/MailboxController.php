@@ -10,7 +10,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory as ViewFactory;
 use App\Models\User;
 
 class MailboxController extends Controller
@@ -18,7 +19,7 @@ class MailboxController extends Controller
     /**
      * Show all mailboxes.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|ViewFactory
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
@@ -27,15 +28,13 @@ class MailboxController extends Controller
             ? Mailbox::with('users')->get()
             : $user->mailboxes;
 
-        /** @var view-string $viewName */
-        $viewName = 'mailboxes.index';
-        return view($viewName, compact('mailboxes'));
+        return view('mailboxes.index', compact('mailboxes'));
     }
 
     /**
      * Show a specific mailbox.
      */
-    public function show(Request $request, Mailbox $mailbox): View
+    public function show(Request $request, Mailbox $mailbox): View|ViewFactory
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
@@ -55,15 +54,13 @@ class MailboxController extends Controller
         // Get folders for this mailbox
         $folders = $mailbox->folders;
 
-        /** @var view-string $viewName */
-        $viewName = 'mailboxes.show';
-        return view($viewName, compact('mailbox', 'conversations', 'folders'));
+        return view('mailboxes.show', compact('mailbox', 'conversations', 'folders'));
     }
 
     /**
      * Show mailbox settings and connection testing.
      */
-    public function settings(Request $request, Mailbox $mailbox): View
+    public function settings(Request $request, Mailbox $mailbox): View|ViewFactory
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
@@ -73,9 +70,7 @@ class MailboxController extends Controller
             abort(403);
         }
 
-        /** @var view-string $viewName */
-        $viewName = 'mailboxes.settings';
-        return view($viewName, compact('mailbox'));
+        return view('mailboxes.settings', compact('mailbox'));
     }
 
     /**
@@ -223,13 +218,11 @@ class MailboxController extends Controller
     /**
      * Show incoming connection settings.
      */
-    public function connectionIncoming(Request $request, Mailbox $mailbox): View
+    public function connectionIncoming(Request $request, Mailbox $mailbox): View|ViewFactory
     {
         $this->authorize('update', $mailbox);
 
-        /** @var view-string $viewName */
-        $viewName = 'mailboxes.connection_incoming';
-        return view($viewName, compact('mailbox'));
+        return view('mailboxes.connection_incoming', compact('mailbox'));
     }
 
     /**
@@ -270,13 +263,11 @@ class MailboxController extends Controller
     /**
      * Show outgoing connection settings.
      */
-    public function connectionOutgoing(Request $request, Mailbox $mailbox): View
+    public function connectionOutgoing(Request $request, Mailbox $mailbox): View|ViewFactory
     {
         $this->authorize('update', $mailbox);
 
-        /** @var view-string $viewName */
-        $viewName = 'mailboxes.connection_outgoing';
-        return view($viewName, compact('mailbox'));
+        return view('mailboxes.connection_outgoing', compact('mailbox'));
     }
 
     /**
@@ -326,7 +317,7 @@ class MailboxController extends Controller
     /**
      * Show mailbox permissions management page.
      */
-    public function permissions(Request $request, Mailbox $mailbox): View
+    public function permissions(Request $request, Mailbox $mailbox): View|ViewFactory
     {
         $this->authorize('update', $mailbox);
 
@@ -336,9 +327,7 @@ class MailboxController extends Controller
             ->orderBy('last_name')
             ->get();
 
-        /** @var view-string $viewName */
-        $viewName = 'mailboxes.permissions';
-        return view($viewName, compact('mailbox', 'users'));
+        return view('mailboxes.permissions', compact('mailbox', 'users'));
     }
 
     /**
@@ -369,13 +358,11 @@ class MailboxController extends Controller
     /**
      * Show auto-reply settings page.
      */
-    public function autoReply(Request $request, Mailbox $mailbox): View
+    public function autoReply(Request $request, Mailbox $mailbox): View|ViewFactory
     {
         $this->authorize('update', $mailbox);
 
-        /** @var view-string $viewName */
-        $viewName = 'mailboxes.auto_reply';
-        return view($viewName, compact('mailbox'));
+        return view('mailboxes.auto_reply', compact('mailbox'));
     }
 
     /**

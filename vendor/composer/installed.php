@@ -3,7 +3,7 @@
         'name' => 'freescout-helpdesk/freescout-modern',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '175a0cd11f62543f81baec7611b9b1facfdbcfb6',
+        'reference' => '274a8f75bc6d74f14a7b60c7df019619123d8392',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -157,6 +157,12 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'facebook/webdriver' => array(
+            'dev_requirement' => true,
+            'replaced' => array(
+                0 => '*',
+            ),
+        ),
         'fakerphp/faker' => array(
             'pretty_version' => 'v1.24.1',
             'version' => '1.24.1.0',
@@ -187,7 +193,7 @@
         'freescout-helpdesk/freescout-modern' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '175a0cd11f62543f81baec7611b9b1facfdbcfb6',
+            'reference' => '274a8f75bc6d74f14a7b60c7df019619123d8392',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -502,6 +508,15 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
+        'laravel/dusk' => array(
+            'pretty_version' => 'v8.3.3',
+            'version' => '8.3.3.0',
+            'reference' => '077d448cd993a08f97bfccf0ea3d6478b3908f7e',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../laravel/dusk',
+            'aliases' => array(),
+            'dev_requirement' => true,
+        ),
         'laravel/framework' => array(
             'pretty_version' => 'v11.46.1',
             'version' => '11.46.1.0',
@@ -757,6 +772,15 @@
             'reference' => '4f7fd7836c6f332bb2933569e566a0d6c4cbed74',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phar-io/version',
+            'aliases' => array(),
+            'dev_requirement' => true,
+        ),
+        'php-webdriver/webdriver' => array(
+            'pretty_version' => '1.15.2',
+            'version' => '1.15.2.0',
+            'reference' => '998e499b786805568deaf8cbf06f4044f05d91bf',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../php-webdriver/webdriver',
             'aliases' => array(),
             'dev_requirement' => true,
         ),
