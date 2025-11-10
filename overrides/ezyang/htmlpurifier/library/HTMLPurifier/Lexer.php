@@ -33,7 +33,6 @@
  *  -# Require more processing and memory to create,
  *  -# Is not streamable, and
  *  -# Has the entire document structure (html and body not needed).
- *
  * @par
  * However, DOM is helpful in that it makes it easy to move around nodes
  * without a lot of lookaheads to see when a tag is closed. This is a
@@ -63,18 +62,19 @@ class HTMLPurifier_Lexer
      *       To specify your own prototype, set %Core.LexerImpl to it.
      *       This change in behavior de-singletonizes the lexer object.
      *
-     * @param HTMLPurifier_Config $config
+     * @param  HTMLPurifier_Config  $config
      * @return HTMLPurifier_Lexer
+     *
      * @throws HTMLPurifier_Exception
      */
     public static function create($config)
     {
-        if (!($config instanceof HTMLPurifier_Config)) {
+        if (! ($config instanceof HTMLPurifier_Config)) {
             $lexer = $config;
             trigger_error(
-                "Passing a prototype to
+                'Passing a prototype to
                 HTMLPurifier_Lexer::create() is deprecated, please instead
-                use %Core.LexerImpl",
+                use %Core.LexerImpl',
                 E_USER_WARNING
             );
         } else {
@@ -99,7 +99,7 @@ class HTMLPurifier_Lexer
 
                     if (class_exists('DOMDocument', false) &&
                         method_exists('DOMDocument', 'loadHTML') &&
-                        !extension_loaded('domxml')
+                        ! extension_loaded('domxml')
                     ) {
                         // check for DOM support, because while it's part of the
                         // core, it can be disabled compile time. Also, the PECL
@@ -115,31 +115,31 @@ class HTMLPurifier_Lexer
             // instantiate recognized string names
             switch ($lexer) {
                 case 'DOMLex':
-                    $inst = new HTMLPurifier_Lexer_DOMLex();
+                    $inst = new HTMLPurifier_Lexer_DOMLex;
                     break;
                 case 'DirectLex':
-                    $inst = new HTMLPurifier_Lexer_DirectLex();
+                    $inst = new HTMLPurifier_Lexer_DirectLex;
                     break;
                 case 'PH5P':
-                    $inst = new HTMLPurifier_Lexer_PH5P();
+                    $inst = new HTMLPurifier_Lexer_PH5P;
                     break;
                 default:
                     throw new HTMLPurifier_Exception(
-                        "Cannot instantiate unrecognized Lexer type " .
+                        'Cannot instantiate unrecognized Lexer type '.
                         htmlspecialchars($lexer)
                     );
             }
         }
 
-        if (!$inst) {
+        if (! $inst) {
             throw new HTMLPurifier_Exception('No lexer was instantiated');
         }
 
         // once PHP DOM implements native line numbers, or we
         // hack out something using XSLT, remove this stipulation
-        if ($needs_tracking && !$inst->tracksLineNumbers) {
+        if ($needs_tracking && ! $inst->tracksLineNumbers) {
             throw new HTMLPurifier_Exception(
-                'Cannot use lexer that does not support line numbers with ' .
+                'Cannot use lexer that does not support line numbers with '.
                 'Core.MaintainLineNumbers or Core.CollectErrors (use DirectLex instead)'
             );
         }
@@ -152,29 +152,32 @@ class HTMLPurifier_Lexer
 
     public function __construct()
     {
-        $this->_entity_parser = new HTMLPurifier_EntityParser();
+        $this->_entity_parser = new HTMLPurifier_EntityParser;
     }
 
     /**
      * Most common entity to raw value conversion table for special entities.
+     *
      * @type array
      */
     protected $_special_entity2str =
-        array(
+        [
             '&quot;' => '"',
             '&amp;' => '&',
             '&lt;' => '<',
             '&gt;' => '>',
             '&#39;' => "'",
             '&#039;' => "'",
-            '&#x27;' => "'"
-        );
+            '&#x27;' => "'",
+        ];
 
-    public function parseText($string, $config) {
+    public function parseText($string, $config)
+    {
         return $this->parseData($string, false, $config);
     }
 
-    public function parseAttr($string, $config) {
+    public function parseAttr($string, $config)
+    {
         return $this->parseData($string, true, $config);
     }
 
@@ -184,7 +187,7 @@ class HTMLPurifier_Lexer
      * This string will translate escaped versions of the special characters
      * into the correct ones.
      *
-     * @param string $string String character data to be parsed.
+     * @param  string  $string  String character data to be parsed.
      * @return string Parsed character data.
      */
     public function parseData($string, $is_attr, $config)
@@ -198,7 +201,7 @@ class HTMLPurifier_Lexer
         $num_amp = substr_count($string, '&') - substr_count($string, '& ') -
             ($string[strlen($string) - 1] === '&' ? 1 : 0);
 
-        if (!$num_amp) {
+        if (! $num_amp) {
             return $string;
         } // abort if no entities
         $num_esc_amp = substr_count($string, '&amp;');
@@ -222,14 +225,16 @@ class HTMLPurifier_Lexer
                 $string = $this->_entity_parser->substituteTextEntities($string);
             }
         }
+
         return $string;
     }
 
     /**
      * Lexes an HTML string into tokens.
-     * @param $string String HTML.
-     * @param HTMLPurifier_Config $config
-     * @param HTMLPurifier_Context $context
+     *
+     * @param  $string  String HTML.
+     * @param  HTMLPurifier_Config  $config
+     * @param  HTMLPurifier_Context  $context
      * @return HTMLPurifier_Token[] array representation of HTML.
      */
     public function tokenizeHTML($string, $config, $context)
@@ -239,35 +244,38 @@ class HTMLPurifier_Lexer
 
     /**
      * Translates CDATA sections into regular sections (through escaping).
-     * @param string $string HTML string to process.
+     *
+     * @param  string  $string  HTML string to process.
      * @return string HTML with CDATA sections escaped.
      */
     protected static function escapeCDATA($string)
     {
         return preg_replace_callback(
             '/<!\[CDATA\[(.+?)\]\]>/s',
-            array('HTMLPurifier_Lexer', 'CDATACallback'),
+            ['HTMLPurifier_Lexer', 'CDATACallback'],
             $string
         );
     }
 
     /**
      * Special CDATA case that is especially convoluted for <script>
-     * @param string $string HTML string to process.
+     *
+     * @param  string  $string  HTML string to process.
      * @return string HTML with CDATA sections escaped.
      */
     protected static function escapeCommentedCDATA($string)
     {
         return preg_replace_callback(
             '#<!--//--><!\[CDATA\[//><!--(.+?)//--><!\]\]>#s',
-            array('HTMLPurifier_Lexer', 'CDATACallback'),
+            ['HTMLPurifier_Lexer', 'CDATACallback'],
             $string
         );
     }
 
     /**
      * Special Internet Explorer conditional comments should be removed.
-     * @param string $string HTML string to process.
+     *
+     * @param  string  $string  HTML string to process.
      * @return string HTML with conditional comments removed.
      */
     protected static function removeIEConditional($string)
@@ -288,8 +296,9 @@ class HTMLPurifier_Lexer
      *
      * @warning Though this is public in order to let the callback happen,
      *          calling it directly is not recommended.
-     * @param array $matches PCRE matches array, with index 0 the entire match
-     *                  and 1 the inside of the CDATA section.
+     *
+     * @param  array  $matches  PCRE matches array, with index 0 the entire match
+     *                          and 1 the inside of the CDATA section.
      * @return string Escaped internals of the CDATA section.
      */
     protected static function CDATACallback($matches)
@@ -301,10 +310,12 @@ class HTMLPurifier_Lexer
     /**
      * Takes a piece of HTML and normalizes it by converting entities, fixing
      * encoding, extracting bits, and other good stuff.
-     * @param string $html HTML.
-     * @param HTMLPurifier_Config $config
-     * @param HTMLPurifier_Context $context
+     *
+     * @param  string  $html  HTML.
+     * @param  HTMLPurifier_Config  $config
+     * @param  HTMLPurifier_Context  $context
      * @return string
+     *
      * @todo Consider making protected
      */
     public function normalize($html, $config, $context)
@@ -329,7 +340,7 @@ class HTMLPurifier_Lexer
         if ($config->get('Core.ConvertDocumentToFragment')) {
             $e = false;
             if ($config->get('Core.CollectErrors')) {
-                $e =& $context->get('ErrorCollector');
+                $e = &$context->get('ErrorCollector');
             }
             $new_html = $this->extractBody($html);
             if ($e && $new_html != $html) {
@@ -355,8 +366,8 @@ class HTMLPurifier_Lexer
 
         $hidden_elements = $config->get('Core.HiddenElements');
         if ($config->get('Core.AggressivelyRemoveScript') &&
-            !($config->get('HTML.Trusted') || !$config->get('Core.RemoveScriptContents')
-            || empty($hidden_elements["script"]))) {
+            ! ($config->get('HTML.Trusted') || ! $config->get('Core.RemoveScriptContents')
+            || empty($hidden_elements['script']))) {
             $html = preg_replace('#<script[^>]*>.*?</script>#i', '', $html);
         }
 
@@ -365,21 +376,23 @@ class HTMLPurifier_Lexer
 
     /**
      * Takes a string of HTML (fragment or document) and returns the content
+     *
      * @todo Consider making protected
      */
     public function extractBody($html)
     {
-        $matches = array();
+        $matches = [];
         $result = preg_match('|(.*?)<body[^>]*>(.*)</body>|is', $html ?? '', $matches);
         if ($result) {
             // Make sure it's not in a comment
             $comment_start = strrpos($matches[1], '<!--');
-            $comment_end   = strrpos($matches[1], '-->');
+            $comment_end = strrpos($matches[1], '-->');
             if ($comment_start === false ||
                 ($comment_end !== false && $comment_end > $comment_start)) {
                 return $matches[2];
             }
         }
+
         return $html;
     }
 }

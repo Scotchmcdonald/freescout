@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use \Barryvdh\TranslationManager\Models\Translation;
 use Barryvdh\TranslationManager\Controller as BaseController;
+use Barryvdh\TranslationManager\Models\Translation;
 
 class TranslateController extends BaseController
 {
@@ -30,7 +30,7 @@ class TranslateController extends BaseController
             $archive_path = \Helper::createZipArchive(base_path().DIRECTORY_SEPARATOR.'resources/lang', 'lang.zip', 'lang');
         } catch (\Exception $e) {
             return [
-                'status'  => 'error',
+                'status' => 'error',
                 'error_msg' => $e->getMessage(),
             ];
         }

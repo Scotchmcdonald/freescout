@@ -2,13 +2,13 @@
 
 namespace Illuminate\Http;
 
-use Closure;
 use ArrayAccess;
-use RuntimeException;
+use Closure;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use Illuminate\Contracts\Support\Arrayable;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
@@ -116,7 +116,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     /**
      * Get the full URL for the request with the added query string parameters.
      *
-     * @param  array  $query
      * @return string
      */
     public function fullUrlWithQuery(array $query)
@@ -286,7 +285,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     /**
      * Merge new input into the current request's input array.
      *
-     * @param  array  $input
      * @return \Illuminate\Http\Request
      */
     public function merge(array $input)
@@ -299,7 +297,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     /**
      * Replace the input for the current request.
      *
-     * @param  array  $input
      * @return \Illuminate\Http\Request
      */
     public function replace(array $input)
@@ -313,7 +310,7 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      * Get the JSON payload for the request.
      *
      * @param  string  $key
-     * @param  mixed   $default
+     * @param  mixed  $default
      * @return \Symfony\Component\HttpFoundation\ParameterBag|mixed
      */
     public function json($key = null, $default = null)
@@ -346,7 +343,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     /**
      * Create an Illuminate request from a Symfony instance.
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
      * @return \Illuminate\Http\Request
      */
     public static function createFromBase(SymfonyRequest $request)
@@ -444,7 +440,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      * Get the route handling the request.
      *
      * @param  string|null  $param
-     *
      * @return \Illuminate\Routing\Route|object|string
      */
     public function route($param = null)
@@ -504,7 +499,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     /**
      * Set the user resolver callback.
      *
-     * @param  \Closure  $callback
      * @return $this
      */
     public function setUserResolver(Closure $callback)
@@ -529,7 +523,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
     /**
      * Set the route resolver callback.
      *
-     * @param  \Closure  $callback
      * @return $this
      */
     public function setRouteResolver(Closure $callback)
@@ -553,7 +546,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      * Determine if the given offset exists.
      *
      * @param  string  $offset
-     * @return bool
      */
     public function offsetExists($offset): bool
     {
@@ -567,7 +559,7 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      *
      * @param  string  $offset
      * @return mixed
-     * : mixed
+     *               : mixed
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
@@ -580,7 +572,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      *
      * @param  string  $offset
      * @param  mixed  $value
-     * @return void
      */
     public function offsetSet($offset, $value): void
     {
@@ -591,7 +582,6 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
      * Remove the value at the given offset.
      *
      * @param  string  $offset
-     * @return void
      */
     public function offsetUnset($offset): void
     {

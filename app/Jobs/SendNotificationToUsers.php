@@ -63,7 +63,7 @@ class SendNotificationToUsers implements ShouldQueue
         $headers = [];
         $last_thread = $this->threads->first();
 
-        if (!$last_thread) {
+        if (! $last_thread) {
             return;
         }
 
@@ -101,7 +101,7 @@ class SendNotificationToUsers implements ShouldQueue
         foreach ($this->users as $user) {
 
             // User can ne deleted from DB.
-            if (!isset($user->id)) {
+            if (! isset($user->id)) {
                 continue;
             }
 
@@ -137,7 +137,7 @@ class SendNotificationToUsers implements ShouldQueue
                     $from_name = $from_name.' '.__('via').' '.$mailbox->name;
                 }
             }
-            if (!$from_name) {
+            if (! $from_name) {
                 $from_name = $mailbox->name;
             }
             $from = ['address' => $mailbox->email, 'name' => $from_name];
@@ -158,8 +158,8 @@ class SendNotificationToUsers implements ShouldQueue
                 activity()
                     ->causedBy($user)
                     ->withProperties([
-                        'error'    => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
-                     ])
+                        'error' => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
+                    ])
                     ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
                     ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_TO_USER);
 
@@ -175,7 +175,7 @@ class SendNotificationToUsers implements ShouldQueue
                 $failures = Mail::failures();
 
                 // Save to send log
-                if (!empty($failures) && in_array($user->email, $failures)) {
+                if (! empty($failures) && in_array($user->email, $failures)) {
                     $status = SendLog::STATUS_SEND_ERROR;
                 } else {
                     $status = SendLog::STATUS_ACCEPTED;
@@ -189,7 +189,7 @@ class SendNotificationToUsers implements ShouldQueue
             // Retry job with delay.
             // https://stackoverflow.com/questions/35258175/how-can-i-create-delays-between-failed-queued-job-attempts-in-laravel
             // We do not try to resend Bounce messages: https://github.com/freescout-helpdesk/freescout/issues/3156
-            if ($this->attempts() < $this->tries && !$last_thread->isBounce()) {
+            if ($this->attempts() < $this->tries && ! $last_thread->isBounce()) {
                 if ($this->attempts() == 1) {
                     // Second attempt after 5 min.
                     $this->release(300);
@@ -212,19 +212,18 @@ class SendNotificationToUsers implements ShouldQueue
      * This method is called after attempts had finished.
      * At this stage method has access only to variables passed in constructor.
      *
-     * @param Exception $exception
-     *
+     * @param  Exception  $exception
      * @return void
      */
     public function failed(\Exception $e)
     {
         // Write to activity log
         activity()
-           //->causedBy($this->customer)
-           ->withProperties([
-                'error'    => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
+           // ->causedBy($this->customer)
+            ->withProperties([
+                'error' => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
             ])
-           ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
-           ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_TO_USER);
+            ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
+            ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_TO_USER);
     }
 }

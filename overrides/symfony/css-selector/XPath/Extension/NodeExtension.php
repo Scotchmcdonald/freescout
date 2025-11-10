@@ -28,13 +28,15 @@ use Symfony\Component\CssSelector\XPath\XPathExpr;
 class NodeExtension extends AbstractExtension
 {
     const ELEMENT_NAME_IN_LOWER_CASE = 1;
+
     const ATTRIBUTE_NAME_IN_LOWER_CASE = 2;
+
     const ATTRIBUTE_VALUE_IN_LOWER_CASE = 4;
 
     private $flags;
 
     /**
-     * @param int $flags
+     * @param  int  $flags
      */
     public function __construct($flags = 0)
     {
@@ -42,18 +44,17 @@ class NodeExtension extends AbstractExtension
     }
 
     /**
-     * @param int  $flag
-     * @param bool $on
-     *
+     * @param  int  $flag
+     * @param  bool  $on
      * @return $this
      */
     public function setFlag($flag, $on)
     {
-        if ($on && !$this->hasFlag($flag)) {
+        if ($on && ! $this->hasFlag($flag)) {
             $this->flags += $flag;
         }
 
-        if (!$on && $this->hasFlag($flag)) {
+        if (! $on && $this->hasFlag($flag)) {
             $this->flags -= $flag;
         }
 
@@ -61,8 +62,7 @@ class NodeExtension extends AbstractExtension
     }
 
     /**
-     * @param int $flag
-     *
+     * @param  int  $flag
      * @return bool
      */
     public function hasFlag($flag)
@@ -75,17 +75,17 @@ class NodeExtension extends AbstractExtension
      */
     public function getNodeTranslators()
     {
-        return array(
-            'Selector' => array($this, 'translateSelector'),
-            'CombinedSelector' => array($this, 'translateCombinedSelector'),
-            'Negation' => array($this, 'translateNegation'),
-            'Function' => array($this, 'translateFunction'),
-            'Pseudo' => array($this, 'translatePseudo'),
-            'Attribute' => array($this, 'translateAttribute'),
-            'Class' => array($this, 'translateClass'),
-            'Hash' => array($this, 'translateHash'),
-            'Element' => array($this, 'translateElement'),
-        );
+        return [
+            'Selector' => [$this, 'translateSelector'],
+            'CombinedSelector' => [$this, 'translateCombinedSelector'],
+            'Negation' => [$this, 'translateNegation'],
+            'Function' => [$this, 'translateFunction'],
+            'Pseudo' => [$this, 'translatePseudo'],
+            'Attribute' => [$this, 'translateAttribute'],
+            'Class' => [$this, 'translateClass'],
+            'Hash' => [$this, 'translateHash'],
+            'Element' => [$this, 'translateElement'],
+        ];
     }
 
     /**
@@ -213,7 +213,7 @@ class NodeExtension extends AbstractExtension
 
         $xpath = new XPathExpr('', $element);
 
-        if (!$safe) {
+        if (! $safe) {
             $xpath->addNameTest();
         }
 
@@ -231,12 +231,11 @@ class NodeExtension extends AbstractExtension
     /**
      * Tests if given name is safe.
      *
-     * @param string $name
-     *
+     * @param  string  $name
      * @return bool
      */
     private function isSafeName($name)
     {
-        return 0 < preg_match('~^[a-zA-Z_][a-zA-Z0-9_.-]*$~', $name);
+        return preg_match('~^[a-zA-Z_][a-zA-Z0-9_.-]*$~', $name) > 0;
     }
 }

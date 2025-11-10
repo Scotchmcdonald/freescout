@@ -14,16 +14,17 @@ namespace GuzzleHttp\Promise;
 interface PromiseInterface
 {
     const PENDING = 'pending';
+
     const FULFILLED = 'fulfilled';
+
     const REJECTED = 'rejected';
 
     /**
      * Appends fulfillment and rejection handlers to the promise, and returns
      * a new promise resolving to the return value of the called handler.
      *
-     * @param callable $onFulfilled Invoked when the promise fulfills.
-     * @param callable $onRejected  Invoked when the promise is rejected.
-     *
+     * @param  callable  $onFulfilled  Invoked when the promise fulfills.
+     * @param  callable  $onRejected  Invoked when the promise is rejected.
      * @return PromiseInterface
      */
     public function then(
@@ -37,8 +38,7 @@ interface PromiseInterface
      * or to its original fulfillment value if the promise is instead
      * fulfilled.
      *
-     * @param callable $onRejected Invoked when the promise is rejected.
-     *
+     * @param  callable  $onRejected  Invoked when the promise is rejected.
      * @return PromiseInterface
      */
     public function otherwise(callable $onRejected);
@@ -56,7 +56,7 @@ interface PromiseInterface
     /**
      * Resolve the promise with the given value.
      *
-     * @param mixed $value
+     * @param  mixed  $value
      *
      * @throws \RuntimeException if the promise is already resolved.
      */
@@ -65,7 +65,7 @@ interface PromiseInterface
     /**
      * Reject the promise with the given reason.
      *
-     * @param mixed $reason
+     * @param  mixed  $reason
      *
      * @throws \RuntimeException if the promise is already resolved.
      */
@@ -86,8 +86,7 @@ interface PromiseInterface
      *
      * If the promise cannot be waited on, then the promise will be rejected.
      *
-     * @param bool $unwrap
-     *
+     * @param  bool  $unwrap
      * @return mixed
      *
      * @throws \LogicException if the promise has no wait function or if the

@@ -1,18 +1,19 @@
 <?php
+
 /**
  * Application installer.
  */
 ini_set('display_errors', 'Off');
 
-if (preg_match("#^/public\/(.*)#", $_SERVER['REQUEST_URI'], $m) && !empty($m[1])) {
-    header("Location: /".$m[1]);
+if (preg_match("#^/public\/(.*)#", $_SERVER['REQUEST_URI'], $m) && ! empty($m[1])) {
+    header('Location: /'.$m[1]);
     exit();
 }
 
 $required_functions = ['putenv', 'symlink'];
 
 foreach ($required_functions as $required_function) {
-    if (!function_exists($required_function)) {
+    if (! function_exists($required_function)) {
         echo $required_function.'() function is required - make sure to enabled it in your PHP.';
         exit();
     }
@@ -40,7 +41,7 @@ foreach ($vendor_files as $vendor_file) {
 }
 
 // Symfony proces
-//require_once($root_dir.'vendor/symfony/process/Process.php');
+// require_once($root_dir.'vendor/symfony/process/Process.php');
 
 // Laravel Encrypter
 // require_once($root_dir.'vendor/laravel/framework/src/Illuminate/Contracts/Encryption/Encrypter.php');
@@ -49,7 +50,7 @@ foreach ($vendor_files as $vendor_file) {
 function generateRandomKey()
 {
     return 'base64:'.base64_encode(
-        //Encrypter::generateKey('AES-256-CBC');
+        // Encrypter::generateKey('AES-256-CBC');
         random_bytes(32)
     );
 }
@@ -70,8 +71,8 @@ function getAppKey($root_dir, $check_cache = true)
     if ($check_cache && file_exists($root_dir.'bootstrap/cache/config.php')) {
         $config = include $root_dir.'bootstrap/cache/config.php';
 
-        if (!empty($config)) {
-            if (!empty($config['app']['key'])) {
+        if (! empty($config)) {
+            if (! empty($config['app']['key'])) {
                 return $config['app']['key'];
             } else {
                 return '';
@@ -88,7 +89,7 @@ function getAppKey($root_dir, $check_cache = true)
         // Do nothing
     }
 
-    if (!empty($_ENV['APP_KEY'])) {
+    if (! empty($_ENV['APP_KEY'])) {
         return $_ENV['APP_KEY'];
     } else {
         return '';
@@ -166,14 +167,14 @@ function getSubdirectory()
         do {
             $seg = $segs[$index];
             $subdirectory = '/'.$seg.$subdirectory;
-            ++$index;
-        } while ($last > $index && (false !== $pos = strpos($path, $subdirectory)) && 0 != $pos);
+            $index++;
+        } while ($last > $index && (false !== $pos = strpos($path, $subdirectory)) && $pos != 0);
     }
 
     $subdirectory = str_replace('public/install.php', '', $subdirectory);
     $subdirectory = str_replace('install.php', '', $subdirectory);
 
-    if (!$subdirectory) {
+    if (! $subdirectory) {
         $subdirectory = '/';
     }
 
@@ -185,18 +186,18 @@ $app_key = getAppKey($root_dir);
 // Generate APP_KEY
 if (empty($app_key)) {
     // Copy .env.example
-    if (!file_exists($root_dir.'.env')) {
-        
+    if (! file_exists($root_dir.'.env')) {
+
         // Check if .env.example eixists
-        if (!file_exists($root_dir.'.env.example')) {
+        if (! file_exists($root_dir.'.env.example')) {
             showError('File <strong>'.$root_dir.'.env.example</strong> not found. Please make sure to copy this file from the application dist.');
             exit();
         }
 
         copy($root_dir.'.env.example', $root_dir.'.env');
 
-        if (!file_exists($root_dir.'.env')) {
-            //echo 'Please copy <code>.env.example</code> file to <code>.env</code> and reload this page.';
+        if (! file_exists($root_dir.'.env')) {
+            // echo 'Please copy <code>.env.example</code> file to <code>.env</code> and reload this page.';
             showPermissionsError();
             exit();
         }
@@ -204,10 +205,10 @@ if (empty($app_key)) {
 
     // Add APP_KEY= to the .env file if needed
     // Without APP_KEY= the key will not be generated
-    if (!preg_match('/^APP_KEY=/m', file_get_contents($root_dir.'.env'))) {
+    if (! preg_match('/^APP_KEY=/m', file_get_contents($root_dir.'.env'))) {
         $append_result = file_put_contents($root_dir.'.env', PHP_EOL.'APP_KEY=', FILE_APPEND);
-        if (!$append_result) {
-            //showError('Could not write APP_KEY to .env file. Please run the following commands in SSH console:<br/><code>php artisan key:generate</code><br/><code>php artisan freescout:clear-cache</code>');
+        if (! $append_result) {
+            // showError('Could not write APP_KEY to .env file. Please run the following commands in SSH console:<br/><code>php artisan key:generate</code><br/><code>php artisan freescout:clear-cache</code>');
             showPermissionsError();
             exit();
         }
@@ -222,7 +223,7 @@ if (empty($app_key)) {
     $app_key = getAppKey($root_dir, false);
 }
 
-if (!empty($app_key)) {
+if (! empty($app_key)) {
     // When APP_KEY generated, redirect to /install
     header('Location: '.getSubdirectory().'install');
 } else {

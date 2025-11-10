@@ -39,10 +39,7 @@ class ProviderRepository
     /**
      * Create a new service repository instance.
      *
-     * @param \Illuminate\Contracts\Foundation\Application $app
-     * @param \Illuminate\Filesystem\Filesystem            $files
-     * @param string                                       $manifestPath
-     *
+     * @param  string  $manifestPath
      * @return void
      */
     public function __construct(ApplicationContract $app, Filesystem $files, $manifestPath)
@@ -55,7 +52,6 @@ class ProviderRepository
     /**
      * Register the application service providers.
      *
-     * @param array $providers
      *
      * @return void
      */
@@ -96,15 +92,16 @@ class ProviderRepository
                 $provider_name = $matches[1];
                 // Read app.php and check if service provider is listed there,
                 // if not listed, we can ignore the exception.
-                if (!$this->appConfig) {
+                if (! $this->appConfig) {
                     $this->appConfig = include base_path().DIRECTORY_SEPARATOR.'config/app.php';
                 }
 
-                if (!in_array($provider_name, $this->appConfig['providers'])) {
+                if (! in_array($provider_name, $this->appConfig['providers'])) {
                     // Just log the error
                     // After cache will be cleared, problem will go away
                     \Log::error($e->getMessage());
                     unset($manifest['eager'][$i]);
+
                     continue;
                 } else {
                     throw $e;
@@ -137,9 +134,8 @@ class ProviderRepository
     /**
      * Determine if the manifest should be compiled.
      *
-     * @param array $manifest
-     * @param array $providers
-     *
+     * @param  array  $manifest
+     * @param  array  $providers
      * @return bool
      */
     public function shouldRecompile($manifest, $providers)
@@ -150,9 +146,7 @@ class ProviderRepository
     /**
      * Register the load events for the given provider.
      *
-     * @param string $provider
-     * @param array  $events
-     *
+     * @param  string  $provider
      * @return void
      */
     protected function registerLoadEvents($provider, array $events)
@@ -169,8 +163,7 @@ class ProviderRepository
     /**
      * Compile the application service manifest file.
      *
-     * @param array $providers
-     *
+     * @param  array  $providers
      * @return array
      */
     protected function compileManifest($providers)
@@ -196,15 +189,16 @@ class ProviderRepository
                 $provider_name = $matches[1];
                 // Read app.php and check if service provider is listed there,
                 // if not listed, we can ignore the exception.
-                if (!$this->appConfig) {
+                if (! $this->appConfig) {
                     $this->appConfig = include base_path().DIRECTORY_SEPARATOR.'config/app.php';
                 }
 
-                if (!in_array($provider_name, $this->appConfig['providers'])) {
+                if (! in_array($provider_name, $this->appConfig['providers'])) {
                     // Just log the error
                     // After cache will be cleared, problem will go away
                     \Log::error($e->getMessage());
                     unset($providers[$i]);
+
                     continue;
                 } else {
                     throw $e;
@@ -236,7 +230,6 @@ class ProviderRepository
     /**
      * Create a fresh service manifest data structure.
      *
-     * @param array $providers
      *
      * @return array
      */
@@ -248,15 +241,14 @@ class ProviderRepository
     /**
      * Write the service manifest file to disk.
      *
-     * @param array $manifest
+     * @param  array  $manifest
+     * @return array
      *
      * @throws \Exception
-     *
-     * @return array
      */
     public function writeManifest($manifest)
     {
-        if (!is_writable(dirname($this->manifestPath))) {
+        if (! is_writable(dirname($this->manifestPath))) {
             throw new Exception('The bootstrap/cache directory must be present and writable: '.$this->manifestPath);
         }
 
@@ -270,8 +262,7 @@ class ProviderRepository
     /**
      * Create a new provider instance.
      *
-     * @param string $provider
-     *
+     * @param  string  $provider
      * @return \Illuminate\Support\ServiceProvider
      */
     public function createProvider($provider)

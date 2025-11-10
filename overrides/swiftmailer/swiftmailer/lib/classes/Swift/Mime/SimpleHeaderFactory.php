@@ -35,7 +35,7 @@ class Swift_Mime_SimpleHeaderFactory implements Swift_Mime_CharsetObserver
     /**
      * Creates a new SimpleHeaderFactory using $encoder and $paramEncoder.
      *
-     * @param string|null $charset
+     * @param  string|null  $charset
      */
     public function __construct(Swift_Mime_HeaderEncoder $encoder, Swift_Encoder $paramEncoder, EmailValidator $emailValidator, $charset = null, ?Swift_AddressEncoder $addressEncoder = null)
     {
@@ -43,15 +43,14 @@ class Swift_Mime_SimpleHeaderFactory implements Swift_Mime_CharsetObserver
         $this->paramEncoder = $paramEncoder;
         $this->emailValidator = $emailValidator;
         $this->charset = $charset;
-        $this->addressEncoder = $addressEncoder ?? new Swift_AddressEncoder_IdnAddressEncoder();
+        $this->addressEncoder = $addressEncoder ?? new Swift_AddressEncoder_IdnAddressEncoder;
     }
 
     /**
      * Create a new Mailbox Header with a list of $addresses.
      *
-     * @param string            $name
-     * @param array|string|null $addresses
-     *
+     * @param  string  $name
+     * @param  array|string|null  $addresses
      * @return Swift_Mime_Header
      */
     public function createMailboxHeader($name, $addresses = null)
@@ -68,9 +67,7 @@ class Swift_Mime_SimpleHeaderFactory implements Swift_Mime_CharsetObserver
     /**
      * Create a new Date header using $dateTime.
      *
-     * @param string                 $name
-     * @param DateTimeInterface|null $dateTime
-     *
+     * @param  string  $name
      * @return Swift_Mime_Header
      */
     public function createDateHeader($name, ?DateTimeInterface $dateTime = null)
@@ -87,9 +84,8 @@ class Swift_Mime_SimpleHeaderFactory implements Swift_Mime_CharsetObserver
     /**
      * Create a new basic text header with $name and $value.
      *
-     * @param string $name
-     * @param string $value
-     *
+     * @param  string  $name
+     * @param  string  $value
      * @return Swift_Mime_Header
      */
     public function createTextHeader($name, $value = null)
@@ -106,15 +102,14 @@ class Swift_Mime_SimpleHeaderFactory implements Swift_Mime_CharsetObserver
     /**
      * Create a new ParameterizedHeader with $name, $value and $params.
      *
-     * @param string $name
-     * @param string $value
-     * @param array  $params
-     *
+     * @param  string  $name
+     * @param  string  $value
+     * @param  array  $params
      * @return Swift_Mime_Headers_ParameterizedHeader
      */
     public function createParameterizedHeader($name, $value = null, $params = [])
     {
-        $header = new Swift_Mime_Headers_ParameterizedHeader($name, $this->encoder, ('content-disposition' == strtolower($name)) ? $this->paramEncoder : null);
+        $header = new Swift_Mime_Headers_ParameterizedHeader($name, $this->encoder, (strtolower($name) == 'content-disposition') ? $this->paramEncoder : null);
         if (isset($value)) {
             $header->setFieldBodyModel($value);
         }
@@ -129,9 +124,8 @@ class Swift_Mime_SimpleHeaderFactory implements Swift_Mime_CharsetObserver
     /**
      * Create a new ID header for Message-ID or Content-ID.
      *
-     * @param string       $name
-     * @param string|array $ids
-     *
+     * @param  string  $name
+     * @param  string|array  $ids
      * @return Swift_Mime_Header
      */
     public function createIdHeader($name, $ids = null)
@@ -148,9 +142,8 @@ class Swift_Mime_SimpleHeaderFactory implements Swift_Mime_CharsetObserver
     /**
      * Create a new Path header with an address (path) in it.
      *
-     * @param string $name
-     * @param string $path
-     *
+     * @param  string  $name
+     * @param  string  $path
      * @return Swift_Mime_Header
      */
     public function createPathHeader($name, $path = null)
@@ -167,7 +160,7 @@ class Swift_Mime_SimpleHeaderFactory implements Swift_Mime_CharsetObserver
     /**
      * Notify this observer that the entity's charset has changed.
      *
-     * @param string $charset
+     * @param  string  $charset
      */
     public function charsetChanged($charset)
     {

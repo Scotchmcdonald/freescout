@@ -71,13 +71,13 @@ class UserNotification extends Mailable
     public function build()
     {
         \MailHelper::prepareMailable($this);
-        
+
         // Set Message-ID
         // Settings via $this->addCustomHeaders does not work
         $new_headers = $this->headers;
-        if (!empty($new_headers)) {
+        if (! empty($new_headers)) {
             $this->withSwiftMessage(function ($swiftmessage) use ($new_headers) {
-                if (!empty($new_headers['Message-ID'])) {
+                if (! empty($new_headers['Message-ID'])) {
                     $swiftmessage->setId($new_headers['Message-ID']);
                 }
                 $headers = $swiftmessage->getHeaders();
@@ -91,7 +91,7 @@ class UserNotification extends Mailable
             });
         }
 
-        $subject = \Eventy::filter('email.user_notification.subject', '[#' . (isset($this->conversation->number) ? $this->conversation->number : '') . '] ' . $this->conversation->subject, $this->conversation);
+        $subject = \Eventy::filter('email.user_notification.subject', '[#'.(isset($this->conversation->number) ? $this->conversation->number : '').'] '.$this->conversation->subject, $this->conversation);
 
         $customer = $this->conversation->customer;
 
@@ -107,4 +107,3 @@ class UserNotification extends Mailable
             ->text($template_text, $template_fields);
     }
 }
-

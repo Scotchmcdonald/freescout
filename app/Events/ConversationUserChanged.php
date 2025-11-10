@@ -8,6 +8,7 @@ use App\User;
 class ConversationUserChanged
 {
     public $conversation;
+
     public $user;
 
     /**

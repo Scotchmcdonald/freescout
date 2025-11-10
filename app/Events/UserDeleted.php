@@ -7,6 +7,7 @@ use App\User;
 class UserDeleted
 {
     public $by_user;
+
     public $deleted_user;
 
     /**

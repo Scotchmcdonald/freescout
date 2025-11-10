@@ -10,7 +10,6 @@ trait DetectsLostConnections
     /**
      * Determine if the given exception was caused by a lost connection.
      *
-     * @param  \Exception  $e
      * @return bool
      */
     protected function causedByLostConnection(Exception $e)

@@ -7,12 +7,17 @@ class WpApi
     const ENDPOINT_MODULES = 'freescout/v1/modules';
 
     const METHOD_GET = 'GET';
+
     const METHOD_POST = 'POST';
 
     const ACTION_CHECK_LICENSE = 'check_license';
+
     const ACTION_CHECK_LICENSES = 'check_licenses';
+
     const ACTION_ACTIVATE_LICENSE = 'activate_license';
+
     const ACTION_DEACTIVATE_LICENSE = 'deactivate_license';
+
     const ACTION_GET_VERSION = 'get_version';
 
     public static $lastError;
@@ -28,7 +33,7 @@ class WpApi
 
     public static function httpRequest($method, $url, $params)
     {
-        $client = new \GuzzleHttp\Client();
+        $client = new \GuzzleHttp\Client;
 
         if ($method == self::METHOD_POST) {
             if (strstr($url, '?')) {
@@ -37,12 +42,14 @@ class WpApi
                 $url .= '?';
             }
             $url .= 'v='.config('app.version');
+
             return $client->request('POST', $url, \Helper::setGuzzleDefaultOptions([
                 'connect_timeout' => 10,
                 'form_params' => $params,
             ]));
         } else {
             $params['v'] = config('app.version');
+
             return $client->request('GET', $url, \Helper::setGuzzleDefaultOptions([
                 'connect_timeout' => 10,
                 'query' => $params,
@@ -60,12 +67,12 @@ class WpApi
         try {
             $response = self::httpRequest($method, self::url($endpoint, $alternative_api), $params);
         } catch (\Exception $e) {
-            if (!$alternative_api) {
+            if (! $alternative_api) {
                 return self::request($method, $endpoint, $params, true);
             }
             \Helper::logException($e, 'WpApi');
             self::$lastError = [
-                'code'    => $e->getCode(),
+                'code' => $e->getCode(),
                 'message' => $e->getMessage(),
             ];
 
@@ -76,10 +83,11 @@ class WpApi
         if ($response->getStatusCode() < 500) {
             $json = \Helper::jsonToArray($response->getBody());
 
-            if (!empty($json['code']) && !empty($json['message']) &&
-                !empty($json['data']) && !empty($json['data']['status']) && $json['data']['status'] != 200
+            if (! empty($json['code']) && ! empty($json['message']) &&
+                ! empty($json['data']) && ! empty($json['data']['status']) && $json['data']['status'] != 200
             ) {
                 self::$lastError = $json;
+
                 // Maybe log error here
                 return [];
             } else {
@@ -107,7 +115,7 @@ class WpApi
 
         $endpoint = self::ENDPOINT_MODULES;
 
-        if (!empty($params['module_alias'])) {
+        if (! empty($params['module_alias'])) {
             $endpoint .= '/'.$params['module_alias'];
         }
 
@@ -135,7 +143,7 @@ class WpApi
 
         $endpoint = self::ENDPOINT_MODULES;
 
-        if (!empty($params['module_alias'])) {
+        if (! empty($params['module_alias'])) {
             $endpoint .= '/'.$params['module_alias'];
         }
 
@@ -151,7 +159,7 @@ class WpApi
 
         $endpoint = self::ENDPOINT_MODULES;
 
-        if (!empty($params['module_alias'])) {
+        if (! empty($params['module_alias'])) {
             $endpoint .= '/'.$params['module_alias'];
         }
 
@@ -167,7 +175,7 @@ class WpApi
 
         $endpoint = self::ENDPOINT_MODULES;
 
-        if (!empty($params['module_alias'])) {
+        if (! empty($params['module_alias'])) {
             $endpoint .= '/'.$params['module_alias'];
         }
 

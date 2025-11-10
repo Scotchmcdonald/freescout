@@ -13,7 +13,6 @@ class MailboxPolicy
     /**
      * Determine whether the user can create mailboxes.
      *
-     * @param \App\User $user
      *
      * @return mixed
      */
@@ -29,7 +28,6 @@ class MailboxPolicy
     /**
      * Determine whether the user can view mailbox conversations.
      *
-     * @param \App\User $user
      *
      * @return mixed
      */
@@ -49,7 +47,6 @@ class MailboxPolicy
     /**
      * Determine whether the user can view mailbox conversations.
      *
-     * @param \App\User $user
      *
      * @return mixed
      */
@@ -70,8 +67,6 @@ class MailboxPolicy
     /**
      * Determine whether the user can admin the mailbox.
      *
-     * @param \App\User    $user
-     * @param \App\Mailbox $mailbox
      *
      * @return mixed
      */
@@ -83,8 +78,6 @@ class MailboxPolicy
     /**
      * Determine whether the user can update the mailbox.
      *
-     * @param \App\User    $user
-     * @param \App\Mailbox $mailbox
      *
      * @return mixed
      */
@@ -100,8 +93,6 @@ class MailboxPolicy
     /**
      * Determine whether the user can update the mailbox auto reply.
      *
-     * @param \App\User    $user
-     * @param \App\Mailbox $mailbox
      *
      * @return mixed
      */
@@ -117,8 +108,6 @@ class MailboxPolicy
     /**
      * Determine whether the user can update the mailbox Permissions.
      *
-     * @param \App\User    $user
-     * @param \App\Mailbox $mailbox
      *
      * @return mixed
      */
@@ -134,8 +123,6 @@ class MailboxPolicy
     /**
      * Determine whether the user can update the mailbox Permissions.
      *
-     * @param \App\User    $user
-     * @param \App\Mailbox $mailbox
      *
      * @return mixed
      */
@@ -151,8 +138,6 @@ class MailboxPolicy
     /**
      * Determine whether the user can update the mailbox Email Signature.
      *
-     * @param \App\User    $user
-     * @param \App\Mailbox $mailbox
      *
      * @return mixed
      */
@@ -168,8 +153,6 @@ class MailboxPolicy
     /**
      * Determine whether the user can delete the mailbox.
      *
-     * @param \App\User    $user
-     * @param \App\Mailbox $mailbox
      *
      * @return mixed
      */

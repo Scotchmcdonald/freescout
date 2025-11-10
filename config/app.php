@@ -1,8 +1,8 @@
 <?php
 
 $key = env('APP_KEY', null);
-$key_file = env("APP_KEY_FILE", null);
-if (empty($key) && !empty($key_file)) {
+$key_file = env('APP_KEY_FILE', null);
+if (empty($key) && ! empty($key_file)) {
     $key = trim(file_get_contents($key_file));
 }
 
@@ -97,16 +97,16 @@ return [
     | locales: available locales
     */
 
-    'locale'          => env('APP_LOCALE', 'en'),
-    'locales'         => ['en', 'ar', 'zh-CN', 'hr', 'cs', 'da', 'nl', 'fi', 'fr', 'de', 'hu', 'it', 'ja', 'kz', 'ko', 'no', 'fa', 'pl', 'pt-PT', 'pt-BR', 'ru', 'es', 'sk', 'sv', 'tr'],
-    'locales_rtl'     => ['ar', 'fa'],
-    'default_locale'  => 'en',
+    'locale' => env('APP_LOCALE', 'en'),
+    'locales' => ['en', 'ar', 'zh-CN', 'hr', 'cs', 'da', 'nl', 'fi', 'fr', 'de', 'hu', 'it', 'ja', 'kz', 'ko', 'no', 'fa', 'pl', 'pt-PT', 'pt-BR', 'ru', 'es', 'sk', 'sv', 'tr'],
+    'locales_rtl' => ['ar', 'fa'],
+    'default_locale' => 'en',
 
     /*
     | app()->setLocale() in Localize middleware also changes config('app.locale'),
     | so we are keeping real app locale in real_locale parameter.
     */
-   'real_locale' => env('APP_LOCALE', 'en'),
+    'real_locale' => env('APP_LOCALE', 'en'),
 
     /*
     |--------------------------------------------------------------------------
@@ -202,7 +202,7 @@ return [
     | Replaced with installer.requirements.php
     |-------------------------------------------------------------------------
     */
-    //'required_extensions' => ['mysql / mysqli', 'mbstring', 'xml', 'imap', /*'mcrypt' mcrypt is deprecated*/ 'json', 'gd', 'fileinfo', 'openssl', 'zip', 'tokenizer', 'curl', 'iconv'/*, 'dom', 'xmlwriter', 'libxml', 'phar'*/],
+    // 'required_extensions' => ['mysql / mysqli', 'mbstring', 'xml', 'imap', /*'mcrypt' mcrypt is deprecated*/ 'json', 'gd', 'fileinfo', 'openssl', 'zip', 'tokenizer', 'curl', 'iconv'/*, 'dom', 'xmlwriter', 'libxml', 'phar'*/],
 
     /*
     |--------------------------------------------------------------------------
@@ -210,7 +210,7 @@ return [
     | These settings must be stored to avoid DB query in Kenel.php
     |-------------------------------------------------------------------------
     */
-    'alert_logs'        => env('APP_ALERT_LOGS', false),
+    'alert_logs' => env('APP_ALERT_LOGS', false),
     'alert_logs_period' => env('APP_ALERT_LOGS_PERIOD', ''),
 
     /*
@@ -218,8 +218,8 @@ return [
     | Fetch Mail Schedule.
     |-------------------------------------------------------------------------
     */
-    'fetch_schedule'    => env('APP_FETCH_SCHEDULE', 1),
-    'fetch_unseen'      => env('APP_FETCH_UNSEEN', 1),
+    'fetch_schedule' => env('APP_FETCH_SCHEDULE', 1),
+    'fetch_unseen' => env('APP_FETCH_UNSEEN', 1),
 
     /*
     |--------------------------------------------------------------------------
@@ -227,14 +227,14 @@ return [
     |--------------------------------------------------------------------------
     */
     'colors' => [
-        'main_light'    => '#0078d7',
-        'main_dark'     => '#005a9e',
-        'note'          => '#ffc646',
-        'text_note'     => '#e6b216',
+        'main_light' => '#0078d7',
+        'main_dark' => '#005a9e',
+        'note' => '#ffc646',
+        'text_note' => '#e6b216',
         'text_customer' => '#8d959b',
-        'text_user'     => '#8d959b',
+        'text_user' => '#8d959b',
         'bg_user_reply' => '#f4f8fd',
-        'bg_note'       => '#fffbf1',
+        'bg_note' => '#fffbf1',
     ],
 
     /*
@@ -243,10 +243,10 @@ return [
     |--------------------------------------------------------------------------
     */
     'options' => [
-        'alert_fetch'        => ['default' => false],
+        'alert_fetch' => ['default' => false],
         'alert_fetch_period' => ['default' => 15], // min
-        'email_branding'     => ['default' => true],
-        'open_tracking'      => ['default' => true],
+        'email_branding' => ['default' => true],
+        'open_tracking' => ['default' => true],
         'subscription_defaults' => ['default' => []],
     ],
 
@@ -259,7 +259,7 @@ return [
     | nginx - attachments are downloaded via nginx's X-Accel-Redirect.
     |-------------------------------------------------------------------------
     */
-    'download_attachments_via'    => env('APP_DOWNLOAD_ATTACHMENTS_VIA', 'php'),
+    'download_attachments_via' => env('APP_DOWNLOAD_ATTACHMENTS_VIA', 'php'),
 
     /*
     |--------------------------------------------------------------------------
@@ -268,14 +268,14 @@ return [
     | The list should be in sync with /storage/app/public/uploads/.htaccess and nginx config.
     |-------------------------------------------------------------------------
     */
-    'viewable_attachments'    => env('APP_VIEWABLE_ATTACHMENTS') 
+    'viewable_attachments' => env('APP_VIEWABLE_ATTACHMENTS')
                                 ? explode(',', env('APP_VIEWABLE_ATTACHMENTS'))
                                 : ['jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'apng', 'bmp', 'gif', 'ico', 'cur', 'png', 'tif', 'tiff', 'webp', 'pdf', 'txt', 'diff', 'patch', 'json', 'mp3', 'wav', 'ogg', 'wma'],
 
     // Additional restriction by mime type.
     // If HTML file is renamed into .txt for example it will be shown by the browser as HTML.
     // Regular expressions (#...#)
-    'viewable_mime_types'    => env('APP_VIEWABLE_MIME_TYPES', ['image/.*', 'application/pdf', 'text/plain', 'text/x-diff', 'application/json', 'audio/.*']),
+    'viewable_mime_types' => env('APP_VIEWABLE_MIME_TYPES', ['image/.*', 'application/pdf', 'text/plain', 'text/x-diff', 'application/json', 'audio/.*']),
 
     /*
     |--------------------------------------------------------------------------
@@ -289,7 +289,7 @@ return [
     |
     |-------------------------------------------------------------------------
     */
-    'no_retry_mail_errors'    => env('APP_NO_RETRY_MAIL_ERRORS', '(no valid recipients|does not comply with RFC|message file too big|malformed address)'),
+    'no_retry_mail_errors' => env('APP_NO_RETRY_MAIL_ERRORS', '(no valid recipients|does not comply with RFC|message file too big|malformed address)'),
 
     /*
     |--------------------------------------------------------------------------
@@ -301,7 +301,7 @@ return [
     |
     |-------------------------------------------------------------------------
     */
-    'email_conv_history'    => env('APP_EMAIL_CONV_HISTORY', 'none'),
+    'email_conv_history' => env('APP_EMAIL_CONV_HISTORY', 'none'),
 
     /*
     |--------------------------------------------------------------------------
@@ -309,7 +309,7 @@ return [
     |
     |-------------------------------------------------------------------------
     */
-    'max_message_size'    => env('APP_MAX_MESSAGE_SIZE', '20'),
+    'max_message_size' => env('APP_MAX_MESSAGE_SIZE', '20'),
 
     /*
     |--------------------------------------------------------------------------
@@ -321,7 +321,7 @@ return [
     |
     |-------------------------------------------------------------------------
     */
-    'email_user_history'    => env('APP_EMAIL_USER_HISTORY', 'full'),
+    'email_user_history' => env('APP_EMAIL_USER_HISTORY', 'full'),
 
     /*
     |--------------------------------------------------------------------------
@@ -329,7 +329,7 @@ return [
     |
     |-------------------------------------------------------------------------
     */
-    'user_permissions'    => env('APP_USER_PERMISSIONS', ''),
+    'user_permissions' => env('APP_USER_PERMISSIONS', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -337,7 +337,7 @@ return [
     |
     |-------------------------------------------------------------------------
     */
-    'use_mail_date_on_fetching'    => env('APP_USE_MAIL_DATE_ON_FETCHING', false),
+    'use_mail_date_on_fetching' => env('APP_USE_MAIL_DATE_ON_FETCHING', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -346,7 +346,7 @@ return [
     |
     |-------------------------------------------------------------------------
     */
-    'since_without_quotes_on_fetching'    => env('APP_SINCE_WITHOUT_QUOTES_ON_FETCHING', false),
+    'since_without_quotes_on_fetching' => env('APP_SINCE_WITHOUT_QUOTES_ON_FETCHING', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -357,15 +357,7 @@ return [
     |
     |-------------------------------------------------------------------------
     */
-    'fetching_bunch_size'    => env('APP_FETCHING_BUNCH_SIZE', 100),
-
-     /*
-    |--------------------------------------------------------------------------
-    | Dashboard path.
-    |
-    |-------------------------------------------------------------------------
-    */
-    'dashboard_path'    => env('APP_DASHBOARD_PATH', ''),
+    'fetching_bunch_size' => env('APP_FETCHING_BUNCH_SIZE', 100),
 
     /*
     |--------------------------------------------------------------------------
@@ -373,7 +365,15 @@ return [
     |
     |-------------------------------------------------------------------------
     */
-    'login_path'    => env('APP_LOGIN_PATH', 'login'),
+    'dashboard_path' => env('APP_DASHBOARD_PATH', ''),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard path.
+    |
+    |-------------------------------------------------------------------------
+    */
+    'login_path' => env('APP_LOGIN_PATH', 'login'),
 
     /*
     |--------------------------------------------------------------------------
@@ -381,14 +381,14 @@ return [
     |
     |-------------------------------------------------------------------------
     */
-    'home_controller'    => env('APP_HOMEPAGE_CONTROLLER', 'SecureController@dashboard'),
+    'home_controller' => env('APP_HOMEPAGE_CONTROLLER', 'SecureController@dashboard'),
 
     /*
     |--------------------------------------------------------------------------
     | Disable update checker
     |--------------------------------------------------------------------------
     */
-    'disable_updating'    => env('APP_DISABLE_UPDATING', false),
+    'disable_updating' => env('APP_DISABLE_UPDATING', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -419,14 +419,14 @@ return [
     |-------------------------------------------------------------------------
     */
     // Should be set for curl and Guzzle.
-    'curl_timeout'         => env('APP_CURL_TIMEOUT', 40),
+    'curl_timeout' => env('APP_CURL_TIMEOUT', 40),
     // Should be set for Guzzle. Curl has default CURLOPT_CONNECTTIMEOUT=30 sec.
     'curl_connect_timeout' => env('APP_CURL_CONNECTION_TIMEOUT', 30),
     // CloudFlare may block requests without user agent.
     // Need to be set for curl. Guzzle sends it's own user agent: GuzzleHttp/6.3.3 curl/7.58.0 PHP/8.2.5
-    'curl_user_agent'      => env('APP_CURL_USER_AGENT', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 7_1_4) AppleWebKit/603.26 (KHTML, like Gecko) Chrome/55.0.3544.220 Safari/534'),
+    'curl_user_agent' => env('APP_CURL_USER_AGENT', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 7_1_4) AppleWebKit/603.26 (KHTML, like Gecko) Chrome/55.0.3544.220 Safari/534'),
     // Should be set for curl and Guzzle.
-    'curl_ssl_verifypeer'  => env('APP_CURL_SSL_VERIFYPEER', false),
+    'curl_ssl_verifypeer' => env('APP_CURL_SSL_VERIFYPEER', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -434,30 +434,29 @@ return [
     | https://github.com/freescout-helpdesk/freescout/issues/2919
     |-------------------------------------------------------------------------
     */
-    'customer_photo_size'    => env('APP_CUSTOMER_PHOTO_SIZE', 64),
-
+    'customer_photo_size' => env('APP_CUSTOMER_PHOTO_SIZE', 64),
 
     /*
     |--------------------------------------------------------------------------
     | User photo size (px).
     |-------------------------------------------------------------------------
     */
-    'user_photo_size'    => env('APP_USER_PHOTO_SIZE', 50),
+    'user_photo_size' => env('APP_USER_PHOTO_SIZE', 50),
 
     /*
     |--------------------------------------------------------------------------
     | Use this option if you have many folders and you are experiencing
-    | performance issues. When this option is enabled sometimes it may take 
+    | performance issues. When this option is enabled sometimes it may take
     | several seconds for folders counters to update in the interface.
-    | 
+    |
     | https://github.com/freescout-helpdesk/freescout/pull/2982
     |-------------------------------------------------------------------------
     */
-    'update_folder_counters_in_background'    => env('APP_UPDATE_FOLDER_COUNTERS_IN_BACKGROUND', false),
+    'update_folder_counters_in_background' => env('APP_UPDATE_FOLDER_COUNTERS_IN_BACKGROUND', false),
 
     /*
     |--------------------------------------------------------------------------
-    | Experimental feature allowing to specify users who can see only conversations 
+    | Experimental feature allowing to specify users who can see only conversations
     | assigned to themselves. For such users only Mine folder shows actual number of conversations.
     | This option does not affect admin users.
     |
@@ -467,7 +466,7 @@ return [
     | Example: 7,5,31
     |-------------------------------------------------------------------------
     */
-    'show_only_assigned_conversations'    => env('APP_SHOW_ONLY_ASSIGNED_CONVERSATIONS', ''),
+    'show_only_assigned_conversations' => env('APP_SHOW_ONLY_ASSIGNED_CONVERSATIONS', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -475,7 +474,7 @@ return [
     | in mailboxes they are assigned to. This option does not affect admin users.
     |-------------------------------------------------------------------------
     */
-    'limit_user_customer_visibility'    => env('APP_LIMIT_USER_CUSTOMER_VISIBILITY', false),
+    'limit_user_customer_visibility' => env('APP_LIMIT_USER_CUSTOMER_VISIBILITY', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -485,23 +484,23 @@ return [
     | - ALLOW-FROM example.org
     |-------------------------------------------------------------------------
     */
-    'x_frame_options'    => env('APP_X_FRAME_OPTIONS', true),
+    'x_frame_options' => env('APP_X_FRAME_OPTIONS', true),
 
     /*
     |--------------------------------------------------------------------------
     | Enable Content-Security-Policy meta tag to prevent possible XSS attacks.
     |-------------------------------------------------------------------------
     */
-    'csp_enabled'    => env('APP_CSP_ENABLED', true),
+    'csp_enabled' => env('APP_CSP_ENABLED', true),
     'csp_script_src' => env('APP_CSP_SCRIPT_SRC', ''),
-    'csp_custom'     => env('APP_CSP_CUSTOM', ''),
+    'csp_custom' => env('APP_CSP_CUSTOM', ''),
 
     /*
     |--------------------------------------------------------------------------
     | Let the application know that CloudFlare is used (for proper client IP detection).
     |-------------------------------------------------------------------------
     */
-    'cloudflare_is_used'    => env('APP_CLOUDFLARE_IS_USED', false),
+    'cloudflare_is_used' => env('APP_CLOUDFLARE_IS_USED', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -511,7 +510,7 @@ return [
     | But overall reply separation in this case is more reliable.
     |-------------------------------------------------------------------------
     */
-    'alternative_reply_separation'    => env('APP_ALTERNATIVE_REPLY_SEPARATION', false),
+    'alternative_reply_separation' => env('APP_ALTERNATIVE_REPLY_SEPARATION', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -557,7 +556,7 @@ return [
          */
         Devfactory\Minify\MinifyServiceProvider::class,
         // Debugbar is enabled only if APP_DEBUG=true
-        //Barryvdh\Debugbar\ServiceProvider::class,
+        // Barryvdh\Debugbar\ServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -593,51 +592,51 @@ return [
 
     'aliases' => [
 
-        'App'          => Illuminate\Support\Facades\App::class,
-        'Artisan'      => Illuminate\Support\Facades\Artisan::class,
-        'Auth'         => Illuminate\Support\Facades\Auth::class,
-        'Blade'        => Illuminate\Support\Facades\Blade::class,
-        'Broadcast'    => Illuminate\Support\Facades\Broadcast::class,
-        'Bus'          => Illuminate\Support\Facades\Bus::class,
-        'Cache'        => Illuminate\Support\Facades\Cache::class,
-        'Config'       => Illuminate\Support\Facades\Config::class,
-        'Cookie'       => Illuminate\Support\Facades\Cookie::class,
-        'Crypt'        => Illuminate\Support\Facades\Crypt::class,
-        'DB'           => Illuminate\Support\Facades\DB::class,
-        'Eloquent'     => Illuminate\Database\Eloquent\Model::class,
-        'Event'        => Illuminate\Support\Facades\Event::class,
-        'File'         => Illuminate\Support\Facades\File::class,
-        'Gate'         => Illuminate\Support\Facades\Gate::class,
-        'Hash'         => Illuminate\Support\Facades\Hash::class,
-        'Lang'         => Illuminate\Support\Facades\Lang::class,
-        'Log'          => Illuminate\Support\Facades\Log::class,
-        'Mail'         => Illuminate\Support\Facades\Mail::class,
+        'App' => Illuminate\Support\Facades\App::class,
+        'Artisan' => Illuminate\Support\Facades\Artisan::class,
+        'Auth' => Illuminate\Support\Facades\Auth::class,
+        'Blade' => Illuminate\Support\Facades\Blade::class,
+        'Broadcast' => Illuminate\Support\Facades\Broadcast::class,
+        'Bus' => Illuminate\Support\Facades\Bus::class,
+        'Cache' => Illuminate\Support\Facades\Cache::class,
+        'Config' => Illuminate\Support\Facades\Config::class,
+        'Cookie' => Illuminate\Support\Facades\Cookie::class,
+        'Crypt' => Illuminate\Support\Facades\Crypt::class,
+        'DB' => Illuminate\Support\Facades\DB::class,
+        'Eloquent' => Illuminate\Database\Eloquent\Model::class,
+        'Event' => Illuminate\Support\Facades\Event::class,
+        'File' => Illuminate\Support\Facades\File::class,
+        'Gate' => Illuminate\Support\Facades\Gate::class,
+        'Hash' => Illuminate\Support\Facades\Hash::class,
+        'Lang' => Illuminate\Support\Facades\Lang::class,
+        'Log' => Illuminate\Support\Facades\Log::class,
+        'Mail' => Illuminate\Support\Facades\Mail::class,
         'Notification' => Illuminate\Support\Facades\Notification::class,
-        'Password'     => Illuminate\Support\Facades\Password::class,
-        'Queue'        => Illuminate\Support\Facades\Queue::class,
-        'Redirect'     => Illuminate\Support\Facades\Redirect::class,
-        'Redis'        => Illuminate\Support\Facades\Redis::class,
-        'Request'      => Illuminate\Support\Facades\Request::class,
-        'Response'     => Illuminate\Support\Facades\Response::class,
-        'Route'        => Illuminate\Support\Facades\Route::class,
-        'Schema'       => Illuminate\Support\Facades\Schema::class,
-        'Session'      => Illuminate\Support\Facades\Session::class,
-        'Storage'      => Illuminate\Support\Facades\Storage::class,
-        'URL'          => Illuminate\Support\Facades\URL::class,
-        'Validator'    => Illuminate\Support\Facades\Validator::class,
-        'View'         => Illuminate\Support\Facades\View::class,
-        'Minify'       => Devfactory\Minify\Facades\MinifyFacade::class,
+        'Password' => Illuminate\Support\Facades\Password::class,
+        'Queue' => Illuminate\Support\Facades\Queue::class,
+        'Redirect' => Illuminate\Support\Facades\Redirect::class,
+        'Redis' => Illuminate\Support\Facades\Redis::class,
+        'Request' => Illuminate\Support\Facades\Request::class,
+        'Response' => Illuminate\Support\Facades\Response::class,
+        'Route' => Illuminate\Support\Facades\Route::class,
+        'Schema' => Illuminate\Support\Facades\Schema::class,
+        'Session' => Illuminate\Support\Facades\Session::class,
+        'Storage' => Illuminate\Support\Facades\Storage::class,
+        'URL' => Illuminate\Support\Facades\URL::class,
+        'Validator' => Illuminate\Support\Facades\Validator::class,
+        'View' => Illuminate\Support\Facades\View::class,
+        'Minify' => Devfactory\Minify\Facades\MinifyFacade::class,
 
         // Custom
-        'Helper'       => App\Misc\Helper::class,
-        'MailHelper'   => App\Misc\Mail::class,
+        'Helper' => App\Misc\Helper::class,
+        'MailHelper' => App\Misc\Mail::class,
         'ModuleHelper' => App\Module::class,
-        'WpApi'        => App\Misc\WpApi::class,
-        'Option'       => App\Option::class,
-        'Str'          => Illuminate\Support\Str::class,
+        'WpApi' => App\Misc\WpApi::class,
+        'Option' => App\Option::class,
+        'Str' => Illuminate\Support\Str::class,
         // Autodiscovery did not work for this one, becasuse it's composer.json
         // does not have a `extra` section.
-        'Updater'      => Codedge\Updater\UpdaterFacade::class,
+        'Updater' => Codedge\Updater\UpdaterFacade::class,
     ],
 
 ];

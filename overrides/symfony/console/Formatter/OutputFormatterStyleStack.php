@@ -27,7 +27,7 @@ class OutputFormatterStyleStack
 
     public function __construct(?OutputFormatterStyleInterface $emptyStyle = null)
     {
-        $this->emptyStyle = $emptyStyle ?: new OutputFormatterStyle();
+        $this->emptyStyle = $emptyStyle ?: new OutputFormatterStyle;
         $this->reset();
     }
 
@@ -60,7 +60,7 @@ class OutputFormatterStyleStack
             return $this->emptyStyle;
         }
 
-        if (null === $style) {
+        if ($style === null) {
             return array_pop($this->styles);
         }
 

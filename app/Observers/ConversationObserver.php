@@ -8,8 +8,6 @@ class ConversationObserver
 {
     /**
      * On create before saving.
-     *
-     * @param Conversation $conversation
      */
     public function creating(Conversation $conversation)
     {
@@ -20,19 +18,15 @@ class ConversationObserver
 
     /**
      * On create.
-     *
-     * @param Conversation $conversation
      */
     public function created(Conversation $conversation)
     {
         // Better to do it manually
-        //$conversation->mailbox->updateFoldersCounters();
+        // $conversation->mailbox->updateFoldersCounters();
     }
 
     /**
      * On conversation delete.
-     *
-     * @param Conversation $conversation
      */
     public function deleting(Conversation $conversation)
     {

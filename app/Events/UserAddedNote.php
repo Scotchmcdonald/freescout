@@ -8,6 +8,7 @@ use App\Thread;
 class UserAddedNote
 {
     public $conversation;
+
     public $thread;
 
     /**

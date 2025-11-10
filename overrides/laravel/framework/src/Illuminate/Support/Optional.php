@@ -63,7 +63,6 @@ class Optional implements ArrayAccess
      * Determine if an item exists at an offset.
      *
      * @param  mixed  $key
-     * @return bool
      */
     public function offsetExists($key): bool
     {
@@ -75,7 +74,7 @@ class Optional implements ArrayAccess
      *
      * @param  mixed  $key
      * @return mixed
-     * : mixed
+     *               : mixed
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($key)
@@ -88,7 +87,6 @@ class Optional implements ArrayAccess
      *
      * @param  mixed  $key
      * @param  mixed  $value
-     * @return void
      */
     public function offsetSet($key, $value): void
     {
@@ -101,7 +99,6 @@ class Optional implements ArrayAccess
      * Unset the item at a given offset.
      *
      * @param  string  $key
-     * @return void
      */
     public function offsetUnset($key): void
     {

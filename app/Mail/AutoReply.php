@@ -45,16 +45,16 @@ class AutoReply extends Mailable
     public function build()
     {
         \MailHelper::prepareMailable($this);
-        
+
         $view_params = [];
 
         // Set headers
         $this->setHeaders();
 
         $data = [
-            'mailbox'      => $this->mailbox,
+            'mailbox' => $this->mailbox,
             'conversation' => $this->conversation,
-            'customer'     => $this->customer,
+            'customer' => $this->customer,
         ];
 
         // Set variables
@@ -64,8 +64,8 @@ class AutoReply extends Mailable
         $subject = \Eventy::filter('email.auto_reply.subject', $subject, $this->conversation);
 
         $message = $this->subject($subject)
-                    ->view('emails/customer/auto_reply', $view_params)
-                    ->text('emails/customer/auto_reply_text', $view_params);
+            ->view('emails/customer/auto_reply', $view_params)
+            ->text('emails/customer/auto_reply_text', $view_params);
 
         return $message;
     }
@@ -77,9 +77,9 @@ class AutoReply extends Mailable
     public function setHeaders()
     {
         $new_headers = $this->headers;
-        if (!empty($new_headers)) {
+        if (! empty($new_headers)) {
             $this->withSwiftMessage(function ($swiftmessage) use ($new_headers) {
-                if (!empty($new_headers['Message-ID'])) {
+                if (! empty($new_headers['Message-ID'])) {
                     $swiftmessage->setId($new_headers['Message-ID']);
                 }
                 $headers = $swiftmessage->getHeaders();

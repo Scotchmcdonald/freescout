@@ -2,13 +2,13 @@
 
 namespace Illuminate\Broadcasting\Broadcasters;
 
-use ReflectionFunction;
-use Illuminate\Support\Str;
 use Illuminate\Container\Container;
-use Illuminate\Contracts\Routing\UrlRoutable;
-use Illuminate\Contracts\Routing\BindingRegistrar;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Illuminate\Contracts\Broadcasting\Broadcaster as BroadcasterContract;
+use Illuminate\Contracts\Routing\BindingRegistrar;
+use Illuminate\Contracts\Routing\UrlRoutable;
+use Illuminate\Support\Str;
+use ReflectionFunction;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 abstract class Broadcaster implements BroadcasterContract
 {
@@ -30,7 +30,6 @@ abstract class Broadcaster implements BroadcasterContract
      * Register a channel authenticator.
      *
      * @param  string  $channel
-     * @param  callable  $callback
      * @return $this
      */
     public function channel($channel, callable $callback)
@@ -46,6 +45,7 @@ abstract class Broadcaster implements BroadcasterContract
      * @param  \Illuminate\Http\Request  $request
      * @param  string  $channel
      * @return mixed
+     *
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      */
     protected function verifyUserCanAccessChannel($request, $channel)
@@ -140,6 +140,7 @@ abstract class Broadcaster implements BroadcasterContract
      * @param  mixed  $value
      * @param  array  $callbackParameters
      * @return mixed
+     *
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      */
     protected function resolveImplicitBindingIfPossible($key, $value, $callbackParameters)
@@ -177,7 +178,6 @@ abstract class Broadcaster implements BroadcasterContract
     /**
      * Format the channel array into an array of strings.
      *
-     * @param  array  $channels
      * @return array
      */
     protected function formatChannels(array $channels)

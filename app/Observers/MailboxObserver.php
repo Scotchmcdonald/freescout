@@ -9,7 +9,6 @@ class MailboxObserver
     /**
      * Listen to the Mailbox created event.
      *
-     * @param \App\Mailbox $mailbox
      *
      * @return void
      */
@@ -27,7 +26,6 @@ class MailboxObserver
      * - conversations
      * - user permissions.
      *
-     * @param Mailbox $mailbox
      *
      * @return [type] [description]
      */

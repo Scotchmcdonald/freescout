@@ -2,11 +2,11 @@
 
 namespace Illuminate\Notifications;
 
-use Ramsey\Uuid\Uuid;
-use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Collection as ModelCollection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Ramsey\Uuid\Uuid;
 
 class NotificationSender
 {
@@ -69,7 +69,6 @@ class NotificationSender
      *
      * @param  \Illuminate\Support\Collection|array|mixed  $notifiables
      * @param  mixed  $notification
-     * @param  array  $channels
      * @return void
      */
     public function sendNow($notifiables, $notification, ?array $channels = null)
@@ -155,9 +154,9 @@ class NotificationSender
 
                 $this->bus->dispatch(
                     (new SendQueuedNotifications($notifiable, $notification, [$channel]))
-                            ->onConnection($notification->connection)
-                            ->onQueue($notification->queue)
-                            ->delay($notification->delay)
+                        ->onConnection($notification->connection)
+                        ->onQueue($notification->queue)
+                        ->delay($notification->delay)
                 );
             }
         }

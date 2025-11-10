@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Comman generates vars.js file with variables and translated strings.
  */
@@ -46,9 +47,9 @@ class GenerateVars extends Command
                 'locales' => \Helper::getAllLocales(),
             ];
 
-            //$filesystem = new Filesystem();
+            // $filesystem = new Filesystem();
 
-            //$file_path = public_path('js/vars.js');
+            // $file_path = public_path('js/vars.js');
             $file_path = storage_path('app/public/js/vars.js');
 
             $content = view('js/vars', $params)->render();
@@ -57,7 +58,7 @@ class GenerateVars extends Command
             // https://github.com/freescout-help-desk/freescout/issues/4369
             $content = preg_replace_callback(
                 "#(:[ ]*\")(.*)(\"[,\r\n])#",
-                function($v) {
+                function ($v) {
                     return $v[1].str_replace('"', '\"', $v[2]).$v[3];
                 },
                 $content
@@ -73,9 +74,9 @@ class GenerateVars extends Command
                 } else {
                     \Storage::put('js/vars.js', $content);
                 }
-                $this->info("Created: ".substr($file_path, strlen(base_path())+1));
+                $this->info('Created: '.substr($file_path, strlen(base_path()) + 1));
             } catch (\Exception $e) {
-                $msg = "Error occurred saving /storage/app/public/js/vars.js. ".\Helper::formatException($e);
+                $msg = 'Error occurred saving /storage/app/public/js/vars.js. '.\Helper::formatException($e);
                 \Log::error($msg);
                 $this->error($msg);
             }

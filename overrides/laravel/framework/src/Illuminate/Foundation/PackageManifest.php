@@ -45,7 +45,6 @@ class PackageManifest
     /**
      * Create a new package manifest instance.
      *
-     * @param  \Illuminate\Filesystem\Filesystem  $files
      * @param  string  $basePath
      * @param  string  $manifestPath
      * @return void
@@ -115,7 +114,7 @@ class PackageManifest
         }
 
         $ignoreAll = in_array('*', $ignore = $this->packagesToIgnore());
-        if (!empty($packages['packages'])) {
+        if (! empty($packages['packages'])) {
             $packages = $packages['packages'];
         }
         $this->write(collect($packages)->mapWithKeys(function ($package) {
@@ -157,8 +156,8 @@ class PackageManifest
     /**
      * Write the given manifest array to disk.
      *
-     * @param  array  $manifest
      * @return void
+     *
      * @throws \Exception
      */
     protected function write(array $manifest)

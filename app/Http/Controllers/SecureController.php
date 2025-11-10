@@ -6,7 +6,6 @@ use App\ActivityLog;
 use App\Misc\Helper;
 use App\SendLog;
 use App\Thread;
-use App\User;
 use Illuminate\Http\Request;
 
 class SecureController extends Controller
@@ -29,7 +28,7 @@ class SecureController extends Controller
     public function dashboard()
     {
         $user = auth()->user();
-        if (!$user->isAdmin()) {
+        if (! $user->isAdmin()) {
             $mailboxes = $user->mailboxesCanView();
         } else {
             $mailboxes = $user->mailboxesCanViewWithSettings();
@@ -50,7 +49,7 @@ class SecureController extends Controller
     {
         function addCol($cols, $col)
         {
-            if (!in_array($col, $cols)) {
+            if (! in_array($col, $cols)) {
                 $cols[] = $col;
             }
 
@@ -66,7 +65,7 @@ class SecureController extends Controller
         $page_size = 20;
         $name = '';
 
-        if (!empty($request->name)) {
+        if (! empty($request->name)) {
             $activities = ActivityLog::inLog($request->name)->orderBy('created_at', 'desc')->paginate($page_size);
             $name = $request->name;
         } elseif (count($names)) {
@@ -95,7 +94,7 @@ class SecureController extends Controller
                 $cols = addCol($cols, 'event');
 
                 foreach ($activity->properties as $property_name => $property_value) {
-                    if (!is_string($property_value)) {
+                    if (! is_string($property_value)) {
                         $property_value = json_encode($property_value);
                     }
                     $log[$property_name] = $property_value;
@@ -141,13 +140,13 @@ class SecureController extends Controller
                 }
 
                 $logs[] = [
-                    'date'          => $record->created_at,
-                    'type'          => $record->getMailTypeName(),
-                    'email'         => $record->email,
-                    'status'        => $status,
-                    'message'       => $conversation,
-                    'user'          => $record->user,
-                    'customer'      => $record->customer,
+                    'date' => $record->created_at,
+                    'type' => $record->getMailTypeName(),
+                    'email' => $record->email,
+                    'status' => $status,
+                    'message' => $conversation,
+                    'user' => $record->user,
+                    'customer' => $record->customer,
                 ];
             }
         }
@@ -155,16 +154,16 @@ class SecureController extends Controller
         array_unshift($names, ActivityLog::NAME_OUT_EMAILS);
         array_push($names, ActivityLog::NAME_APP_LOGS);
 
-        if (!in_array($name, $names)) {
+        if (! in_array($name, $names)) {
             $names[] = $name;
         }
 
         return view('secure/logs', [
-            'logs'         => $logs,
-            'names'        => $names,
+            'logs' => $logs,
+            'names' => $names,
             'current_name' => $name,
-            'cols'         => $cols,
-            'activities'   => $activities,
+            'cols' => $cols,
+            'activities' => $activities,
         ]);
     }
 
@@ -176,8 +175,8 @@ class SecureController extends Controller
         // No need to check permissions here, as they are checked in routing
 
         $name = '';
-        if (!empty($request->name)) {
-            //$activities = ActivityLog::inLog($request->name)->orderBy('created_at', 'desc')->get();
+        if (! empty($request->name)) {
+            // $activities = ActivityLog::inLog($request->name)->orderBy('created_at', 'desc')->get();
             $name = $request->name;
         } elseif (count($names = ActivityLog::select('log_name')->distinct()->get()->pluck('log_name'))) {
             $name = ActivityLog::NAME_OUT_EMAILS;
@@ -205,20 +204,20 @@ class SecureController extends Controller
         // 'jpg','gif','png'
         $response = [
             'status' => 'error',
-            'msg'    => '', // this is error message
+            'msg' => '', // this is error message
         ];
 
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             $response['msg'] = __('Please login to upload file');
         }
 
-        if (!$request->hasFile('file') || !$request->file('file')->isValid() || !$request->file) {
+        if (! $request->hasFile('file') || ! $request->file('file')->isValid() || ! $request->file) {
             $response['msg'] = __('Error occurred uploading file');
         }
 
-        if (!$response['msg']) {
+        if (! $response['msg']) {
 
             $upload = Helper::uploadFile($request->file, $allowed_exts);
             $filename = basename($upload);

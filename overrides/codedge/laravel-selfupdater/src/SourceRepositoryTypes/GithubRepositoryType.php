@@ -21,6 +21,7 @@ use Symfony\Component\Finder\Finder;
 class GithubRepositoryType extends AbstractRepositoryType implements SourceRepositoryTypeContract
 {
     const GITHUB_API_URL = 'https://api.github.com';
+
     const NEW_VERSION_FILE = 'self-updater-new-version';
 
     public static $exclude_folders = [];
@@ -32,9 +33,6 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
 
     /**
      * Github constructor.
-     *
-     * @param Client $client
-     * @param array  $config
      */
     public function __construct(Client $client, array $config)
     {
@@ -47,18 +45,17 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
     /**
      * Check repository if a newer version than the installed one is available.
      *
-     * @param string $currentVersion
+     * @param  string  $currentVersion
+     * @return bool
      *
      * @throws \InvalidArgumentException
      * @throws \Exception
-     *
-     * @return bool
      */
     public function isNewVersionAvailable($currentVersion = '')
     {
         $version = $currentVersion ?: $this->getVersionInstalled();
 
-        if (!$version) {
+        if (! $version) {
             throw new \InvalidArgumentException('No currently installed version specified.');
         }
 
@@ -77,11 +74,10 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
     /**
      * Fetches the latest version. If you do not want the latest version, specify one and pass it.
      *
-     * @param string $version
+     * @param  string  $version
+     * @return mixed
      *
      * @throws \Exception
-     *
-     * @return mixed
      */
     public function fetch($version = '')
     {
@@ -95,21 +91,21 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
         $release = $releaseCollection->first();
 
         $storagePath = $this->config['download_path'];
-        
+
         $fs = new \Illuminate\Filesystem\Filesystem;
         $fs->cleanDirectory($storagePath);
 
-        if (!File::exists($storagePath)) {
+        if (! File::exists($storagePath)) {
             File::makeDirectory($storagePath, 493, true, true);
         }
 
-        if (!empty($version)) {
+        if (! empty($version)) {
             $release = $releaseCollection->where('name', $version)->first();
         }
 
         $storageFilename = "{$release->name}.zip";
 
-        //if (!$this->isSourceAlreadyFetched($release->name)) {
+        // if (!$this->isSourceAlreadyFetched($release->name)) {
         if (File::exists($storagePath.DIRECTORY_SEPARATOR.$release->name)) {
             File::deleteDirectory($storagePath.DIRECTORY_SEPARATOR.$release->name);
         }
@@ -125,8 +121,7 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
     /**
      * Perform the actual update process.
      *
-     * @param string $version
-     *
+     * @param  string  $version
      * @return bool
      */
     public function update($version = '')
@@ -134,7 +129,7 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
         $this->setPathToUpdate(base_path(), $this->config['exclude_folders']);
 
         if ($this->hasCorrectPermissionForUpdate()) {
-            if (!empty($version)) {
+            if (! empty($version)) {
                 $sourcePath = $this->config['download_path'].DIRECTORY_SEPARATOR.$version;
             } else {
                 $sourcePath = File::directories($this->config['download_path'])[0];
@@ -190,12 +185,11 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
             }
 
             // Move directories
-            collect((new Finder())->in($sourcePath)->exclude(self::$exclude_folders)->directories()->sort(function ($a, $b) {
+            collect((new Finder)->in($sourcePath)->exclude(self::$exclude_folders)->directories()->sort(function ($a, $b) {
                 return strlen($b->getRealpath()) - strlen($a->getRealpath());
             }))->each(function ($directory) { /** @var \SplFileInfo $directory */
-
                 if (count(array_intersect(File::directories(
-                        $directory->getRealPath()), GithubRepositoryType::$exclude_folders)) == 0
+                    $directory->getRealPath()), GithubRepositoryType::$exclude_folders)) == 0
                 ) {
                     // Copy dir
                     File::copyDirectory(
@@ -208,7 +202,7 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
             });
 
             // Now move all the files left in the main directory
-            //collect(File::allFiles($sourcePath, true))->each(function ($file) { /* @var \SplFileInfo $file */
+            // collect(File::allFiles($sourcePath, true))->each(function ($file) { /* @var \SplFileInfo $file */
             collect(File::files($sourcePath, true))->each(function ($file) { /* @var \SplFileInfo $file */
                 File::copy($file->getRealPath(), base_path($file->getFilename()));
             });
@@ -228,8 +222,8 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
     /**
      * Create a releas sub-folder inside the storage dir.
      *
-     * @param string $storagePath
-     * @param string $releaseName
+     * @param  string  $storagePath
+     * @param  string  $releaseName
      */
     public function createReleaseFolder($storagePath, $releaseName)
     {
@@ -254,9 +248,8 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
      * Get the version that is currenly installed.
      * Example: 1.1.0 or v1.1.0 or "1.1.0 version".
      *
-     * @param string $prepend
-     * @param string $append
-     *
+     * @param  string  $prepend
+     * @param  string  $append
      * @return string
      */
     public function getVersionInstalled($prepend = '', $append = '')
@@ -268,9 +261,8 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
      * Get the latest version that has been published in a certain repository.
      * Example: 2.6.5 or v2.6.5.
      *
-     * @param string $prepend Prepend a string to the latest version
-     * @param string $append  Append a string to the latest version
-     *
+     * @param  string  $prepend  Prepend a string to the latest version
+     * @param  string  $append  Append a string to the latest version
      * @return string
      */
     public function getVersionAvailable($prepend = '', $append = '')
@@ -282,7 +274,7 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
         $response = $this->getRepositoryReleases();
         $releaseCollection = collect(\GuzzleHttp\json_decode($response->getBody()));
         $version = $prepend.$releaseCollection->first()->name.$append;
-        //}
+        // }
 
         return $version;
     }
@@ -290,9 +282,10 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
     /**
      * Get all releases for a specific repository.
      *
-     * @throws \Exception
      *
      * @return mixed|\Psr\Http\Message\ResponseInterface
+     *
+     * @throws \Exception
      */
     protected function getRepositoryReleases()
     {
@@ -300,7 +293,7 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
             throw new \Exception('No repository specified. Please enter a valid Github repository owner and name in your config.');
         }
 
-        if (!empty($this->config['github_api_url'])) {
+        if (! empty($this->config['github_api_url'])) {
             $github_api_url = $this->config['github_api_url'];
         } else {
             $github_api_url = self::GITHUB_API_URL.'/repos/'.$this->config['repository_vendor'].'/'.$this->config['repository_name'];
@@ -329,7 +322,6 @@ class GithubRepositoryType extends AbstractRepositoryType implements SourceRepos
     /**
      * Write the version file.
      *
-     * @param $content
      *
      * @return bool
      */

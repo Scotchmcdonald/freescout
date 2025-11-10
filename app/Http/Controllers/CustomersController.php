@@ -44,7 +44,6 @@ class CustomersController extends Controller
     /**
      * Save customer.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response
      */
@@ -63,19 +62,19 @@ class CustomersController extends Controller
         // First name or email must be specified
         $validator = Validator::make($request->all(), [
             'first_name' => 'nullable|string|max:255|required_without:emails.0',
-            'last_name'  => 'nullable|string|max:255',
-            'city'       => 'nullable|string|max:255',
-            'state'      => 'nullable|string|max:255',
-            'zip'        => 'nullable|string|max:12',
-            'country'    => 'nullable|string|max:2',
-            //'emails'     => 'array|required_without:first_name',
-            //'emails.1'   => 'nullable|email|required_without:first_name',
-            'emails.*'   => 'nullable|email|distinct|required_without:first_name',
-            'photo_url'   => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'last_name' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'zip' => 'nullable|string|max:12',
+            'country' => 'nullable|string|max:2',
+            // 'emails'     => 'array|required_without:first_name',
+            // 'emails.1'   => 'nullable|email|required_without:first_name',
+            'emails.*' => 'nullable|email|distinct|required_without:first_name',
+            'photo_url' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
         $validator->setAttributeNames([
-            'photo_url'   => __('Photo'),
-            'emails.*'   => __('Email'),
+            'photo_url' => __('Photo'),
+            'emails.*' => __('Email'),
         ]);
 
         // Photo
@@ -93,8 +92,8 @@ class CustomersController extends Controller
 
         if ($validator->fails()) {
             return redirect()->route('customers.update', ['id' => $id])
-                        ->withErrors($validator)
-                        ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $new_emails = [];
@@ -104,7 +103,7 @@ class CustomersController extends Controller
         // Detect new emails added
         $customer_emails = $customer->emails()->pluck('email')->toArray();
         foreach ($request->emails as $email) {
-            if (!in_array($email, $customer_emails)) {
+            if (! in_array($email, $customer_emails)) {
                 $new_emails[] = $email;
             }
         }
@@ -115,7 +114,7 @@ class CustomersController extends Controller
             if ($email && $email->customer) {
                 // If customer whose email is removed does not have first name and other emails
                 // we have to create first name for this customer
-                if (!$email->customer->first_name && count($email->customer->emails) == 1) {
+                if (! $email->customer->first_name && count($email->customer->emails) == 1) {
                     if ($request->first_name) {
                         $email->customer->first_name = $request->first_name;
                     } elseif ($customer->first_name) {
@@ -127,12 +126,12 @@ class CustomersController extends Controller
                 }
 
                 $flash_message .= __('Email :tag_email_begin:email:tag_email_end has been moved from another customer:  :a_begin:customer:a_end.', [
-                    'email'           => $email->email,
+                    'email' => $email->email,
                     'tag_email_begin' => '<strong>',
-                    'tag_email_end'   => '</strong>',
-                    'customer'        => htmlspecialchars($email->customer->getFullName()),
-                    'a_begin'         => '<strong><a href="'.$email->customer->url().'" target="_blank">',
-                    'a_end'           => '</a></strong>',
+                    'tag_email_end' => '</strong>',
+                    'customer' => htmlspecialchars($email->customer->getFullName()),
+                    'a_begin' => '<strong><a href="'.$email->customer->url().'" target="_blank">',
+                    'a_end' => '</a></strong>',
                 ]).' ';
 
                 $new_emails_change_customer[] = $email;
@@ -141,7 +140,7 @@ class CustomersController extends Controller
 
         // Detect removed emails
         foreach ($customer_emails as $email) {
-            if (!in_array($email, $request->emails)) {
+            if (! in_array($email, $request->emails)) {
                 $removed_emails[] = $email;
             }
         }
@@ -200,7 +199,7 @@ class CustomersController extends Controller
 
         $flash_message = __('Customer saved successfully.').' '.$flash_message;
         \Session::flash('flash_success_unescaped', $flash_message);
-        
+
         \Session::flash('customer.updated', 1);
 
         return redirect()->route('customers.update', ['id' => $id]);
@@ -209,16 +208,16 @@ class CustomersController extends Controller
     public function checkLimitVisibility($customer)
     {
         $user = auth()->user();
-        $limited_visibility = config('app.limit_user_customer_visibility') && !$user->isAdmin();
+        $limited_visibility = config('app.limit_user_customer_visibility') && ! $user->isAdmin();
 
         if ($limited_visibility) {
             $mailbox_ids = $user->mailboxesIdsCanView();
-            
+
             $accesible = Conversation::where('customer_id', $customer->id)
                 ->whereIn('conversations.mailbox_id', $mailbox_ids)
                 ->exists();
 
-            if (!$accesible) {
+            if (! $accesible) {
                 \Helper::denyAccess();
             }
         }
@@ -240,8 +239,7 @@ class CustomersController extends Controller
     /**
      * Save user permissions.
      *
-     * @param int                      $id
-     * @param \Illuminate\Http\Request $request
+     * @param  int  $id
      */
     public function permissionsSave($id, Request $request)
     {
@@ -258,7 +256,7 @@ class CustomersController extends Controller
     /**
      * View customer conversations.
      *
-     * @param intg $id
+     * @param  intg  $id
      */
     public function conversations($id)
     {
@@ -278,7 +276,7 @@ class CustomersController extends Controller
         $conversations = $query->paginate(Conversation::DEFAULT_LIST_SIZE);
 
         return view('customers/conversations', [
-            'customer'      => $customer,
+            'customer' => $customer,
             'conversations' => $conversations,
         ]);
     }
@@ -289,14 +287,14 @@ class CustomersController extends Controller
     public function ajaxSearch(Request $request)
     {
         $response = [
-            'results'    => [],
+            'results' => [],
             'pagination' => ['more' => false],
         ];
 
         $q = $request->q;
 
         $user = auth()->user();
-        $limited_visibility = config('app.limit_user_customer_visibility') && !$user->isAdmin();
+        $limited_visibility = config('app.limit_user_customer_visibility') && ! $user->isAdmin();
 
         $join_emails = false;
         if ($request->search_by == 'all' || $request->search_by == 'email' || $request->exclude_email) {
@@ -337,7 +335,7 @@ class CustomersController extends Controller
             }
             if ($request->search_by == 'phone') {
                 $phone_numeric = \Helper::phoneToNumeric($q);
-                if (!$phone_numeric) {
+                if (! $phone_numeric) {
                     $phone_numeric = $q;
                 }
                 $query->where('customers.phones', 'like', '%'.$phone_numeric.'%');
@@ -346,7 +344,7 @@ class CustomersController extends Controller
 
         if ($limited_visibility) {
             $mailbox_ids = $user->mailboxesIdsCanView();
-            
+
             $customers_query->join('conversations', 'conversations.customer_id', '=', 'customers.id');
             $customers_query->whereIn('conversations.mailbox_id', $mailbox_ids);
             $customers_query->groupby('customers.id');
@@ -389,8 +387,8 @@ class CustomersController extends Controller
                 $text = $customer->getNameAndEmail();
             }
 
-            if (!$id) {
-                if (!empty($request->use_id)) {
+            if (! $id) {
+                if (! empty($request->use_id)) {
                     $id = $customer->id;
                 } else {
                     // https://github.com/freescout-helpdesk/freescout/issues/4057
@@ -398,7 +396,7 @@ class CustomersController extends Controller
                 }
             }
             $response['results'][] = [
-                'id'   => $id,
+                'id' => $id,
                 'text' => $text,
             ];
         }
@@ -415,7 +413,7 @@ class CustomersController extends Controller
     {
         $response = [
             'status' => 'error',
-            'msg'    => '', // this is error message
+            'msg' => '', // this is error message
         ];
 
         $user = auth()->user();
@@ -426,11 +424,11 @@ class CustomersController extends Controller
             case 'create':
                 $validator_config = [
                     'first_name' => 'required|string|max:255',
-                    'last_name'  => 'nullable|string|max:255',
-                    'email'      => 'required|email|unique:emails,email',
+                    'last_name' => 'nullable|string|max:255',
+                    'email' => 'required|email|unique:emails,email',
                 ];
 
-                $limited_visibility = config('app.limit_user_customer_visibility') && !$user->isAdmin();
+                $limited_visibility = config('app.limit_user_customer_visibility') && ! $user->isAdmin();
                 if ($limited_visibility) {
                     $validator_config['email'] = 'required|email';
                 }
@@ -439,26 +437,26 @@ class CustomersController extends Controller
                 $validator = Validator::make($request->all(), $validator_config);
 
                 if ($validator->fails()) {
-                    foreach ($validator->errors()->getMessages()as $errors) {
+                    foreach ($validator->errors()->getMessages() as $errors) {
                         foreach ($errors as $field => $message) {
                             $response['msg'] .= $message.' ';
                         }
                     }
                 }
 
-                if (!$response['msg']) {
-                   
+                if (! $response['msg']) {
+
                     $customer = Customer::create($request->email, $request->all());
                     if ($customer) {
-                        $response['email']  = $request->email;
+                        $response['email'] = $request->email;
                         $response['status'] = 'success';
                     }
                 }
                 break;
 
-            // Conversations navigation
+                // Conversations navigation
             case 'customers_pagination':
-            
+
                 $customers = app('App\Http\Controllers\ConversationsController')->searchCustomers($request, $user);
 
                 $response['status'] = 'success';
@@ -499,7 +497,7 @@ class CustomersController extends Controller
     {
         $request->validate([
             'customer2_id' => 'required|exists:customers,id',
-            //'keep_attributes' => 'array'
+            // 'keep_attributes' => 'array'
         ]);
 
         $customer = Customer::findOrFail($id);
@@ -510,7 +508,7 @@ class CustomersController extends Controller
             return redirect()->back()->with('error', __('Cannot merge the same customer'));
         }
 
-        $customer->mergeWith($customer2/*, $request->keep_attributes ?? []*/);
+        $customer->mergeWith($customer2/* , $request->keep_attributes ?? [] */);
 
         \Session::flash('flash_success_floating', __('Customers merged successfully'));
 

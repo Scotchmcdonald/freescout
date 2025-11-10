@@ -71,8 +71,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      *
      * Enables use of 'true'/'false' or otherwise 1 and 0 instead.
      *
-     * @param bool $flag
-     *
+     * @param  bool  $flag
      * @return void
      */
     public function setUseBooleanTrueFalseStrings($flag)
@@ -86,10 +85,10 @@ class PostgreSqlPlatform extends AbstractPlatform
     public function getSubstringExpression($string, $start, $length = null)
     {
         if ($length === null) {
-            return 'SUBSTRING(' . $string . ' FROM ' . $start . ')';
+            return 'SUBSTRING('.$string.' FROM '.$start.')';
         }
 
-        return 'SUBSTRING(' . $string . ' FROM ' . $start . ' FOR ' . $length . ')';
+        return 'SUBSTRING('.$string.' FROM '.$start.' FOR '.$length.')';
     }
 
     /**
@@ -116,11 +115,11 @@ class PostgreSqlPlatform extends AbstractPlatform
         if ($startPos !== false) {
             $str = $this->getSubstringExpression($str, $startPos);
 
-            return 'CASE WHEN (POSITION(' . $substr . ' IN ' . $str . ') = 0) THEN 0'
-                . ' ELSE (POSITION(' . $substr . ' IN ' . $str . ') + ' . ($startPos - 1) . ') END';
+            return 'CASE WHEN (POSITION('.$substr.' IN '.$str.') = 0) THEN 0'
+                .' ELSE (POSITION('.$substr.' IN '.$str.') + '.($startPos - 1).') END';
         }
 
-        return 'POSITION(' . $substr . ' IN ' . $str . ')';
+        return 'POSITION('.$substr.' IN '.$str.')';
     }
 
     /**
@@ -130,10 +129,10 @@ class PostgreSqlPlatform extends AbstractPlatform
     {
         if ($unit === DateIntervalUnit::QUARTER) {
             $interval *= 3;
-            $unit      = DateIntervalUnit::MONTH;
+            $unit = DateIntervalUnit::MONTH;
         }
 
-        return '(' . $date . ' ' . $operator . ' (' . $interval . " || ' " . $unit . "')::interval)";
+        return '('.$date.' '.$operator.' ('.$interval." || ' ".$unit."')::interval)";
     }
 
     /**
@@ -141,7 +140,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDateDiffExpression($date1, $date2)
     {
-        return '(DATE(' . $date1 . ')-DATE(' . $date2 . '))';
+        return '(DATE('.$date1.')-DATE('.$date2.'))';
     }
 
     /**
@@ -197,7 +196,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getIdentitySequenceName($tableName, $columnName)
     {
-        return $tableName . '_' . $columnName . '_seq';
+        return $tableName.'_'.$columnName.'_seq';
     }
 
     /**
@@ -285,9 +284,8 @@ class PostgreSqlPlatform extends AbstractPlatform
     }
 
     /**
-     * @param string      $table
-     * @param string|null $database
-     *
+     * @param  string  $table
+     * @param  string|null  $database
      * @return string
      */
     public function getListTableForeignKeysSQL($table, $database = null)
@@ -298,7 +296,7 @@ class PostgreSqlPlatform extends AbstractPlatform
                   (
                       SELECT c.oid
                       FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n
-                      WHERE ' . $this->getTableWhereClause($table) . " AND n.oid = c.relnamespace
+                      WHERE '.$this->getTableWhereClause($table)." AND n.oid = c.relnamespace
                   )
                   AND r.contype = 'f'";
     }
@@ -308,7 +306,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getCreateViewSQL($name, $sql)
     {
-        return 'CREATE VIEW ' . $name . ' AS ' . $sql;
+        return 'CREATE VIEW '.$name.' AS '.$sql;
     }
 
     /**
@@ -316,7 +314,7 @@ class PostgreSqlPlatform extends AbstractPlatform
      */
     public function getDropViewSQL($name)
     {
-        return 'DROP VIEW ' . $name;
+        return 'DROP VIEW '.$name;
     }
 
     /**
@@ -360,24 +358,23 @@ SQL
                  WHERE oid IN (
                     SELECT indexrelid
                     FROM pg_index si, pg_class sc, pg_namespace sn
-                    WHERE ' . $this->getTableWhereClause($table, 'sc', 'sn') . '
+                    WHERE '.$this->getTableWhereClause($table, 'sc', 'sn').'
                     AND sc.oid=si.indrelid AND sc.relnamespace = sn.oid
                  ) AND pg_index.indexrelid = oid';
     }
 
     /**
-     * @param string $table
-     * @param string $classAlias
-     * @param string $namespaceAlias
-     *
+     * @param  string  $table
+     * @param  string  $classAlias
+     * @param  string  $namespaceAlias
      * @return string
      */
     private function getTableWhereClause($table, $classAlias = 'c', $namespaceAlias = 'n')
     {
-        $whereClause = $namespaceAlias . ".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
+        $whereClause = $namespaceAlias.".nspname NOT IN ('pg_catalog', 'information_schema', 'pg_toast') AND ";
         if (strpos($table, '.') !== false) {
             [$schema, $table] = explode('.', $table);
-            $schema           = $this->quoteStringLiteral($schema);
+            $schema = $this->quoteStringLiteral($schema);
         } else {
             $schema = 'ANY(current_schemas(false))';
         }
@@ -385,7 +382,7 @@ SQL
         $table = new Identifier($table);
         $table = $this->quoteStringLiteral($table->getName());
 
-        return $whereClause . sprintf(
+        return $whereClause.sprintf(
             '%s.relname = %s AND %s.nspname = %s',
             $classAlias,
             $table,
@@ -423,7 +420,7 @@ SQL
                         FROM pg_description WHERE pg_description.objoid = c.oid AND a.attnum = pg_description.objsubid
                     ) AS comment
                     FROM pg_attribute a, pg_class c, pg_type t, pg_namespace n
-                    WHERE " . $this->getTableWhereClause($table, 'c', 'n') . '
+                    WHERE ".$this->getTableWhereClause($table, 'c', 'n').'
                         AND a.attnum > 0
                         AND a.attrelid = c.oid
                         AND a.atttypid = t.oid
@@ -436,7 +433,7 @@ SQL
      */
     public function getCreateDatabaseSQL($name)
     {
-        return 'CREATE DATABASE ' . $name;
+        return 'CREATE DATABASE '.$name;
     }
 
     /**
@@ -446,13 +443,12 @@ SQL
      *
      * @deprecated
      *
-     * @param string $database The name of the database to disallow new connections for.
-     *
+     * @param  string  $database  The name of the database to disallow new connections for.
      * @return string
      */
     public function getDisallowDatabaseConnectionsSQL($database)
     {
-        return "UPDATE pg_database SET datallowconn = 'false' WHERE datname = " . $this->quoteStringLiteral($database);
+        return "UPDATE pg_database SET datallowconn = 'false' WHERE datname = ".$this->quoteStringLiteral($database);
     }
 
     /**
@@ -462,14 +458,13 @@ SQL
      *
      * @deprecated
      *
-     * @param string $database The name of the database to close currently active connections for.
-     *
+     * @param  string  $database  The name of the database to close currently active connections for.
      * @return string
      */
     public function getCloseActiveDatabaseConnectionsSQL($database)
     {
         return 'SELECT pg_terminate_backend(procpid) FROM pg_stat_activity WHERE datname = '
-            . $this->quoteStringLiteral($database);
+            .$this->quoteStringLiteral($database);
     }
 
     /**
@@ -480,7 +475,7 @@ SQL
         $query = '';
 
         if ($foreignKey->hasOption('match')) {
-            $query .= ' MATCH ' . $foreignKey->getOption('match');
+            $query .= ' MATCH '.$foreignKey->getOption('match');
         }
 
         $query .= parent::getAdvancedForeignKeyOptionsSQL($foreignKey);
@@ -508,17 +503,17 @@ SQL
      */
     public function getAlterTableSQL(TableDiff $diff)
     {
-        $sql         = [];
+        $sql = [];
         $commentsSQL = [];
-        $columnSql   = [];
+        $columnSql = [];
 
         foreach ($diff->addedColumns as $column) {
             if ($this->onSchemaAlterTableAddColumn($column, $diff, $columnSql)) {
                 continue;
             }
 
-            $query = 'ADD ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+            $query = 'ADD '.$this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+            $sql[] = 'ALTER TABLE '.$diff->getName($this)->getQuotedName($this).' '.$query;
 
             $comment = $this->getColumnComment($column);
 
@@ -538,8 +533,8 @@ SQL
                 continue;
             }
 
-            $query = 'DROP ' . $column->getQuotedName($this);
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+            $query = 'DROP '.$column->getQuotedName($this);
+            $sql[] = 'ALTER TABLE '.$diff->getName($this)->getQuotedName($this).' '.$query;
         }
 
         foreach ($diff->changedColumns as $columnDiff) {
@@ -552,7 +547,7 @@ SQL
             }
 
             $oldColumnName = $columnDiff->getOldColumnName()->getQuotedName($this);
-            $column        = $columnDiff->column;
+            $column = $columnDiff->column;
 
             if (
                 $columnDiff->hasChanged('type')
@@ -563,25 +558,25 @@ SQL
                 $type = $column->getType();
 
                 // SERIAL/BIGSERIAL are not "real" types and we can't alter a column to that type
-                $columnDefinition                  = $column->toArray();
+                $columnDefinition = $column->toArray();
                 $columnDefinition['autoincrement'] = false;
 
                 // here was a server version check before, but DBAL API does not support this anymore.
-                $query = 'ALTER ' . $oldColumnName . ' TYPE ' . $type->getSQLDeclaration($columnDefinition, $this);
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                $query = 'ALTER '.$oldColumnName.' TYPE '.$type->getSQLDeclaration($columnDefinition, $this);
+                $sql[] = 'ALTER TABLE '.$diff->getName($this)->getQuotedName($this).' '.$query;
             }
 
             if ($columnDiff->hasChanged('default') || $this->typeChangeBreaksDefaultValue($columnDiff)) {
                 $defaultClause = $column->getDefault() === null
                     ? ' DROP DEFAULT'
-                    : ' SET' . $this->getDefaultValueDeclarationSQL($column->toArray());
-                $query         = 'ALTER ' . $oldColumnName . $defaultClause;
-                $sql[]         = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                    : ' SET'.$this->getDefaultValueDeclarationSQL($column->toArray());
+                $query = 'ALTER '.$oldColumnName.$defaultClause;
+                $sql[] = 'ALTER TABLE '.$diff->getName($this)->getQuotedName($this).' '.$query;
             }
 
             if ($columnDiff->hasChanged('notnull')) {
-                $query = 'ALTER ' . $oldColumnName . ' ' . ($column->getNotnull() ? 'SET' : 'DROP') . ' NOT NULL';
-                $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                $query = 'ALTER '.$oldColumnName.' '.($column->getNotnull() ? 'SET' : 'DROP').' NOT NULL';
+                $sql[] = 'ALTER TABLE '.$diff->getName($this)->getQuotedName($this).' '.$query;
             }
 
             if ($columnDiff->hasChanged('autoincrement')) {
@@ -589,15 +584,15 @@ SQL
                     // add autoincrement
                     $seqName = $this->getIdentitySequenceName($diff->name, $oldColumnName);
 
-                    $sql[] = 'CREATE SEQUENCE ' . $seqName;
-                    $sql[] = "SELECT setval('" . $seqName . "', (SELECT MAX(" . $oldColumnName . ') FROM '
-                        . $diff->getName($this)->getQuotedName($this) . '))';
-                    $query = 'ALTER ' . $oldColumnName . " SET DEFAULT nextval('" . $seqName . "')";
-                    $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                    $sql[] = 'CREATE SEQUENCE '.$seqName;
+                    $sql[] = "SELECT setval('".$seqName."', (SELECT MAX(".$oldColumnName.') FROM '
+                        .$diff->getName($this)->getQuotedName($this).'))';
+                    $query = 'ALTER '.$oldColumnName." SET DEFAULT nextval('".$seqName."')";
+                    $sql[] = 'ALTER TABLE '.$diff->getName($this)->getQuotedName($this).' '.$query;
                 } else {
                     // Drop autoincrement, but do NOT drop the sequence. It might be re-used by other tables or have
-                    $query = 'ALTER ' . $oldColumnName . ' DROP DEFAULT';
-                    $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+                    $query = 'ALTER '.$oldColumnName.' DROP DEFAULT';
+                    $sql[] = 'ALTER TABLE '.$diff->getName($this)->getQuotedName($this).' '.$query;
                 }
             }
 
@@ -619,9 +614,9 @@ SQL
                 continue;
             }
 
-            $query = 'ALTER ' . $oldColumnName . ' TYPE '
-                . $column->getType()->getSQLDeclaration($column->toArray(), $this);
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) . ' ' . $query;
+            $query = 'ALTER '.$oldColumnName.' TYPE '
+                .$column->getType()->getSQLDeclaration($column->toArray(), $this);
+            $sql[] = 'ALTER TABLE '.$diff->getName($this)->getQuotedName($this).' '.$query;
         }
 
         foreach ($diff->renamedColumns as $oldColumnName => $column) {
@@ -631,8 +626,8 @@ SQL
 
             $oldColumnName = new Identifier($oldColumnName);
 
-            $sql[] = 'ALTER TABLE ' . $diff->getName($this)->getQuotedName($this) .
-                ' RENAME COLUMN ' . $oldColumnName->getQuotedName($this) . ' TO ' . $column->getQuotedName($this);
+            $sql[] = 'ALTER TABLE '.$diff->getName($this)->getQuotedName($this).
+                ' RENAME COLUMN '.$oldColumnName->getQuotedName($this).' TO '.$column->getQuotedName($this);
         }
 
         $tableSql = [];
@@ -669,8 +664,7 @@ SQL
      * might detect differences for binary type columns which do not have to be propagated
      * to database as there actually is no difference at database level.
      *
-     * @param ColumnDiff $columnDiff The column diff to check against.
-     *
+     * @param  ColumnDiff  $columnDiff  The column diff to check against.
      * @return bool True if the given column diff is an unchanged binary type column, false otherwise.
      */
     private function isUnchangedBinaryColumn(ColumnDiff $columnDiff)
@@ -706,11 +700,11 @@ SQL
     protected function getRenameIndexSQL($oldIndexName, Index $index, $tableName)
     {
         if (strpos($tableName, '.') !== false) {
-            [$schema]     = explode('.', $tableName);
-            $oldIndexName = $schema . '.' . $oldIndexName;
+            [$schema] = explode('.', $tableName);
+            $oldIndexName = $schema.'.'.$oldIndexName;
         }
 
-        return ['ALTER INDEX ' . $oldIndexName . ' RENAME TO ' . $index->getQuotedName($this)];
+        return ['ALTER INDEX '.$oldIndexName.' RENAME TO '.$index->getQuotedName($this)];
     }
 
     /**
@@ -718,9 +712,9 @@ SQL
      */
     public function getCommentOnColumnSQL($tableName, $columnName, $comment)
     {
-        $tableName  = new Identifier($tableName);
+        $tableName = new Identifier($tableName);
         $columnName = new Identifier($columnName);
-        $comment    = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
+        $comment = $comment === null ? 'NULL' : $this->quoteStringLiteral($comment);
 
         return sprintf(
             'COMMENT ON COLUMN %s.%s IS %s',
@@ -735,10 +729,10 @@ SQL
      */
     public function getCreateSequenceSQL(Sequence $sequence)
     {
-        return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this) .
-            ' INCREMENT BY ' . $sequence->getAllocationSize() .
-            ' MINVALUE ' . $sequence->getInitialValue() .
-            ' START ' . $sequence->getInitialValue() .
+        return 'CREATE SEQUENCE '.$sequence->getQuotedName($this).
+            ' INCREMENT BY '.$sequence->getAllocationSize().
+            ' MINVALUE '.$sequence->getInitialValue().
+            ' START '.$sequence->getInitialValue().
             $this->getSequenceCacheSQL($sequence);
     }
 
@@ -747,8 +741,8 @@ SQL
      */
     public function getAlterSequenceSQL(Sequence $sequence)
     {
-        return 'ALTER SEQUENCE ' . $sequence->getQuotedName($this) .
-            ' INCREMENT BY ' . $sequence->getAllocationSize() .
+        return 'ALTER SEQUENCE '.$sequence->getQuotedName($this).
+            ' INCREMENT BY '.$sequence->getAllocationSize().
             $this->getSequenceCacheSQL($sequence);
     }
 
@@ -760,7 +754,7 @@ SQL
     private function getSequenceCacheSQL(Sequence $sequence)
     {
         if ($sequence->getCache() > 1) {
-            return ' CACHE ' . $sequence->getCache();
+            return ' CACHE '.$sequence->getCache();
         }
 
         return '';
@@ -775,7 +769,7 @@ SQL
             $sequence = $sequence->getQuotedName($this);
         }
 
-        return 'DROP SEQUENCE ' . $sequence . ' CASCADE';
+        return 'DROP SEQUENCE '.$sequence.' CASCADE';
     }
 
     /**
@@ -783,7 +777,7 @@ SQL
      */
     public function getCreateSchemaSQL($schemaName)
     {
-        return 'CREATE SCHEMA ' . $schemaName;
+        return 'CREATE SCHEMA '.$schemaName;
     }
 
     /**
@@ -802,11 +796,11 @@ SQL
         $queryFields = $this->getColumnDeclarationListSQL($columns);
 
         if (isset($options['primary']) && ! empty($options['primary'])) {
-            $keyColumns   = array_unique(array_values($options['primary']));
-            $queryFields .= ', PRIMARY KEY(' . implode(', ', $keyColumns) . ')';
+            $keyColumns = array_unique(array_values($options['primary']));
+            $queryFields .= ', PRIMARY KEY('.implode(', ', $keyColumns).')';
         }
 
-        $query = 'CREATE TABLE ' . $name . ' (' . $queryFields . ')';
+        $query = 'CREATE TABLE '.$name.' ('.$queryFields.')';
 
         $sql = [$query];
 
@@ -832,9 +826,8 @@ SQL
      * and passes it to the given callback function to be reconverted
      * into any custom representation.
      *
-     * @param mixed    $value    The value to convert.
-     * @param callable $callback The callback function to use for converting the real boolean value.
-     *
+     * @param  mixed  $value  The value to convert.
+     * @param  callable  $callback  The callback function to use for converting the real boolean value.
      * @return mixed
      *
      * @throws UnexpectedValueException
@@ -874,9 +867,8 @@ SQL
      * and passes them to the given callback function to be reconverted
      * into any custom representation.
      *
-     * @param mixed    $item     The value(s) to convert.
-     * @param callable $callback The callback function to use for converting the real boolean value(s).
-     *
+     * @param  mixed  $item  The value(s) to convert.
+     * @param  callable  $callback  The callback function to use for converting the real boolean value(s).
      * @return mixed
      */
     private function doConvertBooleans($item, $callback)
@@ -949,7 +941,7 @@ SQL
      */
     public function getSequenceNextValSQL($sequence)
     {
-        return "SELECT NEXTVAL('" . $sequence . "')";
+        return "SELECT NEXTVAL('".$sequence."')";
     }
 
     /**
@@ -958,7 +950,7 @@ SQL
     public function getSetTransactionIsolationSQL($level)
     {
         return 'SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL '
-            . $this->_getTransactionIsolationLevelSQL($level);
+            .$this->_getTransactionIsolationLevelSQL($level);
     }
 
     /**
@@ -1064,8 +1056,8 @@ SQL
      */
     protected function getVarcharTypeDeclarationSQLSnippet($length, $fixed)
     {
-        return $fixed ? ($length ? 'CHAR(' . $length . ')' : 'CHAR(255)')
-            : ($length ? 'VARCHAR(' . $length . ')' : 'VARCHAR(255)');
+        return $fixed ? ($length ? 'CHAR('.$length.')' : 'CHAR(255)')
+            : ($length ? 'VARCHAR('.$length.')' : 'VARCHAR(255)');
     }
 
     /**
@@ -1117,7 +1109,7 @@ SQL
      */
     public function getEmptyIdentityInsertSQL($quotedTableName, $quotedIdentifierColumnName)
     {
-        return 'INSERT INTO ' . $quotedTableName . ' (' . $quotedIdentifierColumnName . ') VALUES (DEFAULT)';
+        return 'INSERT INTO '.$quotedTableName.' ('.$quotedIdentifierColumnName.') VALUES (DEFAULT)';
     }
 
     /**
@@ -1126,7 +1118,7 @@ SQL
     public function getTruncateTableSQL($tableName, $cascade = false)
     {
         $tableIdentifier = new Identifier($tableName);
-        $sql             = 'TRUNCATE ' . $tableIdentifier->getQuotedName($this);
+        $sql = 'TRUNCATE '.$tableIdentifier->getQuotedName($this);
 
         if ($cascade) {
             $sql .= ' CASCADE';
@@ -1149,45 +1141,45 @@ SQL
     protected function initializeDoctrineTypeMappings()
     {
         $this->doctrineTypeMapping = [
-            'smallint'      => 'smallint',
-            'int2'          => 'smallint',
-            'serial'        => 'integer',
-            'serial4'       => 'integer',
-            'int'           => 'integer',
-            'int4'          => 'integer',
-            'integer'       => 'integer',
-            'bigserial'     => 'bigint',
-            'serial8'       => 'bigint',
-            'bigint'        => 'bigint',
-            'int8'          => 'bigint',
-            'bool'          => 'boolean',
-            'boolean'       => 'boolean',
-            'text'          => 'text',
-            'tsvector'      => 'text',
-            'varchar'       => 'string',
-            'interval'      => 'string',
-            '_varchar'      => 'string',
-            'char'          => 'string',
-            'bpchar'        => 'string',
-            'inet'          => 'string',
-            'date'          => 'date',
-            'datetime'      => 'datetime',
-            'timestamp'     => 'datetime',
-            'timestamptz'   => 'datetimetz',
-            'time'          => 'time',
-            'timetz'        => 'time',
-            'float'         => 'float',
-            'float4'        => 'float',
-            'float8'        => 'float',
-            'double'        => 'float',
+            'smallint' => 'smallint',
+            'int2' => 'smallint',
+            'serial' => 'integer',
+            'serial4' => 'integer',
+            'int' => 'integer',
+            'int4' => 'integer',
+            'integer' => 'integer',
+            'bigserial' => 'bigint',
+            'serial8' => 'bigint',
+            'bigint' => 'bigint',
+            'int8' => 'bigint',
+            'bool' => 'boolean',
+            'boolean' => 'boolean',
+            'text' => 'text',
+            'tsvector' => 'text',
+            'varchar' => 'string',
+            'interval' => 'string',
+            '_varchar' => 'string',
+            'char' => 'string',
+            'bpchar' => 'string',
+            'inet' => 'string',
+            'date' => 'date',
+            'datetime' => 'datetime',
+            'timestamp' => 'datetime',
+            'timestamptz' => 'datetimetz',
+            'time' => 'time',
+            'timetz' => 'time',
+            'float' => 'float',
+            'float4' => 'float',
+            'float8' => 'float',
+            'double' => 'float',
             'double precision' => 'float',
-            'real'          => 'float',
-            'decimal'       => 'decimal',
-            'money'         => 'decimal',
-            'numeric'       => 'decimal',
-            'year'          => 'date',
-            'uuid'          => 'guid',
-            'bytea'         => 'blob',
+            'real' => 'float',
+            'decimal' => 'decimal',
+            'money' => 'decimal',
+            'numeric' => 'decimal',
+            'year' => 'date',
+            'uuid' => 'guid',
+            'bytea' => 'blob',
         ];
     }
 
@@ -1244,7 +1236,7 @@ SQL
     }
 
     /**
-     * @param mixed[] $column
+     * @param  mixed[]  $column
      */
     private function isSerialColumn(array $column): bool
     {
@@ -1283,7 +1275,7 @@ SQL
     public function getListTableMetadataSQL(string $table, ?string $schema = null): string
     {
         if ($schema !== null) {
-            $table = $schema . '.' . $table;
+            $table = $schema.'.'.$table;
         }
 
         return sprintf(

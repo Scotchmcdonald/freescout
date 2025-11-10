@@ -31,13 +31,12 @@ class Json
     /**
      * The constructor.
      *
-     * @param mixed                             $path
-     * @param \Illuminate\Filesystem\Filesystem $filesystem
+     * @param  mixed  $path
      */
     public function __construct($path, ?Filesystem $filesystem = null, array $data = [])
     {
         $this->path = (string) $path;
-        $this->filesystem = $filesystem ?: new Filesystem();
+        $this->filesystem = $filesystem ?: new Filesystem;
 
         // Here we allow to pass json data as array to avoid reading the file
         if ($data) {
@@ -60,7 +59,6 @@ class Json
     /**
      * Set filesystem.
      *
-     * @param Filesystem $filesystem
      *
      * @return $this
      */
@@ -84,8 +82,7 @@ class Json
     /**
      * Set path.
      *
-     * @param mixed $path
-     *
+     * @param  mixed  $path
      * @return $this
      */
     public function setPath($path)
@@ -98,9 +95,7 @@ class Json
     /**
      * Make new instance.
      *
-     * @param string                            $path
-     * @param \Illuminate\Filesystem\Filesystem $filesystem
-     *
+     * @param  string  $path
      * @return static
      */
     public static function make($path, ?Filesystem $filesystem = null)
@@ -121,9 +116,10 @@ class Json
     /**
      * Get file contents as array.
      *
-     * @throws \Exception
      *
      * @return array
+     *
+     * @throws \Exception
      */
     public function getAttributes()
     {
@@ -154,7 +150,6 @@ class Json
     /**
      * Convert the given array data to pretty json.
      *
-     * @param array $data
      *
      * @return string
      */
@@ -166,7 +161,6 @@ class Json
     /**
      * Update json contents from array data.
      *
-     * @param array $data
      *
      * @return bool
      */
@@ -180,9 +174,8 @@ class Json
     /**
      * Set a specific key & value.
      *
-     * @param string $key
-     * @param mixed  $value
-     *
+     * @param  string  $key
+     * @param  mixed  $value
      * @return $this
      */
     public function set($key, $value)
@@ -205,8 +198,7 @@ class Json
     /**
      * Handle magic method __get.
      *
-     * @param string $key
-     *
+     * @param  string  $key
      * @return mixed
      */
     public function __get($key)
@@ -217,9 +209,7 @@ class Json
     /**
      * Get the specified attribute from json file.
      *
-     * @param $key
-     * @param null $default
-     *
+     * @param  null  $default
      * @return mixed
      */
     public function get($key, $default = null)
@@ -230,9 +220,8 @@ class Json
     /**
      * Handle call to __call method.
      *
-     * @param string $method
-     * @param array  $arguments
-     *
+     * @param  string  $method
+     * @param  array  $arguments
      * @return mixed
      */
     public function __call($method, $arguments = [])

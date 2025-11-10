@@ -16,11 +16,10 @@ class Collection extends \Illuminate\Support\Collection
     /**
      * Parse the routes into a jsonable output.
      *
-     * @param RouteCollection $routes
-     * @param string $filter
-     * @param string $namespace
-     *
+     * @param  string  $filter
+     * @param  string  $namespace
      * @return array
+     *
      * @throws ZeroRoutesException
      */
     protected function parseRoutes(RouteCollection $routes, $filter, $namespace)
@@ -39,7 +38,6 @@ class Collection extends \Illuminate\Support\Collection
     /**
      * Throw an exception if there aren't any routes to process
      *
-     * @param RouteCollection $routes
      *
      * @throws ZeroRoutesException
      */
@@ -53,10 +51,9 @@ class Collection extends \Illuminate\Support\Collection
     /**
      * Get the route information for a given route.
      *
-     * @param $route \Illuminate\Routing\Route
-     * @param $filter string
-     * @param $namespace string
-     *
+     * @param  $route  \Illuminate\Routing\Route
+     * @param  $filter  string
+     * @param  $namespace  string
      * @return array
      */
     protected function getRouteInformation(Route $route, $filter, $namespace)
@@ -66,34 +63,37 @@ class Collection extends \Illuminate\Support\Collection
         // Cut subdirectory from URI.
         $subdirectory = \Helper::getSubdirectory(true);
         if ($subdirectory) {
-            $uri = preg_replace("#^".preg_quote($subdirectory)."#", '', $uri);
+            $uri = preg_replace('#^'.preg_quote($subdirectory).'#', '', $uri);
         }
-        
-        $host    = $route->domain();
+
+        $host = $route->domain();
         $methods = $route->methods();
-        $uri     = $uri;
-        $name    = $route->getName();
-        $action  = $route->getActionName();
+        $uri = $uri;
+        $name = $route->getName();
+        $action = $route->getActionName();
         $laroute = array_get($route->getAction(), 'laroute', null);
 
-        if(!empty($namespace)) {
+        if (! empty($namespace)) {
             $a = $route->getAction();
 
-            if(isset($a['controller'])) {
+            if (isset($a['controller'])) {
                 $action = str_replace($namespace.'\\', '', $action);
             }
         }
 
         switch ($filter) {
             case 'all':
-                if($laroute === false) return null;
+                if ($laroute === false) {
+                    return null;
+                }
                 break;
             case 'only':
-                if($laroute !== true) return null;
+                if ($laroute !== true) {
+                    return null;
+                }
                 break;
         }
 
         return compact('host', 'methods', 'uri', 'name', 'action');
     }
-
 }

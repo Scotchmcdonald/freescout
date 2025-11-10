@@ -17,7 +17,6 @@ class UpdateMailboxCounters
     /**
      * Handle the event.
      *
-     * @param  $event
      *
      * @return void
      */

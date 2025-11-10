@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Outgoing emails.
  */

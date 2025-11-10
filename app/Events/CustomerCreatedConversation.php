@@ -8,6 +8,7 @@ use App\Thread;
 class CustomerCreatedConversation
 {
     public $conversation;
+
     public $last_thread;
 
     /**

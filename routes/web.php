@@ -21,9 +21,9 @@ Route::post(config('app.login_path'), 'Auth\LoginController@login');
 // Authentication redirects to /home
 // if APP_DASHBOARD_PATH is empty APP_URL will be used
 if (config('app.dashboard_path')) {
-	Route::redirect('/home', config('app.url').'/'.config('app.dashboard_path'), 302);
+    Route::redirect('/home', config('app.url').'/'.config('app.dashboard_path'), 302);
 } else {
-	Route::redirect('/home', config('app.url'), 302);
+    Route::redirect('/home', config('app.url'), 302);
 }
 
 // Open routes
@@ -33,7 +33,7 @@ Route::get('/storage/attachment/{dir_1}/{dir_2}/{dir_3}/{file_name}', 'OpenContr
 
 // General routes for logged in users
 if (config('app.dashboard_path')) {
-	Route::get('/', config('app.home_controller'));
+    Route::get('/', config('app.home_controller'));
 }
 Route::get('/'.config('app.dashboard_path'), 'SecureController@dashboard')->name('dashboard');
 Route::get('/app-logs/app', ['uses' => '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index', 'middleware' => ['auth', 'roles'], 'roles' => ['admin']])->name('logs.app');
@@ -66,7 +66,7 @@ Route::post('/conversation/ajax', ['uses' => 'ConversationsController@ajax', 'la
 Route::post('/conversation/upload', ['uses' => 'ConversationsController@upload', 'laroute' => true])->name('conversations.upload');
 Route::get('/mailbox/{mailbox_id}/new-ticket', 'ConversationsController@create')->name('conversations.create');
 Route::get('/mailbox/{mailbox_id}/clone-ticket/{from_thread_id}', 'ConversationsController@cloneConversation')->name('conversations.clone_conversation');
-//Route::get('/conversation/draft/{id}', 'ConversationsController@draft')->name('conversations.draft');
+// Route::get('/conversation/draft/{id}', 'ConversationsController@draft')->name('conversations.draft');
 Route::get('/conversation/ajax-html/{action}', ['uses' => 'ConversationsController@ajaxHtml', 'laroute' => true])->name('conversations.ajax_html');
 Route::get('/search', 'ConversationsController@search')->name('conversations.search');
 Route::get('/conversation/undo-reply/{thread_id}', 'ConversationsController@undoReply')->name('conversations.undo');

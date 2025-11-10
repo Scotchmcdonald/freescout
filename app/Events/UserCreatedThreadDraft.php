@@ -8,6 +8,7 @@ use App\Thread;
 class UserCreatedThreadDraft
 {
     public $conversation;
+
     public $thread;
 
     /**

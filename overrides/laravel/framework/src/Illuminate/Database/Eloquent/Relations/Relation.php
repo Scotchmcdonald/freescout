@@ -3,12 +3,12 @@
 namespace Illuminate\Database\Eloquent\Relations;
 
 use Closure;
-use Illuminate\Support\Arr;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Traits\Macroable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Expression;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Traits\Macroable;
 
 /**
  * @mixin \Illuminate\Database\Eloquent\Builder
@@ -57,8 +57,6 @@ abstract class Relation
     /**
      * Create a new relation instance.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
      * @return void
      */
     public function __construct(Builder $query, Model $parent)
@@ -73,7 +71,6 @@ abstract class Relation
     /**
      * Run a callback with constraints disabled on the relation.
      *
-     * @param  \Closure  $callback
      * @return mixed
      */
     public static function noConstraints(Closure $callback)
@@ -102,7 +99,6 @@ abstract class Relation
     /**
      * Set the constraints for an eager load of the relation.
      *
-     * @param  array  $models
      * @return void
      */
     abstract public function addEagerConstraints(array $models);
@@ -110,7 +106,6 @@ abstract class Relation
     /**
      * Initialize the relation on a set of models.
      *
-     * @param  array   $models
      * @param  string  $relation
      * @return array
      */
@@ -119,8 +114,6 @@ abstract class Relation
     /**
      * Match the eagerly loaded results to their parents.
      *
-     * @param  array   $models
-     * @param  \Illuminate\Database\Eloquent\Collection  $results
      * @param  string  $relation
      * @return array
      */
@@ -169,7 +162,6 @@ abstract class Relation
     /**
      * Run a raw update against the base query.
      *
-     * @param  array  $attributes
      * @return int
      */
     public function rawUpdate(array $attributes = [])
@@ -180,8 +172,6 @@ abstract class Relation
     /**
      * Add the constraints for a relationship count query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function getRelationExistenceCountQuery(Builder $query, Builder $parentQuery)
@@ -196,9 +186,7 @@ abstract class Relation
      *
      * Essentially, these queries compare on column names like whereColumn.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
-     * @param  array|mixed $columns
+     * @param  array|mixed  $columns
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
@@ -211,7 +199,6 @@ abstract class Relation
     /**
      * Get all of the primary keys for an array of models.
      *
-     * @param  array   $models
      * @param  string  $key
      * @return array
      */
@@ -305,7 +292,6 @@ abstract class Relation
     /**
      * Set or get the morph map for polymorphic relations.
      *
-     * @param  array|null  $map
      * @param  bool  $merge
      * @return array
      */
@@ -355,7 +341,7 @@ abstract class Relation
      * Handle dynamic method calls to the relationship.
      *
      * @param  string  $method
-     * @param  array   $parameters
+     * @param  array  $parameters
      * @return mixed
      */
     public function __call($method, $parameters)

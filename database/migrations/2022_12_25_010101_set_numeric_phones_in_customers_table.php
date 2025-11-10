@@ -2,8 +2,6 @@
 
 use App\Customer;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 class SetNumericPhonesInCustomersTable extends Migration
 {
@@ -24,7 +22,7 @@ class SetNumericPhonesInCustomersTable extends Migration
                 $customer->setPhones($phones);
                 $customer->save();
             }
-        } while(count($customers));
+        } while (count($customers));
     }
 
     /**
@@ -32,8 +30,5 @@ class SetNumericPhonesInCustomersTable extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-
-    }
+    public function down() {}
 }

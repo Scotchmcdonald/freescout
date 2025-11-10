@@ -9,15 +9,13 @@ class ThreadObserver
 {
     /**
      * Thread created.
-     *
-     * @param Thread $thread
      */
     public function created(Thread $thread)
     {
         // Update data in conversation
         $conversation = $thread->conversation;
 
-        if (!$conversation) {
+        if (! $conversation) {
             return;
         }
 
@@ -26,18 +24,18 @@ class ThreadObserver
 
         if ($use_mail_date_on_fetching) {
             $now = $thread->created_at;
-        }else{
+        } else {
             $now = date('Y-m-d H:i:s');
         }
-        
-        if (!in_array($thread->type, [Thread::TYPE_LINEITEM, Thread::TYPE_NOTE]) && $thread->state == Thread::STATE_PUBLISHED) {
+
+        if (! in_array($thread->type, [Thread::TYPE_LINEITEM, Thread::TYPE_NOTE]) && $thread->state == Thread::STATE_PUBLISHED) {
             $conversation->threads_count++;
         }
-        if (!in_array($thread->type, [Thread::TYPE_CUSTOMER])) {
+        if (! in_array($thread->type, [Thread::TYPE_CUSTOMER])) {
             $conversation->user_updated_at = $now;
         }
-        
-        if ((in_array($thread->type, [Thread::TYPE_CUSTOMER, Thread::TYPE_MESSAGE]) 
+
+        if ((in_array($thread->type, [Thread::TYPE_CUSTOMER, Thread::TYPE_MESSAGE])
             || ($conversation->isPhone() && in_array($thread->type, [Thread::TYPE_NOTE])))
             && $thread->state == Thread::STATE_PUBLISHED
         ) {
@@ -53,10 +51,10 @@ class ThreadObserver
         // Update preview.
         if (in_array($thread->type, [Thread::TYPE_CUSTOMER, Thread::TYPE_MESSAGE, Thread::TYPE_NOTE])
             && $thread->state == Thread::STATE_PUBLISHED
-            && !$thread->isForward()
+            && ! $thread->isForward()
             // Otherwise preview is not set when conversation is created
             // outside of the web interface.
-            //&& ($conversation->threads_count > 1 || $thread->type == Thread::TYPE_NOTE)
+            // && ($conversation->threads_count > 1 || $thread->type == Thread::TYPE_NOTE)
         ) {
             $conversation->setPreview($thread->body);
         }
@@ -64,7 +62,7 @@ class ThreadObserver
         $conversation->save();
 
         // $is_new_conversation = false;
-        // if ($conversation->threads_count == 0 
+        // if ($conversation->threads_count == 0
         //     && in_array($thread->type, [Thread::TYPE_CUSTOMER, Thread::TYPE_MESSAGE, Thread::TYPE_NOTE])
         //     && $thread->state == Thread::STATE_PUBLISHED
         // ) {
@@ -77,7 +75,7 @@ class ThreadObserver
         // }
 
         // Real time for user notifications is sent using events.
-        if ($thread->type == Thread::TYPE_CUSTOMER 
+        if ($thread->type == Thread::TYPE_CUSTOMER
             || ($thread->type == Thread::TYPE_MESSAGE && $thread->state == Thread::STATE_DRAFT)
         ) {
             Conversation::refreshConversations($conversation, $thread);

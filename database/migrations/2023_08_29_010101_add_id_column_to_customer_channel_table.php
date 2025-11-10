@@ -14,7 +14,7 @@ class AddIdColumnToCustomerChannelTable extends Migration
     public function up()
     {
         Schema::table('customer_channel', function (Blueprint $table) {
-            if (!Schema::hasColumn('customer_channel', 'id')) {
+            if (! Schema::hasColumn('customer_channel', 'id')) {
                 $table->increments('id');
             }
         });
@@ -25,8 +25,5 @@ class AddIdColumnToCustomerChannelTable extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-
-    }
+    public function down() {}
 }

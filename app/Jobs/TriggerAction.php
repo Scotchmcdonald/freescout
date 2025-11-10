@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Used to tirgger Eventy actions with delay.
  */
@@ -16,6 +17,7 @@ class TriggerAction implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $action;
+
     public $params;
 
     /**

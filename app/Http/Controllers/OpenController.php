@@ -18,9 +18,7 @@ class OpenController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Setup user from invitation.
@@ -51,21 +49,21 @@ class OpenController extends Controller
         }
         $user = User::where('invite_hash', $hash)->first();
 
-        if (!$user) {
+        if (! $user) {
             abort(404);
         }
 
         $validator = Validator::make($request->all(), [
-            'email'       => 'required|string|email|max:100|unique:users,email,'.$user->id,
-            'password'    => 'required|string|min:8|confirmed',
-            'job_title'   => 'max:100',
-            'phone'       => 'max:60',
-            'timezone'    => 'required|string|max:255',
+            'email' => 'required|string|email|max:100|unique:users,email,'.$user->id,
+            'password' => 'required|string|min:8|confirmed',
+            'job_title' => 'max:100',
+            'phone' => 'max:60',
+            'timezone' => 'required|string|max:255',
             'time_format' => 'required',
-            'photo_url'   => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'photo_url' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
         $validator->setAttributeNames([
-            'photo_url'   => __('Photo'),
+            'photo_url' => __('Photo'),
         ]);
 
         // Photo
@@ -83,8 +81,8 @@ class OpenController extends Controller
 
         if ($validator->fails()) {
             return redirect()->route('user_setup', ['hash' => $hash])
-                        ->withErrors($validator)
-                        ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $request_data = [
@@ -102,7 +100,7 @@ class OpenController extends Controller
 
         $user->invite_state = User::INVITE_STATE_ACTIVATED;
         $user->invite_hash = '';
-        
+
         $user = \Eventy::filter('user.setup_save', $user, $request);
         $user->save();
 
@@ -152,7 +150,7 @@ class OpenController extends Controller
         $attachment = null;
 
         // Old attachments can not be requested by id.
-        if (!$token && $id) {
+        if (! $token && $id) {
             return \Helper::denyAccess();
         }
 
@@ -160,15 +158,15 @@ class OpenController extends Controller
         if ($id) {
             $attachment = Attachment::findOrFail($id);
         }
-        
-        if (!$attachment) {
+
+        if (! $attachment) {
             $attachment = Attachment::where('file_dir', $dir_1.DIRECTORY_SEPARATOR.$dir_2.DIRECTORY_SEPARATOR.$dir_3.DIRECTORY_SEPARATOR)
                 ->where('file_name', $file_name)
                 ->firstOrFail();
         }
 
         // Only allow download if the attachment is public or if the token matches the hash of the contents
-        if ($token != $attachment->getToken() && (bool)$attachment->public !== true) {
+        if ($token != $attachment->getToken() && (bool) $attachment->public !== true) {
             return \Helper::denyAccess();
         }
 
@@ -189,7 +187,7 @@ class OpenController extends Controller
                     break;
                 }
             }
-            if (!$allowed_mime_type) {
+            if (! $allowed_mime_type) {
                 $view_attachment = false;
             }
         }
@@ -197,19 +195,19 @@ class OpenController extends Controller
         if (config('app.download_attachments_via') == 'apache') {
             // Send using Apache mod_xsendfile.
             $response = response(null)
-               ->header('Content-Type' , $attachment->mime_type)
-               ->header('X-Sendfile', $attachment->getLocalFilePath());
+                ->header('Content-Type', $attachment->mime_type)
+                ->header('X-Sendfile', $attachment->getLocalFilePath());
 
-            if (!$view_attachment) {
+            if (! $view_attachment) {
                 $response->header('Content-Disposition', 'attachment; filename="'.$attachment->file_name.'"');
             }
         } elseif (config('app.download_attachments_via') == 'nginx') {
             // Send using Nginx.
             $response = response(null)
-               ->header('Content-Type' , $attachment->mime_type)
-               ->header('X-Accel-Redirect', $attachment->getLocalFilePath(false));
-               
-            if (!$view_attachment) {
+                ->header('Content-Type', $attachment->mime_type)
+                ->header('X-Accel-Redirect', $attachment->getLocalFilePath(false));
+
+            if (! $view_attachment) {
                 $response->header('Content-Disposition', 'attachment; filename="'.$attachment->file_name.'"');
             }
         } else {

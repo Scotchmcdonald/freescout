@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: leemason
@@ -19,7 +20,7 @@ use Illuminate\Support\ServiceProvider;
 
 class PolycastServiceProvider extends ServiceProvider
 {
-    //public function boot(BroadcastingFactory $factory){
+    // public function boot(BroadcastingFactory $factory){
     public function boot()
     {
 
@@ -27,9 +28,9 @@ class PolycastServiceProvider extends ServiceProvider
         // $factory->extend('polycast', function(/*Application $app*/){
         //     return new PolycastBroadcaster();
         // });
-        //$factory->extend('polycast', function (Application $app, $config) {
-        //app('Illuminate\Broadcasting\BroadcastManager')->extend('polycast', function (array $config) {
-        //$broadcastManager->extend('polycast', function (array $config) {
+        // $factory->extend('polycast', function (Application $app, $config) {
+        // app('Illuminate\Broadcasting\BroadcastManager')->extend('polycast', function (array $config) {
+        // $broadcastManager->extend('polycast', function (array $config) {
 
         // This has to be done in BroadcastServiceProvider to avoid "Driver [driver] is not supported" error
         // $this->app[BroadcastManager::class]->extend('polycast', function (array $config) {
@@ -86,7 +87,7 @@ class PolycastServiceProvider extends ServiceProvider
                     $item->data = BroadcastNotification::fetchPayloadData($item->payload);
 
                     $event_class = '\\'.$item->event;
-                    if (method_exists($event_class, "processPayload")) {
+                    if (method_exists($event_class, 'processPayload')) {
                         // If user is not allowed to access this event, data will be sent to empty array.
                         $item->payload = $event_class::processPayload($item->payload);
                     }
@@ -117,10 +118,10 @@ class PolycastServiceProvider extends ServiceProvider
     {
         // Periodically save info indicating that user is still viewing the conversation.
         $viewing_conversation_id = null;
-        if (!empty($request->data) && !empty($request->data['conversation_id'])) {
+        if (! empty($request->data) && ! empty($request->data['conversation_id'])) {
             $viewing_conversation_id = $request->data['conversation_id'];
 
-            if (!empty($request->data['conversation_view_focus'])) {
+            if (! empty($request->data['conversation_view_focus'])) {
                 $conversation = Conversation::find($request->data['conversation_id']);
                 if ($conversation) {
                     \Eventy::action('conversation.view.focus', $conversation);
@@ -131,7 +132,7 @@ class PolycastServiceProvider extends ServiceProvider
 
             $user = auth()->user();
             $now = Carbon::now();
-            
+
             $cache_key = 'conv_view_'.$user->id.'_'.$viewing_conversation_id;
             $cache_data = \Cache::get($cache_key);
             $view_date = null;
@@ -144,11 +145,11 @@ class PolycastServiceProvider extends ServiceProvider
                     $view_date = Carbon::createFromFormat('Y-m-d H:i:s', $cache_data['t']);
 
                     // Let other users know that user started to reply.
-                    if (!(int)$cache_data['r'] && (int)$request->data['replying']) {
+                    if (! (int) $cache_data['r'] && (int) $request->data['replying']) {
                         // Started to reply.
                         \App\Events\RealtimeConvView::dispatchSelf($viewing_conversation_id, $user, true);
                         $replying_changed = true;
-                    } elseif ((int)$cache_data['r'] && !(int)$request->data['replying']) {
+                    } elseif ((int) $cache_data['r'] && ! (int) $request->data['replying']) {
                         // Finished to reply.
                         \App\Events\RealtimeConvView::dispatchSelf($viewing_conversation_id, $user, false);
                         $replying_changed = true;
@@ -157,13 +158,13 @@ class PolycastServiceProvider extends ServiceProvider
                     $replying_changed = true;
                 }
             }
-            
-            if (!$cache_data || $replying_changed || ($view_date && $now->diffInSeconds($view_date) > 15)) {
+
+            if (! $cache_data || $replying_changed || ($view_date && $now->diffInSeconds($view_date) > 15)) {
                 // Remember date of the last view in the cache.
                 // Store for 2 minutes.
                 $cache_data = [
                     't' => $now->toDateTimeString(),
-                    'r' => (int)$request->data['replying']
+                    'r' => (int) $request->data['replying'],
                 ];
                 \Cache::put($cache_key, $cache_data, 1);
 
@@ -176,8 +177,8 @@ class PolycastServiceProvider extends ServiceProvider
                 $conv_key = 'conv_view';
                 $conv_data = \Cache::get($conv_key) ?? [];
                 $conv_data[$viewing_conversation_id][$user->id] = $cache_data;
-                \Cache::put($conv_key, $conv_data, 20 /*minutes*/);
-                
+                \Cache::put($conv_key, $conv_data, 20 /* minutes */);
+
                 // \DB::table('polycast_events')->insert([
                 //     'channels'   => json_encode([['name' => 'conv.view']]),
                 //     'event'      => 'App\Events\RealtimeConvView',
@@ -191,7 +192,5 @@ class PolycastServiceProvider extends ServiceProvider
         }
     }
 
-    public function register()
-    {
-    }
+    public function register() {}
 }

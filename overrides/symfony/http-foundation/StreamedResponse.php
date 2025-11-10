@@ -27,19 +27,21 @@ namespace Symfony\Component\HttpFoundation;
 class StreamedResponse extends Response
 {
     protected $callback;
+
     protected $streamed;
+
     private $headersSent;
 
     /**
-     * @param callable|null $callback A valid PHP callback or null to set it later
-     * @param int           $status   The response status code
-     * @param array         $headers  An array of response headers
+     * @param  callable|null  $callback  A valid PHP callback or null to set it later
+     * @param  int  $status  The response status code
+     * @param  array  $headers  An array of response headers
      */
-    public function __construct(?callable $callback = null, $status = 200, $headers = array())
+    public function __construct(?callable $callback = null, $status = 200, $headers = [])
     {
         parent::__construct(null, $status, $headers);
 
-        if (null !== $callback) {
+        if ($callback !== null) {
             $this->setCallback($callback);
         }
         $this->streamed = false;
@@ -49,13 +51,12 @@ class StreamedResponse extends Response
     /**
      * Factory method for chainability.
      *
-     * @param callable|null $callback A valid PHP callback or null to set it later
-     * @param int           $status   The response status code
-     * @param array         $headers  An array of response headers
-     *
+     * @param  callable|null  $callback  A valid PHP callback or null to set it later
+     * @param  int  $status  The response status code
+     * @param  array  $headers  An array of response headers
      * @return static
      */
-    public static function create($callback = null, $status = 200, $headers = array())
+    public static function create($callback = null, $status = 200, $headers = [])
     {
         return new static($callback, $status, $headers);
     }
@@ -63,8 +64,7 @@ class StreamedResponse extends Response
     /**
      * Sets the PHP callback associated with this Response.
      *
-     * @param callable $callback A valid PHP callback
-     *
+     * @param  callable  $callback  A valid PHP callback
      * @return $this
      */
     public function setCallback(callable $callback)
@@ -107,7 +107,7 @@ class StreamedResponse extends Response
 
         $this->streamed = true;
 
-        if (null === $this->callback) {
+        if ($this->callback === null) {
             throw new \LogicException('The Response callback must not be null.');
         }
 
@@ -119,13 +119,14 @@ class StreamedResponse extends Response
     /**
      * {@inheritdoc}
      *
-     * @throws \LogicException when the content is not null
      *
      * @return $this
+     *
+     * @throws \LogicException when the content is not null
      */
     public function setContent($content)
     {
-        if (null !== $content) {
+        if ($content !== null) {
             throw new \LogicException('The content cannot be set on a StreamedResponse instance.');
         }
 

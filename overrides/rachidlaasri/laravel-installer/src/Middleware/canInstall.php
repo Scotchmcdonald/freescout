@@ -4,17 +4,14 @@ namespace RachidLaasri\LaravelInstaller\Middleware;
 
 use Closure;
 use DB;
-use Redirect;
 
 class canInstall
 {
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
-     * @param Redirector               $redirect
-     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  Redirector  $redirect
      * @return mixed
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -79,7 +76,7 @@ class canInstall
             }
 
             // Allow to access the last installation page
-            if (\Route::current()->getName()== 'LaravelInstaller::database' || \Route::current()->getName() == 'LaravelInstaller::final') {
+            if (\Route::current()->getName() == 'LaravelInstaller::database' || \Route::current()->getName() == 'LaravelInstaller::final') {
                 return false;
             }
 
@@ -87,6 +84,6 @@ class canInstall
         } else {
             return false;
         }
-        //return file_exists(storage_path('installed'));
+        // return file_exists(storage_path('installed'));
     }
 }

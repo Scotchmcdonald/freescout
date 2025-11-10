@@ -13,8 +13,6 @@ class FolderPolicy
     /**
      * Determine whether the user can view the folder.
      *
-     * @param \App\User   $user
-     * @param \App\Folder $folder
      *
      * @return bool
      */

@@ -3,13 +3,13 @@
 namespace Illuminate\Routing;
 
 use Closure;
+use Illuminate\Contracts\Routing\UrlGenerator as UrlGeneratorContract;
+use Illuminate\Contracts\Routing\UrlRoutable;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use InvalidArgumentException;
 use Illuminate\Support\Traits\Macroable;
-use Illuminate\Contracts\Routing\UrlRoutable;
-use Illuminate\Contracts\Routing\UrlGenerator as UrlGeneratorContract;
+use InvalidArgumentException;
 
 class UrlGenerator implements UrlGeneratorContract
 {
@@ -95,8 +95,6 @@ class UrlGenerator implements UrlGeneratorContract
     /**
      * Create a new URL Generator instance.
      *
-     * @param  \Illuminate\Routing\RouteCollection  $routes
-     * @param  \Illuminate\Http\Request  $request
      * @return void
      */
     public function __construct(RouteCollection $routes, Request $request)
@@ -185,7 +183,7 @@ class UrlGenerator implements UrlGeneratorContract
         // for passing the array of parameters to this URL as a list of segments.
         $root = $this->formatRoot($this->formatScheme($secure));
 
-        list($path, $query) = $this->extractQueryString($path);
+        [$path, $query] = $this->extractQueryString($path);
 
         return $this->format(
             $root, '/'.trim($path.'/'.$tail, '/')
@@ -196,7 +194,7 @@ class UrlGenerator implements UrlGeneratorContract
      * Generate a secure, absolute URL to the given path.
      *
      * @param  string  $path
-     * @param  array   $parameters
+     * @param  array  $parameters
      * @return string
      */
     public function secure($path, $parameters = [])
@@ -290,7 +288,7 @@ class UrlGenerator implements UrlGeneratorContract
      * Get the URL to a named route.
      *
      * @param  string  $name
-     * @param  mixed   $parameters
+     * @param  mixed  $parameters
      * @param  bool  $absolute
      * @return string
      *
@@ -301,18 +299,19 @@ class UrlGenerator implements UrlGeneratorContract
         if (! is_null($route = $this->routes->getByName($name))) {
             // Pass x_ parameters globally.
             foreach (request()->query() as $param => $value) {
-                if (preg_match("/^x_/", $param)) {
+                if (preg_match('/^x_/', $param)) {
                     $parameters[$param] = $value;
                 }
             }
             // Pass xs_ parameters only on the same page.
             if ($name == \Route::currentRouteName()) {
                 foreach (request()->query() as $param => $value) {
-                    if (preg_match("/^xs_/", $param)) {
+                    if (preg_match('/^xs_/', $param)) {
                         $parameters[$param] = $value;
                     }
                 }
             }
+
             return $this->toRoute($route, $parameters, $absolute);
         }
 
@@ -324,7 +323,7 @@ class UrlGenerator implements UrlGeneratorContract
      *
      * @param  \Illuminate\Routing\Route  $route
      * @param  mixed  $parameters
-     * @param  bool   $absolute
+     * @param  bool  $absolute
      * @return string
      *
      * @throws \Illuminate\Routing\Exceptions\UrlGenerationException
@@ -340,8 +339,8 @@ class UrlGenerator implements UrlGeneratorContract
      * Get the URL to a controller action.
      *
      * @param  string  $action
-     * @param  mixed   $parameters
-     * @param  bool    $absolute
+     * @param  mixed  $parameters
+     * @param  bool  $absolute
      * @return string
      *
      * @throws \InvalidArgumentException
@@ -421,12 +420,12 @@ class UrlGenerator implements UrlGeneratorContract
                 // $this->request->root() does not determine subdirectory properly.
                 $this->cachedRoot = \Eventy::filter('url_generator.app_url', $this->forcedRoot ?: config('app.url'));
 
-                if (!$this->cachedRoot || \Helper::isDefaultAppUrl($this->cachedRoot)) {
+                if (! $this->cachedRoot || \Helper::isDefaultAppUrl($this->cachedRoot)) {
                     $this->cachedRoot = $this->request->root();
                 }
 
                 // Remove the slash at the end as on some systems there is a slash at the end.
-                $this->cachedRoot = rtrim($this->cachedRoot, "/");
+                $this->cachedRoot = rtrim($this->cachedRoot, '/');
             }
 
             $root = $this->cachedRoot;
@@ -458,8 +457,8 @@ class UrlGenerator implements UrlGeneratorContract
 
         // Cut subdirectory from path.
         $subdirectory = \Helper::getSubdirectory(false, true);
-        if ($subdirectory && preg_match("#".preg_quote($subdirectory)."$#", trim($root, '/'))) {
-            $path = preg_replace("#^".preg_quote($subdirectory)."#", '', $path);
+        if ($subdirectory && preg_match('#'.preg_quote($subdirectory).'$#', trim($root, '/'))) {
+            $path = preg_replace('#^'.preg_quote($subdirectory).'#', '', $path);
         }
 
         return trim($root.$path, '/');
@@ -497,7 +496,6 @@ class UrlGenerator implements UrlGeneratorContract
     /**
      * Set the default named parameters used by the URL generator.
      *
-     * @param  array  $defaults
      * @return void
      */
     public function defaults(array $defaults)
@@ -544,7 +542,6 @@ class UrlGenerator implements UrlGeneratorContract
     /**
      * Set a callback to be used to format the host of generated URLs.
      *
-     * @param  \Closure  $callback
      * @return $this
      */
     public function formatHostUsing(Closure $callback)
@@ -557,7 +554,6 @@ class UrlGenerator implements UrlGeneratorContract
     /**
      * Set a callback to be used to format the path of generated URLs.
      *
-     * @param  \Closure  $callback
      * @return $this
      */
     public function formatPathUsing(Closure $callback)
@@ -592,7 +588,6 @@ class UrlGenerator implements UrlGeneratorContract
     /**
      * Set the current request instance.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return void
      */
     public function setRequest(Request $request)
@@ -607,7 +602,6 @@ class UrlGenerator implements UrlGeneratorContract
     /**
      * Set the route collection.
      *
-     * @param  \Illuminate\Routing\RouteCollection  $routes
      * @return $this
      */
     public function setRoutes(RouteCollection $routes)
@@ -632,7 +626,6 @@ class UrlGenerator implements UrlGeneratorContract
     /**
      * Set the session resolver for the generator.
      *
-     * @param  callable  $sessionResolver
      * @return $this
      */
     public function setSessionResolver(callable $sessionResolver)

@@ -17,13 +17,13 @@ class AddPublicColumnToAttachmentsTable extends Migration
             $table->boolean('public')->default(false);
         });
         DB::table('attachments')->update(['public' => true]);
-        
+
         $old_path = storage_path('app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'attachment');
         $new_path = storage_path('app'.DIRECTORY_SEPARATOR.'attachment');
-        
+
         // Move attachments.
         try {
-            if (File::exists($old_path) && File::isDirectory($old_path) && !File::exists($new_path)) {
+            if (File::exists($old_path) && File::isDirectory($old_path) && ! File::exists($new_path)) {
                 File::move($old_path, $new_path);
             }
         } catch (\Exception $e) {

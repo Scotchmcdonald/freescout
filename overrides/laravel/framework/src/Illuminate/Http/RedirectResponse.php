@@ -3,18 +3,18 @@
 namespace Illuminate\Http;
 
 use BadMethodCallException;
-use Illuminate\Support\Str;
-use Illuminate\Support\MessageBag;
-use Illuminate\Support\ViewErrorBag;
-use Illuminate\Support\Traits\Macroable;
-use Illuminate\Session\Store as SessionStore;
 use Illuminate\Contracts\Support\MessageProvider;
+use Illuminate\Session\Store as SessionStore;
+use Illuminate\Support\MessageBag;
+use Illuminate\Support\Str;
+use Illuminate\Support\Traits\Macroable;
+use Illuminate\Support\ViewErrorBag;
 use Symfony\Component\HttpFoundation\File\UploadedFile as SymfonyUploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse as BaseRedirectResponse;
 
 class RedirectResponse extends BaseRedirectResponse
 {
-    use ResponseTrait, Macroable {
+    use Macroable, ResponseTrait {
         Macroable::__call as macroCall;
     }
 
@@ -53,7 +53,6 @@ class RedirectResponse extends BaseRedirectResponse
     /**
      * Add multiple cookies to the response.
      *
-     * @param  array  $cookies
      * @return $this
      */
     public function withCookies(array $cookies)
@@ -68,7 +67,6 @@ class RedirectResponse extends BaseRedirectResponse
     /**
      * Flash an array of input to the session.
      *
-     * @param  array  $input
      * @return $this
      */
     public function withInput(?array $input = null)
@@ -83,7 +81,6 @@ class RedirectResponse extends BaseRedirectResponse
     /**
      * Remove all uploaded files form the given input array.
      *
-     * @param  array  $input
      * @return array
      */
     protected function removeFilesFromInput(array $input)
@@ -183,7 +180,6 @@ class RedirectResponse extends BaseRedirectResponse
     /**
      * Set the request instance.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return void
      */
     public function setRequest(Request $request)
@@ -204,7 +200,6 @@ class RedirectResponse extends BaseRedirectResponse
     /**
      * Set the session store implementation.
      *
-     * @param  \Illuminate\Session\Store  $session
      * @return void
      */
     public function setSession(SessionStore $session)

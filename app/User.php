@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User model class.
  * Class also responsible for dates conversion and representation.
@@ -6,9 +7,7 @@
 
 namespace App;
 
-use App\Email;
 use App\Events\UserDeleted;
-use App\Follower;
 use App\Mail\PasswordChanged;
 use App\Mail\UserInvite;
 use App\Notifications\WebsiteNotification;
@@ -29,6 +28,7 @@ class User extends Authenticatable
     public $rememberCacheDriver = 'array';
 
     const PHOTO_DIRECTORY = 'users';
+
     const PHOTO_QUALITY = 77;
 
     const EMAIL_MAX_LENGTH = 100;
@@ -41,48 +41,60 @@ class User extends Authenticatable
      * Roles.
      */
     const ROLE_USER = 1;
+
     const ROLE_ADMIN = 2;
 
     public static $roles = [
         self::ROLE_ADMIN => 'admin',
-        self::ROLE_USER  => 'user',
+        self::ROLE_USER => 'user',
     ];
 
     /**
      * Types.
      */
     const TYPE_USER = 1;
+
     const TYPE_ROBOT = 2; // Workflows, teams, etc.
 
     /**
      * Statuses.
      */
     const STATUS_ACTIVE = 1;
+
     const STATUS_DISABLED = 2;
+
     const STATUS_DELETED = 3;
 
     /**
      * Invite states.
      */
     const INVITE_STATE_ACTIVATED = 1;
+
     const INVITE_STATE_SENT = 2;
+
     const INVITE_STATE_NOT_INVITED = 3;
 
     /**
      * Time formats.
      */
     const TIME_FORMAT_12 = 1;
+
     const TIME_FORMAT_24 = 2;
 
     /**
      * Global user permissions.
      */
     const PERM_DELETE_CONVERSATIONS = 1;
-    const PERM_EDIT_CONVERSATIONS   = 2;
-    const PERM_EDIT_SAVED_REPLIES   = 3;
-    const PERM_EDIT_TAGS            = 4;
-    const PERM_EDIT_CUSTOM_FOLDERS  = 5;
-    const PERM_EDIT_USERS           = 10;
+
+    const PERM_EDIT_CONVERSATIONS = 2;
+
+    const PERM_EDIT_SAVED_REPLIES = 3;
+
+    const PERM_EDIT_TAGS = 4;
+
+    const PERM_EDIT_CUSTOM_FOLDERS = 5;
+
+    const PERM_EDIT_USERS = 10;
 
     public static $user_permissions = [
         self::PERM_DELETE_CONVERSATIONS,
@@ -94,6 +106,7 @@ class User extends Authenticatable
     ];
 
     const WEBSITE_NOTIFICATIONS_PAGE_SIZE = 25;
+
     const WEBSITE_NOTIFICATIONS_PAGE_PARAM = 'wp_page';
 
     /**
@@ -122,12 +135,12 @@ class User extends Authenticatable
     protected $casts = [
         'permissions' => 'array',
     ];
-    
-    public function __construct(array $attributes = array())
+
+    public function __construct(array $attributes = [])
     {
-        $this->setRawAttributes(array_merge($this->attributes, array(
-            'timezone' => config('app.timezone') ?: User::DEFAULT_TIMEZONE
-        )), true);
+        $this->setRawAttributes(array_merge($this->attributes, [
+            'timezone' => config('app.timezone') ?: User::DEFAULT_TIMEZONE,
+        ]), true);
         parent::__construct($attributes);
     }
 
@@ -266,16 +279,16 @@ class User extends Authenticatable
 
         if ($this->isAdmin()) {
             $query = Mailbox::select(['mailboxes.*', 'mailbox_user.hide', 'mailbox_user.mute', 'mailbox_user.access'])
-                        ->leftJoin('mailbox_user', function ($join) use ($user) {
-                            $join->on('mailbox_user.mailbox_id', '=', 'mailboxes.id');
-                            $join->where('mailbox_user.user_id', $user->id);
-                        });
+                ->leftJoin('mailbox_user', function ($join) use ($user) {
+                    $join->on('mailbox_user.mailbox_id', '=', 'mailboxes.id');
+                    $join->where('mailbox_user.user_id', $user->id);
+                });
         } else {
             $query = Mailbox::select(['mailboxes.*', 'mailbox_user.hide', 'mailbox_user.mute', 'mailbox_user.access'])
-                        ->join('mailbox_user', function ($join) use ($user) {
-                            $join->on('mailbox_user.mailbox_id', '=', 'mailboxes.id');
-                            $join->where('mailbox_user.user_id', $user->id);
-                        });
+                ->join('mailbox_user', function ($join) use ($user) {
+                    $join->on('mailbox_user.mailbox_id', '=', 'mailboxes.id');
+                    $join->where('mailbox_user.user_id', $user->id);
+                });
         }
         if ($cache) {
             return $query->rememberForever()->get();
@@ -301,7 +314,7 @@ class User extends Authenticatable
     {
         $settings = $this->mailboxesSettings()->where('mailbox_id', $mailbox_id)->first();
 
-        if (!$settings) {
+        if (! $settings) {
             return Mailbox::getDummySettings();
         }
 
@@ -323,23 +336,25 @@ class User extends Authenticatable
     public function hasAccessToMailbox($mailbox_id)
     {
         $ids = $this->mailboxesIdsCanView();
+
         return in_array($mailbox_id, $ids);
     }
 
     /**
      * Check to see if the user can manage any mailboxes
      */
-    public function hasManageMailboxAccess() {
+    public function hasManageMailboxAccess()
+    {
         if ($this->isAdmin()) {
             return true;
         } else {
-            //$mailboxes = $this->mailboxesCanViewWithSettings(true);
+            // $mailboxes = $this->mailboxesCanViewWithSettings(true);
             $mailboxes = $this->mailboxesSettings();
             foreach ($mailboxes as $mailbox) {
-                if (!empty($mailbox->access) && !empty(json_decode($mailbox->access))) {
+                if (! empty($mailbox->access) && ! empty(json_decode($mailbox->access))) {
                     return true;
                 }
-            };
+            }
         }
     }
 
@@ -351,9 +366,9 @@ class User extends Authenticatable
         if ($this->isAdmin()) {
             return true;
         } else {
-            //$mailbox = $this->mailboxesCanViewWithSettings(true)->where('id', $mailbox_id)->first();
+            // $mailbox = $this->mailboxesCanViewWithSettings(true)->where('id', $mailbox_id)->first();
             $mailbox = $this->mailboxesSettings()->where('mailbox_id', $mailbox_id)->first();
-            if ($mailbox && !empty(json_decode($mailbox->access ?? ''))) {
+            if ($mailbox && ! empty(json_decode($mailbox->access ?? ''))) {
                 return true;
             }
         }
@@ -363,7 +378,8 @@ class User extends Authenticatable
      * Main function to check if user has some exta access permission
      * for a given mailbox.
      */
-    public function hasManageMailboxPermission($mailbox_id, $perm) {
+    public function hasManageMailboxPermission($mailbox_id, $perm)
+    {
         // Experimental feature.
         // This option does not affect admin users.
         if ($perm == Mailbox::ACCESS_PERM_ASSIGNED) {
@@ -382,9 +398,9 @@ class User extends Authenticatable
         if ($this->isAdmin()) {
             return true;
         } else {
-            //$mailbox = $this->mailboxesCanViewWithSettings(true)->where('id', $mailbox_id)->first();
+            // $mailbox = $this->mailboxesCanViewWithSettings(true)->where('id', $mailbox_id)->first();
             $mailbox = $this->mailboxesSettings()->where('mailbox_id', $mailbox_id)->first();
-            if ($mailbox && !empty($mailbox->access) && in_array($perm, json_decode($mailbox->access))) {
+            if ($mailbox && ! empty($mailbox->access) && in_array($perm, json_decode($mailbox->access))) {
                 return true;
             } else {
                 return false;
@@ -392,13 +408,10 @@ class User extends Authenticatable
         }
     }
 
-
-
     /**
      * Generate random password for the user.
      *
-     * @param int $length
-     *
+     * @param  int  $length
      * @return string
      */
     public static function generateRandomPassword($length = 8)
@@ -417,8 +430,9 @@ class User extends Authenticatable
     public function isDummyPassword()
     {
         $decrypted_password = \Helper::decrypt($this->password);
-        return preg_match("#^dummy_#", $decrypted_password);
-        //return Hash::check($this->getDummyPassword(), $this->password);
+
+        return preg_match('#^dummy_#', $decrypted_password);
+        // return Hash::check($this->getDummyPassword(), $this->password);
     }
 
     /**
@@ -428,7 +442,7 @@ class User extends Authenticatable
      */
     public function url()
     {
-        return route('users.profile', ['id'=>$this->id]);
+        return route('users.profile', ['id' => $this->id]);
     }
 
     /**
@@ -444,8 +458,8 @@ class User extends Authenticatable
     /**
      * Create personal folders for user mailboxes.
      *
-     * @param int   $mailbox_id
-     * @param mixed $users
+     * @param  int  $mailbox_id
+     * @param  mixed  $users
      */
     public function syncPersonalFolders($mailboxes)
     {
@@ -484,14 +498,13 @@ class User extends Authenticatable
     /**
      * Format date according to user's timezone and time format.
      *
-     * @param Carbon $date
-     * @param string $format
-     *
+     * @param  Carbon  $date
+     * @param  string  $format
      * @return string
      */
     public static function dateFormat($date, $format = 'M j, Y H:i', $user = null, $modify_format = true, $use_user_timezone = true)
     {
-        if (!$user) {
+        if (! $user) {
             $user = auth()->user();
         }
         if (is_string($date)) {
@@ -503,11 +516,11 @@ class User extends Authenticatable
             }
         }
 
-        if (!$date) {
+        if (! $date) {
             return '';
         }
 
-        if (!$format) {
+        if (! $format) {
             $format = 'M j, Y H:i';
         }
 
@@ -515,17 +528,17 @@ class User extends Authenticatable
             if ($modify_format) {
                 if ($user->time_format == self::TIME_FORMAT_12) {
                     $format = strtr($format, [
-                        'H'     => 'h',
-                        'G'     => 'g',
-                        ':i'    => ':ia',
-                        ':i:s'  => ':i:sa',
+                        'H' => 'h',
+                        'G' => 'g',
+                        ':i' => ':ia',
+                        ':i:s' => ':i:sa',
                         ':ia:s' => ':i:sa',
                     ]);
                 } else {
                     $format = strtr($format, [
-                        'h'     => 'H',
-                        'g'     => 'G',
-                        ':ia'   => ':i',
+                        'h' => 'H',
+                        'g' => 'G',
+                        ':ia' => ':i',
                         ':i:sa' => ':i:s',
                     ]);
                 }
@@ -558,10 +571,10 @@ class User extends Authenticatable
 
             // Remove dot from month name.
             $formatted = $date->formatLocalized($format);
-            if (!strstr($format, '.')) {
+            if (! strstr($format, '.')) {
                 $formatted = str_replace('.', '', $formatted);
             }
-            
+
             // AM/PM to am/pm.
             $formatted = preg_replace_callback('#\d+(AM|PM)$#', function ($m) {
                 return strtolower($m[0] ?? '');
@@ -576,13 +589,12 @@ class User extends Authenticatable
     /**
      * Convert date into human readable format.
      *
-     * @param Carbon $date
-     *
+     * @param  Carbon  $date
      * @return string
      */
     public static function dateDiffForHumans($date)
     {
-        if (!$date) {
+        if (! $date) {
             return '';
         }
 
@@ -616,15 +628,14 @@ class User extends Authenticatable
     /**
      * Convert date into human readable format with minutes and hours.
      *
-     * @param Carbon $date
-     *
+     * @param  Carbon  $date
      * @return string
      */
     public static function dateDiffForHumansWithHours($date)
     {
         $dateForHuman = self::dateDiffForHumans($date);
 
-        if (!$dateForHuman) {
+        if (! $dateForHuman) {
             return '';
         }
 
@@ -639,14 +650,14 @@ class User extends Authenticatable
     {
         $user_permission_names = [
             self::PERM_DELETE_CONVERSATIONS => __('Users are allowed to delete conversations'),
-            self::PERM_EDIT_CONVERSATIONS   => __('Users are allowed to edit notes/replies'),
-            self::PERM_EDIT_SAVED_REPLIES   => __('Users are allowed to edit/delete saved replies'),
-            self::PERM_EDIT_TAGS            => __('Users are allowed to manage tags'),
-            self::PERM_EDIT_CUSTOM_FOLDERS  => __('Users are allowed to manage custom folders'),
-            self::PERM_EDIT_USERS           => __('Users are allowed to manage users'),
+            self::PERM_EDIT_CONVERSATIONS => __('Users are allowed to edit notes/replies'),
+            self::PERM_EDIT_SAVED_REPLIES => __('Users are allowed to edit/delete saved replies'),
+            self::PERM_EDIT_TAGS => __('Users are allowed to manage tags'),
+            self::PERM_EDIT_CUSTOM_FOLDERS => __('Users are allowed to manage custom folders'),
+            self::PERM_EDIT_USERS => __('Users are allowed to manage users'),
         ];
 
-        if (!empty($user_permission_names[$user_permission])) {
+        if (! empty($user_permission_names[$user_permission])) {
             return $user_permission_names[$user_permission];
         } else {
             return \Eventy::filter('user_permissions.name', '', $user_permission);
@@ -656,11 +667,11 @@ class User extends Authenticatable
     public function getInviteStateName()
     {
         $names = [
-            self::INVITE_STATE_ACTIVATED   => __('Active'),
-            self::INVITE_STATE_SENT        => __('Invited'),
+            self::INVITE_STATE_ACTIVATED => __('Active'),
+            self::INVITE_STATE_SENT => __('Invited'),
             self::INVITE_STATE_NOT_INVITED => __('Not Invited'),
         ];
-        if (!isset($names[$this->invite_state])) {
+        if (! isset($names[$this->invite_state])) {
             return $names[self::INVITE_STATE_ACTIVATED];
         } else {
             return $names[$this->invite_state];
@@ -681,7 +692,7 @@ class User extends Authenticatable
             return false;
         }
         // We are using remember_token as a hash for invite
-        if (!$this->invite_hash) {
+        if (! $this->invite_hash) {
             $this->setInviteHash();
             $this->save();
         }
@@ -697,8 +708,8 @@ class User extends Authenticatable
             activity()
                 ->causedBy($this)
                 ->withProperties([
-                    'error'    => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
-                 ])
+                    'error' => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
+                ])
                 ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
                 ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_INVITE);
 
@@ -771,8 +782,8 @@ class User extends Authenticatable
             activity()
                 ->causedBy($this)
                 ->withProperties([
-                    'error'    => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
-                 ])
+                    'error' => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
+                ])
                 ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
                 ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_PASSWORD_CHANGED);
 
@@ -795,8 +806,7 @@ class User extends Authenticatable
     /**
      * Send the password reset notification.
      *
-     * @param string $token
-     *
+     * @param  string  $token
      * @return void
      */
     public function sendPasswordResetNotification($token)
@@ -821,9 +831,9 @@ class User extends Authenticatable
                 $notifications = $user->getWebsiteNotifications();
 
                 $info = [
-                    'data'          => WebsiteNotification::fetchNotificationsData($notifications),
+                    'data' => WebsiteNotification::fetchNotificationsData($notifications),
                     'notifications' => $notifications,
-                    'unread_count'  => $user->unreadNotifications()->count(),
+                    'unread_count' => $user->unreadNotifications()->count(),
                 ];
 
                 $info['html'] = view('users/partials/web_notifications', ['web_notifications_info_data' => $info['data']])->render();
@@ -834,9 +844,9 @@ class User extends Authenticatable
             $notifications = $this->getWebsiteNotifications();
 
             $info = [
-                'data'          => WebsiteNotification::fetchNotificationsData($notifications),
+                'data' => WebsiteNotification::fetchNotificationsData($notifications),
                 'notifications' => $notifications,
-                'unread_count'  => $this->unreadNotifications()->count(),
+                'unread_count' => $this->unreadNotifications()->count(),
             ];
 
             return $info;
@@ -850,8 +860,8 @@ class User extends Authenticatable
 
     public function getPhotoUrl($default_if_empty = true)
     {
-        if (!empty($this->photo_url) || !$default_if_empty) {
-            if (!empty($this->photo_url)) {
+        if (! empty($this->photo_url) || ! $default_if_empty) {
+            if (! empty($this->photo_url)) {
                 return Storage::url(self::PHOTO_DIRECTORY.DIRECTORY_SEPARATOR.$this->photo_url);
             } else {
                 return '';
@@ -869,7 +879,7 @@ class User extends Authenticatable
     public function savePhoto($uploaded_file, $mime_type = '')
     {
         $real_path = $uploaded_file;
-        if (!is_string($uploaded_file)) {
+        if (! is_string($uploaded_file)) {
             // Fallback to getPathname() for Windows.
             // https://github.com/freescout-help-desk/freescout/issues/4105
             $real_path = $uploaded_file->getRealPath() ?: $uploaded_file->getPathname();
@@ -879,7 +889,7 @@ class User extends Authenticatable
         $photo_size = config('app.user_photo_size');
         $resized_image = \App\Misc\Helper::resizeImage($real_path, $mime_type, $photo_size, $photo_size);
 
-        if (!$resized_image) {
+        if (! $resized_image) {
             return false;
         }
 
@@ -887,7 +897,7 @@ class User extends Authenticatable
         $dest_path = Storage::path(self::PHOTO_DIRECTORY.DIRECTORY_SEPARATOR.$file_name);
 
         $dest_dir = pathinfo($dest_path, PATHINFO_DIRNAME);
-        if (!file_exists($dest_dir)) {
+        if (! file_exists($dest_dir)) {
             \File::makeDirectory($dest_dir, 0755);
         }
 
@@ -921,13 +931,13 @@ class User extends Authenticatable
 
         $global_permissions = self::getGlobalUserPermissions();
 
-        if (!empty($global_permissions) && is_array($global_permissions) && in_array($permission, $global_permissions)) {
+        if (! empty($global_permissions) && is_array($global_permissions) && in_array($permission, $global_permissions)) {
             $has_permission = true;
         }
 
-        if ($check_own_permissions && !empty($this->permissions)) {
+        if ($check_own_permissions && ! empty($this->permissions)) {
             if (isset($this->permissions[$permission])) {
-                $has_permission = (bool)$this->permissions[$permission];
+                $has_permission = (bool) $this->permissions[$permission];
             }
         }
 
@@ -948,7 +958,7 @@ class User extends Authenticatable
             }
         }
 
-        if (!is_array($permissions)) {
+        if (! is_array($permissions)) {
             $permissions = [];
         }
 
@@ -971,7 +981,7 @@ class User extends Authenticatable
      */
     public static function create($data)
     {
-        $user = new self();
+        $user = new self;
 
         if (empty($data['email']) || empty($data['password'])) {
             return null;
@@ -1052,7 +1062,7 @@ class User extends Authenticatable
      */
     public static function getDeletedUser()
     {
-        $user = new self();
+        $user = new self;
         $user->first_name = 'DELETED';
         $user->last_name = 'DELETED';
         $user->email = 'deleted@example.org';
@@ -1185,7 +1195,7 @@ class User extends Authenticatable
             return true;
         }
         $alt_emails = explode(',', $this->emails ?? '');
-        
+
         foreach ($alt_emails as $alt_email) {
             if (Email::sanitizeEmail($alt_email) == $email) {
                 return true;
@@ -1213,7 +1223,7 @@ class User extends Authenticatable
     public function followConversation($conversation_id)
     {
         try {
-            $follower = new Follower();
+            $follower = new Follower;
             $follower->conversation_id = $conversation_id;
             $follower->user_id = $this->id;
             $follower->save();
@@ -1236,14 +1246,17 @@ class User extends Authenticatable
     {
         $this->attributes['first_name'] = mb_substr($first_name ?? '', 0, 20);
     }
+
     public function setLastNameAttribute($last_name)
     {
         $this->attributes['last_name'] = mb_substr($last_name ?? '', 0, 30);
     }
+
     public function setEmailAttribute($email)
     {
         $this->attributes['email'] = mb_substr($email ?? '', 0, 100);
     }
+
     public function setJobTitleAttribute($job_title)
     {
         $this->attributes['job_title'] = mb_substr($job_title ?? '', 0, 100);
@@ -1263,8 +1276,8 @@ class User extends Authenticatable
 
         $this->conversations->each(function ($conversation) use ($auth_user, $assign_user) {
             // We don't fire ConversationUserChanged event to avoid sending notifications to users
-            if (!empty($assign_user) 
-                && !empty($assign_user[$conversation->mailbox_id]) 
+            if (! empty($assign_user)
+                && ! empty($assign_user[$conversation->mailbox_id])
                 && (int) $assign_user[$conversation->mailbox_id] != -1
             ) {
                 // Set assignee.
@@ -1274,7 +1287,7 @@ class User extends Authenticatable
             } else {
 
                 // Make convesation Unassigned.
-                
+
                 // Unset assignee.
                 // Maybe use changeUser() here.
                 $conversation->user_id = null;
@@ -1284,7 +1297,7 @@ class User extends Authenticatable
                 ) {
                     // Change conversation folder to UNASSIGNED.
                     $folder_id = null;
-                    if (!empty($mailbox_unassigned_folders[$conversation->mailbox_id])) {
+                    if (! empty($mailbox_unassigned_folders[$conversation->mailbox_id])) {
                         $folder_id = $mailbox_unassigned_folders[$conversation->mailbox_id];
                     } else {
                         $folder = $conversation->mailbox->folders()
@@ -1305,7 +1318,7 @@ class User extends Authenticatable
             $conversation->save();
 
             // Create lineitem thread
-            $thread = new Thread();
+            $thread = new Thread;
             $thread->conversation_id = $conversation->id;
             $thread->user_id = $conversation->user_id;
             $thread->type = Thread::TYPE_LINEITEM;
@@ -1320,7 +1333,7 @@ class User extends Authenticatable
         });
 
         // Recalculate counters for folders
-        //if ($this->isAdmin()) {
+        // if ($this->isAdmin()) {
         // Admin has access to all mailboxes
         Mailbox::all()->each(function ($mailbox) {
             $mailbox->updateFoldersCounters();

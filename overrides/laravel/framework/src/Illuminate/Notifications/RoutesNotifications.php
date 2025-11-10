@@ -2,8 +2,8 @@
 
 namespace Illuminate\Notifications;
 
-use Illuminate\Support\Str;
 use Illuminate\Contracts\Notifications\Dispatcher;
+use Illuminate\Support\Str;
 
 trait RoutesNotifications
 {
@@ -22,7 +22,6 @@ trait RoutesNotifications
      * Send the given notification immediately.
      *
      * @param  mixed  $instance
-     * @param  array|null  $channels
      * @return void
      */
     public function notifyNow($instance, ?array $channels = null)

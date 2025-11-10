@@ -2,15 +2,15 @@
 
 namespace Illuminate\Database\Eloquent;
 
-use Closure;
 use BadMethodCallException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-use Illuminate\Pagination\Paginator;
+use Closure;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Concerns\BuildsQueries;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 /**
  * @mixin \Illuminate\Database\Query\Builder
@@ -88,7 +88,6 @@ class Builder
     /**
      * Create a new Eloquent query builder instance.
      *
-     * @param  \Illuminate\Database\Query\Builder  $query
      * @return void
      */
     public function __construct(QueryBuilder $query)
@@ -99,7 +98,6 @@ class Builder
     /**
      * Create and return an un-saved model instance.
      *
-     * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function make(array $attributes = [])
@@ -147,7 +145,6 @@ class Builder
     /**
      * Remove all or passed registered global scopes.
      *
-     * @param  array|null  $scopes
      * @return $this
      */
     public function withoutGlobalScopes(?array $scopes = null)
@@ -241,7 +238,7 @@ class Builder
      */
     public function orWhere($column, $operator = null, $value = null)
     {
-        list($value, $operator) = $this->query->prepareValueAndOperator(
+        [$value, $operator] = $this->query->prepareValueAndOperator(
             $value, $operator, func_num_args() == 2
         );
 
@@ -251,7 +248,6 @@ class Builder
     /**
      * Create a collection of models from plain arrays.
      *
-     * @param  array  $items
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function hydrate(array $items)
@@ -354,8 +350,6 @@ class Builder
     /**
      * Get the first record matching the attributes or instantiate it.
      *
-     * @param  array  $attributes
-     * @param  array  $values
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function firstOrNew(array $attributes, array $values = [])
@@ -370,8 +364,6 @@ class Builder
     /**
      * Get the first record matching the attributes or create it.
      *
-     * @param  array  $attributes
-     * @param  array  $values
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function firstOrCreate(array $attributes, array $values = [])
@@ -388,8 +380,6 @@ class Builder
     /**
      * Create or update a record matching the attributes, and fill it with values.
      *
-     * @param  array  $attributes
-     * @param  array  $values
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function updateOrCreate(array $attributes, array $values = [])
@@ -420,7 +410,6 @@ class Builder
      * Execute the query and get the first result or call a callback.
      *
      * @param  \Closure|array  $columns
-     * @param  \Closure|null  $callback
      * @return \Illuminate\Database\Eloquent\Model|static|mixed
      */
     public function firstOr($columns = ['*'], ?Closure $callback = null)
@@ -487,7 +476,6 @@ class Builder
     /**
      * Eager load the relationships for the models.
      *
-     * @param  array  $models
      * @return array
      */
     public function eagerLoadRelations(array $models)
@@ -507,9 +495,7 @@ class Builder
     /**
      * Eagerly load the relationship on a set of models.
      *
-     * @param  array  $models
      * @param  string  $name
-     * @param  \Closure  $constraints
      * @return array
      */
     protected function eagerLoadRelation(array $models, $name, Closure $constraints)
@@ -613,7 +599,6 @@ class Builder
      * Chunk the results of a query by comparing numeric IDs.
      *
      * @param  int  $count
-     * @param  callable  $callback
      * @param  string  $column
      * @param  string|null  $alias
      * @return bool
@@ -748,7 +733,6 @@ class Builder
     /**
      * Save a new model and return the instance.
      *
-     * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model|$this
      */
     public function create(array $attributes = [])
@@ -761,7 +745,6 @@ class Builder
     /**
      * Save a new model and return the instance. Allow mass-assignment.
      *
-     * @param  array  $attributes
      * @return \Illuminate\Database\Eloquent\Model|$this
      */
     public function forceCreate(array $attributes)
@@ -774,7 +757,6 @@ class Builder
     /**
      * Update a record in the database.
      *
-     * @param  array  $values
      * @return int
      */
     public function update(array $values)
@@ -787,7 +769,6 @@ class Builder
      *
      * @param  string  $column
      * @param  int  $amount
-     * @param  array  $extra
      * @return int
      */
     public function increment($column, $amount = 1, array $extra = [])
@@ -802,7 +783,6 @@ class Builder
      *
      * @param  string  $column
      * @param  int  $amount
-     * @param  array  $extra
      * @return int
      */
     public function decrement($column, $amount = 1, array $extra = [])
@@ -815,7 +795,6 @@ class Builder
     /**
      * Add the "updated at" column to an array of values.
      *
-     * @param  array  $values
      * @return array
      */
     protected function addUpdatedAtColumn(array $values)
@@ -859,7 +838,6 @@ class Builder
     /**
      * Register a replacement for the default delete function.
      *
-     * @param  \Closure  $callback
      * @return void
      */
     public function onDelete(Closure $callback)
@@ -870,7 +848,6 @@ class Builder
     /**
      * Call the given local model scopes.
      *
-     * @param  array  $scopes
      * @return mixed
      */
     public function scopes(array $scopes)
@@ -882,7 +859,7 @@ class Builder
             // the parameter list is empty, so we will format the scope name and these
             // parameters here. Then, we'll be ready to call the scope on the model.
             if (is_int($scope)) {
-                list($scope, $parameters) = [$parameters, []];
+                [$scope, $parameters] = [$parameters, []];
             }
 
             // Next we'll pass the scope callback to the callScope method which will take
@@ -938,7 +915,6 @@ class Builder
     /**
      * Apply the given scope on the current builder instance.
      *
-     * @param  callable  $scope
      * @param  array  $parameters
      * @return mixed
      */
@@ -966,7 +942,6 @@ class Builder
     /**
      * Nest where conditions by slicing them at the given where count.
      *
-     * @param  \Illuminate\Database\Query\Builder  $query
      * @param  int  $originalWhereCount
      * @return void
      */
@@ -991,7 +966,6 @@ class Builder
     /**
      * Slice where conditions at the given offset and add them to the query as a nested condition.
      *
-     * @param  \Illuminate\Database\Query\Builder  $query
      * @param  array  $whereSlice
      * @return void
      */
@@ -1073,7 +1047,6 @@ class Builder
     /**
      * Parse a list of relations into individuals.
      *
-     * @param  array  $relations
      * @return array
      */
     protected function parseWithRelations(array $relations)
@@ -1087,7 +1060,7 @@ class Builder
             if (is_numeric($name)) {
                 $name = $constraints;
 
-                list($name, $constraints) = Str::contains($name, ':')
+                [$name, $constraints] = Str::contains($name, ':')
                             ? $this->createSelectWithConstraint($name)
                             : [$name, function () {
                                 //
@@ -1191,7 +1164,6 @@ class Builder
     /**
      * Set the relationships being eagerly loaded.
      *
-     * @param  array  $eagerLoad
      * @return $this
      */
     public function setEagerLoads(array $eagerLoad)
@@ -1214,7 +1186,6 @@ class Builder
     /**
      * Set a model instance for the model being queried.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return $this
      */
     public function setModel(Model $model)

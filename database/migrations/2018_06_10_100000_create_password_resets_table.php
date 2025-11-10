@@ -14,7 +14,7 @@ class CreatePasswordResetsTable extends Migration
     public function up()
     {
         \Helper::disableSqlRequirePrimaryKey();
-        
+
         Schema::create('password_resets', function (Blueprint $table) {
             $table->string('email', 191)->index();
             $table->string('token', 255);

@@ -2,6 +2,8 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use const E_USER_DEPRECATED;
+
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\FetchMode;
@@ -16,35 +18,33 @@ use function is_array;
 use function sprintf;
 use function trigger_error;
 
-use const E_USER_DEPRECATED;
-
 /**
  * The PDO implementation of the Statement interface.
  * Used by all PDO-based drivers.
  *
  * @deprecated Use {@link Statement} instead
  */
-class PDOStatement extends \PDOStatement implements StatementInterface, Result
+class PDOStatement extends \PDOStatement implements Result, StatementInterface
 {
     use PDOStatementImplementations;
 
     private const PARAM_TYPE_MAP = [
-        ParameterType::NULL         => PDO::PARAM_NULL,
-        ParameterType::INTEGER      => PDO::PARAM_INT,
-        ParameterType::STRING       => PDO::PARAM_STR,
-        ParameterType::ASCII        => PDO::PARAM_STR,
-        ParameterType::BINARY       => PDO::PARAM_LOB,
+        ParameterType::NULL => PDO::PARAM_NULL,
+        ParameterType::INTEGER => PDO::PARAM_INT,
+        ParameterType::STRING => PDO::PARAM_STR,
+        ParameterType::ASCII => PDO::PARAM_STR,
+        ParameterType::BINARY => PDO::PARAM_LOB,
         ParameterType::LARGE_OBJECT => PDO::PARAM_LOB,
-        ParameterType::BOOLEAN      => PDO::PARAM_BOOL,
+        ParameterType::BOOLEAN => PDO::PARAM_BOOL,
     ];
 
     private const FETCH_MODE_MAP = [
-        FetchMode::ASSOCIATIVE     => PDO::FETCH_ASSOC,
-        FetchMode::NUMERIC         => PDO::FETCH_NUM,
-        FetchMode::MIXED           => PDO::FETCH_BOTH,
+        FetchMode::ASSOCIATIVE => PDO::FETCH_ASSOC,
+        FetchMode::NUMERIC => PDO::FETCH_NUM,
+        FetchMode::MIXED => PDO::FETCH_BOTH,
         FetchMode::STANDARD_OBJECT => PDO::FETCH_OBJ,
-        FetchMode::COLUMN          => PDO::FETCH_COLUMN,
-        FetchMode::CUSTOM_OBJECT   => PDO::FETCH_CLASS,
+        FetchMode::COLUMN => PDO::FETCH_COLUMN,
+        FetchMode::CUSTOM_OBJECT => PDO::FETCH_CLASS,
     ];
 
     /**
@@ -52,9 +52,7 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
      *
      * @internal The statement can be only instantiated by its driver connection.
      */
-    protected function __construct()
-    {
-    }
+    protected function __construct() {}
 
     /**
      * {@inheritdoc}
@@ -71,13 +69,11 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
     }
 
     /**
-     * @param mixed    $param
-     * @param mixed    $variable
-     * @param int      $type
-     * @param int|null $length
-     * @param mixed    $driverOptions
-     *
-     * @return bool
+     * @param  mixed  $param
+     * @param  mixed  $variable
+     * @param  int  $type
+     * @param  int|null  $length
+     * @param  mixed  $driverOptions
      */
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null): bool
     {
@@ -210,7 +206,7 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
     }
 
     /**
-     * @param mixed ...$args
+     * @param  mixed  ...$args
      */
     private function doSetFetchMode(int $fetchMode, ...$args): bool
     {
@@ -238,8 +234,7 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
     }
 
     /**
-     * @param mixed ...$args
-     *
+     * @param  mixed  ...$args
      * @return mixed[]
      */
     private function doFetchAll(...$args): array
@@ -272,7 +267,7 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
     /**
      * Converts DBAL parameter type to PDO parameter type
      *
-     * @param int $type Parameter type
+     * @param  int  $type  Parameter type
      */
     private function convertParamType(int $type): int
     {
@@ -292,14 +287,14 @@ class PDOStatement extends \PDOStatement implements StatementInterface, Result
     /**
      * Converts DBAL fetch mode to PDO fetch mode
      *
-     * @param int $fetchMode Fetch mode
+     * @param  int  $fetchMode  Fetch mode
      */
     private function convertFetchMode(int $fetchMode): int
     {
         if (! isset(self::FETCH_MODE_MAP[$fetchMode])) {
             // TODO: next major: throw an exception
             @trigger_error(sprintf(
-                'Using a PDO fetch mode or their combination (%d given)' .
+                'Using a PDO fetch mode or their combination (%d given)'.
                 ' is deprecated and will cause an error in Doctrine DBAL 3.0',
                 $fetchMode
             ), E_USER_DEPRECATED);

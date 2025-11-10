@@ -6,39 +6,42 @@
  */
 class HTMLPurifier_Length
 {
-
     /**
      * String numeric magnitude.
+     *
      * @type string
      */
     protected $n;
 
     /**
      * String unit. False is permitted if $n = 0.
+     *
      * @type string|bool
      */
     protected $unit;
 
     /**
      * Whether or not this length is valid. Null if not calculated yet.
+     *
      * @type bool
      */
     protected $isValid;
 
     /**
      * Array Lookup array of units recognized by CSS 3
+     *
      * @type array
      */
-    protected static $allowedUnits = array(
+    protected static $allowedUnits = [
         'em' => true, 'ex' => true, 'px' => true, 'in' => true,
         'cm' => true, 'mm' => true, 'pt' => true, 'pc' => true,
         'ch' => true, 'rem' => true, 'vw' => true, 'vh' => true,
-        'vmin' => true, 'vmax' => true
-    );
+        'vmin' => true, 'vmax' => true,
+    ];
 
     /**
-     * @param string $n Magnitude
-     * @param bool|string $u Unit
+     * @param  string  $n  Magnitude
+     * @param  bool|string  $u  Unit
      */
     public function __construct($n = '0', $u = false)
     {
@@ -47,8 +50,9 @@ class HTMLPurifier_Length
     }
 
     /**
-     * @param string $s Unit string, like '2em' or '3.4in'
+     * @param  string  $s  Unit string, like '2em' or '3.4in'
      * @return HTMLPurifier_Length
+     *
      * @warning Does not perform validation.
      */
     public static function make($s)
@@ -62,11 +66,13 @@ class HTMLPurifier_Length
         if ($unit === '') {
             $unit = false;
         }
+
         return new HTMLPurifier_Length($n, $unit);
     }
 
     /**
      * Validates the number and unit.
+     *
      * @return bool
      */
     protected function validate()
@@ -78,36 +84,40 @@ class HTMLPurifier_Length
         if ($this->n === '0' && $this->unit === false) {
             return true;
         }
-        if ($this->unit === false || !ctype_lower((string)$this->unit)) {
+        if ($this->unit === false || ! ctype_lower((string) $this->unit)) {
             $this->unit = strtolower($this->unit);
         }
-        if (!isset(HTMLPurifier_Length::$allowedUnits[$this->unit])) {
+        if (! isset(HTMLPurifier_Length::$allowedUnits[$this->unit])) {
             return false;
         }
         // Hack:
-        $def = new HTMLPurifier_AttrDef_CSS_Number();
+        $def = new HTMLPurifier_AttrDef_CSS_Number;
         $result = $def->validate($this->n, false, false);
         if ($result === false) {
             return false;
         }
         $this->n = $result;
+
         return true;
     }
 
     /**
      * Returns string representation of number.
+     *
      * @return string
      */
     public function toString()
     {
-        if (!$this->isValid()) {
+        if (! $this->isValid()) {
             return false;
         }
-        return $this->n . $this->unit;
+
+        return $this->n.$this->unit;
     }
 
     /**
      * Retrieves string numeric magnitude.
+     *
      * @return string
      */
     public function getN()
@@ -117,6 +127,7 @@ class HTMLPurifier_Length
 
     /**
      * Retrieves string unit.
+     *
      * @return string
      */
     public function getUnit()
@@ -126,6 +137,7 @@ class HTMLPurifier_Length
 
     /**
      * Returns true if this length unit is valid.
+     *
      * @return bool
      */
     public function isValid()
@@ -133,13 +145,16 @@ class HTMLPurifier_Length
         if ($this->isValid === null) {
             $this->isValid = $this->validate();
         }
+
         return $this->isValid;
     }
 
     /**
      * Compares two lengths, and returns 1 if greater, -1 if less and 0 if equal.
-     * @param HTMLPurifier_Length $l
+     *
+     * @param  HTMLPurifier_Length  $l
      * @return int
+     *
      * @warning If both values are too large or small, this calculation will
      *          not work properly
      */
@@ -149,12 +164,13 @@ class HTMLPurifier_Length
             return false;
         }
         if ($l->unit !== $this->unit) {
-            $converter = new HTMLPurifier_UnitConverter();
+            $converter = new HTMLPurifier_UnitConverter;
             $l = $converter->convert($l, $this->unit);
             if ($l === false) {
                 return false;
             }
         }
+
         return $this->n - $l->n;
     }
 }

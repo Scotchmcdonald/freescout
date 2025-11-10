@@ -4,7 +4,6 @@ namespace App\Listeners;
 
 class ProcessSwiftMessage
 {
-
     /**
      * Create the event listener.
      *

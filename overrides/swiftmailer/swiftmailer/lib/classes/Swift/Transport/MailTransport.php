@@ -34,9 +34,6 @@ class Swift_Transport_MailTransport implements Swift_Transport
 
     /**
      * Create a new MailTransport with the $log.
-     *
-     * @param Swift_Transport_MailInvoker  $invoker
-     * @param Swift_Events_EventDispatcher $eventDispatcher
      */
     public function __construct(Swift_Transport_MailInvoker $invoker, Swift_Events_EventDispatcher $eventDispatcher)
     {
@@ -55,24 +52,19 @@ class Swift_Transport_MailTransport implements Swift_Transport
     /**
      * Not used.
      */
-    public function start()
-    {
-    }
+    public function start() {}
 
     /**
      * Not used.
      */
-    public function stop()
-    {
-    }
+    public function stop() {}
 
     /**
      * Set the additional parameters used on the mail() function.
      *
      * This string is formatted for sprintf() where %s is the sender address.
      *
-     * @param string $params
-     *
+     * @param  string  $params
      * @return Swift_Transport_MailTransport
      */
     public function setExtraParams($params)
@@ -100,9 +92,8 @@ class Swift_Transport_MailTransport implements Swift_Transport
      * Recipient/sender data will be retrieved from the Message API.
      * The return value is the number of recipients who were accepted for delivery.
      *
-     * @param Swift_Mime_Message $message
-     * @param string[]           $failedRecipients An array of failures by-reference
-     *
+     * @param  Swift_Mime_Message  $message
+     * @param  string[]  $failedRecipients  An array of failures by-reference
      * @return int
      */
     public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
@@ -120,12 +111,12 @@ class Swift_Transport_MailTransport implements Swift_Transport
             count((array) $message->getTo())
             + count((array) $message->getCc())
             + count((array) $message->getBcc())
-            );
+        );
 
         $toHeader = $message->getHeaders()->get('To');
         $subjectHeader = $message->getHeaders()->get('Subject');
 
-        if (0 === $count) {
+        if ($count === 0) {
             $this->_throwException(new Swift_TransportException('Cannot send message without a recipient'));
         }
         $to = $toHeader ? $toHeader->getFieldBody() : '';
@@ -146,7 +137,7 @@ class Swift_Transport_MailTransport implements Swift_Transport
 
         // Separate headers from body
         if (false !== $endHeaders = strpos($messageStr, "\r\n\r\n")) {
-            $headers = substr($messageStr, 0, $endHeaders)."\r\n"; //Keep last EOL
+            $headers = substr($messageStr, 0, $endHeaders)."\r\n"; // Keep last EOL
             $body = substr($messageStr, $endHeaders + 4);
         } else {
             $headers = $messageStr."\r\n";
@@ -179,7 +170,7 @@ class Swift_Transport_MailTransport implements Swift_Transport
                 array_keys((array) $message->getTo()),
                 array_keys((array) $message->getCc()),
                 array_keys((array) $message->getBcc())
-                );
+            );
 
             if ($evt) {
                 $evt->setResult(Swift_Events_SendEvent::RESULT_FAILED);
@@ -197,8 +188,6 @@ class Swift_Transport_MailTransport implements Swift_Transport
 
     /**
      * Register a plugin.
-     *
-     * @param Swift_Events_EventListener $plugin
      */
     public function registerPlugin(Swift_Events_EventListener $plugin)
     {
@@ -210,7 +199,7 @@ class Swift_Transport_MailTransport implements Swift_Transport
     {
         if ($evt = $this->_eventDispatcher->createTransportExceptionEvent($this, $e)) {
             $this->_eventDispatcher->dispatchEvent($evt, 'exceptionThrown');
-            if (!$evt->bubbleCancelled()) {
+            if (! $evt->bubbleCancelled()) {
                 throw $e;
             }
         } else {
@@ -225,12 +214,12 @@ class Swift_Transport_MailTransport implements Swift_Transport
         $sender = $message->getSender();
         $from = $message->getFrom();
         $path = null;
-        if (!empty($return)) {
+        if (! empty($return)) {
             $path = $return;
-        } elseif (!empty($sender)) {
+        } elseif (! empty($sender)) {
             $keys = array_keys($sender);
             $path = array_shift($keys);
-        } elseif (!empty($from)) {
+        } elseif (! empty($from)) {
             $keys = array_keys($from);
             $path = array_shift($keys);
         }
@@ -241,22 +230,21 @@ class Swift_Transport_MailTransport implements Swift_Transport
     /**
      * Return php mail extra params to use for invoker->mail.
      *
-     * @param $extraParams
-     * @param $reversePath
      *
      * @return string|null
      */
     private function _formatExtraParams($extraParams, $reversePath)
     {
-        if (false !== strpos($extraParams, '-f%s')) {
+        if (strpos($extraParams, '-f%s') !== false) {
             // no need to escape $reversePath) as mail() already does it
             $extraParams = empty($reversePath) ? str_replace('-f%s', '', $extraParams) : sprintf($extraParams, $reversePath);
         }
 
-        return !empty($extraParams) ? $extraParams : null;
+        return ! empty($extraParams) ? $extraParams : null;
     }
 
-    public function ping() {
+    public function ping()
+    {
         return true;
     }
 }

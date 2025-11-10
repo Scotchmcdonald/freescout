@@ -35,11 +35,11 @@ class ConstantEnumerator extends Enumerator
         }
 
         // only list constants if we are specifically asked
-        if (!$input->getOption('constants')) {
+        if (! $input->getOption('constants')) {
             return;
         }
 
-        $user     = $input->getOption('user');
+        $user = $input->getOption('user');
         $internal = $input->getOption('internal');
         $category = $input->getOption('category');
 
@@ -54,11 +54,11 @@ class ConstantEnumerator extends Enumerator
         }
 
         if ($category) {
-            $label = \ucfirst($category) . ' Constants';
+            $label = \ucfirst($category).' Constants';
             $ret[$label] = $this->getConstants($category);
         }
 
-        if (!$user && !$internal && !$category) {
+        if (! $user && ! $internal && ! $category) {
             $ret['Constants'] = $this->getConstants();
         }
 
@@ -71,13 +71,12 @@ class ConstantEnumerator extends Enumerator
      * Optionally restrict constants to a given category, e.g. "date". If the
      * category is "internal", include all non-user-defined constants.
      *
-     * @param string $category
-     *
+     * @param  string  $category
      * @return array
      */
     protected function getConstants($category = null)
     {
-        if (!$category) {
+        if (! $category) {
             return \get_defined_constants();
         }
 
@@ -95,7 +94,6 @@ class ConstantEnumerator extends Enumerator
     /**
      * Prepare formatted constant array.
      *
-     * @param array $constants
      *
      * @return array
      */
@@ -110,7 +108,7 @@ class ConstantEnumerator extends Enumerator
         foreach ($names as $name) {
             if ($this->showItem($name)) {
                 $ret[$name] = [
-                    'name'  => $name,
+                    'name' => $name,
                     'style' => self::IS_CONSTANT,
                     'value' => $this->presentRef($constants[$name]),
                 ];

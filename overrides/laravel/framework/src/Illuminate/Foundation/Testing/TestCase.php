@@ -2,22 +2,22 @@
 
 namespace Illuminate\Foundation\Testing;
 
-use Mockery;
+use Illuminate\Console\Application as Artisan;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Console\Application as Artisan;
+use Mockery;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-    use Concerns\InteractsWithContainer,
-        Concerns\MakesHttpRequests,
-        Concerns\InteractsWithAuthentication,
+    use Concerns\InteractsWithAuthentication,
         Concerns\InteractsWithConsole,
+        Concerns\InteractsWithContainer,
         Concerns\InteractsWithDatabase,
         Concerns\InteractsWithExceptionHandling,
         Concerns\InteractsWithSession,
+        Concerns\MakesHttpRequests,
         Concerns\MocksApplicationServices;
 
     /**
@@ -59,10 +59,8 @@ abstract class TestCase extends BaseTestCase
 
     /**
      * Setup the test environment.
-     *
-     * @return void
      */
-    protected function setUp() : void
+    protected function setUp(): void
     {
         if (! $this->app) {
             $this->refreshApplication();
@@ -129,10 +127,8 @@ abstract class TestCase extends BaseTestCase
 
     /**
      * Clean up the testing environment before the next test.
-     *
-     * @return void
      */
-    protected function tearDown() : void
+    protected function tearDown(): void
     {
         if ($this->app) {
             foreach ($this->beforeApplicationDestroyedCallbacks as $callback) {
@@ -175,7 +171,6 @@ abstract class TestCase extends BaseTestCase
     /**
      * Register a callback to be run after the application is created.
      *
-     * @param  callable  $callback
      * @return void
      */
     public function afterApplicationCreated(callable $callback)
@@ -190,7 +185,6 @@ abstract class TestCase extends BaseTestCase
     /**
      * Register a callback to be run before the application is destroyed.
      *
-     * @param  callable  $callback
      * @return void
      */
     protected function beforeApplicationDestroyed(callable $callback)

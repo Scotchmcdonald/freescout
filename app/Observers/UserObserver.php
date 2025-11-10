@@ -11,8 +11,6 @@ class UserObserver
 {
     /**
      * Thread created.
-     *
-     * @param User $user
      */
     public function created(User $user)
     {
@@ -35,8 +33,6 @@ class UserObserver
 
     /**
      * On user delete.
-     *
-     * @param User $user
      */
     public function deleting(User $user)
     {

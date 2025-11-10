@@ -2,18 +2,19 @@
 
 namespace App\Jobs;
 
-use App\Mail\ReplyToCustomer;
 use App\Customer;
+use App\Mail\ReplyToCustomer;
+use App\Misc\SwiftGetSmtpQueueId;
 use App\SendLog;
 use App\Thread;
-use App\Misc\SwiftGetSmtpQueueId;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Mail;
-//use Webklex\IMAP\Client;
+
+// use Webklex\IMAP\Client;
 
 class SendReplyToCustomer implements ShouldQueue
 {
@@ -26,14 +27,18 @@ class SendReplyToCustomer implements ShouldQueue
     public $customer;
 
     private $failures = [];
+
     private $recipients = [];
+
     private $last_thread = null;
+
     private $message_id = '';
+
     private $customer_email = '';
 
     // Number of retries + 1
     public $tries = 168; // one per hour
-    
+
     /**
      * The number of seconds the job can run before timing out.
      * fwrite() function in /vendor/swiftmailer/swiftmailer/lib/classes/Swift/Transport/StreamBuffer.php
@@ -41,7 +46,7 @@ class SendReplyToCustomer implements ShouldQueue
      * So we need to set the timeout. On timeout the whole queue:work process is being killed by Laravel.
      */
     public $timeout = 120;
-    
+
     /**
      * Create a new job instance.
      *
@@ -65,14 +70,14 @@ class SendReplyToCustomer implements ShouldQueue
         $is_forward = false;
 
         // When forwarding conversation is undone, new conversation is deleted.
-        if (!$this->conversation) {
+        if (! $this->conversation) {
             return;
         }
 
         $mailbox = $this->conversation->mailbox;
 
         // Mailbox may be deleted.
-        if (!$mailbox) {
+        if (! $mailbox) {
             return;
         }
 
@@ -121,7 +126,7 @@ class SendReplyToCustomer implements ShouldQueue
         // This process may stuck or make SendReplyToCustomer job die with
         // "Allowed memory size of NNN bytes exhausted" error.
         // https://github.com/freescout-helpdesk/freescout/issues/3632
-        if ($this->attempts() >= 1 && 
+        if ($this->attempts() >= 1 &&
             ($this->last_thread->send_status == SendLog::STATUS_ACCEPTED
                 || $this->last_thread->isSendStatusSuccess())
         ) {
@@ -131,7 +136,7 @@ class SendReplyToCustomer implements ShouldQueue
         if (count($this->threads) == 1) {
             $new = true;
         }
-        if (!$new) {
+        if (! $new) {
             $i = 0;
             foreach ($this->threads as $thread) {
                 if ($i > 0 && $thread->type == Thread::TYPE_CUSTOMER) {
@@ -144,10 +149,10 @@ class SendReplyToCustomer implements ShouldQueue
 
         // In-Reply-To and References headers.
         $references = '';
-        if (!$new && !empty($last_customer_thread) && $last_customer_thread->message_id) {
+        if (! $new && ! empty($last_customer_thread) && $last_customer_thread->message_id) {
 
             $headers['In-Reply-To'] = '<'.$last_customer_thread->message_id.'>';
-            //$headers['References'] = '<'.$last_customer_thread->message_id.'>';
+            // $headers['References'] = '<'.$last_customer_thread->message_id.'>';
             // https://github.com/freescout-helpdesk/freescout/issues/3175
             $i = 0;
             $references_array = [];
@@ -174,7 +179,7 @@ class SendReplyToCustomer implements ShouldQueue
         $threads_count = count($this->threads);
 
         $meta_conv_history = $this->last_thread->getMeta(Thread::META_CONVERSATION_HISTORY);
-        if (!empty($meta_conv_history)) {
+        if (! empty($meta_conv_history)) {
             $email_conv_history = $meta_conv_history;
         }
 
@@ -199,12 +204,12 @@ class SendReplyToCustomer implements ShouldQueue
             $send_previous_messages = false;
         }
 
-        if (!$is_forward) {
+        if (! $is_forward) {
             $send_previous_messages = \Eventy::filter('jobs.send_reply_to_customer.send_previous_messages', $send_previous_messages, $this->last_thread, $this->threads, $this->conversation, $this->customer);
         }
 
         // Remove previous messages.
-        if (!$send_previous_messages) {
+        if (! $send_previous_messages) {
             $this->threads = $this->threads->slice(0, 1);
         }
 
@@ -212,8 +217,8 @@ class SendReplyToCustomer implements ShouldQueue
         \MailHelper::setMailDriver($mailbox, $this->last_thread->created_by_user, $this->conversation);
 
         // https://github.com/freescout-helpdesk/freescout/issues/3330
-        if (!\MailHelper::$smtp_queue_id_plugin_registered) {
-            \Mail::getSwiftMailer()->registerPlugin(new SwiftGetSmtpQueueId());
+        if (! \MailHelper::$smtp_queue_id_plugin_registered) {
+            \Mail::getSwiftMailer()->registerPlugin(new SwiftGetSmtpQueueId);
             \MailHelper::$smtp_queue_id_plugin_registered = true;
         }
 
@@ -224,16 +229,17 @@ class SendReplyToCustomer implements ShouldQueue
 
         // For phone conversations we may need to get customer email.
         // https://github.com/freescout-helpdesk/freescout/issues/3270
-        if (!$this->customer_email && $this->conversation->isPhone()) {            
+        if (! $this->customer_email && $this->conversation->isPhone()) {
             $this->customer_email = $this->conversation->customer->getMainEmail();
-            if (!$this->customer_email) {
+            if (! $this->customer_email) {
                 return;
             }
         }
 
         // Try to get customer by email
-        if (!$this->customer) {
+        if (! $this->customer) {
             $this->customer = Customer::getByEmail($this->customer_email);
+
             return;
         }
 
@@ -274,7 +280,7 @@ class SendReplyToCustomer implements ShouldQueue
         // }
 
         $subject = $this->conversation->subject;
-        if (!$new && !$is_forward) {
+        if (! $new && ! $is_forward) {
             $subject = 'Re: '.$subject;
         }
         $subject = \Eventy::filter('email.reply_to_customer.subject', $subject, $this->conversation, $this->last_thread);
@@ -285,7 +291,7 @@ class SendReplyToCustomer implements ShouldQueue
         $reply_mail = new ReplyToCustomer($this->conversation, $this->threads, $headers, $mailbox, $subject, $threads_count);
 
         $smtp_queue_id = null;
-        
+
         try {
             Mail::to($to)
                 ->cc($cc_array)
@@ -302,8 +308,8 @@ class SendReplyToCustomer implements ShouldQueue
                 activity()
                     ->causedBy($this->customer)
                     ->withProperties([
-                        'error'    => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
-                     ])
+                        'error' => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
+                    ])
                     ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
                     ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_TO_CUSTOMER);
             }
@@ -325,11 +331,11 @@ class SendReplyToCustomer implements ShouldQueue
             // SMTP response code is stored in the exception message:
             // Expected response code 235 but got code "535", with message...
             preg_match('#but got code "(\d+)",#', $error_message, $response_m);
-            $response_code = (int)($response_m[1] ?? 0);
+            $response_code = (int) ($response_m[1] ?? 0);
 
             // Retry job with delay.
             // https://stackoverflow.com/questions/35258175/how-can-i-create-delays-between-failed-queued-job-attempts-in-laravel
-            if ($this->attempts() < $this->tries && !preg_match("/".config("app.no_retry_mail_errors")."/i", $error_message)) {
+            if ($this->attempts() < $this->tries && ! preg_match('/'.config('app.no_retry_mail_errors').'/i', $error_message)) {
                 if ($this->attempts() == 1) {
                     // Second attempt after 5 min.
                     $this->release(300);
@@ -372,7 +378,7 @@ class SendReplyToCustomer implements ShouldQueue
         if ($imap_sent_folder && \MailHelper::$smtp_mime_message) {
             try {
                 $client = \MailHelper::getMailboxClient($mailbox);
-                
+
                 $client->connect();
 
                 // $mail_from = $mailbox->getMailFrom($this->last_thread->created_by_user ?? null, $this->conversation);
@@ -448,7 +454,7 @@ class SendReplyToCustomer implements ShouldQueue
                 //             $part['type.parameters'] = array('name' => $attachment->file_name);
                 //             $part["description"] = '';
                 //             $part["contents.data"] = base64_encode($attachment->getFileContents());
-                            
+
                 //             $parts[] = $part;
                 //         } else {
                 //             \Log::error('[IMAP Folder To Save Outgoing Replies] Thread: '.$this->last_thread->id.'. Attachment file not find on disk: '.$attachment->getLocalFilePath());
@@ -458,7 +464,7 @@ class SendReplyToCustomer implements ShouldQueue
 
                 try {
                     // https://github.com/freescout-helpdesk/freescout/issues/3502
-                    $imap_sent_folder = mb_convert_encoding($imap_sent_folder, "UTF7-IMAP","UTF-8");
+                    $imap_sent_folder = mb_convert_encoding($imap_sent_folder, 'UTF7-IMAP', 'UTF-8');
 
                     // https://github.com/Webklex/php-imap/issues/380
                     if (method_exists($client, 'getFolderByPath')) {
@@ -469,7 +475,7 @@ class SendReplyToCustomer implements ShouldQueue
                     // Get folder method does not work if sent folder has spaces.
                     if ($folder) {
                         try {
-                            //$save_result = $this->saveEmailToFolder($client, $folder, $envelope, $parts, $bcc_array);
+                            // $save_result = $this->saveEmailToFolder($client, $folder, $envelope, $parts, $bcc_array);
                             $save_result = $this->saveEmailToFolder($folder, \MailHelper::$smtp_mime_message);
                             \MailHelper::$smtp_mime_message = '';
 
@@ -478,10 +484,10 @@ class SendReplyToCustomer implements ShouldQueue
                             // if (!$save_result) {
                             //     // Save without attachments.
                             //     $save_result = $this->saveEmailToFolder($client, $folder, $envelope, [$part_body], $bcc_array);
-                            if (!$save_result) {
+                            if (! $save_result) {
                                 \Log::error($this->getImapSaveErrorPrefix($mailbox).'Could not save outgoing reply to the IMAP folder (check folder name and make sure IMAP folder does not have spaces - folders with spaces do not work): '.$imap_sent_folder);
                             }
-                            //}
+                            // }
                         } catch (\Exception $e) {
                             // Just log error and continue.
                             \Helper::logException($e, $this->getImapSaveErrorPrefix($mailbox).'Could not save outgoing reply to the IMAP folder: ');
@@ -492,11 +498,11 @@ class SendReplyToCustomer implements ShouldQueue
                 } catch (\Exception $e) {
                     // Just log error and continue.
                     \Helper::logException($e, $this->getImapSaveErrorPrefix($mailbox).'Could not save outgoing reply to the IMAP folder, IMAP folder not found: '.$imap_sent_folder.' - ');
-                    //$this->saveToSendLog('['.date('Y-m-d H:i:s').'] Could not save outgoing reply to the IMAP folder: '.$imap_sent_folder);
+                    // $this->saveToSendLog('['.date('Y-m-d H:i:s').'] Could not save outgoing reply to the IMAP folder: '.$imap_sent_folder);
                 }
             } catch (\Exception $e) {
                 // Just log error and continue.
-                //$this->saveToSendLog('['.date('Y-m-d H:i:s').'] Could not get mailbox IMAP folder: '.$imap_sent_folder);
+                // $this->saveToSendLog('['.date('Y-m-d H:i:s').'] Could not get mailbox IMAP folder: '.$imap_sent_folder);
                 \Helper::logException($e, $this->getImapSaveErrorPrefix($mailbox).'Could not save outgoing reply to the IMAP folder: '.$imap_sent_folder.' - ');
             }
         }
@@ -551,20 +557,19 @@ class SendReplyToCustomer implements ShouldQueue
      * This method is called after attempts had finished.
      * At this stage method has access only to variables passed in constructor.
      *
-     * @param Exception $exception
-     *
+     * @param  Exception  $exception
      * @return void
      */
     public function failed(\Exception $e)
     {
         activity()
-           ->causedBy($this->customer)
-           ->withProperties([
-                'error'    => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
-                'to'       => $this->customer_email,
+            ->causedBy($this->customer)
+            ->withProperties([
+                'error' => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
+                'to' => $this->customer_email,
             ])
-           ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
-           ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_TO_CUSTOMER);
+            ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
+            ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_TO_CUSTOMER);
 
         $this->saveToSendLog();
     }

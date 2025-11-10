@@ -3,10 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Mailbox;
+use Illuminate\Console\Command;
 use Webklex\PHPIMAP\IMAP;
 use Webklex\PHPIMAP\Message;
-use Illuminate\Console\Command;
-
 
 class ParseEml extends Command
 {
@@ -62,7 +61,7 @@ class ParseEml extends Command
     {
         $email = file_get_contents(storage_path('logs/email.eml'));
 
-        if (!str_contains($email, "\r\n")){
+        if (! str_contains($email, "\r\n")) {
             $email = str_replace("\n", "\r\n", $email);
         }
 

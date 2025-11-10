@@ -2,8 +2,6 @@
 
 namespace App;
 
-use App\Email;
-use App\CustomerChannel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -12,17 +10,21 @@ use Watson\Rememberable\Rememberable;
 class Customer extends Model
 {
     use Rememberable;
+
     // This is obligatory.
     public $rememberCacheDriver = 'array';
 
     const PHOTO_DIRECTORY = 'customers';
+
     const PHOTO_QUALITY = 77;
 
     /**
      * Genders.
      */
     const GENDER_UNKNOWN = 1;
+
     const GENDER_MALE = 2;
+
     const GENDER_FEMALE = 3;
 
     /**
@@ -30,56 +32,68 @@ class Customer extends Model
      */
     public static $genders = [
         self::GENDER_UNKNOWN => 'unknown',
-        self::GENDER_MALE    => 'male',
-        self::GENDER_FEMALE  => 'female',
+        self::GENDER_MALE => 'male',
+        self::GENDER_FEMALE => 'female',
     ];
 
     /**
      * Phone types.
      */
     const PHONE_TYPE_WORK = 1;
+
     const PHONE_TYPE_HOME = 2;
+
     const PHONE_TYPE_OTHER = 3;
+
     const PHONE_TYPE_MOBILE = 4;
+
     const PHONE_TYPE_FAX = 5;
+
     const PHONE_TYPE_PAGER = 6;
 
     /**
      * For API.
      */
     public static $phone_types = [
-        self::PHONE_TYPE_WORK   => 'work',
-        self::PHONE_TYPE_HOME   => 'home',
+        self::PHONE_TYPE_WORK => 'work',
+        self::PHONE_TYPE_HOME => 'home',
         self::PHONE_TYPE_MOBILE => 'mobile',
-        self::PHONE_TYPE_FAX    => 'fax',
-        self::PHONE_TYPE_PAGER  => 'pager',
-        self::PHONE_TYPE_OTHER  => 'other',
+        self::PHONE_TYPE_FAX => 'fax',
+        self::PHONE_TYPE_PAGER => 'pager',
+        self::PHONE_TYPE_OTHER => 'other',
     ];
 
     /**
      * Photo types.
      */
     const PHOTO_TYPE_UKNOWN = 1;
+
     const PHOTO_TYPE_GRAVATAR = 2;
+
     const PHOTO_TYPE_TWITTER = 3;
+
     const PHOTO_TYPE_FACEBOOK = 4;
+
     const PHOTO_TYPE_GOOGLEPROFILE = 5;
+
     const PHOTO_TYPE_GOOGLEPLUS = 6;
+
     const PHOTO_TYPE_LINKEDIN = 7;
+
     const PHOTO_TYPE_VK = 8; // Extra
 
     /**
      * For API.
      */
     public static $photo_types = [
-        self::PHOTO_TYPE_UKNOWN        => 'unknown',
-        self::PHOTO_TYPE_GRAVATAR      => 'gravatar',
-        self::PHOTO_TYPE_TWITTER       => 'twitter',
-        self::PHOTO_TYPE_FACEBOOK      => 'facebook',
+        self::PHOTO_TYPE_UKNOWN => 'unknown',
+        self::PHOTO_TYPE_GRAVATAR => 'gravatar',
+        self::PHOTO_TYPE_TWITTER => 'twitter',
+        self::PHOTO_TYPE_FACEBOOK => 'facebook',
         self::PHOTO_TYPE_GOOGLEPROFILE => 'googleprofile',
-        self::PHOTO_TYPE_GOOGLEPLUS    => 'googleplus',
-        self::PHOTO_TYPE_LINKEDIN      => 'linkedin',
-        self::PHOTO_TYPE_VK            => 'vk', // Extra
+        self::PHOTO_TYPE_GOOGLEPLUS => 'googleplus',
+        self::PHOTO_TYPE_LINKEDIN => 'linkedin',
+        self::PHOTO_TYPE_VK => 'vk', // Extra
     ];
 
     /**
@@ -129,52 +143,65 @@ class Customer extends Model
      * Social types.
      */
     const SOCIAL_TYPE_TWITTER = 1;
+
     const SOCIAL_TYPE_FACEBOOK = 2;
+
     const SOCIAL_TYPE_TELEGRAM = 14;
+
     const SOCIAL_TYPE_LINKEDIN = 3;
+
     const SOCIAL_TYPE_ABOUTME = 4;
+
     const SOCIAL_TYPE_GOOGLE = 5;
+
     const SOCIAL_TYPE_GOOGLEPLUS = 6;
+
     const SOCIAL_TYPE_TUNGLEME = 7;
+
     const SOCIAL_TYPE_QUORA = 8;
+
     const SOCIAL_TYPE_FOURSQUARE = 9;
+
     const SOCIAL_TYPE_YOUTUBE = 10;
+
     const SOCIAL_TYPE_FLICKR = 11;
+
     const SOCIAL_TYPE_VK = 13; // Extra
+
     const SOCIAL_TYPE_OTHER = 12;
 
     public static $social_types = [
-        self::SOCIAL_TYPE_TWITTER    => 'twitter',
-        self::SOCIAL_TYPE_FACEBOOK   => 'facebook',
-        self::SOCIAL_TYPE_TELEGRAM   => 'telegram',
-        self::SOCIAL_TYPE_LINKEDIN   => 'linkedin',
-        self::SOCIAL_TYPE_ABOUTME    => 'aboutme',
-        self::SOCIAL_TYPE_GOOGLE     => 'google',
+        self::SOCIAL_TYPE_TWITTER => 'twitter',
+        self::SOCIAL_TYPE_FACEBOOK => 'facebook',
+        self::SOCIAL_TYPE_TELEGRAM => 'telegram',
+        self::SOCIAL_TYPE_LINKEDIN => 'linkedin',
+        self::SOCIAL_TYPE_ABOUTME => 'aboutme',
+        self::SOCIAL_TYPE_GOOGLE => 'google',
         self::SOCIAL_TYPE_GOOGLEPLUS => 'googleplus',
-        self::SOCIAL_TYPE_TUNGLEME   => 'tungleme',
-        self::SOCIAL_TYPE_QUORA      => 'quora',
+        self::SOCIAL_TYPE_TUNGLEME => 'tungleme',
+        self::SOCIAL_TYPE_QUORA => 'quora',
         self::SOCIAL_TYPE_FOURSQUARE => 'foursquare',
-        self::SOCIAL_TYPE_YOUTUBE    => 'youtube',
-        self::SOCIAL_TYPE_FLICKR     => 'flickr',
-        self::SOCIAL_TYPE_VK         => 'vk', // Extra
-        self::SOCIAL_TYPE_OTHER      => 'other',
+        self::SOCIAL_TYPE_YOUTUBE => 'youtube',
+        self::SOCIAL_TYPE_FLICKR => 'flickr',
+        self::SOCIAL_TYPE_VK => 'vk', // Extra
+        self::SOCIAL_TYPE_OTHER => 'other',
     ];
 
     public static $social_type_names = [
-        self::SOCIAL_TYPE_TWITTER    => 'Twitter',
-        self::SOCIAL_TYPE_FACEBOOK   => 'Facebook',
-        self::SOCIAL_TYPE_TELEGRAM   => 'Telegram',
-        self::SOCIAL_TYPE_LINKEDIN   => 'Linkedin',
-        self::SOCIAL_TYPE_ABOUTME    => 'About.me',
-        self::SOCIAL_TYPE_GOOGLE     => 'Google',
+        self::SOCIAL_TYPE_TWITTER => 'Twitter',
+        self::SOCIAL_TYPE_FACEBOOK => 'Facebook',
+        self::SOCIAL_TYPE_TELEGRAM => 'Telegram',
+        self::SOCIAL_TYPE_LINKEDIN => 'Linkedin',
+        self::SOCIAL_TYPE_ABOUTME => 'About.me',
+        self::SOCIAL_TYPE_GOOGLE => 'Google',
         self::SOCIAL_TYPE_GOOGLEPLUS => 'Google+',
-        self::SOCIAL_TYPE_TUNGLEME   => 'Tungle.me',
-        self::SOCIAL_TYPE_QUORA      => 'Quora',
+        self::SOCIAL_TYPE_TUNGLEME => 'Tungle.me',
+        self::SOCIAL_TYPE_QUORA => 'Quora',
         self::SOCIAL_TYPE_FOURSQUARE => 'Foursquare',
-        self::SOCIAL_TYPE_YOUTUBE    => 'YouTube',
-        self::SOCIAL_TYPE_FLICKR     => 'Flickr',
-        self::SOCIAL_TYPE_VK         => 'VK',
-        self::SOCIAL_TYPE_OTHER      => 'Other',
+        self::SOCIAL_TYPE_YOUTUBE => 'YouTube',
+        self::SOCIAL_TYPE_FLICKR => 'Flickr',
+        self::SOCIAL_TYPE_VK => 'VK',
+        self::SOCIAL_TYPE_OTHER => 'Other',
     ];
 
     /**
@@ -518,9 +545,9 @@ class Customer extends Model
     {
         if ($this->first_name && $this->last_name) {
             return $this->first_name.' '.$this->last_name;
-        } elseif (!$this->last_name && $this->first_name) {
+        } elseif (! $this->last_name && $this->first_name) {
             return $this->first_name;
-        } elseif (!$this->first_name && $this->last_name) {
+        } elseif (! $this->first_name && $this->last_name) {
             return $this->last_name;
         } elseif ($email_if_empty) {
             $email = $this->getMainEmail();
@@ -557,7 +584,7 @@ class Customer extends Model
      */
     public function getNameFromEmail($email = '')
     {
-        if (!$email) {
+        if (! $email) {
             $email = optional($this->emails_cached()->first())->email;
         }
         if ($email) {
@@ -570,7 +597,7 @@ class Customer extends Model
     /**
      * Set customer emails.
      *
-     * @param array $emails
+     * @param  array  $emails
      */
     public function syncEmails($emails)
     {
@@ -586,7 +613,7 @@ class Customer extends Model
             }
             foreach ($emails as $email_address) {
                 $email_address = Email::sanitizeEmail($email_address);
-                if (!$email_address) {
+                if (! $email_address) {
                     continue;
                 }
                 $email = Email::where('email', $email_address)->first();
@@ -609,7 +636,7 @@ class Customer extends Model
                 if (Conversation::where('customer_email', $email->email)->exists()) {
                     // Create customers for deleted emails
                     // if there is a conversation with 'customer_email'.
-                    $customer = new self();
+                    $customer = new self;
                     $customer->save();
                     $email->customer()->associate($customer);
                     $email->save();
@@ -629,7 +656,7 @@ class Customer extends Model
         // Check if email already exists and belongs to another customer.
         if ($check_if_exists) {
             $email = Email::where('email', $email_address)->first();
-            if ($email && !empty($email->customer_id)) {
+            if ($email && ! empty($email->customer_id)) {
                 return false;
             }
         }
@@ -666,13 +693,12 @@ class Customer extends Model
     public function getMainPhoneNumber()
     {
         $phones = $this->getPhones();
+
         return $phones[0]['value'] ?? '';
     }
 
     /**
      * Set phones as JSON.
-     *
-     * @param array $phones_array
      */
     public function setPhones(array $phones_array)
     {
@@ -684,7 +710,7 @@ class Customer extends Model
             if (in_array($data['value'], $list)) {
                 unset($phones_array[$i]);
             } else {
-                $list[] = $data['value'];         
+                $list[] = $data['value'];
             }
         }
 
@@ -694,8 +720,7 @@ class Customer extends Model
     /**
      * Sanitize phones array.
      *
-     * @param array $phones_array [description]
-     *
+     * @param  array  $phones_array  [description]
      * @return array [description]
      */
     public static function formatPhones(array $phones_array)
@@ -704,21 +729,21 @@ class Customer extends Model
 
         foreach ($phones_array as $phone) {
             if (is_array($phone)) {
-                if (!empty($phone['value'])) {
-                    if (empty($phone['type']) || !in_array($phone['type'], array_keys(self::$phone_types))) {
+                if (! empty($phone['value'])) {
+                    if (empty($phone['type']) || ! in_array($phone['type'], array_keys(self::$phone_types))) {
                         $phone['type'] = self::PHONE_TYPE_WORK;
                     }
                     $phones[] = [
                         'value' => (string) $phone['value'],
-                        'type'  => (int) $phone['type'],
-                        'n'     => (string)\Helper::phoneToNumeric($phone['value']),
+                        'type' => (int) $phone['type'],
+                        'n' => (string) \Helper::phoneToNumeric($phone['value']),
                     ];
                 }
             } else {
                 $phones[] = [
                     'value' => (string) $phone,
-                    'type'  => self::PHONE_TYPE_WORK,
-                    'n'     => (string)\Helper::phoneToNumeric($phone),
+                    'type' => self::PHONE_TYPE_WORK,
+                    'n' => (string) \Helper::phoneToNumeric($phone),
                 ];
             }
         }
@@ -758,6 +783,7 @@ class Customer extends Model
     public static function byPhone($phone)
     {
         $phone_numeric = \Helper::phoneToNumeric($phone);
+
         return Customer::where('phones', 'LIKE', '%"'.$phone_numeric.'"%');
     }
 
@@ -802,27 +828,26 @@ class Customer extends Model
     public function getMainWebsite()
     {
         $websites = $this->getWebsites();
+
         return $websites[0] ?? '';
     }
 
     /**
      * Set websites as JSON.
-     *
-     * @param array $websites_array
      */
     public function setWebsites(array $websites_array)
     {
         $websites = [];
         foreach ($websites_array as $key => $value) {
             // FILTER_SANITIZE_URL cuts some symbols.
-            //$value = filter_var((string) $value, FILTER_SANITIZE_URL);
+            // $value = filter_var((string) $value, FILTER_SANITIZE_URL);
             if (isset($value['value'])) {
                 $value = $value['value'];
             }
-            if (!$value || preg_match("/^http(s)?:?\/?\/?$/i", $value)) {
+            if (! $value || preg_match("/^http(s)?:?\/?\/?$/i", $value)) {
                 continue;
             }
-            if (!preg_match("/http(s)?:\/\//i", $value)) {
+            if (! preg_match("/http(s)?:\/\//i", $value)) {
                 $value = 'http://'.$value;
             }
             $websites[] = (string) $value;
@@ -846,8 +871,7 @@ class Customer extends Model
     /**
      * Sanitize social profiles.
      *
-     * @param array $list [description]
-     *
+     * @param  array  $list  [description]
      * @return array [description]
      */
     public static function formatSocialProfiles(array $list)
@@ -855,12 +879,12 @@ class Customer extends Model
         $social_profiles = [];
         foreach ($list as $social_profile) {
             if (is_array($social_profile)) {
-                if (!empty($social_profile['value']) && !empty($social_profile['type'])) {
+                if (! empty($social_profile['value']) && ! empty($social_profile['type'])) {
 
                     $type = null;
 
                     if (is_numeric($social_profile['type']) && in_array($social_profile['type'], array_keys(self::$social_types))) {
-                        $type = (int)$social_profile['type'];
+                        $type = (int) $social_profile['type'];
                     } else {
                         // Find type.
                         foreach (self::$social_types as $type_id => $type_name) {
@@ -870,7 +894,7 @@ class Customer extends Model
                         }
                     }
 
-                    if (!$type) {
+                    if (! $type) {
                         continue;
                     }
 
@@ -878,7 +902,7 @@ class Customer extends Model
                         // Order of elements in array is important as we rely on it
                         // when searching customers by social profiles using "like".
                         'value' => (string) $social_profile['value'],
-                        'type'  => $type,
+                        'type' => $type,
                     ];
                 }
             } else {
@@ -886,7 +910,7 @@ class Customer extends Model
                     // Order of elements in array is important as we rely on it
                     // when searching customers by social profiles using "like".
                     'value' => (string) $social_profile,
-                    'type'  => self::SOCIAL_TYPE_OTHER,
+                    'type' => self::SOCIAL_TYPE_OTHER,
                 ];
             }
         }
@@ -897,7 +921,7 @@ class Customer extends Model
     /**
      * Set social profiles as JSON.
      *
-     * @param array $websites_array
+     * @param  array  $websites_array
      */
     public function setSocialProfiles(array $sp_array)
     {
@@ -919,9 +943,8 @@ class Customer extends Model
     /**
      * Create customer or get existing and fill empty fields.
      *
-     * @param string $email
-     * @param array  $data  [description]
-     *
+     * @param  string  $email
+     * @param  array  $data  [description]
      * @return [type] [description]
      */
     public static function create($email, $data = [])
@@ -929,7 +952,7 @@ class Customer extends Model
         $new = false;
 
         $email = Email::sanitizeEmail($email);
-        if (!$email) {
+        if (! $email) {
             return null;
         }
         $email_obj = Email::where('email', $email)->first();
@@ -937,9 +960,9 @@ class Customer extends Model
             $customer = $email_obj->customer;
 
             // In case somehow the email has no customer.
-            if (!$customer) {
+            if (! $customer) {
                 // Customer will be saved and connected to the email later.
-                $customer = new self();
+                $customer = new self;
             }
 
             // Update name if empty.
@@ -951,28 +974,28 @@ class Customer extends Model
                 $customer->save();
             }*/
         } else {
-            $customer = new self();
-            $email_obj = new Email();
+            $customer = new self;
+            $email_obj = new Email;
             $email_obj->email = $email;
 
             $new = true;
         }
 
         // Set empty fields
-        if ($customer->setData($data, false) || !$customer->id) {
+        if ($customer->setData($data, false) || ! $customer->id) {
             $customer->save();
         }
 
-        if (empty($email_obj->id) || !$email_obj->customer_id || $email_obj->customer_id != $customer->id) {
+        if (empty($email_obj->id) || ! $email_obj->customer_id || $email_obj->customer_id != $customer->id) {
             // Email may have been set in setData().
             $save_email = true;
-            if (!empty($data['emails']) && is_array($data['emails'])) {
+            if (! empty($data['emails']) && is_array($data['emails'])) {
                 foreach ($data['emails'] as $data_email) {
                     if (is_string($data_email) && $data_email == $email) {
                         $save_email = false;
                         break;
                     }
-                    if (is_array($data_email) && !empty($data_email['value']) && $data_email['value'] == $email) {
+                    if (is_array($data_email) && ! empty($data_email['value']) && $data_email['value'] == $email) {
                         $save_email = false;
                         break;
                     }
@@ -1005,7 +1028,7 @@ class Customer extends Model
             unset($data['photo_url']);
         }
 
-        if (!empty($data['background']) && empty($data['notes'])) {
+        if (! empty($data['background']) && empty($data['notes'])) {
             $data['notes'] = $data['background'];
         }
 
@@ -1021,12 +1044,12 @@ class Customer extends Model
             $result = true;
         } else {
             // Update empty fields.
-            
+
             // Do not set last name if first name is already set (and vise versa).
-            if (!empty($this->first_name) && !empty($data['last_name'])) {
+            if (! empty($this->first_name) && ! empty($data['last_name'])) {
                 unset($data['last_name']);
             }
-            if (!empty($this->last_name) && !empty($data['first_name'])) {
+            if (! empty($this->last_name) && ! empty($data['first_name'])) {
                 unset($data['first_name']);
             }
             foreach ($data as $key => $value) {
@@ -1038,11 +1061,11 @@ class Customer extends Model
         }
 
         // Set JSON values.
-        if (!empty($data['phone'])) {
+        if (! empty($data['phone'])) {
             $this->addPhone($data['phone']);
         }
         foreach ($data as $key => $value) {
-            if (!in_array($key, $this->json_fields) && $key != 'emails') {
+            if (! in_array($key, $this->json_fields) && $key != 'emails') {
                 continue;
             }
             if ($key == 'phones') {
@@ -1085,7 +1108,7 @@ class Customer extends Model
             if ($key == 'emails') {
                 foreach ($value as $email_data) {
                     if (is_string($email_data)) {
-                        if (!$this->id) {
+                        if (! $this->id) {
                             $this->save();
                         }
                         $email_created = Email::create($email_data, $this->id, Email::TYPE_WORK);
@@ -1093,8 +1116,8 @@ class Customer extends Model
                         if ($email_created) {
                             $result = true;
                         }
-                    } elseif (!empty($email_data['value'])) {
-                        if (!$this->id) {
+                    } elseif (! empty($email_data['value'])) {
+                        if (! $this->id) {
                             $this->save();
                         }
                         $email_created = Email::create($email_data['value'], $this->id, $email_data['type']);
@@ -1125,7 +1148,7 @@ class Customer extends Model
      */
     public static function createWithoutEmail($data = [])
     {
-        $customer = new self();
+        $customer = new self;
         $customer->setData($data);
 
         $customer->save();
@@ -1142,7 +1165,7 @@ class Customer extends Model
      */
     public function url()
     {
-        return route('customers.update', ['id'=>$this->id]);
+        return route('customers.update', ['id' => $this->id]);
     }
 
     /**
@@ -1152,15 +1175,14 @@ class Customer extends Model
      */
     public function urlView()
     {
-        return route('customers.conversations', ['id'=>$this->id]);
+        return route('customers.conversations', ['id' => $this->id]);
     }
 
     /**
      * Format date according to customer's timezone.
      *
-     * @param Carbon $date
-     * @param string $format
-     *
+     * @param  Carbon  $date
+     * @param  string  $format
      * @return string
      */
     public static function dateFormat($date, $format = 'M j, Y H:i')
@@ -1175,7 +1197,7 @@ class Customer extends Model
     {
         // Email can be fetched using query.
         $text = $this->email;
-        if (!$text) {
+        if (! $text) {
             $text = $this->getMainEmail();
         }
         if ($this->getFullName()) {
@@ -1185,6 +1207,7 @@ class Customer extends Model
                 $text .= $this->getFullName();
             }
         }
+
         return $text;
     }
 
@@ -1193,7 +1216,7 @@ class Customer extends Model
         // Email can be fetched using query.
         $text = $this->getFullName();
         $email = $this->email;
-        if (!$email) {
+        if (! $email) {
             $email = $this->getMainEmail();
         }
         if ($email) {
@@ -1203,6 +1226,7 @@ class Customer extends Model
                 $text .= $email;
             }
         }
+
         return $text;
     }
 
@@ -1218,13 +1242,13 @@ class Customer extends Model
                 $join->on('emails.customer_id', '=', 'customers.id');
             })
             ->whereIn('emails.email', $list)
-            //->groupby('customers.id')
+            // ->groupby('customers.id')
             ->get()
             ->toArray();
 
         foreach ($list as $email) {
             // Dummy customer.
-            $customer = new Customer();
+            $customer = new Customer;
             $customer->email = $email;
 
             foreach ($data as $values) {
@@ -1257,12 +1281,12 @@ class Customer extends Model
      */
     public function getEmailOrPhone()
     {
-        if (!empty($this->email)) {
+        if (! empty($this->email)) {
             // Email can be selected with query.
             return $this->email;
         } elseif ($main_email = $this->getMainEmail()) {
             return $main_email;
-        } elseif ($phones = $this->getPhones() && !empty($phones[0]['value'])) {
+        } elseif ($phones = $this->getPhones() && ! empty($phones[0]['value'])) {
             return $phones[0]['value'];
         }
 
@@ -1271,8 +1295,8 @@ class Customer extends Model
 
     public function getPhotoUrl($default_if_empty = true)
     {
-        if (!empty($this->photo_url) || !$default_if_empty) {
-            if (!empty($this->photo_url)) {
+        if (! empty($this->photo_url) || ! $default_if_empty) {
+            if (! empty($this->photo_url)) {
                 return self::getPhotoUrlByFileName($this->photo_url);
             } else {
                 return '';
@@ -1315,7 +1339,7 @@ class Customer extends Model
             if (in_array($attr_name, ['channel', 'channel_id'])) {
                 continue;
             }
-            if (!$this->$attr_name) {
+            if (! $this->$attr_name) {
                 $this->$attr_name = $customer2->$attr_name;
             }
         }
@@ -1351,17 +1375,18 @@ class Customer extends Model
             }
             $exists = false;
             foreach ($list1 as $data) {
-                if (!empty($data['type']) && !empty($data['value'])
+                if (! empty($data['type']) && ! empty($data['value'])
                     && $data['type'] == $data2['type'] && $data['value'] == $data2['value']
                 ) {
                     $exists = true;
                     break;
                 }
             }
-            if (!$exists) {
+            if (! $exists) {
                 $list1[] = $data2;
             }
         }
+
         return $list1;
     }
 
@@ -1373,7 +1398,7 @@ class Customer extends Model
         $photo_size = config('app.customer_photo_size');
         $resized_image = \App\Misc\Helper::resizeImage($real_path, $mime_type, $photo_size, $photo_size);
 
-        if (!$resized_image) {
+        if (! $resized_image) {
             return false;
         }
 
@@ -1381,7 +1406,7 @@ class Customer extends Model
         $dest_path = Storage::path(self::PHOTO_DIRECTORY.DIRECTORY_SEPARATOR.$file_name);
 
         $dest_dir = pathinfo($dest_path, PATHINFO_DIRNAME);
-        if (!file_exists($dest_dir)) {
+        if (! file_exists($dest_dir)) {
             \File::makeDirectory($dest_dir, \Helper::DIR_PERMISSIONS);
         }
 
@@ -1408,7 +1433,7 @@ class Customer extends Model
 
     public function getCountryName()
     {
-        if ($this->country && !empty(self::$countries[$this->country])) {
+        if ($this->country && ! empty(self::$countries[$this->country])) {
             return self::$countries[$this->country];
         } else {
             return '';
@@ -1422,13 +1447,13 @@ class Customer extends Model
     {
         $data = [];
 
-        if (!$name) {
+        if (! $name) {
             return $data;
         }
 
         $name_parts = explode(' ', $name, 2);
         $data['first_name'] = $name_parts[0];
-        if (!empty($name_parts[1])) {
+        if (! empty($name_parts[1])) {
             $data['last_name'] = $name_parts[1];
         }
 
@@ -1437,7 +1462,7 @@ class Customer extends Model
 
     public static function formatSocialProfile($sp)
     {
-        if (empty($sp['type']) || !isset(self::$social_type_names[$sp['type']])) {
+        if (empty($sp['type']) || ! isset(self::$social_type_names[$sp['type']])) {
             $sp['type'] = self::SOCIAL_TYPE_OTHER;
         }
 
@@ -1445,12 +1470,12 @@ class Customer extends Model
 
         $sp['value_url'] = $sp['value'];
 
-        if (!preg_match("/^https?:\/\//i", $sp['value_url'])) {
+        if (! preg_match("/^https?:\/\//i", $sp['value_url'])) {
             switch ($sp['type']) {
                 case self::SOCIAL_TYPE_TELEGRAM:
                     $sp['value_url'] = 'https://t.me/'.$sp['value'];
                     break;
-                
+
                 default:
                     $sp['value_url'] = 'http://'.$sp['value_url'];
                     break;
@@ -1467,13 +1492,13 @@ class Customer extends Model
     {
         $headers = get_headers($url);
 
-        if (!preg_match("/200/", $headers[0])) {
+        if (! preg_match('/200/', $headers[0])) {
             return false;
         }
 
         $image_data = \Helper::getRemoteFileContents($url);
 
-        if (!$image_data) {
+        if (! $image_data) {
             return false;
         }
 
@@ -1485,6 +1510,7 @@ class Customer extends Model
 
         if ($photo_url) {
             $this->photo_url = $photo_url;
+
             return true;
         } else {
             return false;
@@ -1521,12 +1547,12 @@ class Customer extends Model
     public static function getPhoneTypeName($code)
     {
         $phone_types = [
-            self::PHONE_TYPE_WORK   => __('Work'),
-            self::PHONE_TYPE_HOME   => __('Home'),
-            self::PHONE_TYPE_OTHER  => __('Other'),
+            self::PHONE_TYPE_WORK => __('Work'),
+            self::PHONE_TYPE_HOME => __('Home'),
+            self::PHONE_TYPE_OTHER => __('Other'),
             self::PHONE_TYPE_MOBILE => __('Mobile'),
-            self::PHONE_TYPE_FAX    => __('Fax'),
-            self::PHONE_TYPE_PAGER  => __('Pager'),
+            self::PHONE_TYPE_FAX => __('Fax'),
+            self::PHONE_TYPE_PAGER => __('Pager'),
         ];
 
         return $phone_types[$code] ?? '';
@@ -1534,7 +1560,7 @@ class Customer extends Model
 
     public static function isDefaultPhoneType($code)
     {
-        return (self::PHONE_TYPE_WORK == $code);
+        return $code == self::PHONE_TYPE_WORK;
     }
 
     // Method does not check if the customer
@@ -1548,9 +1574,10 @@ class Customer extends Model
 
     public function getChannels()
     {
-        if (!$this->channel || !$this->channel_id) {
+        if (! $this->channel || ! $this->channel_id) {
             return collect([]);
         }
+
         return CustomerChannel::where('customer_id', $this->id)->get();
     }
 
@@ -1558,7 +1585,7 @@ class Customer extends Model
     {
         // We are doing this to let existing modules not to throw error
         // and as a flag that this customer has record(s) in cucstomer_channel table.
-        if (!$this->channel || !$this->channel_id) {
+        if (! $this->channel || ! $this->channel_id) {
             $this->channel = $channel;
             $this->channel_id = $channel_id;
             $this->save();
@@ -1603,13 +1630,13 @@ class Customer extends Model
                     // - username
                     // - @username
                     // - https://example.org/username
-                    && preg_match("#(^|/|@)".preg_quote($value)."$#", trim(mb_strtolower($social_profile['value'])))
+                    && preg_match('#(^|/|@)'.preg_quote($value).'$#', trim(mb_strtolower($social_profile['value'])))
                 ) {
                     $ok = true;
                     break;
                 }
             }
-            if (!$ok) {
+            if (! $ok) {
                 $customers->forget($i);
             }
         }
@@ -1618,6 +1645,7 @@ class Customer extends Model
             $exclude_customer_ids = CustomerChannel::whereIn('customer_id', $customers->pluck('id'))
                 ->where('channel', $exclude_channel)
                 ->pluck('customer_id');
+
             return $customers->whereNotIn('customer_id', $exclude_customer_ids);
         } else {
             return $customers;
@@ -1629,11 +1657,10 @@ class Customer extends Model
      */
     public static function getDummyCustomer()
     {
-        $customer = new self();
+        $customer = new self;
         $customer->first_name = __('Customer');
         $customer->last_name = '';
 
         return $customer;
     }
 }
-

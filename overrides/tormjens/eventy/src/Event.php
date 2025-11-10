@@ -11,28 +11,25 @@ abstract class Event
      */
     protected $listeners = [];
 
-    public function __construct()
-    {
-
-    }
+    public function __construct() {}
 
     /**
      * Adds a listener.
      *
-     * @param string $hook      Hook name
-     * @param mixed  $callback  Function to execute
-     * @param int    $priority  Priority of the action
-     * @param int    $arguments Number of arguments to accept
+     * @param  string  $hook  Hook name
+     * @param  mixed  $callback  Function to execute
+     * @param  int  $priority  Priority of the action
+     * @param  int  $arguments  Number of arguments to accept
      */
     public function listen($hook, $callback, $priority = 20, $arguments = 1)
     {
         $this->listeners[$hook][] = [
-            'callback'  => $callback,
-            'priority'  => $priority,
+            'callback' => $callback,
+            'priority' => $priority,
             'arguments' => $arguments,
         ];
         usort($this->listeners[$hook], function ($a, $b) {
-            return (int)$a['priority'] - (int)$b['priority'];
+            return (int) $a['priority'] - (int) $b['priority'];
         });
 
         return $this;
@@ -41,9 +38,9 @@ abstract class Event
     /**
      * Removes a listener.
      *
-     * @param string $hook     Hook name
-     * @param mixed  $callback Function to execute
-     * @param int    $priority Priority of the action
+     * @param  string  $hook  Hook name
+     * @param  mixed  $callback  Function to execute
+     * @param  int  $priority  Priority of the action
      */
     public function remove($hook, $callback, $priority = 20)
     {
@@ -59,7 +56,7 @@ abstract class Event
     /**
      * Remove all listeners with given hook in collection. If no hook, clear all listeners.
      *
-     * @param string $hook Hook name
+     * @param  string  $hook  Hook name
      */
     public function removeAll($hook = null)
     {
@@ -85,8 +82,7 @@ abstract class Event
     /**
      * Gets the function.
      *
-     * @param mixed $callback Callback
-     *
+     * @param  mixed  $callback  Callback
      * @return mixed A closure, an array if "class@method" or a string if "function_name"
      */
     protected function getFunction($callback)
@@ -105,8 +101,8 @@ abstract class Event
     /**
      * Fires a new action.
      *
-     * @param string $action Name of action
-     * @param array  $args   Arguments passed to the action
+     * @param  string  $action  Name of action
+     * @param  array  $args  Arguments passed to the action
      */
     abstract public function fire($action, $args);
 }

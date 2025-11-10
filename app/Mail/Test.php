@@ -24,7 +24,7 @@ class Test extends Mailable
     public function build()
     {
         \MailHelper::prepareMailable($this);
-        
+
         $this->withSwiftMessage(function ($swiftmessage) {
             $headers = $swiftmessage->getHeaders();
             $headers->addTextHeader('X-FreeScout-Mail-Type', 'test.mailbox');

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * todo: implement caching by saving all options in one cache variable on register_shutdown_function.
  */
@@ -27,9 +28,8 @@ class Option extends Model
     /**
      * Set an option.
      *
-     * @param string $name
-     * @param string $value
-     *
+     * @param  string  $name
+     * @param  string  $value
      * @return bool
      */
     public static function set($name, $value)
@@ -67,8 +67,7 @@ class Option extends Model
     /**
      * Get option.
      *
-     * @param string $name
-     *
+     * @param  string  $name
      * @return string
      */
     public static function get($name, $default = false, $decode = true, $use_cache = true)
@@ -112,7 +111,7 @@ class Option extends Model
             // Try to get default option value from module's config.
             preg_match("/^([a-z_]+)\.(.*)/", $option_name, $m);
 
-            if (!empty($m[1]) && !empty($m[2])) {
+            if (! empty($m[1]) && ! empty($m[2])) {
                 $module_alias = $m[1];
                 $modle_option_name = $m[2];
                 $module_options = \Config::get($module_alias.'.options');
@@ -136,9 +135,8 @@ class Option extends Model
      * Get multiple options.
      *
      * @param [type] $name    [description]
-     * @param bool   $default [description]
-     * @param bool   $decode  [description]
-     *
+     * @param  bool  $default  [description]
+     * @param  bool  $decode  [description]
      * @return [type] [description]
      */
     public static function getOptions($options, $defaults = [], $decode = [])
@@ -150,7 +148,7 @@ class Option extends Model
         foreach ($options as $name) {
             if (isset(self::$cache[$name])) {
                 if (self::$cache[$name] == self::CACHE_DEFAULT_VALUE) {
-                    if (!isset($defaults[$name])) {
+                    if (! isset($defaults[$name])) {
                         $default = self::getDefault($name);
                     } else {
                         $default = $defaults[$name];
@@ -170,7 +168,7 @@ class Option extends Model
         $db_options = self::whereIn('name', $options)->get();
         foreach ($options as $name) {
             // If not passed, get default value from config
-            if (!isset($defaults[$name])) {
+            if (! isset($defaults[$name])) {
                 $default = self::getDefault($name);
             } else {
                 $default = $defaults[$name];
@@ -237,7 +235,7 @@ class Option extends Model
             return $original;
         }
 
-        if (is_string($original) && !empty($original[0]) 
+        if (is_string($original) && ! empty($original[0])
             && ($original[0] == '{' || $original[0] == '[')
         ) {
             try {
@@ -260,36 +258,36 @@ class Option extends Model
     public static function isSerialized($data, $strict = true)
     {
         // if it isn't a string, it isn't serialized.
-        if (!is_string($data)) {
+        if (! is_string($data)) {
             return false;
         }
         $data = trim($data);
-        if ('N;' == $data) {
+        if ($data == 'N;') {
             return true;
         }
         if (strlen($data) < 4) {
             return false;
         }
-        if (':' !== $data[1]) {
+        if ($data[1] !== ':') {
             return false;
         }
         if ($strict) {
             $lastc = substr($data, -1);
-            if (';' !== $lastc && '}' !== $lastc) {
+            if ($lastc !== ';' && $lastc !== '}') {
                 return false;
             }
         } else {
             $semicolon = strpos($data, ';');
             $brace = strpos($data, '}');
             // Either ; or } must exist.
-            if (false === $semicolon && false === $brace) {
+            if ($semicolon === false && $brace === false) {
                 return false;
             }
             // But neither must be in the first X characters.
-            if (false !== $semicolon && $semicolon < 3) {
+            if ($semicolon !== false && $semicolon < 3) {
                 return false;
             }
-            if (false !== $brace && $brace < 4) {
+            if ($brace !== false && $brace < 4) {
                 return false;
             }
         }
@@ -297,10 +295,10 @@ class Option extends Model
         switch ($token) {
             case 's':
                 if ($strict) {
-                    if ('"' !== substr($data, -2, 1)) {
+                    if (substr($data, -2, 1) !== '"') {
                         return false;
                     }
-                } elseif (false === strpos($data, '"')) {
+                } elseif (strpos($data, '"') === false) {
                     return false;
                 }
                 // or else fall through

@@ -2,14 +2,14 @@
 
 namespace Illuminate\Routing;
 
-use Countable;
 use ArrayIterator;
-use IteratorAggregate;
-use Illuminate\Support\Arr;
+use Countable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Support\Arr;
+use IteratorAggregate;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class RouteCollection implements Countable, IteratorAggregate
 {
@@ -44,7 +44,6 @@ class RouteCollection implements Countable, IteratorAggregate
     /**
      * Add a Route instance to the collection.
      *
-     * @param  \Illuminate\Routing\Route  $route
      * @return \Illuminate\Routing\Route
      */
     public function add(Route $route)
@@ -149,7 +148,6 @@ class RouteCollection implements Countable, IteratorAggregate
     /**
      * Find the first route matching a given request.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Routing\Route
      *
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
@@ -182,14 +180,13 @@ class RouteCollection implements Countable, IteratorAggregate
     /**
      * Determine if a route in the array matches the request.
      *
-     * @param  array  $routes
      * @param  \Illuminate\http\Request  $request
      * @param  bool  $includingMethod
      * @return \Illuminate\Routing\Route|null
      */
     protected function matchAgainstRoutes(array $routes, $request, $includingMethod = true)
     {
-        list($fallbacks, $routes) = collect($routes)->partition(function ($route) {
+        [$fallbacks, $routes] = collect($routes)->partition(function ($route) {
             return $route->isFallback;
         });
 
@@ -226,7 +223,6 @@ class RouteCollection implements Countable, IteratorAggregate
      * Get a route (if necessary) that responds when other available methods are present.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  array  $methods
      * @return \Illuminate\Routing\Route
      *
      * @throws \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException
@@ -245,7 +241,6 @@ class RouteCollection implements Countable, IteratorAggregate
     /**
      * Throw a method not allowed HTTP exception.
      *
-     * @param  array  $others
      * @return void
      *
      * @throws \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException
@@ -341,8 +336,6 @@ class RouteCollection implements Countable, IteratorAggregate
 
     /**
      * Count the number of items in the collection.
-     *
-     * @return int
      */
     public function count(): int
     {

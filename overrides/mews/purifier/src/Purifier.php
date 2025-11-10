@@ -6,11 +6,17 @@ namespace Mews\Purifier;
  * Laravel 5 HTMLPurifier package
  *
  * @copyright Copyright (c) 2015 MeWebStudio
+ *
  * @version   2.0.0
+ *
  * @author    Muharrem ERİN
+ *
  * @contact me@mewebstudio.com
+ *
  * @web http://www.mewebstudio.com
+ *
  * @date      2014-04-02
+ *
  * @license   MIT
  */
 
@@ -23,7 +29,6 @@ use Illuminate\Filesystem\Filesystem;
 
 class Purifier
 {
-
     /**
      * @var Filesystem
      */
@@ -42,8 +47,6 @@ class Purifier
     /**
      * Constructor
      *
-     * @param Filesystem $files
-     * @param Repository $config
      * @throws Exception
      */
     public function __construct(Filesystem $files, Repository $config)
@@ -61,7 +64,7 @@ class Purifier
      */
     private function setUp()
     {
-        if (!$this->config->has('purifier')) {
+        if (! $this->config->has('purifier')) {
             throw new Exception('Configuration parameters not loaded!');
         }
 
@@ -78,14 +81,13 @@ class Purifier
      * Add a custom definition
      *
      * @see http://htmlpurifier.org/docs/enduser-customize.html
-     * @param array $definitionConfig
-     * @param HTMLPurifier_Config $configObject Defaults to using default config
      *
+     * @param  HTMLPurifier_Config  $configObject  Defaults to using default config
      * @return HTMLPurifier_Config $configObject
      */
     private function addCustomDefinition(array $definitionConfig, ?HTMLPurifier_Config $configObject = null)
     {
-        if (!$configObject) {
+        if (! $configObject) {
             $configObject = HTMLPurifier_Config::createDefault();
             $configObject->loadArray($this->getConfig());
         }
@@ -95,19 +97,19 @@ class Purifier
         $configObject->set('HTML.DefinitionRev', $definitionConfig['rev']);
 
         // Enable debug mode
-        if (!isset($definitionConfig['debug']) || $definitionConfig['debug']) {
+        if (! isset($definitionConfig['debug']) || $definitionConfig['debug']) {
             $configObject->set('Cache.DefinitionImpl', null);
         }
 
         // Start configuring the definition
         if ($def = $configObject->maybeGetRawHTMLDefinition()) {
             // Create the definition attributes
-            if (!empty($definitionConfig['attributes'])) {
+            if (! empty($definitionConfig['attributes'])) {
                 $this->addCustomAttributes($definitionConfig['attributes'], $def);
             }
 
             // Create the definition elements
-            if (!empty($definitionConfig['elements'])) {
+            if (! empty($definitionConfig['elements'])) {
                 $this->addCustomElements($definitionConfig['elements'], $def);
             }
         }
@@ -118,8 +120,6 @@ class Purifier
     /**
      * Add provided attributes to the provided definition
      *
-     * @param array $attributes
-     * @param HTMLPurifier_HTMLDefinition $definition
      *
      * @return HTMLPurifier_HTMLDefinition $definition
      */
@@ -127,9 +127,9 @@ class Purifier
     {
         foreach ($attributes as $attribute) {
             // Get configuration of attribute
-            $required = !empty($attribute[3]) ? true : false;
+            $required = ! empty($attribute[3]) ? true : false;
             $onElement = $attribute[0];
-            $attrName = $required ? $attribute[1] . '*' : $attribute[1];
+            $attrName = $required ? $attribute[1].'*' : $attribute[1];
             $validValues = $attribute[2];
 
             $definition->addAttribute($onElement, $attrName, $validValues);
@@ -141,8 +141,6 @@ class Purifier
     /**
      * Add provided elements to the provided definition
      *
-     * @param array $elements
-     * @param HTMLPurifier_HTMLDefinition $definition
      *
      * @return HTMLPurifier_HTMLDefinition $definition
      */
@@ -156,7 +154,7 @@ class Purifier
             $attributeCollection = $element[3];
             $attributes = isset($element[4]) ? $element[4] : null;
 
-            if (!empty($attributes)) {
+            if (! empty($attributes)) {
                 $definition->addElement($name, $contentSet, $allowedChildren, $attributeCollection, $attributes);
             } else {
                 $definition->addElement($name, $contentSet, $allowedChildren, $attributeCollection);
@@ -172,15 +170,14 @@ class Purifier
         $cachePath = $this->config->get('purifier.cachePath');
 
         if ($cachePath) {
-            if (!$this->files->isDirectory($cachePath)) {
-                $this->files->makeDirectory($cachePath, $this->config->get('purifier.cacheFileMode', 0755),true);
+            if (! $this->files->isDirectory($cachePath)) {
+                $this->files->makeDirectory($cachePath, $this->config->get('purifier.cacheFileMode', 0755), true);
             }
         }
     }
 
     /**
-     * @param null $config
-     *
+     * @param  null  $config
      * @return mixed|null
      */
     protected function getConfig($config = null)
@@ -202,7 +199,7 @@ class Purifier
         if (! $config) {
             $config = $this->config->get('purifier.settings.default');
         } elseif (is_string($config)) {
-            $config = $this->config->get('purifier.settings.' . $config);
+            $config = $this->config->get('purifier.settings.'.$config);
         }
 
         if (! is_array($config)) {
@@ -238,9 +235,7 @@ class Purifier
     }
 
     /**
-     * @param      $dirty
-     * @param null $config
-     * @param \Closure|null $postCreateConfigHook
+     * @param  null  $config
      * @return mixed
      */
     public function clean($dirty, $config = null, ?\Closure $postCreateConfigHook = null)

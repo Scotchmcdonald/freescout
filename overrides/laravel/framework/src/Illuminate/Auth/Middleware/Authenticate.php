@@ -18,7 +18,6 @@ class Authenticate
     /**
      * Create a new middleware instance.
      *
-     * @param  \Illuminate\Contracts\Auth\Factory  $auth
      * @return void
      */
     public function __construct(Auth $auth)
@@ -30,7 +29,6 @@ class Authenticate
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @param  string[]  ...$guards
      * @return mixed
      *
@@ -38,7 +36,7 @@ class Authenticate
      */
     public function handle($request, Closure $next, ...$guards)
     {
-        \Eventy::action('auth_middleware.handle', $request, $guards, $next); 
+        \Eventy::action('auth_middleware.handle', $request, $guards, $next);
 
         $this->authenticate($guards);
 
@@ -48,7 +46,6 @@ class Authenticate
     /**
      * Determine if the user is logged in to any of the given guards.
      *
-     * @param  array  $guards
      * @return void
      *
      * @throws \Illuminate\Auth\AuthenticationException

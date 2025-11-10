@@ -5,29 +5,30 @@
  */
 class HTMLPurifier_AttrDef_URI_Host extends HTMLPurifier_AttrDef
 {
-
     /**
      * IPv4 sub-validator.
+     *
      * @type HTMLPurifier_AttrDef_URI_IPv4
      */
     protected $ipv4;
 
     /**
      * IPv6 sub-validator.
+     *
      * @type HTMLPurifier_AttrDef_URI_IPv6
      */
     protected $ipv6;
 
     public function __construct()
     {
-        $this->ipv4 = new HTMLPurifier_AttrDef_URI_IPv4();
-        $this->ipv6 = new HTMLPurifier_AttrDef_URI_IPv6();
+        $this->ipv4 = new HTMLPurifier_AttrDef_URI_IPv4;
+        $this->ipv6 = new HTMLPurifier_AttrDef_URI_IPv6;
     }
 
     /**
-     * @param string $string
-     * @param HTMLPurifier_Config $config
-     * @param HTMLPurifier_Context $context
+     * @param  string  $string
+     * @param  HTMLPurifier_Config  $config
+     * @param  HTMLPurifier_Context  $context
      * @return bool|string
      */
     public function validate($string, $config, $context)
@@ -43,13 +44,14 @@ class HTMLPurifier_AttrDef_URI_Host extends HTMLPurifier_AttrDef
             return '';
         }
         if ($length > 1 && $string[0] === '[' && $string[$length - 1] === ']') {
-            //IPv6
+            // IPv6
             $ip = substr($string, 1, $length - 2);
             $valid = $this->ipv6->validate($ip, $config, $context);
             if ($valid === false) {
                 return false;
             }
-            return '[' . $valid . ']';
+
+            return '['.$valid.']';
         }
 
         // need to do checks on unusual encodings too
@@ -79,8 +81,8 @@ class HTMLPurifier_AttrDef_URI_Host extends HTMLPurifier_AttrDef
         // Based off of RFC 1738, but amended so that
         // as per RFC 3696, the top label need only not be all numeric.
         // The productions describing this are:
-        $a   = '[a-z]';     // alpha
-        $an  = '[a-z0-9]';  // alphanum
+        $a = '[a-z]';     // alpha
+        $an = '[a-z0-9]';  // alphanum
         $and = "[a-z0-9-$underscore]"; // alphanum | "-"
         // domainlabel = alphanum | alphanum *( alphanum | "-" ) alphanum
         $domainlabel = "$an(?:$and*$an)?";
@@ -90,7 +92,7 @@ class HTMLPurifier_AttrDef_URI_Host extends HTMLPurifier_AttrDef
         $toplabel = "$an(?:$and*$an)?";
         // hostname    = *( domainlabel "." ) toplabel [ "." ]
         if (preg_match("/^(?:$domainlabel\.)*($toplabel)\.?$/i", $string, $matches)) {
-            if (!ctype_digit($matches[1])) {
+            if (! ctype_digit($matches[1])) {
                 return $string;
             }
         }
@@ -104,27 +106,27 @@ class HTMLPurifier_AttrDef_URI_Host extends HTMLPurifier_AttrDef
                     $string = idn_to_ascii($string);
                 }
             } catch (\Exception $e) {
-                
+
             }
 
-        // If we have Net_IDNA2 support, we can support IRIs by
-        // punycoding them. (This is the most portable thing to do,
-        // since otherwise we have to assume browsers support
+            // If we have Net_IDNA2 support, we can support IRIs by
+            // punycoding them. (This is the most portable thing to do,
+            // since otherwise we have to assume browsers support
         } elseif ($config->get('Core.EnableIDNA')) {
-            $idna = new Net_IDNA2(array('encoding' => 'utf8', 'overlong' => false, 'strict' => true));
+            $idna = new Net_IDNA2(['encoding' => 'utf8', 'overlong' => false, 'strict' => true]);
             // we need to encode each period separately
             $parts = explode('.', $string);
             try {
-                $new_parts = array();
+                $new_parts = [];
                 foreach ($parts as $part) {
                     $encodable = false;
                     for ($i = 0, $c = strlen($part); $i < $c; $i++) {
-                        if (ord($part[$i]) > 0x7a) {
+                        if (ord($part[$i]) > 0x7A) {
                             $encodable = true;
                             break;
                         }
                     }
-                    if (!$encodable) {
+                    if (! $encodable) {
                         $new_parts[] = $part;
                     } else {
                         $new_parts[] = $idna->encode($part);
@@ -139,6 +141,7 @@ class HTMLPurifier_AttrDef_URI_Host extends HTMLPurifier_AttrDef
         if (preg_match("/^($domainlabel\.)*$toplabel\.?$/i", $string)) {
             return $string;
         }
+
         return false;
     }
 }

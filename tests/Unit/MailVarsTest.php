@@ -10,26 +10,26 @@ class MailVarsTest extends TestCase
 {
     /**
      * Retrieves an array of mocked data that can be passed to the {@see \App\Misc\Mail::replaceMailVars()} method's $data parameter.
-     *
-     * @return array
      */
     protected static function fakeMailData(): array
     {
         return [
             'conversation' => (object) [
-                'subject'        => 'Re: Neque numquam velit consectetur!',
-                'number'         => 123456,
+                'subject' => 'Re: Neque numquam velit consectetur!',
+                'number' => 123456,
                 'customer_email' => 'customer.email@example.com',
             ],
             'mailbox' => new class
             {
                 public $email = 'mailbox.email@example.com';
+
                 public $name = 'Priority Support Requests';
+
                 public function getMailFrom($fromUser): array
                 {
                     return [
                         'address' => 'mailbox.email@example.com',
-                        'name'    => 'Priority Support Requests',
+                        'name' => 'Priority Support Requests',
                     ];
                 }
             },
@@ -37,29 +37,39 @@ class MailVarsTest extends TestCase
             'customer' => new class
             {
                 public $last_name = 'Lebowski';
+
                 public $company = 'Unemployed';
+
                 public function getFullName(): string
                 {
                     return 'Jeffrey Lebowski';
                 }
+
                 public function getFirstName(): string
                 {
                     return 'Jeffrey';
                 }
             },
-            'user' => new class {
+            'user' => new class
+            {
                 public $phone = '(818) 123-456-7890';
+
                 public $email = 'walter.sobchak@example.com';
+
                 public $job_title = 'Proprietor';
+
                 public $last_name = 'Sobchak';
+
                 public function getFullName(): string
                 {
                     return 'Walter Sobchak';
                 }
+
                 public function getFirstName(): string
                 {
                     return 'Walter';
                 }
+
                 public function getPhotoUrl(): string
                 {
                     return 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
@@ -70,8 +80,6 @@ class MailVarsTest extends TestCase
 
     /**
      * Returns a fake email text string containing all possible mail var codes.
-     *
-     * @return string
      */
     protected static function fakeMailText(bool $withFb = false): string
     {
@@ -101,23 +109,23 @@ class MailVarsTest extends TestCase
 
         if ($withFb) {
             $fallbacks = [
-                '{%subject%}'             => 'Re: Neque numquam velit consectetur!',
+                '{%subject%}' => 'Re: Neque numquam velit consectetur!',
                 '{%conversation.number%}' => '0001234',
-                '{%customer.email%}'      => '', // No fallback, remove it.
-                '{%mailbox.email%}'       => 'noreply@example.com',
-                '{%mailbox.name%}'        => 'No Reply',
-                '{%mailbox.fromName%}'    => 'Support Team',
-                '{%customer.fullName%}'   => 'there',
-                '{%customer.firstName%}'  => 'buddy',
-                '{%customer.lastName%}'   => '', // No fallback, remove it.
-                '{%customer.company%}'    => 'A Business Company Ltd.',
-                '{%user.fullName%}'       => 'Your Team',
-                '{%user.firstName%}'      => 'friend',
-                '{%user.phone%}'          => '(123) 456-7890',
-                '{%user.email%}'          => 'noreply@example.com',
-                '{%user.jobTitle%}'       => 'Support Engineer',
-                '{%user.lastName%}'       => '', // No fallback, remove it.
-                '{%user.photoUrl%}'       => 'https://place.dog/200/200',
+                '{%customer.email%}' => '', // No fallback, remove it.
+                '{%mailbox.email%}' => 'noreply@example.com',
+                '{%mailbox.name%}' => 'No Reply',
+                '{%mailbox.fromName%}' => 'Support Team',
+                '{%customer.fullName%}' => 'there',
+                '{%customer.firstName%}' => 'buddy',
+                '{%customer.lastName%}' => '', // No fallback, remove it.
+                '{%customer.company%}' => 'A Business Company Ltd.',
+                '{%user.fullName%}' => 'Your Team',
+                '{%user.firstName%}' => 'friend',
+                '{%user.phone%}' => '(123) 456-7890',
+                '{%user.email%}' => 'noreply@example.com',
+                '{%user.jobTitle%}' => 'Support Engineer',
+                '{%user.lastName%}' => '', // No fallback, remove it.
+                '{%user.photoUrl%}' => 'https://place.dog/200/200',
             ];
 
             foreach ($fallbacks as $var => $fallback) {
@@ -132,15 +140,15 @@ class MailVarsTest extends TestCase
     /**
      * Tests the {@see \App\Misc\Mail::replaceMailVars()} method.
      *
-     * @param array|string $expectedText       The expected result.
-     * @param string       $inputText          The input text.
-     * @param array        $data               An array of data to pass to the method.
-     * @param bool         $escape             Whether to escape the result.
-     * @param bool         $removeNonReplaced  Whether to remove non-replaced variables.
+     * @param  array|string  $expectedText  The expected result.
+     * @param  string  $inputText  The input text.
+     * @param  array  $data  An array of data to pass to the method.
+     * @param  bool  $escape  Whether to escape the result.
+     * @param  bool  $removeNonReplaced  Whether to remove non-replaced variables.
      *
      * @dataProvider providerReplaceMailVars
      */
-    public function testReplaceMailVars(
+    public function test_replace_mail_vars(
         $expectedText,
         string $inputText,
         array $data = [],
@@ -156,15 +164,13 @@ class MailVarsTest extends TestCase
 
     /**
      * Data provider for {@see self::testReplaceMailVars()}.
-     *
-     * @return \Generator
      */
     public static function providerReplaceMailVars(): Generator
     {
-        $noVars            = '<p>test</p>';
-        $textNoFallback    = self::fakeMailText();
+        $noVars = '<p>test</p>';
+        $textNoFallback = self::fakeMailText();
         $textWithFallbacks = self::fakeMailText(true);
-        $allData           = self::fakeMailData();
+        $allData = self::fakeMailData();
 
         yield 'no vars in string' => [
             $noVars,
@@ -256,7 +262,7 @@ class MailVarsTest extends TestCase
                 '<img src="https://place.dog/200/200"><br>',
                 '<a href="mailto:noreply@example.com">No Reply</a><br>',
             ],
-            $textWithFallbacks
+            $textWithFallbacks,
         ];
 
         yield 'all data (escaped)' => [
@@ -310,7 +316,7 @@ class MailVarsTest extends TestCase
             ],
             $textNoFallback,
             [
-                'user'     => $allData['user'],
+                'user' => $allData['user'],
                 'customer' => $allData['customer'],
             ],
         ];
@@ -340,7 +346,7 @@ class MailVarsTest extends TestCase
             $textNoFallback,
             [
                 'conversation' => $allData['conversation'],
-                'mailbox'     => $allData['mailbox'],
+                'mailbox' => $allData['mailbox'],
             ],
             false,
             true,
@@ -371,7 +377,7 @@ class MailVarsTest extends TestCase
             $textWithFallbacks,
             [
                 'conversation' => $allData['conversation'],
-                'mailbox'     => $allData['mailbox'],
+                'mailbox' => $allData['mailbox'],
             ],
         ];
     }
@@ -379,7 +385,7 @@ class MailVarsTest extends TestCase
     /**
      * Tests {@see \App\Misc\Mail::replaceMailVars()} with custom mail vars added via variables.
      */
-    public function testReplaceMailVarsCustomVars(): void
+    public function test_replace_mail_vars_custom_vars(): void
     {
         // No data so no replacement.
         $this->assertEquals('{%custom.currentYear%}', Mail::replaceMailVars('{%custom.currentYear%}', [], false, false));
@@ -387,8 +393,9 @@ class MailVarsTest extends TestCase
         // Use fallback if no replacement value is available.
         $this->assertEquals('2021', Mail::replaceMailVars('{%custom.currentYear,fallback=2021%}', [], false, false));
 
-        $addReplacements = function($vars) {
+        $addReplacements = function ($vars) {
             $vars['{%custom.currentYear%}'] = '2025';
+
             return $vars;
         };
         \Eventy::addFilter('mail_vars.replace', $addReplacements);

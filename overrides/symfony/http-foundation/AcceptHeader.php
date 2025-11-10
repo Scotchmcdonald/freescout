@@ -24,7 +24,7 @@ class AcceptHeader
     /**
      * @var AcceptHeaderItem[]
      */
-    private $items = array();
+    private $items = [];
 
     /**
      * @var bool
@@ -32,7 +32,7 @@ class AcceptHeader
     private $sorted = true;
 
     /**
-     * @param AcceptHeaderItem[] $items
+     * @param  AcceptHeaderItem[]  $items
      */
     public function __construct(array $items)
     {
@@ -44,8 +44,7 @@ class AcceptHeader
     /**
      * Builds an AcceptHeader instance from a string.
      *
-     * @param string $headerValue
-     *
+     * @param  string  $headerValue
      * @return self
      */
     public static function fromString($headerValue)
@@ -57,8 +56,8 @@ class AcceptHeader
             $item->setIndex($index++);
 
             return $item;
-        }, preg_split('/\s*(?:,*("[^"]+"),*|,*(\'[^\']+\'),*|,+)\s*/', 
-            $headerValue ?? '', 
+        }, preg_split('/\s*(?:,*("[^"]+"),*|,*(\'[^\']+\'),*|,+)\s*/',
+            $headerValue ?? '',
             0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE)));
     }
 
@@ -75,8 +74,7 @@ class AcceptHeader
     /**
      * Tests if header has given value.
      *
-     * @param string $value
-     *
+     * @param  string  $value
      * @return bool
      */
     public function has($value)
@@ -87,8 +85,7 @@ class AcceptHeader
     /**
      * Returns given value's item, if exists.
      *
-     * @param string $value
-     *
+     * @param  string  $value
      * @return AcceptHeaderItem|null
      */
     public function get($value)
@@ -124,8 +121,7 @@ class AcceptHeader
     /**
      * Filters items on their value using given regex.
      *
-     * @param string $pattern
-     *
+     * @param  string  $pattern
      * @return self
      */
     public function filter($pattern)
@@ -144,7 +140,7 @@ class AcceptHeader
     {
         $this->sort();
 
-        return !empty($this->items) ? reset($this->items) : null;
+        return ! empty($this->items) ? reset($this->items) : null;
     }
 
     /**
@@ -152,7 +148,7 @@ class AcceptHeader
      */
     private function sort()
     {
-        if (!$this->sorted) {
+        if (! $this->sorted) {
             uasort($this->items, function (AcceptHeaderItem $a, AcceptHeaderItem $b) {
                 $qA = $a->getQuality();
                 $qB = $b->getQuality();

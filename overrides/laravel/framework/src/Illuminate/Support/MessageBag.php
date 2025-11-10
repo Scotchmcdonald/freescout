@@ -3,11 +3,11 @@
 namespace Illuminate\Support;
 
 use Countable;
-use JsonSerializable;
-use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Support\MessageProvider;
+use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\MessageBag as MessageBagContract;
+use Illuminate\Contracts\Support\MessageProvider;
+use JsonSerializable;
 
 class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, MessageBagContract, MessageProvider
 {
@@ -28,7 +28,6 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     /**
      * Create a new message bag instance.
      *
-     * @param  array  $messages
      * @return void
      */
     public function __construct(array $messages = [])
@@ -189,14 +188,14 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     protected function getMessagesForWildcardKey($key, $format)
     {
         return collect($this->messages)
-                ->filter(function ($messages, $messageKey) use ($key) {
-                    return Str::is($key, $messageKey);
-                })
-                ->map(function ($messages, $messageKey) use ($format) {
-                    return $this->transform(
-                        $messages, $this->checkFormat($format), $messageKey
-                    );
-                })->all();
+            ->filter(function ($messages, $messageKey) use ($key) {
+                return Str::is($key, $messageKey);
+            })
+            ->map(function ($messages, $messageKey) use ($format) {
+                return $this->transform(
+                    $messages, $this->checkFormat($format), $messageKey
+                );
+            })->all();
     }
 
     /**
@@ -232,7 +231,7 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
     /**
      * Format an array of messages.
      *
-     * @param  array   $messages
+     * @param  array  $messages
      * @param  string  $format
      * @param  string  $messageKey
      * @return array
@@ -344,8 +343,6 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
 
     /**
      * Get the number of messages in the container.
-     *
-     * @return int
      */
     public function count(): int
     {
@@ -366,7 +363,7 @@ class MessageBag implements Arrayable, Countable, Jsonable, JsonSerializable, Me
      * Convert the object into something JSON serializable.
      *
      * @return array
-     * : mixed
+     *               : mixed
      */
     #[\ReturnTypeWillChange]
     public function jsonSerialize()

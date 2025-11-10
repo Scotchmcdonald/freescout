@@ -6,8 +6,6 @@ class SendLogObserver
 {
     /**
      * Send log created.
-     *
-     * @param SendLog $send_log
      */
     public function created(SendLog $send_log)
     {

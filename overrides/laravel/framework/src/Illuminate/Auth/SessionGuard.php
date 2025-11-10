@@ -2,19 +2,19 @@
 
 namespace Illuminate\Auth;
 
-use RuntimeException;
 use Illuminate\Auth\Events\Validated;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\StatefulGuard;
+use Illuminate\Contracts\Auth\SupportsBasicAuth;
+use Illuminate\Contracts\Auth\UserProvider;
+use Illuminate\Contracts\Cookie\QueueingFactory as CookieJar;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use Illuminate\Contracts\Session\Session;
-use Illuminate\Contracts\Auth\UserProvider;
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Auth\StatefulGuard;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
-use Illuminate\Contracts\Auth\SupportsBasicAuth;
-use Illuminate\Contracts\Cookie\QueueingFactory as CookieJar;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
 class SessionGuard implements StatefulGuard, SupportsBasicAuth
 {
@@ -89,15 +89,12 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
      * Create a new authentication guard.
      *
      * @param  string  $name
-     * @param  \Illuminate\Contracts\Auth\UserProvider  $provider
-     * @param  \Illuminate\Contracts\Session\Session  $session
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
      * @return void
      */
     public function __construct($name,
-                                UserProvider $provider,
-                                Session $session,
-                                ?Request $request = null)
+        UserProvider $provider,
+        Session $session,
+        ?Request $request = null)
     {
         $this->name = $name;
         $this->session = $session;
@@ -115,7 +112,7 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
         if ($this->loggedOut) {
             return;
         }
-        
+
         // If we've already retrieved the user for the current request we can just
         // return it back immediately. We do not want to fetch the user data on
         // every call to this method because that would be tremendously slow.
@@ -211,7 +208,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Log a user into the application without sessions or cookies.
      *
-     * @param  array  $credentials
      * @return bool
      */
     public function once(array $credentials = [])
@@ -247,7 +243,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Validate a user's credentials.
      *
-     * @param  array  $credentials
      * @return bool
      */
     public function validate(array $credentials = [])
@@ -299,7 +294,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Attempt to authenticate using basic authentication.
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
      * @param  string  $field
      * @param  array  $extraConditions
      * @return bool
@@ -318,7 +312,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Get the credential array for a HTTP Basic request.
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
      * @param  string  $field
      * @return array
      */
@@ -331,6 +324,7 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
      * Get the response for basic authentication.
      *
      * @return void
+     *
      * @throws \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
      */
     protected function failedBasicResponse()
@@ -341,8 +335,7 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Attempt to authenticate a user using the given credentials.
      *
-     * @param  array  $credentials
-     * @param  bool   $remember
+     * @param  bool  $remember
      * @return bool
      */
     public function attempt(array $credentials = [], $remember = false)
@@ -389,8 +382,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
 
     /**
      * Fires the retrieved event if the dispatcher is set.
-     *
-     * @param $user
      */
     protected function fireValidatedEvent($user)
     {
@@ -405,7 +396,7 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
      * Log the given user ID into the application.
      *
      * @param  mixed  $id
-     * @param  bool   $remember
+     * @param  bool  $remember
      * @return \Illuminate\Contracts\Auth\Authenticatable|false
      */
     public function loginUsingId($id, $remember = false)
@@ -422,7 +413,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Log a user into the application.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
      * @param  bool  $remember
      * @return void
      */
@@ -463,7 +453,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Create a new "remember me" token for the user if one doesn't already exist.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
      * @return void
      */
     protected function ensureRememberTokenIsSet(AuthenticatableContract $user)
@@ -476,7 +465,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Queue the recaller cookie into the cookie jar.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
      * @return void
      */
     protected function queueRecallerCookie(AuthenticatableContract $user)
@@ -538,14 +526,13 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
 
         if (! is_null($this->recaller())) {
             $this->getCookieJar()->queue($this->getCookieJar()
-                    ->forget($this->getRecallerName()));
+                ->forget($this->getRecallerName()));
         }
     }
 
     /**
      * Refresh the "remember me" token for the user.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
      * @return void
      */
     protected function cycleRememberToken(AuthenticatableContract $user)
@@ -571,7 +558,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Fire the attempt event with the arguments.
      *
-     * @param  array  $credentials
      * @param  bool  $remember
      * @return void
      */
@@ -615,7 +601,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
      * Fire the failed authentication attempt event with the given arguments.
      *
      * @param  \Illuminate\Contracts\Auth\Authenticatable|null  $user
-     * @param  array  $credentials
      * @return void
      */
     protected function fireFailedEvent($user, array $credentials)
@@ -684,7 +669,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Set the cookie creator instance used by the guard.
      *
-     * @param  \Illuminate\Contracts\Cookie\QueueingFactory  $cookie
      * @return void
      */
     public function setCookieJar(CookieJar $cookie)
@@ -705,7 +689,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Set the event dispatcher instance.
      *
-     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
      * @return void
      */
     public function setDispatcher(Dispatcher $events)
@@ -736,7 +719,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Set the current user.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
      * @return $this
      */
     public function setUser(AuthenticatableContract $user)
@@ -763,7 +745,6 @@ class SessionGuard implements StatefulGuard, SupportsBasicAuth
     /**
      * Set the current request instance.
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
      * @return $this
      */
     public function setRequest(Request $request)

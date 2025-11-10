@@ -1,8 +1,9 @@
-<?php namespace Barryvdh\Debugbar;
+<?php
+
+namespace Barryvdh\Debugbar;
 
 use DebugBar\DebugBar;
 use DebugBar\JavascriptRenderer as BaseJavascriptRenderer;
-use Illuminate\Routing\UrlGenerator;
 
 /**
  * {@inheritdoc}
@@ -11,28 +12,27 @@ class JavascriptRenderer extends BaseJavascriptRenderer
 {
     // Use XHR handler by default, instead of jQuery
     protected $ajaxHandlerBindToJquery = false;
+
     protected $ajaxHandlerBindToXHR = true;
 
     public function __construct(DebugBar $debugBar, $baseUrl = null, $basePath = null)
     {
         parent::__construct($debugBar, $baseUrl, $basePath);
 
-        $this->cssFiles['laravel'] = __DIR__ . '/../../../../vendor/barryvdh/laravel-debugbar/src/Resources/laravel-debugbar.css';
-        $this->cssVendors['fontawesome'] = __DIR__ . '/../../../../vendor/barryvdh/laravel-debugbar/src/Resources/vendor/font-awesome/style.css';
-        $this->jsFiles['laravel-sql'] = __DIR__ . '/../../../../vendor/barryvdh/laravel-debugbar/src/Resources/sqlqueries/widget.js';
-        $this->jsFiles['laravel-cache'] = __DIR__ . '/../../../../vendor/barryvdh/laravel-debugbar/src/Resources/cache/widget.js';
+        $this->cssFiles['laravel'] = __DIR__.'/../../../../vendor/barryvdh/laravel-debugbar/src/Resources/laravel-debugbar.css';
+        $this->cssVendors['fontawesome'] = __DIR__.'/../../../../vendor/barryvdh/laravel-debugbar/src/Resources/vendor/font-awesome/style.css';
+        $this->jsFiles['laravel-sql'] = __DIR__.'/../../../../vendor/barryvdh/laravel-debugbar/src/Resources/sqlqueries/widget.js';
+        $this->jsFiles['laravel-cache'] = __DIR__.'/../../../../vendor/barryvdh/laravel-debugbar/src/Resources/cache/widget.js';
     }
 
     /**
      * Set the URL Generator
      *
-     * @param \Illuminate\Routing\UrlGenerator $url
+     * @param  \Illuminate\Routing\UrlGenerator  $url
+     *
      * @deprecated
      */
-    public function setUrlGenerator($url)
-    {
-
-    }
+    public function setUrlGenerator($url) {}
 
     /**
      * {@inheritdoc}
@@ -40,25 +40,24 @@ class JavascriptRenderer extends BaseJavascriptRenderer
     public function renderHead()
     {
         $cssRoute = route('debugbar.assets.css', [
-            'v' => $this->getModifiedTime('css')
+            'v' => $this->getModifiedTime('css'),
         ]);
 
         $jsRoute = route('debugbar.assets.js', [
-            'v' => $this->getModifiedTime('js')
+            'v' => $this->getModifiedTime('js'),
         ]);
 
         $cssRoute = preg_replace('/\Ahttps?:/', '', $cssRoute);
-        $jsRoute  = preg_replace('/\Ahttps?:/', '', $jsRoute);
+        $jsRoute = preg_replace('/\Ahttps?:/', '', $jsRoute);
 
-        $html  = "<link rel='stylesheet' type='text/css' property='stylesheet' href='{$cssRoute}'>";
+        $html = "<link rel='stylesheet' type='text/css' property='stylesheet' href='{$cssRoute}'>";
         $html .= "<script type='text/javascript' src='{$jsRoute}'></script>";
 
         if ($this->isJqueryNoConflictEnabled()) {
-            $html .= '<script type="text/javascript" '.\Helper::cspNonceAttr().'>jQuery.noConflict(true);</script>' . "\n";
+            $html .= '<script type="text/javascript" '.\Helper::cspNonceAttr().'>jQuery.noConflict(true);</script>'."\n";
         }
 
         $html .= $this->getInlineHtml();
-
 
         return $html;
     }
@@ -68,17 +67,18 @@ class JavascriptRenderer extends BaseJavascriptRenderer
         $html = '';
 
         foreach (['head', 'css', 'js'] as $asset) {
-            foreach ($this->getAssets('inline_' . $asset) as $item) {
-                $html .= $item . "\n";
+            foreach ($this->getAssets('inline_'.$asset) as $item) {
+                $html .= $item."\n";
             }
         }
 
         return $html;
     }
+
     /**
      * Get the last modified time of any assets.
      *
-     * @param string $type 'js' or 'css'
+     * @param  string  $type  'js' or 'css'
      * @return int
      */
     protected function getModifiedTime($type)
@@ -92,13 +92,14 @@ class JavascriptRenderer extends BaseJavascriptRenderer
                 $latest = $mtime;
             }
         }
+
         return $latest;
     }
 
     /**
      * Return assets as a string
      *
-     * @param string $type 'js' or 'css'
+     * @param  string  $type  'js' or 'css'
      * @return string
      */
     public function dumpAssetsToString($type)
@@ -107,7 +108,7 @@ class JavascriptRenderer extends BaseJavascriptRenderer
 
         $content = '';
         foreach ($files as $file) {
-            $content .= file_get_contents($file) . "\n";
+            $content .= file_get_contents($file)."\n";
         }
 
         return $content;
@@ -116,13 +117,13 @@ class JavascriptRenderer extends BaseJavascriptRenderer
     /**
      * Makes a URI relative to another
      *
-     * @param string|array $uri
-     * @param string $root
+     * @param  string|array  $uri
+     * @param  string  $root
      * @return string
      */
     protected function makeUriRelativeTo($uri, $root)
     {
-        if (!$root) {
+        if (! $root) {
             return $uri;
         }
 
@@ -131,12 +132,14 @@ class JavascriptRenderer extends BaseJavascriptRenderer
             foreach ($uri as $u) {
                 $uris[] = $this->makeUriRelativeTo($u, $root);
             }
+
             return $uris;
         }
 
         if (substr($uri ?? '', 0, 1) === '/' || preg_match('/^([a-zA-Z]+:\/\/|[a-zA-Z]:\/|[a-zA-Z]:\\\)/', $uri ?? '')) {
             return $uri;
         }
-        return rtrim($root, '/') . "/$uri";
+
+        return rtrim($root, '/')."/$uri";
     }
 }

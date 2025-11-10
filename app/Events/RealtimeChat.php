@@ -1,13 +1,13 @@
 <?php
+
 /**
  * Fefresh chats list when new thread created in mailbox.
  */
+
 namespace App\Events;
 
-use App\Conversation;
 use App\Mailbox;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Queue\SerializesModels;
 
@@ -59,7 +59,7 @@ class RealtimeChat implements ShouldBroadcastNow
      */
     protected function channelName()
     {
-        if (!empty($this->data['mailbox_id'])) {
+        if (! empty($this->data['mailbox_id'])) {
             return 'chat.'.$this->data['mailbox_id'];
         } else {
             return 'chat.0';
@@ -71,11 +71,11 @@ class RealtimeChat implements ShouldBroadcastNow
      */
     public static function dispatchSelf($mailbox_id)
     {
-        if (!\Helper::isChatModeAvailable()) {
+        if (! \Helper::isChatModeAvailable()) {
             return;
         }
         $notification_data = [
-            'mailbox_id'      => $mailbox_id
+            'mailbox_id' => $mailbox_id,
         ];
         event(new \App\Events\RealtimeChat($notification_data));
     }
@@ -86,7 +86,7 @@ class RealtimeChat implements ShouldBroadcastNow
         $mailbox = Mailbox::rememberForever()->find($payload->mailbox_id);
 
         // Check if user can listen to this event.
-        if (!$user || !$mailbox || !$user->can('viewCached', $mailbox)) {
+        if (! $user || ! $mailbox || ! $user->can('viewCached', $mailbox)) {
             return [];
         }
 

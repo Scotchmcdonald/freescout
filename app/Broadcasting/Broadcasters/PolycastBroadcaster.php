@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: leemason
@@ -15,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class PolycastBroadcaster extends Broadcaster
 {
-    //private $db = null;
+    // private $db = null;
 
     /**
      * Delete old events after 2 minutes.
@@ -24,7 +25,7 @@ class PolycastBroadcaster extends Broadcaster
 
     public function __construct()
     {
-        //$this->db = $app['db'];
+        // $this->db = $app['db'];
         if (\Config::get('broadcasting.connections.polycast.delete_old')) {
             $this->delete_old = \Config::get('broadcasting.connections.polycast.delete_old');
         }
@@ -40,9 +41,9 @@ class PolycastBroadcaster extends Broadcaster
 
         // insert the new event
         \DB::table('polycast_events')->insert([
-            'channels'   => json_encode($channels),
-            'event'      => $event,
-            'payload'    => json_encode($payload),
+            'channels' => json_encode($channels),
+            'event' => $event,
+            'payload' => json_encode($payload),
             'created_at' => Carbon::now()->toDateTimeString(),
         ]);
     }
@@ -50,8 +51,7 @@ class PolycastBroadcaster extends Broadcaster
     /**
      * Authenticate the incoming request for a given channel.
      *
-     * @param \Illuminate\Http\Request $request
-     *
+     * @param  \Illuminate\Http\Request  $request
      * @return mixed
      */
     public function auth($request)
@@ -65,9 +65,9 @@ class PolycastBroadcaster extends Broadcaster
         foreach ($request->channels as $channel_name => $channel_info) {
             // Copied from Illuminate\Broadcasting\Broadcasters\PusherBroadcaster
             if (Str::startsWith($channel_name, ['private-', 'presence-']) &&
-                !$request->user()) {
+                ! $request->user()) {
 
-                throw new AccessDeniedHttpException();
+                throw new AccessDeniedHttpException;
             }
 
             if (Str::startsWith($channel_name, ['private-', 'presence-'])) {
@@ -87,9 +87,8 @@ class PolycastBroadcaster extends Broadcaster
     /**
      * Return the valid authentication response.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param mixed                    $result
-     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $result
      * @return mixed
      */
     public function validAuthenticationResponse($request, $result)
@@ -119,9 +118,9 @@ class PolycastBroadcaster extends Broadcaster
      *
      * It is called from routes/channels.php
      */
-     // public function channel($channel, callable $callback)
-     // {
-     //    return true;
-     //    //return (int) $user->id === (int) $id;
-     // }
+    // public function channel($channel, callable $callback)
+    // {
+    //    return true;
+    //    //return (int) $user->id === (int) $id;
+    // }
 }

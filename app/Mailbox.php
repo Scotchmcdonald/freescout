@@ -2,8 +2,6 @@
 
 namespace App;
 
-use App\Email;
-use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Watson\Rememberable\Rememberable;
@@ -11,6 +9,7 @@ use Watson\Rememberable\Rememberable;
 class Mailbox extends Model
 {
     use Rememberable;
+
     // This is obligatory.
     public $rememberCacheDriver = 'array';
 
@@ -18,45 +17,58 @@ class Mailbox extends Model
      * From Name: name that will appear in the From field when a customer views your email.
      */
     const FROM_NAME_MAILBOX = 1;
+
     const FROM_NAME_USER = 2;
+
     const FROM_NAME_CUSTOM = 3;
 
     /**
      * Default Status: when you reply to a message, this status will be set by default (also applies to email integration).
      */
     const TICKET_STATUS_ACTIVE = 1;
+
     const TICKET_STATUS_PENDING = 2;
+
     const TICKET_STATUS_CLOSED = 3;
+
     const TICKET_STATUS_KEEP_CURRENT = 0;
 
     /**
      * Default Assignee.
      */
     const TICKET_ASSIGNEE_ANYONE = 1;
+
     const TICKET_ASSIGNEE_REPLYING_UNASSIGNED = 2;
+
     const TICKET_ASSIGNEE_REPLYING = 3;
+
     const TICKET_ASSIGNEE_KEEP_CURRENT = 0;
 
     /**
      * Email Template.
      */
     const TEMPLATE_FANCY = 1;
+
     const TEMPLATE_PLAIN = 2;
 
     /**
      * Outgoing method. Must be listed in getMailDriverName.
      */
     const OUT_METHOD_PHP_MAIL = 1;
+
     const OUT_METHOD_SENDMAIL = 2;
+
     const OUT_METHOD_SMTP = 3;
-    //const OUT_METHOD_GMAIL = 3; // todo
+    // const OUT_METHOD_GMAIL = 3; // todo
     // todo: mailgun, sendgrid, mandrill, etc
 
     /**
      * Outgoing encryption.
      */
     const OUT_ENCRYPTION_NONE = 1;
+
     const OUT_ENCRYPTION_SSL = 2;
+
     const OUT_ENCRYPTION_TLS = 3;
     // StartTLS is already included in TLS:
     // allow_self_signed = true
@@ -64,14 +76,15 @@ class Mailbox extends Model
 
     public static $out_encryptions = [
         self::OUT_ENCRYPTION_NONE => '',
-        self::OUT_ENCRYPTION_SSL  => 'ssl',
-        self::OUT_ENCRYPTION_TLS  => 'tls',
+        self::OUT_ENCRYPTION_SSL => 'ssl',
+        self::OUT_ENCRYPTION_TLS => 'tls',
     ];
 
     /**
      * Incoming protocol.
      */
     const IN_PROTOCOL_IMAP = 1;
+
     const IN_PROTOCOL_POP3 = 2;
 
     public static $in_protocols = [
@@ -83,8 +96,11 @@ class Mailbox extends Model
      * Incoming encryption.
      */
     const IN_ENCRYPTION_NONE = 1;
+
     const IN_ENCRYPTION_SSL = 2;
+
     const IN_ENCRYPTION_TLS = 3;
+
     // For Webklex/laravel-imap this option is the same as 'none'.
     // For Webklex/php-imap it works:
     // https://github.com/Webklex/php-imap/pull/180
@@ -92,25 +108,30 @@ class Mailbox extends Model
 
     public static $in_encryptions = [
         self::IN_ENCRYPTION_NONE => '',
-        self::IN_ENCRYPTION_SSL  => 'ssl',
-        self::IN_ENCRYPTION_TLS  => 'tls',
-        self::IN_ENCRYPTION_STARTTLS  => 'starttls',
+        self::IN_ENCRYPTION_SSL => 'ssl',
+        self::IN_ENCRYPTION_TLS => 'tls',
+        self::IN_ENCRYPTION_STARTTLS => 'starttls',
     ];
 
     /**
      * Ratings Playcement: place ratings text above/below signature.
      */
     const RATINGS_PLACEMENT_ABOVE = 1;
+
     const RATINGS_PLACEMENT_BELOW = 2;
 
     /**
      * Access permissions.
      */
-    const ACCESS_PERM_EDIT         = 'edit';
-    const ACCESS_PERM_PERMISSIONS  = 'perm';
+    const ACCESS_PERM_EDIT = 'edit';
+
+    const ACCESS_PERM_PERMISSIONS = 'perm';
+
     const ACCESS_PERM_AUTO_REPLIES = 'auto';
-    const ACCESS_PERM_SIGNATURE    = 'sig';
-    const ACCESS_PERM_ASSIGNED     = 'asg';
+
+    const ACCESS_PERM_SIGNATURE = 'sig';
+
+    const ACCESS_PERM_ASSIGNED = 'asg';
 
     public static $access_permissions = [
         self::ACCESS_PERM_EDIT,
@@ -176,7 +197,7 @@ class Mailbox extends Model
      */
     public function getInPasswordAttribute($value)
     {
-        if (!$value) {
+        if (! $value) {
             return '';
         }
 
@@ -199,13 +220,13 @@ class Mailbox extends Model
             $this->attributes['out_password'] = '';
         }
     }
-    
+
     /**
      * Automatically decrypt password on read.
      */
     public function getOutPasswordAttribute($value)
     {
-        if (!$value) {
+        if (! $value) {
             return '';
         }
 
@@ -261,11 +282,11 @@ class Mailbox extends Model
     /**
      * Create personal folders for users.
      *
-     * @param mixed $users
+     * @param  mixed  $users
      */
     public function syncPersonalFolders($users = null)
     {
-        if (!empty($users) && is_array($users)) {
+        if (! empty($users) && is_array($users)) {
             $user_ids = $users;
         } else {
             $user_ids = $this->users()->pluck('users.id')->toArray();
@@ -307,7 +328,7 @@ class Mailbox extends Model
     public function createPublicFolders()
     {
         foreach (Folder::$public_types as $type) {
-            $folder = new Folder();
+            $folder = new Folder;
             $folder->mailbox_id = $this->id;
             $folder->type = $type;
             $folder->save();
@@ -340,7 +361,7 @@ class Mailbox extends Model
         if ($main_folders) {
             return $main_folders;
         }
-        
+
         return $this->folders()
             ->where(function ($query) {
                 $query->whereIn('type', [Folder::TYPE_UNASSIGNED, Folder::TYPE_ASSIGNED, Folder::TYPE_DRAFTS])
@@ -391,7 +412,7 @@ class Mailbox extends Model
      */
     public function updateFoldersCounters($folder_type = null)
     {
-        if (!$folder_type) {
+        if (! $folder_type) {
             $folders = $this->folders;
         } else {
             $folders = $this->folders()->where('folders.type', $folder_type)->get();
@@ -440,7 +461,7 @@ class Mailbox extends Model
     public function isOutActive()
     {
         if ($this->out_method != self::OUT_METHOD_PHP_MAIL && $this->out_method != self::OUT_METHOD_SENDMAIL
-            && (!$this->out_server /*|| !$this->out_username || !$this->out_password*/)
+            && (! $this->out_server /* || !$this->out_username || !$this->out_password */)
         ) {
             return false;
         } else {
@@ -459,7 +480,7 @@ class Mailbox extends Model
 
         // Exclude deleted users (better to do it in PHP).
         foreach ($users as $i => $user) {
-            if (!$user->isActive()) {
+            if (! $user->isActive()) {
                 $users->forget($i);
             }
         }
@@ -495,7 +516,7 @@ class Mailbox extends Model
 
         if ($exclude_hidden) {
             foreach ($users as $i => $user) {
-                if (!empty($user->hide)) {
+                if (! empty($user->hide)) {
                     $users->forget($i);
                 }
             }
@@ -503,7 +524,7 @@ class Mailbox extends Model
 
         // Exclude deleted users (better to do it in PHP).
         foreach ($users as $i => $user) {
-            if (!$user->isActive()) {
+            if (! $user->isActive()) {
                 $users->forget($i);
             }
         }
@@ -536,7 +557,7 @@ class Mailbox extends Model
      */
     public function userHasAccess($user_id, $user = null)
     {
-        if (!$user) {
+        if (! $user) {
             if ($user_id instanceof \App\User) {
                 $user = $user_id;
             } else {
@@ -545,7 +566,7 @@ class Mailbox extends Model
         }
         $filter = \Eventy::filter('mailbox.user_has_access', -1, $this, $user);
         if ($filter != -1) {
-            return (bool)$filter;
+            return (bool) $filter;
         } elseif ($user && $user->isAdmin()) {
             return true;
         } else {
@@ -556,9 +577,8 @@ class Mailbox extends Model
     /**
      * Get From array for the Mail function.
      *
-     * @param App\User $from_user
-     * @param App\Conversation $conversation
-     *
+     * @param  App\User  $from_user
+     * @param  App\Conversation  $conversation
      * @return array
      */
     public function getMailFrom($from_user = null, $conversation = null)
@@ -580,7 +600,7 @@ class Mailbox extends Model
 
         return [
             'address' => \Eventy::filter('mailbox.get_mail_from_address', $this->email, $from_user, $conversation),
-            'name' => \Eventy::filter('mailbox.get_mail_from_name', $name, $from_user, $conversation)
+            'name' => \Eventy::filter('mailbox.get_mail_from_name', $name, $from_user, $conversation),
         ];
     }
 
@@ -685,11 +705,12 @@ class Mailbox extends Model
 
     /**
      * Create dummy object with default parameters
+     *
      * @return [type] [description]
      */
     public static function getDummySettings()
     {
-        $settings = new \StdClass();
+        $settings = new \StdClass;
         $settings->after_send = MailboxUser::AFTER_SEND_NEXT;
         $settings->hide = false;
         $settings->mute = false;
@@ -738,7 +759,7 @@ class Mailbox extends Model
      */
     public function getAliases($include_mailbox_email = true, $check_aliases_reply = false)
     {
-        if ($check_aliases_reply && !$this->aliases_reply) {
+        if ($check_aliases_reply && ! $this->aliases_reply) {
             return [];
         }
 
@@ -754,7 +775,7 @@ class Mailbox extends Model
                 $name = '';
                 $alias = trim($alias);
                 preg_match("#[^\(]+\((.*)\)#", $alias, $m);
-                if (!empty($m[1])) {
+                if (! empty($m[1])) {
                     $name = $m[1];
                     $alias = preg_replace("#\(.*#", '', $alias);
                 }
@@ -772,14 +793,13 @@ class Mailbox extends Model
     /**
      * Remove mailbox email and aliases from the list of emails.
      *
-     * @param array   $list
-     * @param Mailbox $mailbox
-     *
+     * @param  array  $list
+     * @param  Mailbox  $mailbox
      * @return array
      */
     public function removeMailboxEmailsFromList($list)
     {
-        if (!is_array($list)) {
+        if (! is_array($list)) {
             return [];
         }
         $mailbox_emails = $this->getEmails();
@@ -825,8 +845,7 @@ class Mailbox extends Model
     /**
      * Fill the model with an array of attributes.
      *
-     * @param array $attributes [description]
-     *
+     * @param  array  $attributes  [description]
      * @return [type] [description]
      */
     public function fill(array $attributes)
@@ -839,7 +858,7 @@ class Mailbox extends Model
     /**
      * Set phones as JSON.
      *
-     * @param array $phones_array
+     * @param  array  $phones_array
      */
     public function setInImapFolders(array $in_imap_folders)
     {
@@ -855,7 +874,7 @@ class Mailbox extends Model
         if (count($in_imap_folders)) {
             return $in_imap_folders;
         } else {
-            return ["INBOX"];
+            return ['INBOX'];
         }
     }
 
@@ -877,11 +896,11 @@ class Mailbox extends Model
     public static function findOrFailWithSettings($id, $user_id)
     {
         return Mailbox::select(['mailboxes.*', 'mailbox_user.hide', 'mailbox_user.mute', 'mailbox_user.access'])
-                        ->where('mailboxes.id', $id)
-                        ->leftJoin('mailbox_user', function ($join) use ($user_id) {
-                            $join->on('mailbox_user.mailbox_id', '=', 'mailboxes.id');
-                            $join->where('mailbox_user.user_id', $user_id);
-                        })->firstOrFail();
+            ->where('mailboxes.id', $id)
+            ->leftJoin('mailbox_user', function ($join) use ($user_id) {
+                $join->on('mailbox_user.mailbox_id', '=', 'mailboxes.id');
+                $join->where('mailbox_user.user_id', $user_id);
+            })->firstOrFail();
     }
 
     /*public static function getUserSettings($mailbox_id, $user_id)
@@ -969,7 +988,7 @@ class Mailbox extends Model
 
     public function oauthEnabled()
     {
-        return !empty($this->meta['oauth']['provider']);
+        return ! empty($this->meta['oauth']['provider']);
     }
 
     public function oauthGetParam($param)
@@ -979,14 +998,14 @@ class Mailbox extends Model
 
     public function inOauthEnabled()
     {
-        return $this->oauthEnabled() 
-            && $this->in_username !== null && !strstr($this->in_username, '@');
+        return $this->oauthEnabled()
+            && $this->in_username !== null && ! strstr($this->in_username, '@');
     }
 
     public function outOauthEnabled()
     {
-        return $this->oauthEnabled() 
-            && $this->out_username !== null && !strstr($this->out_username, '@')
+        return $this->oauthEnabled()
+            && $this->out_username !== null && ! strstr($this->out_username, '@')
             && $this->out_server !== null && trim($this->out_server) == \MailHelper::OAUTH_MICROSOFT_SMTP;
     }
 

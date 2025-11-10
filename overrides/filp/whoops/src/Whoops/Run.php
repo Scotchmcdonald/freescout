@@ -1,6 +1,8 @@
 <?php
+
 /**
  * Whoops - php errors for cool kids
+ *
  * @author Filipe Dobreira <http://github.com/filp>
  */
 
@@ -26,22 +28,22 @@ final class Run implements RunInterface
     /**
      * @var bool
      */
-    private $allowQuit       = true;
+    private $allowQuit = true;
 
     /**
      * @var bool
      */
-    private $sendOutput      = true;
+    private $sendOutput = true;
 
     /**
-     * @var integer|false
+     * @var int|false
      */
-    private $sendHttpCode    = 500;
+    private $sendHttpCode = 500;
 
     /**
-     * @var integer|false
+     * @var int|false
      */
-    private $sendExitCode    = 1;
+    private $sendExitCode = 1;
 
     /**
      * @var HandlerInterface[]
@@ -50,6 +52,7 @@ final class Run implements RunInterface
 
     /**
      * @var array
+     *
      * @psalm-var list<array{patterns: string, levels: int}>
      */
     private $silencedPatterns = [];
@@ -74,21 +77,20 @@ final class Run implements RunInterface
     /**
      * Explicitly request your handler runs as the last of all currently registered handlers.
      *
-     * @param callable|HandlerInterface $handler
-     *
+     * @param  callable|HandlerInterface  $handler
      * @return Run
      */
     public function appendHandler($handler)
     {
         array_unshift($this->handlerStack, $this->resolveHandler($handler));
+
         return $this;
     }
 
     /**
      * Explicitly request your handler runs as the first of all currently registered handlers.
      *
-     * @param callable|HandlerInterface $handler
-     *
+     * @param  callable|HandlerInterface  $handler
      * @return Run
      */
     public function prependHandler($handler)
@@ -100,8 +102,7 @@ final class Run implements RunInterface
      * Register your handler as the last of all currently registered handlers (to be executed first).
      * Prefer using appendHandler and prependHandler for clarity.
      *
-     * @param callable|HandlerInterface $handler
-     *
+     * @param  callable|HandlerInterface  $handler
      * @return Run
      *
      * @throws InvalidArgumentException If argument is not callable or instance of HandlerInterface.
@@ -109,6 +110,7 @@ final class Run implements RunInterface
     public function pushHandler($handler)
     {
         $this->handlerStack[] = $this->resolveHandler($handler);
+
         return $this;
     }
 
@@ -162,6 +164,7 @@ final class Run implements RunInterface
     public function clearHandlers()
     {
         $this->handlerStack = [];
+
         return $this;
     }
 
@@ -172,13 +175,13 @@ final class Run implements RunInterface
      */
     public function register()
     {
-        if (!$this->isRegistered) {
+        if (! $this->isRegistered) {
             // Workaround PHP bug 42098
             // https://bugs.php.net/bug.php?id=42098
-            class_exists("\\Whoops\\Exception\\ErrorException");
-            class_exists("\\Whoops\\Exception\\FrameCollection");
-            class_exists("\\Whoops\\Exception\\Frame");
-            class_exists("\\Whoops\\Exception\\Inspector");
+            class_exists('\\Whoops\\Exception\\ErrorException');
+            class_exists('\\Whoops\\Exception\\FrameCollection');
+            class_exists('\\Whoops\\Exception\\Frame');
+            class_exists('\\Whoops\\Exception\\Inspector');
 
             $this->system->setErrorHandler([$this, self::ERROR_HANDLER]);
             $this->system->setExceptionHandler([$this, self::EXCEPTION_HANDLER]);
@@ -210,8 +213,7 @@ final class Run implements RunInterface
     /**
      * Should Whoops allow Handlers to force the script to quit?
      *
-     * @param bool|int $exit
-     *
+     * @param  bool|int  $exit
      * @return bool
      */
     public function allowQuit($exit = null)
@@ -226,9 +228,8 @@ final class Run implements RunInterface
     /**
      * Silence particular errors in particular files.
      *
-     * @param array|string $patterns List or a single regex pattern to match.
-     * @param int          $levels   Defaults to E_STRICT | E_DEPRECATED.
-     *
+     * @param  array|string  $patterns  List or a single regex pattern to match.
+     * @param  int  $levels  Defaults to E_STRICT | E_DEPRECATED.
      * @return Run
      */
     public function silenceErrorsInPaths($patterns, $levels = 10240)
@@ -238,8 +239,8 @@ final class Run implements RunInterface
             array_map(
                 function ($pattern) use ($levels) {
                     return [
-                        "pattern" => $pattern,
-                        "levels" => $levels,
+                        'pattern' => $pattern,
+                        'levels' => $levels,
                     ];
                 },
                 (array) $patterns
@@ -264,8 +265,7 @@ final class Run implements RunInterface
      * Whoops will by default send HTTP code 500, but you may wish to
      * use 502, 503, or another 5xx family code.
      *
-     * @param bool|int $code
-     *
+     * @param  bool|int  $code
      * @return int|false
      *
      * @throws InvalidArgumentException
@@ -276,7 +276,7 @@ final class Run implements RunInterface
             return $this->sendHttpCode;
         }
 
-        if (!$code) {
+        if (! $code) {
             return $this->sendHttpCode = false;
         }
 
@@ -284,7 +284,7 @@ final class Run implements RunInterface
             $code = 500;
         }
 
-        if ($code < 400 || 600 <= $code) {
+        if ($code < 400 || $code >= 600) {
             throw new InvalidArgumentException(
                 "Invalid status code '$code', must be 4xx or 5xx"
             );
@@ -297,8 +297,7 @@ final class Run implements RunInterface
      * Should Whoops exit with a specific code on the CLI if possible?
      * Whoops will exit with 1 by default, but you can specify something else.
      *
-     * @param int $code
-     *
+     * @param  int  $code
      * @return int
      *
      * @throws InvalidArgumentException
@@ -309,7 +308,7 @@ final class Run implements RunInterface
             return $this->sendExitCode;
         }
 
-        if ($code < 0 || 255 <= $code) {
+        if ($code < 0 || $code >= 255) {
             throw new InvalidArgumentException(
                 "Invalid status code '$code', must be between 0 and 254"
             );
@@ -322,8 +321,7 @@ final class Run implements RunInterface
      * Should Whoops push output directly to the client?
      * If this is false, output will be returned by handleException.
      *
-     * @param bool|int $send
-     *
+     * @param  bool|int  $send
      * @return bool
      */
     public function writeToOutput($send = null)
@@ -338,8 +336,7 @@ final class Run implements RunInterface
     /**
      * Handles an exception, ultimately generating a Whoops error page.
      *
-     * @param Throwable $exception
-     *
+     * @param  Throwable  $exception
      * @return string Output generated by handlers.
      */
     public function handleException($exception)
@@ -423,11 +420,10 @@ final class Run implements RunInterface
      *
      * This method MUST be compatible with set_error_handler.
      *
-     * @param int         $level
-     * @param string      $message
-     * @param string|null $file
-     * @param int|null    $line
-     *
+     * @param  int  $level
+     * @param  string  $message
+     * @param  string|null  $file
+     * @param  int|null  $line
      * @return bool
      *
      * @throws ErrorException
@@ -436,8 +432,8 @@ final class Run implements RunInterface
     {
         if ($level & $this->system->getErrorReportingLevel()) {
             foreach ($this->silencedPatterns as $entry) {
-                $pathMatches = (bool) preg_match($entry["pattern"], $file);
-                $levelMatches = $level & $entry["levels"];
+                $pathMatches = (bool) preg_match($entry['pattern'], $file);
+                $levelMatches = $level & $entry['levels'];
                 if ($pathMatches && $levelMatches) {
                     // Ignore the error, abort handling
                     // See https://github.com/filp/whoops/issues/418
@@ -447,12 +443,13 @@ final class Run implements RunInterface
 
             // XXX we pass $level for the "code" param only for BC reasons.
             // see https://github.com/filp/whoops/issues/267
-            $exception = new ErrorException($message, /*code*/ $level, /*severity*/ $level, $file, $line);
+            $exception = new ErrorException($message, /* code */ $level, /* severity */ $level, $file, $line);
             if ($this->canThrowExceptions) {
                 throw $exception;
             } else {
                 $this->handleException($exception);
             }
+
             // Do not propagate errors which were already handled by Whoops.
             return true;
         }
@@ -489,8 +486,7 @@ final class Run implements RunInterface
     }
 
     /**
-     * @param Throwable $exception
-     *
+     * @param  Throwable  $exception
      * @return Inspector
      */
     private function getInspector($exception)
@@ -501,8 +497,7 @@ final class Run implements RunInterface
     /**
      * Resolves the giving handler.
      *
-     * @param callable|HandlerInterface $handler
-     *
+     * @param  callable|HandlerInterface  $handler
      * @return HandlerInterface
      *
      * @throws InvalidArgumentException
@@ -513,10 +508,10 @@ final class Run implements RunInterface
             $handler = new CallbackHandler($handler);
         }
 
-        if (!$handler instanceof HandlerInterface) {
+        if (! $handler instanceof HandlerInterface) {
             throw new InvalidArgumentException(
-                "Handler must be a callable, or instance of "
-                . "Whoops\\Handler\\HandlerInterface"
+                'Handler must be a callable, or instance of '
+                .'Whoops\\Handler\\HandlerInterface'
             );
         }
 
@@ -526,8 +521,7 @@ final class Run implements RunInterface
     /**
      * Echo something to the browser.
      *
-     * @param string $output
-     *
+     * @param  string  $output
      * @return Run
      */
     private function writeToOutputNow($output)

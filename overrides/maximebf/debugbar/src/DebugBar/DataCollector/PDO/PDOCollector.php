@@ -10,9 +10,9 @@ use DebugBar\DataCollector\TimeDataCollector;
 /**
  * Collects data about SQL statements executed with PDO
  */
-class PDOCollector extends DataCollector implements Renderable, AssetProvider
+class PDOCollector extends DataCollector implements AssetProvider, Renderable
 {
-    protected $connections = array();
+    protected $connections = [];
 
     protected $timeCollector;
 
@@ -20,10 +20,6 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
 
     protected $sqlQuotationChar = '<>';
 
-    /**
-     * @param TraceablePDO $pdo
-     * @param TimeDataCollector $timeCollector
-     */
     public function __construct(?TraceablePDO $pdo = null, ?TimeDataCollector $timeCollector = null)
     {
         $this->timeCollector = $timeCollector;
@@ -35,7 +31,7 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
     /**
      * Renders the SQL of traced statements with params embeded
      *
-     * @param boolean $enabled
+     * @param  bool  $enabled
      */
     public function setRenderSqlWithParams($enabled = true, $quotationChar = '<>')
     {
@@ -62,8 +58,7 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
     /**
      * Adds a new PDO instance to be collector
      *
-     * @param TraceablePDO $pdo
-     * @param string $name Optional connection name
+     * @param  string  $name  Optional connection name
      */
     public function addConnection(TraceablePDO $pdo, $name = null)
     {
@@ -88,14 +83,14 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
      */
     public function collect()
     {
-        $data = array(
+        $data = [
             'nb_statements' => 0,
             'nb_failed_statements' => 0,
             'accumulated_duration' => 0,
             'memory_usage' => 0,
             'peak_memory_usage' => 0,
-            'statements' => array()
-        );
+            'statements' => [],
+        ];
 
         foreach ($this->connections as $name => $pdo) {
             $pdodata = $this->collectPDO($pdo, $this->timeCollector, $name);
@@ -105,7 +100,11 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
             $data['memory_usage'] += $pdodata['memory_usage'];
             $data['peak_memory_usage'] = max($data['peak_memory_usage'], $pdodata['peak_memory_usage']);
             $data['statements'] = array_merge($data['statements'],
-                array_map(function ($s) use ($name) { $s['connection'] = $name; return $s; }, $pdodata['statements']));
+                array_map(function ($s) use ($name) {
+                    $s['connection'] = $name;
+
+                    return $s;
+                }, $pdodata['statements']));
         }
 
         $data['accumulated_duration_str'] = $this->getDataFormatter()->formatDuration($data['accumulated_duration']);
@@ -118,9 +117,7 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
     /**
      * Collects data from a single TraceablePDO instance
      *
-     * @param TraceablePDO $pdo
-     * @param TimeDataCollector $timeCollector
-     * @param string|null $connectionName the pdo connection (eg default | read | write)
+     * @param  string|null  $connectionName  the pdo connection (eg default | read | write)
      * @return array
      */
     protected function collectPDO(TraceablePDO $pdo, ?TimeDataCollector $timeCollector = null, $connectionName = null)
@@ -128,11 +125,11 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
         if (empty($connectionName) || $connectionName == 'default') {
             $connectionName = 'pdo';
         } else {
-            $connectionName = 'pdo ' . $connectionName;
+            $connectionName = 'pdo '.$connectionName;
         }
-        $stmts = array();
+        $stmts = [];
         foreach ($pdo->getExecutedStatements() as $stmt) {
-            $stmts[] = array(
+            $stmts[] = [
                 'sql' => $this->renderSqlWithParams ? $stmt->getSqlWithParams($this->sqlQuotationChar) : $stmt->getSql(),
                 'row_count' => $stmt->getRowCount(),
                 'stmt_id' => $stmt->getPreparedId(),
@@ -146,14 +143,14 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
                 'end_memory_str' => $this->getDataFormatter()->formatBytes($stmt->getEndMemory()),
                 'is_success' => $stmt->isSuccess(),
                 'error_code' => $stmt->getErrorCode(),
-                'error_message' => $stmt->getErrorMessage()
-            );
+                'error_message' => $stmt->getErrorMessage(),
+            ];
             if ($timeCollector !== null) {
-                $timeCollector->addMeasure($stmt->getSql(), $stmt->getStartTime(), $stmt->getEndTime(), array(), $connectionName);
+                $timeCollector->addMeasure($stmt->getSql(), $stmt->getStartTime(), $stmt->getEndTime(), [], $connectionName);
             }
         }
 
-        return array(
+        return [
             'nb_statements' => count($stmts),
             'nb_failed_statements' => count($pdo->getFailedExecutedStatements()),
             'accumulated_duration' => $pdo->getAccumulatedStatementsDuration(),
@@ -162,8 +159,8 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
             'memory_usage_str' => $this->getDataFormatter()->formatBytes($pdo->getPeakMemoryUsage()),
             'peak_memory_usage' => $pdo->getPeakMemoryUsage(),
             'peak_memory_usage_str' => $this->getDataFormatter()->formatBytes($pdo->getPeakMemoryUsage()),
-            'statements' => $stmts
-        );
+            'statements' => $stmts,
+        ];
     }
 
     /**
@@ -179,18 +176,18 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
      */
     public function getWidgets()
     {
-        return array(
-            "database" => array(
-                "icon" => "database",
-                "widget" => "PhpDebugBar.Widgets.SQLQueriesWidget",
-                "map" => "pdo",
-                "default" => "[]"
-            ),
-            "database:badge" => array(
-                "map" => "pdo.nb_statements",
-                "default" => 0
-            )
-        );
+        return [
+            'database' => [
+                'icon' => 'database',
+                'widget' => 'PhpDebugBar.Widgets.SQLQueriesWidget',
+                'map' => 'pdo',
+                'default' => '[]',
+            ],
+            'database:badge' => [
+                'map' => 'pdo.nb_statements',
+                'default' => 0,
+            ],
+        ];
     }
 
     /**
@@ -198,9 +195,9 @@ class PDOCollector extends DataCollector implements Renderable, AssetProvider
      */
     public function getAssets()
     {
-        return array(
+        return [
             'css' => 'widgets/sqlqueries/widget.css',
-            'js' => 'widgets/sqlqueries/widget.js'
-        );
+            'js' => 'widgets/sqlqueries/widget.js',
+        ];
     }
 }

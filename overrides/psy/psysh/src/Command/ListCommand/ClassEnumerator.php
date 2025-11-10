@@ -35,7 +35,7 @@ class ClassEnumerator extends Enumerator
             return;
         }
 
-        $user     = $input->getOption('user');
+        $user = $input->getOption('user');
         $internal = $input->getOption('internal');
 
         $ret = [];
@@ -63,11 +63,10 @@ class ClassEnumerator extends Enumerator
      * If $internal or $user is defined, results will be limited to internal or
      * user-defined classes as appropriate.
      *
-     * @param string $key
-     * @param array  $classes
-     * @param bool   $internal
-     * @param bool   $user
-     *
+     * @param  string  $key
+     * @param  array  $classes
+     * @param  bool  $internal
+     * @param  bool  $user
      * @return array
      */
     protected function filterClasses($key, $classes, $internal, $user)
@@ -75,7 +74,7 @@ class ClassEnumerator extends Enumerator
         $ret = [];
 
         if ($internal) {
-            $ret['Internal ' . $key] = \array_filter($classes, function ($class) {
+            $ret['Internal '.$key] = \array_filter($classes, function ($class) {
                 $refl = new \ReflectionClass($class);
 
                 return $refl->isInternal();
@@ -83,14 +82,14 @@ class ClassEnumerator extends Enumerator
         }
 
         if ($user) {
-            $ret['User ' . $key] = \array_filter($classes, function ($class) {
+            $ret['User '.$key] = \array_filter($classes, function ($class) {
                 $refl = new \ReflectionClass($class);
 
-                return !$refl->isInternal();
+                return ! $refl->isInternal();
             });
         }
 
-        if (!$user && !$internal) {
+        if (! $user && ! $internal) {
             $ret[$key] = $classes;
         }
 
@@ -100,7 +99,6 @@ class ClassEnumerator extends Enumerator
     /**
      * Prepare formatted class array.
      *
-     * @param array $classes
      *
      * @return array
      */
@@ -114,7 +112,7 @@ class ClassEnumerator extends Enumerator
         foreach ($classes as $name) {
             if ($this->showItem($name)) {
                 $ret[$name] = [
-                    'name'  => $name,
+                    'name' => $name,
                     'style' => self::IS_CLASS,
                     'value' => $this->presentSignature($name),
                 ];

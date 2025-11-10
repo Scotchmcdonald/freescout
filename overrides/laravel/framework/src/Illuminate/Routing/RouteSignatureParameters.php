@@ -2,16 +2,15 @@
 
 namespace Illuminate\Routing;
 
-use ReflectionMethod;
-use ReflectionFunction;
 use Illuminate\Support\Str;
+use ReflectionFunction;
+use ReflectionMethod;
 
 class RouteSignatureParameters
 {
     /**
      * Extract the route action's signature parameters.
      *
-     * @param  array  $action
      * @param  string  $subClass
      * @return array
      */
@@ -34,7 +33,7 @@ class RouteSignatureParameters
      */
     protected static function fromClassMethodString($uses)
     {
-        list($class, $method) = Str::parseCallback($uses);
+        [$class, $method] = Str::parseCallback($uses);
 
         if (! method_exists($class, $method) && is_callable($class, $method)) {
             return [];

@@ -6,11 +6,10 @@
 
 namespace App\Misc;
 
-use Carbon\Carbon;
+use App\CustomerChannel;
 use App\Option;
 use App\User;
-use App\CustomerChannel;
-use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class Helper
@@ -74,16 +73,16 @@ class Helper
      */
     public static $menu = [
         'dashboard' => 'dashboard',
-        'mailbox'   => [
+        'mailbox' => [
             'mailboxes.view',
             'mailboxes.view.folder',
             'conversations.view',
             'conversations.create',
             'conversations.draft',
-            //'conversations.search',
+            // 'conversations.search',
         ],
         'manage' => [
-            'settings'  => 'settings',
+            'settings' => 'settings',
             'mailboxes' => [
                 'mailboxes',
                 'mailboxes.update',
@@ -120,104 +119,104 @@ class Helper
      * @var [type]
      */
     public static $locales = [
-        'af' => ['name'                  => 'Afrikaans',
-                 'name_en'               => 'Afrikaans',
+        'af' => ['name' => 'Afrikaans',
+            'name_en' => 'Afrikaans',
         ],
-        'sq' => ['name'          => 'Shqip',
-                 'name_en'       => 'Albanian',
+        'sq' => ['name' => 'Shqip',
+            'name_en' => 'Albanian',
         ],
-        'ar' => ['name'          => 'العربية',
-                 'name_en'       => 'Arabic',
+        'ar' => ['name' => 'العربية',
+            'name_en' => 'Arabic',
         ],
-        'ar-IQ' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Iraq)',
+        'ar-IQ' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Iraq)',
         ],
-        'ar-LY' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Libya)',
+        'ar-LY' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Libya)',
         ],
-        'ar-MA' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Morocco)',
+        'ar-MA' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Morocco)',
         ],
-        'ar-OM' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Oman)',
+        'ar-OM' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Oman)',
         ],
-        'ar-SY' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Syria)',
+        'ar-SY' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Syria)',
         ],
-        'ar-LB' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Lebanon)',
+        'ar-LB' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Lebanon)',
         ],
-        'ar-AE' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (U.A.E.)',
+        'ar-AE' => ['name' => 'العربية',
+            'name_en' => 'Arabic (U.A.E.)',
         ],
-        'ar-QA' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Qatar)',
+        'ar-QA' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Qatar)',
         ],
-        'ar-SA' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Saudi Arabia)',
+        'ar-SA' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Saudi Arabia)',
         ],
-        'ar-EG' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Egypt)',
+        'ar-EG' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Egypt)',
         ],
-        'ar-DZ' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Algeria)',
+        'ar-DZ' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Algeria)',
         ],
-        'ar-TN' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Tunisia)',
+        'ar-TN' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Tunisia)',
         ],
-        'ar-YE' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Yemen)',
+        'ar-YE' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Yemen)',
         ],
-        'ar-JO' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Jordan)',
+        'ar-JO' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Jordan)',
         ],
-        'ar-KW' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Kuwait)',
+        'ar-KW' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Kuwait)',
         ],
-        'ar-BH' => ['name'          => 'العربية',
-                    'name_en'       => 'Arabic (Bahrain)',
+        'ar-BH' => ['name' => 'العربية',
+            'name_en' => 'Arabic (Bahrain)',
         ],
-        'az' => ['name'          => 'Azerbaijani',
-                    'name_en'       => 'Azerbaijani',
+        'az' => ['name' => 'Azerbaijani',
+            'name_en' => 'Azerbaijani',
         ],
-        'eu' => ['name'          => 'Euskara',
-                 'name_en'       => 'Basque',
+        'eu' => ['name' => 'Euskara',
+            'name_en' => 'Basque',
         ],
-        'be' => ['name'          => 'Беларуская',
-                 'name_en'       => 'Belarusian',
+        'be' => ['name' => 'Беларуская',
+            'name_en' => 'Belarusian',
         ],
-        'bn' => ['name'          => 'বাংলা',
-                 'name_en'       => 'Bengali',
+        'bn' => ['name' => 'বাংলা',
+            'name_en' => 'Bengali',
         ],
-        'bg' => ['name'          => 'Български език',
-                 'name_en'       => 'Bulgarian',
+        'bg' => ['name' => 'Български език',
+            'name_en' => 'Bulgarian',
         ],
-        'ca' => ['name'          => 'Català',
-                 'name_en'       => 'Catalan',
+        'ca' => ['name' => 'Català',
+            'name_en' => 'Catalan',
         ],
-        'zh-CN' => ['name'          => '简体中文',
-                    'name_en'       => 'Chinese (Simplified)',
+        'zh-CN' => ['name' => '简体中文',
+            'name_en' => 'Chinese (Simplified)',
         ],
-        'zh-SG' => ['name'          => '简体中文',
-                    'name_en'       => 'Chinese (Singapore)',
+        'zh-SG' => ['name' => '简体中文',
+            'name_en' => 'Chinese (Singapore)',
         ],
-        'zh-TW' => ['name'          => '简体中文',
-                    'name_en'       => 'Chinese (Traditional)',
+        'zh-TW' => ['name' => '简体中文',
+            'name_en' => 'Chinese (Traditional)',
         ],
-        'zh-HK' => ['name'          => '简体中文',
-                    'name_en'       => 'Chinese (Hong Kong SAR)',
+        'zh-HK' => ['name' => '简体中文',
+            'name_en' => 'Chinese (Hong Kong SAR)',
         ],
-        'hr' => ['name'          => 'Hrvatski',
-                 'name_en'       => 'Croatian',
+        'hr' => ['name' => 'Hrvatski',
+            'name_en' => 'Croatian',
         ],
-        'cs' => ['name'          => 'Čeština',
-                 'name_en'       => 'Czech',
+        'cs' => ['name' => 'Čeština',
+            'name_en' => 'Czech',
         ],
-        'da' => ['name'          => 'Dansk',
-                 'name_en'       => 'Danish',
+        'da' => ['name' => 'Dansk',
+            'name_en' => 'Danish',
         ],
-        'nl' => ['name'          => 'Nederlands',
-                 'name_en'       => 'Dutch',
+        'nl' => ['name' => 'Nederlands',
+            'name_en' => 'Dutch',
         ],
         //      'nl_BE' => ['name'     => 'Nederlands',
         //                  'name_en'       => 'Dutch (Belgium)',
@@ -234,8 +233,8 @@ class Helper
         //      'en_ZA' => ['name'     => '',
         //                  'name_en'       => 'English (South Africa)',
         //      ],
-        'en' => ['name'          => 'English',
-                 'name_en'       => 'English',
+        'en' => ['name' => 'English',
+            'name_en' => 'English',
         ],
         //      'en_TT' => ['name'     => '',
         //                  'name_en'       => 'English (Trinidad)',
@@ -255,20 +254,20 @@ class Helper
         //      'en_BZ' => ['name'     => '',
         //                  'name_en'       => 'English (Belize)',
         //      ],
-        'et' => ['name'          => 'Eesti',
-                 'name_en'       => 'Estonian',
+        'et' => ['name' => 'Eesti',
+            'name_en' => 'Estonian',
         ],
-        'fo' => ['name'          => 'Føroyskt',
-                 'name_en'       => 'Faeroese',
+        'fo' => ['name' => 'Føroyskt',
+            'name_en' => 'Faeroese',
         ],
-        'fa' => ['name'          => 'فارسی',
-                 'name_en'       => 'Farsi',
+        'fa' => ['name' => 'فارسی',
+            'name_en' => 'Farsi',
         ],
-        'fi' => ['name'          => 'Suomi',
-                 'name_en'       => 'Finnish',
+        'fi' => ['name' => 'Suomi',
+            'name_en' => 'Finnish',
         ],
-        'fr' => ['name'          => 'Français',
-                 'name_en'       => 'French',
+        'fr' => ['name' => 'Français',
+            'name_en' => 'French',
         ],
         //      'fr_CA' => ['name'     => '',
         //                  'name_en'       => 'French (Canada)',
@@ -282,11 +281,11 @@ class Helper
         //      'fr_CH' => ['name'     => '',
         //                  'name_en'       => 'French (Switzerland)',
         //      ],
-        'gd' => ['name'          => 'Gàidhlig',
-                 'name_en'       => 'Gaelic (Scotland)',
+        'gd' => ['name' => 'Gàidhlig',
+            'name_en' => 'Gaelic (Scotland)',
         ],
-        'de' => ['name'          => 'Deutsch',
-                 'name_en'       => 'German',
+        'de' => ['name' => 'Deutsch',
+            'name_en' => 'German',
         ],
         //      'de_CH' => ['name'     => '',
         //                  'name_en'       => 'German (Switzerland)',
@@ -300,104 +299,104 @@ class Helper
         //      'de_LI' => ['name'     => '',
         //                  'name_en'       => 'German (Liechtenstein)',
         //      ],
-        'el' => ['name'          => 'Ελληνικά',
-                 'name_en'       => 'Greek',
+        'el' => ['name' => 'Ελληνικά',
+            'name_en' => 'Greek',
         ],
-        'he' => ['name'          => 'עברית',
-                 'name_en'       => 'Hebrew',
+        'he' => ['name' => 'עברית',
+            'name_en' => 'Hebrew',
         ],
-        'hi' => ['name'          => 'हिन्दी',
-                 'name_en'       => 'Hindi',
+        'hi' => ['name' => 'हिन्दी',
+            'name_en' => 'Hindi',
         ],
-        'hu' => ['name'          => 'Magyar',
-                 'name_en'       => 'Hungarian',
+        'hu' => ['name' => 'Magyar',
+            'name_en' => 'Hungarian',
         ],
-        'is' => ['name'          => 'Íslenska',
-                 'name_en'       => 'Icelandic',
+        'is' => ['name' => 'Íslenska',
+            'name_en' => 'Icelandic',
         ],
-        'id' => ['name'          => 'Bahasa Indonesia',
-                 'name_en'       => 'Indonesian',
+        'id' => ['name' => 'Bahasa Indonesia',
+            'name_en' => 'Indonesian',
         ],
-        'ga' => ['name'          => 'Gaeilge',
-                 'name_en'       => 'Irish',
+        'ga' => ['name' => 'Gaeilge',
+            'name_en' => 'Irish',
         ],
-        'it' => ['name'          => 'Italiano',
-                 'name_en'       => 'Italian',
+        'it' => ['name' => 'Italiano',
+            'name_en' => 'Italian',
         ],
         //      'it_CH' => ['name'     => 'Italiano',
         //                  'name_en'       => 'Italian (Switzerland)',
         //      ],
-        'ja' => ['name'          => '日本語',
-                 'name_en'       => 'Japanese',
+        'ja' => ['name' => '日本語',
+            'name_en' => 'Japanese',
         ],
-        'kz' => ['name'          => 'қазақ тілі',
-                 'name_en'       => 'Kazakh',
+        'kz' => ['name' => 'қазақ тілі',
+            'name_en' => 'Kazakh',
         ],
-        'ko' => ['name'          => '한국어 (韓國語)',
-                 'name_en'       => 'Korean (Johab)',
+        'ko' => ['name' => '한국어 (韓國語)',
+            'name_en' => 'Korean (Johab)',
         ],
-        'lv' => ['name'          => 'Latviešu valoda',
-                 'name_en'       => 'Latvian',
+        'lv' => ['name' => 'Latviešu valoda',
+            'name_en' => 'Latvian',
         ],
-        'lt' => ['name'          => 'Lietuvių kalba',
-                 'name_en'       => 'Lithuanian',
+        'lt' => ['name' => 'Lietuvių kalba',
+            'name_en' => 'Lithuanian',
         ],
-        'mk' => ['name'          => 'Македонски јазик',
-                 'name_en'       => 'Macedonian (FYROM)',
+        'mk' => ['name' => 'Македонски јазик',
+            'name_en' => 'Macedonian (FYROM)',
         ],
-        'ms' => ['name'          => 'Bahasa Melayu, بهاس ملايو',
-                 'name_en'       => 'Malay',
+        'ms' => ['name' => 'Bahasa Melayu, بهاس ملايو',
+            'name_en' => 'Malay',
         ],
-        'mt' => ['name'          => 'Malti',
-                 'name_en'       => 'Maltese',
+        'mt' => ['name' => 'Malti',
+            'name_en' => 'Maltese',
         ],
-        'ne' => ['name'          => 'नेपाली',
-                 'name_en'       => 'Nepali',
+        'ne' => ['name' => 'नेपाली',
+            'name_en' => 'Nepali',
         ],
-        'no' => ['name'          => 'Norsk bokmål',
-                 'name_en'       => 'Norwegian (Bokmal)',
+        'no' => ['name' => 'Norsk bokmål',
+            'name_en' => 'Norwegian (Bokmal)',
         ],
-        'pl' => ['name'          => 'Polski',
-                 'name_en'       => 'Polish',
+        'pl' => ['name' => 'Polski',
+            'name_en' => 'Polish',
         ],
-        'pt-PT' => ['name'          => 'Português',
-                 'name_en'       => 'Portuguese (Portugal)',
+        'pt-PT' => ['name' => 'Português',
+            'name_en' => 'Portuguese (Portugal)',
         ],
-        'pt-BR' => ['name'          => 'Português do Brasil',
-                   'name_en'        => 'Portuguese (Brazil)',
+        'pt-BR' => ['name' => 'Português do Brasil',
+            'name_en' => 'Portuguese (Brazil)',
         ],
-        'ro' => ['name'          => 'Română',
-                 'name_en'       => 'Romanian',
+        'ro' => ['name' => 'Română',
+            'name_en' => 'Romanian',
         ],
         //      'ro_MO' => ['name'     => 'Română',
         //                  'name_en'       => 'Romanian (Republic of Moldova)',
         //      ],
-        'rm' => ['name'          => 'Rumantsch grischun',
-                 'name_en'       => 'Romansh',
+        'rm' => ['name' => 'Rumantsch grischun',
+            'name_en' => 'Romansh',
         ],
-        'ru' => ['name'          => 'Русский',
-                 'name_en'       => 'Russian',
+        'ru' => ['name' => 'Русский',
+            'name_en' => 'Russian',
         ],
         //      'ru_MO' => ['name'     => '',
         //                  'name_en'       => 'Russian (Republic of Moldova)',
         //      ],
-        'sz' => ['name'          => 'Davvisámegiella',
-                 'name_en'       => 'Sami (Lappish)',
+        'sz' => ['name' => 'Davvisámegiella',
+            'name_en' => 'Sami (Lappish)',
         ],
-        'sr' => ['name'          => 'Српски језик',
-                 'name_en'       => 'Serbian (Latin)',
+        'sr' => ['name' => 'Српски језик',
+            'name_en' => 'Serbian (Latin)',
         ],
-        'sk' => ['name'          => 'Slovenčina',
-                 'name_en'       => 'Slovak',
+        'sk' => ['name' => 'Slovenčina',
+            'name_en' => 'Slovak',
         ],
-        'sl' => ['name'          => 'Slovenščina',
-                 'name_en'       => 'Slovenian',
+        'sl' => ['name' => 'Slovenščina',
+            'name_en' => 'Slovenian',
         ],
         /*'sb' => ['name'     => 'Serbsce',
                  'name_en'       => 'Sorbian',
         ],*/
-        'es' => ['name'          => 'Español',
-                 'name_en'       => 'Spanish',
+        'es' => ['name' => 'Español',
+            'name_en' => 'Spanish',
         ],
         //      'es_GT' => ['name'     => '',
         //                  'name_en'       => 'Spanish (Guatemala)',
@@ -453,8 +452,8 @@ class Helper
         //      'es_NI' => ['name'     => '',
         //                  'name_en'       => 'Spanish (Nicaragua)',
         //      ],
-        'sv' => ['name'          => 'Svenska',
-                 'name_en'       => 'Swedish',
+        'sv' => ['name' => 'Svenska',
+            'name_en' => 'Swedish',
         ],
         // unknown
         //      'sx' => ['name'     => '',
@@ -463,38 +462,38 @@ class Helper
         //      'sv_FI' => ['name'     => '',
         //                  'name_en'       => 'Swedish (Finland)',
         //      ],
-        'th' => ['name'          => 'ไทย',
-                 'name_en'       => 'Thai',
+        'th' => ['name' => 'ไทย',
+            'name_en' => 'Thai',
         ],
-        'ts' => ['name'          => 'Xitsonga',
-                 'name_en'       => 'Tsonga',
+        'ts' => ['name' => 'Xitsonga',
+            'name_en' => 'Tsonga',
         ],
-        'tn' => ['name'          => 'Setswana',
-                 'name_en'       => 'Tswana',
+        'tn' => ['name' => 'Setswana',
+            'name_en' => 'Tswana',
         ],
-        'tr' => ['name'          => 'Türkçe',
-                 'name_en'       => 'Turkish',
+        'tr' => ['name' => 'Türkçe',
+            'name_en' => 'Turkish',
         ],
-        'uk' => ['name'          => 'українська',
-                 'name_en'       => 'Ukrainian',
+        'uk' => ['name' => 'українська',
+            'name_en' => 'Ukrainian',
         ],
-        'ur' => ['name'          => 'اردو',
-                 'name_en'       => 'Urdu',
+        'ur' => ['name' => 'اردو',
+            'name_en' => 'Urdu',
         ],
-        've' => ['name'          => 'Tshivenḓa',
-                 'name_en'       => 'Venda',
+        've' => ['name' => 'Tshivenḓa',
+            'name_en' => 'Venda',
         ],
-        'vi' => ['name'          => 'Tiếng Việt',
-                 'name_en'       => 'Vietnamese',
+        'vi' => ['name' => 'Tiếng Việt',
+            'name_en' => 'Vietnamese',
         ],
-        'xh' => ['name'          => 'isiXhosa',
-                 'name_en'       => 'Xhosa',
+        'xh' => ['name' => 'isiXhosa',
+            'name_en' => 'Xhosa',
         ],
-        'ji' => ['name'          => 'ייִדיש',
-                 'name_en'       => 'Yiddish',
+        'ji' => ['name' => 'ייִדיש',
+            'name_en' => 'Yiddish',
         ],
-        'zu' => ['name'          => 'isiZulu',
-                 'name_en'       => 'Zulu',
+        'zu' => ['name' => 'isiZulu',
+            'name_en' => 'Zulu',
         ],
     ];
 
@@ -527,7 +526,7 @@ class Helper
     {
         // Remove all kinds of spaces after tags.
         // https://stackoverflow.com/questions/3230623/filter-all-types-of-whitespace-in-php
-        // 
+        //
         // Keep in mind that preg_replace() may return NULL if "u" flag is used.
         $text = preg_replace("/^(.*)>[\r\n]*\s+/mu", '$1>', $text ?? '');
 
@@ -578,7 +577,7 @@ class Helper
     {
         $text = strtr($text ?? '', [
             '</div>' => ' </div>',
-            '</p>' => ' </p>'
+            '</p>' => ' </p>',
         ]);
 
         $text = self::stripTags($text);
@@ -611,13 +610,14 @@ class Helper
         $menu = \Eventy::filter('menu.selected', self::$menu);
 
         foreach ($menu as $primary_name => $primary_items) {
-            if (!is_array($primary_items)) {
+            if (! is_array($primary_items)) {
                 if ($current_route == $primary_items) {
                     return $primary_name == $menu_item_name;
                 }
                 if ($primary_name == $menu_item_name) {
                     return false;
                 }
+
                 continue;
             }
             foreach ($primary_items as $secondary_name => $secondary_routes) {
@@ -654,15 +654,15 @@ class Helper
      */
     public static function resizeImage($file, $mime_type, $thumb_width, $thumb_height, $transparency = false)
     {
-        list($width, $height) = getimagesize($file);
-        if (!$width) {
+        [$width, $height] = getimagesize($file);
+        if (! $width) {
             return false;
         }
 
         if (preg_match('/png/i', $mime_type)) {
             $src = imagecreatefrompng($file);
 
-            if (!$transparency) {
+            if (! $transparency) {
                 $kek = imagecolorallocate($src, 255, 255, 255);
                 imagefill($src, 0, 0, $kek);
             }
@@ -699,13 +699,13 @@ class Helper
         }
         // Resize and crop
         imagecopyresampled($thumb,
-                           $src,
-                           ceil(0 - ($new_width - $thumb_width) / 2), // Center the image horizontally
-                           ceil(0 - ($new_height - $thumb_height) / 2), // Center the image vertically
-                           0, 0,
-                           ceil($new_width),
-                           ceil($new_height),
-                           $width, $height);
+            $src,
+            ceil(0 - ($new_width - $thumb_width) / 2), // Center the image horizontally
+            ceil(0 - ($new_height - $thumb_height) / 2), // Center the image vertically
+            0, 0,
+            ceil($new_width),
+            ceil($new_height),
+            $width, $height);
         imagedestroy($src);
 
         return $thumb;
@@ -741,12 +741,12 @@ class Helper
      */
     public static function createZipArchive($source, $file_name, $folder = '', $storage_file_path = '')
     {
-        if (!$source || !$file_name) {
+        if (! $source || ! $file_name) {
             return false;
         }
         $files = glob($source);
 
-        if (!$storage_file_path) {
+        if (! $storage_file_path) {
             $storage_file_path = 'zipper'.DIRECTORY_SEPARATOR.$file_name;
         } else {
             // if (!self::getPrivateStorage()->exists($storage_path)) {
@@ -789,7 +789,6 @@ class Helper
      * Check if application version.
      *
      * @param [type] $ver [description]
-     *
      * @return [type] [description]
      */
     public static function checkAppVersion($version2, $operator = '>=')
@@ -802,7 +801,7 @@ class Helper
      */
     public static function downloadRemoteFile($url, $destinationFilePath)
     {
-        $client = new \GuzzleHttp\Client();
+        $client = new \GuzzleHttp\Client;
 
         try {
             $client->request('GET', $url, \Helper::setGuzzleDefaultOptions([
@@ -835,7 +834,7 @@ class Helper
     public static function encrypt($value, $password = null)
     {
         try {
-            if (!$password) {
+            if (! $password) {
                 $value = encrypt($value);
             } else {
                 $value = (new \Illuminate\Encryption\Encrypter(md5($password)))->encrypt($value);
@@ -851,13 +850,12 @@ class Helper
      * Safely decrypt.
      *
      * @param [type] $e [description]
-     *
      * @return [type] [description]
      */
     public static function decrypt($value, $password = null)
     {
         try {
-            if (!$password) {
+            if (! $password) {
                 $value = decrypt($value);
             } else {
                 $value = (new \Illuminate\Encryption\Encrypter(md5($password)))->decrypt($value);
@@ -875,7 +873,6 @@ class Helper
      * @param [type] $log_name [description]
      * @param [type] $data     [description]
      * @param [type] $code     [description]
-     *
      * @return [type] [description]
      */
     public static function log($log_name, $description, $properties = [])
@@ -902,12 +899,11 @@ class Helper
      * Check if folder is writable.
      *
      * @param [type] $path [description]
-     *
      * @return bool [description]
      */
     public static function isFolderWritable($path)
     {
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return false;
         }
         $path = rtrim($path, DIRECTORY_SEPARATOR);
@@ -928,7 +924,7 @@ class Helper
 
     public static function setUserLocale($user_locale = '')
     {
-        if (!$user_locale) {
+        if (! $user_locale) {
             $user_locale = \Eventy::filter('locale', session('user_locale'));
         }
         if ($user_locale) {
@@ -947,8 +943,7 @@ class Helper
      * Get locale's data.
      *
      * @param [type] $locale [description]
-     * @param string $param  [description]
-     *
+     * @param  string  $param  [description]
      * @return [type] [description]
      */
     public static function getLocaleData($locale, $param = '')
@@ -993,7 +988,7 @@ class Helper
         if (strstr($value, '"')) {
             // Escape quotes.
             $value = '"'.str_replace('"', '\"', $value).'"';
-        } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $value) && $value !== '') {
+        } elseif (! preg_match('/^[a-zA-Z0-9_]+$/', $value) && $value !== '') {
             // Add quotes.
             $value = '"'.$value.'"';
         }
@@ -1095,8 +1090,9 @@ class Helper
 
         if ($embed_images) {
             // Replace embedded images with their urls.
-            $text = preg_replace( '/<img\b[^>]*src=\"([^>"]+)\"[^>]*>/i', "<div>$1</div>", $text);
+            $text = preg_replace('/<img\b[^>]*src=\"([^>"]+)\"[^>]*>/i', '<div>$1</div>', $text);
         }
+
         return (new \Html2Text\Html2Text($text, $options))->getText();
     }
 
@@ -1124,7 +1120,7 @@ class Helper
     {
         try {
             return json_decode('"'.str_replace('"', '\\"', $text).'"');
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return $text;
         }
     }
@@ -1141,7 +1137,7 @@ class Helper
         // Check host to ignore default values.
         $app_host = parse_url($app_url, PHP_URL_HOST);
 
-        if ($app_url && !in_array($app_host, ['localhost', 'example.com'])) {
+        if ($app_url && ! in_array($app_host, ['localhost', 'example.com'])) {
             $subdirectory = parse_url($app_url, PHP_URL_PATH);
         } else {
             // Before app is installed
@@ -1168,8 +1164,8 @@ class Helper
                 do {
                     $seg = $segs[$index];
                     $subdirectory = '/'.$seg.$subdirectory;
-                    ++$index;
-                } while ($last > $index && (false !== $pos = strpos($path, $subdirectory)) && 0 != $pos);
+                    $index++;
+                } while ($last > $index && (false !== $pos = strpos($path, $subdirectory)) && $pos != 0);
             }
         }
 
@@ -1198,7 +1194,7 @@ class Helper
     public static function isRoute($route_name)
     {
         $route = \Route::current();
-        if (!$route) {
+        if (! $route) {
             return false;
         }
         $current = $route->getName();
@@ -1206,7 +1202,7 @@ class Helper
         if (is_array($route_name)) {
             return in_array($current, $route_name);
         } else {
-            return ($current == $route_name);
+            return $current == $route_name;
         }
     }
 
@@ -1217,7 +1213,7 @@ class Helper
     {
         $app_host = parse_url($app_url, PHP_URL_HOST);
 
-        if ($app_url && !in_array($app_host, ['localhost', 'example.com'])) {
+        if ($app_url && ! in_array($app_host, ['localhost', 'example.com'])) {
             return false;
         } else {
             return true;
@@ -1235,7 +1231,7 @@ class Helper
         $job_exists = \App\Job::where('queue', 'default')
             ->where('payload', 'like', '{"displayName":"App\\\\\\\\Jobs\\\\\\\\RestartQueueWorker"%')
             ->exists();
-        if (!$job_exists) {
+        if (! $job_exists) {
             \App\Jobs\RestartQueueWorker::dispatch()->onQueue('default');
         }
     }
@@ -1252,7 +1248,7 @@ class Helper
             '。' => '。'.$space,
             // '.' => '.'.$space,
             // ',' => ','.$space,
-            //':' => ':'.$space,
+            // ':' => ':'.$space,
             // '—' => '—'.$space,
             // '।' => '।'.$space,
         ]);
@@ -1270,7 +1266,7 @@ class Helper
             $wordLength = strlen($word) + 1;
 
             if (($currentLength + $wordLength) <= $max_length) {
-                $array_output[$index] .= $word . ' ';
+                $array_output[$index] .= $word.' ';
 
                 $currentLength += $wordLength;
             } else {
@@ -1319,7 +1315,7 @@ class Helper
     public static function jsonEncodeSafe($value, $options = 0, $depth = 512, $attempt = 1)
     {
         $msg = '';
-        
+
         $encoded = json_encode($value, $options, $depth);
 
         switch (json_last_error()) {
@@ -1345,11 +1341,11 @@ class Helper
                     return self::jsonEncodeSafe($clean, $options, $depth, 2);
                 }
                 break;
-            // default:
-            //     return '';
+                // default:
+                //     return '';
         }
-        throw new \Exception("Could not encode JSON: ".$msg, 1);
-        //return '';
+        throw new \Exception('Could not encode JSON: '.$msg, 1);
+        // return '';
     }
 
     public static function utf8ize($mixed)
@@ -1358,9 +1354,10 @@ class Helper
             foreach ($mixed as $key => $value) {
                 $mixed[$key] = self::utf8ize($value);
             }
-        } else if (is_string($mixed)) {
+        } elseif (is_string($mixed)) {
             return self::utf8Encode($mixed);
         }
+
         return $mixed;
     }
 
@@ -1380,6 +1377,7 @@ class Helper
         $connection = @fsockopen($host, $port);
         if (is_resource($connection)) {
             fclose($connection);
+
             return true;
         } else {
             return false;
@@ -1388,17 +1386,17 @@ class Helper
 
     public static function purifyHtml($html)
     {
-        if (!$html) {
+        if (! $html) {
             return $html;
         }
 
         $html = \Purifier::clean($html);
 
         // It's not clear why it was needed to remove spaces after tags.
-        // 
+        //
         // Remove all kinds of spaces after tags
         // https://stackoverflow.com/questions/3230623/filter-all-types-of-whitespace-in-php
-        //$html = preg_replace("/^(.*)>[\r\n]*\s+/mu", '$1>', $html);
+        // $html = preg_replace("/^(.*)>[\r\n]*\s+/mu", '$1>', $html);
 
         return $html;
     }
@@ -1408,7 +1406,7 @@ class Helper
      */
     public static function safePassword($password)
     {
-        return str_repeat("*", mb_strlen($password ?? ''));
+        return str_repeat('*', mb_strlen($password ?? ''));
     }
 
     /**
@@ -1416,9 +1414,8 @@ class Helper
      * Released under public domain
      * https://gist.github.com/jasny/2000705
      *
-     * @param string $value
-     * @param array  $protocols  http/https, ftp, mail
-     * @param array  $attributes
+     * @param  string  $value
+     * @param  array  $protocols  http/https, ftp, mail
      * @return string
      */
     public static function linkify($value, $protocols = ['http', 'mail'], array $attributes = [])
@@ -1426,44 +1423,53 @@ class Helper
         // Link attributes
         $attr = '';
         foreach ($attributes as $key => $val) {
-            $attr .= ' ' . $key . '="' . htmlentities($val) . '"';
+            $attr .= ' '.$key.'="'.htmlentities($val).'"';
         }
 
-        $links = array();
+        $links = [];
 
         // Extract existing links and tags
-        $value = preg_replace_callback('~(<a .*?>.*?</a>|<.*?>)~i', function ($match) use (&$links) { return '<' . array_push($links, $match[1]) . '>'; }, $value ?? '') ?: $value;
+        $value = preg_replace_callback('~(<a .*?>.*?</a>|<.*?>)~i', function ($match) use (&$links) {
+            return '<'.array_push($links, $match[1]).'>';
+        }, $value ?? '') ?: $value;
 
         $value = $value ?? '';
 
         // Extract text links for each protocol
-        foreach ((array)$protocols as $protocol) {
+        foreach ((array) $protocols as $protocol) {
             switch ($protocol) {
                 case 'http':
                 case 'https':
-                    //$value = preg_replace_callback('~(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i', function ($match) use ($protocol, &$links, $attr) { 
-                    //$value = preg_replace_callback('%(\b(([\w-]+)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))%s', function ($match) use ($protocol, &$links, $attr) { 
+                    // $value = preg_replace_callback('~(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i', function ($match) use ($protocol, &$links, $attr) {
+                    // $value = preg_replace_callback('%(\b(([\w-]+)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))%s', function ($match) use ($protocol, &$links, $attr) {
                     // https://github.com/freescout-helpdesk/freescout/issues/3402
                     $nbsp = html_entity_decode('&nbsp;');
-                    $value = preg_replace_callback('%([>\r\n\s:;\( '.$nbsp.']|^)((([\w-]+)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))%s', function ($match) use ($protocol, &$links, $attr) { 
-                            if ($match[4]) {
-                                $protocol = $match[4];
-                            }
-                            $link = $match[2];
-                            $link = substr($link, strlen($match[3]));
-                            //return '<' . array_push($links, "<a $attr href=\"$protocol://$link\">$protocol://$link</a>") . '>';
-                            return $match[1].'<' . array_push($links, "<a $attr href=\"$protocol://$link\">".$match[2]."</a>") . '>';
+                    $value = preg_replace_callback('%([>\r\n\s:;\( '.$nbsp.']|^)((([\w-]+)://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/)))%s', function ($match) use ($protocol, &$links, $attr) {
+                        if ($match[4]) {
+                            $protocol = $match[4];
+                        }
+                        $link = $match[2];
+                        $link = substr($link, strlen($match[3]));
+
+                        // return '<' . array_push($links, "<a $attr href=\"$protocol://$link\">$protocol://$link</a>") . '>';
+                        return $match[1].'<'.array_push($links, "<a $attr href=\"$protocol://$link\">".$match[2].'</a>').'>';
                     }, $value) ?: $value;
                     break;
-                case 'mail':    $value = preg_replace_callback('~([^\s<>]+?@[^\s<]+?\.[^\s<]+)(?<![\.,:\)])~', function ($match) use (&$links, $attr) { return '<' . array_push($links, "<a $attr href=\"mailto:{$match[1]}\">{$match[1]}</a>") . '>'; }, $value) ?: $value;
+                case 'mail':    $value = preg_replace_callback('~([^\s<>]+?@[^\s<]+?\.[^\s<]+)(?<![\.,:\)])~', function ($match) use (&$links, $attr) {
+                    return '<'.array_push($links, "<a $attr href=\"mailto:{$match[1]}\">{$match[1]}</a>").'>';
+                }, $value) ?: $value;
                     break;
-                default:        $value = preg_replace_callback('~' . preg_quote($protocol, '~') . '://([^\s<]+?)(?<![\.,:])~i', function ($match) use ($protocol, &$links, $attr) { return '<' . array_push($links, "<a $attr href=\"$protocol://{$match[1]}\">$protocol://{$match[1]}</a>") . '>'; }, $value) ?: $value;
+                default:        $value = preg_replace_callback('~'.preg_quote($protocol, '~').'://([^\s<]+?)(?<![\.,:])~i', function ($match) use ($protocol, &$links, $attr) {
+                    return '<'.array_push($links, "<a $attr href=\"$protocol://{$match[1]}\">$protocol://{$match[1]}</a>").'>';
+                }, $value) ?: $value;
                     break;
             }
         }
 
         // Insert all links
-        return preg_replace_callback('/<(\d+)>/', function ($match) use (&$links) { return $links[$match[1] - 1]; }, $value ?? '') ?: $value;
+        return preg_replace_callback('/<(\d+)>/', function ($match) use (&$links) {
+            return $links[$match[1] - 1];
+        }, $value ?? '') ?: $value;
     }
 
     /**
@@ -1481,7 +1487,7 @@ class Helper
      */
     public static function isInApp()
     {
-        return (int)app('request')->cookie('in_app');
+        return (int) app('request')->cookie('in_app');
     }
 
     /**
@@ -1513,13 +1519,14 @@ class Helper
                     // 1713 nginx     0:00 /usr/bin/php82...
                     preg_match("/^([\d]+)\s+[\S]+\s+/", $process, $m);
                 }
-                if (!preg_match("/(sh \-c|grep )/", $process) && !empty($m[1])) {
+                if (! preg_match("/(sh \-c|grep )/", $process) && ! empty($m[1])) {
                     $pids[] = $m[1];
                 }
             }
         } catch (\Exception $e) {
             // Do nothing
         }
+
         return $pids;
     }
 
@@ -1528,14 +1535,14 @@ class Helper
         $ext = strtolower($file->getClientOriginalExtension());
 
         if ($allowed_exts) {
-            if (!in_array($ext, $allowed_exts)) {
+            if (! in_array($ext, $allowed_exts)) {
                 throw new \Exception(__('Unsupported file type'), 1);
             }
         }
 
         if ($allowed_mimes) {
             $mime_type = $file->getMimeType();
-            if (!in_array($mime_type, $allowed_mimes)) {
+            if (! in_array($mime_type, $allowed_mimes)) {
                 throw new \Exception(__('Unsupported file type'), 1);
             }
         }
@@ -1556,16 +1563,16 @@ class Helper
         // Any image can be interpreted as SVG by browser,
         // so checking extension is not enough.
         if ($storage->exists($file_path)
-            && ($storage->mimeType($file_path) == 'image/svg+xml' 
+            && ($storage->mimeType($file_path) == 'image/svg+xml'
                 || strtolower(pathinfo($file_path, PATHINFO_EXTENSION)) == 'svg')
         ) {
-            if (!$content) {
+            if (! $content) {
                 $content = $storage->get($file_path);
             }
             if ($content) {
-                $svg_sanitizer = new \enshrined\svgSanitize\Sanitizer();
+                $svg_sanitizer = new \enshrined\svgSanitize\Sanitizer;
                 $clean_content = $svg_sanitizer->sanitize($content);
-                if (!$clean_content)  {
+                if (! $clean_content) {
                     $clean_content = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $content);
                 }
                 $storage->put($file_path, $clean_content);
@@ -1637,26 +1644,27 @@ class Helper
     // https://github.com/freescout-helpdesk/freescout/issues/3485
     public static function sqlSanitizeString($string)
     {
-        return str_replace(json_decode('"\u0000"'), "", $string);
+        return str_replace(json_decode('"\u0000"'), '', $string);
     }
 
-    public static function humanFileSize($size, $unit="")
+    public static function humanFileSize($size, $unit = '')
     {
-        if ((!$unit && $size >= 1<<30) || $unit == "GB") {
-            return number_format($size/(1<<30),2)."GB";
+        if ((! $unit && $size >= 1 << 30) || $unit == 'GB') {
+            return number_format($size / (1 << 30), 2).'GB';
         }
-        if ((!$unit && $size >= 1<<20) || $unit == "MB") {
-            return number_format($size/(1<<20),2)."MB";
+        if ((! $unit && $size >= 1 << 20) || $unit == 'MB') {
+            return number_format($size / (1 << 20), 2).'MB';
         }
-        //if ((!$unit && $size >= 1<<10) || $unit == "KB") {
-        return number_format($size/(1<<10),2)."KB";
+
+        // if ((!$unit && $size >= 1<<10) || $unit == "KB") {
+        return number_format($size / (1 << 10), 2).'KB';
         // }
         // return number_format($size)." bytes";
     }
 
     public static function isPrint()
     {
-        return (bool)app('request')->input('print');
+        return (bool) app('request')->input('print');
     }
 
     public static function isDev()
@@ -1666,7 +1674,7 @@ class Helper
 
     public static function substrUnicode($str, $s, $l = null)
     {
-        return join("", array_slice(preg_split("//u", $str, -1, PREG_SPLIT_NO_EMPTY), $s, $l));
+        return implode('', array_slice(preg_split('//u', $str, -1, PREG_SPLIT_NO_EMPTY), $s, $l));
     }
 
     /**
@@ -1675,7 +1683,7 @@ class Helper
      */
     public static function disableSqlRequirePrimaryKey()
     {
-        if (!self::isMySql()) {
+        if (! self::isMySql()) {
             return;
         }
         try {
@@ -1691,7 +1699,7 @@ class Helper
         try {
             $contents = self::getRemoteFileContents($uri);
 
-            if (!$contents) {
+            if (! $contents) {
                 return false;
             }
 
@@ -1709,7 +1717,7 @@ class Helper
         }
     }
 
-    // Replacement for file_get_contents() as some hostings 
+    // Replacement for file_get_contents() as some hostings
     // do not allow reading remote files via allow_url_fopen option.
     public static function getRemoteFileContents($url)
     {
@@ -1717,9 +1725,9 @@ class Helper
             $headers = get_headers($url);
 
             // 307 - Temporary Redirect.
-            if (!preg_match("/(200|301|302|307)/", $headers[0])) {
+            if (! preg_match('/(200|301|302|307)/', $headers[0])) {
                 throw new \Exception('HTTP Status Code: '.$headers[0], 1);
-                //return false;
+                // return false;
             }
 
             $ch = curl_init();
@@ -1740,7 +1748,7 @@ class Helper
                 $https_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
                 throw new \Exception('Empty Response. Curl Error Number: '.$curl_errno.'. Response Status Code: '.$https_status, 1);
-                //return false;
+                // return false;
             } else {
                 curl_close($ch);
             }
@@ -1795,7 +1803,7 @@ class Helper
             $file_name = $file_name.'_';
         } elseif ($ext == 'pdf') {
             // Rename PDF to avoid running embedded JavaScript.
-            if ($uploaded_file && !$contents) {
+            if ($uploaded_file && ! $contents) {
                 $contents = file_get_contents($uploaded_file->getRealPath() ?: $uploaded_file->getPathname());
             }
             if ($contents && strstr($contents, '/JavaScript')) {
@@ -1806,20 +1814,20 @@ class Helper
         // Remove illegal chars.
         $illegal_chars = [
             // Unix.
-                '/',
-                chr(0),
+            '/',
+            chr(0),
             // Windows.
-                '<',
-                '>',
-                ':',
-                '"',
-                '/',
-                '\\',
-                '|',
-                '?',
-                '*',
+            '<',
+            '>',
+            ':',
+            '"',
+            '/',
+            '\\',
+            '|',
+            '?',
+            '*',
             // Macos.
-                ':',
+            ':',
         ];
         // 0-31 (ASCII control characters) for Windows.
         for ($i = 0; $i < 32; $i++) {
@@ -1830,7 +1838,7 @@ class Helper
 
         // https://github.com/freescout-helpdesk/freescout/issues/3377
         $file_name = mb_convert_encoding($file_name, 'UTF-8', 'UTF-8');
-        $file_name = preg_replace('/[' . $escaped_regex . ']/', '_', $file_name);
+        $file_name = preg_replace('/['.$escaped_regex.']/', '_', $file_name);
         $file_name = preg_replace("/[\t\r\n]/", '', $file_name);
         // Remove unprintable characters and invalid unicode characters.
         // https://github.com/freescout-help-desk/freescout/issues/4681
@@ -1849,6 +1857,7 @@ class Helper
     public static function binaryDataMimeType($data)
     {
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
+
         return $finfo->buffer($data);
     }
 
@@ -1857,7 +1866,7 @@ class Helper
      */
     public static function getClass($param)
     {
-        return $param->getType() && !$param->getType()->isBuiltin() ? new \ReflectionClass(method_exists($param->getType(), 'getName') ? $param->getType()->getName() : $param->getClass()->name) : null;
+        return $param->getType() && ! $param->getType()->isBuiltin() ? new \ReflectionClass(method_exists($param->getType(), 'getName') ? $param->getType()->getName() : $param->getClass()->name) : null;
     }
 
     /**
@@ -1865,7 +1874,7 @@ class Helper
      */
     public static function getClassName($param)
     {
-        return $param->getType() && !$param->getType()->isBuiltin() ? method_exists($param->getType(), 'getName') ? $param->getType()->getName() : $param->getClass()->name : null;
+        return $param->getType() && ! $param->getType()->isBuiltin() ? method_exists($param->getType(), 'getName') ? $param->getType()->getName() : $param->getClass()->name : null;
     }
 
     public static function getWebCronHash()
@@ -1893,13 +1902,13 @@ class Helper
         $request_uri = $_SERVER['REQUEST_URI'] ?? '';
         $request_uri = preg_replace("#\?.*#", '', $request_uri);
 
-        return strstr($request_uri, '/install/') || preg_match("#/install$#", $request_uri);
+        return strstr($request_uri, '/install/') || preg_match('#/install$#', $request_uri);
     }
 
     public static function isCurrentUrlHttps()
     {
-        if (in_array(strtolower($_SERVER['X_FORWARDED_PROTO'] ?? ''), array('https', 'on', 'ssl', '1'), true)
-            || strtolower($_SERVER['HTTPS'] ?? '') == 'on' 
+        if (in_array(strtolower($_SERVER['X_FORWARDED_PROTO'] ?? ''), ['https', 'on', 'ssl', '1'], true)
+            || strtolower($_SERVER['HTTPS'] ?? '') == 'on'
             || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') == 'https'
             || ($_SERVER['HTTP_CF_VISITOR'] ?? '') == '{"scheme":"https"}'
         ) {
@@ -1989,13 +1998,14 @@ class Helper
 
     public static function isLocaleRtl(): bool
     {
-        return in_array(app()->getLocale(), config("app.locales_rtl") ?? []);
+        return in_array(app()->getLocale(), config('app.locales_rtl') ?? []);
     }
 
     public static function phoneToNumeric($phone)
     {
-        $phone = preg_replace("/[^0-9]/", '', $phone);
-        return (string)$phone;
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+
+        return (string) $phone;
     }
 
     public static function checkRequiredExtensions()
@@ -2021,10 +2031,10 @@ class Helper
         }
 
         // Required in console.
-        if (self::isConsole() || !function_exists('shell_exec')) {
+        if (self::isConsole() || ! function_exists('shell_exec')) {
             $pcntl_enabled = extension_loaded('pcntl');
         } else {
-            $pcntl_enabled = preg_match("/enable/m", \Helper::shellExec("php -i | grep pcntl") ?? '');
+            $pcntl_enabled = preg_match('/enable/m', \Helper::shellExec('php -i | grep pcntl') ?? '');
         }
         $php_extensions['pcntl (console PHP)'] = $pcntl_enabled;
 
@@ -2035,15 +2045,15 @@ class Helper
     {
         return [
             'shell_exec (PHP)' => function_exists('shell_exec'),
-            'proc_open (PHP)'  => function_exists('proc_open'),
-            'fpassthru (PHP)'  => function_exists('fpassthru'),
-            'symlink (PHP)'    => function_exists('symlink'),
-            'iconv (PHP)'      => function_exists('iconv'),
+            'proc_open (PHP)' => function_exists('proc_open'),
+            'fpassthru (PHP)' => function_exists('fpassthru'),
+            'symlink (PHP)' => function_exists('symlink'),
+            'iconv (PHP)' => function_exists('iconv'),
             // If posix_isatty() function is not enabled on the server the question in the
             // console command makes it wait infinitely and be aborted.
             // Commands should avoid using interctive functions or use special flags.
-            //'posix_isatty (PHP)'  => function_exists('posix_isatty'),
-            'pcntl_signal (console PHP)'    => function_exists('shell_exec') ? (int)\Helper::shellExec('php -r "echo (int)function_exists(\'pcntl_signal\');"') : false,
+            // 'posix_isatty (PHP)'  => function_exists('posix_isatty'),
+            'pcntl_signal (console PHP)' => function_exists('shell_exec') ? (int) \Helper::shellExec('php -r "echo (int)function_exists(\'pcntl_signal\');"') : false,
             'ps (shell)' => function_exists('shell_exec') ? \Helper::shellExec('ps') : false,
         ];
     }
@@ -2069,8 +2079,8 @@ class Helper
 
         if (\Option::get('send_emails_problem')) {
             $flashes[] = [
-                'type'      => 'warning',
-                'text'      =>  __('There is a problem processing outgoing mail queue — an admin should check :%a_begin%System Status:%a_end% and :%a_begin_recommendations%Recommendations:%a_end%', ['%a_begin%' => '<a href="'.route('system').'#cron" target="_blank">', '%a_end%' => '</a>', /*'%a_begin_logs%' => '<a href="'.route('logs', ['name' => 'send_errors']).'#cron" target="_blank">',*/ '%a_begin_recommendations%' => '<a href="'.config('app.freescout_repo').'/wiki/Background-Jobs" target="_blank">']),
+                'type' => 'warning',
+                'text' => __('There is a problem processing outgoing mail queue — an admin should check :%a_begin%System Status:%a_end% and :%a_begin_recommendations%Recommendations:%a_end%', ['%a_begin%' => '<a href="'.route('system').'#cron" target="_blank">', '%a_end%' => '</a>', /* '%a_begin_logs%' => '<a href="'.route('logs', ['name' => 'send_errors']).'#cron" target="_blank">', */ '%a_begin_recommendations%' => '<a href="'.config('app.freescout_repo').'/wiki/Background-Jobs" target="_blank">']),
                 'unescaped' => true,
             ];
         }
@@ -2082,7 +2092,8 @@ class Helper
     {
         $first_char = mb_substr($string, 0, 1, $encoding);
         $then = mb_substr($string, 1, null, $encoding);
-        return mb_strtoupper($first_char, $encoding) . $then;
+
+        return mb_strtoupper($first_char, $encoding).$then;
     }
 
     /**
@@ -2090,7 +2101,7 @@ class Helper
      */
     public static function setPcreBacktrackLimit()
     {
-        if ((int)ini_get('pcre.backtrack_limit') <= 1000000) {
+        if ((int) ini_get('pcre.backtrack_limit') <= 1000000) {
             ini_set('pcre.backtrack_limit', 1000000000);
         }
     }
@@ -2129,9 +2140,9 @@ class Helper
      */
     public static function runCommand($command, $options = [])
     {
-        $output_buffer = new BufferedOutput();
+        $output_buffer = new BufferedOutput;
         \Artisan::call($command, $options, $output_buffer);
-        
+
         return $output_buffer->fetch();
     }
 
@@ -2140,8 +2151,8 @@ class Helper
         // Curl has default CURLOPT_CONNECTTIMEOUT=30 seconds.
         curl_setopt($ch, CURLOPT_TIMEOUT, config('app.curl_timeout'));
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, config('app.curl_connect_timeout'));
-        curl_setopt($ch, CURLOPT_PROXY, config('app.proxy'));        
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, config('app.curl_ssl_verifypeer'));        
+        curl_setopt($ch, CURLOPT_PROXY, config('app.proxy'));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, config('app.curl_ssl_verifypeer'));
     }
 
     public static function setGuzzleDefaultOptions($params = [])
@@ -2149,7 +2160,7 @@ class Helper
         $default_params = [
             'timeout' => config('app.curl_timeout'),
             'connect_timeout' => config('app.curl_connect_timeout'),
-            'proxy'  => config('app.proxy'),
+            'proxy' => config('app.proxy'),
             // https://docs.guzzlephp.org/en/6.5/request-options.html#verify
             'verify' => config('app.curl_ssl_verifypeer'),
         ];
@@ -2168,7 +2179,7 @@ class Helper
 
     public static function cspMetaTag()
     {
-        if (!config('app.csp_enabled')) {
+        if (! config('app.csp_enabled')) {
             return '';
         }
 
@@ -2181,11 +2192,11 @@ class Helper
 
         foreach ($scripts as $url) {
             $url = trim($url);
-            if (!preg_match("#^(http|//)#", $url)) {
+            if (! preg_match('#^(http|//)#', $url)) {
                 $url = '//'.$url;
             }
             $parts = parse_url($url);
-            if (!empty($parts['host'])) {
+            if (! empty($parts['host'])) {
                 $domain = preg_replace("#['\"; \r\n]#", '', $parts['host']);
                 $script_domains .= ' '.$domain;
             }
@@ -2194,13 +2205,13 @@ class Helper
         //  frame-src https://recaptcha.net; connect-src https://recaptcha.net;
 
         return "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self' ".$script_domains."; img-src * 'self' data:; font-src * 'self' data:; style-src * 'self' 'unsafe-inline'; form-action 'self'; frame-src * 'self'; script-src 'self' 'nonce-".$nonce."' "
-            .$script_src.";"
-            .config('app.csp_custom').\Eventy::filter('csp.custom', '')."\">";
+            .$script_src.';'
+            .config('app.csp_custom').\Eventy::filter('csp.custom', '').'">';
     }
 
     public static function cspNonceAttr()
     {
-        if (!config('app.csp_enabled')) {
+        if (! config('app.csp_enabled')) {
             return '';
         }
 
@@ -2214,12 +2225,12 @@ class Helper
 
     public static function isChatMode()
     {
-        return (int)\Session::get('chat_mode', 0);
+        return (int) \Session::get('chat_mode', 0);
     }
 
     public static function setChatMode($is_on)
     {
-        if ((int)$is_on) {
+        if ((int) $is_on) {
             \Session::put('chat_mode', 1);
         } else {
             \Session::forget('chat_mode');
@@ -2228,10 +2239,10 @@ class Helper
 
     public static function detectCloudFlare()
     {
-        if (!empty($_SERVER['HTTP_CF_IPCOUNTRY'])
-            || !empty($_SERVER['HTTP_CF_CONNECTING_IP'])
-            || !empty($_SERVER['HTTP_CF_VISITOR'])
-            || !empty($_SERVER['HTTP_CF_RAY'])
+        if (! empty($_SERVER['HTTP_CF_IPCOUNTRY'])
+            || ! empty($_SERVER['HTTP_CF_CONNECTING_IP'])
+            || ! empty($_SERVER['HTTP_CF_VISITOR'])
+            || ! empty($_SERVER['HTTP_CF_RAY'])
             || ($_SERVER['HTTP_CDN_LOOP'] ?? '') == 'cloudflare'
         ) {
             return true;
@@ -2263,6 +2274,6 @@ class Helper
 
     public static function startsiWith($text, $string)
     {
-        return (stripos($text, $string) === 0);
+        return stripos($text, $string) === 0;
     }
 }

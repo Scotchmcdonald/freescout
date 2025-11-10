@@ -2,7 +2,7 @@
 
 // Causes:
 // Call to undefined method Illuminate\Validation\Rules\In::__set_state()
-//use Illuminate\Validation\Rule;
+// use Illuminate\Validation\Rule;
 
 return [
 
@@ -21,7 +21,7 @@ return [
         'maxPhpVersion' => '8.99.99',
     ],
     'final' => [
-        'key'     => false,
+        'key' => false,
         'publish' => false,
     ],
     // It must be equal to app.required_extensions
@@ -41,9 +41,9 @@ return [
             'cURL',
             'DOM',
             'libxml',
-            //'pcntl',
+            // 'pcntl',
             // We keep it as optional, as it's only used to translate dates.
-            //'intl',
+            // 'intl',
         ],
         // 'apache' => [
         //     'mod_rewrite',
@@ -60,15 +60,15 @@ return [
     |
     */
     'permissions' => [
-        'storage/app/'                      => '775',
-        'storage/framework/'                => '775',
-        'storage/framework/cache/data/'     => '775',
-        'storage/logs/'                     => '775',
-        'bootstrap/cache/'                  => '775',
-        'public/css/builds/'                => '775',
-        'public/js/builds/'                 => '775',
-        'public/modules/'                   => '775',
-        'Modules/'                          => '775',
+        'storage/app/' => '775',
+        'storage/framework/' => '775',
+        'storage/framework/cache/data/' => '775',
+        'storage/logs/' => '775',
+        'bootstrap/cache/' => '775',
+        'public/css/builds/' => '775',
+        'public/js/builds/' => '775',
+        'public/modules/' => '775',
+        'Modules/' => '775',
     ],
 
     /*
@@ -91,17 +91,17 @@ return [
                 // //     Rule::in(['true', 'false']),
                 // // ],
                 // 'app_log_level'         => 'required|string|max:50',
-                'app_url'               => 'required|url',
-                'database_connection'   => 'required|string|max:1000',
-                'database_hostname'     => 'required|string|max:1000',
-                'database_port'         => 'required|numeric',
-                'database_name'         => 'required|string|max:1000',
-                'database_username'     => 'required|string|max:1000',
-                'database_password'     => 'required|string|max:1000',
-                'admin_email'           => 'required|email',
-                'admin_first_name'      => 'required|string|max:20',
-                'admin_last_name'       => 'required|string|max:30',
-                'admin_password'        => 'required|string',
+                'app_url' => 'required|url',
+                'database_connection' => 'required|string|max:1000',
+                'database_hostname' => 'required|string|max:1000',
+                'database_port' => 'required|numeric',
+                'database_name' => 'required|string|max:1000',
+                'database_username' => 'required|string|max:1000',
+                'database_password' => 'required|string|max:1000',
+                'admin_email' => 'required|email',
+                'admin_first_name' => 'required|string|max:20',
+                'admin_last_name' => 'required|string|max:30',
+                'admin_password' => 'required|string',
                 // 'broadcast_driver'      => 'required|string|max:50',
                 // 'cache_driver'          => 'required|string|max:50',
                 // 'session_driver'        => 'required|string|max:50',

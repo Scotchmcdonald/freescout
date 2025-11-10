@@ -1,4 +1,5 @@
 <?php
+
 /*
 * File:     imap.php
 * Category: config
@@ -47,10 +48,10 @@ return [
     'accounts' => [
 
         'default' => [// account identifier
-            'host'  => 'localhost',
-            'port'  => 993,
-            'protocol'  => 'imap', //might also use imap, [pop3 or nntp (untested)]
-            'encryption'    => 'ssl', // Supported: false, 'ssl', 'tls'
+            'host' => 'localhost',
+            'port' => 993,
+            'protocol' => 'imap', // might also use imap, [pop3 or nntp (untested)]
+            'encryption' => 'ssl', // Supported: false, 'ssl', 'tls'
             'validate_cert' => true,
             'username' => 'root@example.com',
             'password' => '',
@@ -61,8 +62,8 @@ return [
                 'username' => null,
                 'password' => null,
             ],
-            "timeout" => 30,
-            "extensions" => []
+            'timeout' => 30,
+            'extensions' => [],
         ],
 
         /*
@@ -155,21 +156,21 @@ return [
         'boundary' => '/boundary=(.*?(?=;)|(.*))/i',
         'message_key' => 'list',
         'fetch_order' => 'asc',
-        'dispositions' => ['attachment'/*, 'inline'*/],
+        'dispositions' => ['attachment'/* , 'inline' */],
         'common_folders' => [
-            "root" => "INBOX",
-            "junk" => "INBOX/Junk",
-            "draft" => "INBOX/Drafts",
-            "sent" => "INBOX/Sent",
-            "trash" => "INBOX/Trash",
+            'root' => 'INBOX',
+            'junk' => 'INBOX/Junk',
+            'draft' => 'INBOX/Drafts',
+            'sent' => 'INBOX/Sent',
+            'trash' => 'INBOX/Trash',
         ],
         'decoder' => [
             'message' => 'utf-8', // mimeheader
-            'attachment' => 'utf-8' // mimeheader
+            'attachment' => 'utf-8', // mimeheader
         ],
         'open' => [
             // 'DISABLE_AUTHENTICATOR' => 'GSSAPI'
-        ]
+        ],
     ],
 
     /*
@@ -188,19 +189,19 @@ return [
     |
      */
     'events' => [
-        "message" => [
+        'message' => [
             'new' => \Webklex\PHPIMAP\Events\MessageNewEvent::class,
             'moved' => \Webklex\PHPIMAP\Events\MessageMovedEvent::class,
             'copied' => \Webklex\PHPIMAP\Events\MessageCopiedEvent::class,
             'deleted' => \Webklex\PHPIMAP\Events\MessageDeletedEvent::class,
             'restored' => \Webklex\PHPIMAP\Events\MessageRestoredEvent::class,
         ],
-        "folder" => [
+        'folder' => [
             'new' => \Webklex\PHPIMAP\Events\FolderNewEvent::class,
             'moved' => \Webklex\PHPIMAP\Events\FolderMovedEvent::class,
             'deleted' => \Webklex\PHPIMAP\Events\FolderDeletedEvent::class,
         ],
-        "flag" => [
+        'flag' => [
             'new' => \Webklex\PHPIMAP\Events\FlagNewEvent::class,
             'deleted' => \Webklex\PHPIMAP\Events\FlagDeletedEvent::class,
         ],
@@ -221,6 +222,6 @@ return [
      */
     'masks' => [
         'message' => \Webklex\PHPIMAP\Support\Masks\MessageMask::class,
-        'attachment' => \Webklex\PHPIMAP\Support\Masks\AttachmentMask::class
-    ]
+        'attachment' => \Webklex\PHPIMAP\Support\Masks\AttachmentMask::class,
+    ],
 ];

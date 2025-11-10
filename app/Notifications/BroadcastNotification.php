@@ -19,7 +19,9 @@ class BroadcastNotification extends Notification implements ShouldQueue
     use Queueable;
 
     public $conversation;
+
     public $thread;
+
     public $mediums;
 
     /**
@@ -37,30 +39,28 @@ class BroadcastNotification extends Notification implements ShouldQueue
     /**
      * Get the notification's delivery channels.
      *
-     * @param mixed $user
-     *
+     * @param  mixed  $user
      * @return array
      */
     public function via($user)
     {
         return [\App\Channels\RealtimeBroadcastChannel::class];
         // Standard "broadcast" channel creates a queuable event which runs broadcast for the broadcaster.
-        //return ['broadcast'];
+        // return ['broadcast'];
     }
 
     /**
      * Get the broadcastable representation of the notification.
      *
-     * @param mixed $notifiable
-     *
+     * @param  mixed  $notifiable
      * @return BroadcastMessage
      */
     public function toBroadcast($user)
     {
         return new BroadcastMessage([
             'thread_id' => $this->thread->id,
-            'number'    => $this->conversation->number,
-            'mediums'   => $this->mediums,
+            'number' => $this->conversation->number,
+            'mediums' => $this->mediums,
         ]);
     }
 
@@ -73,7 +73,7 @@ class BroadcastNotification extends Notification implements ShouldQueue
         }
 
         // Try to convert to array.
-        $mediums = (array)$payload->mediums;
+        $mediums = (array) $payload->mediums;
 
         $thread = Thread::find($payload->thread_id);
 
@@ -82,7 +82,7 @@ class BroadcastNotification extends Notification implements ShouldQueue
         }
 
         // Dummy DB notification to pass to the template
-        $db_notification = new \Illuminate\Notifications\DatabaseNotification();
+        $db_notification = new \Illuminate\Notifications\DatabaseNotification;
 
         // HTML for the menu notification (uses same medium as for email)
         if (in_array(Subscription::MEDIUM_EMAIL, $mediums)) {
@@ -102,7 +102,7 @@ class BroadcastNotification extends Notification implements ShouldQueue
                 $last_thread_body = $last_thread->body;
             }
 
-            //$db_notification->id = 'dummy';
+            // $db_notification->id = 'dummy';
             $web_notifications_info['notification'] = $db_notification;
             $web_notifications_info['created_at'] = \Carbon\Carbon::now();
             // ['notification']->read_at

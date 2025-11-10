@@ -3,11 +3,11 @@
 namespace Illuminate\Validation;
 
 use Closure;
+use Illuminate\Contracts\Validation\Rule as RuleContract;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Exists;
 use Illuminate\Validation\Rules\Unique;
-use Illuminate\Contracts\Validation\Rule as RuleContract;
 
 class ValidationRuleParser
 {
@@ -28,7 +28,6 @@ class ValidationRuleParser
     /**
      * Create a new validation rule parser.
      *
-     * @param  array  $data
      * @return void
      */
     public function __construct(array $data)
@@ -209,7 +208,6 @@ class ValidationRuleParser
     /**
      * Parse an array based rule.
      *
-     * @param  array  $rules
      * @return array
      */
     protected static function parseArrayRule(array $rules)
@@ -231,7 +229,7 @@ class ValidationRuleParser
         // easy {rule}:{parameters} formatting convention. For instance the
         // rule "Max:3" states that the value may only be three letters.
         if (strpos($rules, ':') !== false) {
-            list($rules, $parameter) = explode(':', $rules, 2);
+            [$rules, $parameter] = explode(':', $rules, 2);
 
             $parameters = static::parseParameters($rules, $parameter);
         }
@@ -252,7 +250,7 @@ class ValidationRuleParser
             return [$parameter];
         }
 
-        return str_getcsv($parameter, ",", "\"", "\\");
+        return str_getcsv($parameter, ',', '"', '\\');
     }
 
     /**

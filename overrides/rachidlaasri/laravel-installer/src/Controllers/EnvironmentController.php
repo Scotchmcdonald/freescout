@@ -16,9 +16,6 @@ class EnvironmentController extends Controller
      */
     protected $EnvironmentManager;
 
-    /**
-     * @param EnvironmentManager $environmentManager
-     */
     public function __construct(EnvironmentManager $environmentManager)
     {
         $this->EnvironmentManager = $environmentManager;
@@ -61,8 +58,6 @@ class EnvironmentController extends Controller
     /**
      * Processes the newly saved environment configuration (Classic).
      *
-     * @param Request    $input
-     * @param Redirector $redirect
      *
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -73,7 +68,7 @@ class EnvironmentController extends Controller
         event(new EnvironmentSaved($input));
 
         return $redirect->route('LaravelInstaller::environmentClassic')
-                        ->with(['message' => $message]);
+            ->with(['message' => $message]);
     }
 
     // Save old values to sessions
@@ -87,8 +82,6 @@ class EnvironmentController extends Controller
     /**
      * Processes the newly saved environment configuration (Form Wizard).
      *
-     * @param Request    $request
-     * @param Redirector $redirect
      *
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -116,7 +109,7 @@ class EnvironmentController extends Controller
         }
 
         // Check DB connection
-        //$this->EnvironmentManager->saveFileWizard($request);
+        // $this->EnvironmentManager->saveFileWizard($request);
         try {
             try {
                 $this->testDbConnect($request);
@@ -153,26 +146,26 @@ class EnvironmentController extends Controller
         event(new EnvironmentSaved($request));
 
         return $redirect->route('LaravelInstaller::database')
-                        ->with(['results' => $results]);
+            ->with(['results' => $results]);
     }
 
     public function testDbConnect($request, $params = [])
     {
         $driver = $request->database_connection ?? 'mysql';
         $config = config('database.connections.'.$driver);
-        if (!$config) {
+        if (! $config) {
             $config = [];
         }
 
         $params = array_merge($config, $params);
 
         $params = array_merge($params, [
-            'driver'    => $driver,
-            'host'      => $request->database_hostname,
-            'port'      => $request->database_port,
-            'database'  => $request->database_name,
-            'username'  => $request->database_username,
-            'password'  => $request->database_password,
+            'driver' => $driver,
+            'host' => $request->database_hostname,
+            'port' => $request->database_port,
+            'database' => $request->database_name,
+            'username' => $request->database_username,
+            'password' => $request->database_password,
             // 'charset'   => 'utf8mb4',
             // 'collation' => 'utf8mb4_unicode_ci',
             // 'prefix'    => '',

@@ -62,7 +62,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Set the character set used in this Header.
      *
-     * @param string $charset
+     * @param  string  $charset
      */
     public function setCharset($charset)
     {
@@ -89,7 +89,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
      * For example, for US English, 'en-us'.
      * This can be unspecified.
      *
-     * @param string $lang
+     * @param  string  $lang
      */
     public function setLanguage($lang)
     {
@@ -139,7 +139,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Set the maximum length of lines in the header (excluding EOL).
      *
-     * @param int $lineLength
+     * @param  int  $lineLength
      */
     public function setMaxLineLength($lineLength)
     {
@@ -184,7 +184,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Set the name of this Header field.
      *
-     * @param string $name
+     * @param  string  $name
      */
     protected function setFieldName($name)
     {
@@ -194,10 +194,9 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Produces a compliant, formatted RFC 2822 'phrase' based on the string given.
      *
-     * @param string $string  as displayed
-     * @param string $charset of the text
-     * @param bool   $shorten the first line to make remove for header name
-     *
+     * @param  string  $string  as displayed
+     * @param  string  $charset  of the text
+     * @param  bool  $shorten  the first line to make remove for header name
      * @return string
      */
     protected function createPhrase(Swift_Mime_Header $header, $string, $charset, ?Swift_Mime_HeaderEncoder $encoder = null, $shorten = false)
@@ -206,7 +205,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
         $phraseStr = $string;
         // If it's not valid
 
-        if (!preg_match('/^'.self::PHRASE_PATTERN.'$/D', $phraseStr)) {
+        if (! preg_match('/^'.self::PHRASE_PATTERN.'$/D', $phraseStr)) {
             // .. but it is just ascii text, try escaping some characters
             // and make it a quoted-string
             if (preg_match('/^[\x00-\x08\x0B\x0C\x0E-\x7F]*$/D', $phraseStr)) {
@@ -230,9 +229,8 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Escape special characters in a string (convert to quoted-pairs).
      *
-     * @param string   $token
-     * @param string[] $include additional chars to escape
-     *
+     * @param  string  $token
+     * @param  string[]  $include  additional chars to escape
      * @return string
      */
     private function escapeSpecials($token, $include = [])
@@ -247,9 +245,8 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Encode needed word tokens within a string of input.
      *
-     * @param string $input
-     * @param string $usedLength optional
-     *
+     * @param  string  $input
+     * @param  string  $usedLength  optional
      * @return string
      */
     protected function encodeWords(Swift_Mime_Header $header, $input, $usedLength = -1)
@@ -270,7 +267,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
                         $token = substr($token, 1);
                 }
 
-                if (-1 == $usedLength) {
+                if ($usedLength == -1) {
                     $usedLength = strlen($header->getFieldName().': ') + strlen($value);
                 }
                 $value .= $this->getTokenAsEncodedWord($token, $usedLength);
@@ -287,8 +284,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Test if a token needs to be encoded or not.
      *
-     * @param string $token
-     *
+     * @param  string  $token
      * @return bool
      */
     protected function tokenNeedsEncoding($token)
@@ -299,8 +295,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Splits a string into tokens in blocks of words which can be encoded quickly.
      *
-     * @param string $string
-     *
+     * @param  string  $string
      * @return string[]
      */
     protected function getEncodableWordTokens($string)
@@ -330,9 +325,8 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Get a token as an encoded word for safe insertion into headers.
      *
-     * @param string $token           token to encode
-     * @param int    $firstLineOffset optional
-     *
+     * @param  string  $token  token to encode
+     * @param  int  $firstLineOffset  optional
      * @return string
      */
     protected function getTokenAsEncodedWord($token, $firstLineOffset = 0)
@@ -344,20 +338,20 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
         }
         $encodingWrapperLength = strlen(
             '=?'.$charsetDecl.'?'.$this->encoder->getName().'??='
-            );
+        );
 
         if ($firstLineOffset >= 75) {
-            //Does this logic need to be here?
+            // Does this logic need to be here?
             $firstLineOffset = 0;
         }
 
         $encodedTextLines = explode("\r\n",
             $this->encoder->encodeString(
                 $token, $firstLineOffset, 75 - $encodingWrapperLength, $this->charset
-                )
+            )
         );
 
-        if ('iso-2022-jp' !== strtolower($this->charset)) {
+        if (strtolower($this->charset) !== 'iso-2022-jp') {
             // special encoding for iso-2022-jp using mb_encode_mimeheader
             foreach ($encodedTextLines as $lineNum => $line) {
                 $encodedTextLines[$lineNum] = '=?'.$charsetDecl.
@@ -372,8 +366,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Generates tokens from the given string which include CRLF as individual tokens.
      *
-     * @param string $token
-     *
+     * @param  string  $token
      * @return string[]
      */
     protected function generateTokenLines($token)
@@ -384,7 +377,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Set a value into the cache.
      *
-     * @param string $value
+     * @param  string  $value
      */
     protected function setCachedValue($value)
     {
@@ -404,7 +397,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Clear the cached value if $condition is met.
      *
-     * @param bool $condition
+     * @param  bool  $condition
      */
     protected function clearCachedValueIf($condition)
     {
@@ -416,13 +409,12 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     /**
      * Generate a list of all tokens in the final header.
      *
-     * @param string $string The string to tokenize
-     *
+     * @param  string  $string  The string to tokenize
      * @return array An array of tokens as strings
      */
     protected function toTokens($string = null)
     {
-        if (null === $string) {
+        if ($string === null) {
             $string = $this->getFieldBody();
         }
 
@@ -443,8 +435,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
      * Takes an array of tokens which appear in the header and turns them into
      * an RFC 2822 compliant string, adding FWSP where needed.
      *
-     * @param string[] $tokens
-     *
+     * @param  string[]  $tokens
      * @return string
      */
     private function tokensToString(array $tokens)
@@ -457,15 +448,15 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
         // Build all tokens back into compliant header
         foreach ($tokens as $i => $token) {
             // Line longer than specified maximum or token was just a new line
-            if (("\r\n" == $token) ||
+            if (($token == "\r\n") ||
                 ($i > 0 && strlen($currentLine.$token) > $this->lineLength)
-                && 0 < strlen($currentLine)) {
+                && strlen($currentLine) > 0) {
                 $headerLines[] = '';
                 $currentLine = &$headerLines[$lineCount++];
             }
 
             // Append token to the line
-            if ("\r\n" != $token) {
+            if ($token != "\r\n") {
                 $currentLine .= $token;
             }
         }

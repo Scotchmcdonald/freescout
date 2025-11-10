@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 class MoveUserPermissionsToEnv extends Migration
 {
@@ -15,7 +13,7 @@ class MoveUserPermissionsToEnv extends Migration
     {
         $permissions = \Option::get('user_permissions');
 
-        if (!empty($permissions)) {
+        if (! empty($permissions)) {
             $permissions_encoded = base64_encode(json_encode($permissions));
             \Helper::setEnvFileVar('APP_USER_PERMISSIONS', $permissions_encoded);
             config('user_permissions', $permissions_encoded);
@@ -28,8 +26,5 @@ class MoveUserPermissionsToEnv extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-        
-    }
+    public function down() {}
 }

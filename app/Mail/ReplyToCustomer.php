@@ -7,7 +7,7 @@ use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Mail\Mailable;
 
 // https://medium.com/@guysmilez/queuing-mailables-with-custom-headers-in-laravel-5-4-ab615f022f17
-//abstract class AbstractMessage extends Mailable
+// abstract class AbstractMessage extends Mailable
 class ReplyToCustomer extends Mailable
 {
     /**
@@ -78,15 +78,15 @@ class ReplyToCustomer extends Mailable
         // Set Message-ID
         // Settings via $this->addCustomHeaders does not work
         $new_headers = $this->headers;
-        if (!empty($new_headers) || $from_alias) {
+        if (! empty($new_headers) || $from_alias) {
             $mailbox = $this->mailbox;
             $this->withSwiftMessage(function ($swiftmessage) use ($new_headers, $from_alias, $mailbox, $thread) {
                 \MailHelper::$smtp_mime_message = '';
 
                 $headers = null;
 
-                if (!empty($new_headers)) {
-                    if (!empty($new_headers['Message-ID'])) {
+                if (! empty($new_headers)) {
+                    if (! empty($new_headers['Message-ID'])) {
                         $swiftmessage->setId($new_headers['Message-ID']);
                     }
                     $headers = $swiftmessage->getHeaders();
@@ -96,7 +96,7 @@ class ReplyToCustomer extends Mailable
                         }
                     }
                 }
-                if (!empty($from_alias)) {
+                if (! empty($from_alias)) {
                     $aliases = $mailbox->getAliases();
 
                     // Make sure that the From contains a mailbox alias,
@@ -115,7 +115,7 @@ class ReplyToCustomer extends Mailable
                             $from_alias_name = $mailbox_mail_from['name'];
                         }
 
-                        if (!$headers) {
+                        if (! $headers) {
                             $headers = $swiftmessage->getHeaders();
                         }
 
@@ -123,11 +123,11 @@ class ReplyToCustomer extends Mailable
 
                         if ($from_alias_name) {
                             $swift_from->setNameAddresses([
-                                $from_alias => $from_alias_name
+                                $from_alias => $from_alias_name,
                             ]);
                         } else {
                             $swift_from->setAddresses([
-                                $from_alias
+                                $from_alias,
                             ]);
                         }
                     }
@@ -143,14 +143,14 @@ class ReplyToCustomer extends Mailable
             });
         }
 
-        $template_html = \Eventy::filter('email.reply_to_customer.template_name_html','emails/customer/reply_fancy');
-        $template_text = \Eventy::filter('email.reply_to_customer.template_name_text','emails/customer/reply_fancy_text');
+        $template_html = \Eventy::filter('email.reply_to_customer.template_name_html', 'emails/customer/reply_fancy');
+        $template_text = \Eventy::filter('email.reply_to_customer.template_name_text', 'emails/customer/reply_fancy_text');
 
         // from($this->from) Sets only email, name stays empty.
         // So we set from in Mail::setMailDriver
         $message = $this->subject($this->subject)
-                    ->view($template_html)
-                    ->text($template_text);
+            ->view($template_html)
+            ->text($template_text);
 
         if ($thread->has_attachments) {
             foreach ($thread->attachments as $attachment) {

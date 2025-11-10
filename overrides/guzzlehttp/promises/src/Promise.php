@@ -10,15 +10,20 @@ namespace GuzzleHttp\Promise;
 class Promise implements PromiseInterface
 {
     private $state = self::PENDING;
+
     private $result;
+
     private $cancelFn;
+
     private $waitFn;
+
     private $waitList;
+
     private $handlers = [];
 
     /**
-     * @param callable $waitFn   Fn that when invoked resolves the promise.
-     * @param callable $cancelFn Fn that when invoked cancels the promise.
+     * @param  callable  $waitFn  Fn that when invoked resolves the promise.
+     * @param  callable  $cancelFn  Fn that when invoked cancels the promise.
      */
     public function __construct(
         ?callable $waitFn = null,
@@ -37,18 +42,21 @@ class Promise implements PromiseInterface
             $this->handlers[] = [$p, $onFulfilled, $onRejected];
             $p->waitList = $this->waitList;
             $p->waitList[] = $this;
+
             return $p;
         }
 
         // Return a fulfilled promise and immediately invoke any callbacks.
         if ($this->state === self::FULFILLED) {
             $promise = Create::promiseFor($this->result);
+
             return $onFulfilled ? $promise->then($onFulfilled) : $promise;
         }
 
         // It's either cancelled or rejected, so return a rejected promise
         // and immediately invoke any callbacks.
         $rejection = Create::rejectionFor($this->result);
+
         return $onRejected ? $rejection->then(null, $onRejected) : $rejection;
     }
 
@@ -139,13 +147,13 @@ class Promise implements PromiseInterface
         $this->waitList = $this->waitFn = null;
         $this->cancelFn = null;
 
-        if (!$handlers) {
+        if (! $handlers) {
             return;
         }
 
         // If the value was not a settled promise or a thenable, then resolve
         // it in the task queue using the correct ID.
-        if (!is_object($value) || !method_exists($value, 'then')) {
+        if (! is_object($value) || ! method_exists($value, 'then')) {
             $id = $state === self::FULFILLED ? 1 : 2;
             // It's a success, so resolve the handlers in the queue.
             Utils::queue()->add(static function () use ($id, $value, $handlers) {
@@ -176,9 +184,9 @@ class Promise implements PromiseInterface
     /**
      * Call a stack of handlers using a specific callback index and value.
      *
-     * @param int   $index   1 (resolve) or 2 (reject).
-     * @param mixed $value   Value to pass to the callback.
-     * @param array $handler Array of handler data (promise and callbacks).
+     * @param  int  $index  1 (resolve) or 2 (reject).
+     * @param  mixed  $value  Value to pass to the callback.
+     * @param  array  $handler  Array of handler data (promise and callbacks).
      */
     private static function callHandler($index, $value, array $handler)
     {
@@ -227,9 +235,9 @@ class Promise implements PromiseInterface
         } else {
             // If there's no wait function, then reject the promise.
             $this->reject('Cannot wait on a promise that has '
-                . 'no internal wait function. You must provide a wait '
-                . 'function when constructing the promise to be able to '
-                . 'wait on a promise.');
+                .'no internal wait function. You must provide a wait '
+                .'function when constructing the promise to be able to '
+                .'wait on a promise.');
         }
 
         Utils::queue()->run();

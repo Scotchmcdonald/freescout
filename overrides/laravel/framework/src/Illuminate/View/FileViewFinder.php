@@ -2,8 +2,8 @@
 
 namespace Illuminate\View;
 
-use InvalidArgumentException;
 use Illuminate\Filesystem\Filesystem;
+use InvalidArgumentException;
 
 class FileViewFinder implements ViewFinderInterface
 {
@@ -45,9 +45,6 @@ class FileViewFinder implements ViewFinderInterface
     /**
      * Create a new file view loader instance.
      *
-     * @param  \Illuminate\Filesystem\Filesystem  $files
-     * @param  array  $paths
-     * @param  array  $extensions
      * @return void
      */
     public function __construct(Filesystem $files, array $paths, ?array $extensions = null)
@@ -87,7 +84,7 @@ class FileViewFinder implements ViewFinderInterface
      */
     protected function findNamespacedView($name)
     {
-        list($namespace, $view) = $this->parseNamespaceSegments($name);
+        [$namespace, $view] = $this->parseNamespaceSegments($name);
 
         return $this->findInPaths($view, $this->hints[$namespace]);
     }
@@ -119,7 +116,7 @@ class FileViewFinder implements ViewFinderInterface
      * Find the given view in the list of paths.
      *
      * @param  string  $name
-     * @param  array   $paths
+     * @param  array  $paths
      * @return string
      *
      * @throws \InvalidArgumentException

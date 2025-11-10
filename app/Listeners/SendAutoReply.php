@@ -29,7 +29,7 @@ class SendAutoReply
 
         // no_autoreply meta value is checked in the SendAutoReply job.
 
-        if (!$conversation->imported 
+        if (! $conversation->imported
             && $conversation->mailbox->auto_reply_enabled
         ) {
             $thread = $conversation->threads()->first();
@@ -48,7 +48,7 @@ class SendAutoReply
                 return;
             }
 
-            if (!\Eventy::filter('autoreply.should_send', true, $conversation)) {
+            if (! \Eventy::filter('autoreply.should_send', true, $conversation)) {
                 return;
             }
 
@@ -68,7 +68,7 @@ class SendAutoReply
             }
 
             if ($auto_replies_sent >= 2) {
-                // Find conversations from this customer 
+                // Find conversations from this customer
                 $prev_conversations = Conversation::select('subject', 'id')
                     ->where('customer_id', $conversation->customer_id)
                     ->where('created_at', '>', $created_at)
@@ -102,7 +102,7 @@ class SendAutoReply
             }*/
 
             \App\Jobs\SendAutoReply::dispatch($conversation, $thread, $conversation->mailbox, $conversation->customer)
-            ->onQueue('emails');
+                ->onQueue('emails');
         }
     }
 }

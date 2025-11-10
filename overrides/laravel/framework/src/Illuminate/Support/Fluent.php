@@ -3,11 +3,11 @@
 namespace Illuminate\Support;
 
 use ArrayAccess;
-use JsonSerializable;
-use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
+use JsonSerializable;
 
-class Fluent implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
+class Fluent implements Arrayable, ArrayAccess, Jsonable, JsonSerializable
 {
     /**
      * All of the attributes set on the container.
@@ -19,7 +19,7 @@ class Fluent implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
     /**
      * Create a new fluent container instance.
      *
-     * @param  array|object    $attributes
+     * @param  array|object  $attributes
      * @return void
      */
     public function __construct($attributes = [])
@@ -33,7 +33,7 @@ class Fluent implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      * Get an attribute from the container.
      *
      * @param  string  $key
-     * @param  mixed   $default
+     * @param  mixed  $default
      * @return mixed
      */
     public function get($key, $default = null)
@@ -69,7 +69,7 @@ class Fluent implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      * Convert the object into something JSON serializable.
      *
      * @return array
-     * : mixed
+     *               : mixed
      */
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
@@ -92,7 +92,6 @@ class Fluent implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      * Determine if the given offset exists.
      *
      * @param  string  $offset
-     * @return bool
      */
     public function offsetExists($offset): bool
     {
@@ -104,7 +103,7 @@ class Fluent implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      *
      * @param  string  $offset
      * @return mixed
-     * : mixed
+     *               : mixed
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
@@ -116,8 +115,7 @@ class Fluent implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      * Set the value at the given offset.
      *
      * @param  string  $offset
-     * @param  mixed   $value
-     * @return void
+     * @param  mixed  $value
      */
     public function offsetSet($offset, $value): void
     {
@@ -128,7 +126,6 @@ class Fluent implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      * Unset the value at the given offset.
      *
      * @param  string  $offset
-     * @return void
      */
     public function offsetUnset($offset): void
     {
@@ -139,7 +136,7 @@ class Fluent implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      * Handle dynamic calls to the container to set attributes.
      *
      * @param  string  $method
-     * @param  array   $parameters
+     * @param  array  $parameters
      * @return $this
      */
     public function __call($method, $parameters)
@@ -164,7 +161,7 @@ class Fluent implements ArrayAccess, Arrayable, Jsonable, JsonSerializable
      * Dynamically set the value of an attribute.
      *
      * @param  string  $key
-     * @param  mixed   $value
+     * @param  mixed  $value
      * @return void
      */
     public function __set($key, $value)

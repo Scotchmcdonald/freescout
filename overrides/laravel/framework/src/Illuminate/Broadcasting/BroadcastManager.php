@@ -3,15 +3,15 @@
 namespace Illuminate\Broadcasting;
 
 use Closure;
-use Pusher\Pusher;
-use Psr\Log\LoggerInterface;
-use InvalidArgumentException;
 use Illuminate\Broadcasting\Broadcasters\LogBroadcaster;
 use Illuminate\Broadcasting\Broadcasters\NullBroadcaster;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
-use Illuminate\Broadcasting\Broadcasters\RedisBroadcaster;
 use Illuminate\Broadcasting\Broadcasters\PusherBroadcaster;
+use Illuminate\Broadcasting\Broadcasters\RedisBroadcaster;
 use Illuminate\Contracts\Broadcasting\Factory as FactoryContract;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
+use Pusher\Pusher;
 
 /**
  * @mixin \Illuminate\Contracts\Broadcasting\Broadcaster
@@ -53,7 +53,6 @@ class BroadcastManager implements FactoryContract
     /**
      * Register the routes for handling broadcast authentication and sockets.
      *
-     * @param  array|null  $attributes
      * @return void
      */
     public function routes(?array $attributes = null)
@@ -193,7 +192,6 @@ class BroadcastManager implements FactoryContract
     /**
      * Call a custom driver creator.
      *
-     * @param  array  $config
      * @return mixed
      */
     protected function callCustomCreator(array $config)
@@ -204,21 +202,19 @@ class BroadcastManager implements FactoryContract
     /**
      * Create an instance of the driver.
      *
-     * @param  array  $config
      * @return \Illuminate\Contracts\Broadcasting\Broadcaster
      */
     protected function createPusherDriver(array $config)
     {
         return new PusherBroadcaster(
             new Pusher($config['key'], $config['secret'],
-            $config['app_id'], $config['options'] ?? [])
+                $config['app_id'], $config['options'] ?? [])
         );
     }
 
     /**
      * Create an instance of the driver.
      *
-     * @param  array  $config
      * @return \Illuminate\Contracts\Broadcasting\Broadcaster
      */
     protected function createRedisDriver(array $config)
@@ -231,7 +227,6 @@ class BroadcastManager implements FactoryContract
     /**
      * Create an instance of the driver.
      *
-     * @param  array  $config
      * @return \Illuminate\Contracts\Broadcasting\Broadcaster
      */
     protected function createLogDriver(array $config)
@@ -244,7 +239,6 @@ class BroadcastManager implements FactoryContract
     /**
      * Create an instance of the driver.
      *
-     * @param  array  $config
      * @return \Illuminate\Contracts\Broadcasting\Broadcaster
      */
     protected function createNullDriver(array $config)
@@ -287,8 +281,7 @@ class BroadcastManager implements FactoryContract
     /**
      * Register a custom driver creator Closure.
      *
-     * @param  string    $driver
-     * @param  \Closure  $callback
+     * @param  string  $driver
      * @return $this
      */
     public function extend($driver, Closure $callback)
@@ -302,7 +295,7 @@ class BroadcastManager implements FactoryContract
      * Dynamically call the default driver instance.
      *
      * @param  string  $method
-     * @param  array   $parameters
+     * @param  array  $parameters
      * @return mixed
      */
     public function __call($method, $parameters)

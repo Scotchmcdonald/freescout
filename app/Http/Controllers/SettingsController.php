@@ -30,16 +30,16 @@ class SettingsController extends Controller
     {
         $settings = $this->getSectionSettings($section);
 
-        if (!$settings) {
+        if (! $settings) {
             abort(404);
         }
 
         $sections = $this->getSections();
 
         $template_vars = [
-            'settings'     => $settings,
-            'section'      => $section,
-            'sections'     => $this->getSections(),
+            'settings' => $settings,
+            'section' => $section,
+            'sections' => $this->getSections(),
             'section_name' => $sections[$section]['title'],
         ];
         $template_vars = $this->getTemplateVars($section, $template_vars);
@@ -51,7 +51,7 @@ class SettingsController extends Controller
     {
         $rules = $this->getSectionParams($section, 'validator_rules');
 
-        if (!empty($rules)) {
+        if (! empty($rules)) {
             return Validator::make(request()->all(), $rules);
         }
     }
@@ -74,8 +74,7 @@ class SettingsController extends Controller
      * instead of DB.
      *
      * @param [type] $section [description]
-     * @param string $param   [description]
-     *
+     * @param  string  $param  [description]
      * @return [type] [description]
      */
     public function getSectionParams($section, $param = '')
@@ -87,10 +86,10 @@ class SettingsController extends Controller
                 $params = [
                     'template_vars' => [
                         'sendmail_path' => ini_get('sendmail_path'),
-                        'mail_drivers'  => [
-                            'mail'     => __("PHP's mail() function"),
+                        'mail_drivers' => [
+                            'mail' => __("PHP's mail() function"),
                             'sendmail' => __('Sendmail'),
-                            'smtp'     => 'SMTP',
+                            'smtp' => 'SMTP',
                         ],
                     ],
                     'validator_rules' => [
@@ -140,10 +139,10 @@ class SettingsController extends Controller
                 break;
             case 'alerts':
                 $subscriptions_defaults = Subscription::getDefaultSubscriptions();
-                $subscriptions = array();
+                $subscriptions = [];
                 foreach ($subscriptions_defaults as $medium => $subscriptions_for_medium) {
                     foreach ($subscriptions_defaults[$medium] as $subscription) {
-                        $subscriptions[] = (object) array("medium" => $medium, "event" => $subscription);
+                        $subscriptions[] = (object) ['medium' => $medium, 'event' => $subscription];
                     }
                 }
                 $params = [
@@ -196,32 +195,32 @@ class SettingsController extends Controller
         switch ($section) {
             case 'general':
                 $settings = [
-                    'company_name'         => Option::get('company_name', \Config::get('app.name')),
-                    'next_ticket'          => (Option::get('next_ticket') >= Conversation::max('number') + 1) ? Option::get('next_ticket') : Conversation::max('number') + 1,
-                    'custom_number'        => (int)config('app.custom_number'),
-                    'user_permissions'     => User::getGlobalUserPermissions(),
-                    'email_branding'       => Option::get('email_branding'),
-                    'open_tracking'        => Option::get('open_tracking'),
-                    'email_conv_history'   => config('app.email_conv_history'),
-                    'max_message_size'     => config('app.max_message_size'),
-                    'email_user_history'   => config('app.email_user_history'),
+                    'company_name' => Option::get('company_name', \Config::get('app.name')),
+                    'next_ticket' => (Option::get('next_ticket') >= Conversation::max('number') + 1) ? Option::get('next_ticket') : Conversation::max('number') + 1,
+                    'custom_number' => (int) config('app.custom_number'),
+                    'user_permissions' => User::getGlobalUserPermissions(),
+                    'email_branding' => Option::get('email_branding'),
+                    'open_tracking' => Option::get('open_tracking'),
+                    'email_conv_history' => config('app.email_conv_history'),
+                    'max_message_size' => config('app.max_message_size'),
+                    'email_user_history' => config('app.email_user_history'),
                     'enrich_customer_data' => Option::get('enrich_customer_data'),
-                    'time_format'          => Option::get('time_format', User::TIME_FORMAT_24),
-                    'locale'               => \Helper::getRealAppLocale(),
-                    'timezone'             => config('app.timezone'),
+                    'time_format' => Option::get('time_format', User::TIME_FORMAT_24),
+                    'locale' => \Helper::getRealAppLocale(),
+                    'timezone' => config('app.timezone'),
                 ];
                 break;
             case 'emails':
                 $settings = [
-                    'mail_from'       => \App\Misc\Mail::getSystemMailFrom(),
-                    'mail_driver'     => Option::get('mail_driver', \Config::get('mail.driver')),
-                    'mail_host'       => Option::get('mail_host', \Config::get('mail.host')),
-                    'mail_port'       => Option::get('mail_port', \Config::get('mail.port')),
-                    'mail_username'   => Option::get('mail_username', \Config::get('mail.username')),
-                    'mail_password'   => \Helper::decrypt(Option::get('mail_password', \Config::get('mail.password'))),
+                    'mail_from' => \App\Misc\Mail::getSystemMailFrom(),
+                    'mail_driver' => Option::get('mail_driver', \Config::get('mail.driver')),
+                    'mail_host' => Option::get('mail_host', \Config::get('mail.host')),
+                    'mail_port' => Option::get('mail_port', \Config::get('mail.port')),
+                    'mail_username' => Option::get('mail_username', \Config::get('mail.username')),
+                    'mail_password' => \Helper::decrypt(Option::get('mail_password', \Config::get('mail.password'))),
                     'mail_encryption' => Option::get('mail_encryption', \Config::get('mail.encryption')),
-                    'fetch_schedule'  => config('app.fetch_schedule'),
-                    //'use_mail_date_on_fetching'             => config('app.use_mail_date_on_fetching'),
+                    'fetch_schedule' => config('app.fetch_schedule'),
+                    // 'use_mail_date_on_fetching'             => config('app.use_mail_date_on_fetching'),
                 ];
                 break;
             case 'alerts':
@@ -234,8 +233,8 @@ class SettingsController extends Controller
                     'alert_logs_period',
                     'subscription_defaults',
                 ], [
-                    'alert_logs_names'  => [],
-                    'alert_logs'        => config('app.alert_logs'),
+                    'alert_logs_names' => [],
+                    'alert_logs' => config('app.alert_logs'),
                     'alert_logs_period' => config('app.alert_logs_period'),
                 ]);
                 break;
@@ -254,8 +253,8 @@ class SettingsController extends Controller
         $sections = [
             // todo: order
             'general' => ['title' => __('General'), 'icon' => 'cog', 'order' => 100],
-            'emails'  => ['title' => __('Mail Settings'), 'icon' => 'transfer', 'order' => 200],
-            'alerts'  => ['title' => __('Alerts'), 'icon' => 'bell', 'order' => 300],
+            'emails' => ['title' => __('Mail Settings'), 'icon' => 'transfer', 'order' => 200],
+            'alerts' => ['title' => __('Alerts'), 'icon' => 'bell', 'order' => 300],
         ];
         $sections = \Eventy::filter('settings.sections', $sections);
 
@@ -265,13 +264,13 @@ class SettingsController extends Controller
     /**
      * Save general settings.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      */
     public function save($section = 'general')
     {
         $settings = $this->getSectionSettings($section);
 
-        if (!$settings) {
+        if (! $settings) {
             abort(404);
         }
 
@@ -285,8 +284,8 @@ class SettingsController extends Controller
 
         if ($validator && $validator->fails()) {
             return redirect()->route('settings', ['section' => $section])
-                        ->withErrors($validator)
-                        ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $request = request();
@@ -297,8 +296,8 @@ class SettingsController extends Controller
         $settings_params = $this->getSectionParams($section, 'settings');
         foreach ($settings as $i => $option_name) {
             // Do not save dummy passwords.
-            if (!empty($settings_params[$option_name])
-                && !empty($settings_params[$option_name]['safe_password'])
+            if (! empty($settings_params[$option_name])
+                && ! empty($settings_params[$option_name]['safe_password'])
                 && $request->settings[$option_name]
                 && preg_match("/^\*+$/", $request->settings[$option_name])
             ) {
@@ -306,18 +305,18 @@ class SettingsController extends Controller
             }
 
             // Option has to be saved to .env file.
-            if (!empty($settings_params[$option_name]) && !empty($settings_params[$option_name]['env'])) {
+            if (! empty($settings_params[$option_name]) && ! empty($settings_params[$option_name]['env'])) {
                 $env_value = $request->settings[$option_name] ?? '';
 
                 if (is_array($env_value)) {
                     $env_value = json_encode($env_value);
                 }
 
-                if (!empty($settings_params[$option_name]['encrypt'])) {
+                if (! empty($settings_params[$option_name]['encrypt'])) {
                     $env_value = encrypt($env_value);
                 }
 
-                if (!empty($settings_params[$option_name]['env_encode'])) {
+                if (! empty($settings_params[$option_name]['env_encode'])) {
                     $env_value = base64_encode($env_value);
                 }
 
@@ -325,6 +324,7 @@ class SettingsController extends Controller
 
                 config($option_name, $env_value);
                 $cc_required = true;
+
                 continue;
             }
 
@@ -332,7 +332,7 @@ class SettingsController extends Controller
             if (isset($request->settings) && array_key_exists($option_name, $request->settings)) {
                 $option_value = $request->settings[$option_name];
 
-                if (!empty($settings_params[$option_name]['encrypt'])) {
+                if (! empty($settings_params[$option_name]['encrypt'])) {
                     $option_value = encrypt($option_value);
                 }
 
@@ -379,7 +379,7 @@ class SettingsController extends Controller
     {
         $response = [
             'status' => 'error',
-            'msg'    => '', // this is error message
+            'msg' => '', // this is error message
         ];
 
         $user = auth()->user();
@@ -393,9 +393,9 @@ class SettingsController extends Controller
                     $response['msg'] = __('Please specify recipient of the test email');
                 }
 
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     $test_result = [
-                        'status' => 'error'
+                        'status' => 'error',
                     ];
 
                     try {
@@ -412,12 +412,12 @@ class SettingsController extends Controller
                     $response['log'] = $test_result['log'] ?? '';
                 }
 
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     $response['status'] = 'success';
                 }
 
                 // Remember email address
-                if (!empty($request->to)) {
+                if (! empty($request->to)) {
                     \App\Option::set('send_test_to', $request->to);
                 }
                 break;

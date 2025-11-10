@@ -25,10 +25,10 @@ class PDOConnection extends PDO implements ConnectionInterface, ServerInfoAwareC
     /**
      * @internal The connection can be only instantiated by its driver.
      *
-     * @param string       $dsn
-     * @param string|null  $user
-     * @param string|null  $password
-     * @param mixed[]|null $options
+     * @param  string  $dsn
+     * @param  string|null  $user
+     * @param  string|null  $password
+     * @param  mixed[]|null  $options
      *
      * @throws PDOException In case of an error.
      */
@@ -69,11 +69,10 @@ class PDOConnection extends PDO implements ConnectionInterface, ServerInfoAwareC
     }
 
     /**
-     * @param string          $sql
-     * @param array<int, int> $driverOptions
-     *
+     * @param  string  $sql
+     * @param  array<int, int>  $driverOptions
      * @return PDOStatement
-     * : PDOStatement|false
+     *                      : PDOStatement|false
      */
     #[\ReturnTypeWillChange]
     public function prepare($sql, $driverOptions = [])
@@ -125,7 +124,7 @@ class PDOConnection extends PDO implements ConnectionInterface, ServerInfoAwareC
     }
 
     /**
-     * @param mixed ...$args
+     * @param  mixed  ...$args
      */
     private function doQuery(...$args): PDOStatement
     {

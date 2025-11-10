@@ -9,7 +9,7 @@ class EmailObserver
     /**
      * Email created.
      *
-     * @param User $user
+     * @param  User  $user
      */
     public function created(Email $email)
     {

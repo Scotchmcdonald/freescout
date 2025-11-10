@@ -2,17 +2,17 @@
 
 namespace Illuminate\Mail;
 
-use Swift_Mailer;
-use InvalidArgumentException;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Mail\Mailable as MailableContract;
+use Illuminate\Contracts\Mail\Mailer as MailerContract;
+use Illuminate\Contracts\Mail\MailQueue as MailQueueContract;
+use Illuminate\Contracts\Queue\Factory as QueueContract;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Traits\Macroable;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Contracts\Mail\Mailer as MailerContract;
-use Illuminate\Contracts\Queue\Factory as QueueContract;
-use Illuminate\Contracts\Mail\Mailable as MailableContract;
-use Illuminate\Contracts\Mail\MailQueue as MailQueueContract;
+use InvalidArgumentException;
+use Swift_Mailer;
 
 class Mailer implements MailerContract, MailQueueContract
 {
@@ -77,9 +77,6 @@ class Mailer implements MailerContract, MailQueueContract
     /**
      * Create a new Mailer instance.
      *
-     * @param  \Illuminate\Contracts\View\Factory  $views
-     * @param  \Swift_Mailer  $swift
-     * @param  \Illuminate\Contracts\Events\Dispatcher|null  $events
      * @return void
      */
     public function __construct(Factory $views, Swift_Mailer $swift, ?Dispatcher $events = null)
@@ -163,7 +160,6 @@ class Mailer implements MailerContract, MailQueueContract
      * Send a new message when only a plain part.
      *
      * @param  string  $view
-     * @param  array  $data
      * @param  mixed  $callback
      * @return void
      */
@@ -176,7 +172,6 @@ class Mailer implements MailerContract, MailQueueContract
      * Render the given message as a view.
      *
      * @param  string|array  $view
-     * @param  array  $data
      * @return string
      */
     public function render($view, array $data = [])
@@ -184,7 +179,7 @@ class Mailer implements MailerContract, MailQueueContract
         // First we need to parse the view, which could either be a string or an array
         // containing both an HTML and plain text versions of the view which should
         // be used when sending an e-mail. We will extract both of them out here.
-        list($view, $plain, $raw) = $this->parseView($view);
+        [$view, $plain, $raw] = $this->parseView($view);
 
         $data['message'] = $this->createMessage();
 
@@ -195,7 +190,6 @@ class Mailer implements MailerContract, MailQueueContract
      * Send a new message using a view.
      *
      * @param  string|array|MailableContract  $view
-     * @param  array  $data
      * @param  \Closure|string  $callback
      * @return void
      */
@@ -208,7 +202,7 @@ class Mailer implements MailerContract, MailQueueContract
         // First we need to parse the view, which could either be a string or an array
         // containing both an HTML and plain text versions of the view which should
         // be used when sending an e-mail. We will extract both of them out here.
-        list($view, $plain, $raw) = $this->parseView($view);
+        [$view, $plain, $raw] = $this->parseView($view);
 
         $data['message'] = $message = $this->createMessage();
 
@@ -241,7 +235,6 @@ class Mailer implements MailerContract, MailQueueContract
     /**
      * Send the given mailable.
      *
-     * @param  \Illuminate\Contracts\Mail\Mailable  $mailable
      * @return mixed
      */
     protected function sendMailable(MailableContract $mailable)
@@ -542,7 +535,6 @@ class Mailer implements MailerContract, MailQueueContract
     /**
      * Set the queue manager instance.
      *
-     * @param  \Illuminate\Contracts\Queue\Factory  $queue
      * @return $this
      */
     public function setQueue(QueueContract $queue)

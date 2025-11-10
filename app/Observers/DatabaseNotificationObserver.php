@@ -8,8 +8,6 @@ class DatabaseNotificationObserver
 {
     /**
      * Notifications DB record created.
-     *
-     * @param DatabaseNotification $notification
      */
     public function created(DatabaseNotification $notification)
     {

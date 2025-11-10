@@ -18,13 +18,13 @@ class ResponseHeaders
         $response = $next($request);
 
         // Secure headers.
-        //$response->headers->set('Referrer-Policy', 'no-referrer-when-downgrade');
+        // $response->headers->set('Referrer-Policy', 'no-referrer-when-downgrade');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         // $response->headers->set('X-XSS-Protection', '1; mode=block');
         // $response->headers->set('X-Frame-Options', 'DENY');
-        //$response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-        //$response->headers->set('Content-Security-Policy', "style-src 'self'");
-        
+        // $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+        // $response->headers->set('Content-Security-Policy', "style-src 'self'");
+
         // Disable caching.
         if (method_exists($response, 'header')) {
             $response->header('Pragma', 'no-cache');

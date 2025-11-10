@@ -19,7 +19,6 @@ class SendPasswordChanged
     /**
      * Handle the event.
      *
-     * @param PasswordReset $event
      *
      * @return void
      */

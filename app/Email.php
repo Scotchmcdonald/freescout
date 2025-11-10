@@ -8,19 +8,22 @@ use Watson\Rememberable\Rememberable;
 class Email extends Model
 {
     use Rememberable;
+
     // This is obligatory.
     public $rememberCacheDriver = 'array';
-    
+
     /**
      * Email types.
      */
     const TYPE_WORK = 1;
+
     const TYPE_HOME = 2;
+
     const TYPE_OTHER = 3;
 
     public static $types = [
-        self::TYPE_WORK  => 'work',
-        self::TYPE_HOME  => 'home',
+        self::TYPE_WORK => 'work',
+        self::TYPE_HOME => 'home',
         self::TYPE_OTHER => 'other',
     ];
 
@@ -42,8 +45,7 @@ class Email extends Model
     /**
      * Sanitize email address.
      *
-     * @param string $email
-     *
+     * @param  string  $email
      * @return string
      */
     public static function sanitizeEmail($email)
@@ -52,7 +54,7 @@ class Email extends Model
         // Email validation is not recommended:
         // http://stackoverflow.com/questions/201323/using-a-regular-expression-to-validate-an-email-address/201378#201378
         // So we just check for @
-        if (!preg_match('/^.+@.+$/', $email ?? '')) {
+        if (! preg_match('/^.+@.+$/', $email ?? '')) {
             return false;
         }
         $email = filter_var($email, FILTER_SANITIZE_EMAIL);
@@ -73,7 +75,7 @@ class Email extends Model
     public static function create($email, $customer_id, $type = self::TYPE_WORK)
     {
         try {
-            $email_obj = new Email();
+            $email_obj = new Email;
             $email_obj->email = $email;
             $email_obj->type = array_key_exists($type, self::$types) ? $type : self::TYPE_WORK;
             $email_obj->customer_id = $customer_id;

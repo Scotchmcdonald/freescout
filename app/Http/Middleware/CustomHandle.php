@@ -9,16 +9,14 @@ class CustomHandle
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
-     *
+     * @param  \Illuminate\Http\Request  $request
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
         // Enable/disable chat mode
         if ($request->exists('chat_mode')) {
-            \Helper::setChatMode((int)$request->chat_mode);
+            \Helper::setChatMode((int) $request->chat_mode);
         }
 
         // Hook.

@@ -47,7 +47,6 @@ trait GuardsAttributes
     /**
      * Set the fillable attributes for the model.
      *
-     * @param  array  $fillable
      * @return $this
      */
     public function fillable(array $fillable)
@@ -70,7 +69,6 @@ trait GuardsAttributes
     /**
      * Set the guarded attributes for the model.
      *
-     * @param  array  $guarded
      * @return $this
      */
     public function guard(array $guarded)
@@ -114,7 +112,6 @@ trait GuardsAttributes
     /**
      * Run the given callable while being unguarded.
      *
-     * @param  callable  $callback
      * @return mixed
      */
     public static function unguarded(callable $callback)
@@ -171,8 +168,8 @@ trait GuardsAttributes
      */
     public function isGuarded($key)
     {
-        //return in_array($key, $this->getGuarded()) || $this->getGuarded() == ['*'];
-        
+        // return in_array($key, $this->getGuarded()) || $this->getGuarded() == ['*'];
+
         if (empty($this->getGuarded())) {
             return false;
         }
@@ -192,8 +189,8 @@ trait GuardsAttributes
     {
         if (! isset(static::$guardableColumns[get_class($this)])) {
             static::$guardableColumns[get_class($this)] = $this->getConnection()
-                        ->getSchemaBuilder()
-                        ->getColumnListing($this->getTable());
+                ->getSchemaBuilder()
+                ->getColumnListing($this->getTable());
         }
 
         return in_array($key, static::$guardableColumns[get_class($this)]);
@@ -212,7 +209,6 @@ trait GuardsAttributes
     /**
      * Get the fillable attributes of a given array.
      *
-     * @param  array  $attributes
      * @return array
      */
     protected function fillableFromArray(array $attributes)

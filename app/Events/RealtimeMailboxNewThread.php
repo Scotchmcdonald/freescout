@@ -1,14 +1,15 @@
 <?php
+
 /**
  * New thread created in mailbox.
  */
+
 namespace App\Events;
 
 use App\Conversation;
-use App\Mailbox;
 use App\Folder;
+use App\Mailbox;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Queue\SerializesModels;
 
@@ -60,7 +61,7 @@ class RealtimeMailboxNewThread implements ShouldBroadcastNow
      */
     protected function channelName()
     {
-        if (!empty($this->data['mailbox_id'])) {
+        if (! empty($this->data['mailbox_id'])) {
             return 'mailbox.'.$this->data['mailbox_id'];
         } else {
             return 'mailbox.0';
@@ -73,7 +74,7 @@ class RealtimeMailboxNewThread implements ShouldBroadcastNow
     public static function dispatchSelf($mailbox_id)
     {
         $notification_data = [
-            'mailbox_id'      => $mailbox_id
+            'mailbox_id' => $mailbox_id,
         ];
         event(new \App\Events\RealtimeMailboxNewThread($notification_data));
     }
@@ -84,7 +85,7 @@ class RealtimeMailboxNewThread implements ShouldBroadcastNow
         $mailbox = Mailbox::rememberForever()->find($payload->mailbox_id);
 
         // Check if user can listen to this event.
-        if (!$user || !$mailbox || !$user->can('viewCached', $mailbox)) {
+        if (! $user || ! $mailbox || ! $user->can('viewCached', $mailbox)) {
             return [];
         }
 
@@ -94,12 +95,12 @@ class RealtimeMailboxNewThread implements ShouldBroadcastNow
             $folder = Folder::find($foler_id);
         }
         // Just in case.
-        if (!$folder) {
-            $folder = new Folder();
+        if (! $folder) {
+            $folder = new Folder;
         }
         $template_data = [
             'folders' => $mailbox->getAssesibleFolders(),
-            'folder'  => $folder,
+            'folder' => $folder,
             'mailbox' => $mailbox,
         ];
 

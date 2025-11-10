@@ -28,7 +28,7 @@ class RejectedPromise implements PromiseInterface
         ?callable $onRejected = null
     ) {
         // If there's no onRejected callback then just return self.
-        if (!$onRejected) {
+        if (! $onRejected) {
             return $this;
         }
 
@@ -74,13 +74,13 @@ class RejectedPromise implements PromiseInterface
 
     public function resolve($value)
     {
-        throw new \LogicException("Cannot resolve a rejected promise");
+        throw new \LogicException('Cannot resolve a rejected promise');
     }
 
     public function reject($reason)
     {
         if ($reason !== $this->reason) {
-            throw new \LogicException("Cannot reject a rejected promise");
+            throw new \LogicException('Cannot reject a rejected promise');
         }
     }
 

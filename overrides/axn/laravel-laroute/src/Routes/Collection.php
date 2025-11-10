@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Overriding vendor class to generate routes for modules.
  */
@@ -33,28 +34,27 @@ class Collection extends BaseCollection
     /**
      * Get the route information for a given route.
      *
-     * @param $route     \Illuminate\Routing\Route
-     * @param $filter    string
-     * @param $namespace string
-     *
+     * @param  $route  \Illuminate\Routing\Route
+     * @param  $filter  string
+     * @param  $namespace  string
      * @return array
      */
     protected function getRouteInformation(Route $route, $filter, $namespace)
     {
         $data = parent::getRouteInformation($route, $filter, $namespace);
 
-        if (!$data || empty($data['name'])) {
+        if (! $data || empty($data['name'])) {
             return;
         }
 
         // If `module` parameter is set for the route we choose only routes from this module
         $action = $route->getAction();
 
-        if ($action && !empty($action['controller'])) {
+        if ($action && ! empty($action['controller'])) {
             preg_match('/^Modules\\\([^\\\]+)\\\/', $action['controller'], $m);
 
-            if (!empty($m[1])) {
-                if (!$this->module) {
+            if (! empty($m[1])) {
+                if (! $this->module) {
                     // We are generating routes for the main application,
                     // missing route of the module
                     return;

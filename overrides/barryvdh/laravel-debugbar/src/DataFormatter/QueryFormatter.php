@@ -6,11 +6,10 @@ use DebugBar\DataFormatter\DataFormatter;
 
 class QueryFormatter extends DataFormatter
 {
-
     /**
      * Removes extra spaces at the beginning and end of the SQL query and its lines.
      *
-     * @param  string $sql
+     * @param  string  $sql
      * @return string
      */
     public function formatSql($sql)
@@ -21,13 +20,12 @@ class QueryFormatter extends DataFormatter
     /**
      * Check bindings for illegal (non UTF-8) strings, like Binary data.
      *
-     * @param $bindings
      * @return mixed
      */
     public function checkBindings($bindings)
     {
         foreach ($bindings as &$binding) {
-            if (is_string($binding) && !mb_check_encoding($binding, 'UTF-8')) {
+            if (is_string($binding) && ! mb_check_encoding($binding, 'UTF-8')) {
                 $binding = '[BINARY DATA]';
             }
         }
@@ -38,7 +36,7 @@ class QueryFormatter extends DataFormatter
     /**
      * Make the bindings safe for outputting.
      *
-     * @param array $bindings
+     * @param  array  $bindings
      * @return array
      */
     public function escapeBindings($bindings)
@@ -65,11 +63,11 @@ class QueryFormatter extends DataFormatter
         $parts = [];
 
         if ($source->namespace) {
-            $parts['namespace'] = $source->namespace . '::';
+            $parts['namespace'] = $source->namespace.'::';
         }
 
         $parts['name'] = $source->name;
-        $parts['line'] = ':' . $source->line;
+        $parts['line'] = ':'.$source->line;
 
         return implode($parts);
     }

@@ -109,7 +109,6 @@ class TimeitVisitor extends NodeVisitorAbstract
      *
      * Optionally pass in a return value.
      *
-     * @param Expr|null $arg
      *
      * @return PhpParser\Node\Expr\StaticCall
      */
@@ -127,9 +126,8 @@ class TimeitVisitor extends NodeVisitorAbstract
      *
      * Wrap $expr in a PhpParser\Node\Stmt\Expression if the class exists.
      *
-     * @param PhpParser\Node $expr
-     * @param array          $attrs
-     *
+     * @param  PhpParser\Node  $expr
+     * @param  array  $attrs
      * @return PhpParser\Node\Expr|PhpParser\Node\Stmt\Expression
      */
     private function maybeExpression($expr, $attrs = [])

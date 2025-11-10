@@ -28,10 +28,10 @@ class CustomerChannel extends Model
     public static function create($customer_id, $channel, $channel_id)
     {
         try {
-            $customer_channel = new self();
+            $customer_channel = new self;
             $customer_channel->customer_id = $customer_id;
-            $customer_channel->channel     = $channel;
-            $customer_channel->channel_id  = $channel_id;
+            $customer_channel->channel = $channel;
+            $customer_channel->channel_id = $channel_id;
             $customer_channel->save();
 
             return $customer_channel;
@@ -52,6 +52,7 @@ class CustomerChannel extends Model
             return self::$channels;
         } else {
             self::$channels = \Eventy::filter('channels.list', []);
+
             return self::$channels;
         }
     }

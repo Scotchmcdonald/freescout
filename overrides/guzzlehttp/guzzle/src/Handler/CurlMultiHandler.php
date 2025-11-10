@@ -1,4 +1,5 @@
 <?php
+
 namespace GuzzleHttp\Handler;
 
 use GuzzleHttp\Promise as P;
@@ -19,10 +20,15 @@ class CurlMultiHandler
 {
     /** @var CurlFactoryInterface */
     private $factory;
+
     private $selectTimeout;
+
     private $active;
+
     private $handles = [];
+
     private $delays = [];
+
     private $options = [];
 
     /**
@@ -33,8 +39,6 @@ class CurlMultiHandler
      *   out while selecting curl handles. Defaults to 1 second.
      * - options: An associative array of CURLMOPT_* options and
      *   corresponding values for curl_multi_setopt()
-     *
-     * @param array $options
      */
     public function __construct(array $options = [])
     {
@@ -67,7 +71,7 @@ class CurlMultiHandler
             return $this->_mh;
         }
 
-        throw new \BadMethodCallException();
+        throw new \BadMethodCallException;
     }
 
     public function __destruct()
@@ -137,10 +141,10 @@ class CurlMultiHandler
     {
         $queue = P\queue();
 
-        while ($this->handles || !$queue->isEmpty()) {
+        while ($this->handles || ! $queue->isEmpty()) {
             // If there are no transfers, then sleep for the next delay
-            if (!$this->active && $this->delays) {
-                usleep((int)$this->timeToNext());
+            if (! $this->active && $this->delays) {
+                usleep((int) $this->timeToNext());
             }
             $this->tick();
         }
@@ -161,14 +165,13 @@ class CurlMultiHandler
     /**
      * Cancels a handle from sending and removes references to it.
      *
-     * @param int $id Handle ID to cancel and remove.
-     *
+     * @param  int  $id  Handle ID to cancel and remove.
      * @return bool True on success, false on failure.
      */
     private function cancel($id)
     {
         // Cannot cancel if it has been processed.
-        if (!isset($this->handles[$id])) {
+        if (! isset($this->handles[$id])) {
             return false;
         }
 
@@ -186,7 +189,7 @@ class CurlMultiHandler
             $id = (int) $done['handle'];
             curl_multi_remove_handle($this->_mh, $done['handle']);
 
-            if (!isset($this->handles[$id])) {
+            if (! isset($this->handles[$id])) {
                 // Probably was cancelled.
                 continue;
             }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * php artisan freescout:module-install modulealias.
  */
@@ -48,10 +49,11 @@ class ModuleUpdate extends Command
 
         // Create a symlink for the module (or all modules)
         $module_alias = $this->argument('module_alias');
-        
+
         $modules_directory = \WpApi::getModules();
         if (\WpApi::$lastError) {
             $this->error(__('Error occurred').': '.$lastError['message'].' ('.$lastError['code'].')');
+
             return;
         }
 
@@ -64,15 +66,15 @@ class ModuleUpdate extends Command
             if ($module_alias && $dir_module['alias'] != $module_alias) {
                 continue;
             }
-            
+
             $found = true;
 
             // Detect if new version is available.
             foreach ($installed_modules as $module) {
-                if ($module->getAlias() != $dir_module['alias'] /*|| !$module->active()*/) {
+                if ($module->getAlias() != $dir_module['alias'] /* || !$module->active() */) {
                     continue;
                 }
-                if (!empty($dir_module['version']) && version_compare($dir_module['version'], $module->get('version'), '>')) {
+                if (! empty($dir_module['version']) && version_compare($dir_module['version'], $module->get('version'), '>')) {
 
                     $update_result = \App\Module::updateModule($dir_module['alias']);
 
@@ -110,7 +112,7 @@ class ModuleUpdate extends Command
             }
 
             // Create a new Guzzle HTTP client
-            $client = new \GuzzleHttp\Client();
+            $client = new \GuzzleHttp\Client;
 
             try {
                 // Send a GET request to the latest version URL
@@ -136,7 +138,7 @@ class ModuleUpdate extends Command
                 $update_result = \App\Module::updateModule($module->getAlias());
 
                 // Print the module name and status
-                $this->info('[' . $update_result['module_name'] . ' Module' . ']');
+                $this->info('['.$update_result['module_name'].' Module'.']');
                 if ($update_result['status'] == 'success') {
                     // If the update was successful, print the success message
                     $this->line($update_result['msg_success']);
@@ -144,23 +146,23 @@ class ModuleUpdate extends Command
                     // If the update failed, print the error message
                     $msg = $update_result['msg'];
                     if ($update_result['download_msg']) {
-                        $msg .= ' (' . $update_result['download_msg'] . ')';
+                        $msg .= ' ('.$update_result['download_msg'].')';
                     }
-                    $this->error('ERROR: ' . $msg);
+                    $this->error('ERROR: '.$msg);
                 }
                 // If there's any output from the update, print it
                 if (trim($update_result['output'])) {
-                    $this->line(preg_replace("#\n#", "\n> ", '> ' . trim($update_result['output'])));
+                    $this->line(preg_replace("#\n#", "\n> ", '> '.trim($update_result['output'])));
                 }
 
                 // Increment the counter
-                $counter ++;
+                $counter++;
             }
         }
 
-        if ($module_alias && !$found) {
+        if ($module_alias && ! $found) {
             $this->error('Module with the following alias not found: '.$module_alias);
-        } elseif (!$counter) {
+        } elseif (! $counter) {
             $this->line('All modules are up-to-date');
         }
 

@@ -18,13 +18,12 @@ class Translator extends Translation\Translator
      *
      * @var array
      */
-    protected static $messages = array();
+    protected static $messages = [];
 
     /**
      * Return a singleton instance of Translator.
      *
-     * @param string|null $locale optional initial locale ("en" - english by default)
-     *
+     * @param  string|null  $locale  optional initial locale ("en" - english by default)
      * @return static
      */
     public static function get($locale = null)
@@ -38,7 +37,7 @@ class Translator extends Translation\Translator
 
     public function __construct($locale, ?Translation\Formatter\MessageFormatterInterface $formatter = null, $cacheDir = null, $debug = false)
     {
-        $this->addLoader('array', new Translation\Loader\ArrayLoader());
+        $this->addLoader('array', new Translation\Loader\ArrayLoader);
         parent::__construct($locale, $formatter, $cacheDir, $debug);
     }
 
@@ -47,14 +46,13 @@ class Translator extends Translation\Translator
      * Remove custom messages and reload initial messages from matching
      * file in Lang directory.
      *
-     * @param string|null $locale
-     *
+     * @param  string|null  $locale
      * @return bool
      */
     public function resetMessages($locale = null)
     {
         if ($locale === null) {
-            static::$messages = array();
+            static::$messages = [];
 
             return true;
         }
@@ -72,8 +70,7 @@ class Translator extends Translation\Translator
     /**
      * Init messages language from matching file in Lang directory.
      *
-     * @param string $locale
-     *
+     * @param  string  $locale
      * @return bool
      */
     protected function loadMessagesFromFile($locale)
@@ -88,9 +85,8 @@ class Translator extends Translation\Translator
     /**
      * Set messages of a locale and take file first if present.
      *
-     * @param string $locale
-     * @param array  $messages
-     *
+     * @param  string  $locale
+     * @param  array  $messages
      * @return $this
      */
     public function setMessages($locale, $messages)
@@ -98,7 +94,7 @@ class Translator extends Translation\Translator
         $this->loadMessagesFromFile($locale);
         $this->addResource('array', $messages, $locale);
         static::$messages[$locale] = array_merge(
-            isset(static::$messages[$locale]) ? static::$messages[$locale] : array(),
+            isset(static::$messages[$locale]) ? static::$messages[$locale] : [],
             $messages
         );
 
@@ -109,8 +105,7 @@ class Translator extends Translation\Translator
      * Get messages of a locale, if none given, return all the
      * languages.
      *
-     * @param string|null $locale
-     *
+     * @param  string|null  $locale
      * @return array
      */
     public function getMessages($locale = null)
@@ -121,8 +116,7 @@ class Translator extends Translation\Translator
     /**
      * Set the current translator locale and indicate if the source locale file exists
      *
-     * @param string $locale locale ex. en
-     *
+     * @param  string  $locale  locale ex. en
      * @return bool
      */
     public function setLocale($locale)

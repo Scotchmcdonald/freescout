@@ -2,17 +2,11 @@
 
 namespace App;
 
-use App\Mailbox;
-use App\SendLog;
-use App\Events\ConversationStatusChanged;
-use App\Events\ConversationUserChanged;
-use App\Events\UserAddedNote;
 use App\Events\CustomerCreatedConversation;
-use App\Events\UserCreatedConversation;
-use App\Events\UserCreatedConversationDraft;
-use App\Events\UserCreatedThreadDraft;
-use App\Events\UserReplied;
 use App\Events\CustomerReplied;
+use App\Events\UserAddedNote;
+use App\Events\UserCreatedConversation;
+use App\Events\UserReplied;
 use Illuminate\Database\Eloquent\Model;
 
 class Thread extends Model
@@ -21,11 +15,12 @@ class Thread extends Model
      * By whom action performed (source_via).
      */
     const PERSON_CUSTOMER = 1;
+
     const PERSON_USER = 2;
 
     public static $persons = [
         self::PERSON_CUSTOMER => 'customer',
-        self::PERSON_USER     => 'user',
+        self::PERSON_USER => 'user',
     ];
 
     /**
@@ -33,15 +28,19 @@ class Thread extends Model
      */
     // Email from customer
     const TYPE_CUSTOMER = 1;
+
     // Thead created by user
     const TYPE_MESSAGE = 2;
+
     const TYPE_NOTE = 3;
+
     // Thread status change
     const TYPE_LINEITEM = 4;
-    //const TYPE_PHONE = 5;
+
+    // const TYPE_PHONE = 5;
     // Forwarded threads - used in API only.
-    //const TYPE_FORWARDPARENT = 6;
-    //const TYPE_FORWARDCHILD = 7;
+    // const TYPE_FORWARDPARENT = 6;
+    // const TYPE_FORWARDCHILD = 7;
     const TYPE_CHAT = 8;
 
     public static $types = [
@@ -49,57 +48,65 @@ class Thread extends Model
         self::TYPE_CUSTOMER => 'customer',
         // Thread by user
         self::TYPE_MESSAGE => 'message',
-        self::TYPE_NOTE    => 'note',
+        self::TYPE_NOTE => 'note',
         // lineitem represents a change of state on the conversation. This could include, but not limited to, the conversation was assigned, the status changed, the conversation was moved from one mailbox to another, etc. A line item won’t have a body, to/cc/bcc lists, or attachments.
         self::TYPE_LINEITEM => 'lineitem',
-        //self::TYPE_PHONE    => 'phone',
+        // self::TYPE_PHONE    => 'phone',
         // When a conversation is forwarded, a new conversation is created to represent the forwarded conversation.
         // forwardparent is the type set on the thread of the original conversation that initiated the forward event.
-        //self::TYPE_FORWARDPARENT => 'forwardparent',
+        // self::TYPE_FORWARDPARENT => 'forwardparent',
         // forwardchild is the type set on the first thread of the new forwarded conversation.
-        //self::TYPE_FORWARDCHILD => 'forwardchild',
+        // self::TYPE_FORWARDCHILD => 'forwardchild',
         // Not used.
-        self::TYPE_CHAT         => 'chat',
+        self::TYPE_CHAT => 'chat',
     ];
 
     /**
      * Subtypes (for notes mostly)
      */
     const SUBTYPE_FORWARD = 1;
+
     const SUBTYPE_PHONE = 2;
 
     /**
      * Statuses (code must be equal to conversations statuses).
      */
     const STATUS_ACTIVE = 1;
+
     const STATUS_PENDING = 2;
+
     const STATUS_CLOSED = 3;
+
     const STATUS_SPAM = 4;
+
     const STATUS_NOCHANGE = 6;
 
     public static $statuses = [
-        self::STATUS_ACTIVE   => 'active',
-        self::STATUS_CLOSED   => 'closed',
+        self::STATUS_ACTIVE => 'active',
+        self::STATUS_CLOSED => 'closed',
         self::STATUS_NOCHANGE => 'nochange',
-        self::STATUS_PENDING  => 'pending',
-        self::STATUS_SPAM     => 'spam',
+        self::STATUS_PENDING => 'pending',
+        self::STATUS_SPAM => 'spam',
     ];
 
     /**
      * States.
      */
     const STATE_DRAFT = 1;
+
     const STATE_PUBLISHED = 2;
+
     const STATE_HIDDEN = 3;
+
     // A state of review means the thread has been stopped by Traffic Cop and is waiting
     // to be confirmed (or discarded) by the person that created the thread.
     const STATE_REVIEW = 4;
 
     public static $states = [
-        self::STATE_DRAFT     => 'draft',
+        self::STATE_DRAFT => 'draft',
         self::STATE_PUBLISHED => 'published',
-        self::STATE_HIDDEN    => 'hidden',
-        self::STATE_REVIEW    => 'review',
+        self::STATE_HIDDEN => 'hidden',
+        self::STATE_REVIEW => 'review',
     ];
 
     /**
@@ -108,63 +115,81 @@ class Thread extends Model
      */
     // Conversation's status changed
     const ACTION_TYPE_STATUS_CHANGED = 1;
+
     // Conversation's assignee changed
     const ACTION_TYPE_USER_CHANGED = 2;
+
     // The conversation was moved from another mailbox
     const ACTION_TYPE_MOVED_FROM_MAILBOX = 3;
+
     // Another conversation was merged with this conversation
     const ACTION_TYPE_MERGED = 4;
+
     // The conversation was imported (no email notifications were sent)
     const ACTION_TYPE_IMPORTED = 5;
+
     //  A workflow was run on this conversation (either automatic or manual)
     // const ACTION_TYPE_WORKFLOW_MANUAL = 6;
     // const ACTION_TYPE_WORKFLOW_AUTO = 7;
     // The ticket was imported from an external Service
     const ACTION_TYPE_IMPORTED_EXTERNAL = 8;
+
     // Conversation customer changed
     const ACTION_TYPE_CUSTOMER_CHANGED = 9;
+
     // The ticket was deleted
     const ACTION_TYPE_DELETED_TICKET = 10;
+
     // The ticket was restored
     const ACTION_TYPE_RESTORE_TICKET = 11;
 
     // Describes an optional action associated with the line item
     public static $action_types = [
-        self::ACTION_TYPE_STATUS_CHANGED          => 'changed-ticket-status',
-        self::ACTION_TYPE_USER_CHANGED            => 'changed-ticket-assignee',
-        self::ACTION_TYPE_MOVED_FROM_MAILBOX      => 'moved-from-mailbox',
-        self::ACTION_TYPE_MERGED                  => 'merged',
-        self::ACTION_TYPE_IMPORTED                => 'imported',
+        self::ACTION_TYPE_STATUS_CHANGED => 'changed-ticket-status',
+        self::ACTION_TYPE_USER_CHANGED => 'changed-ticket-assignee',
+        self::ACTION_TYPE_MOVED_FROM_MAILBOX => 'moved-from-mailbox',
+        self::ACTION_TYPE_MERGED => 'merged',
+        self::ACTION_TYPE_IMPORTED => 'imported',
         // self::ACTION_TYPE_WORKFLOW_MANUAL         => 'manual-workflow',
         // self::ACTION_TYPE_WORKFLOW_AUTO           => 'automatic-workflow',
-        self::ACTION_TYPE_IMPORTED_EXTERNAL       => 'imported-external',
-        self::ACTION_TYPE_CUSTOMER_CHANGED        => 'changed-ticket-customer',
-        self::ACTION_TYPE_DELETED_TICKET          => 'deleted-ticket',
-        self::ACTION_TYPE_RESTORE_TICKET          => 'restore-ticket',
+        self::ACTION_TYPE_IMPORTED_EXTERNAL => 'imported-external',
+        self::ACTION_TYPE_CUSTOMER_CHANGED => 'changed-ticket-customer',
+        self::ACTION_TYPE_DELETED_TICKET => 'deleted-ticket',
+        self::ACTION_TYPE_RESTORE_TICKET => 'restore-ticket',
     ];
 
     /**
      * Source types (equal to thread source types).
      */
     const SOURCE_TYPE_EMAIL = 1;
+
     const SOURCE_TYPE_WEB = 2;
+
     const SOURCE_TYPE_API = 3;
 
     public static $source_types = [
         self::SOURCE_TYPE_EMAIL => 'email',
-        self::SOURCE_TYPE_WEB   => 'web',
-        self::SOURCE_TYPE_API   => 'api',
+        self::SOURCE_TYPE_WEB => 'web',
+        self::SOURCE_TYPE_API => 'api',
     ];
 
     // Metas.
     const META_CONVERSATION_HISTORY = 'ch';
+
     const META_PREV_CONVERSATION = 'pc';
+
     const META_MERGED_WITH_CONV = 'mwc';
+
     const META_MERGED_INTO_CONV = 'mic';
+
     const META_FORWARD_PARENT_CONVERSATION_NUMBER = 'fw_pcn';
+
     const META_FORWARD_PARENT_CONVERSATION_ID = 'fw_pci';
+
     const META_FORWARD_PARENT_THREAD_ID = 'fw_pti';
+
     const META_FORWARD_CHILD_CONVERSATION_NUMBER = 'fw_ccn';
+
     const META_FORWARD_CHILD_CONVERSATION_ID = 'fw_cci';
 
     // At some stage metas have been renamed.
@@ -234,7 +259,7 @@ class Thread extends Model
     public function attachments()
     {
         return $this->hasMany('App\Attachment')->where('embedded', false);
-        //return $this->hasMany('App\Attachment');
+        // return $this->hasMany('App\Attachment');
     }
 
     /**
@@ -300,7 +325,7 @@ class Thread extends Model
      */
     public function getCleanBody($body = '')
     {
-        if (!$body) {
+        if (! $body) {
             $body = $this->body;
         }
 
@@ -322,7 +347,7 @@ class Thread extends Model
 
         // https://github.com/freescout-helpdesk/freescout/issues/3894
         // Remove <!--[if !mso]><!--> and <!--<![endif]--> comments, preserving the data inside
-        //$body = preg_replace('/(<!\-\-\[if [^>]+\]>|<!\[endif\]\-\->)/', '', $body);
+        // $body = preg_replace('/(<!\-\-\[if [^>]+\]>|<!\[endif\]\-\->)/', '', $body);
 
         return \Helper::purifyHtml($body);
     }
@@ -335,9 +360,9 @@ class Thread extends Model
         return \Helper::htmlToText($this->body, true, $options);
     }
 
-    public function getBodyWithFormatedLinks(string $body = '') :string
+    public function getBodyWithFormatedLinks(string $body = ''): string
     {
-        if (!$body) {
+        if (! $body) {
             $body = $this->body;
         }
 
@@ -346,7 +371,7 @@ class Thread extends Model
         // Add target="_blank" to links.
         $pattern = '/<a(.*?)?href=[\'"]?[\'"]?(.*?)?>/i';
 
-        $body = preg_replace_callback($pattern, function($m){
+        $body = preg_replace_callback($pattern, function ($m) {
             $tpl = array_shift($m);
             $href = isset($m[1]) ? $m[1] : null;
 
@@ -354,12 +379,12 @@ class Thread extends Model
                 return $tpl;
             }
 
-            if (trim($href) && 0 === strpos($href, '#')) {
+            if (trim($href) && strpos($href, '#') === 0) {
                 // Anchor links.
                 return $tpl;
             }
 
-            return preg_replace_callback('/href=/i', function($m2){
+            return preg_replace_callback('/href=/i', function ($m2) {
                 return sprintf('target="_blank" %s', array_shift($m2));
             }, $tpl);
 
@@ -490,8 +515,7 @@ class Thread extends Model
     /**
      * Get status name. Made as a function to allow status names translation.
      *
-     * @param int $status
-     *
+     * @param  int  $status
      * @return string
      */
     public static function statusCodeToName($status)
@@ -530,10 +554,10 @@ class Thread extends Model
      */
     public function getAssigneeName($ucfirst = false, $by_user = null)
     {
-        if (!$by_user) {
+        if (! $by_user) {
             $by_user = auth()->user();
         }
-        if (!$this->user_id) {
+        if (! $this->user_id) {
             if ($ucfirst) {
                 return __('Anyone');
             } else {
@@ -565,7 +589,7 @@ class Thread extends Model
      */
     public function getCreatedBy()
     {
-        if (!empty($this->created_by_user_id)) {
+        if (! empty($this->created_by_user_id)) {
             // User can be deleted
             if ($this->created_by_user) {
                 return $this->created_by_user;
@@ -613,7 +637,7 @@ class Thread extends Model
             if ($this->customer_cached) {
                 $person = $this->customer_cached->getFullName(true);
             }
-        } elseif ($this->state == self::STATE_DRAFT && !empty($this->edited_by_user_id)) {
+        } elseif ($this->state == self::STATE_DRAFT && ! empty($this->edited_by_user_id)) {
             // Draft
             if (auth()->user() && $this->edited_by_user_id == auth()->user()->id) {
                 $person = __('you');
@@ -650,7 +674,7 @@ class Thread extends Model
                 if ($conversation_number) {
                     $did_this = __(':person marked as :status_name conversation #:conversation_number', ['status_name' => $this->getStatusName(), 'conversation_number' => $conversation_number]);
                 } else {
-                    $did_this = __(":person marked as :status_name", ['status_name' => $this->getStatusName()]);
+                    $did_this = __(':person marked as :status_name', ['status_name' => $this->getStatusName()]);
                 }
             } elseif ($this->action_type == self::ACTION_TYPE_USER_CHANGED) {
                 $assignee = $this->getAssigneeName(false, $by_user);
@@ -660,7 +684,7 @@ class Thread extends Model
                 if ($conversation_number) {
                     $did_this = __(':person assigned :assignee conversation #:conversation_number', ['assignee' => $assignee, 'conversation_number' => $conversation_number]);
                 } else {
-                    $did_this = __(":person assigned to :assignee", ['assignee' => $assignee]);
+                    $did_this = __(':person assigned to :assignee', ['assignee' => $assignee]);
                 }
             } elseif ($this->action_type == self::ACTION_TYPE_CUSTOMER_CHANGED) {
                 if ($conversation_number) {
@@ -673,17 +697,17 @@ class Thread extends Model
                     if ($escape) {
                         $customer_name = htmlspecialchars($customer_name);
                     }
-                    $did_this = __(":person changed the customer to :customer", ['customer' => '<a href="'.($this->customer_cached ? $this->customer_cached->url() : '').'" title="'.$this->action_data.'" class="link-black">'.$customer_name.'</a>']);
+                    $did_this = __(':person changed the customer to :customer', ['customer' => '<a href="'.($this->customer_cached ? $this->customer_cached->url() : '').'" title="'.$this->action_data.'" class="link-black">'.$customer_name.'</a>']);
                 }
             } elseif ($this->action_type == self::ACTION_TYPE_DELETED_TICKET) {
-                $did_this = __(":person deleted");
+                $did_this = __(':person deleted');
             } elseif ($this->action_type == self::ACTION_TYPE_RESTORE_TICKET) {
-                $did_this = __(":person restored");
+                $did_this = __(':person restored');
             } elseif ($this->action_type == self::ACTION_TYPE_MOVED_FROM_MAILBOX) {
-                $did_this = __(":person moved conversation from another mailbox");
+                $did_this = __(':person moved conversation from another mailbox');
             } elseif ($this->action_type == self::ACTION_TYPE_MERGED) {
-                if (!empty($this->getMeta(Thread::META_MERGED_WITH_CONV))) {
-                    $did_this = __(":person merged with another conversation");
+                if (! empty($this->getMeta(Thread::META_MERGED_WITH_CONV))) {
+                    $did_this = __(':person merged with another conversation');
                 } else {
                     $merge_conversation = Conversation::find($this->getMeta(Thread::META_MERGED_INTO_CONV));
                     $merge_conversation_number = '';
@@ -691,9 +715,9 @@ class Thread extends Model
                         $merge_conversation_number = $merge_conversation->number;
                     }
                     if ($merge_conversation) {
-                        $did_this = __(":person merged into conversation #:conversation_number", ['conversation_number' => '<a href="'.$merge_conversation->url().'" class="link-black">'.$merge_conversation_number.'</a>']);
+                        $did_this = __(':person merged into conversation #:conversation_number', ['conversation_number' => '<a href="'.$merge_conversation->url().'" class="link-black">'.$merge_conversation_number.'</a>']);
                     } else {
-                        $did_this = __(":person merged into conversation #:conversation_number", ['conversation_number' => $merge_conversation_number]);
+                        $did_this = __(':person merged into conversation #:conversation_number', ['conversation_number' => $merge_conversation_number]);
                     }
                 }
             }
@@ -747,8 +771,8 @@ class Thread extends Model
         }
 
         return __($did_this, [
-            'person'           => '<strong>'.$person.'</strong>',
-            'did_this'         => $did_this,
+            'person' => '<strong>'.$person.'</strong>',
+            'did_this' => $did_this,
         ]);
     }
 
@@ -788,7 +812,7 @@ class Thread extends Model
      */
     public function getBodyOriginal()
     {
-        if (!empty($this->body_original)) {
+        if (! empty($this->body_original)) {
             return $this->body_original;
         } else {
             return $this->body;
@@ -799,7 +823,6 @@ class Thread extends Model
      * Get name for the reply to customer.
      *
      * @param [type] $mailbox [description]
-     *
      * @return [type] [description]
      */
     public function getFromName($mailbox = null)
@@ -863,7 +886,7 @@ class Thread extends Model
      */
     public function isBounce()
     {
-        if (!empty($this->getSendStatusData()['is_bounce'])) {
+        if (! empty($this->getSendStatusData()['is_bounce'])) {
             return true;
         } else {
             return false;
@@ -894,7 +917,7 @@ class Thread extends Model
             } else {
                 $send_status_data = $new_data;
             }
-            if (!empty($send_status_data['msg'])) {
+            if (! empty($send_status_data['msg'])) {
                 $send_status_data['msg'] = \MailHelper::sanitizeSmtpStatusMessage($send_status_data['msg']);
             }
             $this->send_status_data = \Helper::jsonEncodeUtf8($send_status_data);
@@ -913,12 +936,12 @@ class Thread extends Model
      *
      * @param  [type] $conversation_id [description]
      * @param  [type] $text            [description]
-     * @param  array  $data            [description]
+     * @param  array  $data  [description]
      * @return [type]                  [description]
      */
     public static function create($conversation, $type, $body, $data = [], $save = true)
     {
-        $thread = new Thread();
+        $thread = new Thread;
         $thread->conversation_id = $conversation->id;
         $thread->type = $type;
         $thread->body = $body;
@@ -926,25 +949,25 @@ class Thread extends Model
         $thread->state = Thread::STATE_PUBLISHED;
 
         // Assigned to.
-        if (!empty($data['user_id'])) {
+        if (! empty($data['user_id'])) {
             $thread->user_id = $data['user_id'];
         }
-        if (!empty($data['message_id'])) {
+        if (! empty($data['message_id'])) {
             $thread->message_id = $data['message_id'];
         }
-        if (!empty($data['headers'])) {
+        if (! empty($data['headers'])) {
             $thread->headers = $data['headers'];
         }
-        if (!empty($data['from'])) {
+        if (! empty($data['from'])) {
             $thread->from = $data['from'];
         }
-        if (!empty($data['to'])) {
+        if (! empty($data['to'])) {
             $thread->setTo($data['to']);
         }
-        if (!empty($data['cc'])) {
+        if (! empty($data['cc'])) {
             $thread->setCc($data['cc']);
         }
-        if (!empty($data['bcc'])) {
+        if (! empty($data['bcc'])) {
             $thread->setBcc($data['bcc']);
         }
         if (isset($data['first'])) {
@@ -956,19 +979,19 @@ class Thread extends Model
         if (isset($data['source_type'])) {
             $thread->source_type = $data['source_type'];
         }
-        if (!empty($data['customer_id'])) {
+        if (! empty($data['customer_id'])) {
             $thread->customer_id = $data['customer_id'];
         }
-        if (!empty($data['created_by_customer_id'])) {
+        if (! empty($data['created_by_customer_id'])) {
             $thread->created_by_customer_id = $data['created_by_customer_id'];
         }
-        if (!empty($data['created_by_user_id'])) {
+        if (! empty($data['created_by_user_id'])) {
             $thread->created_by_user_id = $data['created_by_user_id'];
         }
-        if (!empty($data['action_type'])) {
+        if (! empty($data['action_type'])) {
             $thread->action_type = $data['action_type'];
         }
-        if (!empty($data['meta'])) {
+        if (! empty($data['meta'])) {
             $thread->setMetas($data['meta']);
         }
 
@@ -987,10 +1010,10 @@ class Thread extends Model
 
         $is_customer = ($data['type'] == Thread::TYPE_CUSTOMER);
 
-        if (!$customer && !empty($data['customer_id'])) {
+        if (! $customer && ! empty($data['customer_id'])) {
             $customer = Customer::find($data['customer_id']);
         }
-        if (!$customer) {
+        if (! $customer) {
             $customer = $conversation->customer;
         }
 
@@ -1001,20 +1024,20 @@ class Thread extends Model
         // Check type.
         if ($data['type'] == Thread::TYPE_CUSTOMER && empty($customer)) {
             return false;
-            //return $this->getErrorResponse('`customer` parameter is required', 'customer');
+            // return $this->getErrorResponse('`customer` parameter is required', 'customer');
         }
         if (($data['type'] == Thread::TYPE_MESSAGE || $data['type'] == Thread::TYPE_NOTE) && empty($user_id)) {
             return false;
-            //return $this->getErrorResponse('`user` parameter is required', 'user');
+            // return $this->getErrorResponse('`user` parameter is required', 'user');
         }
 
         // Create thread.
         $now = date('Y-m-d H:i:s');
 
         // New conversation.
-        $new = !$conversation->threads_count;
+        $new = ! $conversation->threads_count;
 
-        $thread = new Thread();
+        $thread = new Thread;
         $thread->conversation_id = $conversation->id;
         $thread->type = $data['type'];
         if ($is_customer) {
@@ -1030,17 +1053,17 @@ class Thread extends Model
         $thread->state = $data['state'] ?? Thread::STATE_PUBLISHED;
         $thread->customer_id = $customer->id ?? $conversation->customer_id ?? null;
         $thread->body = $data['body'];
-        if (!$is_customer) {
+        if (! $is_customer) {
             $thread->setTo([$customer->getMainEmail()]);
         }
-        
+
         $cc = \MailHelper::sanitizeEmails($data['cc'] ?? []);
         $thread->setCc($cc);
 
         $bcc = \MailHelper::sanitizeEmails($data['bcc'] ?? []);
         $thread->setBcc($bcc);
-        $thread->imported = (int)($data['imported'] ?? false);
-        if ($thread->imported && !empty($data['created_at'])) {
+        $thread->imported = (int) ($data['imported'] ?? false);
+        if ($thread->imported && ! empty($data['created_at'])) {
             $thread->created_at = self::utcStringToServerDate($data['created_at']);
         }
         if ($new) {
@@ -1053,7 +1076,7 @@ class Thread extends Model
         }
 
         // Process attachments.
-        if (!empty($data['attachments'])) {
+        if (! empty($data['attachments'])) {
             $has_attachments = false;
             foreach ($data['attachments'] as $attachment) {
 
@@ -1070,16 +1093,16 @@ class Thread extends Model
                 } else {
 
                     if (empty($attachment['file_name'])
-                        //|| empty($attachment['mime_type'])
+                        // || empty($attachment['mime_type'])
                         || (empty($attachment['data']) && empty($attachment['file_url']))
                     ) {
                         continue;
                     }
 
-                    if (!empty($attachment['data'])) {
+                    if (! empty($attachment['data'])) {
                         // BASE64 string.
                         $content = base64_decode($attachment['data']);
-                        if (!$content) {
+                        if (! $content) {
                             continue;
                         }
                         if (empty($attachment['mime_type'])) {
@@ -1089,7 +1112,7 @@ class Thread extends Model
                     } else {
                         // URL.
                         $file_path = \Helper::downloadRemoteFileAsTmp($attachment['file_url']);
-                        if (!$file_path) {
+                        if (! $file_path) {
                             continue;
                         }
                         $uploaded_file = new \Illuminate\Http\UploadedFile(
@@ -1104,7 +1127,7 @@ class Thread extends Model
                         }
                     }
                 }
-                if (!$has_attachments) {
+                if (! $has_attachments) {
                     $thread->save();
                 }
                 $attachment = Attachment::create(
@@ -1131,9 +1154,9 @@ class Thread extends Model
             $thread->has_attachments = $has_attachments;
             $conversation->has_attachments = $has_attachments;
         }
-        
+
         $thread->save();
-        
+
         if ($new) {
             if ($is_customer) {
                 $conversation->source_via = Conversation::PERSON_CUSTOMER;
@@ -1159,13 +1182,13 @@ class Thread extends Model
                 $conversation->last_reply_from = Conversation::PERSON_CUSTOMER;
 
                 // Set specific status
-                if (!empty($data['status'])) {
-                    if ((int)$conversation->status != (int)$data['status']) {
+                if (! empty($data['status'])) {
+                    if ((int) $conversation->status != (int) $data['status']) {
                         $update_folder = true;
                     }
                     $conversation->status = $data['status'];
                 } else {
-                    if ((int)$conversation->status != Conversation::STATUS_ACTIVE) {
+                    if ((int) $conversation->status != Conversation::STATUS_ACTIVE) {
                         $update_folder = true;
                     }
                     // Reply from customer makes conversation active
@@ -1174,14 +1197,14 @@ class Thread extends Model
             } else {
                 $conversation->last_reply_from = Conversation::PERSON_USER;
                 $conversation->user_updated_at = $now;
-                
-                if (!empty($data['status'])) {
-                    if ((int)$conversation->status != (int)$data['status']) {
+
+                if (! empty($data['status'])) {
+                    if ((int) $conversation->status != (int) $data['status']) {
                         $update_folder = true;
                     }
                     $conversation->status = $data['status'];
                 } else {
-                    if ((int)$conversation->status != Conversation::STATUS_PENDING) {
+                    if ((int) $conversation->status != Conversation::STATUS_PENDING) {
                         $update_folder = true;
                     }
                     // Reply from customer makes conversation active
@@ -1189,7 +1212,7 @@ class Thread extends Model
                 }
             }
         }
-        
+
         // Reply from customer to deleted conversation should undelete it.
         if ($data['type'] == Thread::TYPE_CUSTOMER && $conversation->state == Conversation::STATE_DELETED) {
             $conversation->state = Conversation::STATE_PUBLISHED;
@@ -1220,7 +1243,7 @@ class Thread extends Model
         $conversation->save();
 
         // Update folders counters
-        if (!$new) {
+        if (! $new) {
             // Update folders counters
             $conversation->mailbox->updateFoldersCounters();
         }
@@ -1232,7 +1255,7 @@ class Thread extends Model
         // if ($prev_customer_id) {
         //     event(new ConversationCustomerChanged($conversation, $prev_customer_id, $prev_customer_email, null, $customer));
         // }
-    
+
         if ($new) {
             if ($is_customer) {
                 event(new CustomerCreatedConversation($conversation, $thread));
@@ -1271,7 +1294,7 @@ class Thread extends Model
     {
         $name = '';
 
-        if (!$this->edited_by_user_id) {
+        if (! $this->edited_by_user_id) {
             return '';
         }
 
@@ -1290,7 +1313,7 @@ class Thread extends Model
     public function getMetas()
     {
         return $this->meta;
-        //return \Helper::jsonToArray($this->meta);
+        // return \Helper::jsonToArray($this->meta);
     }
 
     /**
@@ -1299,7 +1322,7 @@ class Thread extends Model
     public function setMetas($data)
     {
         $this->meta = $data;
-        //$this->meta = \Helper::jsonEncodeUtf8($data);
+        // $this->meta = \Helper::jsonEncodeUtf8($data);
     }
 
     /**
@@ -1328,9 +1351,10 @@ class Thread extends Model
     public function getMetaFw($key, $default = null)
     {
         $meta = $this->getMeta($key, $default);
-        if (!$meta) {
+        if (! $meta) {
             $meta = $this->getMeta(self::$meta_fw_backward_compat[$key], $default);
         }
+
         return $meta;
     }
 
@@ -1351,7 +1375,7 @@ class Thread extends Model
      */
     public function getForwardByFullName($by_user = null)
     {
-        if (!$by_user) {
+        if (! $by_user) {
             $by_user = auth()->user();
         }
         if ($by_user && $this->created_by_user_id == $by_user->id) {
@@ -1370,7 +1394,7 @@ class Thread extends Model
      */
     public function isForward()
     {
-        return ($this->subtype == \App\Thread::SUBTYPE_FORWARD);
+        return $this->subtype == \App\Thread::SUBTYPE_FORWARD;
     }
 
     /**
@@ -1390,7 +1414,7 @@ class Thread extends Model
      */
     public function isNote()
     {
-        return ($this->type == \App\Thread::TYPE_NOTE);
+        return $this->type == \App\Thread::TYPE_NOTE;
     }
 
     /**
@@ -1420,28 +1444,28 @@ class Thread extends Model
         $mailbox = null;
 
         // The conversation may has been moved from another mailbox.
-        if (!empty($this->conversation->meta['orig_mailbox_id'])) {
+        if (! empty($this->conversation->meta['orig_mailbox_id'])) {
             $mailbox = Mailbox::find($this->conversation->meta['orig_mailbox_id']);
         }
 
-        if (!$mailbox) {
+        if (! $mailbox) {
             $mailbox = $this->conversation->mailbox;
         }
         $message = \MailHelper::fetchMessage($mailbox, $this->message_id, $this->getMailDate());
 
         // Try without limiting by date.
         // https://github.com/freescout-helpdesk/freescout/issues/3658
-        if (!$message) {
+        if (! $message) {
             $message = \MailHelper::fetchMessage($mailbox, $this->message_id);
         }
 
-        if (!$message) {
+        if (! $message) {
             return '';
         }
 
         $body = $message->getHTMLBody();
 
-        if (!$body) {
+        if (! $body) {
             $body = $message->getTextBody();
         }
 
@@ -1464,6 +1488,7 @@ class Thread extends Model
             return '';
         }
         preg_match("#From:\s*.*[^\s]*\s*<\s*(.*[^\s])\s*>\s*\n#", $this->headers ?? '', $m);
+
         return $m[1] ?? '';
     }
 
@@ -1480,7 +1505,7 @@ class Thread extends Model
 
     public function getActionTypeName()
     {
-        if (!$this->action_type) {
+        if (! $this->action_type) {
             return '';
         }
 
@@ -1537,9 +1562,10 @@ class Thread extends Model
             return $this->message_id;
         }
         if ($this->isUserMessage()) {
-            if (!$mailbox) {
+            if (! $mailbox) {
                 $mailbox = $this->conversation->mailbox;
             }
+
             return \MailHelper::MESSAGE_ID_PREFIX_REPLY_TO_CUSTOMER.'-'.$this->id.'-'.\MailHelper::getMessageIdHash($this->id).'@'.$mailbox->getEmailDomain();
         }
 
@@ -1547,7 +1573,7 @@ class Thread extends Model
     }
 
     // Sorts threads in desc order by created_at and ID.
-    // 
+    //
     // Threads has to be sorted by created_at and not by id.
     // https://github.com/freescout-helpdesk/freescout/issues/2938
     // Sometimes thread.created_at may be the same,
@@ -1572,6 +1598,7 @@ class Thread extends Model
     public static function getLastThread($threads)
     {
         $threads = self::sortThreads($threads);
+
         return $threads->first();
     }
 
@@ -1581,7 +1608,7 @@ class Thread extends Model
             return false;
         }
         // Check if failed_job still exists.
-        if (!$this->getFailedJobId()) {
+        if (! $this->getFailedJobId()) {
             return false;
         }
 
@@ -1591,14 +1618,14 @@ class Thread extends Model
     public function isSendStatusSuccess()
     {
         // We have not tried to send the email yet.
-        if ((int)$this->send_status == 0) {
+        if ((int) $this->send_status == 0) {
             return false;
         }
 
-        if (!in_array($this->send_status, [SendLog::STATUS_SEND_ERROR, SendLog::STATUS_DELIVERY_ERROR, SendLog::STATUS_SEND_INTERMEDIATE_ERROR])) {
+        if (! in_array($this->send_status, [SendLog::STATUS_SEND_ERROR, SendLog::STATUS_DELIVERY_ERROR, SendLog::STATUS_SEND_INTERMEDIATE_ERROR])) {
             return true;
         }
-        
+
         return false;
     }
 

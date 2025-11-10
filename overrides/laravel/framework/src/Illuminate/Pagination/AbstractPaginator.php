@@ -3,9 +3,9 @@
 namespace Illuminate\Pagination;
 
 use Closure;
-use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * @mixin \Illuminate\Support\Collection
@@ -196,7 +196,6 @@ abstract class AbstractPaginator implements Htmlable
     /**
      * Add an array of query string values.
      *
-     * @param  array  $keys
      * @return $this
      */
     protected function appendArray(array $keys)
@@ -369,7 +368,6 @@ abstract class AbstractPaginator implements Htmlable
     /**
      * Set the current request path resolver callback.
      *
-     * @param  \Closure  $resolver
      * @return void
      */
     public static function currentPathResolver(Closure $resolver)
@@ -396,7 +394,6 @@ abstract class AbstractPaginator implements Htmlable
     /**
      * Set the current page resolver callback.
      *
-     * @param  \Closure  $resolver
      * @return void
      */
     public static function currentPageResolver(Closure $resolver)
@@ -417,7 +414,6 @@ abstract class AbstractPaginator implements Htmlable
     /**
      * Set the view factory resolver callback.
      *
-     * @param  \Closure  $resolver
      * @return void
      */
     public static function viewFactoryResolver(Closure $resolver)
@@ -479,8 +475,6 @@ abstract class AbstractPaginator implements Htmlable
 
     /**
      * Get the number of items for the current page.
-     *
-     * @return int
      */
     public function count(): int
     {
@@ -500,7 +494,6 @@ abstract class AbstractPaginator implements Htmlable
     /**
      * Set the paginator's underlying collection.
      *
-     * @param  \Illuminate\Support\Collection  $collection
      * @return $this
      */
     public function setCollection(Collection $collection)
@@ -514,7 +507,6 @@ abstract class AbstractPaginator implements Htmlable
      * Determine if the given item exists.
      *
      * @param  mixed  $key
-     * @return bool
      */
     public function offsetExists($key): bool
     {
@@ -526,7 +518,7 @@ abstract class AbstractPaginator implements Htmlable
      *
      * @param  mixed  $key
      * @return mixed
-     * : mixed
+     *               : mixed
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($key)
@@ -539,7 +531,6 @@ abstract class AbstractPaginator implements Htmlable
      *
      * @param  mixed  $key
      * @param  mixed  $value
-     * @return void
      */
     public function offsetSet($key, $value): void
     {
@@ -550,7 +541,6 @@ abstract class AbstractPaginator implements Htmlable
      * Unset the item at the given key.
      *
      * @param  mixed  $key
-     * @return void
      */
     public function offsetUnset($key): void
     {

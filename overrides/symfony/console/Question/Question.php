@@ -22,17 +22,24 @@ use Symfony\Component\Console\Exception\LogicException;
 class Question
 {
     private $question;
+
     private $attempts;
+
     private $hidden = false;
+
     private $hiddenFallback = true;
+
     private $autocompleterValues;
+
     private $validator;
+
     private $default;
+
     private $normalizer;
 
     /**
-     * @param string $question The question to ask to the user
-     * @param mixed  $default  The default answer to return if the user enters nothing
+     * @param  string  $question  The question to ask to the user
+     * @param  mixed  $default  The default answer to return if the user enters nothing
      */
     public function __construct($question, $default = null)
     {
@@ -73,8 +80,7 @@ class Question
     /**
      * Sets whether the user response must be hidden or not.
      *
-     * @param bool $hidden
-     *
+     * @param  bool  $hidden
      * @return $this
      *
      * @throws LogicException In case the autocompleter is also used
@@ -103,8 +109,7 @@ class Question
     /**
      * Sets whether to fallback on non-hidden question if the response can not be hidden.
      *
-     * @param bool $fallback
-     *
+     * @param  bool  $fallback
      * @return $this
      */
     public function setHiddenFallback($fallback)
@@ -127,8 +132,7 @@ class Question
     /**
      * Sets values for the autocompleter.
      *
-     * @param iterable|null $values
-     *
+     * @param  iterable|null  $values
      * @return $this
      *
      * @throws InvalidArgumentException
@@ -140,7 +144,7 @@ class Question
             $values = $this->isAssoc($values) ? array_merge(array_keys($values), array_values($values)) : array_values($values);
         }
 
-        if (null !== $values && !\is_array($values) && !$values instanceof \Traversable) {
+        if ($values !== null && ! \is_array($values) && ! $values instanceof \Traversable) {
             throw new InvalidArgumentException('Autocompleter values can be either an array, `null` or a `Traversable` object.');
         }
 
@@ -180,15 +184,14 @@ class Question
      *
      * Null means an unlimited number of attempts.
      *
-     * @param int|null $attempts
-     *
+     * @param  int|null  $attempts
      * @return $this
      *
      * @throws InvalidArgumentException in case the number of attempts is invalid
      */
     public function setMaxAttempts($attempts)
     {
-        if (null !== $attempts) {
+        if ($attempts !== null) {
             $attempts = (int) $attempts;
             if ($attempts < 1) {
                 throw new InvalidArgumentException('Maximum number of attempts must be a positive value.');

@@ -7,34 +7,34 @@
  */
 class HTMLPurifier_AttrValidator
 {
-
     /**
      * Validates the attributes of a token, mutating it as necessary.
      * that has valid tokens
-     * @param HTMLPurifier_Token $token Token to validate.
-     * @param HTMLPurifier_Config $config Instance of HTMLPurifier_Config
-     * @param HTMLPurifier_Context $context Instance of HTMLPurifier_Context
+     *
+     * @param  HTMLPurifier_Token  $token  Token to validate.
+     * @param  HTMLPurifier_Config  $config  Instance of HTMLPurifier_Config
+     * @param  HTMLPurifier_Context  $context  Instance of HTMLPurifier_Context
      */
     public function validateToken($token, $config, $context)
     {
         $definition = $config->getHTMLDefinition();
-        $e =& $context->get('ErrorCollector', true);
+        $e = &$context->get('ErrorCollector', true);
 
         // initialize IDAccumulator if necessary
-        $ok =& $context->get('IDAccumulator', true);
-        if (!$ok) {
+        $ok = &$context->get('IDAccumulator', true);
+        if (! $ok) {
             $id_accumulator = HTMLPurifier_IDAccumulator::build($config, $context);
             $context->register('IDAccumulator', $id_accumulator);
         }
 
         // initialize CurrentToken if necessary
-        $current_token =& $context->get('CurrentToken', true);
-        if (!$current_token) {
+        $current_token = &$context->get('CurrentToken', true);
+        if (! $current_token) {
             $context->register('CurrentToken', $token);
         }
 
-        if (!$token instanceof HTMLPurifier_Token_Start &&
-            !$token instanceof HTMLPurifier_Token_Empty
+        if (! $token instanceof HTMLPurifier_Token_Start &&
+            ! $token instanceof HTMLPurifier_Token_Empty
         ) {
             return;
         }
@@ -101,14 +101,14 @@ class HTMLPurifier_AttrValidator
                         $config,
                         $context
                     );
-                    if ($token->name == 'img' 
+                    if ($token->name == 'img'
                         && $result
-                        && (int)$value
-                        && (int)$result
+                        && (int) $value
+                        && (int) $result
                         && ($attr_key == 'width' || $attr_key == 'height')
                     ) {
-                        $proportions_change[$attr_key]['original'] = (int)$value;
-                        $proportions_change[$attr_key]['new'] = (int)$result;
+                        $proportions_change[$attr_key]['original'] = (int) $value;
+                        $proportions_change[$attr_key]['new'] = (int) $result;
                     }
                 }
             } elseif (isset($d_defs[$attr_key])) {
@@ -152,14 +152,14 @@ class HTMLPurifier_AttrValidator
             // others would prepend themselves).
         }
 
-        if (!empty($proportions_change['width']) && !empty($proportions_change['height'])) {
+        if (! empty($proportions_change['width']) && ! empty($proportions_change['height'])) {
             if ($proportions_change['width']['new'] < $proportions_change['width']['original']
-                && (int)$proportions_change['width']['original']
+                && (int) $proportions_change['width']['original']
             ) {
                 // Adjust height.
                 $attr['height'] = floor($proportions_change['height']['original'] * $proportions_change['width']['new'] / $proportions_change['width']['original']);
             } elseif ($proportions_change['height']['new'] < $proportions_change['height']['original']
-                && (int)$proportions_change['height']['original']
+                && (int) $proportions_change['height']['original']
             ) {
                 // Adjust width.
                 $attr['width'] = floor($proportions_change['height']['original'] * $proportions_change['height']['new'] / $proportions_change['height']['original']);
@@ -193,13 +193,11 @@ class HTMLPurifier_AttrValidator
         $token->attr = $attr;
 
         // destroy CurrentToken if we made it ourselves
-        if (!$current_token) {
+        if (! $current_token) {
             $context->destroy('CurrentToken');
         }
 
     }
-
-
 }
 
 // vim: et sw=4 sts=4

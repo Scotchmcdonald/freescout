@@ -12,7 +12,7 @@ use Nwidart\Modules\Exceptions\ModuleNotFoundException;
 use Nwidart\Modules\Process\Installer;
 use Nwidart\Modules\Process\Updater;
 
-abstract class Repository implements RepositoryInterface, Countable
+abstract class Repository implements Countable, RepositoryInterface
 {
     use Macroable;
 
@@ -54,8 +54,7 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * The constructor.
      *
-     * @param Container   $app
-     * @param string|null $path
+     * @param  string|null  $path
      */
     public function __construct(Container $app, $path = null)
     {
@@ -66,8 +65,7 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Add other module location.
      *
-     * @param string $path
-     *
+     * @param  string  $path
      * @return $this
      */
     public function addLocation($path)
@@ -80,8 +78,7 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Alternative method for "addPath".
      *
-     * @param string $path
-     *
+     * @param  string  $path
      * @return $this
      *
      * @deprecated
@@ -93,20 +90,16 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Get all additional paths.
-     *
-     * @return array
      */
-    public function getPaths() : array
+    public function getPaths(): array
     {
         return $this->paths;
     }
 
     /**
      * Get scanned modules paths.
-     *
-     * @return array
      */
-    public function getScanPaths() : array
+    public function getScanPaths(): array
     {
         $paths = $this->paths;
 
@@ -126,10 +119,9 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Creates a new Module instance.
      *
-     * @param Container $app
-     * @param $name
-     * @param $path
-     *
+     * @param  Container  $app
+     * @param  $name
+     * @param  $path
      * @return \Nwidart\Modules\Module
      */
     abstract protected function createModule(...$args);
@@ -169,12 +161,10 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Get all modules.
-     *
-     * @return array
      */
-    public function all($forceScan = false) : array
+    public function all($forceScan = false): array
     {
-        if (!$this->config('cache.enabled') || $forceScan) {
+        if (! $this->config('cache.enabled') || $forceScan) {
             return $this->scan();
         }
 
@@ -193,8 +183,7 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Format the cached data as array of modules.
      *
-     * @param array $cached
-     *
+     * @param  array  $cached
      * @return array
      */
     protected function formatCached($cached)
@@ -227,7 +216,7 @@ abstract class Repository implements RepositoryInterface, Countable
             $array = $this->toCollection()->toArray();
             // Set `active` flag from DB for each module
             foreach ($array as $key => $item) {
-                if (!empty($item['alias'])) {
+                if (! empty($item['alias'])) {
                     $item['active'] = (int) \App\Module::isActive($item['alias']);
                 }
             }
@@ -241,22 +230,16 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Get all modules as collection instance.
-     *
-     * @return Collection
      */
-    public function toCollection() : Collection
+    public function toCollection(): Collection
     {
         return new Collection($this->scan());
     }
 
     /**
      * Get modules by status.
-     *
-     * @param $status
-     *
-     * @return array
      */
-    public function getByStatus($status) : array
+    public function getByStatus($status): array
     {
         $modules = [];
 
@@ -271,22 +254,16 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Determine whether the given module exist.
-     *
-     * @param $name
-     *
-     * @return bool
      */
-    public function has($name) : bool
+    public function has($name): bool
     {
         return array_key_exists($name, $this->all());
     }
 
     /**
      * Get list of enabled modules.
-     *
-     * @return array
      */
-    public function enabled() : array
+    public function enabled(): array
     {
         return $this->getByStatus(1);
     }
@@ -296,27 +273,23 @@ abstract class Repository implements RepositoryInterface, Countable
      *
      * @return [type] [description]
      */
-    public function getActive() : array
+    public function getActive(): array
     {
         return $this->enabled();
     }
 
     /**
      * Get list of disabled modules.
-     *
-     * @return array
      */
-    public function disabled() : array
+    public function disabled(): array
     {
         return $this->getByStatus(0);
     }
 
     /**
      * Get count from all modules.
-     *
-     * @return int
      */
-    public function count() : int
+    public function count(): int
     {
         return count($this->all());
     }
@@ -324,11 +297,9 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Get all ordered modules.
      *
-     * @param string $direction
-     *
-     * @return array
+     * @param  string  $direction
      */
-    public function getOrdered($direction = 'asc') : array
+    public function getOrdered($direction = 'asc'): array
     {
         $modules = $this->enabled();
 
@@ -349,10 +320,8 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Get a module path.
-     *
-     * @return string
      */
-    public function getPath() : string
+    public function getPath(): string
     {
         return $this->path ?: $this->config('paths.modules', base_path('Modules'));
     }
@@ -380,7 +349,6 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Find a specific module.
      *
-     * @param $name
      *
      * @return mixed|void
      */
@@ -396,7 +364,6 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Find a specific module by its alias.
      *
-     * @param $alias
      *
      * @return mixed|void
      */
@@ -404,7 +371,7 @@ abstract class Repository implements RepositoryInterface, Countable
     {
         foreach ($this->all() as $module) {
             if (strtolower($module->getAlias()) === $alias) {
-                //if ($module->getAlias() === $alias) {
+                // if ($module->getAlias() === $alias) {
                 return $module;
             }
         }
@@ -414,7 +381,6 @@ abstract class Repository implements RepositoryInterface, Countable
      * Check by alias if module is active.
      *
      * @param [type] $alias [description]
-     *
      * @return bool [description]
      */
     public function isActive($alias, $use_cache = true)
@@ -437,11 +403,11 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Find all modules that are required by a module. If the module cannot be found, throw an exception.
      *
-     * @param $name
      *
-     * @throws ModuleNotFoundException
      *
      * @return array
+     *
+     * @throws ModuleNotFoundException
      */
     public function findRequirements($name)
     {
@@ -459,7 +425,6 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Alternative for "find" method.
      *
-     * @param $name
      *
      * @return mixed|void
      *
@@ -473,11 +438,11 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Find a specific module, if there return that, otherwise throw exception.
      *
-     * @param $name
      *
-     * @throws ModuleNotFoundException
      *
      * @return Module
+     *
+     * @throws ModuleNotFoundException
      */
     public function findOrFail($name)
     {
@@ -492,12 +457,8 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Get all modules as laravel collection instance.
-     *
-     * @param $status
-     *
-     * @return Collection
      */
-    public function collections($status = 1) : Collection
+    public function collections($status = 1): Collection
     {
         return new Collection($this->getByStatus($status));
     }
@@ -505,7 +466,6 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Get module path for a specific module.
      *
-     * @param $module
      *
      * @return string
      */
@@ -522,25 +482,21 @@ abstract class Repository implements RepositoryInterface, Countable
     {
         try {
             $module = $this->findByAlias($module_alias);
-            if (!$module) {
+            if (! $module) {
                 throw new ModuleNotFoundException('', 1);
             }
 
             return $module->getPath().'/';
         } catch (ModuleNotFoundException $e) {
-            //return $this->getPath().'/'.Str::studly($module).'/';
+            // return $this->getPath().'/'.Str::studly($module).'/';
             return '';
         }
     }
 
     /**
      * Get asset path for a specific module.
-     *
-     * @param $module
-     *
-     * @return string
      */
-    public function assetPath($module) : string
+    public function assetPath($module): string
     {
         return $this->config('paths.assets').'/'.$module;
     }
@@ -548,9 +504,7 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Get a specific config data from a configuration file.
      *
-     * @param $key
-     * @param null $default
-     *
+     * @param  null  $default
      * @return mixed
      */
     public function config($key, $default = null)
@@ -560,10 +514,8 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Get storage path for module used.
-     *
-     * @return string
      */
-    public function getUsedStoragePath() : string
+    public function getUsedStoragePath(): string
     {
         $directory = storage_path('app/modules');
         if ($this->app['files']->exists($directory) === false) {
@@ -571,7 +523,7 @@ abstract class Repository implements RepositoryInterface, Countable
         }
 
         $path = storage_path('app/modules/modules.used');
-        if (!$this->app['files']->exists($path)) {
+        if (! $this->app['files']->exists($path)) {
             $this->app['files']->put($path, '');
         }
 
@@ -581,7 +533,6 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Set module used for cli session.
      *
-     * @param $name
      *
      * @throws ModuleNotFoundException
      */
@@ -606,10 +557,8 @@ abstract class Repository implements RepositoryInterface, Countable
      * Get module used for cli session.
      *
      * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
-     *
-     * @return string
      */
-    public function getUsedNow() : string
+    public function getUsedNow(): string
     {
         return $this->findOrFail($this->app['files']->get($this->getUsedStoragePath()));
     }
@@ -638,10 +587,8 @@ abstract class Repository implements RepositoryInterface, Countable
 
     /**
      * Get module assets path.
-     *
-     * @return string
      */
-    public function getAssetsPath() : string
+    public function getAssetsPath(): string
     {
         return $this->config('paths.assets');
     }
@@ -649,18 +596,16 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Get asset url from a specific module.
      *
-     * @param string $asset
+     * @param  string  $asset
      *
      * @throws InvalidAssetPath
-     *
-     * @return string
      */
-    public function asset($asset) : string
+    public function asset($asset): string
     {
         if (str_contains($asset, ':') === false) {
             throw InvalidAssetPath::missingModuleName($asset);
         }
-        list($name, $url) = explode(':', $asset);
+        [$name, $url] = explode(':', $asset);
 
         $baseUrl = str_replace(public_path().DIRECTORY_SEPARATOR, '', $this->getAssetsPath());
 
@@ -672,11 +617,9 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Determine whether the given module is activated.
      *
-     * @param string $name
-     *
-     * @return bool
+     * @param  string  $name
      */
-    public function active($name) : bool
+    public function active($name): bool
     {
         return $this->findOrFail($name)->active();
     }
@@ -684,23 +627,20 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Determine whether the given module is not activated.
      *
-     * @param string $name
-     *
-     * @return bool
+     * @param  string  $name
      */
-    public function notActive($name) : bool
+    public function notActive($name): bool
     {
-        return !$this->active($name);
+        return ! $this->active($name);
     }
 
     /**
      * Enabling a specific module.
      *
-     * @param string $name
+     * @param  string  $name
+     * @return void
      *
      * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
-     *
-     * @return void
      */
     public function enable($name)
     {
@@ -710,11 +650,10 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Disabling a specific module.
      *
-     * @param string $name
+     * @param  string  $name
+     * @return void
      *
      * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
-     *
-     * @return void
      */
     public function disable($name)
     {
@@ -724,13 +663,11 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Delete a specific module.
      *
-     * @param string $name
+     * @param  string  $name
      *
      * @throws \Nwidart\Modules\Exceptions\ModuleNotFoundException
-     *
-     * @return bool
      */
-    public function delete($name) : bool
+    public function delete($name): bool
     {
         return $this->findOrFail($name)->delete();
     }
@@ -738,7 +675,7 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Update dependencies for the specified module.
      *
-     * @param string $module
+     * @param  string  $module
      */
     public function update($module)
     {
@@ -748,11 +685,10 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Install the specified module.
      *
-     * @param string $name
-     * @param string $version
-     * @param string $type
-     * @param bool   $subtree
-     *
+     * @param  string  $name
+     * @param  string  $version
+     * @param  string  $type
+     * @param  bool  $subtree
      * @return \Symfony\Component\Process\Process
      */
     public function install($name, $version = 'dev-master', $type = 'composer', $subtree = false)
@@ -783,8 +719,7 @@ abstract class Repository implements RepositoryInterface, Countable
     /**
      * Set stub path.
      *
-     * @param string $stubPath
-     *
+     * @param  string  $stubPath
      * @return $this
      */
     public function setStubPath($stubPath)
@@ -799,8 +734,7 @@ abstract class Repository implements RepositoryInterface, Countable
      *
      * @param [type] $module_alias [description]
      * @param [type] $option_name  [description]
-     * @param bool   $default      [description]
-     *
+     * @param  bool  $default  [description]
      * @return [type] [description]
      */
     public function getOption($module_alias, $option_name, $default = false)
@@ -833,7 +767,6 @@ abstract class Repository implements RepositoryInterface, Countable
      * Get module public path.
      *
      * @param [type] $module_alias [description]
-     *
      * @return [type] [description]
      */
     public function getPublicPath($module_alias)

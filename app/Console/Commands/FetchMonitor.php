@@ -50,14 +50,14 @@ class FetchMonitor extends Command
 
             $text = 'There are some problems fetching emails: last time emails were successfully fetched <strong>'.$mins_ago.' minutes ago</strong>. Please check <a href="'.route('logs', ['name' => 'fetch_errors']).'">fetching logs</a> and <a href="'.route('system').'#cron">make sure</a> that the following cron task is running: <code>php artisan schedule:run</code>';
 
-            if (\Option::get('alert_fetch') && !\Option::get('alert_fetch_sent')) {
+            if (\Option::get('alert_fetch') && ! \Option::get('alert_fetch_sent')) {
                 // We send alert only once
                 \Option::set('alert_fetch_sent', true);
                 \MailHelper::sendAlertMail($text, 'Fetching Problems');
             }
 
             $this->error('['.date('Y-m-d H:i:s').'] '.$text);
-        } elseif (!$last_successful_run) {
+        } elseif (! $last_successful_run) {
             $this->line('['.date('Y-m-d H:i:s').'] Fetching has not been configured yet');
         } else {
             if (\Option::get('alert_fetch_sent')) {

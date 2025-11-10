@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Folder;
 use App\Mailbox;
 use App\Subscription;
-use App\Thread;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -51,8 +49,6 @@ class UsersController extends Controller
 
     /**
      * Create new user.
-     *
-     * @param \Illuminate\Http\Request $request
      */
     public function createSave(Request $request)
     {
@@ -62,9 +58,9 @@ class UsersController extends Controller
 
         $rules = [
             'first_name' => 'required|string|max:20',
-            'last_name'  => 'required|string|max:30',
-            'email'      => 'required|string|email|max:100|unique:users',
-            //'role'       => ['required', Rule::in(array_keys(User::$roles))],
+            'last_name' => 'required|string|max:30',
+            'email' => 'required|string|email|max:100|unique:users',
+            // 'role'       => ['required', Rule::in(array_keys(User::$roles))],
         ];
         if ($auth_user->isAdmin()) {
             $rules['role'] = ['required', Rule::in(array_keys(User::$roles))];
@@ -81,8 +77,8 @@ class UsersController extends Controller
 
         if ($invalid || $validator->fails()) {
             return redirect()->route('users.create')
-                        ->withErrors($validator)
-                        ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $data = [
@@ -91,11 +87,11 @@ class UsersController extends Controller
             'email' => $request->email,
         ];
 
-        $user = new User();
+        $user = new User;
 
         $user->fill($data);
 
-        if (!$auth_user->can('changeRole', $user)) {
+        if (! $auth_user->can('changeRole', $user)) {
             $user->role = User::ROLE_USER;
         }
         if (empty($request->send_invite)) {
@@ -114,7 +110,7 @@ class UsersController extends Controller
         $user->syncPersonalFolders($request->mailboxes);
 
         // Send invite
-        if (!empty($request->send_invite)) {
+        if (! empty($request->send_invite)) {
             try {
                 $user->sendInvite(true);
             } catch (\Exception $e) {
@@ -148,7 +144,7 @@ class UsersController extends Controller
     public function getUsersForSidebar($except_id)
     {
         if (auth()->user()->isAdmin()) {
-            return User::sortUsers(User::nonDeleted()->get());/*->except($except_id)*/;
+            return User::sortUsers(User::nonDeleted()->get()); /* ->except($except_id) */
         } else {
             return [];
         }
@@ -157,7 +153,6 @@ class UsersController extends Controller
     /**
      * Handle a registration request for the application.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response
      */
@@ -172,19 +167,19 @@ class UsersController extends Controller
 
         // This is also present in PublicController::userSetup
         $validator = Validator::make($request->all(), [
-            'first_name'  => 'required|string|max:20',
-            'last_name'   => 'required|string|max:30',
-            'email'       => 'required|string|email|max:100|unique:users,email,'.$id,
-            //'emails'      => 'max:100',
-            'job_title'   => 'max:100',
-            'phone'       => 'max:60',
-            'timezone'    => 'required|string|max:255',
+            'first_name' => 'required|string|max:20',
+            'last_name' => 'required|string|max:30',
+            'email' => 'required|string|email|max:100|unique:users,email,'.$id,
+            // 'emails'      => 'max:100',
+            'job_title' => 'max:100',
+            'phone' => 'max:60',
+            'timezone' => 'required|string|max:255',
             'time_format' => 'required',
-            'role'        => ['nullable', Rule::in(array_keys(User::$roles))],
-            'photo_url'   => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'role' => ['nullable', Rule::in(array_keys(User::$roles))],
+            'photo_url' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
         $validator->setAttributeNames([
-            'photo_url'   => __('Photo'),
+            'photo_url' => __('Photo'),
         ]);
 
         // Photo
@@ -217,8 +212,8 @@ class UsersController extends Controller
 
         if ($invalid || $validator->fails()) {
             return redirect()->route('users.profile', ['id' => $id])
-                        ->withErrors($validator)
-                        ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         // Save language into session.
@@ -231,11 +226,11 @@ class UsersController extends Controller
         if (isset($request_data['photo_url'])) {
             unset($request_data['photo_url']);
         }
-        if (!$auth_user->can('changeRole', $user)) {
+        if (! $auth_user->can('changeRole', $user)) {
             unset($request_data['role']);
         }
         if ($user->status != User::STATUS_DELETED) {
-            if (!empty($request_data['disabled'])) {
+            if (! empty($request_data['disabled'])) {
                 $request_data['status'] = User::STATUS_DISABLED;
             } else {
                 $request_data['status'] = User::STATUS_ACTIVE;
@@ -246,7 +241,7 @@ class UsersController extends Controller
         // $allowed_fields = [
         //     'first_name',
         //     'last_name',
-        //     'email', 
+        //     'email',
         //     'emails',
         //     'job_title',
         //     'phone',
@@ -264,7 +259,7 @@ class UsersController extends Controller
             'type',
             'password',
         ];
-        if (!$auth_user->isAdmin()) {
+        if (! $auth_user->isAdmin()) {
             foreach ($admin_fields as $field) {
                 if (isset($request_data[$field])) {
                     unset($request_data[$field]);
@@ -294,7 +289,7 @@ class UsersController extends Controller
     public function permissions($id)
     {
         $user = auth()->user();
-        if (!$user->isAdmin()) {
+        if (! $user->isAdmin()) {
             abort(403);
         }
 
@@ -309,23 +304,22 @@ class UsersController extends Controller
         $users = $this->getUsersForSidebar($id);
 
         return view('users/permissions', [
-            'user'           => $user,
-            'mailboxes'      => $mailboxes,
+            'user' => $user,
+            'mailboxes' => $mailboxes,
             'user_mailboxes' => $user->mailboxes,
-            'users'          => $users,
+            'users' => $users,
         ]);
     }
 
     /**
      * Save user permissions.
      *
-     * @param int                      $id
-     * @param \Illuminate\Http\Request $request
+     * @param  int  $id
      */
     public function permissionsSave($id, Request $request)
     {
         $user = auth()->user();
-        if (!$user->isAdmin()) {
+        if (! $user->isAdmin()) {
             abort(403);
         }
 
@@ -342,7 +336,7 @@ class UsersController extends Controller
             $new_has_permission = in_array($permission_id, $user_permissions);
 
             if ($user->hasPermission($permission_id, false) != $new_has_permission) {
-                $permissions[$permission_id] = (int)(bool)$new_has_permission;
+                $permissions[$permission_id] = (int) (bool) $new_has_permission;
                 $save_user = true;
             }
         }
@@ -365,7 +359,7 @@ class UsersController extends Controller
         if ($user->isDeleted()) {
             abort(404);
         }
-        
+
         $subscriptions = $user->subscriptions()->select('medium', 'event')->get();
 
         $person = '';
@@ -376,10 +370,10 @@ class UsersController extends Controller
         $users = $this->getUsersForSidebar($id);
 
         return view('users/notifications', [
-            'user'          => $user,
+            'user' => $user,
             'subscriptions' => $subscriptions,
-            'person'        => $person,
-            'users'         => $users,
+            'person' => $person,
+            'users' => $users,
             'mobile_available' => \Eventy::filter('notifications.mobile_available', false),
         ]);
     }
@@ -387,8 +381,7 @@ class UsersController extends Controller
     /**
      * Save user notifications settings.
      *
-     * @param int                      $id
-     * @param \Illuminate\Http\Request $request
+     * @param  int  $id
      */
     public function notificationsSave($id, Request $request)
     {
@@ -409,7 +402,7 @@ class UsersController extends Controller
     {
         $response = [
             'status' => 'error',
-            'msg'    => '', // this is error message
+            'msg' => '', // this is error message
         ];
 
         $auth_user = auth()->user();
@@ -418,22 +411,22 @@ class UsersController extends Controller
 
             // Both send and resend
             case 'send_invite':
-                if (!$auth_user->isAdmin()) {
+                if (! $auth_user->isAdmin()) {
                     $response['msg'] = __('Not enough permissions');
                 }
                 if (empty($request->user_id)) {
                     $response['msg'] = __('Incorrect user');
                 }
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     $user = User::find($request->user_id);
-                    if (!$user) {
+                    if (! $user) {
                         $response['msg'] = __('User not found');
                     } elseif ($user->invite_state == User::INVITE_STATE_ACTIVATED) {
                         $response['msg'] = __('User already accepted invitation');
                     }
                 }
 
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     try {
                         $user->sendInvite(true);
 
@@ -445,24 +438,24 @@ class UsersController extends Controller
                 }
                 break;
 
-            // Reset password
+                // Reset password
             case 'reset_password':
-                if (!auth()->user()->isAdmin()) {
+                if (! auth()->user()->isAdmin()) {
                     $response['msg'] = __('Not enough permissions');
                 }
                 if (empty($request->user_id)) {
                     $response['msg'] = __('Incorrect user');
                 }
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     $user = User::find($request->user_id);
-                    if (!$user) {
+                    if (! $user) {
                         $response['msg'] = __('User not found');
                     }
                 }
 
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     $reset_result = Password::broker()->sendResetLink(
-                        //['id' => $request->user_id]
+                        // ['id' => $request->user_id]
                         ['id' => $request->user_id]
                     );
 
@@ -473,12 +466,12 @@ class UsersController extends Controller
                 }
                 break;
 
-            // Load website notifications
+                // Load website notifications
             case 'web_notifications':
-                if (!$auth_user) {
+                if (! $auth_user) {
                     $response['msg'] = __('You are not logged in');
                 }
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     $web_notifications_info = $auth_user->getWebsiteNotificationsInfo(false);
                     $response['html'] = view('users/partials/web_notifications', [
                         'web_notifications_info_data' => $web_notifications_info['data'],
@@ -490,12 +483,12 @@ class UsersController extends Controller
                 }
                 break;
 
-            // Mark all user website notifications as read
+                // Mark all user website notifications as read
             case 'mark_notifications_as_read':
-                if (!$auth_user) {
+                if (! $auth_user) {
                     $response['msg'] = __('You are not logged in');
                 }
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     $auth_user->unreadNotifications()->update(['read_at' => now()]);
                     $auth_user->clearWebsiteNotificationsCache();
 
@@ -503,16 +496,16 @@ class UsersController extends Controller
                 }
                 break;
 
-            // Delete user photo
+                // Delete user photo
             case 'delete_photo':
                 $user = User::find($request->user_id);
 
-                if (!$user) {
+                if (! $user) {
                     $response['msg'] = __('User not found');
-                } elseif (!$auth_user->can('update', $user)) {
+                } elseif (! $auth_user->can('update', $user)) {
                     $response['msg'] = __('Not enough permissions');
                 }
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     $user->removePhoto();
                     $user->save();
 
@@ -520,13 +513,13 @@ class UsersController extends Controller
                 }
                 break;
 
-            // Delete user
+                // Delete user
             case 'delete_user':
                 $user = User::find($request->user_id);
 
-                if (!$user) {
+                if (! $user) {
                     $response['msg'] = __('User not found');
-                } elseif (!$auth_user->can('delete', $user)) {
+                } elseif (! $auth_user->can('delete', $user)) {
                     $response['msg'] = __('Not enough permissions');
                 } elseif ($auth_user->id == $user->id) {
                     // Do not allow admin delete himself.
@@ -543,7 +536,7 @@ class UsersController extends Controller
                 //     }
                 // }
 
-                if (!$response['msg']) {
+                if (! $response['msg']) {
 
                     $user->deleteUser($auth_user, $request->assign_user);
 
@@ -555,7 +548,7 @@ class UsersController extends Controller
 
             default:
                 $response['msg'] = 'Unknown action';
-		        $response = \Eventy::filter('users.ajax.response_default', $response, $request);
+                $response = \Eventy::filter('users.ajax.response_default', $response, $request);
                 break;
         }
 
@@ -582,7 +575,6 @@ class UsersController extends Controller
     /**
      * Save changed user password.
      *
-     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response
      */
@@ -597,12 +589,12 @@ class UsersController extends Controller
         // This is also present in PublicController::userSetup
         $validator = Validator::make($request->all(), [
             'password_current' => 'required|string',
-            'password'         => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $validator->after(function ($validator) use ($user, $request) {
             // Check current password
-            if (!Hash::check($request->password_current, $user->password)) {
+            if (! Hash::check($request->password_current, $user->password)) {
                 $validator->errors()->add('password_current', __('This password is incorrect.'));
             } elseif (Hash::check($request->password, $user->password)) {
                 // Check new password
@@ -612,8 +604,8 @@ class UsersController extends Controller
 
         if ($validator->fails()) {
             return redirect()->route('users.password', ['id' => $id])
-                        ->withErrors($validator)
-                        ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $user->password = bcrypt($request->password);

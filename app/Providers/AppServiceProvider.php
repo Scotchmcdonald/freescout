@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
         // Models observers
         \App\Mailbox::observe(\App\Observers\MailboxObserver::class);
         // Eloquent events for this table are not called automatically, so need to be called manually.
-        //\App\MailboxUser::observe(\App\Observers\MailboxUserObserver::class);
+        // \App\MailboxUser::observe(\App\Observers\MailboxUserObserver::class);
         \App\Email::observe(\App\Observers\EmailObserver::class);
         \App\User::observe(\App\Observers\UserObserver::class);
         \App\Conversation::observe(\App\Observers\ConversationObserver::class);
@@ -48,9 +48,9 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // If APP_KEY is not set, redirect to /install.php
-        if (!\Config::get('app.key') && !app()->runningInConsole() && !file_exists(storage_path('.installed'))) {
+        if (! \Config::get('app.key') && ! app()->runningInConsole() && ! file_exists(storage_path('.installed'))) {
             // Not defined here yet
-            //\Artisan::call("freescout:clear-cache");
+            // \Artisan::call("freescout:clear-cache");
             redirect(\Helper::getSubdirectory().'/install.php')->send();
         }
 
@@ -62,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
             \Log::error($msg);
 
             // request() does is empty at this stage
-            if (!empty($_POST['action']) && $_POST['action'] == 'activate') {
+            if (! empty($_POST['action']) && $_POST['action'] == 'activate') {
 
                 // During module activation in case of any error we have to deactivate module.
                 \App\Module::deactiveModule($module->getAlias());

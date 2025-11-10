@@ -2,14 +2,13 @@
 
 namespace App;
 
-use App\Thread;
 use Illuminate\Database\Eloquent\Model;
 
 class Job extends Model
 {
-	const UPDATED_AT = null;
+    const UPDATED_AT = null;
 
-	public $payload_decoded = null;
+    public $payload_decoded = null;
 
     /**
      * Automatically converted into Carbon dates.
@@ -18,24 +17,24 @@ class Job extends Model
 
     public function getPayloadDecoded()
     {
-    	if ($this->payload_decoded !== null) {
-    		return $this->payload_decoded;
-    	}
+        if ($this->payload_decoded !== null) {
+            return $this->payload_decoded;
+        }
 
-    	$this->payload_decoded = json_decode($this->payload, true);
+        $this->payload_decoded = json_decode($this->payload, true);
 
-    	return $this->payload_decoded;
+        return $this->payload_decoded;
     }
 
     public function getCommand()
     {
-    	return self::getPayloadCommand($this->getPayloadDecoded());
+        return self::getPayloadCommand($this->getPayloadDecoded());
     }
 
     public function getCommandLastThread()
     {
-	    $command = $this->getCommand();
-        if ($command && !empty($command->threads)) {
+        $command = $this->getCommand();
+        if ($command && ! empty($command->threads)) {
             return Thread::getLastThread($command->threads);
         }
 
@@ -44,9 +43,9 @@ class Job extends Model
 
     public static function getPayloadCommand($payload)
     {
-    	if (empty($payload['data']) || empty($payload['data']['command'])) {
-    		return null;
-    	}
+        if (empty($payload['data']) || empty($payload['data']['command'])) {
+            return null;
+        }
         try {
             // If some record has been deleted from DB, there will be an error:
             // No query results for model [App\Conversation].

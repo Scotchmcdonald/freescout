@@ -1,14 +1,15 @@
 <?php
+
 /**
  * New thread created in conversation.
  */
+
 namespace App\Events;
 
 use App\Conversation;
 use App\Mailbox;
 use App\Thread;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Queue\SerializesModels;
 
@@ -60,7 +61,7 @@ class RealtimeConvNewThread implements ShouldBroadcastNow
      */
     protected function channelName()
     {
-        if (!empty($this->data['conversation_id'])) {
+        if (! empty($this->data['conversation_id'])) {
             return 'conv.'.$this->data['conversation_id'];
         } else {
             return 'conv.0';
@@ -76,11 +77,11 @@ class RealtimeConvNewThread implements ShouldBroadcastNow
             return;
         }
         $notification_data = [
-            'thread_id'       => $thread->id,
+            'thread_id' => $thread->id,
             'conversation_id' => $thread->conversation_id,
             // conversation is prefetched in ThreadObserver.
-            'mailbox_id'      => $thread->conversation->mailbox_id,
-            //'user_id'         => $thread->created_by_user_id,
+            'mailbox_id' => $thread->conversation->mailbox_id,
+            // 'user_id'         => $thread->created_by_user_id,
         ];
         event(new \App\Events\RealtimeConvNewThread($notification_data));
     }
@@ -91,20 +92,20 @@ class RealtimeConvNewThread implements ShouldBroadcastNow
         $mailbox = Mailbox::rememberForever()->find($payload->mailbox_id);
 
         // Check if user can listen to this event.
-        if (!$user || !$mailbox || !$user->can('viewCached', $mailbox)) {
+        if (! $user || ! $mailbox || ! $user->can('viewCached', $mailbox)) {
             return [];
         }
 
         $thread = Thread::find($payload->thread_id);
-        if (!$thread) {
+        if (! $thread) {
             return $payload;
         }
 
         // Add thread html to the payload.
         $template_data = [
             'conversation' => $thread->conversation,
-            'mailbox'      => $thread->conversation->mailbox,
-            'threads'      => [$thread],
+            'mailbox' => $thread->conversation->mailbox,
+            'threads' => [$thread],
         ];
 
         $payload->thread_html = \View::make('conversations/partials/threads')->with($template_data)->render();

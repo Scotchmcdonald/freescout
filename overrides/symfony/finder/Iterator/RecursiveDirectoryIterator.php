@@ -33,13 +33,15 @@ class RecursiveDirectoryIterator extends \RecursiveDirectoryIterator
 
     // these 3 properties take part of the performance optimization to avoid redoing the same work in all iterations
     private $rootPath;
+
     private $subPath;
+
     private $directorySeparator = '/';
 
     /**
-     * @param string $path
-     * @param int    $flags
-     * @param bool   $ignoreUnreadableDirs
+     * @param  string  $path
+     * @param  int  $flags
+     * @param  bool  $ignoreUnreadableDirs
      *
      * @throws \RuntimeException
      */
@@ -52,7 +54,7 @@ class RecursiveDirectoryIterator extends \RecursiveDirectoryIterator
         parent::__construct($path, $flags);
         $this->ignoreUnreadableDirs = $ignoreUnreadableDirs;
         $this->rootPath = $path;
-        if ('/' !== \DIRECTORY_SEPARATOR && !($flags & self::UNIX_PATHS)) {
+        if ('/' !== \DIRECTORY_SEPARATOR && ! ($flags & self::UNIX_PATHS)) {
             $this->directorySeparator = \DIRECTORY_SEPARATOR;
         }
     }
@@ -61,7 +63,7 @@ class RecursiveDirectoryIterator extends \RecursiveDirectoryIterator
      * Return an instance of SplFileInfo with support for relative paths.
      *
      * @return SplFileInfo File information
-     * : \SplFileInfo|\FilesystemIterator|string
+     *                     : \SplFileInfo|\FilesystemIterator|string
      */
     #[\ReturnTypeWillChange]
     public function current()
@@ -71,7 +73,7 @@ class RecursiveDirectoryIterator extends \RecursiveDirectoryIterator
         if (null === $subPathname = $this->subPath) {
             $subPathname = $this->subPath = (string) $this->getSubPath();
         }
-        if ('' !== $subPathname) {
+        if ($subPathname !== '') {
             $subPathname .= $this->directorySeparator;
         }
         $subPathname .= $this->getFilename();
@@ -102,7 +104,7 @@ class RecursiveDirectoryIterator extends \RecursiveDirectoryIterator
         } catch (\UnexpectedValueException $e) {
             if ($this->ignoreUnreadableDirs) {
                 // If directory is unreadable and finder is set to ignore it, a fake empty content is returned.
-                return new \RecursiveArrayIterator(array());
+                return new \RecursiveArrayIterator([]);
             } else {
                 throw new AccessDeniedException($e->getMessage(), $e->getCode(), $e);
             }
@@ -114,7 +116,7 @@ class RecursiveDirectoryIterator extends \RecursiveDirectoryIterator
      */
     public function rewind(): void
     {
-        if (false === $this->isRewindable()) {
+        if ($this->isRewindable() === false) {
             return;
         }
 
@@ -133,12 +135,12 @@ class RecursiveDirectoryIterator extends \RecursiveDirectoryIterator
      */
     public function isRewindable()
     {
-        if (null !== $this->rewindable) {
+        if ($this->rewindable !== null) {
             return $this->rewindable;
         }
 
         // workaround for an HHVM bug, should be removed when https://github.com/facebook/hhvm/issues/7281 is fixed
-        if ('' === $this->getPath()) {
+        if ($this->getPath() === '') {
             return $this->rewindable = false;
         }
 

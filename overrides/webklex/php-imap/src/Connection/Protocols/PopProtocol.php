@@ -1,4 +1,5 @@
 <?php
+
 /*
 * POP3 protocol implementation without using PHP IMAP extension.
 * https://datatracker.ietf.org/doc/html/rfc1939
@@ -8,23 +9,22 @@ namespace Webklex\PHPIMAP\Connection\Protocols;
 
 use Exception;
 use Webklex\PHPIMAP\Exceptions\AuthFailedException;
-use Webklex\PHPIMAP\Exceptions\MethodNotSupportedException;
 use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 use Webklex\PHPIMAP\Exceptions\InvalidMessageDateException;
 use Webklex\PHPIMAP\Exceptions\MessageNotFoundException;
+use Webklex\PHPIMAP\Exceptions\MethodNotSupportedException;
 use Webklex\PHPIMAP\Exceptions\RuntimeException;
 use Webklex\PHPIMAP\Header;
 use Webklex\PHPIMAP\IMAP;
 
 /**
  * Class ImapProtocol
- *
- * @package Webklex\PHPIMAP\Connection\Protocols
  */
-class PopProtocol extends Protocol {
-
+class PopProtocol extends Protocol
+{
     /**
      * Request noun
+     *
      * @var int
      */
     protected $noun = 0;
@@ -36,20 +36,27 @@ class PopProtocol extends Protocol {
     public $host = '';
 
     public static $output_debug_log = true;
+
     public static $debug_log = '';
+
     public static $connect_response = '';
+
     public static $top_supported = true;
+
     public static $headers_cache = [];
 
     const REPLY_OK = '+OK';
+
     const REPLY_ERROR = '-ERR';
 
     /**
      * Imap constructor.
-     * @param bool $cert_validation set to false to skip SSL certificate validation
-     * @param mixed $encryption Connection encryption method
+     *
+     * @param  bool  $cert_validation  set to false to skip SSL certificate validation
+     * @param  mixed  $encryption  Connection encryption method
      */
-    public function __construct(bool $cert_validation = true, $encryption = false) {
+    public function __construct(bool $cert_validation = true, $encryption = false)
+    {
         $this->setCertValidation($cert_validation);
         $this->encryption = $encryption;
     }
@@ -57,18 +64,21 @@ class PopProtocol extends Protocol {
     /**
      * Public destructor
      */
-    public function __destruct() {
+    public function __destruct()
+    {
         $this->logout();
     }
 
     /**
      * Open connection to IMAP server
-     * @param string $host hostname or IP address of IMAP server
-     * @param int|null $port of IMAP server, default is 143 and 993 for ssl
+     *
+     * @param  string  $host  hostname or IP address of IMAP server
+     * @param  int|null  $port  of IMAP server, default is 143 and 993 for ssl
      *
      * @throws ConnectionFailedException
      */
-    public function connect(string $host, $port = null) {
+    public function connect(string $host, $port = null)
+    {
         $transport = 'tcp';
         $encryption = '';
 
@@ -88,7 +98,7 @@ class PopProtocol extends Protocol {
         try {
             $this->stream = $this->createStream($transport, $host, $port, $this->connection_timeout);
             self::$connect_response = $this->nextLine();
-            if (!self::isOk(self::$connect_response)) {
+            if (! self::isOk(self::$connect_response)) {
                 throw new ConnectionFailedException('connection refused');
             }
             // if ($encryption == 'starttls') {
@@ -103,10 +113,12 @@ class PopProtocol extends Protocol {
      * Get the next line from stream
      *
      * @return string next line
+     *
      * @throws RuntimeException
      */
-    public function nextLine($debug = true): string {
-        
+    public function nextLine($debug = true): string
+    {
+
         // https://github.com/stevebauman/php-imap/commit/9f661abf7a284871f53ec93984ca48851be7728d#diff-fa4f22d9f79d3e4dd1e5352f5e967291c02a7b3a39e32a0282d9b7d85c707c5aL123
         $line = fgets($this->stream);
         if ($line === false) {
@@ -120,48 +132,53 @@ class PopProtocol extends Protocol {
         // if ($line === "" && ($next_char === false || $next_char === "")) {
         //     throw new RuntimeException('empty response');
         // }
-        
-        if ($this->debug && $debug) $this->debug("<< ".$line/*(."\n"*/);
 
-        return $line /*. "\n"*/;
+        if ($this->debug && $debug) {
+            $this->debug('<< '.$line/* (."\n" */);
+        }
+
+        return $line /* . "\n" */;
     }
 
-    public static function isOk($line) {
+    public static function isOk($line)
+    {
         return strpos($line, self::REPLY_OK) === 0;
     }
 
-    public function debug($line) {
+    public function debug($line)
+    {
         if (self::$output_debug_log) {
             echo $line;
         }
         self::$debug_log .= $line;
     }
 
-    public static function getDebugLog() {
+    public static function getDebugLog()
+    {
         return self::$debug_log;
     }
 
     /**
      * Get the next line and check if it starts with a given string
-     * @param string $start
      *
-     * @return bool
      * @throws RuntimeException
      */
-    protected function assumedNextLine(string $start): bool {
+    protected function assumedNextLine(string $start): bool
+    {
         return strpos($this->nextLine(), $start) === 0;
     }
 
     /**
      * Send a new request
-     * @param string $command
-     * @param array $tokens additional parameters to command, use escapeString() to prepare
-     * @param string|null $tag provide a tag otherwise an autogenerated is returned
+     *
+     * @param  array  $tokens  additional parameters to command, use escapeString() to prepare
+     * @param  string|null  $tag  provide a tag otherwise an autogenerated is returned
      *
      * @throws RuntimeException
      */
-    public function sendRequest(string $command, $parameters = '', $check_str = '', $multiline_response = false) {
-        
+    public function sendRequest(string $command, $parameters = '', $check_str = '', $multiline_response = false)
+    {
+
         if ($parameters) {
             $command = $command.' '.$parameters;
         }
@@ -180,11 +197,12 @@ class PopProtocol extends Protocol {
                         break;
                     }
                     $response .= $line;
-                    if ($first_line && !self::isOk($line)) {
+                    if ($first_line && ! self::isOk($line)) {
                         break;
                     }
                     $first_line = false;
                 } while ($line && trim($line) != '.');
+
                 return $response;
             } else {
                 return $this->nextLine();
@@ -192,46 +210,50 @@ class PopProtocol extends Protocol {
         }
     }
 
-    public function sendRequestMultiline(string $command, $parameters = '') {
+    public function sendRequestMultiline(string $command, $parameters = '')
+    {
         return $this->sendRequest($command, $parameters, '', $multiline_response = true);
     }
 
     /**
      * Write data to the current stream
-     * @param string $data
+     *
      * @return void
+     *
      * @throws RuntimeException
      */
-    public function write(string $data) {
+    public function write(string $data)
+    {
         if ($this->debug) {
             $debug_line = $data;
             // Replace password with asterists.
             if (preg_match('#^PASS #', $debug_line)) {
                 $debug_line = str_pad('PASS ', strlen($debug_line), '*');
             }
-            $this->debug(">> ".$debug_line ."\n");
+            $this->debug('>> '.$debug_line."\n");
         }
 
-        if (fwrite($this->stream, $data . "\r\n") === false) {
+        if (fwrite($this->stream, $data."\r\n") === false) {
             throw new RuntimeException('failed to write - connection closed?');
         }
     }
 
     /**
      * Login to a new session.
-     * @param string $user username
-     * @param string $password password
      *
+     * @param  string  $user  username
+     * @param  string  $password  password
      * @return bool|mixed
+     *
      * @throws AuthFailedException
      */
-    public function login(string $user, string $password): bool {
+    public function login(string $user, string $password): bool
+    {
         try {
             // First try APOP authentication.
             // self::$connect_response = '+OK POP3 server ready <1896.697170952@dbc.mtview.ca.us>';
-            preg_match("#<[^@]+@[^>]+>#", self::$connect_response, $m);
+            preg_match('#<[^@]+@[^>]+>#', self::$connect_response, $m);
             $secret = $m[0] ?? '';
-
 
             if ($secret) {
                 $response = $this->sendRequest('APOP', md5($secret.$password));
@@ -242,32 +264,35 @@ class PopProtocol extends Protocol {
 
             // Try USER and PASS method.
             $response = $this->sendRequest('USER', $user, self::REPLY_OK);
-            if (!$response) {
+            if (! $response) {
                 return false;
             }
             $response = $this->sendRequest('PASS', $password);
             if ($response && str_starts_with($response, '-ERR')) {
                 throw new AuthFailedException(ltrim($response, '-ERR'));
             }
-            if (!$response || strpos($response, self::REPLY_OK) !== 0) {
+            if (! $response || strpos($response, self::REPLY_OK) !== 0) {
                 throw new AuthFailedException('Invalid response to PASS command: '.$response);
             }
+
             return $response;
         } catch (RuntimeException $e) {
-            throw new AuthFailedException("failed to authenticate", 0, $e);
+            throw new AuthFailedException('failed to authenticate', 0, $e);
         }
 
     }
 
     /**
      * Authenticate your current session.
-     * @param string $user username
-     * @param string $token access token
      *
+     * @param  string  $user  username
+     * @param  string  $token  access token
      * @return bool|resource
+     *
      * @throws AuthFailedException|RuntimeException
      */
-    public function authenticate(string $user, string $token): bool {
+    public function authenticate(string $user, string $token): bool
+    {
         return $this->login($user, $token);
     }
 
@@ -276,12 +301,14 @@ class PopProtocol extends Protocol {
      *
      * @return bool success
      */
-    public function logout(): bool {
+    public function logout(): bool
+    {
         $result = false;
         if ($this->stream) {
             try {
                 $result = $this->sendRequest('QUIT');
-            } catch (Exception $e) {}
+            } catch (Exception $e) {
+            }
             fclose($this->stream);
             $this->stream = null;
             $this->uid_cache = null;
@@ -294,11 +321,10 @@ class PopProtocol extends Protocol {
 
     /**
      * Check if the current session is connected
-     *
-     * @return bool
      */
-    public function connected(): bool {
-        return (boolean) $this->stream;
+    public function connected(): bool
+    {
+        return (bool) $this->stream;
     }
 
     /**
@@ -306,39 +332,44 @@ class PopProtocol extends Protocol {
      *
      * @throws MethodNotSupportedException
      */
-    public function getCapabilities(): array {
+    public function getCapabilities(): array
+    {
         throw new MethodNotSupportedException('getCapabilities() method not supported');
     }
 
     /**
      * Change the current folder
-     * @param string $folder change to this folder
      *
+     * @param  string  $folder  change to this folder
      * @return bool|array see examineOrselect()
+     *
      * @throws RuntimeException
      */
-    public function selectFolder(string $folder = 'INBOX') {
+    public function selectFolder(string $folder = 'INBOX')
+    {
         $this->uid_cache = null;
-        //$r = $this->sendRequest('LIST', '', '', true);
-        //$r = $this->sendRequest('RETR', '35', '', true);
+        // $r = $this->sendRequest('LIST', '', '', true);
+        // $r = $this->sendRequest('RETR', '35', '', true);
         // echo "<pre>";
         // print_r($r);
         // exit();
-        //return $this->examineOrSelect('SELECT', $folder);
-        //return $this->examineFolder($folder);
+        // return $this->examineOrSelect('SELECT', $folder);
+        // return $this->examineFolder($folder);
     }
 
     /**
      * Examine a given folder
-     * @param string $folder examine this folder
      *
+     * @param  string  $folder  examine this folder
      * @return bool|array see examineOrselect()
+     *
      * @throws RuntimeException
      */
-    public function examineFolder(string $folder = 'INBOX') {
-        //return $this->examineOrSelect('EXAMINE', $folder);
-        //$r = $this->sendRequest('EXAMINE', 'INBOX');
-        //$status = \imap_status($this->stream, $folder, IMAP::SA_ALL);
+    public function examineFolder(string $folder = 'INBOX')
+    {
+        // return $this->examineOrSelect('EXAMINE', $folder);
+        // $r = $this->sendRequest('EXAMINE', 'INBOX');
+        // $status = \imap_status($this->stream, $folder, IMAP::SA_ALL);
         // return [
         //     "flags" => [],
         //     "exists" => $status->messages,
@@ -350,15 +381,15 @@ class PopProtocol extends Protocol {
 
     /**
      * Fetch message content
-     * @param array|int $uids
-     * @param string $rfc
-     * @param int|string $uid set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
-     * message numbers instead.
      *
-     * @return array
+     * @param  array|int  $uids
+     * @param  int|string  $uid  set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
+     *                           message numbers instead.
+     *
      * @throws RuntimeException
      */
-    public function content($uids, string $rfc = "RFC822", $uid = IMAP::ST_UID): array {
+    public function content($uids, string $rfc = 'RFC822', $uid = IMAP::ST_UID): array
+    {
         $result = [];
         $uids = is_array($uids) ? $uids : [$uids];
         foreach ($uids as $id) {
@@ -367,6 +398,7 @@ class PopProtocol extends Protocol {
                 $result[$id] = self::removeFirstLine($result[$id]);
             } else {
                 $result[$id] = '';
+
                 continue;
             }
             // imap_fetchbody() for POP3 connection returns headers and body.
@@ -376,6 +408,7 @@ class PopProtocol extends Protocol {
             }
             $result[$id] = substr($result[$id], 0, -2);
         }
+
         return $result;
     }
 
@@ -386,18 +419,18 @@ class PopProtocol extends Protocol {
 
     /**
      * Fetch message headers
-     * @param array|int $uids
-     * @param string $rfc
-     * @param int $uid set to IMAP::ST_UID if you pass message unique identifiers instead of numbers.
      *
-     * @return array
+     * @param  array|int  $uids
+     * @param  int  $uid  set to IMAP::ST_UID if you pass message unique identifiers instead of numbers.
      */
-    public function headers($uids, string $rfc = "RFC822", $uid = IMAP::ST_UID): array {
+    public function headers($uids, string $rfc = 'RFC822', $uid = IMAP::ST_UID): array
+    {
         $result = [];
         $uids = is_array($uids) ? $uids : [$uids];
         foreach ($uids as $id) {
             $result[$id] = $this->getHeaders($id);
         }
+
         return $result;
     }
 
@@ -405,7 +438,7 @@ class PopProtocol extends Protocol {
     {
         $headers = '';
 
-        if (!empty(self::$headers_cache[$id])) {
+        if (! empty(self::$headers_cache[$id])) {
             return self::$headers_cache[$id];
         }
 
@@ -413,7 +446,7 @@ class PopProtocol extends Protocol {
         if (self::$top_supported) {
             $headers = $this->sendRequestMultiline('TOP', $id.' 0');
         }
-        if (!self::isOk($headers)) {
+        if (! self::isOk($headers)) {
             // TOP is not supported, retreive whole message using RETR.
             $content = $this->sendRequestMultiline('RETR', $list[$i]);
             while (($pos = strpos($content, "\r\n")) > 0) {
@@ -428,14 +461,15 @@ class PopProtocol extends Protocol {
 
     /**
      * Fetch message flags
-     * @param array|int $uids
-     * @param int|string $uid set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
-     * message numbers instead.
      *
-     * @return array
+     * @param  array|int  $uids
+     * @param  int|string  $uid  set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
+     *                           message numbers instead.
+     *
      * @throws RuntimeException
      */
-    public function flags($uids, $uid = IMAP::ST_UID): array {
+    public function flags($uids, $uid = IMAP::ST_UID): array
+    {
         $result = [];
         $uids = is_array($uids) ? $uids : [$uids];
         foreach ($uids as $id) {
@@ -447,12 +481,14 @@ class PopProtocol extends Protocol {
 
     /**
      * Get uid for a given id
-     * @param int|null $id message number
      *
+     * @param  int|null  $id  message number
      * @return array|string message number for given message or all messages as array
+     *
      * @throws MessageNotFoundException
      */
-    public function getUid($id = null) {
+    public function getUid($id = null)
+    {
         if ($id === null) {
             if ($this->enable_uid_cache && $this->uid_cache) {
                 return $this->uid_cache;
@@ -462,69 +498,75 @@ class PopProtocol extends Protocol {
             preg_match_all("#^(\d+) #m", $response, $m);
             $list = $m[1] ?? [];
 
-            if (!count($list)) {
+            if (! count($list)) {
                 return [];
             }
 
             $uids = array_combine($list, $list);
 
             $this->setUidCache($uids);
+
             return $uids;
         }
 
-        //return \imap_uid($this->stream, $id);
+        // return \imap_uid($this->stream, $id);
         return $id;
     }
 
     /**
      * Get a message number for a uid
-     * @param string $id uid
      *
+     * @param  string  $id  uid
      * @return int message number
+     *
      * @throws MessageNotFoundException
      */
-    public function getMessageNumber(string $id): int {
+    public function getMessageNumber(string $id): int
+    {
         $ids = $this->getUid();
         if ($ids) {
             foreach ($ids as $k => $v) {
                 if ($v == $id) {
-                    return (int)$k;
+                    return (int) $k;
                 }
             }
         }
 
-        throw new MessageNotFoundException('message number not found: ' . $id);
+        throw new MessageNotFoundException('message number not found: '.$id);
     }
 
     /**
      * Get a list of available folders
-     * @param string $reference mailbox reference for list
-     * @param string $folder mailbox name match with wildcards
      *
+     * @param  string  $reference  mailbox reference for list
+     * @param  string  $folder  mailbox name match with wildcards
      * @return array folders that matched $folder as array(name => array('delimiter' => .., 'flags' => ..))
+     *
      * @throws RuntimeException
      */
-    public function folders(string $reference = '', string $folder = '*'): array {
+    public function folders(string $reference = '', string $folder = '*'): array
+    {
         return ['INBOX' => ['delimiter' => '/', 'flags' => []]];
     }
 
     /**
      * Manage flags
-     * @param array $flags flags to set, add or remove - see $mode
-     * @param int $from message for items or start message if $to !== null
-     * @param int|null $to if null only one message ($from) is fetched, else it's the
-     *                             last message, INF means last message available
-     * @param string|null $mode '+' to add flags, '-' to remove flags, everything else sets the flags as given
-     * @param bool $silent if false the return values are the new flags for the wanted messages
-     * @param int $uid set to IMAP::ST_UID if you pass message unique identifiers instead of numbers.
-     * @param null $item unused attribute
      *
+     * @param  array  $flags  flags to set, add or remove - see $mode
+     * @param  int  $from  message for items or start message if $to !== null
+     * @param  int|null  $to  if null only one message ($from) is fetched, else it's the
+     *                        last message, INF means last message available
+     * @param  string|null  $mode  '+' to add flags, '-' to remove flags, everything else sets the flags as given
+     * @param  bool  $silent  if false the return values are the new flags for the wanted messages
+     * @param  int  $uid  set to IMAP::ST_UID if you pass message unique identifiers instead of numbers.
+     * @param  null  $item  unused attribute
      * @return bool|array new flags if $silent is false, else true or false depending on success
      */
-    public function store(array $flags, int $from, $to = null, $mode = null, bool $silent = true, $uid = IMAP::ST_UID, $item = null) {
+    public function store(array $flags, int $from, $to = null, $mode = null, bool $silent = true, $uid = IMAP::ST_UID, $item = null)
+    {
         // The only flag POP3 protocol support is \Deleted.
         if ($mode == '+' && in_array('\Deleted', $flags)) {
-            $this->sendRequest('DELE', (int)$from);
+            $this->sendRequest('DELE', (int) $from);
         }
         if ($silent === true) {
             return true;
@@ -535,32 +577,35 @@ class PopProtocol extends Protocol {
 
     /**
      * Append a new message to given folder
-     * @param string $folder name of target folder
-     * @param string $message full message content
-     * @param array|null $flags flags for new message
-     * @param string $date date for new message
      *
+     * @param  string  $folder  name of target folder
+     * @param  string  $message  full message content
+     * @param  array|null  $flags  flags for new message
+     * @param  string  $date  date for new message
      * @return bool success
+     *
      * @throws RuntimeException
      */
-    public function appendMessage(string $folder, string $message, $flags = null, $date = null): bool {
+    public function appendMessage(string $folder, string $message, $flags = null, $date = null): bool
+    {
         // POP3 does not support moving messages.
         throw new MethodNotSupportedException('appendMessage() method not supported');
     }
 
     /**
      * Copy a message set from current folder to an other folder
-     * @param string $folder destination folder
-     * @param $from
-     * @param int|null $to if null only one message ($from) is fetched, else it's the
-     *                         last message, INF means last message available
-     * @param int|string $uid set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
-     * message numbers instead.
      *
+     * @param  string  $folder  destination folder
+     * @param  int|null  $to  if null only one message ($from) is fetched, else it's the
+     *                        last message, INF means last message available
+     * @param  int|string  $uid  set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
+     *                           message numbers instead.
      * @return bool success
+     *
      * @throws RuntimeException
      */
-    public function copyMessage(string $folder, $from, $to = null, $uid = IMAP::ST_UID): bool {
+    public function copyMessage(string $folder, $from, $to = null, $uid = IMAP::ST_UID): bool
+    {
         // POP3 does not support moving messages.
         throw new MethodNotSupportedException('copyMessage() method not supported');
     }
@@ -568,17 +613,18 @@ class PopProtocol extends Protocol {
     /**
      * Copy multiple messages to the target folder
      *
-     * @param array $messages List of message identifiers
-     * @param string $folder Destination folder
-     * @param int|string $uid set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
-     * message numbers instead.
+     * @param  array  $messages  List of message identifiers
+     * @param  string  $folder  Destination folder
+     * @param  int|string  $uid  set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
+     *                           message numbers instead.
      * @return array|bool Tokens if operation successful, false if an error occurred
      *
      * @throws RuntimeException
      */
-    public function copyManyMessages(array $messages, string $folder, $uid = IMAP::ST_UID) {
-        foreach($messages as $msg) {
-            if (!$this->copyMessage($folder, $msg, null, $uid)) {
+    public function copyManyMessages(array $messages, string $folder, $uid = IMAP::ST_UID)
+    {
+        foreach ($messages as $msg) {
+            if (! $this->copyMessage($folder, $msg, null, $uid)) {
                 return false;
             }
         }
@@ -588,34 +634,37 @@ class PopProtocol extends Protocol {
 
     /**
      * Move a message set from current folder to an other folder
-     * @param string $folder destination folder
-     * @param $from
-     * @param int|null $to if null only one message ($from) is fetched, else it's the
-     *                         last message, INF means last message available
-     * @param int|string $uid set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
-     * message numbers instead.
      *
+     * @param  string  $folder  destination folder
+     * @param  int|null  $to  if null only one message ($from) is fetched, else it's the
+     *                        last message, INF means last message available
+     * @param  int|string  $uid  set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
+     *                           message numbers instead.
      * @return bool success
+     *
      * @throws RuntimeException
      */
-    public function moveMessage(string $folder, $from, $to = null, $uid = IMAP::ST_UID): bool {
+    public function moveMessage(string $folder, $from, $to = null, $uid = IMAP::ST_UID): bool
+    {
         // POP3 does not support moving messages.
         return false;
     }
 
     /**
      * Move multiple messages to the target folder
-     * @param array $messages List of message identifiers
-     * @param string $folder Destination folder
-     * @param int|string $uid set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
-     * message numbers instead.
      *
+     * @param  array  $messages  List of message identifiers
+     * @param  string  $folder  Destination folder
+     * @param  int|string  $uid  set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
+     *                           message numbers instead.
      * @return array|bool Tokens if operation successful, false if an error occurred
+     *
      * @throws RuntimeException
      */
-    public function moveManyMessages(array $messages, string $folder, $uid = IMAP::ST_UID) {
-        foreach($messages as $msg) {
-            if (!$this->moveMessage($folder, $msg, null, $uid)) {
+    public function moveManyMessages(array $messages, string $folder, $uid = IMAP::ST_UID)
+    {
+        foreach ($messages as $msg) {
+            if (! $this->moveMessage($folder, $msg, null, $uid)) {
                 return false;
             }
         }
@@ -627,68 +676,79 @@ class PopProtocol extends Protocol {
      * Exchange identification information
      * Ref.: https://datatracker.ietf.org/doc/html/rfc2971
      *
-     * @param null $ids
+     * @param  null  $ids
      * @return array|bool|void|null
      *
      * @throws RuntimeException
      */
-    public function ID($ids = null) {
+    public function ID($ids = null)
+    {
         throw new MethodNotSupportedException('ID() method not supported');
     }
 
     /**
      * Create a new folder (and parent folders if needed)
-     * @param string $folder folder name
      *
+     * @param  string  $folder  folder name
      * @return bool success
+     *
      * @throws RuntimeException
      */
-    public function createFolder(string $folder): bool {
+    public function createFolder(string $folder): bool
+    {
         throw new MethodNotSupportedException('createFolder() method not supported');
     }
 
     /**
      * Rename an existing folder
-     * @param string $old old name
-     * @param string $new new name
      *
+     * @param  string  $old  old name
+     * @param  string  $new  new name
      * @return bool success
+     *
      * @throws RuntimeException
      */
-    public function renameFolder(string $old, string $new): bool {
+    public function renameFolder(string $old, string $new): bool
+    {
         throw new MethodNotSupportedException('renameFolder() method not supported');
     }
 
     /**
      * Delete a folder
-     * @param string $folder folder name
      *
+     * @param  string  $folder  folder name
      * @return bool success
+     *
      * @throws RuntimeException
      */
-    public function deleteFolder(string $folder): bool {
+    public function deleteFolder(string $folder): bool
+    {
         throw new MethodNotSupportedException('deleteFolder() method not supported');
     }
 
     /**
      * Subscribe to a folder
-     * @param string $folder folder name
      *
+     * @param  string  $folder  folder name
      * @return bool success
+     *
      * @throws RuntimeException
      */
-    public function subscribeFolder(string $folder): bool {
+    public function subscribeFolder(string $folder): bool
+    {
         throw new MethodNotSupportedException('subscribeFolder() method not supported');
     }
 
     /**
      * Unsubscribe from a folder
-     * @param string $folder folder name
      *
+     * @param  string  $folder  folder name
      * @return bool success
+     *
      * @throws RuntimeException
      */
-    public function unsubscribeFolder(string $folder): bool {
+    public function unsubscribeFolder(string $folder): bool
+    {
         throw new MethodNotSupportedException('unsubscribeFolder() method not supported');
     }
 
@@ -696,43 +756,46 @@ class PopProtocol extends Protocol {
      * Apply session saved changes to the server
      *
      * @return bool success
+     *
      * @throws RuntimeException
      */
-    public function expunge(): bool {
+    public function expunge(): bool
+    {
         return true;
-        //throw new MethodNotSupportedException('expunge() method not supported');
+        // throw new MethodNotSupportedException('expunge() method not supported');
     }
 
     /**
      * Send noop command
      *
      * @return bool success
+     *
      * @throws RuntimeException
      */
-    public function noop(): bool {
-        return (bool)$this->sendRequest('NOOP');
+    public function noop(): bool
+    {
+        return (bool) $this->sendRequest('NOOP');
     }
 
     /**
      * Retrieve the quota level settings, and usage statics per mailbox
-     * @param $username
      *
-     * @return array
      * @throws RuntimeException
      */
-    public function getQuota($username): array {
+    public function getQuota($username): array
+    {
         throw new MethodNotSupportedException('getQuota() method not supported');
     }
 
     /**
      * Retrieve the quota settings per user
-     * @param string $quota_root
      *
-     * @return array
      * @throws RuntimeException
      */
-    public function getQuotaRoot(string $quota_root = 'INBOX'): array {
-        $result = $this->sendRequest("QUOTA", [$quota_root]);
+    public function getQuotaRoot(string $quota_root = 'INBOX'): array
+    {
+        $result = $this->sendRequest('QUOTA', [$quota_root]);
+
         return is_array($result) ? $result : [];
     }
 
@@ -741,7 +804,8 @@ class PopProtocol extends Protocol {
      *
      * @throws MethodNotSupportedException
      */
-    public function idle() {
+    public function idle()
+    {
         throw new MethodNotSupportedException('idle() method not supported');
     }
 
@@ -750,27 +814,29 @@ class PopProtocol extends Protocol {
      *
      * @throws MethodNotSupportedException
      */
-    public function done() {
+    public function done()
+    {
         throw new MethodNotSupportedException('done() method not supported');
     }
 
     /**
      * Search for matching messages
-     * @param array $params
-     * @param int|string $uid set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
-     * message numbers instead.
      *
+     * @param  int|string  $uid  set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
+     *                           message numbers instead.
      * @return array message ids
+     *
      * @throws RuntimeException
      */
-    public function search(array $params, $uid = IMAP::ST_UID): array {
+    public function search(array $params, $uid = IMAP::ST_UID): array
+    {
 
         // Get list of all the messages in the mailbox.
         $response = $this->sendRequestMultiline('LIST');
         preg_match_all("#^(\d+) #m", $response, $m);
         $list = $m[1] ?? [];
 
-        if (!count($list)) {
+        if (! count($list)) {
             return [];
         }
 
@@ -783,32 +849,33 @@ class PopProtocol extends Protocol {
         $search_query = $params[0] ?? '';
 
         // Filter by SINCE date.
-        preg_match("#SINCE ([^ $]+)( |$)#", $search_query, $m);
+        preg_match('#SINCE ([^ $]+)( |$)#', $search_query, $m);
         $since_date = $m[1] ?? '';
         $since_date = str_replace([' ', '"', "'"], '', $since_date);
 
-        if (!$since_date) {
+        if (! $since_date) {
             return $list;
         }
         $since_date_ts = strtotime($since_date);
-        if (!$since_date_ts) {
+        if (! $since_date_ts) {
             return $list;
         }
         // Check starting from the last message.
         $ids = [];
-        for ($i = count($list)-1; $i >= 0; $i--) {
+        for ($i = count($list) - 1; $i >= 0; $i--) {
             // TOP retrieves headers and N lines of body.
             $headers = $this->getHeaders($list[$i]);
             preg_match("#^Date: ([^\r\n]+)[\r\n]#im", $headers, $m);
             $date = trim($m[1] ?? '');
-            if (!$date) {
+            if (! $date) {
                 continue;
             }
 
             try {
                 $date_carbon = \Webklex\PHPIMAP\Header::doParseDate($date);
             } catch (\Exception $e) {
-                \Helper::logException($e, "[PopProtocol.php] Could not parse Date header (".$date."):");
+                \Helper::logException($e, '[PopProtocol.php] Could not parse Date header ('.$date.'):');
+
                 continue;
             }
 
@@ -828,60 +895,64 @@ class PopProtocol extends Protocol {
 
     /**
      * Get a message overview
-     * @param string $sequence
-     * @param int|string $uid set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
-     * message numbers instead.
      *
-     * @return array
+     * @param  int|string  $uid  set to IMAP::ST_UID or any string representing the UID - set to IMAP::ST_MSGN to use
+     *                           message numbers instead.
+     *
      * @throws RuntimeException
      * @throws MessageNotFoundException
      * @throws InvalidMessageDateException
      */
-    public function overview(string $sequence, $uid = IMAP::ST_UID): array {
+    public function overview(string $sequence, $uid = IMAP::ST_UID): array
+    {
         $result = [];
-        list($from, $to) = explode(":", $sequence);
+        [$from, $to] = explode(':', $sequence);
 
         $uids = $this->getUid();
         $ids = [];
         foreach ($uids as $msgn => $v) {
             $id = $uid ? $v : $msgn;
-            if ( ($to >= $id && $from <= $id) || ($to === "*" && $from <= $id) ){
+            if (($to >= $id && $from <= $id) || ($to === '*' && $from <= $id)) {
                 $ids[] = $id;
             }
         }
-        $headers = $this->headers($ids, "RFC822", $uid);
+        $headers = $this->headers($ids, 'RFC822', $uid);
         foreach ($headers as $id => $raw_header) {
             $result[$id] = (new Header($raw_header, false))->getAttributes();
         }
+
         return $result;
     }
 
     /**
      * Enable the debug mode
      */
-    public function enableDebug(){
+    public function enableDebug()
+    {
         $this->debug = true;
     }
 
     /**
      * Disable the debug mode
      */
-    public function disableDebug(){
+    public function disableDebug()
+    {
         $this->debug = false;
     }
 
     /**
      * Build a valid UID number set
-     * @param $from
-     * @param null $to
      *
+     * @param  null  $to
      * @return int|string
      */
-    public function buildSet($from, $to = null) {
-        $set = (int)$from;
+    public function buildSet($from, $to = null)
+    {
+        $set = (int) $from;
         if ($to !== null) {
-            $set .= ':' . ($to == INF ? '*' : (int)$to);
+            $set .= ':'.($to == INF ? '*' : (int) $to);
         }
+
         return $set;
     }
 }

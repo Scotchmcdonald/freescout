@@ -19,11 +19,12 @@ namespace Symfony\Component\HttpKernel;
 class UriSigner
 {
     private $secret;
+
     private $parameter;
 
     /**
-     * @param string $secret    A secret
-     * @param string $parameter Query string parameter to use
+     * @param  string  $secret  A secret
+     * @param  string  $parameter  Query string parameter to use
      */
     public function __construct($secret, $parameter = '_hash')
     {
@@ -37,8 +38,7 @@ class UriSigner
      * The given URI is signed by adding the query string parameter
      * which value depends on the URI and the secret.
      *
-     * @param string $uri A URI to sign
-     *
+     * @param  string  $uri  A URI to sign
      * @return string The signed URI
      */
     public function sign($uri)
@@ -47,19 +47,18 @@ class UriSigner
         if (isset($url['query'])) {
             parse_str($url['query'], $params);
         } else {
-            $params = array();
+            $params = [];
         }
 
         $uri = $this->buildUrl($url, $params);
 
-        return $uri.(false === strpos($uri, '?') ? '?' : '&').$this->parameter.'='.$this->computeHash($uri);
+        return $uri.(strpos($uri, '?') === false ? '?' : '&').$this->parameter.'='.$this->computeHash($uri);
     }
 
     /**
      * Checks that a URI contains the correct hash.
      *
-     * @param string $uri A signed URI
-     *
+     * @param  string  $uri  A signed URI
      * @return bool True if the URI is signed correctly, false otherwise
      */
     public function check($uri)
@@ -68,7 +67,7 @@ class UriSigner
         if (isset($url['query'])) {
             parse_str($url['query'], $params);
         } else {
-            $params = array();
+            $params = [];
         }
 
         if (empty($params[$this->parameter])) {
@@ -86,7 +85,7 @@ class UriSigner
         return urlencode(base64_encode(hash_hmac('sha256', $uri, $this->secret, true)));
     }
 
-    private function buildUrl(array $url, array $params = array())
+    private function buildUrl(array $url, array $params = [])
     {
         ksort($params, SORT_STRING);
         $url['query'] = http_build_query($params, '', '&');

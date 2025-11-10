@@ -20,20 +20,20 @@ class Swift_MimePart extends Swift_Mime_MimePart
      *
      * Details may be optionally passed into the constructor.
      *
-     * @param string $body
-     * @param string $contentType
-     * @param string $charset
+     * @param  string  $body
+     * @param  string  $contentType
+     * @param  string  $charset
      */
     public function __construct($body = null, $contentType = null, $charset = null)
     {
-        parent::__construct(... Swift_DependencyContainer::getInstance()->createDependenciesFor('mime.part'));
+        parent::__construct(...Swift_DependencyContainer::getInstance()->createDependenciesFor('mime.part'));
         // call_user_func_array(
         //     [$this, 'Swift_Mime_MimePart::__construct'],
         //     Swift_DependencyContainer::getInstance()
         //         ->createDependenciesFor('mime.part')
         //     );
 
-        if (!isset($charset)) {
+        if (! isset($charset)) {
             $charset = Swift_DependencyContainer::getInstance()
                 ->lookup('properties.charset');
         }

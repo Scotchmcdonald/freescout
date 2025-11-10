@@ -27,10 +27,10 @@ class PasswordChanged extends Mailable
     public function build()
     {
         \MailHelper::prepareMailable($this);
-        
+
         $message = $this->subject(__('Password Changed'))
-                    ->view('emails/user/password_changed')
-                    ->text('emails/user/password_changed_text');
+            ->view('emails/user/password_changed')
+            ->text('emails/user/password_changed_text');
 
         return $message;
     }

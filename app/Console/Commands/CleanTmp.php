@@ -41,6 +41,6 @@ class CleanTmp extends Command
     {
         \Helper::shellExec('find '.\Helper::getTempDir().' -mtime +7 -type f -name '.\Helper::getTempFilePrefix().'* -exec rm -r -f {} \;');
 
-        $this->comment("Done");
+        $this->comment('Done');
     }
 }

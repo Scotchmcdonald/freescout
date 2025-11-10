@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Job;
 use Illuminate\Console\Command;
 
 class SendMonitor extends Command

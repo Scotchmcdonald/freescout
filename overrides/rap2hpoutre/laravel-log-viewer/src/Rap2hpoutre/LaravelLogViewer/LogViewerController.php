@@ -4,15 +4,14 @@ namespace Rap2hpoutre\LaravelLogViewer;
 
 use Illuminate\Support\Facades\Crypt;
 
-if (class_exists("\\Illuminate\\Routing\\Controller")) {	
-    class BaseController extends \Illuminate\Routing\Controller {}	
-} elseif (class_exists("Laravel\\Lumen\\Routing\\Controller")) {	
-    class BaseController extends \Laravel\Lumen\Routing\Controller {}	
+if (class_exists('\\Illuminate\\Routing\\Controller')) {
+    class BaseController extends \Illuminate\Routing\Controller {}
+} elseif (class_exists('Laravel\\Lumen\\Routing\\Controller')) {
+    class BaseController extends \Laravel\Lumen\Routing\Controller {}
 }
 
 /**
  * Class LogViewerController
- * @package Rap2hpoutre\LaravelLogViewer
  */
 class LogViewerController extends BaseController
 {
@@ -36,12 +35,13 @@ class LogViewerController extends BaseController
      */
     public function __construct()
     {
-        $this->log_viewer = new LaravelLogViewer();
+        $this->log_viewer = new LaravelLogViewer;
         $this->request = app('request');
     }
 
     /**
      * @return array|mixed
+     *
      * @throws \Exception
      */
     public function index()
@@ -78,7 +78,7 @@ class LogViewerController extends BaseController
 
         if (is_array($data['logs']) && count($data['logs']) > 0) {
             $firstLog = reset($data['logs']);
-            if (!$firstLog['context'] && !$firstLog['level']) {
+            if (! $firstLog['context'] && ! $firstLog['level']) {
                 $data['standardFormat'] = false;
             }
         }
@@ -88,6 +88,7 @@ class LogViewerController extends BaseController
 
     /**
      * @return bool|mixed
+     *
      * @throws \Exception
      */
     private function earlyReturn()
@@ -100,9 +101,11 @@ class LogViewerController extends BaseController
             return $this->download($this->pathFromInput('dl'));
         } elseif ($this->request->has('clean')) {
             app('files')->put($this->pathFromInput('clean'), '');
+
             return $this->redirect(url()->previous());
         } elseif ($this->request->has('del')) {
             app('files')->delete($this->pathFromInput('del'));
+
             return $this->redirect($this->request->url());
         } elseif ($this->request->has('delall') && \Session::token() == $this->request->get('_token')) {
             $files = ($this->log_viewer->getFolderName())
@@ -111,14 +114,17 @@ class LogViewerController extends BaseController
             foreach ($files as $file) {
                 app('files')->delete($this->log_viewer->pathToLogFile($file));
             }
+
             return $this->redirect($this->request->url());
         }
+
         return false;
     }
 
     /**
-     * @param string $input_string
+     * @param  string  $input_string
      * @return string
+     *
      * @throws \Exception
      */
     private function pathFromInput($input_string)
@@ -127,7 +133,6 @@ class LogViewerController extends BaseController
     }
 
     /**
-     * @param $to
      * @return mixed
      */
     private function redirect($to)
@@ -140,7 +145,7 @@ class LogViewerController extends BaseController
     }
 
     /**
-     * @param string $data
+     * @param  string  $data
      * @return mixed
      */
     private function download($data)

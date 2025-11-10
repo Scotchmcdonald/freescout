@@ -40,16 +40,16 @@ class CheckRequirements extends Command
         // PHP extensions.
         $php_extensions = \Helper::checkRequiredExtensions();
 
-        $this->comment("PHP Version");
-        $this->line(' '.str_pad(phpversion(), 30, '.'). ' '.(version_compare(phpversion(), config('installer.core.minPhpVersion'), '>=') ? '<fg=green>OK</>' : '<fg=red>NOT FOUND</>'), false);
+        $this->comment('PHP Version');
+        $this->line(' '.str_pad(phpversion(), 30, '.').' '.(version_compare(phpversion(), config('installer.core.minPhpVersion'), '>=') ? '<fg=green>OK</>' : '<fg=red>NOT FOUND</>'), false);
 
-        $this->comment("PHP Extensions");
+        $this->comment('PHP Extensions');
         $this->output($php_extensions);
 
         // Functions.
         $functions = \Helper::checkRequiredFunctions();
 
-        $this->comment("Functions");
+        $this->comment('Functions');
         $this->output($functions);
         $this->line('');
     }
@@ -57,7 +57,7 @@ class CheckRequirements extends Command
     public function output($items)
     {
         foreach ($items as $item => $status) {
-            $this->line(' '.str_pad($item, 30, '.'). ' '.($status ? '<fg=green>OK</>' : '<fg=red>NOT FOUND</>'), false);
+            $this->line(' '.str_pad($item, 30, '.').' '.($status ? '<fg=green>OK</>' : '<fg=red>NOT FOUND</>'), false);
         }
     }
 }

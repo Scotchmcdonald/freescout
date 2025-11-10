@@ -10,9 +10,7 @@ class CheckRole
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
-     *
+     * @param  \Illuminate\Http\Request  $request
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -22,7 +20,7 @@ class CheckRole
 
         // Check if a role is required for the route, and
         // if so, ensure that the user has that role.
-        if (!$roles || in_array($request->user()->getRoleName(), $roles)) {
+        if (! $roles || in_array($request->user()->getRoleName(), $roles)) {
             return $next($request);
         }
         abort(403, __('You are not authorized to access this resource.'));

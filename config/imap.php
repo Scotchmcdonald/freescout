@@ -1,4 +1,5 @@
 <?php
+
 /*
 * File:     imap.php
 * Category: config
@@ -36,10 +37,10 @@ return [
     'accounts' => [
 
         'default' => [// account identifier
-            'host'  => env('IMAP_HOST', 'localhost'),
-            'port'  => env('IMAP_PORT', 993),
-            'protocol'  => env('IMAP_PROTOCOL', 'imap'), //might also use imap, [pop3 or nntp (untested)]
-            'encryption'    => env('IMAP_ENCRYPTION', 'ssl'), // Supported: false, 'ssl', 'tls'
+            'host' => env('IMAP_HOST', 'localhost'),
+            'port' => env('IMAP_PORT', 993),
+            'protocol' => env('IMAP_PROTOCOL', 'imap'), // might also use imap, [pop3 or nntp (untested)]
+            'encryption' => env('IMAP_ENCRYPTION', 'ssl'), // Supported: false, 'ssl', 'tls'
             'validate_cert' => env('IMAP_VALIDATE_CERT', true),
             'username' => env('IMAP_USERNAME', 'root@example.com'),
             'password' => env('IMAP_PASSWORD', ''),
@@ -102,7 +103,7 @@ return [
     */
     'options' => [
         'delimiter' => '/',
-        //'fetch' => FT_UID,
+        // 'fetch' => FT_UID,
         'fetch' => 1,
         'fetch_body' => true,
         'fetch_attachment' => true,
@@ -111,6 +112,6 @@ return [
         'fetch_order' => 'asc',
         'open' => [
             // 'DISABLE_AUTHENTICATOR' => 'GSSAPI'
-        ]
-    ]
+        ],
+    ],
 ];

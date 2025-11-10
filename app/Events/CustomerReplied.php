@@ -8,6 +8,7 @@ use App\Thread;
 class CustomerReplied
 {
     public $conversation;
+
     public $thread;
 
     /**

@@ -11,22 +11,22 @@ class FailedJob extends Model
      */
     protected $dates = ['failed_at'];
 
-	public $payload_decoded = null;
+    public $payload_decoded = null;
 
     public function getPayloadDecoded()
     {
-    	if ($this->payload_decoded !== null) {
-    		return $this->payload_decoded;
-    	}
+        if ($this->payload_decoded !== null) {
+            return $this->payload_decoded;
+        }
 
-    	$this->payload_decoded = json_decode($this->payload, true);
+        $this->payload_decoded = json_decode($this->payload, true);
 
-    	return $this->payload_decoded;
+        return $this->payload_decoded;
     }
 
     public function getCommand()
     {
-    	return \App\Job::getPayloadCommand($this->getPayloadDecoded());
+        return \App\Job::getPayloadCommand($this->getPayloadDecoded());
     }
 
     public static function retry($job_id)

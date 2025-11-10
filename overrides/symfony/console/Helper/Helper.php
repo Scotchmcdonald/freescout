@@ -41,8 +41,7 @@ abstract class Helper implements HelperInterface
     /**
      * Returns the length of a string, using mb_strwidth if it is available.
      *
-     * @param string $string The string to check its length
-     *
+     * @param  string  $string  The string to check its length
      * @return int The length of the string
      */
     public static function strlen($string)
@@ -57,10 +56,9 @@ abstract class Helper implements HelperInterface
     /**
      * Returns the subset of a string, using mb_substr if it is available.
      *
-     * @param string   $string String to subset
-     * @param int      $from   Start offset
-     * @param int|null $length Length to read
-     *
+     * @param  string  $string  String to subset
+     * @param  int  $from  Start offset
+     * @param  int|null  $length  Length to read
      * @return string The string subset
      */
     public static function substr($string, $from, $length = null)
@@ -91,7 +89,7 @@ abstract class Helper implements HelperInterface
                 if ((isset($timeFormats[$index + 1]) && $secs < $timeFormats[$index + 1][0])
                     || $index == \count($timeFormats) - 1
                 ) {
-                    if (2 == \count($format)) {
+                    if (\count($format) == 2) {
                         return $format[1];
                     }
 

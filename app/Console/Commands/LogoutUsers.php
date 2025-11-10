@@ -40,7 +40,7 @@ class LogoutUsers extends Command
         try {
             // Remove files from storage/frameworks/sessions
             $files = \File::files(storage_path('framework/sessions'));
-            
+
             $count = 0;
 
             foreach ($files as $file) {

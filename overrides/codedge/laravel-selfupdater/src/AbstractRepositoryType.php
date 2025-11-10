@@ -2,10 +2,10 @@
 
 namespace Codedge\Updater;
 
+use Codedge\Updater\Events\HasWrongPermissions;
 use File;
 use GuzzleHttp\Client;
 use Symfony\Component\Finder\Finder;
-use Codedge\Updater\Events\HasWrongPermissions;
 
 /**
  * AbstractRepositoryType.php.
@@ -28,13 +28,12 @@ abstract class AbstractRepositoryType
     /**
      * Unzip an archive.
      *
-     * @param string $file
-     * @param string $targetDir
-     * @param bool   $deleteZipArchive
+     * @param  string  $file
+     * @param  string  $targetDir
+     * @param  bool  $deleteZipArchive
+     * @return bool
      *
      * @throws \Exception
-     *
-     * @return bool
      */
     protected function unzipArchive($file = '', $targetDir = '', $deleteZipArchive = true)
     {
@@ -42,7 +41,7 @@ abstract class AbstractRepositoryType
             throw new \InvalidArgumentException("Archive [{$file}] cannot be found or is empty.");
         }
 
-        $zip = new \ZipArchive();
+        $zip = new \ZipArchive;
         $res = $zip->open($file);
 
         if (! $res) {
@@ -67,9 +66,10 @@ abstract class AbstractRepositoryType
     /**
      * Check a given directory recursively if all files are writeable.
      *
-     * @throws \Exception
      *
      * @return bool
+     *
+     * @throws \Exception
      */
     protected function hasCorrectPermissionForUpdate()
     {
@@ -91,10 +91,8 @@ abstract class AbstractRepositoryType
     /**
      * Download a file to a given location.
      *
-     * @param Client $client
-     * @param string $source
-     * @param string $storagePath
-     *
+     * @param  string  $source
+     * @param  string  $storagePath
      * @return mixed|\Psr\Http\Message\ResponseInterface
      */
     protected function downloadRelease(Client $client, $source, $storagePath)
@@ -105,14 +103,13 @@ abstract class AbstractRepositoryType
                 'timeout' => config('app.curl_timeout'),
                 'connect_timeout' => config('app.curl_connect_timeout'),
                 'proxy' => config('app.proxy'),
-        ]);
+            ]);
     }
 
     /**
      * Check if the source has already been downloaded.
      *
-     * @param string $version A specific version
-     *
+     * @param  string  $version  A specific version
      * @return bool
      */
     protected function isSourceAlreadyFetched($version)
@@ -129,12 +126,12 @@ abstract class AbstractRepositoryType
     /**
      * Set the paths to be updated.
      *
-     * @param string $path    Path where the update should be run into
-     * @param array  $exclude List of folder names that shall not be updated
+     * @param  string  $path  Path where the update should be run into
+     * @param  array  $exclude  List of folder names that shall not be updated
      */
     protected function setPathToUpdate($path, array $exclude)
     {
-        $finder = (new Finder())->in($path)->exclude($exclude);
+        $finder = (new Finder)->in($path)->exclude($exclude);
 
         $this->pathToUpdate = $finder;
     }
@@ -142,8 +139,8 @@ abstract class AbstractRepositoryType
     /**
      * Create a releas sub-folder inside the storage dir.
      *
-     * @param string $storagePath
-     * @param string $releaseName
+     * @param  string  $storagePath
+     * @param  string  $releaseName
      */
     public function createReleaseFolder($storagePath, $releaseName)
     {

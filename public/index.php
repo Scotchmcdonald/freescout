@@ -1,13 +1,13 @@
 <?php
 
 // Check PHP version
-if (!version_compare(phpversion(), '7.1.0', '>=')) {
+if (! version_compare(phpversion(), '7.1.0', '>=')) {
     echo 'PHP 7.1+ is required to run FreeScout. Your PHP version: '.phpversion();
     exit();
 }
 
-if (preg_match("#^/public\/(.*)#", $_SERVER['REQUEST_URI'], $m) && !empty($m[1])) {
-    header("Location: /".$m[1]);
+if (preg_match("#^/public\/(.*)#", $_SERVER['REQUEST_URI'], $m) && ! empty($m[1])) {
+    header('Location: /'.$m[1]);
     exit();
 }
 

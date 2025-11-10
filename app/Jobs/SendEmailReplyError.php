@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User replied from wrong email address to the email notification.
  */
@@ -58,13 +59,13 @@ class SendEmailReplyError implements ShouldQueue
 
         try {
             Mail::to([['name' => '', 'email' => $this->from]])
-                ->send(new UserEmailReplyError());
+                ->send(new UserEmailReplyError);
         } catch (\Exception $e) {
             // We come here in case SMTP server unavailable for example
             activity()
                 ->withProperties([
-                    'error'    => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
-                 ])
+                    'error' => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
+                ])
                 ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
                 ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_WRONG_EMAIL);
 
@@ -79,7 +80,7 @@ class SendEmailReplyError implements ShouldQueue
             $failures = Mail::failures();
 
             // Save to send log
-            if (!empty($failures)) {
+            if (! empty($failures)) {
                 $status = SendLog::STATUS_SEND_ERROR;
             } else {
                 $status = SendLog::STATUS_ACCEPTED;

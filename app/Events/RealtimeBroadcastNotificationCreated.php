@@ -53,13 +53,13 @@ class RealtimeBroadcastNotificationCreated implements ShouldBroadcastNow
     {
         $channels = $this->notification->broadcastOn();
 
-        if (!empty($channels)) {
+        if (! empty($channels)) {
             return $channels;
         }
 
         return [new PrivateChannel($this->channelName())];
 
-        //return new PrivateChannel('App.User.'.$this->receiver_user_id);
+        // return new PrivateChannel('App.User.'.$this->receiver_user_id);
     }
 
     /**
@@ -70,7 +70,7 @@ class RealtimeBroadcastNotificationCreated implements ShouldBroadcastNow
     public function broadcastWith()
     {
         return array_merge($this->data, [
-            'id'   => $this->notification->id,
+            'id' => $this->notification->id,
             'type' => get_class($this->notification),
         ]);
         // return [

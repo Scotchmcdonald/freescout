@@ -2,9 +2,9 @@
 
 namespace Doctrine\DBAL\Driver;
 
-use function func_get_args;
-
 use const PHP_VERSION_ID;
+
+use function func_get_args;
 
 if (PHP_VERSION_ID >= 80000) {
     /**
@@ -15,9 +15,8 @@ if (PHP_VERSION_ID >= 80000) {
         /**
          * @deprecated Use one of the fetch- or iterate-related methods.
          *
-         * @param int   $mode
-         * @param mixed ...$args
-         *
+         * @param  int  $mode
+         * @param  mixed  ...$args
          * @return bool
          */
         #[\ReturnTypeWillChange]
@@ -29,9 +28,8 @@ if (PHP_VERSION_ID >= 80000) {
         /**
          * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
          *
-         * @param int|null $mode
-         * @param mixed    ...$args
-         *
+         * @param  int|null  $mode
+         * @param  mixed  ...$args
          * @return mixed[]
          */
         public function fetchAll($mode = null, ...$args): array
@@ -48,9 +46,9 @@ if (PHP_VERSION_ID >= 80000) {
         /**
          * @deprecated Use one of the fetch- or iterate-related methods.
          *
-         * @param int   $fetchMode
-         * @param mixed $arg2
-         * @param mixed $arg3
+         * @param  int  $fetchMode
+         * @param  mixed  $arg2
+         * @param  mixed  $arg3
          */
         public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null): bool
         {
@@ -60,10 +58,9 @@ if (PHP_VERSION_ID >= 80000) {
         /**
          * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
          *
-         * @param int|null $fetchMode
-         * @param mixed    $fetchArgument
-         * @param mixed    $ctorArgs
-         *
+         * @param  int|null  $fetchMode
+         * @param  mixed  $fetchArgument
+         * @param  mixed  $ctorArgs
          * @return mixed[]
          */
         public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)

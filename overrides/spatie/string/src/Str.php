@@ -3,10 +3,10 @@
 namespace Spatie\String;
 
 use ArrayAccess;
-use Spatie\String\Integrations\Underscore;
-use Spatie\String\Exceptions\UnsetOffsetException;
-use Spatie\String\Exceptions\UnknownFunctionException;
 use Spatie\String\Exceptions\ErrorCreatingStringException;
+use Spatie\String\Exceptions\UnknownFunctionException;
+use Spatie\String\Exceptions\UnsetOffsetException;
+use Spatie\String\Integrations\Underscore;
 
 /**
  * Magic methods provided by underscore are documented here.
@@ -53,7 +53,7 @@ class Str implements ArrayAccess
     protected $string;
 
     /**
-     * @param string $string
+     * @param  string  $string
      */
     public function __construct($string = '')
     {
@@ -81,8 +81,6 @@ class Str implements ArrayAccess
     /**
      * Get the string between the given start and end.
      *
-     * @param $start
-     * @param $end
      *
      * @return \Spatie\String\Str
      */
@@ -93,11 +91,11 @@ class Str implements ArrayAccess
         }
 
         if ($start != '' && strpos($this->string, $start) === false) {
-            return new static();
+            return new static;
         }
 
         if ($end != '' && strpos($this->string, $end) === false) {
-            return new static();
+            return new static;
         }
 
         if ($start == '') {
@@ -142,9 +140,8 @@ class Str implements ArrayAccess
      * of the string is always a full word concatinated with the
      * specified moreTextIndicator.
      *
-     * @param int    $length
-     * @param string $moreTextIndicator
-     *
+     * @param  int  $length
+     * @param  string  $moreTextIndicator
      * @return \Spatie\String\Str
      */
     public function tease($length = 200, $moreTextIndicator = '...')
@@ -152,7 +149,7 @@ class Str implements ArrayAccess
         $sanitizedString = $this->sanitizeForTease($this->string);
 
         if (strlen($sanitizedString) == 0) {
-            return new static();
+            return new static;
         }
 
         if (strlen($sanitizedString) <= $length) {
@@ -168,7 +165,6 @@ class Str implements ArrayAccess
     /**
      * Sanitize the string for teasing.
      *
-     * @param $string
      *
      * @return string
      */
@@ -176,10 +172,10 @@ class Str implements ArrayAccess
     {
         $string = trim($string);
 
-        //remove html
+        // remove html
         $string = strip_tags($string);
 
-        //replace multiple spaces
+        // replace multiple spaces
         $string = preg_replace("/\s+/", ' ', $string);
 
         return $string;
@@ -188,8 +184,6 @@ class Str implements ArrayAccess
     /**
      * Replace the first occurrence of a string.
      *
-     * @param $search
-     * @param $replace
      *
      * @return \Spatie\String\Str
      */
@@ -213,8 +207,6 @@ class Str implements ArrayAccess
     /**
      * Replace the last occurrence of a string.
      *
-     * @param $search
-     * @param $replace
      *
      * @return \Spatie\String\Str
      */
@@ -238,7 +230,6 @@ class Str implements ArrayAccess
     /**
      * Prefix a string.
      *
-     * @param $string
      *
      * @return \Spatie\String\Str
      */
@@ -250,7 +241,6 @@ class Str implements ArrayAccess
     /**
      * Suffix a string.
      *
-     * @param $string
      *
      * @return \Spatie\String\Str
      */
@@ -262,7 +252,6 @@ class Str implements ArrayAccess
     /**
      * Concatenate a string.
      *
-     * @param $string
      *
      * @return \Spatie\String\Str
      */
@@ -279,7 +268,7 @@ class Str implements ArrayAccess
     public function possessive()
     {
         if ($this->string == '') {
-            return new static();
+            return new static;
         }
 
         $noApostropheEdgeCases = ['it'];
@@ -296,9 +285,8 @@ class Str implements ArrayAccess
      * Returns an empty string when the offset doesn't exist.
      * Use a negative index to start counting from the last element.
      *
-     * @param string $delimiter
-     * @param int    $index
-     *
+     * @param  string  $delimiter
+     * @param  int  $index
      * @return \Spatie\String\Str
      */
     public function segment($delimiter, $index)
@@ -318,8 +306,7 @@ class Str implements ArrayAccess
     /**
      * Get the first segment from a string based on a delimiter.
      *
-     * @param string $delimiter
-     *
+     * @param  string  $delimiter
      * @return \Spatie\String\Str
      */
     public function firstSegment($delimiter)
@@ -330,8 +317,7 @@ class Str implements ArrayAccess
     /**
      * Get the last segment from a string based on a delimiter.
      *
-     * @param string $delimiter
-     *
+     * @param  string  $delimiter
      * @return \Spatie\String\Str
      */
     public function lastSegment($delimiter)
@@ -342,8 +328,7 @@ class Str implements ArrayAccess
     /**
      * Pop (remove) the last segment of a string based on a delimiter.
      *
-     * @param string $delimiter
-     *
+     * @param  string  $delimiter
      * @return \Spatie\String\Str
      */
     public function pop($delimiter)
@@ -354,8 +339,7 @@ class Str implements ArrayAccess
     /**
      * Strip whitespace (or other characters) from the beginning and end of a string.
      *
-     * @param string $characterMask
-     *
+     * @param  string  $characterMask
      * @return \Spatie\String\Str
      */
     public function trim($characterMask = " \t\n\r\0\x0B")
@@ -366,10 +350,9 @@ class Str implements ArrayAccess
     /**
      * Alias for find.
      *
-     * @param array|string $needle
-     * @param bool         $caseSensitive
-     * @param bool         $absolute
-     *
+     * @param  array|string  $needle
+     * @param  bool  $caseSensitive
+     * @param  bool  $absolute
      * @return bool
      */
     public function contains($needle, $caseSensitive = false, $absolute = false)
@@ -380,16 +363,15 @@ class Str implements ArrayAccess
     /**
      * Unknown methods calls will be handled by various integrations.
      *
-     * @param $method
-     * @param $args
      *
-     * @throws UnknownFunctionException
      *
      * @return mixed|\Spatie\String\Str
+     *
+     * @throws UnknownFunctionException
      */
     public function __call($method, $args)
     {
-        $underscore = new Underscore();
+        $underscore = new Underscore;
 
         if ($underscore->isSupportedMethod($method)) {
             return $underscore->call($this, $method, $args);
@@ -403,8 +385,7 @@ class Str implements ArrayAccess
      *
      * @link http://php.net/manual/en/arrayaccess.offsetexists.php
      *
-     * @param mixed $offset An offset to check for.
-     *
+     * @param  mixed  $offset  An offset to check for.
      * @return bool true on success or false on failure.
      *              The return value will be casted to boolean if non-boolean was returned.
      */
@@ -418,10 +399,9 @@ class Str implements ArrayAccess
      *
      * @link http://php.net/manual/en/arrayaccess.offsetget.php
      *
-     * @param mixed $offset The offset to retrieve.
-     *
+     * @param  mixed  $offset  The offset to retrieve.
      * @return mixed Can return all value types.
-     * : mixed
+     *               : mixed
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
@@ -436,8 +416,8 @@ class Str implements ArrayAccess
      *
      * @link http://php.net/manual/en/arrayaccess.offsetset.php
      *
-     * @param mixed $offset The offset to assign the value to.
-     * @param mixed $value  The value to set.
+     * @param  mixed  $offset  The offset to assign the value to.
+     * @param  mixed  $value  The value to set.
      */
     public function offsetSet($offset, $value): void
     {
@@ -449,12 +429,12 @@ class Str implements ArrayAccess
      *
      * @link http://php.net/manual/en/arrayaccess.offsetunset.php
      *
-     * @param mixed $offset The offset to unset.
+     * @param  mixed  $offset  The offset to unset.
      *
      * @throws UnsetOffsetException
      */
     public function offsetUnset($offset): void
     {
-        throw new UnsetOffsetException();
+        throw new UnsetOffsetException;
     }
 }

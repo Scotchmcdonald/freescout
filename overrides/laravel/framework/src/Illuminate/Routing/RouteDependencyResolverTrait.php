@@ -2,17 +2,16 @@
 
 namespace Illuminate\Routing;
 
-use ReflectionMethod;
-use ReflectionParameter;
 use Illuminate\Support\Arr;
 use ReflectionFunctionAbstract;
+use ReflectionMethod;
+use ReflectionParameter;
 
 trait RouteDependencyResolverTrait
 {
     /**
      * Resolve the object method's type-hinted dependencies.
      *
-     * @param  array  $parameters
      * @param  object  $instance
      * @param  string  $method
      * @return array
@@ -31,8 +30,6 @@ trait RouteDependencyResolverTrait
     /**
      * Resolve the given method's type-hinted dependencies.
      *
-     * @param  array  $parameters
-     * @param  \ReflectionFunctionAbstract  $reflector
      * @return array
      */
     public function resolveMethodDependencies(array $parameters, ReflectionFunctionAbstract $reflector)
@@ -62,7 +59,6 @@ trait RouteDependencyResolverTrait
     /**
      * Attempt to transform the given parameter into a class instance.
      *
-     * @param  \ReflectionParameter  $parameter
      * @param  array  $parameters
      * @return mixed
      */
@@ -84,7 +80,6 @@ trait RouteDependencyResolverTrait
      * Determine if an object of the given class is in a list of parameters.
      *
      * @param  string  $class
-     * @param  array  $parameters
      * @return bool
      */
     protected function alreadyInParameters($class, array $parameters)
@@ -97,7 +92,6 @@ trait RouteDependencyResolverTrait
     /**
      * Splice the given value into the parameter list.
      *
-     * @param  array  $parameters
      * @param  string  $offset
      * @param  mixed  $value
      * @return void

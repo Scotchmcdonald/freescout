@@ -36,18 +36,18 @@ class FunctionEnumerator extends Enumerator
         }
 
         // only list functions if we are specifically asked
-        if (!$input->getOption('functions')) {
+        if (! $input->getOption('functions')) {
             return;
         }
 
         if ($input->getOption('user')) {
-            $label     = 'User Functions';
+            $label = 'User Functions';
             $functions = $this->getFunctions('user');
         } elseif ($input->getOption('internal')) {
-            $label     = 'Internal Functions';
+            $label = 'Internal Functions';
             $functions = $this->getFunctions('internal');
         } else {
-            $label     = 'Functions';
+            $label = 'Functions';
             $functions = $this->getFunctions();
         }
 
@@ -68,8 +68,7 @@ class FunctionEnumerator extends Enumerator
      *
      * Optionally limit functions to "user" or "internal" functions.
      *
-     * @param null|string $type "user" or "internal" (default: both)
-     *
+     * @param  null|string  $type  "user" or "internal" (default: both)
      * @return array
      */
     protected function getFunctions($type = null)
@@ -86,7 +85,6 @@ class FunctionEnumerator extends Enumerator
     /**
      * Prepare formatted function array.
      *
-     * @param array $functions
      *
      * @return array
      */
@@ -100,7 +98,7 @@ class FunctionEnumerator extends Enumerator
         foreach ($functions as $name) {
             if ($this->showItem($name)) {
                 $ret[$name] = [
-                    'name'  => $name,
+                    'name' => $name,
                     'style' => self::IS_FUNCTION,
                     'value' => $this->presentSignature($name),
                 ];

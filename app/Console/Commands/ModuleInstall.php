@@ -1,4 +1,5 @@
 <?php
+
 /**
  * php artisan freescout:module-install modulealias.
  */
@@ -48,20 +49,20 @@ class ModuleInstall extends Command
 
         // Create a symlink for the module (or all modules)
         $module_alias = $this->argument('module_alias');
-        if (!$module_alias) {
+        if (! $module_alias) {
             $modules = \Module::all();
 
             $modules_aliases = [];
             foreach ($modules as $module) {
                 $modules_aliases[] = $module->name;
             }
-            if (!$modules_aliases) {
+            if (! $modules_aliases) {
                 $this->error('No modules found');
 
                 return;
             }
             $install_all = $this->confirm('You have not specified a module alias, would you like to install all available modules ('.implode(', ', $modules_aliases).')?');
-            if (!$install_all) {
+            if (! $install_all) {
                 return;
             }
         }
@@ -74,7 +75,7 @@ class ModuleInstall extends Command
             }
         } else {
             $module = \Module::findByAlias($module_alias);
-            if (!$module) {
+            if (! $module) {
                 $this->error('Module with the specified alias not found: '.$module_alias);
 
                 return;
@@ -98,10 +99,10 @@ class ModuleInstall extends Command
             if (is_link($to)) {
                 @unlink($to);
             }
-            
+
             // Symlimk may exist but lead to the module folder in a wrong case.
             // So we need first try to remove it.
-            if (!file_exists($from) || !is_link($from)) {
+            if (! file_exists($from) || ! is_link($from)) {
                 if (is_dir($from)) {
                     @rename($from, $from.'_'.date('YmdHis'));
                 } else {
@@ -114,7 +115,7 @@ class ModuleInstall extends Command
             }
 
             // Check target.
-            if (!file_exists($to)) {
+            if (! file_exists($to)) {
                 // Try to create Public folder.
                 try {
                     \File::makeDirectory($to, \Helper::DIR_PERMISSIONS);

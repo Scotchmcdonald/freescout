@@ -33,14 +33,13 @@ class Loader
      *
      * @var array
      */
-    public $variableNames = array();
+    public $variableNames = [];
 
     /**
      * Create a new loader instance.
      *
-     * @param string $filePath
-     * @param bool   $immutable
-     *
+     * @param  string  $filePath
+     * @param  bool  $immutable
      * @return void
      */
     public function __construct($filePath, $immutable = false)
@@ -52,7 +51,7 @@ class Loader
     /**
      * Set immutable value.
      *
-     * @param bool $immutable
+     * @param  bool  $immutable
      * @return $this
      */
     public function setImmutable($immutable = false)
@@ -84,7 +83,7 @@ class Loader
         $filePath = $this->filePath;
         $lines = $this->readLinesFromFile($filePath);
         foreach ($lines as $line) {
-            if (!$this->isComment($line) && $this->looksLikeSetter($line)) {
+            if (! $this->isComment($line) && $this->looksLikeSetter($line)) {
                 $this->setEnvironmentVariable($line);
             }
         }
@@ -95,13 +94,14 @@ class Loader
     /**
      * Ensures the given filePath is readable.
      *
-     * @throws \Dotenv\Exception\InvalidPathException
      *
      * @return void
+     *
+     * @throws \Dotenv\Exception\InvalidPathException
      */
     protected function ensureFileIsReadable()
     {
-        if (!is_readable($this->filePath) || !is_file($this->filePath)) {
+        if (! is_readable($this->filePath) || ! is_file($this->filePath)) {
             throw new InvalidPathException(sprintf('Unable to read the environment file at %s.', $this->filePath));
         }
     }
@@ -115,18 +115,17 @@ class Loader
      * - cleaning the name of quotes,
      * - resolving nested variables.
      *
-     * @param string $name
-     * @param string $value
-     *
+     * @param  string  $name
+     * @param  string  $value
      * @return array
      */
     protected function normaliseEnvironmentVariable($name, $value)
     {
-        list($name, $value) = $this->processFilters($name, $value);
+        [$name, $value] = $this->processFilters($name, $value);
 
         $value = $this->resolveNestedVariables($value);
 
-        return array($name, $value);
+        return [$name, $value];
     }
 
     /**
@@ -134,25 +133,23 @@ class Loader
      *
      * Called from `normaliseEnvironmentVariable` and the `VariableFactory`, passed as a callback in `$this->loadFromFile()`.
      *
-     * @param string $name
-     * @param string $value
-     *
+     * @param  string  $name
+     * @param  string  $value
      * @return array
      */
     public function processFilters($name, $value)
     {
-        list($name, $value) = $this->splitCompoundStringIntoParts($name, $value);
-        list($name, $value) = $this->sanitiseVariableName($name, $value);
-        list($name, $value) = $this->sanitiseVariableValue($name, $value);
+        [$name, $value] = $this->splitCompoundStringIntoParts($name, $value);
+        [$name, $value] = $this->sanitiseVariableName($name, $value);
+        [$name, $value] = $this->sanitiseVariableValue($name, $value);
 
-        return array($name, $value);
+        return [$name, $value];
     }
 
     /**
      * Read lines from the file, auto detecting line endings.
      *
-     * @param string $filePath
-     *
+     * @param  string  $filePath
      * @return array
      */
     protected function readLinesFromFile($filePath)
@@ -161,7 +158,7 @@ class Loader
         // $autodetect = ini_get('auto_detect_line_endings');
         // ini_set('auto_detect_line_endings', '1');
         $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        //ini_set('auto_detect_line_endings', $autodetect);
+        // ini_set('auto_detect_line_endings', $autodetect);
 
         return $lines;
     }
@@ -169,8 +166,7 @@ class Loader
     /**
      * Determine if the line in the file is a comment, e.g. begins with a #.
      *
-     * @param string $line
-     *
+     * @param  string  $line
      * @return bool
      */
     protected function isComment($line)
@@ -183,8 +179,7 @@ class Loader
     /**
      * Determine if the given line looks like it's setting a variable.
      *
-     * @param string $line
-     *
+     * @param  string  $line
      * @return bool
      */
     protected function looksLikeSetter($line)
@@ -198,35 +193,33 @@ class Loader
      * If the `$name` contains an `=` sign, then we split it into 2 parts, a `name` & `value`
      * disregarding the `$value` passed in.
      *
-     * @param string $name
-     * @param string $value
-     *
+     * @param  string  $name
+     * @param  string  $value
      * @return array
      */
     protected function splitCompoundStringIntoParts($name, $value)
     {
         if (strpos($name, '=') !== false) {
-            list($name, $value) = array_map('trim', explode('=', $name, 2));
+            [$name, $value] = array_map('trim', explode('=', $name, 2));
         }
 
-        return array($name, $value);
+        return [$name, $value];
     }
 
     /**
      * Strips quotes from the environment variable value.
      *
-     * @param string $name
-     * @param string $value
+     * @param  string  $name
+     * @param  string  $value
+     * @return array
      *
      * @throws \Dotenv\Exception\InvalidFileException
-     *
-     * @return array
      */
     protected function sanitiseVariableValue($name, $value)
     {
         $value = trim($value);
-        if (!$value) {
-            return array($name, $value);
+        if (! $value) {
+            return [$name, $value];
         }
 
         if ($this->beginsWithAQuote($value)) { // value starts with a quote
@@ -259,7 +252,7 @@ class Loader
             $value = str_replace("\\$quote", $quote, $value);
             $value = str_replace('\\\\', '\\', $value);
 
-            return array($name, $value);
+            return [$name, $value];
         } else {
             $parts = explode(' #', $value, 2);
             $value = trim($parts[0]);
@@ -274,11 +267,11 @@ class Loader
                 }
             }
 
-            return array($name, trim($value));
+            return [$name, trim($value)];
         }
 
         // https://github.com/freescout-help-desk/freescout/issues/4714
-        //return array($name, trim($value));
+        // return array($name, trim($value));
     }
 
     /**
@@ -287,8 +280,7 @@ class Loader
      * Look for ${varname} patterns in the variable value and replace with an
      * existing environment variable.
      *
-     * @param string $value
-     *
+     * @param  string  $value
      * @return mixed
      */
     protected function resolveNestedVariables($value)
@@ -315,23 +307,21 @@ class Loader
     /**
      * Strips quotes and the optional leading "export " from the environment variable name.
      *
-     * @param string $name
-     * @param string $value
-     *
+     * @param  string  $name
+     * @param  string  $value
      * @return array
      */
     protected function sanitiseVariableName($name, $value)
     {
-        $name = trim(str_replace(array('export ', '\'', '"'), '', $name));
+        $name = trim(str_replace(['export ', '\'', '"'], '', $name));
 
-        return array($name, $value);
+        return [$name, $value];
     }
 
     /**
      * Determine if the given string begins with a quote.
      *
-     * @param string $value
-     *
+     * @param  string  $value
      * @return bool
      */
     protected function beginsWithAQuote($value)
@@ -342,8 +332,7 @@ class Loader
     /**
      * Search the different places for environment variables and return first value found.
      *
-     * @param string $name
-     *
+     * @param  string  $name
      * @return string|null
      */
     public function getEnvironmentVariable($name)
@@ -355,6 +344,7 @@ class Loader
                 return $_SERVER[$name];
             default:
                 $value = getenv($name);
+
                 return $value === false ? null : $value; // switch getenv default to null
         }
     }
@@ -369,14 +359,13 @@ class Loader
      *
      * The environment variable value is stripped of single and double quotes.
      *
-     * @param string      $name
-     * @param string|null $value
-     *
+     * @param  string  $name
+     * @param  string|null  $value
      * @return void
      */
     public function setEnvironmentVariable($name, $value = null)
     {
-        list($name, $value) = $this->normaliseEnvironmentVariable($name, $value);
+        [$name, $value] = $this->normaliseEnvironmentVariable($name, $value);
 
         $this->variableNames[] = $name;
 
@@ -410,7 +399,7 @@ class Loader
      * - putenv,
      * - unset($_ENV, $_SERVER).
      *
-     * @param string $name
+     * @param  string  $name
      *
      * @see setEnvironmentVariable()
      *

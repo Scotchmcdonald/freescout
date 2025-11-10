@@ -11,9 +11,7 @@ class RealtimeBroadcastChannel extends BroadcastChannel
     /**
      * Send the given notification immediately using non-quable event.
      *
-     * @param mixed                                  $notifiable
-     * @param \Illuminate\Notifications\Notification $notification
-     *
+     * @param  mixed  $notifiable
      * @return array|null
      */
     public function send($notifiable, Notification $notification)

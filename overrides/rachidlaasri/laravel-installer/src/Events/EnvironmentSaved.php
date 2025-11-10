@@ -2,10 +2,10 @@
 
 namespace RachidLaasri\LaravelInstaller\Events;
 
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Broadcasting\InteractsWithSockets;
 
 class EnvironmentSaved
 {
@@ -22,7 +22,7 @@ class EnvironmentSaved
     {
         $this->request = $request;
     }
-    
+
     public function getRequest()
     {
         return $this->request;

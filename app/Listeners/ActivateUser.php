@@ -20,7 +20,6 @@ class ActivateUser
     /**
      * Handle the event.
      *
-     * @param Login $event
      *
      * @return void
      */

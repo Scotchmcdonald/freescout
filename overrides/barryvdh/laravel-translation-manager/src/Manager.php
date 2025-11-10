@@ -15,8 +15,10 @@ class Manager
 
     /** @var \Illuminate\Contracts\Foundation\Application */
     protected $app;
+
     /** @var \Illuminate\Filesystem\Filesystem */
     protected $files;
+
     /** @var \Illuminate\Contracts\Events\Dispatcher */
     protected $events;
 
@@ -41,7 +43,7 @@ class Manager
 
     protected function getIgnoredLocales()
     {
-        if (!$this->files->exists($this->ignoreFilePath)) {
+        if (! $this->files->exists($this->ignoreFilePath)) {
             return [];
         }
         $result = json_decode($this->files->get($this->ignoreFilePath));
@@ -52,7 +54,7 @@ class Manager
     public function importTranslations($replace = false, $base = null)
     {
         $counter = 0;
-        //allows for vendor lang files to be properly recorded through recursion.
+        // allows for vendor lang files to be properly recorded through recursion.
         $vendor = true;
         if ($base == null) {
             $base = $this->app['path.lang'];
@@ -63,11 +65,12 @@ class Manager
         foreach ($this->files->directories($base) as $langPath) {
             $locale = basename($langPath);
 
-            //import langfiles for each vendor
+            // import langfiles for each vendor
             if ($locale == 'vendor') {
                 foreach ($this->files->directories($langPath) as $vendor) {
                     $counter += $this->importTranslations($replace, $vendor);
                 }
+
                 continue;
             }
             $vendorName = $this->files->name($this->files->dirname($langPath));
@@ -86,7 +89,7 @@ class Manager
                     $group = $subLangPath.'/'.$group;
                 }
 
-                if (!$vendor) {
+                if (! $vendor) {
                     $translations = \Lang::getLoader()->load($locale, $group);
                 } else {
                     $translations = include $file;
@@ -103,24 +106,24 @@ class Manager
         }
 
         // Import app json translations.
-        //$loader = new \Illuminate\Translation\FileLoader($this->files, $this->app[ 'path.lang' ]);
+        // $loader = new \Illuminate\Translation\FileLoader($this->files, $this->app[ 'path.lang' ]);
         foreach ($this->files->files($this->app['path.lang']) as $jsonTranslationFile) {
             if (strpos($jsonTranslationFile, '.json') === false) {
                 continue;
             }
             $locale = basename($jsonTranslationFile, '.json');
             // Ignore module translations backup files.
-            if (!preg_match('/^[a-zA-Z_\-]+$/', $locale)) {
+            if (! preg_match('/^[a-zA-Z_\-]+$/', $locale)) {
                 continue;
             }
 
             $group = self::JSON_GROUP;
             // Retrieves JSON entries of the given locale only.
             // No need to use - Modules JSON translations are also loaded.
-            //$translations = \Lang::getLoader()->load($locale, '*', '*');
+            // $translations = \Lang::getLoader()->load($locale, '*', '*');
 
-            //$translations = $loader->load( $locale, '*', '*' );
-            
+            // $translations = $loader->load( $locale, '*', '*' );
+
             $translations = $this->readTranslationsFromJsonFile($jsonTranslationFile);
             if ($translations && is_array($translations)) {
                 foreach ($translations as $key => $value) {
@@ -136,7 +139,7 @@ class Manager
         $modules = \Module::all();
         foreach ($modules as $key => $module) {
             $moduleLangPath = $module->getPath().'/Resources/lang/';
-            if (!$this->files->exists($moduleLangPath) || !$this->files->isDirectory($moduleLangPath)) {
+            if (! $this->files->exists($moduleLangPath) || ! $this->files->isDirectory($moduleLangPath)) {
                 continue;
             }
 
@@ -147,7 +150,7 @@ class Manager
 
                 $locale = basename($jsonTranslationFile, '.json');
                 // Miss incorrect locales.
-                if (!preg_match('/^[a-zA-Z_]+$/', $locale)) {
+                if (! preg_match('/^[a-zA-Z_]+$/', $locale)) {
                     continue;
                 }
 
@@ -179,7 +182,7 @@ class Manager
 
     public function readTranslationsFromJsonFile($path)
     {
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return [];
         }
         $decoded = json_decode(file_get_contents($path), true);
@@ -195,7 +198,6 @@ class Manager
      * Remove translations which do not exist in files.
      *
      * @param [type] $existingTranslations [description]
-     *
      * @return [type] [description]
      */
     public function removeNonexisting($existingTranslations)
@@ -243,13 +245,13 @@ class Manager
                             break;
                         }
                     } else {
-                        if ($dbTranslation['group'].'.'.$dbTranslation['key'] == $existingKey) {
+                        if ($existingKey == $dbTranslation['group'].'.'.$dbTranslation['key']) {
                             $found = true;
                             break;
                         }
                     }
                 }
-                if (!$found) {
+                if (! $found) {
                     $dbTranslation->delete();
                 }
             }
@@ -265,7 +267,7 @@ class Manager
         }
 
         // Miss modules translations: fr.module.json
-        if (!preg_match('/^[a-zA-Z_\-]+$/', $locale)) {
+        if (! preg_match('/^[a-zA-Z_\-]+$/', $locale)) {
             return false;
         }
 
@@ -287,11 +289,11 @@ class Manager
         $inserted = 0;
         try {
             $inserted = \DB::table('ltm_translations')->insert($data);
-        } catch(\Exception $e) {
-            
+        } catch (\Exception $e) {
+
         }
 
-        if ($replace && !$inserted) {
+        if ($replace && ! $inserted) {
             Translation::where('hash', $hash)->update(['value' => $value]);
         }
 
@@ -304,7 +306,7 @@ class Manager
             //     ->where(\DB::raw('BINARY `key`'), $key)
             //     ->first();
             $translation = Translation::where('hash', $hash)->first();
-                
+
             if (!$translation) {
                 $translation = new Translation();
                 $translation->locale = $locale;
@@ -325,7 +327,7 @@ class Manager
                 'hash' => $hash,
             ]);
         }
-        
+
         // Check if the database is different then the files
         // $newStatus = $translation->value === $value ? Translation::STATUS_SAVED : Translation::STATUS_CHANGED;
         // if ($newStatus !== (int) $translation->status) {
@@ -372,9 +374,9 @@ class Manager
             "[\),]";                                       // Close parentheses or new parameter
 
         // Find all PHP + Twig files in the app folder, except for storage
-        $finder = new Finder();
+        $finder = new Finder;
         $searchInModules = false;
-        if (!empty(request()->submit) && request()->submit == 'modules') {
+        if (! empty(request()->submit) && request()->submit == 'modules') {
             // Find in modules.
             $searchInModules = true;
             $finder->in($path.DIRECTORY_SEPARATOR.'Modules')->exclude('vendor')->exclude('.git')->name('*.php')->name('*.twig')->name('*.vue')->files();
@@ -395,7 +397,7 @@ class Manager
                 // Get all matches
                 foreach ($matches[2] as $key) {
                     $group = explode('.', $key)[0];
-                    if (!in_array($group, $this->config['incorrect_groups'])) {
+                    if (! in_array($group, $this->config['incorrect_groups'])) {
                         $groupKeys[] = $key;
                     }
                 }
@@ -404,7 +406,7 @@ class Manager
             if (preg_match_all("/$stringPattern/siU", $file->getContents(), $matches)) {
                 $moduleAlias = '';
                 preg_match("/Modules\/([^\/]+)\//", $file->getPathname(), $m);
-                if (!empty($m[1])) {
+                if (! empty($m[1])) {
                     $moduleAlias = strtolower($m[1]);
                 }
 
@@ -415,14 +417,14 @@ class Manager
                         continue;
                     }
 
-                    //TODO: This can probably be done in the regex, but I couldn't do it.
-                    //skip keys which contain namespacing characters, unless they also contain a
-                    //space, which makes it JSON.
-                    if (!(str_contains($key, '::') && str_contains($key, '.'))
+                    // TODO: This can probably be done in the regex, but I couldn't do it.
+                    // skip keys which contain namespacing characters, unless they also contain a
+                    // space, which makes it JSON.
+                    if (! (str_contains($key, '::') && str_contains($key, '.'))
                          || str_contains($key, ' ')) {
 
                         // Modules
-                        //if ($searchInModules) {
+                        // if ($searchInModules) {
                         if ($moduleAlias) {
                             $groupKeys[] = '_'.$moduleAlias.'.'.$key;
                         } else {
@@ -452,9 +454,10 @@ class Manager
             $parts = explode('.', $key, 2);
             if (count($parts) < 2) {
                 \Log::warning("Translation key without group: $key");
+
                 continue;
             }
-            list($group, $item) = $parts;
+            [$group, $item] = $parts;
             $this->missingKey('', $group, $item);
         }
 
@@ -465,37 +468,37 @@ class Manager
         }
 
         // Return the number of found translations
-        //return count( $groupKeys + $stringKeys );
-        //return $groupKeys + $stringKeys;
+        // return count( $groupKeys + $stringKeys );
+        // return $groupKeys + $stringKeys;
         return array_merge($groupKeys, $stringKeys);
     }
 
     public function missingKey($namespace, $group, $key)
     {
-        if (!in_array($group, $this->config['exclude_groups'])) {
+        if (! in_array($group, $this->config['exclude_groups'])) {
             try {
                 $translation = Translation::where('locale', \Helper::getRealAppLocale())
                     ->where('group', $group)
                     ->where(\DB::raw('BINARY `key`'), $key)
                     ->first();
-                if (!$translation) {
-                    $translation = new Translation();
+                if (! $translation) {
+                    $translation = new Translation;
                     $translation->locale = \Helper::getRealAppLocale();
-                    $translation->group  = $group;
-                    $translation->key    = $key;
+                    $translation->group = $group;
+                    $translation->key = $key;
                     $translation->save();
                 }
             } catch (\Exception $e) {
                 Translation::firstOrCreate([
                     'locale' => \Helper::getRealAppLocale(),
-                    'group'  => $group,
-                    'key'    => $key,
+                    'group' => $group,
+                    'key' => $key,
                 ]);
             }
         }
     }
 
-    public function exportTranslations($group = null /*, $json = false*/)
+    public function exportTranslations($group = null /* , $json = false */)
     {
         $basePath = $this->app['path.lang'];
 
@@ -510,8 +513,8 @@ class Manager
             $moduleAlias = substr($group, 1);
         }
 
-        if (!is_null($group) && !$json) {
-            if (!in_array($group, $this->config['exclude_groups'])) {
+        if (! is_null($group) && ! $json) {
+            if (! in_array($group, $this->config['exclude_groups'])) {
                 $vendor = false;
                 if ($group == '*') {
                     return $this->exportAllTranslations();
@@ -522,8 +525,8 @@ class Manager
                 }
 
                 $tree = $this->makeTree(Translation::ofTranslatedGroup($group)
-                                                    ->orderByGroupKeys(array_get($this->config, 'sort_keys', false))
-                                                    ->get());
+                    ->orderByGroupKeys(array_get($this->config, 'sort_keys', false))
+                    ->get());
 
                 foreach ($tree as $locale => $groups) {
                     if (isset($groups[$group])) {
@@ -543,7 +546,7 @@ class Manager
                             $subfolder_level = $subfolder_level.$subfolder.DIRECTORY_SEPARATOR;
 
                             $temp_path = rtrim($path.DIRECTORY_SEPARATOR.$subfolder_level, DIRECTORY_SEPARATOR);
-                            if (!is_dir($temp_path)) {
+                            if (! is_dir($temp_path)) {
                                 mkdir($temp_path, 0777, true);
                             }
                         }
@@ -560,22 +563,22 @@ class Manager
 
         if ($json) {
             $tree = $this->makeTree(Translation::ofTranslatedGroup($group)
-                                                ->orderByGroupKeys(array_get($this->config, 'sort_keys', false))
-                                                ->get(), true);
+                ->orderByGroupKeys(array_get($this->config, 'sort_keys', false))
+                ->get(), true);
 
             foreach ($tree as $locale => $groups) {
-                if (!$moduleAlias) {
+                if (! $moduleAlias) {
                     // _json
                     $path = $this->app['path.lang'].'/'.$locale.'.json';
                 } else {
                     // Export module translations into module's folder
                     $modulePath = \Module::getModulePathByAlias($moduleAlias);
                     // Module not found.
-                    if (!$modulePath) {
+                    if (! $modulePath) {
                         continue;
                     }
                     $path = $modulePath.'Resources/lang/'.$locale.'.json';
-                    if (!$this->files->exists($modulePath.'Resources/lang')) {
+                    if (! $this->files->exists($modulePath.'Resources/lang')) {
                         $this->files->makeDirectory($modulePath.'Resources/lang', 0755, true);
                     }
                 }
@@ -610,7 +613,7 @@ class Manager
             Translation::ofTranslatedGroup(self::JSON_GROUP)->update(['status' => Translation::STATUS_SAVED]);
         }
 
-        $this->events->dispatch(new TranslationsExportedEvent());
+        $this->events->dispatch(new TranslationsExportedEvent);
     }
 
     public function exportAllTranslations()
@@ -626,7 +629,7 @@ class Manager
             // }
         }
 
-        $this->events->dispatch(new TranslationsExportedEvent());
+        $this->events->dispatch(new TranslationsExportedEvent);
     }
 
     protected function makeTree($translations, $json = false)
@@ -691,7 +694,7 @@ class Manager
         $this->saveIgnoredLocales();
         $this->ignoreLocales = $this->getIgnoredLocales();
 
-        if (!$this->files->exists($localeDir) || !$this->files->isDirectory($localeDir)) {
+        if (! $this->files->exists($localeDir) || ! $this->files->isDirectory($localeDir)) {
             return $this->files->makeDirectory($localeDir);
         }
 
@@ -705,13 +708,13 @@ class Manager
 
     public function removeLocale($locale)
     {
-        if (!$locale || !in_array($locale, array_keys(\Helper::$locales))) {
+        if (! $locale || ! in_array($locale, array_keys(\Helper::$locales))) {
             return false;
         }
 
         $this->ignoreLocales = array_merge($this->ignoreLocales, [$locale]);
         // Only delete from DB.
-        //$this->saveIgnoredLocales();
+        // $this->saveIgnoredLocales();
         $this->ignoreLocales = $this->getIgnoredLocales();
 
         Translation::where('locale', $locale)->delete();

@@ -48,7 +48,7 @@ trait CompilesLayouts
      */
     protected function compileParent()
     {
-        //return ViewFactory::parentPlaceholder($this->lastSection ?: '');
+        // return ViewFactory::parentPlaceholder($this->lastSection ?: '');
 
         $escapedLastSection = strtr($this->lastSection, ['\\' => '\\\\', "'" => "\\'"]);
 

@@ -35,7 +35,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map()
     {
-        //$this->mapApiRoutes();
+        // $this->mapApiRoutes();
 
         $this->mapWebRoutes();
 
@@ -55,13 +55,13 @@ class RouteServiceProvider extends ServiceProvider
 
         if ($subdirectory) {
             $route = Route::prefix($subdirectory)
-                     ->middleware('web');
+                ->middleware('web');
         } else {
             $route = Route::middleware('web');
         }
-             
+
         $route->namespace($this->namespace)
-              ->group(base_path('routes/web.php'));
+            ->group(base_path('routes/web.php'));
     }
 
     /**

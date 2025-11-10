@@ -2,11 +2,10 @@
 
 namespace App\Console;
 
-use Carbon\Carbon;
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Misc\Mail;
 use App\Option;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
@@ -19,21 +18,20 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         // It is not clear what for this array
-        //\App\Console\Commands\CreateUser::class,
+        // \App\Console\Commands\CreateUser::class,
     ];
 
     /**
      * Define the application's command schedule.
      * If --no-interaction flag is set the script will not run 'queue:work' daemon.
      *
-     * @param \Illuminate\Console\Scheduling\Schedule $schedule
      *
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
         // https://github.com/freescout-helpdesk/freescout/issues/3970
-        if (!$this->isScheduleRun() && !\Helper::isRoute('system.cron')) {
+        if (! $this->isScheduleRun() && ! \Helper::isRoute('system.cron')) {
             return;
         }
 
@@ -61,7 +59,7 @@ class Kernel extends ConsoleKernel
         if ($app_key) {
             $crc = crc32($app_key);
             $schedule->command('freescout:module-check-licenses')
-                ->cron((int)($crc % 59).' '.(int)($crc % 23).' * * *');
+                ->cron((int) ($crc % 59).' '.(int) ($crc % 23).' * * *');
         }
 
         // Check if user finished viewing conversation.
@@ -103,11 +101,11 @@ class Kernel extends ConsoleKernel
             }
         }
 
-        $fetch_unseen = (int)config('app.fetch_unseen');
+        $fetch_unseen = (int) config('app.fetch_unseen');
         $fetch_command_identifier = \Helper::getWorkerIdentifier('freescout:fetch-emails');
         $fetch_command_name = 'freescout:fetch-emails'
-            . ' --identifier='.$fetch_command_identifier
-            . ' --unseen='.$fetch_unseen;
+            .' --identifier='.$fetch_command_identifier
+            .' --unseen='.$fetch_unseen;
 
         // Kill fetch commands running for too long.
         // In shedule:run this code is executed every time $schedule->command() in this function is executed.
@@ -129,7 +127,7 @@ class Kernel extends ConsoleKernel
             // If there is no cache mutext but there are running fetch commands
             // it means the mutex had expired after self::FETCH_MAX_EXECUTION_TIME
             // and the existing command(s) is running longer than self::FETCH_MAX_EXECUTION_TIME.
-            if (count($fetch_command_pids) > 0 && !\Cache::get($mutex_name)) {
+            if (count($fetch_command_pids) > 0 && ! \Cache::get($mutex_name)) {
                 // Kill freescout:fetch-emails commands running for too long
                 shell_exec('kill '.implode(' | kill ', $fetch_command_pids));
             } elseif (count($fetch_command_pids) == 0) {
@@ -265,7 +263,7 @@ class Kernel extends ConsoleKernel
         if (\Helper::isConsole()) {
             return true;
         } else {
-            return !empty($_SERVER['argv']) && in_array('schedule:run', $_SERVER['argv']);
+            return ! empty($_SERVER['argv']) && in_array('schedule:run', $_SERVER['argv']);
         }
     }
 

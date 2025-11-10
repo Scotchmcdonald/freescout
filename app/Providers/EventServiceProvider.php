@@ -70,9 +70,9 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         'App\Events\UserReplied' => [
-             'App\Listeners\SendReplyToCustomer',
-             'App\Listeners\SendNotificationToUsers',
-             'App\Listeners\RefreshConversations',
+            'App\Listeners\SendReplyToCustomer',
+            'App\Listeners\SendNotificationToUsers',
+            'App\Listeners\RefreshConversations',
         ],
 
         'App\Events\CustomerReplied' => [

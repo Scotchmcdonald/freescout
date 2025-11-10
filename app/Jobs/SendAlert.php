@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Send alert to super admin.
  */
@@ -62,7 +63,7 @@ class SendAlert implements ShouldQueue
         if ($extra) {
             $recipients = array_unique(array_merge($recipients, $extra));
         }
-      
+
         foreach ($recipients as $recipient) {
             $exception = null;
 
@@ -73,8 +74,8 @@ class SendAlert implements ShouldQueue
                 // We come here in case SMTP server unavailable for example
                 activity()
                     ->withProperties([
-                        'error'    => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
-                     ])
+                        'error' => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
+                    ])
                     ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
                     ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_ALERT);
 
@@ -88,7 +89,7 @@ class SendAlert implements ShouldQueue
             } else {
                 $failures = Mail::failures();
 
-                if (!empty($failures)) {
+                if (! empty($failures)) {
                     $status = SendLog::STATUS_SEND_ERROR;
                 } else {
                     $status = SendLog::STATUS_ACCEPTED;

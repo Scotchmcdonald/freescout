@@ -43,14 +43,14 @@ class ModuleBuild extends Command
 
         // Create a symlink for the module (or all modules)
         $module_alias = $this->argument('module_alias');
-        if (!$module_alias) {
+        if (! $module_alias) {
             $modules = \Module::all();
 
             $modules_aliases = [];
             foreach ($modules as $module) {
                 $modules_aliases[] = $module->name;
             }
-            if (!$modules_aliases) {
+            if (! $modules_aliases) {
                 $this->error('No modules found');
 
                 return;
@@ -69,7 +69,7 @@ class ModuleBuild extends Command
             }
         } else {
             $module = \Module::findByAlias($module_alias);
-            if (!$module) {
+            if (! $module) {
                 $this->error('Module with the specified alias not found: '.$module_alias);
 
                 return;
@@ -84,7 +84,7 @@ class ModuleBuild extends Command
         $this->line('Module: '.$module->getName());
 
         $public_symlink = public_path('modules').DIRECTORY_SEPARATOR.$module->alias;
-        if (!file_exists($public_symlink)) {
+        if (! file_exists($public_symlink)) {
             $this->error('Public symlink ['.$public_symlink.'] not found. Run module installation command first: php artisan freescout:module-install');
 
             return;
@@ -100,7 +100,7 @@ class ModuleBuild extends Command
                 'locales' => config('app.locales'),
             ];
 
-            $filesystem = new Filesystem();
+            $filesystem = new Filesystem;
 
             $file_path = public_path('modules/'.$module->alias.'/js/vars.js');
 

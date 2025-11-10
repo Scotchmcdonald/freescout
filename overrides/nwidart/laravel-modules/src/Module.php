@@ -20,8 +20,6 @@ abstract class Module extends ServiceProvider
 
     /**
      * The module name.
-     *
-     * @var
      */
     protected $name;
 
@@ -39,10 +37,6 @@ abstract class Module extends ServiceProvider
 
     /**
      * The constructor.
-     *
-     * @param Container $app
-     * @param $name
-     * @param $path
      */
     public function __construct(Container $app, $name, $path)
     {
@@ -154,8 +148,7 @@ abstract class Module extends ServiceProvider
     /**
      * Set path.
      *
-     * @param string $path
-     *
+     * @param  string  $path
      * @return $this
      */
     public function setPath($path)
@@ -207,11 +200,9 @@ abstract class Module extends ServiceProvider
     /**
      * Get json contents from the cache, setting as needed.
      *
-     * @param string $file
-     *
-     * @return Json
+     * @param  string  $file
      */
-    public function json($file = null) : Json
+    public function json($file = null): Json
     {
         if ($file === null) {
             $file = 'module.json';
@@ -227,7 +218,7 @@ abstract class Module extends ServiceProvider
             if ($cachedManifestsArray && count($cachedManifestsArray)) {
                 foreach ($cachedManifestsArray as $manifest) {
                     // We found manifest data in cache
-                    if (!empty($manifest['name']) && $manifest['name'] == $this->getName()) {
+                    if (! empty($manifest['name']) && $manifest['name'] == $this->getName()) {
                         return $this->moduleJson[$file] = new Json($this->getPath().'/'.$file, $this->app['files'], $manifest);
                     }
                 }
@@ -238,16 +229,14 @@ abstract class Module extends ServiceProvider
             $json->set('active', (int) \App\Module::isActive($json->get('alias')));
 
             return $this->moduleJson[$file] = $json;
-            //return $this->moduleJson[$file] = new Json($this->getPath() . '/' . $file, $this->app['files']);
+            // return $this->moduleJson[$file] = new Json($this->getPath() . '/' . $file, $this->app['files']);
         });
     }
 
     /**
      * Get a specific data from json file by given the key.
      *
-     * @param string $key
-     * @param null   $default
-     *
+     * @param  null  $default
      * @return mixed
      */
     public function get(string $key, $default = null)
@@ -258,9 +247,7 @@ abstract class Module extends ServiceProvider
     /**
      * Get a specific data from composer.json file by given the key.
      *
-     * @param $key
-     * @param null $default
-     *
+     * @param  null  $default
      * @return mixed
      */
     public function getComposerAttr($key, $default = null)
@@ -294,7 +281,7 @@ abstract class Module extends ServiceProvider
     /**
      * Register the module event.
      *
-     * @param string $event
+     * @param  string  $event
      */
     protected function fireEvent($event)
     {
@@ -347,26 +334,20 @@ abstract class Module extends ServiceProvider
 
     /**
      * Determine whether the given status same with the current module status.
-     *
-     * @param $status
-     *
-     * @return bool
      */
-    public function isStatus($status) : bool
+    public function isStatus($status): bool
     {
         // echo "<pre>";
         // print_r($this->json());
 
-        //return (int)\App\Module::isActive($this->getAlias()) == $status;
+        // return (int)\App\Module::isActive($this->getAlias()) == $status;
         return $this->get('active', 0) === $status;
     }
 
     /**
      * Determine whether the current module activated.
-     *
-     * @return bool
      */
-    public function enabled() : bool
+    public function enabled(): bool
     {
         return $this->isStatus(1);
     }
@@ -392,30 +373,27 @@ abstract class Module extends ServiceProvider
      */
     public function notActive()
     {
-        return !$this->active();
+        return ! $this->active();
     }
 
     /**
      *  Determine whether the current module not disabled.
-     *
-     * @return bool
      */
-    public function disabled() : bool
+    public function disabled(): bool
     {
-        return !$this->enabled();
+        return ! $this->enabled();
     }
 
     /**
      * Set active state for current module.
      *
-     * @param $active
      *
      * @return bool
      */
     public function setActive($active)
     {
         \App\Module::setActive($this->getAlias(), $active);
-        //return $this->json()->set('active', $active)->save();
+        // return $this->json()->set('active', $active)->save();
     }
 
     /**
@@ -454,12 +432,8 @@ abstract class Module extends ServiceProvider
 
     /**
      * Get extra path.
-     *
-     * @param string $path
-     *
-     * @return string
      */
-    public function getExtraPath(string $path) : string
+    public function getExtraPath(string $path): string
     {
         return $this->getPath().'/'.$path;
     }
@@ -467,7 +441,6 @@ abstract class Module extends ServiceProvider
     /**
      * Handle call to __get method.
      *
-     * @param $key
      *
      * @return mixed
      */
@@ -485,7 +458,7 @@ abstract class Module extends ServiceProvider
     {
         return config('modules.register.files', 'register') === 'boot' &&
             // force register method if option == boot && app is AsgardCms
-            !class_exists('\Modules\Core\Foundation\AsgardCms');
+            ! class_exists('\Modules\Core\Foundation\AsgardCms');
     }
 
     /**

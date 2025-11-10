@@ -19,29 +19,42 @@ namespace Symfony\Component\VarDumper\Cloner;
 class Stub implements \Serializable
 {
     const TYPE_REF = 1;
+
     const TYPE_STRING = 2;
+
     const TYPE_ARRAY = 3;
+
     const TYPE_OBJECT = 4;
+
     const TYPE_RESOURCE = 5;
 
     const STRING_BINARY = 1;
+
     const STRING_UTF8 = 2;
 
     const ARRAY_ASSOC = 1;
+
     const ARRAY_INDEXED = 2;
 
     public $type = self::TYPE_REF;
+
     public $class = '';
+
     public $value;
+
     public $cut = 0;
+
     public $handle = 0;
+
     public $refCount = 0;
+
     public $position = 0;
-    public $attr = array();
+
+    public $attr = [];
 
     public function __serialize()
     {
-        return array($this->class, $this->position, $this->cut, $this->type, $this->value, $this->handle, $this->refCount, $this->attr);
+        return [$this->class, $this->position, $this->cut, $this->type, $this->value, $this->handle, $this->refCount, $this->attr];
     }
 
     /**
@@ -49,12 +62,12 @@ class Stub implements \Serializable
      */
     public function serialize()
     {
-        return \serialize(array($this->class, $this->position, $this->cut, $this->type, $this->value, $this->handle, $this->refCount, $this->attr));
+        return \serialize([$this->class, $this->position, $this->cut, $this->type, $this->value, $this->handle, $this->refCount, $this->attr]);
     }
 
     public function __unserialize($data)
     {
-        list($this->class, $this->position, $this->cut, $this->type, $this->value, $this->handle, $this->refCount, $this->attr) = $data;
+        [$this->class, $this->position, $this->cut, $this->type, $this->value, $this->handle, $this->refCount, $this->attr] = $data;
     }
 
     /**
@@ -62,6 +75,6 @@ class Stub implements \Serializable
      */
     public function unserialize($serialized)
     {
-        list($this->class, $this->position, $this->cut, $this->type, $this->value, $this->handle, $this->refCount, $this->attr) = \unserialize($serialized);
+        [$this->class, $this->position, $this->cut, $this->type, $this->value, $this->handle, $this->refCount, $this->attr] = \unserialize($serialized);
     }
 }

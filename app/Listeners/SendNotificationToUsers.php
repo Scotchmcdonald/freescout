@@ -1,7 +1,9 @@
 <?php
+
 /**
  * Send notifications to users by email and in browser.
  */
+
 namespace App\Listeners;
 
 use App\Conversation;
@@ -37,7 +39,7 @@ class SendNotificationToUsers
                 $caused_by_user_id = $event->thread->created_by_user_id;
                 // When conversation is forwarded only notification
                 // about child forward conversation is sent.
-                if (!$event->thread->isForward()) {
+                if (! $event->thread->isForward()) {
                     $event_type = Subscription::EVENT_TYPE_USER_ADDED_NOTE;
                 }
                 break;
@@ -59,17 +61,17 @@ class SendNotificationToUsers
                 $event_type = Subscription::EVENT_TYPE_CUSTOMER_REPLIED;
                 break;
         }
-        if (empty($event->conversation) || !$event_type) {
+        if (empty($event->conversation) || ! $event_type) {
             return;
         }
 
         // Ignore imported threads.
-        if (!empty($event->thread) && $event->thread->imported) {
+        if (! empty($event->thread) && $event->thread->imported) {
             return;
         }
         $conversation = $event->conversation;
 
         // Using the last argument you can make event to be processed immediately
-        Subscription::registerEvent($event_type, $conversation, $caused_by_user_id/*, true*/);
+        Subscription::registerEvent($event_type, $conversation, $caused_by_user_id/* , true */);
     }
 }

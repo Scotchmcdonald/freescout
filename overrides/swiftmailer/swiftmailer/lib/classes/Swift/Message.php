@@ -35,10 +35,10 @@ class Swift_Message extends Swift_Mime_SimpleMessage
      *
      * Details may be optionally passed into the constructor.
      *
-     * @param string $subject
-     * @param string $body
-     * @param string $contentType
-     * @param string $charset
+     * @param  string  $subject
+     * @param  string  $body
+     * @param  string  $contentType
+     * @param  string  $charset
      */
     public function __construct($subject = null, $body = null, $contentType = null, $charset = null)
     {
@@ -49,7 +49,7 @@ class Swift_Message extends Swift_Mime_SimpleMessage
         //         ->createDependenciesFor('mime.message')
         //     );
 
-        if (!isset($charset)) {
+        if (! isset($charset)) {
             $charset = Swift_DependencyContainer::getInstance()
                 ->lookup('properties.charset');
         }
@@ -64,10 +64,9 @@ class Swift_Message extends Swift_Mime_SimpleMessage
     /**
      * Add a MimePart to this Message.
      *
-     * @param string|Swift_OutputByteStream $body
-     * @param string                        $contentType
-     * @param string                        $charset
-     *
+     * @param  string|Swift_OutputByteStream  $body
+     * @param  string  $contentType
+     * @param  string  $charset
      * @return $this
      */
     public function addPart($body, $contentType = null, $charset = null)
@@ -213,7 +212,7 @@ class Swift_Message extends Swift_Mime_SimpleMessage
         $this->savedMessage = ['headers' => []];
         $this->savedMessage['body'] = $this->getBody();
         $this->savedMessage['children'] = $this->getChildren();
-        if (count($this->savedMessage['children']) > 0 && '' != $this->getBody()) {
+        if (count($this->savedMessage['children']) > 0 && $this->getBody() != '') {
             $this->setChildren(array_merge([$this->becomeMimePart()], $this->savedMessage['children']));
             $this->setBody('');
         }
@@ -227,7 +226,7 @@ class Swift_Message extends Swift_Mime_SimpleMessage
         foreach ($altered as $head) {
             $lc = strtolower($head);
 
-            if (!isset($this->savedMessage['headers'][$lc])) {
+            if (! isset($this->savedMessage['headers'][$lc])) {
                 $this->savedMessage['headers'][$lc] = $this->getHeaders()->getAll($head);
             }
         }
@@ -242,7 +241,7 @@ class Swift_Message extends Swift_Mime_SimpleMessage
             $headers = $this->getHeaders()->getAll($name);
 
             foreach ($headers as $key => $value) {
-                if (!isset($savedValue[$key])) {
+                if (! isset($savedValue[$key])) {
                     $this->getHeaders()->remove($name, $key);
                 }
             }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Used to stop current queue:work in order to start a new one.
  * https://github.com/freescout-helpdesk/freescout/issues/2507#issuecomment-1376006247
@@ -21,10 +22,7 @@ class RestartQueueWorker implements ShouldQueue
      *
      * @return void
      */
-    public function __construct()
-    {
-        
-    }
+    public function __construct() {}
 
     /**
      * Execute the job.

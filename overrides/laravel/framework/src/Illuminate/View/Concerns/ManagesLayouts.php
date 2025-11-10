@@ -2,9 +2,9 @@
 
 namespace Illuminate\View\Concerns;
 
-use InvalidArgumentException;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 trait ManagesLayouts
 {
@@ -85,6 +85,7 @@ trait ManagesLayouts
      *
      * @param  bool  $overwrite
      * @return string
+     *
      * @throws \InvalidArgumentException
      */
     public function stopSection($overwrite = false)
@@ -108,6 +109,7 @@ trait ManagesLayouts
      * Stop injecting content into a section and append it.
      *
      * @return string
+     *
      * @throws \InvalidArgumentException
      */
     public function appendSection()
@@ -174,7 +176,7 @@ trait ManagesLayouts
     public static function parentPlaceholder($section = '')
     {
         if (! isset(static::$parentPlaceholder[$section])) {
-            //static::$parentPlaceholder[$section] = '##parent-placeholder-'.sha1($section).'##';
+            // static::$parentPlaceholder[$section] = '##parent-placeholder-'.sha1($section).'##';
             $salt = static::parentPlaceholderSalt();
 
             static::$parentPlaceholder[$section] = '##parent-placeholder-'.sha1($salt.$section).'##';
@@ -196,7 +198,7 @@ trait ManagesLayouts
 
         return static::$parentPlaceholderSalt;
     }
-    
+
     /**
      * Check if section exists.
      *

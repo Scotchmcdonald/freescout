@@ -4,8 +4,8 @@
  */
 ini_set('display_errors', 'On');
 
-if (preg_match("#^/public\/(.*)#", $_SERVER['REQUEST_URI'], $m) && !empty($m[1])) {
-    header("Location: /".$m[1]);
+if (preg_match("#^/public\/(.*)#", $_SERVER['REQUEST_URI'], $m) && ! empty($m[1])) {
+    header('Location: /'.$m[1]);
     exit();
 }
 
@@ -37,8 +37,8 @@ function getAppKey($root_dir, $check_cache = true)
     if ($check_cache && file_exists($root_dir.'bootstrap/cache/config.php')) {
         $config = include $root_dir.'bootstrap/cache/config.php';
 
-        if (!empty($config)) {
-            if (!empty($config['app']['key'])) {
+        if (! empty($config)) {
+            if (! empty($config['app']['key'])) {
                 return $config['app']['key'];
             } else {
                 return '';
@@ -55,7 +55,7 @@ function getAppKey($root_dir, $check_cache = true)
         // Do nothing
     }
 
-    if (!empty($_ENV['APP_KEY'])) {
+    if (! empty($_ENV['APP_KEY'])) {
         return $_ENV['APP_KEY'];
     } else {
         return '';
@@ -76,6 +76,7 @@ function clearCache($root_dir, $php_path)
     if (file_exists($root_dir.'bootstrap/cache/routes.php')) {
         unlink($root_dir.'bootstrap/cache/routes.php');
     }
+
     return shell_exec($php_path.' '.$root_dir.'artisan freescout:clear-cache');
 }
 
@@ -83,20 +84,20 @@ $alerts = [];
 $errors = [];
 $app_key = $_POST['app_key'] ?? '';
 
-if (!empty($_POST)) {
+if (! empty($_POST)) {
 
     $php_path = 'php';
-    if (!empty($_POST['php_path'])) {
+    if (! empty($_POST['php_path'])) {
         $php_path = trim($_POST['php_path']);
 
         $php_path = preg_replace("#[ ;\$<>:&\|`\t\r\n]#", '', $php_path);
-        if (!$php_path) {
+        if (! $php_path) {
             $php_path = 'php';
         }
 
         // Sanitize path.
         // https://github.com/freescout-helpdesk/freescout/security/advisories/GHSA-7p9x-ch4c-vqj9
-        if (!file_exists($php_path)) {
+        if (! file_exists($php_path)) {
             $php_path = 'php';
         }
     }
@@ -104,24 +105,24 @@ if (!empty($_POST)) {
     if (trim($app_key) !== trim(getAppKey($root_dir))) {
         $errors['app_key'] = 'Invalid App Key';
     } else {
-        if (!function_exists('shell_exec')) {
+        if (! function_exists('shell_exec')) {
             $alerts[] = [
                 'type' => 'danger',
                 'text' => '<code>shell_exec</code> function is unavailable. Can not run updating.',
             ];
         } else {
-            
+
             // Make sure that it's actually $php_path points to PHP executable and not something else.
             $version_output = shell_exec($php_path.' -r "echo phpversion();"');
 
-            if ($php_path != 'php' && !preg_match("#^\d+\.\d+\.\d+$#", $version_output)) {
+            if ($php_path != 'php' && ! preg_match("#^\d+\.\d+\.\d+$#", $version_output)) {
                 $alerts[] = [
                     'type' => 'danger',
                     'text' => 'Invalid Path to PHP: '.$php_path,
                 ];
             }
 
-            if (!count($alerts)) {
+            if (! count($alerts)) {
                 if ($_POST['action'] == 'cc') {
                     $cc_output = clearCache($root_dir, $php_path);
 
@@ -132,7 +133,7 @@ if (!empty($_POST)) {
                 } else {
                     try {
                         // First check PHP version.
-                        if (!version_compare($version_output, '7.1', '>=')) {
+                        if (! version_compare($version_output, '7.1', '>=')) {
                             $alerts[] = [
                                 'type' => 'danger',
                                 'text' => 'Incorrect PHP version (7.1+ is required):<br/><br/><pre>'.htmlspecialchars($version_output).'</pre>',
@@ -193,38 +194,38 @@ if (!empty($_POST)) {
                 </div>
                 <div class="main">
 
-                	<?php if (!empty($alerts)): ?>
-                		<?php foreach ($alerts as $alert): ?>
+                	<?php if (! empty($alerts)) { ?>
+                		<?php foreach ($alerts as $alert) { ?>
                 			<div class="alert alert-<?php echo $alert['type'] ?>">
                 				<?php echo $alert['text']; ?>
                 			</div>
-                		<?php endforeach ?>
-                	<?php endif ?>
+                		<?php } ?>
+                	<?php } ?>
 
                 	<form method="post" action="">
-						<div class="form-group <?php if (!empty($errors['app_key'])):?>has-error<?php endif ?>">
+						<div class="form-group <?php if (! empty($errors['app_key'])) { ?>has-error<?php } ?>">
 		                    <label for="app_key">
 		                        <strong>App Key</strong> (from .env file)
 		                    </label>
 		                    <input type="text" name="app_key" value="<?php echo htmlentities($app_key); ?>" required="required"/>
-		                    <?php if (!empty($errors['app_key'])): ?>
+		                    <?php if (! empty($errors['app_key'])) { ?>
 		                        <span class="error-block">
 		                            <i class="fa fa-fw fa-exclamation-triangle" aria-hidden="true"></i>
 		                            <?php echo $errors['app_key']; ?>
 		                        </span>
-		                    <?php endif ?>
+		                    <?php } ?>
 		                </div>
-						<div class="form-group <?php if (!empty($errors['php_path'])):?>has-error<?php endif ?>">
+						<div class="form-group <?php if (! empty($errors['php_path'])) { ?>has-error<?php } ?>">
 		                    <label for="php_path">
 		                        <strong>Path to PHP</strong> (example: /usr/local/php81/bin/php)
 		                    </label>
 		                    <input type="text" name="php_path" value="<?php echo htmlentities($_POST['php_path'] ?? ''); ?>" placeholder="(optional)"/>
-		                    <?php if (!empty($errors['php_path'])): ?>
+		                    <?php if (! empty($errors['php_path'])) { ?>
 		                        <span class="error-block">
 		                            <i class="fa fa-fw fa-exclamation-triangle" aria-hidden="true"></i>
 		                            <?php echo $errors['php_path']; ?>
 		                        </span>
-		                    <?php endif ?>
+		                    <?php } ?>
 		                </div>
 		                <div class="buttons">
 		                    <button class="button" type="submit" name="action" value="update">

@@ -45,17 +45,18 @@ class CreateUser extends Command
                 ).'.provider'
             ).'.model'
         );
-        $user = new $class();
+        $user = new $class;
 
         $user->role = $this->option('role');
-        if ($user->role ) {
-            if (!in_array($user->role , User::$roles)) {
+        if ($user->role) {
+            if (! in_array($user->role, User::$roles)) {
                 $this->error('Invalid role');
+
                 return false;
             }
         } else {
             $user->role = $this->ask('User role (admin/user)', 'admin');
-            while (!in_array($user->role, User::$roles)) {
+            while (! in_array($user->role, User::$roles)) {
                 $this->error('Invalid role');
                 $user->role = $this->ask('Please enter valid role');
             }
@@ -67,13 +68,14 @@ class CreateUser extends Command
 
         $user->email = $this->option('email');
         if ($user->email) {
-            if (!filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+            if (! filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
                 $this->error('Invalid email address');
+
                 return false;
             }
         } else {
             $user->email = $this->ask('User email address');
-            while (!filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+            while (! filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
                 $this->error('Incorrect email address');
                 $user->email = $this->ask('Please enter valid email address');
             }
@@ -91,6 +93,7 @@ class CreateUser extends Command
             } catch (\Exception $e) {
                 $this->line($e->getMessage());
                 $this->error('User already exists.');
+
                 return false;
             }
         }

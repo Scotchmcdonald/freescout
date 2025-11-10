@@ -14,8 +14,6 @@ class ConversationPolicy
     /**
      * Determine whether the user can view the conversation.
      *
-     * @param \App\User         $user
-     * @param \App\Conversation $conversation
      *
      * @return bool
      */
@@ -35,9 +33,9 @@ class ConversationPolicy
 
     /**
      * Cached version.
-     * 
-     * @param  User         $user         [description]
-     * @param  Conversation $conversation [description]
+     *
+     * @param  User  $user  [description]
+     * @param  Conversation  $conversation  [description]
      * @return [type]                     [description]
      */
     public function viewCached(User $user, Conversation $conversation)
@@ -57,8 +55,6 @@ class ConversationPolicy
     /**
      * Determine whether the user can update the conversation.
      *
-     * @param \App\User         $user
-     * @param \App\Conversation $conversation
      *
      * @return bool
      */
@@ -84,10 +80,10 @@ class ConversationPolicy
         if ($user->isAdmin()) {
             return true;
         } else {
-            if (!$user->hasPermission(User::PERM_DELETE_CONVERSATIONS)) {
+            if (! $user->hasPermission(User::PERM_DELETE_CONVERSATIONS)) {
                 return false;
             }
-            if (!$conversation->id) {
+            if (! $conversation->id) {
                 return true;
             }
             if ($conversation->userHasAccessToMailbox($user->id)) {
@@ -102,9 +98,7 @@ class ConversationPolicy
     /**
      * Determine whether current user can move conversations
      *
-     * @param \App\User    $user
-     * @param \App\Mailbox $mailbox
-     *
+     * @param  \App\Mailbox  $mailbox
      * @return mixed
      */
     public function move(User $user)
@@ -113,13 +107,14 @@ class ConversationPolicy
         if (count($user->mailboxesCanView(true)) > 1) {
             return true;
         }
+
         return Mailbox::count() > 1;
     }
 
     public function checkIsOnlyAssigned($conversation, $user)
     {
         // Maybe user can see only assigned conversations.
-        if (!\Eventy::filter('conversation.is_user_assignee', $conversation->user_id == $user->id, $conversation, $user->id)
+        if (! \Eventy::filter('conversation.is_user_assignee', $conversation->user_id == $user->id, $conversation, $user->id)
             && $conversation->created_by_user_id != $user->id
             && $user->canSeeOnlyAssignedConversations()
         ) {

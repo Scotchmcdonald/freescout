@@ -24,15 +24,14 @@ class PermissionsChecker
     /**
      * Check for the folders permissions.
      *
-     * @param array $folders
      *
      * @return array
      */
     public function check(array $folders)
     {
         foreach ($folders as $folder => $permission) {
-            //if(!($this->getPermission($folder) >= $permission))
-            if (!$this->isWritable($folder)) {
+            // if(!($this->getPermission($folder) >= $permission))
+            if (! $this->isWritable($folder)) {
                 $this->addFileAndSetErrors($folder, $permission, false);
             } else {
                 $this->addFile($folder, $permission, true);
@@ -45,7 +44,6 @@ class PermissionsChecker
     /**
      * Get a folder permission.
      *
-     * @param $folder
      *
      * @return string
      */
@@ -58,7 +56,6 @@ class PermissionsChecker
      * Check if folder is writable by creating a temp file.
      *
      * @param [type] $folder [description]
-     *
      * @return [type] [description]
      */
     private function isWritable($folder)
@@ -66,7 +63,7 @@ class PermissionsChecker
         $path = base_path($folder);
 
         try {
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 \File::makeDirectory($path, 0775, true);
             }
             $file = $path.'.installer_test';
@@ -84,26 +81,18 @@ class PermissionsChecker
 
     /**
      * Add the file to the list of results.
-     *
-     * @param $folder
-     * @param $permission
-     * @param $isSet
      */
     private function addFile($folder, $permission, $isSet)
     {
         array_push($this->results['permissions'], [
-            'folder'     => $folder,
+            'folder' => $folder,
             'permission' => $permission,
-            'isSet'      => $isSet,
+            'isSet' => $isSet,
         ]);
     }
 
     /**
      * Add the file and set the errors.
-     *
-     * @param $folder
-     * @param $permission
-     * @param $isSet
      */
     private function addFileAndSetErrors($folder, $permission, $isSet)
     {

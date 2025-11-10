@@ -8,36 +8,44 @@ use Illuminate\Support\Facades\Storage;
 class Attachment extends Model
 {
     const TYPE_TEXT = 0;
+
     const TYPE_MULTIPART = 1;
+
     const TYPE_MESSAGE = 2;
+
     const TYPE_APPLICATION = 3;
+
     const TYPE_AUDIO = 4;
+
     const TYPE_IMAGE = 5;
+
     const TYPE_VIDEO = 6;
+
     const TYPE_MODEL = 7;
+
     const TYPE_OTHER = 8;
 
     const DIRECTORY = 'attachment';
 
-    CONST DISK = 'private';
+    const DISK = 'private';
 
-    CONST MIME_TYPE_MAX_LENGTH = 127;
+    const MIME_TYPE_MAX_LENGTH = 127;
 
     // https://github.com/Webklex/laravel-imap/blob/master/src/IMAP/Attachment.php
     public static $types = [
-        'message'     => self::TYPE_MESSAGE,
+        'message' => self::TYPE_MESSAGE,
         'application' => self::TYPE_APPLICATION,
-        'audio'       => self::TYPE_AUDIO,
-        'image'       => self::TYPE_IMAGE,
-        'video'       => self::TYPE_VIDEO,
-        'model'       => self::TYPE_MODEL,
-        'text'        => self::TYPE_TEXT,
-        'multipart'   => self::TYPE_MULTIPART,
-        'other'       => self::TYPE_OTHER,
+        'audio' => self::TYPE_AUDIO,
+        'image' => self::TYPE_IMAGE,
+        'video' => self::TYPE_VIDEO,
+        'model' => self::TYPE_MODEL,
+        'text' => self::TYPE_TEXT,
+        'multipart' => self::TYPE_MULTIPART,
+        'other' => self::TYPE_OTHER,
     ];
 
     public static $type_extensions = [
-        self::TYPE_VIDEO => ['flv', 'mp4', 'm3u8', 'ts', '3gp', 'mov', 'avi', 'wmv']
+        self::TYPE_VIDEO => ['flv', 'mp4', 'm3u8', 'ts', '3gp', 'mov', 'avi', 'wmv'],
     ];
 
     public $timestamps = false;
@@ -55,13 +63,13 @@ class Attachment extends Model
      */
     public static function create($file_name, $mime_type, $type, $content, $uploaded_file, $embedded = false, $thread_id = null, $user_id = null)
     {
-        if (!$content && !$uploaded_file) {
+        if (! $content && ! $uploaded_file) {
             return false;
         }
 
         // Sanitize mime type.
         // https://github.com/freescout-helpdesk/freescout/issues/3048
-        $mime_duplicate = strpos($mime_type, "application/vnd.openxmlformats", 1);
+        $mime_duplicate = strpos($mime_type, 'application/vnd.openxmlformats', 1);
         if ($mime_duplicate) {
             $mime_type = substr($mime_type, $mime_duplicate);
         }
@@ -78,10 +86,10 @@ class Attachment extends Model
         // Replace soft hyphens.
         $file_name = str_replace(html_entity_decode('&#xAD;'), '_', $file_name);
 
-        if (!$file_name) {
-            if (!$orig_extension) {
+        if (! $file_name) {
+            if (! $orig_extension) {
                 preg_match("/.*\/([^\/]+)$/", $mime_type, $m);
-                if (!empty($m[1])) {
+                if (! empty($m[1])) {
                     $orig_extension = $m[1];
                 }
             }
@@ -106,15 +114,15 @@ class Attachment extends Model
             $without_ext = pathinfo($file_name, PATHINFO_FILENAME);
             $extension = pathinfo($file_name, PATHINFO_EXTENSION);
             // 125 because file name may have unicode symbols.
-            $file_name = \Helper::substrUnicode($without_ext, 0, 125-strlen($extension)-1);
+            $file_name = \Helper::substrUnicode($without_ext, 0, 125 - strlen($extension) - 1);
             $file_name .= '.'.$extension;
         }
 
-        if (!$type) {
+        if (! $type) {
             $type = self::detectType($mime_type, $orig_extension);
         }
 
-        $attachment = new self();
+        $attachment = new self;
         $attachment->thread_id = $thread_id;
         $attachment->user_id = $user_id;
         $attachment->file_name = $file_name;
@@ -163,7 +171,7 @@ class Attachment extends Model
         \Helper::sanitizeUploadedFileData($file_path, \Helper::getPrivateStorage(), $content);
 
         return [
-            'file_dir'  => $file_dir,
+            'file_dir' => $file_dir,
             'file_path' => $file_path,
         ];
     }
@@ -172,8 +180,7 @@ class Attachment extends Model
      * Get file path.
      * Examples: 1/2, 1/3.
      *
-     * @param int $id
-     *
+     * @param  int  $id
      * @return string
      */
     public static function generatePath($id)
@@ -203,8 +210,7 @@ class Attachment extends Model
     /**
      * Detect attachment type by it's mime type.
      *
-     * @param string $mime_type
-     *
+     * @param  string  $mime_type
      * @return int
      */
     public static function detectType($mime_type, $extension = '')
@@ -216,9 +222,10 @@ class Attachment extends Model
         } elseif (preg_match("/^application\//", $mime_type)) {
             // This is tricky mime type.
             // For .mp4 mime type can be application/octet-stream
-            if (!empty($extension) && in_array(strtolower($extension), self::$type_extensions[self::TYPE_VIDEO])) {
+            if (! empty($extension) && in_array(strtolower($extension), self::$type_extensions[self::TYPE_VIDEO])) {
                 return self::TYPE_VIDEO;
             }
+
             return self::TYPE_APPLICATION;
         } elseif (preg_match("/^audio\//", $mime_type)) {
             return self::TYPE_AUDIO;
@@ -238,7 +245,7 @@ class Attachment extends Model
      */
     public static function typeNameToInt($type_name)
     {
-        if (!empty(self::$types[$type_name])) {
+        if (! empty(self::$types[$type_name])) {
             return self::$types[$type_name];
         } else {
             return self::TYPE_OTHER;
@@ -282,20 +289,21 @@ class Attachment extends Model
     {
         $headers = [];
         // #533
-        //return $this->getDisk()->download($this->getStorageFilePath(), \Str::ascii($this->file_name));
+        // return $this->getDisk()->download($this->getStorageFilePath(), \Str::ascii($this->file_name));
         if ($view) {
             $headers['Content-Disposition'] = '';
         }
         $file_name = $this->file_name;
 
-        if ($file_name == "RFC822"){
+        if ($file_name == 'RFC822') {
             $file_name = $file_name.'.eml';
         }
 
         return $this->getDisk()->download($this->getStorageFilePath(), $file_name, $headers);
     }
 
-    private function getDisk() {
+    private function getDisk()
+    {
         return Storage::disk(self::DISK);
     }
 
@@ -354,11 +362,11 @@ class Attachment extends Model
      * Delete attachments from disk and DB.
      * Embeds are not taken into account.
      *
-     * @param array $attachments
+     * @param  array  $attachments
      */
     public static function deleteByIds($attachment_ids)
     {
-        if (!count($attachment_ids)) {
+        if (! count($attachment_ids)) {
             return;
         }
         $attachments = self::whereIn('id', $attachment_ids)->get();
@@ -372,7 +380,7 @@ class Attachment extends Model
      */
     public static function deleteByThreadIds($thread_ids)
     {
-        if (!count($thread_ids)) {
+        if (! count($thread_ids)) {
             return;
         }
         $attachments = self::whereIn('thread_id', $thread_ids)->get();
@@ -397,7 +405,7 @@ class Attachment extends Model
      */
     public static function deleteAttachments($attachments)
     {
-        if (!$attachments instanceof \Illuminate\Support\Collection) { 
+        if (! $attachments instanceof \Illuminate\Support\Collection) {
             $attachments = collect($attachments);
         }
 
@@ -427,7 +435,7 @@ class Attachment extends Model
     public function duplicate($thread_id = null)
     {
         $new_attachment = $this->replicate();
-        
+
         $new_attachment->thread_id = $thread_id;
 
         $new_attachment->save();
@@ -440,7 +448,7 @@ class Attachment extends Model
 
             $file_info = Attachment::saveFileToDisk($new_attachment, $new_attachment->file_name, '', $attachment_file);
 
-            if (!empty($file_info['file_dir'])) {
+            if (! empty($file_info['file_dir'])) {
                 $new_attachment->file_dir = $file_info['file_dir'];
                 $new_attachment->save();
             }

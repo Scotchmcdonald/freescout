@@ -37,12 +37,12 @@ return [
 
     'repository_types' => [
         'github' => [
-            'type'              => 'github',
-            'repository_vendor' => 'freescout-helpdesk', //env('SELF_UPDATER_REPO_VENDOR', ''),
-            'repository_name'   => 'freescout', //env('SELF_UPDATER_REPO_NAME', ''),
-            'repository_url'    => '',
-            'github_api_url'    => 'https://freescout.net/github-api',
-            'download_path'     => storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'updater', //env('SELF_UPDATER_DOWNLOAD_PATH', sys_get_temp_dir()),
+            'type' => 'github',
+            'repository_vendor' => 'freescout-helpdesk', // env('SELF_UPDATER_REPO_VENDOR', ''),
+            'repository_name' => 'freescout', // env('SELF_UPDATER_REPO_NAME', ''),
+            'repository_url' => '',
+            'github_api_url' => 'https://freescout.net/github-api',
+            'download_path' => storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'updater', // env('SELF_UPDATER_DOWNLOAD_PATH', sys_get_temp_dir()),
         ],
     ],
 
@@ -91,8 +91,8 @@ return [
     */
 
     'mail_to' => [
-        'address'                  => env('SELF_UPDATER_MAILTO_ADDRESS', ''),
-        'name'                     => env('SELF_UPDATER_MAILTO_NAME', ''),
+        'address' => env('SELF_UPDATER_MAILTO_ADDRESS', ''),
+        'name' => env('SELF_UPDATER_MAILTO_NAME', ''),
         'subject_update_available' => env('SELF_UPDATER_MAILTO_UPDATE_AVAILABLE_SUBJECT', 'Update available'),
         'subject_update_succeeded' => env('SELF_UPDATER_MAILTO_UPDATE_SUCCEEDED_SUBJECT', 'Update succeeded'),
     ],
@@ -105,14 +105,14 @@ return [
 
     'artisan_commands' => [
         'pre_update' => [
-            //'command:signature' => [
+            // 'command:signature' => [
             //    'class' => Command class
             //    'params' => []
-            //]
+            // ]
         ],
         'post_update' => [
             'freescout:after-app-update' => [
-                'class'  => \App\Console\Commands\AfterAppUpdate::class,
+                'class' => \App\Console\Commands\AfterAppUpdate::class,
                 'params' => [],
             ],
             // 'freescout:clear-cache' => [

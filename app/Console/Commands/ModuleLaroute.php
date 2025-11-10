@@ -22,9 +22,9 @@ class ModuleLaroute extends Command
     protected $description = 'Generate a laravel routes JS-file for a module or all modules (if module_alias is empty)';
 
     public $routes;
-    
+
     public $config;
-    
+
     public $generator;
 
     /**
@@ -54,14 +54,14 @@ class ModuleLaroute extends Command
 
         // Create a symlink for the module (or all modules)
         $module_alias = $this->argument('module_alias');
-        if (!$module_alias) {
+        if (! $module_alias) {
             $modules = \Module::all();
 
             $modules_aliases = [];
             foreach ($modules as $module) {
                 $modules_aliases[] = $module->name;
             }
-            if (!$modules_aliases) {
+            if (! $modules_aliases) {
                 $this->error('No modules found');
 
                 return;
@@ -79,7 +79,7 @@ class ModuleLaroute extends Command
             }
         } else {
             $module = \Module::findByAlias($module_alias);
-            if (!$module) {
+            if (! $module) {
                 $this->error('Module with the specified alias not found: '.$module_alias);
 
                 return;
@@ -93,7 +93,7 @@ class ModuleLaroute extends Command
         $this->line('Module: '.$module->getName());
 
         $public_symlink = public_path('modules').DIRECTORY_SEPARATOR.$module->getAlias();
-        if (!file_exists($public_symlink)) {
+        if (! file_exists($public_symlink)) {
             $this->error('Public symlink ['.$public_symlink.'] not found. Run module installation command first: php artisan freescout:module-install');
 
             return;
@@ -148,7 +148,7 @@ class ModuleLaroute extends Command
     protected function getFileGenerationPath($module_alias)
     {
         $path = 'public/modules/'.$module_alias.'/js';
-        $filename = 'laroute'; //$this->getOptionOrConfig('filename');
+        $filename = 'laroute'; // $this->getOptionOrConfig('filename');
 
         return "{$path}/{$filename}.js";
     }
@@ -156,7 +156,6 @@ class ModuleLaroute extends Command
     /**
      * Get an option value either from console input, or the config files.
      *
-     * @param $key
      *
      * @return array|mixed|string
      */

@@ -10,25 +10,24 @@ class TokenAuth
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
-     *
+     * @param  \Illuminate\Http\Request  $request
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
         // This is needed to restore authentication when app session expires.
-        if (!$request->user() && !empty($request->auth_token) && $request->cookie('in_app')) {
+        if (! $request->user() && ! empty($request->auth_token) && $request->cookie('in_app')) {
             try {
                 $user = User::where(\DB::raw('md5(CONCAT(id, created_at, "'.config('app.key').'"))'), $request->auth_token)
                     ->first();
             } catch (\Exception $e) {
                 \Helper::logException($e, '[TokenAuth]');
             }
-            if (!empty($user)) {
+            if (! empty($user)) {
                 \Auth::login($user);
             }
         }
+
         return $next($request);
     }
 }

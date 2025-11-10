@@ -52,7 +52,7 @@ class SendAutoReply implements ShouldQueue
     public function handle()
     {
         // Auto reply disabled.
-        if (!empty($this->conversation->meta['ar_off'])) {
+        if (! empty($this->conversation->meta['ar_off'])) {
             return;
         }
 
@@ -69,7 +69,7 @@ class SendAutoReply implements ShouldQueue
 
         $customer_email = $this->conversation->customer_email;
 
-        if (!$customer_email) {
+        if (! $customer_email) {
             // When message is received via Chat, customer has no email adddress.
             return;
         }
@@ -85,8 +85,8 @@ class SendAutoReply implements ShouldQueue
             activity()
                 ->causedBy($this->customer)
                 ->withProperties([
-                    'error'    => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
-                 ])
+                    'error' => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
+                ])
                 ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
                 ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_TO_CUSTOMER);
 
@@ -105,7 +105,7 @@ class SendAutoReply implements ShouldQueue
                 $failures = Mail::failures();
 
                 // Status for send log
-                if (!empty($failures) && in_array($recipient, $failures)) {
+                if (! empty($failures) && in_array($recipient, $failures)) {
                     $status = SendLog::STATUS_SEND_ERROR;
                 } else {
                     $status = SendLog::STATUS_ACCEPTED;
@@ -130,19 +130,18 @@ class SendAutoReply implements ShouldQueue
      * This method is called after attempts had finished.
      * At this stage method has access only to variables passed in constructor.
      *
-     * @param Exception $exception
-     *
+     * @param  Exception  $exception
      * @return void
      */
     public function failed(\Exception $e)
     {
         // Write to activity log
         activity()
-           ->causedBy($this->customer)
-           ->withProperties([
-                'error'    => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
+            ->causedBy($this->customer)
+            ->withProperties([
+                'error' => $e->getMessage().'; File: '.$e->getFile().' ('.$e->getLine().')',
             ])
-           ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
-           ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_TO_CUSTOMER);
+            ->useLog(\App\ActivityLog::NAME_EMAILS_SENDING)
+            ->log(\App\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_TO_CUSTOMER);
     }
 }

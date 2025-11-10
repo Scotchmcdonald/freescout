@@ -10,8 +10,8 @@ return [
     | The default group settings for the elFinder routes.
     |
     */
-    'route'          => [
-        'prefix'     => trim(parse_url(env('APP_URL', ''), PHP_URL_PATH) ?: '', '/').'/translations',
+    'route' => [
+        'prefix' => trim(parse_url(env('APP_URL', ''), PHP_URL_PATH) ?: '', '/').'/translations',
         'middleware' => [
             'web',
             'auth',
@@ -65,12 +65,12 @@ return [
      *        'de',
      *    )
      */
-    'exclude_langs'  => [],
+    'exclude_langs' => [],
 
     /*
      * Export translations with keys output alphabetically.
      */
-    'sort_keys '     => true,
+    'sort_keys ' => true,
 
     'trans_functions' => [
         'trans',

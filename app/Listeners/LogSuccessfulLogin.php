@@ -19,16 +19,15 @@ class LogSuccessfulLogin
     /**
      * Handle the event.
      *
-     * @param Login $event
      *
      * @return void
      */
     public function handle(Login $event)
     {
         activity()
-           ->causedBy($event->user)
-           ->withProperties(['ip' => app('request')->ip()])
-           ->useLog(\App\ActivityLog::NAME_USER)
-           ->log(\App\ActivityLog::DESCRIPTION_USER_LOGIN);
+            ->causedBy($event->user)
+            ->withProperties(['ip' => app('request')->ip()])
+            ->useLog(\App\ActivityLog::NAME_USER)
+            ->log(\App\ActivityLog::DESCRIPTION_USER_LOGIN);
     }
 }

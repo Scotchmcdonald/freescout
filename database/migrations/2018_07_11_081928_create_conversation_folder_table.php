@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Table stores conversations which user marked as starred.
  */

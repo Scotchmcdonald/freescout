@@ -23,35 +23,37 @@ use Symfony\Component\Console\Input\InputInterface;
 abstract class Enumerator
 {
     // Output styles
-    const IS_PUBLIC    = 'public';
+    const IS_PUBLIC = 'public';
+
     const IS_PROTECTED = 'protected';
-    const IS_PRIVATE   = 'private';
-    const IS_GLOBAL    = 'global';
-    const IS_CONSTANT  = 'const';
-    const IS_CLASS     = 'class';
-    const IS_FUNCTION  = 'function';
+
+    const IS_PRIVATE = 'private';
+
+    const IS_GLOBAL = 'global';
+
+    const IS_CONSTANT = 'const';
+
+    const IS_CLASS = 'class';
+
+    const IS_FUNCTION = 'function';
 
     private $filter;
+
     private $presenter;
 
     /**
      * Enumerator constructor.
-     *
-     * @param Presenter $presenter
      */
     public function __construct(Presenter $presenter)
     {
-        $this->filter = new FilterOptions();
+        $this->filter = new FilterOptions;
         $this->presenter = $presenter;
     }
 
     /**
      * Return a list of categorized things with the given input options and target.
      *
-     * @param InputInterface $input
-     * @param \Reflector     $reflector
-     * @param mixed          $target
-     *
+     * @param  mixed  $target
      * @return array
      */
     public function enumerate(InputInterface $input, ?\Reflector $reflector = null, $target = null)
@@ -76,10 +78,7 @@ abstract class Enumerator
      *         ],
      *     ]
      *
-     * @param InputInterface $input
-     * @param \Reflector     $reflector
-     * @param mixed          $target
-     *
+     * @param  mixed  $target
      * @return array
      */
     abstract protected function listItems(InputInterface $input, ?\Reflector $reflector = null, $target = null);
@@ -97,7 +96,7 @@ abstract class Enumerator
     protected function presentSignature($target)
     {
         // This might get weird if the signature is actually for a reflector. Hrm.
-        if (!$target instanceof \Reflector) {
+        if (! $target instanceof \Reflector) {
             $target = Mirror::get($target);
         }
 

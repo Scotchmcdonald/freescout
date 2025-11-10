@@ -3,10 +3,10 @@
 namespace Illuminate\Validation;
 
 use Closure;
-use Illuminate\Support\Str;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\Validation\Factory as FactoryContract;
+use Illuminate\Support\Str;
 
 class Factory implements FactoryContract
 {
@@ -76,8 +76,6 @@ class Factory implements FactoryContract
     /**
      * Create a new Validator factory instance.
      *
-     * @param  \Illuminate\Contracts\Translation\Translator $translator
-     * @param  \Illuminate\Contracts\Container\Container  $container
      * @return void
      */
     public function __construct(Translator $translator, ?Container $container = null)
@@ -89,10 +87,6 @@ class Factory implements FactoryContract
     /**
      * Create a new Validator instance.
      *
-     * @param  array  $data
-     * @param  array  $rules
-     * @param  array  $messages
-     * @param  array  $customAttributes
      * @return \Illuminate\Validation\Validator
      */
     public function make(array $data, array $rules, array $messages = [], array $customAttributes = [])
@@ -123,10 +117,6 @@ class Factory implements FactoryContract
     /**
      * Validate the given data against the provided rules.
      *
-     * @param  array  $data
-     * @param  array  $rules
-     * @param  array  $messages
-     * @param  array  $customAttributes
      * @return void
      *
      * @throws \Illuminate\Validation\ValidationException
@@ -139,10 +129,6 @@ class Factory implements FactoryContract
     /**
      * Resolve a new Validator instance.
      *
-     * @param  array  $data
-     * @param  array  $rules
-     * @param  array  $messages
-     * @param  array  $customAttributes
      * @return \Illuminate\Validation\Validator
      */
     protected function resolve(array $data, array $rules, array $messages, array $customAttributes)
@@ -157,7 +143,6 @@ class Factory implements FactoryContract
     /**
      * Add the extensions to a validator instance.
      *
-     * @param  \Illuminate\Validation\Validator  $validator
      * @return void
      */
     protected function addExtensions(Validator $validator)
@@ -196,7 +181,7 @@ class Factory implements FactoryContract
     /**
      * Register a custom implicit validator extension.
      *
-     * @param  string   $rule
+     * @param  string  $rule
      * @param  \Closure|string  $extension
      * @param  string  $message
      * @return void
@@ -213,7 +198,7 @@ class Factory implements FactoryContract
     /**
      * Register a custom dependent validator extension.
      *
-     * @param  string   $rule
+     * @param  string  $rule
      * @param  \Closure|string  $extension
      * @param  string  $message
      * @return void
@@ -230,7 +215,7 @@ class Factory implements FactoryContract
     /**
      * Register a custom validator message replacer.
      *
-     * @param  string   $rule
+     * @param  string  $rule
      * @param  \Closure|string  $replacer
      * @return void
      */
@@ -242,7 +227,6 @@ class Factory implements FactoryContract
     /**
      * Set the Validator instance resolver.
      *
-     * @param  \Closure  $resolver
      * @return void
      */
     public function resolver(Closure $resolver)
@@ -273,7 +257,6 @@ class Factory implements FactoryContract
     /**
      * Set the Presence Verifier implementation.
      *
-     * @param  \Illuminate\Validation\PresenceVerifierInterface  $presenceVerifier
      * @return void
      */
     public function setPresenceVerifier(PresenceVerifierInterface $presenceVerifier)

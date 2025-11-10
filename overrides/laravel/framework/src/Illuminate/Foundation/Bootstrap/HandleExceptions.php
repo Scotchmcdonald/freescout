@@ -2,8 +2,8 @@
 
 namespace Illuminate\Foundation\Bootstrap;
 
-use Exception;
 use ErrorException;
+use Exception;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Foundation\Application;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -22,7 +22,6 @@ class HandleExceptions
     /**
      * Bootstrap the given application.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @return void
      */
     public function bootstrap(Application $app)
@@ -98,7 +97,6 @@ class HandleExceptions
     /**
      * Render an exception to the console.
      *
-     * @param  \Exception  $e
      * @return void
      */
     protected function renderForConsole(Exception $e)
@@ -109,7 +107,6 @@ class HandleExceptions
     /**
      * Render an exception as an HTTP response and send it.
      *
-     * @param  \Exception  $e
      * @return void
      */
     protected function renderHttpResponse(Exception $e)
@@ -132,7 +129,6 @@ class HandleExceptions
     /**
      * Create a new fatal exception instance from an error array.
      *
-     * @param  array  $error
      * @param  int|null  $traceOffset
      * @return \Symfony\Component\Debug\Exception\FatalErrorException
      */

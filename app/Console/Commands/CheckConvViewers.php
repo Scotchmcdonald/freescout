@@ -42,24 +42,24 @@ class CheckConvViewers extends Command
         $cache_key = 'conv_view';
         $cache_data = \Cache::get($cache_key);
 
-        if (empty($cache_data) || !is_array($cache_data)) {
+        if (empty($cache_data) || ! is_array($cache_data)) {
             return;
         }
 
         $now = Carbon::now();
         $need_update = false;
         foreach ($cache_data as $conversation_id => $conv_data) {
-            if (empty($conv_data) || !is_array($conv_data)) {
+            if (empty($conv_data) || ! is_array($conv_data)) {
                 continue;
             }
             foreach ($conv_data as $user_id => $data) {
 
-                if (!isset($data['t']) || !isset($data['r'])) {
+                if (! isset($data['t']) || ! isset($data['r'])) {
                     continue;
                 }
 
                 $view_date = Carbon::createFromFormat('Y-m-d H:i:s', $data['t']);
-            
+
                 if ($view_date && $now->diffInSeconds($view_date) > 25) {
                     // Remove user from viewers.
                     unset($cache_data[$conversation_id][$user_id]);
@@ -73,7 +73,7 @@ class CheckConvViewers extends Command
                     // Create event to let other users know that user finished viewing conversation.
                     $notification_data = [
                         'conversation_id' => $conversation_id,
-                        'user_id'         => $user_id,
+                        'user_id' => $user_id,
                     ];
                     event(new \App\Events\RealtimeConvViewFinish($notification_data));
 
@@ -84,7 +84,7 @@ class CheckConvViewers extends Command
 
         if ($need_update) {
             // Update conversation cache data.
-            \Cache::put($cache_key, $cache_data, 20 /*minutes*/);
+            \Cache::put($cache_key, $cache_data, 20 /* minutes */);
         }
         /*$cache_key = 'conv_view_'.$this->user_id.'_'.$this->conversation_id;
         $cache_data = \Cache::get($cache_key);

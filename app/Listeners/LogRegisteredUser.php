@@ -19,16 +19,15 @@ class LogRegisteredUser
     /**
      * Handle the event.
      *
-     * @param Registered $event
      *
      * @return void
      */
     public function handle(Registered $event)
     {
         activity()
-           ->causedBy($event->user)
-           ->withProperties(['ip' => app('request')->ip()])
-           ->useLog(\App\ActivityLog::NAME_USER)
-           ->log(\App\ActivityLog::DESCRIPTION_USER_REGISTER);
+            ->causedBy($event->user)
+            ->withProperties(['ip' => app('request')->ip()])
+            ->useLog(\App\ActivityLog::NAME_USER)
+            ->log(\App\ActivityLog::DESCRIPTION_USER_REGISTER);
     }
 }

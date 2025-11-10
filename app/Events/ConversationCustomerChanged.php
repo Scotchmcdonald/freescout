@@ -7,9 +7,13 @@ use App\Conversation;
 class ConversationCustomerChanged
 {
     public $conversation;
+
     public $prev_customer_id;
+
     public $prev_customer_email;
+
     public $by_user;
+
     public $by_customer;
 
     /**

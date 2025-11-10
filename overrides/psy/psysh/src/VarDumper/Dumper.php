@@ -21,17 +21,20 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
 class Dumper extends CliDumper
 {
     private $formatter;
+
     private $forceArrayIndexes;
 
     protected static $onlyControlCharsRx = '/^[\x00-\x1F\x7F]+$/';
-    protected static $controlCharsRx     = '/([\x00-\x1F\x7F]+)/';
-    protected static $controlCharsMap    = [
-        "\0"   => '\0',
-        "\t"   => '\t',
-        "\n"   => '\n',
-        "\v"   => '\v',
-        "\f"   => '\f',
-        "\r"   => '\r',
+
+    protected static $controlCharsRx = '/([\x00-\x1F\x7F]+)/';
+
+    protected static $controlCharsMap = [
+        "\0" => '\0',
+        "\t" => '\t',
+        "\n" => '\n',
+        "\v" => '\v',
+        "\f" => '\f',
+        "\r" => '\r',
         "\033" => '\e',
     ];
 
@@ -48,7 +51,7 @@ class Dumper extends CliDumper
      */
     public function enterHash(Cursor $cursor, $type, $class, $hasChild)
     {
-        if (Cursor::HASH_INDEXED === $type || Cursor::HASH_ASSOC === $type) {
+        if ($type === Cursor::HASH_INDEXED || $type === Cursor::HASH_ASSOC) {
             $class = 0;
         }
         parent::enterHash($cursor, $type, $class, $hasChild);
@@ -59,14 +62,14 @@ class Dumper extends CliDumper
      */
     protected function dumpKey(Cursor $cursor)
     {
-        if ($this->forceArrayIndexes || Cursor::HASH_INDEXED !== $cursor->hashType) {
+        if ($this->forceArrayIndexes || $cursor->hashType !== Cursor::HASH_INDEXED) {
             parent::dumpKey($cursor);
         }
     }
 
     protected function style($style, $value, $attr = [])
     {
-        if ('ref' === $style) {
+        if ($style === 'ref') {
             $value = \strtr($value, '@', '#');
         }
 
@@ -100,7 +103,7 @@ class Dumper extends CliDumper
      */
     protected function dumpLine($depth, $endOfValue = false)
     {
-        if ($endOfValue && 0 < $depth) {
+        if ($endOfValue && $depth > 0) {
             $this->line .= ',';
         }
         $this->line = $this->formatter->format($this->line);

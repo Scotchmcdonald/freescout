@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddChannelColumnsToCustomersTable extends Migration
 {
@@ -23,7 +23,7 @@ class AddChannelColumnsToCustomersTable extends Migration
 
             // We are not adding index, as requests are made in the background,
             // so performance here not very critical.
-            //$table->index(['channel', DB::raw('channel_id(5)')]);
+            // $table->index(['channel', DB::raw('channel_id(5)')]);
         });
     }
 

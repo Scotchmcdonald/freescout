@@ -33,7 +33,7 @@ class EnvironmentManager
      */
     public function getEnvContent()
     {
-        if (!file_exists($this->envPath)) {
+        if (! file_exists($this->envPath)) {
             if (file_exists($this->envExamplePath)) {
                 copy($this->envExamplePath, $this->envPath);
             } else {
@@ -67,7 +67,6 @@ class EnvironmentManager
     /**
      * Save the edited content to the .env file.
      *
-     * @param Request $input
      *
      * @return string
      */
@@ -87,7 +86,6 @@ class EnvironmentManager
     /**
      * Save the form content to the .env file.
      *
-     * @param Request $request
      *
      * @return string
      */
@@ -98,7 +96,7 @@ class EnvironmentManager
         $envFileData =
         // 'APP_NAME=\'' . $request->app_name . "'\n" .
         // 'APP_ENV=' . $request->environment . "\n" .
-        //'APP_KEY=' . 'base64:bODi8VtmENqnjklBmNJzQcTTSC8jNjBysfnjQN59btE=' . "\n" .
+        // 'APP_KEY=' . 'base64:bODi8VtmENqnjklBmNJzQcTTSC8jNjBysfnjQN59btE=' . "\n" .
         // 'APP_DEBUG=' . $request->app_debug . "\n" .
         // 'APP_LOG_LEVEL=' . $request->app_log_level . "\n" .
         '# Every time you are making changes in .env file, in order changes to take an effect you need to run:'."\n".
@@ -119,8 +117,8 @@ class EnvironmentManager
         'DB_DATABASE='.$request->database_name."\n".
         'DB_USERNAME='.$request->database_username."\n".
         'DB_PASSWORD="'.str_replace('"', '\"\"', $request->database_password)."\"\n".
-        (!empty($request->database_charset) ? 'DB_CHARSET='.$request->database_charset."\n" : '').
-        (!empty($request->database_collation) ? 'DB_COLLATION='.$request->database_collation."\n" : '').
+        (! empty($request->database_charset) ? 'DB_CHARSET='.$request->database_charset."\n" : '').
+        (! empty($request->database_collation) ? 'DB_COLLATION='.$request->database_collation."\n" : '').
         "\n".
         '# Run the following console command to generate the key: php artisan key:generate'."\n".
         '# Otherwise application will show the following error: "Whoops, looks like something went wrong"'."\n".
@@ -152,7 +150,7 @@ class EnvironmentManager
 
         // Clear and update cache
         // If we cache config here, it caches env data from memory
-        //\Artisan::call('freescout:clear-cache');
+        // \Artisan::call('freescout:clear-cache');
         \Artisan::call('freescout:clear-cache', ['--doNotCacheConfig' => true]);
 
         return $results;

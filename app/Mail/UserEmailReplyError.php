@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User replied from wrong email address to the email notification.
  */
@@ -14,9 +15,7 @@ class UserEmailReplyError extends Mailable
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Build the message.
@@ -26,7 +25,7 @@ class UserEmailReplyError extends Mailable
     public function build()
     {
         \MailHelper::prepareMailable($this);
-        
+
         return $this->subject(__('Unable to process your update'))
             ->view('emails/user/email_reply_error');
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Outgoing emails.
  */
@@ -14,13 +15,21 @@ class SendLog extends Model
      * https://documentation.mailgun.com/en/latest/api-events.html#event-types.
      */
     const STATUS_ACCEPTED = 1; // accepted (for delivery)
+
     const STATUS_SEND_INTERMEDIATE_ERROR = 10;
+
     const STATUS_SEND_ERROR = 2;
+
     const STATUS_DELIVERY_SUCCESS = 4;
+
     const STATUS_DELIVERY_ERROR = 5; // rejected, failed
+
     const STATUS_OPENED = 6;
+
     const STATUS_CLICKED = 7;
+
     const STATUS_UNSUBSCRIBED = 8;
+
     const STATUS_COMPLAINED = 9;
 
     /**
@@ -52,12 +61,19 @@ class SendLog extends Model
      * Mail types.
      */
     const MAIL_TYPE_EMAIL_TO_CUSTOMER = 1;
+
     const MAIL_TYPE_USER_NOTIFICATION = 2;
+
     const MAIL_TYPE_AUTO_REPLY = 3;
+
     const MAIL_TYPE_INVITE = 4;
+
     const MAIL_TYPE_PASSWORD_CHANGED = 5;
+
     const MAIL_TYPE_WRONG_USER_EMAIL_MESSAGE = 6;
+
     const MAIL_TYPE_TEST = 7;
+
     const MAIL_TYPE_ALERT = 8;
 
     /**
@@ -99,7 +115,7 @@ class SendLog extends Model
         // Sanitize status message - remove SMTP username and password.
         $status_message = \MailHelper::sanitizeSmtpStatusMessage($status_message);
 
-        $send_log = new self();
+        $send_log = new self;
         $send_log->thread_id = $thread_id;
         $send_log->message_id = $message_id;
         $send_log->email = $email;
@@ -115,6 +131,7 @@ class SendLog extends Model
             $send_log->save();
         } catch (\Exception $e) {
             \Helper::logException($e, 'Error occurred saving a record to `send_logs` table. ');
+
             return false;
         }
 

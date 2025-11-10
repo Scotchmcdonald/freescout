@@ -18,13 +18,13 @@ class Swift_MailTransport extends Swift_Transport_MailTransport
     /**
      * Create a new MailTransport, optionally specifying $extraParams.
      *
-     * @param string $extraParams
+     * @param  string  $extraParams
      */
     public function __construct($extraParams = '-f%s')
     {
-        parent::__construct(new Swift_Transport_SimpleMailInvoker(), new Swift_Events_SimpleEventDispatcher());
+        parent::__construct(new Swift_Transport_SimpleMailInvoker, new Swift_Events_SimpleEventDispatcher);
 
-        //call_user_func_array(
+        // call_user_func_array(
         //    array($this, 'Swift_Transport_MailTransport::__construct'),
         //    /*Swift_DependencyContainer::getInstance()
         //        ->createDependenciesFor('transport.mail')*/
@@ -37,8 +37,7 @@ class Swift_MailTransport extends Swift_Transport_MailTransport
     /**
      * Create a new MailTransport instance.
      *
-     * @param string $extraParams To be passed to mail()
-     *
+     * @param  string  $extraParams  To be passed to mail()
      * @return Swift_MailTransport
      */
     public static function newInstance($extraParams = '-f%s')

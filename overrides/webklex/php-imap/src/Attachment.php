@@ -1,4 +1,5 @@
 <?php
+
 /*
 * File:     Attachment.php
 * Category: -
@@ -20,10 +21,9 @@ use Webklex\PHPIMAP\Support\Masks\AttachmentMask;
 /**
  * Class Attachment
  *
- * @package Webklex\PHPIMAP
  *
- * @property integer part_number
- * @property integer size
+ * @property int part_number
+ * @property int size
  * @property string content
  * @property string type
  * @property string content_type
@@ -32,44 +32,44 @@ use Webklex\PHPIMAP\Support\Masks\AttachmentMask;
  * @property string disposition
  * @property string img_src
  *
- * @method integer getPartNumber()
- * @method integer setPartNumber(integer $part_number)
- * @method string  getContent()
- * @method string  setContent(string $content)
- * @method string  getType()
- * @method string  setType(string $type)
- * @method string  getContentType()
- * @method string  setContentType(string $content_type)
- * @method string  getId()
- * @method string  setId(string $id)
- * @method string  getSize()
- * @method string  setSize(integer $size)
- * @method string  getName()
- * @method string  getDisposition()
- * @method string  setDisposition(string $disposition)
- * @method string  setImgSrc(string $img_src)
+ * @method int getPartNumber()
+ * @method int setPartNumber(integer $part_number)
+ * @method string getContent()
+ * @method string setContent(string $content)
+ * @method string getType()
+ * @method string setType(string $type)
+ * @method string getContentType()
+ * @method string setContentType(string $content_type)
+ * @method string getId()
+ * @method string setId(string $id)
+ * @method string getSize()
+ * @method string setSize(integer $size)
+ * @method string getName()
+ * @method string getDisposition()
+ * @method string setDisposition(string $disposition)
+ * @method string setImgSrc(string $img_src)
  */
-class Attachment {
-
+class Attachment
+{
     /**
-     * @var Message $oMessage
+     * @var Message
      */
     protected $oMessage;
 
     /**
      * Used config
      *
-     * @var array $config
+     * @var array
      */
     protected $config = [];
 
-    /** @var Part $part */
+    /** @var Part */
     protected $part;
 
     /**
      * Attribute holder
      *
-     * @var array $attributes
+     * @var array
      */
     protected $attributes = [
         'content' => null,
@@ -80,7 +80,7 @@ class Attachment {
         'id' => null,
         'name' => null,
         'filename' => null,
-        'description'  => null,
+        'description' => null,
         'disposition' => null,
         'img_src' => null,
         'size' => null,
@@ -89,16 +89,15 @@ class Attachment {
     /**
      * Default mask
      *
-     * @var string $mask
+     * @var string
      */
     protected $mask = AttachmentMask::class;
 
     /**
      * Attachment constructor.
-     * @param Message   $oMessage
-     * @param Part      $part
      */
-    public function __construct(Message $oMessage, Part $part) {
+    public function __construct(Message $oMessage, Part $part)
+    {
         $this->config = ClientManager::get('options');
 
         $this->oMessage = $oMessage;
@@ -111,8 +110,8 @@ class Attachment {
                 $this->mask = $default_mask;
             }
         } else {
-            $default_mask = AttachmentMask::class; //$this->config->getMask("attachment");
-            if ($default_mask != "") {
+            $default_mask = AttachmentMask::class; // $this->config->getMask("attachment");
+            if ($default_mask != '') {
                 $this->mask = $default_mask;
             }
         }
@@ -123,22 +122,22 @@ class Attachment {
 
     /**
      * Call dynamic attribute setter and getter methods
-     * @param string $method
-     * @param array $arguments
      *
      * @return mixed
+     *
      * @throws MethodNotFoundException
      */
-    public function __call(string $method, array $arguments) {
-        if(strtolower(substr($method, 0, 3)) === 'get') {
+    public function __call(string $method, array $arguments)
+    {
+        if (strtolower(substr($method, 0, 3)) === 'get') {
             $name = Str::snake(substr($method, 3));
 
-            if(isset($this->attributes[$name])) {
+            if (isset($this->attributes[$name])) {
                 return $this->attributes[$name];
             }
 
             return null;
-        }elseif (strtolower(substr($method, 0, 3)) === 'set') {
+        } elseif (strtolower(substr($method, 0, 3)) === 'set') {
             $name = Str::snake(substr($method, 3));
 
             $this->attributes[$name] = array_pop($arguments);
@@ -146,17 +145,16 @@ class Attachment {
             return $this->attributes[$name];
         }
 
-        throw new MethodNotFoundException("Method ".self::class.'::'.$method.'() is not supported');
+        throw new MethodNotFoundException('Method '.self::class.'::'.$method.'() is not supported');
     }
 
     /**
      * Magic setter
-     * @param $name
-     * @param $value
      *
      * @return mixed
      */
-    public function __set($name, $value) {
+    public function __set($name, $value)
+    {
         $this->attributes[$name] = $value;
 
         return $this->attributes[$name];
@@ -164,12 +162,12 @@ class Attachment {
 
     /**
      * magic getter
-     * @param $name
      *
      * @return mixed|null
      */
-    public function __get($name) {
-        if(isset($this->attributes[$name])) {
+    public function __get($name)
+    {
+        if (isset($this->attributes[$name])) {
             return $this->attributes[$name];
         }
 
@@ -179,7 +177,8 @@ class Attachment {
     /**
      * Determine the structure type
      */
-    protected function findType() {
+    protected function findType()
+    {
         switch ($this->part->type) {
             case IMAP::ATTACHMENT_TYPE_MESSAGE:
                 $this->type = 'message';
@@ -214,7 +213,8 @@ class Attachment {
     /**
      * Fetch the given attachment
      */
-    protected function fetch() {
+    protected function fetch()
+    {
 
         $content = $this->part->content;
 
@@ -235,12 +235,12 @@ class Attachment {
         // php < 8.1. crc32c is the next fastest and is compatible with php >= 5.1. sha256 is the slowest, but is compatible
         // with php >= 5.1 and is the most likely to be unique. crc32c is the best compromise between speed and uniqueness.
         // Unique enough for our purposes, but not so slow that it could be a bottleneck.
-        //$this->hash = hash("crc32c", $this->part->getHeader()->raw."\r\n\r\n".$this->part->content);
+        // $this->hash = hash("crc32c", $this->part->getHeader()->raw."\r\n\r\n".$this->part->content);
         // https://github.com/freescout-helpdesk/freescout/issues/3991
 
         if (($id = $this->part->id) !== null) {
             $this->id = str_replace(['<', '>'], '', $id);
-        }else{
+        } else {
             $this->id = $this->getHash();
         }
 
@@ -274,21 +274,19 @@ class Attachment {
         //         $this->setName($this->part->subtype);
         //     }
         // }
-        
-        if (IMAP::ATTACHMENT_TYPE_MESSAGE == $this->part->type) {
+
+        if ($this->part->type == IMAP::ATTACHMENT_TYPE_MESSAGE) {
             if ($this->part->ifdescription) {
-                if (!$this->name) {
+                if (! $this->name) {
                     $this->name = $this->decodeName($this->part->description);
                 }
-            } else if (!$this->name) {
+            } elseif (! $this->name) {
                 $this->name = $this->decodeName($this->part->subtype);
             }
         }
         $this->attributes = array_merge($this->part->getHeader()->getAttributes(), $this->attributes);
 
-
-
-        if (!$this->filename) {
+        if (! $this->filename) {
             $mime_type = $this->getMimeType();
             // https://github.com/freescout-help-desk/freescout/issues/4738
             if ($mime_type == 'message/rfc822') {
@@ -300,14 +298,14 @@ class Attachment {
             }
         }
 
-        if (!$this->name && $this->filename != "") {
+        if (! $this->name && $this->filename != '') {
             $this->name = $this->filename;
         }
     }
 
     public function getHash()
     {
-        if (!$this->hash) {
+        if (! $this->hash) {
             $this->hash = substr(md5($this->part->getHeader()->raw."\r\n\r\n".$this->part->content), 0, 8);
         }
 
@@ -316,15 +314,14 @@ class Attachment {
 
     /**
      * Save the attachment content to your filesystem
-     * @param string $path
-     * @param string|null $filename
      *
-     * @return boolean
+     * @param  string|null  $filename
      */
-    public function save(string $path, $filename = null): bool {
-        //$filename = $filename ?: $this->getName();
+    public function save(string $path, $filename = null): bool
+    {
+        // $filename = $filename ?: $this->getName();
         $filename = $filename ? $this->decodeName($filename) : $this->filename;
-        
+
         // sanitize $name
         // order of '..' is important
         // https://github.com/freescout-helpdesk/freescout/issues/3592
@@ -336,13 +333,14 @@ class Attachment {
 
     /**
      * Set the attachment name and try to decode it
-     * @param $name
      */
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $this->decodeName($name);
     }
 
-    public function decodeName($name) {
+    public function decodeName($name)
+    {
         // $decoder = $this->config['decoder']['attachment'];
         // if ($name !== null) {
         //     if($decoder === 'utf-8' && extension_loaded('imap')) {
@@ -358,7 +356,7 @@ class Attachment {
             // utf-8'en'%C2%A3%20rates
             preg_match("#([^']+)'([^']{2})?'(.+)#", $name, $m);
             $name_charset = '';
-            if (!empty($m[1]) && !empty($m[3])) {
+            if (! empty($m[1]) && ! empty($m[3])) {
                 $name = $m[3];
                 $name_charset = $m[1];
             }
@@ -368,9 +366,9 @@ class Attachment {
             //     $name = \imap_utf8($name);
             // }
 
-            //if (preg_match('/=\?([^?]+)\?(Q|B)\?(.+)\?=/i', $name, $matches)) {
+            // if (preg_match('/=\?([^?]+)\?(Q|B)\?(.+)\?=/i', $name, $matches)) {
             $name = \MailHelper::decodeSubject($name);
-            //}
+            // }
 
             // check if $name is url encoded
             if (preg_match('/%[0-9A-F]{2}/i', $name)) {
@@ -381,6 +379,7 @@ class Attachment {
             // order of '..' is important
             $name = str_replace(['\\', '../', '/..', '/', chr(0), ':'], '', $name);
         }
+
         return $name;
     }
 
@@ -389,8 +388,9 @@ class Attachment {
      *
      * @return string|null
      */
-    public function getMimeType(){
-        return (new \finfo())->buffer($this->getContent(), FILEINFO_MIME_TYPE);
+    public function getMimeType()
+    {
+        return (new \finfo)->buffer($this->getContent(), FILEINFO_MIME_TYPE);
     }
 
     /**
@@ -398,7 +398,8 @@ class Attachment {
      *
      * @return string|null
      */
-    public function getExtension(){
+    public function getExtension()
+    {
         $extension = null;
         $guesser = "\Symfony\Component\Mime\MimeTypes";
         if (class_exists($guesser) !== false) {
@@ -414,40 +415,38 @@ class Attachment {
             }
         }
         if ($extension === null) {
-            $parts = explode(".", $this->filename);
+            $parts = explode('.', $this->filename);
             $extension = count($parts) > 1 ? end($parts) : null;
         }
         if ($extension === null) {
-            $parts = explode(".", $this->name);
+            $parts = explode('.', $this->name);
             $extension = count($parts) > 1 ? end($parts) : null;
         }
+
         return $extension;
     }
 
     /**
      * Get all attributes
-     *
-     * @return array
      */
-    public function getAttributes(): array {
+    public function getAttributes(): array
+    {
         return $this->attributes;
     }
 
-    /**
-     * @return Message
-     */
-    public function getMessage(): Message {
+    public function getMessage(): Message
+    {
         return $this->oMessage;
     }
 
     /**
      * Set the default mask
-     * @param $mask
      *
      * @return $this
      */
-    public function setMask($mask): Attachment {
-        if(class_exists($mask)){
+    public function setMask($mask): Attachment
+    {
+        if (class_exists($mask)) {
             $this->mask = $mask;
         }
 
@@ -456,26 +455,27 @@ class Attachment {
 
     /**
      * Get the used default mask
-     *
-     * @return string
      */
-    public function getMask(): string {
+    public function getMask(): string
+    {
         return $this->mask;
     }
 
     /**
      * Get a masked instance by providing a mask name
-     * @param string|null $mask
      *
+     * @param  string|null  $mask
      * @return mixed
+     *
      * @throws MaskNotFoundException
      */
-    public function mask($mask = null){
+    public function mask($mask = null)
+    {
         $mask = $mask !== null ? $mask : $this->mask;
-        if(class_exists($mask)){
+        if (class_exists($mask)) {
             return new $mask($this);
         }
 
-        throw new MaskNotFoundException("Unknown mask provided: ".$mask);
+        throw new MaskNotFoundException('Unknown mask provided: '.$mask);
     }
 }

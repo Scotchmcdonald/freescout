@@ -18,7 +18,7 @@ class DatabaseManager
      */
     public function migrateAndSeed()
     {
-        $outputLog = new BufferedOutput();
+        $outputLog = new BufferedOutput;
 
         $this->sqlite($outputLog);
 
@@ -28,27 +28,25 @@ class DatabaseManager
     /**
      * Run the migration and call the seeder.
      *
-     * @param collection $outputLog
-     *
+     * @param  collection  $outputLog
      * @return collection
      */
     private function migrate($outputLog)
     {
         try {
-            Artisan::call('migrate', ['--force'=> true], $outputLog);
+            Artisan::call('migrate', ['--force' => true], $outputLog);
         } catch (Exception $e) {
             return $this->response($e->getMessage(), 'error', $outputLog);
         }
 
         return $this->response(trans('installer_messages.final.finished'), 'success', $outputLog);
-        //return $this->seed($outputLog);
+        // return $this->seed($outputLog);
     }
 
     /**
      * Seed the database.
      *
-     * @param collection $outputLog
-     *
+     * @param  collection  $outputLog
      * @return array
      */
     private function seed($outputLog)
@@ -65,17 +63,15 @@ class DatabaseManager
     /**
      * Return a formatted error messages.
      *
-     * @param $message
-     * @param string     $status
-     * @param collection $outputLog
-     *
+     * @param  string  $status
+     * @param  collection  $outputLog
      * @return array
      */
     private function response($message, $status, $outputLog)
     {
         return [
-            'status'      => $status,
-            'message'     => $message,
+            'status' => $status,
+            'message' => $message,
             'dbOutputLog' => $outputLog->fetch(),
         ];
     }
@@ -83,13 +79,13 @@ class DatabaseManager
     /**
      * check database type. If SQLite, then create the database file.
      *
-     * @param collection $outputLog
+     * @param  collection  $outputLog
      */
     private function sqlite($outputLog)
     {
         if (DB::connection() instanceof SQLiteConnection) {
             $database = DB::connection()->getDatabaseName();
-            if (!file_exists($database)) {
+            if (! file_exists($database)) {
                 touch($database);
                 DB::reconnect(Config::get('database.default'));
             }

@@ -19,16 +19,15 @@ class LogPasswordReset
     /**
      * Handle the event.
      *
-     * @param PasswordReset $event
      *
      * @return void
      */
     public function handle(PasswordReset $event)
     {
         activity()
-           ->causedBy($event->user)
-           ->withProperties(['ip' => app('request')->ip()])
-           ->useLog(\App\ActivityLog::NAME_USER)
-           ->log(\App\ActivityLog::DESCRIPTION_USER_PASSWORD_RESET);
+            ->causedBy($event->user)
+            ->withProperties(['ip' => app('request')->ip()])
+            ->useLog(\App\ActivityLog::NAME_USER)
+            ->log(\App\ActivityLog::DESCRIPTION_USER_PASSWORD_RESET);
     }
 }

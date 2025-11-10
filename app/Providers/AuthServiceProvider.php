@@ -12,11 +12,11 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        'App\User'         => 'App\Policies\UserPolicy',
-        'App\Mailbox'      => 'App\Policies\MailboxPolicy',
-        'App\Folder'       => 'App\Policies\FolderPolicy',
+        'App\User' => 'App\Policies\UserPolicy',
+        'App\Mailbox' => 'App\Policies\MailboxPolicy',
+        'App\Folder' => 'App\Policies\FolderPolicy',
         'App\Conversation' => 'App\Policies\ConversationPolicy',
-        'App\Thread'       => 'App\Policies\ThreadPolicy',
+        'App\Thread' => 'App\Policies\ThreadPolicy',
     ];
 
     /**

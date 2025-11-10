@@ -44,14 +44,14 @@ class ModuleCheckLicenses extends Command
         $this->info('Active modules found: '.count($modules));
 
         $params = [
-            'url'          => \App\Module::getAppUrl(),
-            'data'          => [],
+            'url' => \App\Module::getAppUrl(),
+            'data' => [],
         ];
 
         foreach ($modules as $module) {
             $license = $module->getLicense();
-        
-            if (!$module->isOfficial() || !$license) {
+
+            if (! $module->isOfficial() || ! $license) {
                 continue;
             }
 
@@ -63,7 +63,7 @@ class ModuleCheckLicenses extends Command
 
         $result = WpApi::checkLicenses($params);
 
-        if (!empty($result['statuses'])) {
+        if (! empty($result['statuses'])) {
             foreach ($modules as $module) {
                 $module_alias = $module->getAlias();
 
@@ -71,7 +71,7 @@ class ModuleCheckLicenses extends Command
                     if ($result_module_alias != $module_alias) {
                         continue;
                     }
-                    if (!empty($status) && $status != 'valid') {
+                    if (! empty($status) && $status != 'valid') {
                         $msg = 'Module '.$module->getName().' has been deactivated due to invalid license: '.$status;
 
                         $this->error($module->getName().': '.$msg);
@@ -83,13 +83,14 @@ class ModuleCheckLicenses extends Command
                         \Log::error($msg);
                         activity()
                             ->withProperties([
-                                'error'    => $msg,
-                             ])
+                                'error' => $msg,
+                            ])
                             ->useLog(\App\ActivityLog::NAME_SYSTEM)
                             ->log(\App\ActivityLog::DESCRIPTION_SYSTEM_ERROR);
                     } else {
                         $this->info($module->getName().': OK');
                     }
+
                     continue 2;
                 }
 

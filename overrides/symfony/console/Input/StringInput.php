@@ -25,10 +25,11 @@ use Symfony\Component\Console\Exception\InvalidArgumentException;
 class StringInput extends ArgvInput
 {
     const REGEX_STRING = '([^\s]+?)(?:\s|(?<!\\\\)"|(?<!\\\\)\'|$)';
+
     const REGEX_QUOTED_STRING = '(?:"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"|\'([^\'\\\\]*(?:\\\\.[^\'\\\\]*)*)\')';
 
     /**
-     * @param string $input A string representing the parameters from the CLI
+     * @param  string  $input  A string representing the parameters from the CLI
      */
     public function __construct($input)
     {
@@ -40,8 +41,7 @@ class StringInput extends ArgvInput
     /**
      * Tokenizes a string.
      *
-     * @param string $input The input to tokenize
-     *
+     * @param  string  $input  The input to tokenize
      * @return array An array of tokens
      *
      * @throws InvalidArgumentException When unable to parse input (should never happen)

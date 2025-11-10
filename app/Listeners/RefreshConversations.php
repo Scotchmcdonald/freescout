@@ -19,7 +19,6 @@ class RefreshConversations
     /**
      * Handle the event.
      *
-     * @param  $event
      *
      * @return void
      */

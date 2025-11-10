@@ -1,4 +1,5 @@
 <?php
+
 namespace GuzzleHttp;
 
 use GuzzleHttp\Promise\PromiseInterface;
@@ -31,10 +32,9 @@ class HandlerStack
      * The returned handler stack can be passed to a client in the "handler"
      * option.
      *
-     * @param callable $handler HTTP handler function to use with the stack. If no
-     *                          handler is provided, the best handler for your
-     *                          system will be utilized.
-     *
+     * @param  callable  $handler  HTTP handler function to use with the stack. If no
+     *                             handler is provided, the best handler for your
+     *                             system will be utilized.
      * @return HandlerStack
      */
     public static function create(?callable $handler = null)
@@ -49,7 +49,7 @@ class HandlerStack
     }
 
     /**
-     * @param callable $handler Underlying HTTP handler.
+     * @param  callable  $handler  Underlying HTTP handler.
      */
     public function __construct(?callable $handler = null)
     {
@@ -59,8 +59,6 @@ class HandlerStack
     /**
      * Invokes the handler stack as a composed handler
      *
-     * @param RequestInterface $request
-     * @param array            $options
      *
      * @return ResponseInterface|PromiseInterface
      */
@@ -81,14 +79,14 @@ class HandlerStack
         $depth = 0;
         $stack = [];
         if ($this->handler) {
-            $stack[] = "0) Handler: " . $this->debugCallable($this->handler);
+            $stack[] = '0) Handler: '.$this->debugCallable($this->handler);
         }
 
         $result = '';
         foreach (array_reverse($this->stack) as $tuple) {
             $depth++;
             $str = "{$depth}) Name: '{$tuple[1]}', ";
-            $str .= "Function: " . $this->debugCallable($tuple[0]);
+            $str .= 'Function: '.$this->debugCallable($tuple[0]);
             $result = "> {$str}\n{$result}";
             $stack[] = $str;
         }
@@ -103,8 +101,8 @@ class HandlerStack
     /**
      * Set the HTTP handler that actually returns a promise.
      *
-     * @param callable $handler Accepts a request and array of options and
-     *                          returns a Promise.
+     * @param  callable  $handler  Accepts a request and array of options and
+     *                             returns a Promise.
      */
     public function setHandler(callable $handler)
     {
@@ -125,8 +123,8 @@ class HandlerStack
     /**
      * Unshift a middleware to the bottom of the stack.
      *
-     * @param callable $middleware Middleware function
-     * @param string   $name       Name to register for this middleware.
+     * @param  callable  $middleware  Middleware function
+     * @param  string  $name  Name to register for this middleware.
      */
     public function unshift(callable $middleware, $name = null)
     {
@@ -137,8 +135,8 @@ class HandlerStack
     /**
      * Push a middleware to the top of the stack.
      *
-     * @param callable $middleware Middleware function
-     * @param string   $name       Name to register for this middleware.
+     * @param  callable  $middleware  Middleware function
+     * @param  string  $name  Name to register for this middleware.
      */
     public function push(callable $middleware, $name = '')
     {
@@ -149,9 +147,9 @@ class HandlerStack
     /**
      * Add a middleware before another middleware by name.
      *
-     * @param string   $findName   Middleware to find
-     * @param callable $middleware Middleware function
-     * @param string   $withName   Name to register for this middleware.
+     * @param  string  $findName  Middleware to find
+     * @param  callable  $middleware  Middleware function
+     * @param  string  $withName  Name to register for this middleware.
      */
     public function before($findName, callable $middleware, $withName = '')
     {
@@ -161,9 +159,9 @@ class HandlerStack
     /**
      * Add a middleware after another middleware by name.
      *
-     * @param string   $findName   Middleware to find
-     * @param callable $middleware Middleware function
-     * @param string   $withName   Name to register for this middleware.
+     * @param  string  $findName  Middleware to find
+     * @param  callable  $middleware  Middleware function
+     * @param  string  $withName  Name to register for this middleware.
      */
     public function after($findName, callable $middleware, $withName = '')
     {
@@ -173,7 +171,7 @@ class HandlerStack
     /**
      * Remove a middleware by instance or name from the stack.
      *
-     * @param callable|string $remove Middleware to remove by instance or name.
+     * @param  callable|string  $remove  Middleware to remove by instance or name.
      */
     public function remove($remove)
     {
@@ -194,8 +192,8 @@ class HandlerStack
      */
     public function resolve()
     {
-        if (!$this->cached) {
-            if (!($prev = $this->handler)) {
+        if (! $this->cached) {
+            if (! ($prev = $this->handler)) {
                 throw new \LogicException('No handler has been specified');
             }
 
@@ -210,7 +208,7 @@ class HandlerStack
     }
 
     /**
-     * @param string $name
+     * @param  string  $name
      * @return int
      */
     private function findByName($name)
@@ -227,10 +225,9 @@ class HandlerStack
     /**
      * Splices a function into the middleware list at a specific position.
      *
-     * @param string   $findName
-     * @param string   $withName
-     * @param callable $middleware
-     * @param bool     $before
+     * @param  string  $findName
+     * @param  string  $withName
+     * @param  bool  $before
      */
     private function splice($findName, $withName, callable $middleware, $before)
     {
@@ -256,8 +253,7 @@ class HandlerStack
     /**
      * Provides a debug string for a given callable.
      *
-     * @param array|callable $fn Function to write as a string.
-     *
+     * @param  array|callable  $fn  Function to write as a string.
      * @return string
      */
     private function debugCallable($fn)
@@ -269,9 +265,9 @@ class HandlerStack
         if (is_array($fn)) {
             return is_string($fn[0])
                 ? "callable({$fn[0]}::{$fn[1]})"
-                : "callable(['" . get_class($fn[0]) . "', '{$fn[1]}'])";
+                : "callable(['".get_class($fn[0])."', '{$fn[1]}'])";
         }
 
-        return 'callable(' . spl_object_hash($fn) . ')';
+        return 'callable('.spl_object_hash($fn).')';
     }
 }

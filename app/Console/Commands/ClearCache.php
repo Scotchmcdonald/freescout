@@ -68,7 +68,7 @@ class ClearCache extends Command
         // }
 
         // Regenerate vars to get new data from .env
-        if (!$this->option('doNotGenerateVars')) {
+        if (! $this->option('doNotGenerateVars')) {
             $this->call('freescout:generate-vars');
         }
         // This should not be done during installation.

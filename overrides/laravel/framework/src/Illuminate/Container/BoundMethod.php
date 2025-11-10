@@ -3,9 +3,9 @@
 namespace Illuminate\Container;
 
 use Closure;
-use ReflectionMethod;
-use ReflectionFunction;
 use InvalidArgumentException;
+use ReflectionFunction;
+use ReflectionMethod;
 
 class BoundMethod
 {
@@ -14,7 +14,6 @@ class BoundMethod
      *
      * @param  \Illuminate\Container\Container  $container
      * @param  callable|string  $callback
-     * @param  array  $parameters
      * @param  string|null  $defaultMethod
      * @return mixed
      */
@@ -36,7 +35,6 @@ class BoundMethod
      *
      * @param  \Illuminate\Container\Container  $container
      * @param  string  $target
-     * @param  array  $parameters
      * @param  string|null  $defaultMethod
      * @return mixed
      *
@@ -105,7 +103,6 @@ class BoundMethod
      *
      * @param  \Illuminate\Container\Container  $container
      * @param  callable|string  $callback
-     * @param  array  $parameters
      * @return array
      */
     protected static function getMethodDependencies($container, $callback, array $parameters = [])
@@ -141,20 +138,19 @@ class BoundMethod
      *
      * @param  \Illuminate\Container\Container  $container
      * @param  \ReflectionParameter  $parameter
-     * @param  array  $parameters
      * @param  array  $dependencies
      * @return mixed
      */
     protected static function addDependencyForCallParameter($container, $parameter,
-                                                            array &$parameters, &$dependencies)
+        array &$parameters, &$dependencies)
     {
         if (array_key_exists($parameter->name, $parameters)) {
             $dependencies[] = $parameters[$parameter->name];
 
             unset($parameters[$parameter->name]);
-        //} elseif ($parameter->getClass()) {
+            // } elseif ($parameter->getClass()) {
         } elseif (\Helper::getClass($parameter)) {
-            //$dependencies[] = $container->make($parameter->getClass()->name);
+            // $dependencies[] = $container->make($parameter->getClass()->name);
             $dependencies[] = $container->make(\Helper::getClassName($parameter));
         } elseif ($parameter->isDefaultValueAvailable()) {
             $dependencies[] = $parameter->getDefaultValue();

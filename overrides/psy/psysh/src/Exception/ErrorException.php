@@ -21,18 +21,18 @@ class ErrorException extends \ErrorException implements Exception
     /**
      * Construct a Psy ErrorException.
      *
-     * @param string    $message  (default: "")
-     * @param int       $code     (default: 0)
-     * @param int       $severity (default: 1)
-     * @param string    $filename (default: null)
-     * @param int       $lineno   (default: null)
-     * @param Exception $previous (default: null)
+     * @param  string  $message  (default: "")
+     * @param  int  $code  (default: 0)
+     * @param  int  $severity  (default: 1)
+     * @param  string  $filename  (default: null)
+     * @param  int  $lineno  (default: null)
+     * @param  Exception  $previous  (default: null)
      */
     public function __construct($message = '', $code = 0, $severity = 1, $filename = null, $lineno = null, $previous = null)
     {
         $this->rawMessage = $message;
 
-        if (!empty($filename) && \preg_match('{Psy[/\\\\]ExecutionLoop}', $filename)) {
+        if (! empty($filename) && \preg_match('{Psy[/\\\\]ExecutionLoop}', $filename)) {
             $filename = '';
         }
 
@@ -67,7 +67,7 @@ class ErrorException extends \ErrorException implements Exception
                 break;
         }
 
-        $message = \sprintf('PHP %s:  %s%s on line %d', $type, $message, $filename ? ' in ' . $filename : '', $lineno);
+        $message = \sprintf('PHP %s:  %s%s on line %d', $type, $message, $filename ? ' in '.$filename : '', $lineno);
         parent::__construct($message, $code, $severity, $filename, $lineno, $previous);
     }
 
@@ -88,12 +88,13 @@ class ErrorException extends \ErrorException implements Exception
      *
      *     set_error_handler(array('Psy\Exception\ErrorException', 'throwException'));
      *
-     * @throws ErrorException
      *
-     * @param int    $errno   Error type
-     * @param string $errstr  Message
-     * @param string $errfile Filename
-     * @param int    $errline Line number
+     * @param  int  $errno  Error type
+     * @param  string  $errstr  Message
+     * @param  string  $errfile  Filename
+     * @param  int  $errline  Line number
+     *
+     * @throws ErrorException
      */
     public static function throwException($errno, $errstr, $errfile, $errline)
     {
@@ -103,7 +104,6 @@ class ErrorException extends \ErrorException implements Exception
     /**
      * Create an ErrorException from an Error.
      *
-     * @param \Error $e
      *
      * @return ErrorException
      */

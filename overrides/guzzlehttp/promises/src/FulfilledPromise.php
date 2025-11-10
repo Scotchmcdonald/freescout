@@ -28,7 +28,7 @@ class FulfilledPromise implements PromiseInterface
         ?callable $onRejected = null
     ) {
         // Return itself if there is no onFulfilled function.
-        if (!$onFulfilled) {
+        if (! $onFulfilled) {
             return $this;
         }
 
@@ -68,13 +68,13 @@ class FulfilledPromise implements PromiseInterface
     public function resolve($value)
     {
         if ($value !== $this->value) {
-            throw new \LogicException("Cannot resolve a fulfilled promise");
+            throw new \LogicException('Cannot resolve a fulfilled promise');
         }
     }
 
     public function reject($reason)
     {
-        throw new \LogicException("Cannot reject a fulfilled promise");
+        throw new \LogicException('Cannot reject a fulfilled promise');
     }
 
     public function cancel()

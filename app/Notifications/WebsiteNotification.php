@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Website notification (DB notification) to display notifications in the menu.
  */
@@ -33,8 +34,7 @@ class WebsiteNotification extends Notification implements ShouldQueue
     /**
      * Get the notification's delivery channels.
      *
-     * @param mixed $user
-     *
+     * @param  mixed  $user
      * @return array
      */
     public function via($user)
@@ -45,14 +45,13 @@ class WebsiteNotification extends Notification implements ShouldQueue
     /**
      * Get the array representation of the notification.
      *
-     * @param mixed $user
-     *
+     * @param  mixed  $user
      * @return array
      */
     public function toArray($user)
     {
         return [
-            'thread_id'       => $this->thread->id,
+            'thread_id' => $this->thread->id,
             'conversation_id' => $this->conversation->id,
         ];
     }
@@ -65,14 +64,14 @@ class WebsiteNotification extends Notification implements ShouldQueue
         $data = [];
 
         $threads = [];
-        //$conversations = [];
+        // $conversations = [];
 
-        //$conversation_ids = [];
+        // $conversation_ids = [];
         $thread_ids = [];
 
         // Get threads with their customers and users
         foreach ($notifications as $notification) {
-            if (!empty($notification->data['thread_id'])) {
+            if (! empty($notification->data['thread_id'])) {
                 $thread_ids[] = $notification->data['thread_id'];
             }
         }
@@ -102,7 +101,7 @@ class WebsiteNotification extends Notification implements ShouldQueue
         // Populate all collected data into array
         foreach ($notifications as $notification) {
             $conversation_number = '';
-            if (!empty($notification->data['number'])) {
+            if (! empty($notification->data['number'])) {
                 $conversation_number = $notification->data['number'];
             }
 
@@ -111,7 +110,7 @@ class WebsiteNotification extends Notification implements ShouldQueue
             $created_by_user = null;
             $created_by_customer = null;
 
-            if (!empty($notification->data['thread_id'])) {
+            if (! empty($notification->data['thread_id'])) {
                 $thread = $threads->firstWhere('id', $notification->data['thread_id']);
                 if (empty($thread)) {
                     continue;
@@ -136,19 +135,19 @@ class WebsiteNotification extends Notification implements ShouldQueue
             // if ($last_thread) {
             $last_thread_body = $thread->body;
             $conversation = $thread->conversation;
-            //}
+            // }
             if (empty($conversation)) {
                 continue;
             }
 
             $data[] = [
-                'notification'        => $notification,
-                'created_at'          => $notification->created_at,
-                'conversation'        => $conversation,
-                'thread'              => $thread,
-                'last_thread_body'    => $last_thread_body,
-                'user'                => $user,
-                'created_by_user'     => $created_by_user,
+                'notification' => $notification,
+                'created_at' => $notification->created_at,
+                'conversation' => $conversation,
+                'thread' => $thread,
+                'last_thread_body' => $last_thread_body,
+                'user' => $user,
+                'created_by_user' => $created_by_user,
                 'created_by_customer' => $created_by_customer,
             ];
         }

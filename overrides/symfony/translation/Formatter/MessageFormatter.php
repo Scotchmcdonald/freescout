@@ -16,22 +16,22 @@ use Symfony\Component\Translation\MessageSelector;
 /**
  * @author Abdellatif Ait boudad <a.aitboudad@gmail.com>
  */
-class MessageFormatter implements MessageFormatterInterface, ChoiceMessageFormatterInterface
+class MessageFormatter implements ChoiceMessageFormatterInterface, MessageFormatterInterface
 {
     private $selector;
 
     /**
-     * @param MessageSelector|null $selector The message selector for pluralization
+     * @param  MessageSelector|null  $selector  The message selector for pluralization
      */
     public function __construct(?MessageSelector $selector = null)
     {
-        $this->selector = $selector ?: new MessageSelector();
+        $this->selector = $selector ?: new MessageSelector;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function format($message, $locale, ?array $parameters = array())
+    public function format($message, $locale, ?array $parameters = [])
     {
         return strtr($message, $parameters);
     }
@@ -39,9 +39,9 @@ class MessageFormatter implements MessageFormatterInterface, ChoiceMessageFormat
     /**
      * {@inheritdoc}
      */
-    public function choiceFormat($message, $number, $locale, array $parameters = array())
+    public function choiceFormat($message, $number, $locale, array $parameters = [])
     {
-        $parameters = array_merge(array('%count%' => $number), $parameters);
+        $parameters = array_merge(['%count%' => $number], $parameters);
 
         return $this->format($this->selector->choose($message, (int) $number, $locale), $locale, $parameters);
     }

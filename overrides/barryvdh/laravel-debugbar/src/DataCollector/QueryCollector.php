@@ -11,18 +11,23 @@ use DebugBar\DataCollector\TimeDataCollector;
 class QueryCollector extends PDOCollector
 {
     protected $timeCollector;
+
     protected $queries = [];
+
     protected $renderSqlWithParams = false;
+
     protected $findSource = false;
+
     protected $middleware = [];
+
     protected $explainQuery = false;
+
     protected $explainTypes = ['SELECT']; // ['SELECT', 'INSERT', 'UPDATE', 'DELETE']; for MySQL 5.6.3+
+
     protected $showHints = false;
+
     protected $reflection = [];
 
-    /**
-     * @param TimeDataCollector $timeCollector
-     */
     public function __construct(?TimeDataCollector $timeCollector = null)
     {
         $this->timeCollector = $timeCollector;
@@ -31,8 +36,8 @@ class QueryCollector extends PDOCollector
     /**
      * Renders the SQL of traced statements with params embedded
      *
-     * @param boolean $enabled
-     * @param string $quotationChar NOT USED
+     * @param  bool  $enabled
+     * @param  string  $quotationChar  NOT USED
      */
     public function setRenderSqlWithParams($enabled = true, $quotationChar = "'")
     {
@@ -42,7 +47,7 @@ class QueryCollector extends PDOCollector
     /**
      * Show or hide the hints in the parameters
      *
-     * @param boolean $enabled
+     * @param  bool  $enabled
      */
     public function setShowHints($enabled = true)
     {
@@ -52,8 +57,7 @@ class QueryCollector extends PDOCollector
     /**
      * Enable/disable finding the source
      *
-     * @param bool $value
-     * @param array $middleware
+     * @param  bool  $value
      */
     public function setFindSource($value, array $middleware)
     {
@@ -64,23 +68,22 @@ class QueryCollector extends PDOCollector
     /**
      * Enable/disable the EXPLAIN queries
      *
-     * @param  bool $enabled
-     * @param  array|null $types Array of types to explain queries (select/insert/update/delete)
+     * @param  bool  $enabled
+     * @param  array|null  $types  Array of types to explain queries (select/insert/update/delete)
      */
     public function setExplainSource($enabled, $types)
     {
         $this->explainQuery = $enabled;
-        if($types){
+        if ($types) {
             $this->explainTypes = $types;
         }
     }
 
     /**
-     *
-     * @param string $query
-     * @param array $bindings
-     * @param float $time
-     * @param \Illuminate\Database\Connection $connection
+     * @param  string  $query
+     * @param  array  $bindings
+     * @param  float  $time
+     * @param  \Illuminate\Database\Connection  $connection
      */
     public function addQuery($query, $bindings, $time, $connection)
     {
@@ -95,13 +98,13 @@ class QueryCollector extends PDOCollector
 
         // Run EXPLAIN on this query (if needed)
         if ($this->explainQuery && preg_match('/^('.implode($this->explainTypes).') /i', $query)) {
-            $statement = $pdo->prepare('EXPLAIN ' . $query);
+            $statement = $pdo->prepare('EXPLAIN '.$query);
             $statement->execute($bindings);
             $explainResults = $statement->fetchAll(\PDO::FETCH_CLASS);
         }
 
         $bindings = $this->getDataFormatter()->checkBindings($bindings);
-        if (!empty($bindings) && $this->renderSqlWithParams) {
+        if (! empty($bindings) && $this->renderSqlWithParams) {
             foreach ($bindings as $key => $binding) {
                 // This regex matches placeholders only, not the question marks,
                 // nested in quotes, while we iterate through the bindings
@@ -143,12 +146,12 @@ class QueryCollector extends PDOCollector
      *
      * Perform simple regex analysis on the code
      *
-     * @package xplain (https://github.com/rap2hpoutre/mysql-xplain-xplain)
      * @author e-doceo
      * @copyright 2014
+     *
      * @version $Id$
-     * @access public
-     * @param string $query
+     *
+     * @param  string  $query
      * @return string
      */
     protected function performQueryAnalysis($query)
@@ -172,9 +175,10 @@ class QueryCollector extends PDOCollector
             $hints[] = '<code>LIMIT</code> without <code>ORDER BY</code> causes non-deterministic results, depending on the query execution plan';
         }
         if (preg_match('/LIKE\\s[\'"](%.*?)[\'"]/i', $query, $matches)) {
-            $hints[] = 	'An argument has a leading wildcard character: <code>' . $matches[1]. '</code>.
+            $hints[] = 'An argument has a leading wildcard character: <code>'.$matches[1].'</code>.
 								The predicate with this argument is not sargable and cannot use an index if one exists.';
         }
+
         return $hints;
     }
 
@@ -199,8 +203,7 @@ class QueryCollector extends PDOCollector
     /**
      * Parse a trace element from the backtrace stack.
      *
-     * @param  int    $index
-     * @param  array  $trace
+     * @param  int  $index
      * @return object|bool
      */
     protected function parseTrace($index, array $trace)
@@ -220,12 +223,12 @@ class QueryCollector extends PDOCollector
 
         if (isset($trace['class']) &&
             isset($trace['file']) &&
-            !$this->fileIsInExcludedPath($trace['file'])
+            ! $this->fileIsInExcludedPath($trace['file'])
         ) {
             $file = $trace['file'];
 
             if (isset($trace['object']) && is_a($trace['object'], 'Twig_Template')) {
-                list($file, $frame->line) = $this->getTwigInfo($trace);
+                [$file, $frame->line] = $this->getTwigInfo($trace);
             } elseif (strpos($file, storage_path()) !== false) {
                 $hash = pathinfo($file, PATHINFO_FILENAME);
 
@@ -253,14 +256,13 @@ class QueryCollector extends PDOCollector
             return $frame;
         }
 
-
         return false;
     }
 
     /**
      * Check if the given file is to be excluded from analysis
      *
-     * @param string $file
+     * @param  string  $file
      * @return bool
      */
     protected function fileIsInExcludedPath($file)
@@ -285,7 +287,7 @@ class QueryCollector extends PDOCollector
     /**
      * Find the middleware alias from the file.
      *
-     * @param  string $file
+     * @param  string  $file
      * @return string|null
      */
     protected function findMiddlewareFromFile($file)
@@ -302,7 +304,7 @@ class QueryCollector extends PDOCollector
     /**
      * Find the template name from the hash.
      *
-     * @param  string $hash
+     * @param  string  $hash
      * @return null|string
      */
     protected function findViewFromHash($hash)
@@ -318,7 +320,7 @@ class QueryCollector extends PDOCollector
             $this->reflection['viewfinderViews'] = $property;
         }
 
-        foreach ($property->getValue($finder) as $name => $path){
+        foreach ($property->getValue($finder) as $name => $path) {
             if (sha1($path) == $hash || md5($path) == $hash) {
                 return $name;
             }
@@ -328,7 +330,7 @@ class QueryCollector extends PDOCollector
     /**
      * Get the filename/line from a Twig template trace
      *
-     * @param array $trace
+     * @param  array  $trace
      * @return array The file and line
      */
     protected function getTwigInfo($trace)
@@ -349,7 +351,7 @@ class QueryCollector extends PDOCollector
     /**
      * Shorten the path by removing the relative links and base dir
      *
-     * @param string $path
+     * @param  string  $path
      * @return string
      */
     protected function normalizeFilename($path)
@@ -357,13 +359,15 @@ class QueryCollector extends PDOCollector
         if (file_exists($path)) {
             $path = realpath($path);
         }
+
         return str_replace(base_path(), '', $path);
     }
 
     /**
      * Collect a database transaction event.
-     * @param  string $event
-     * @param \Illuminate\Database\Connection $connection
+     *
+     * @param  string  $event
+     * @param  \Illuminate\Database\Connection  $connection
      * @return array
      */
     public function collectTransactionEvent($event, $connection)
@@ -422,10 +426,10 @@ class QueryCollector extends PDOCollector
                 'connection' => $query['connection'],
             ];
 
-            //Add the results from the explain as new rows
-            foreach($query['explain'] as $explain){
+            // Add the results from the explain as new rows
+            foreach ($query['explain'] as $explain) {
                 $statements[] = [
-                    'sql' => ' - EXPLAIN #' . $explain->id . ': `' . $explain->table . '` (' . $explain->select_type . ')',
+                    'sql' => ' - EXPLAIN #'.$explain->id.': `'.$explain->table.'` ('.$explain->select_type.')',
                     'type' => 'explain',
                     'params' => $explain,
                     'row_count' => $explain->rows,
@@ -443,8 +447,9 @@ class QueryCollector extends PDOCollector
             'nb_failed_statements' => 0,
             'accumulated_duration' => $totalTime,
             'accumulated_duration_str' => $this->formatDuration($totalTime),
-            'statements' => $statements
+            'statements' => $statements,
         ];
+
         return $data;
     }
 
@@ -462,16 +467,16 @@ class QueryCollector extends PDOCollector
     public function getWidgets()
     {
         return [
-            "queries" => [
-                "icon" => "database",
-                "widget" => "PhpDebugBar.Widgets.LaravelSQLQueriesWidget",
-                "map" => "queries",
-                "default" => "[]"
+            'queries' => [
+                'icon' => 'database',
+                'widget' => 'PhpDebugBar.Widgets.LaravelSQLQueriesWidget',
+                'map' => 'queries',
+                'default' => '[]',
             ],
-            "queries:badge" => [
-                "map" => "queries.nb_statements",
-                "default" => 0
-            ]
+            'queries:badge' => [
+                'map' => 'queries.nb_statements',
+                'default' => 0,
+            ],
         ];
     }
 }

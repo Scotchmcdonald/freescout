@@ -8,9 +8,9 @@ $factory->define(App\Mailbox::class, function (Faker $faker) {
     $domain = explode('@', $email)[1];
 
     return [
-        'name'      => $name,
-        'email'     => $email,
-        'aliases'   => 'support@'.$domain.',help@'.$domain.', contact@'.$domain,
-        //'signature' => '--<br/>'.$name,
+        'name' => $name,
+        'email' => $email,
+        'aliases' => 'support@'.$domain.',help@'.$domain.', contact@'.$domain,
+        // 'signature' => '--<br/>'.$name,
     ];
 });

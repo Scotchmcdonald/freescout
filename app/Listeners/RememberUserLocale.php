@@ -19,7 +19,6 @@ class RememberUserLocale
     /**
      * Handle the event.
      *
-     * @param Login $event
      *
      * @return void
      */

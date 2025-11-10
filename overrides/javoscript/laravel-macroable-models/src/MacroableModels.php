@@ -14,16 +14,18 @@ class MacroableModels
         return $this->macros;
     }
 
-    public function addMacro(String $model, String $name, \Closure $closure)
+    public function addMacro(string $model, string $name, \Closure $closure)
     {
         $this->checkModelSubclass($model);
 
-        if (! isset($this->macros[$name])) $this->macros[$name] = [];
+        if (! isset($this->macros[$name])) {
+            $this->macros[$name] = [];
+        }
         $this->macros[$name][$model] = $closure;
         $this->syncMacros($name);
     }
 
-    public function removeMacro($model, String $name)
+    public function removeMacro($model, string $name)
     {
         $this->checkModelSubclass($model);
 
@@ -34,6 +36,7 @@ class MacroableModels
             } else {
                 $this->syncMacros($name);
             }
+
             return true;
         }
 
@@ -43,12 +46,16 @@ class MacroableModels
     public function modelHasMacro($model, $name)
     {
         $this->checkModelSubclass($model);
-        return (isset($this->macros[$name]) && isset($this->macros[$name][$model]));
+
+        return isset($this->macros[$name]) && isset($this->macros[$name][$model]);
     }
 
     public function modelsThatImplement($name)
     {
-        if (! isset($this->macros[$name])) return [];
+        if (! isset($this->macros[$name])) {
+            return [];
+        }
+
         return array_keys($this->macros[$name]);
     }
 
@@ -58,7 +65,7 @@ class MacroableModels
 
         $macros = [];
 
-        foreach($this->macros as $macro => $models) {
+        foreach ($this->macros as $macro => $models) {
             if (in_array($model, array_keys($models))) {
                 $params = (new \ReflectionFunction($this->macros[$macro][$model]))->getParameters();
                 $macros[$macro] = [
@@ -68,13 +75,13 @@ class MacroableModels
             }
         }
 
-         return $macros;
+        return $macros;
     }
 
     private function syncMacros($name)
     {
         $models = $this->macros[$name];
-        Builder::macro($name, function(...$args) use ($name, $models){
+        Builder::macro($name, function (...$args) use ($name, $models) {
             $class = get_class($this->getModel());
 
             if (! isset($models[$class])) {
@@ -82,11 +89,12 @@ class MacroableModels
             }
 
             $closure = \Closure::bind($models[$class], $this->getModel());
+
             return call_user_func($closure, ...$args);
         });
     }
 
-    private function checkModelSubclass(String $model)
+    private function checkModelSubclass(string $model)
     {
         if (! is_subclass_of($model, Model::class)) {
             throw new \InvalidArgumentException('$model must be a subclass of Illuminate\\Database\\Eloquent\\Model');

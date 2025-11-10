@@ -22,8 +22,11 @@ use Symfony\Component\Console\Input\InputOption;
 class FilterOptions
 {
     private $filter = false;
+
     private $pattern;
+
     private $insensitive;
+
     private $invert;
 
     /**
@@ -34,29 +37,27 @@ class FilterOptions
     public static function getOptions()
     {
         return [
-            new InputOption('grep',        'G', InputOption::VALUE_REQUIRED, 'Limit to items matching the given pattern (string or regex).'),
-            new InputOption('insensitive', 'i', InputOption::VALUE_NONE,     'Case-insensitive search (requires --grep).'),
-            new InputOption('invert',      'v', InputOption::VALUE_NONE,     'Inverted search (requires --grep).'),
+            new InputOption('grep', 'G', InputOption::VALUE_REQUIRED, 'Limit to items matching the given pattern (string or regex).'),
+            new InputOption('insensitive', 'i', InputOption::VALUE_NONE, 'Case-insensitive search (requires --grep).'),
+            new InputOption('invert', 'v', InputOption::VALUE_NONE, 'Inverted search (requires --grep).'),
         ];
     }
 
     /**
      * Bind input and prepare filter.
-     *
-     * @param InputInterface $input
      */
     public function bind(InputInterface $input)
     {
         $this->validateInput($input);
 
-        if (!$pattern = $input->getOption('grep')) {
+        if (! $pattern = $input->getOption('grep')) {
             $this->filter = false;
 
             return;
         }
 
-        if (!$this->stringIsRegex($pattern)) {
-            $pattern = '/' . \preg_quote($pattern, '/') . '/';
+        if (! $this->stringIsRegex($pattern)) {
+            $pattern = '/'.\preg_quote($pattern, '/').'/';
         }
 
         if ($insensitive = $input->getOption('insensitive')) {
@@ -65,10 +66,10 @@ class FilterOptions
 
         $this->validateRegex($pattern);
 
-        $this->filter      = true;
-        $this->pattern     = $pattern;
+        $this->filter = true;
+        $this->pattern = $pattern;
         $this->insensitive = $insensitive;
-        $this->invert      = $input->getOption('invert');
+        $this->invert = $input->getOption('invert');
     }
 
     /**
@@ -84,9 +85,7 @@ class FilterOptions
     /**
      * Check whether a string matches the current filter options.
      *
-     * @param string $string
-     * @param array  $matches
-     *
+     * @param  string  $string
      * @return bool
      */
     public function match($string, ?array &$matches = null)
@@ -97,16 +96,15 @@ class FilterOptions
     /**
      * Validate that grep, invert and insensitive input options are consistent.
      *
-     * @param InputInterface $input
      *
      * @return bool
      */
     private function validateInput(InputInterface $input)
     {
-        if (!$input->getOption('grep')) {
+        if (! $input->getOption('grep')) {
             foreach (['invert', 'insensitive'] as $option) {
                 if ($input->getOption($option)) {
-                    throw new RuntimeException('--' . $option . ' does not make sense without --grep');
+                    throw new RuntimeException('--'.$option.' does not make sense without --grep');
                 }
             }
         }
@@ -115,8 +113,7 @@ class FilterOptions
     /**
      * Check whether a string appears to be a regular expression.
      *
-     * @param string $string
-     *
+     * @param  string  $string
      * @return bool
      */
     private function stringIsRegex($string)
@@ -127,8 +124,7 @@ class FilterOptions
     /**
      * Validate that $pattern is a valid regular expression.
      *
-     * @param string $pattern
-     *
+     * @param  string  $pattern
      * @return bool
      */
     private function validateRegex($pattern)

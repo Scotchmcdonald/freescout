@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Misc\WpApi;
 use Illuminate\Http\Request;
-//use Nwidart\Modules\Traits\CanClearModulesCache;
+// use Nwidart\Modules\Traits\CanClearModulesCache;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class ModulesController extends Controller
 {
-    //use CanClearModulesCache;
+    // use CanClearModulesCache;
 
     /**
      * Create a new controller instance.
@@ -35,7 +35,7 @@ class ModulesController extends Controller
 
         $flash = \Cache::get('modules_flash');
         if ($flash) {
-            if (is_array($flash) && !isset($flash['text'])) {
+            if (is_array($flash) && ! isset($flash['text'])) {
                 $flashes = $flash;
             } else {
                 $flashes[] = $flash;
@@ -48,7 +48,7 @@ class ModulesController extends Controller
             $modules_directory = \Cache::get('modules_directory');
         }
 
-        if (!$modules_directory) {
+        if (! $modules_directory) {
             $modules_directory = WpApi::getModules();
             if ($modules_directory && is_array($modules_directory) && count($modules_directory)) {
                 \Cache::put('modules_directory', $modules_directory, now()->addMinutes(15));
@@ -60,27 +60,27 @@ class ModulesController extends Controller
         $modules = \Module::all();
         foreach ($modules as $module) {
             $module_data = [
-                'alias'                        => $module->getAlias(),
-                'name'                         => $module->getName(),
-                'description'                  => $module->getDescription(),
-                'version'                      => $module->get('version'),
-                'detailsUrl'                   => $module->get('detailsUrl'),
-                'author'                       => $module->get('author'),
-                'authorUrl'                    => $module->get('authorUrl'),
-                'requiredAppVersion'           => $module->get('requiredAppVersion'),
-                'requiredPhpExtensions'        => $module->get('requiredPhpExtensions'),
+                'alias' => $module->getAlias(),
+                'name' => $module->getName(),
+                'description' => $module->getDescription(),
+                'version' => $module->get('version'),
+                'detailsUrl' => $module->get('detailsUrl'),
+                'author' => $module->get('author'),
+                'authorUrl' => $module->get('authorUrl'),
+                'requiredAppVersion' => $module->get('requiredAppVersion'),
+                'requiredPhpExtensions' => $module->get('requiredPhpExtensions'),
                 'requiredPhpExtensionsMissing' => \App\Module::getMissingExtensions($module->get('requiredPhpExtensions')),
-                'requiredModulesMissing'       => \App\Module::getMissingModules($module->get('requiredModules'), $modules),
-                'img'                          => $module->get('img'),
-                'active'                       => $module->active(), //\App\Module::isActive($module->getAlias()),
-                'installed'                    => true,
-                'activated'                    => \App\Module::isLicenseActivated($module->getAlias(), $module->get('authorUrl')),
-                'license'                      => \App\Module::getLicense($module->getAlias()),
+                'requiredModulesMissing' => \App\Module::getMissingModules($module->get('requiredModules'), $modules),
+                'img' => $module->get('img'),
+                'active' => $module->active(), // \App\Module::isActive($module->getAlias()),
+                'installed' => true,
+                'activated' => \App\Module::isLicenseActivated($module->getAlias(), $module->get('authorUrl')),
+                'license' => \App\Module::getLicense($module->getAlias()),
                 // Update configuration for third party modules
-                'latestVersionNumberUrl'       => $module->get('latestVersionUrl'),
-                'latestVersionZipUrl'          => $module->get('latestVersionZipUrl'),
+                'latestVersionNumberUrl' => $module->get('latestVersionUrl'),
+                'latestVersionZipUrl' => $module->get('latestVersionZipUrl'),
                 // Determined later
-                'new_version'        => '',
+                'new_version' => '',
             ];
             $module_data = \App\Module::formatModuleData($module_data);
             $installed_modules[] = $module_data;
@@ -111,7 +111,7 @@ class ModulesController extends Controller
                         unset($modules_directory[$i_dir]);
 
                         // Detect if new version is available
-                        if (!empty($dir_module['version']) && version_compare($dir_module['version'], $module['version'], '>')) {
+                        if (! empty($dir_module['version']) && version_compare($dir_module['version'], $module['version'], '>')) {
                             $installed_modules[$i_installed]['new_version'] = $dir_module['version'];
                             $updates_available = true;
                         }
@@ -120,12 +120,13 @@ class ModulesController extends Controller
                     }
                 }
 
-                if (empty($dir_module['authorUrl']) || !\App\Module::isOfficial($dir_module['authorUrl'])) {
+                if (empty($dir_module['authorUrl']) || ! \App\Module::isOfficial($dir_module['authorUrl'])) {
                     unset($modules_directory[$i_dir]);
+
                     continue;
                 }
 
-                if (!empty($dir_module['requiredPhpExtensions'])) {
+                if (! empty($dir_module['requiredPhpExtensions'])) {
                     $modules_directory[$i_dir]['requiredPhpExtensionsMissing'] = \App\Module::getMissingExtensions($dir_module['requiredPhpExtensions']);
                 }
                 $modules_directory[$i_dir]['active'] = \App\Module::isActive($dir_module['alias']);
@@ -155,7 +156,7 @@ class ModulesController extends Controller
             }
 
             // Create a new Guzzle HTTP client
-            $client = new \GuzzleHttp\Client();
+            $client = new \GuzzleHttp\Client;
 
             try {
                 // Send a GET request to the latest version URL
@@ -170,7 +171,7 @@ class ModulesController extends Controller
 
                 // If it is the module.json file - try to parse the body.
                 preg_match('#"version":[^"]*"([\d\.]+)"#', $latest_version, $m);
-                if (!empty($m[1])) {
+                if (! empty($m[1])) {
                     $latest_version = $m[1];
                 }
 
@@ -184,7 +185,7 @@ class ModulesController extends Controller
             // If the latest version is greater than the current version
             if (version_compare($latest_version, $current_version, '>')) {
                 // Update the installed module's version
-                $installed_modules[ $i_installed ]['new_version'] = $latest_version;
+                $installed_modules[$i_installed]['new_version'] = $latest_version;
                 // Set the flag to indicate that updates are available
                 $updates_available = true;
             }
@@ -202,10 +203,10 @@ class ModulesController extends Controller
             'installed_modules' => $installed_modules,
             'modules_directory' => $modules_directory,
             'third_party_modules' => $third_party_modules,
-            'flashes'           => $flashes,
+            'flashes' => $flashes,
             'updates_available' => $updates_available,
-            'all_modules'       => $all_modules,
-            'invalid_symlinks'  => $invalid_symlinks,
+            'all_modules' => $all_modules,
+            'invalid_symlinks' => $invalid_symlinks,
         ]);
     }
 
@@ -216,7 +217,7 @@ class ModulesController extends Controller
     {
         $response = [
             'status' => 'error',
-            'msg'    => '', // this is error message
+            'msg' => '', // this is error message
         ];
 
         switch ($request->action) {
@@ -226,33 +227,33 @@ class ModulesController extends Controller
                 $license = $request->license;
                 $alias = $request->alias;
 
-                if (!$license) {
+                if (! $license) {
                     $response['msg'] = __('Empty license key');
                 }
 
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     $params = [
-                        'license'      => $license,
+                        'license' => $license,
                         'module_alias' => $alias,
-                        'url'          => \App\Module::getAppUrl(),
+                        'url' => \App\Module::getAppUrl(),
                     ];
                     $result = WpApi::activateLicense($params);
 
                     if (WpApi::$lastError) {
                         $response['msg'] = WpApi::$lastError['message'];
-                    } elseif (!empty($result['code']) && !empty($result['message'])) {
+                    } elseif (! empty($result['code']) && ! empty($result['message'])) {
                         $response['msg'] = $result['message'];
                     } else {
-                        if (!empty($result['status']) && $result['status'] == 'valid') {
+                        if (! empty($result['status']) && $result['status'] == 'valid') {
                             if ($request->action == 'install') {
                                 // Download and install module
                                 $license_details = WpApi::getVersion($params);
 
                                 if (WpApi::$lastError) {
                                     $response['msg'] = WpApi::$lastError['message'];
-                                } elseif (!empty($license_details['code']) && !empty($license_details['message'])) {
+                                } elseif (! empty($license_details['code']) && ! empty($license_details['message'])) {
                                     $response['msg'] = $license_details['message'];
-                                } elseif (!empty($license_details['download_link'])) {
+                                } elseif (! empty($license_details['download_link'])) {
                                     // Download module
                                     $module_archive = \Module::getPath().DIRECTORY_SEPARATOR.$alias.'.zip';
 
@@ -263,7 +264,7 @@ class ModulesController extends Controller
                                     }
 
                                     $download_error = false;
-                                    if (!file_exists($module_archive)) {
+                                    if (! file_exists($module_archive)) {
                                         $download_error = true;
                                     } else {
                                         // Extract
@@ -275,7 +276,7 @@ class ModulesController extends Controller
                                         // Check if extracted module exists
                                         \Module::clearCache();
                                         $module = \Module::findByAlias($alias);
-                                        if (!$module) {
+                                        if (! $module) {
                                             $download_error = true;
                                         }
                                     }
@@ -285,7 +286,7 @@ class ModulesController extends Controller
                                         \File::delete($module_archive);
                                     }
 
-                                    if (!$response['msg'] && !$download_error) {
+                                    if (! $response['msg'] && ! $download_error) {
                                         // Activate license
                                         \App\Module::activateLicense($alias, $license);
 
@@ -310,7 +311,7 @@ class ModulesController extends Controller
                                 \Session::flash('flash_success_floating', __('License successfully activated!'));
                                 $response['status'] = 'success';
                             }
-                        } elseif (!empty($result['error'])) {
+                        } elseif (! empty($result['error'])) {
                             $response['msg'] = \App\Module::getErrorMessage($result['error'], $result);
                         } else {
                             $response['msg'] = __('Error occurred. Please try again later.');
@@ -323,26 +324,26 @@ class ModulesController extends Controller
                 $alias = $request->alias;
                 $module = \Module::findByAlias($alias);
 
-                if (!$module) {
+                if (! $module) {
                     $response['msg'] = __('Module not found').': '.$alias;
                 }
 
                 // Check license
-                if (!$response['msg']) {
-                    if (!empty($module->get('authorUrl')) && $module->isOfficial()) {
+                if (! $response['msg']) {
+                    if (! empty($module->get('authorUrl')) && $module->isOfficial()) {
                         $params = [
-                            'license'      => $module->getLicense(),
+                            'license' => $module->getLicense(),
                             'module_alias' => $alias,
-                            'url'          => \App\Module::getAppUrl(),
+                            'url' => \App\Module::getAppUrl(),
                         ];
                         $license_result = WpApi::checkLicense($params);
 
-                        if (!empty($license_result['code']) && !empty($license_result['message'])) {
+                        if (! empty($license_result['code']) && ! empty($license_result['message'])) {
                             // Remove remembered license key and deactivate license in DB
                             \App\Module::deactivateLicense($alias, '');
 
                             $response['msg'] = $license_result['message'];
-                        } elseif (!empty($license_result['status']) && $license_result['status'] != 'valid' && $license_result['status'] != 'inactive') {
+                        } elseif (! empty($license_result['status']) && $license_result['status'] != 'valid' && $license_result['status'] != 'inactive') {
                             // Remove remembered license key and deactivate license in DB
                             \App\Module::deactivateLicense($alias, '');
 
@@ -359,17 +360,17 @@ class ModulesController extends Controller
                                     $response['msg'] = __('No activations left for this license key').' ('.__("Use 'Deactivate License' link above to transfer license key from another domain").')';
                                     break;
                             }
-                        } elseif (!empty($license_result['status']) && $license_result['status'] == 'inactive') {
+                        } elseif (! empty($license_result['status']) && $license_result['status'] == 'inactive') {
                             // Activate the license.
                             $result = WpApi::activateLicense($params);
                             if (WpApi::$lastError) {
                                 $response['msg'] = WpApi::$lastError['message'];
-                            } elseif (!empty($result['code']) && !empty($result['message'])) {
+                            } elseif (! empty($result['code']) && ! empty($result['message'])) {
                                 $response['msg'] = $result['message'];
                             } else {
-                                if (!empty($result['status']) && $result['status'] == 'valid') {
+                                if (! empty($result['status']) && $result['status'] == 'valid') {
                                     // Success.
-                                } elseif (!empty($result['error'])) {
+                                } elseif (! empty($result['error'])) {
                                     $response['msg'] = \App\Module::getErrorMessage($result['error'], $result);
                                 } else {
                                     // Some unknown error. Do nothing.
@@ -379,12 +380,12 @@ class ModulesController extends Controller
                     }
                 }
 
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     \App\Module::setActive($alias, true);
 
                     $user_locale = app()->getLocale();
 
-                    $outputLog = new BufferedOutput();
+                    $outputLog = new BufferedOutput;
                     \Artisan::call('freescout:module-install', ['module_alias' => $alias], $outputLog);
                     $output = $outputLog->fetch();
 
@@ -417,7 +418,7 @@ class ModulesController extends Controller
                     // Check public folder.
                     if ($module && file_exists($module->getPath().DIRECTORY_SEPARATOR.'Public')) {
                         $symlink_path = public_path().\Module::getPublicPath($alias);
-                        if (!file_exists($symlink_path)) {
+                        if (! file_exists($symlink_path)) {
                             $type = 'danger';
                             $msg = 'Error occurred creating a module symlink ('.$symlink_path.'). Please check folder permissions.';
                             \App\Module::setActive($alias, false);
@@ -432,9 +433,9 @@ class ModulesController extends Controller
 
                     // \Session::flash does not work after BufferedOutput
                     $flash = [
-                        'text'      => '<strong>'.$msg.'</strong><pre class="margin-top">'.$output.'</pre>',
+                        'text' => '<strong>'.$msg.'</strong><pre class="margin-top">'.$output.'</pre>',
                         'unescaped' => true,
-                        'type'      => $type,
+                        'type' => $type,
                     ];
                     \Cache::forever('modules_flash', $flash);
                     $response['status'] = 'success';
@@ -448,7 +449,7 @@ class ModulesController extends Controller
 
                 $user_locale = app()->getLocale();
 
-                $outputLog = new BufferedOutput();
+                $outputLog = new BufferedOutput;
                 \Artisan::call('freescout:clear-cache', [], $outputLog);
                 $output = $outputLog->fetch();
 
@@ -471,9 +472,9 @@ class ModulesController extends Controller
 
                 // \Session::flash does not work after BufferedOutput
                 $flash = [
-                    'text'      => '<strong>'.$msg.'</strong><pre class="margin-top">'.$output.'</pre>',
+                    'text' => '<strong>'.$msg.'</strong><pre class="margin-top">'.$output.'</pre>',
                     'unescaped' => true,
-                    'type'      => $type,
+                    'type' => $type,
                 ];
                 \Cache::forever('modules_flash', $flash);
                 $response['status'] = 'success';
@@ -483,24 +484,24 @@ class ModulesController extends Controller
                 $license = $request->license;
                 $alias = $request->alias;
 
-                if (!$license) {
+                if (! $license) {
                     $response['msg'] = __('Empty license key');
                 }
 
-                if (!$response['msg']) {
+                if (! $response['msg']) {
                     $params = [
-                        'license'      => $license,
+                        'license' => $license,
                         'module_alias' => $alias,
-                        'url'          => (!empty($request->any_url) ? '*' : \App\Module::getAppUrl()),
+                        'url' => (! empty($request->any_url) ? '*' : \App\Module::getAppUrl()),
                     ];
                     $result = WpApi::deactivateLicense($params);
 
                     if (WpApi::$lastError) {
                         $response['msg'] = WpApi::$lastError['message'];
-                    } elseif (!empty($result['code']) && !empty($result['message'])) {
+                    } elseif (! empty($result['code']) && ! empty($result['message'])) {
                         $response['msg'] = $result['message'];
                     } else {
-                        if (!empty($result['status']) && $result['status'] == 'success') {
+                        if (! empty($result['status']) && $result['status'] == 'success') {
                             $db_module = \App\Module::getByAlias($alias);
                             if ($db_module && trim($db_module->license ?? '') == trim($license ?? '')) {
                                 // Remove remembered license key and deactivate license in DB
@@ -513,14 +514,14 @@ class ModulesController extends Controller
 
                             // Flash does not work here.
                             $flash = [
-                                'text'      => '<strong>'.__('License successfully Deactivated!').'</strong>',
+                                'text' => '<strong>'.__('License successfully Deactivated!').'</strong>',
                                 'unescaped' => true,
-                                'type'      => 'success',
+                                'type' => 'success',
                             ];
                             \Cache::forever('modules_flash', $flash);
 
                             $response['status'] = 'success';
-                        } elseif (!empty($result['error'])) {
+                        } elseif (! empty($result['error'])) {
                             $response['msg'] = \App\Module::getErrorMessage($result['error'], $result);
                         } else {
                             $response['msg'] = __('Error occurred. Please try again later.');
@@ -536,7 +537,7 @@ class ModulesController extends Controller
 
                 if ($module) {
 
-                    //\App\Module::deactivateLicense($alias, $license);
+                    // \App\Module::deactivateLicense($alias, $license);
 
                     $module->delete();
                     \Session::flash('flash_success_floating', __('Module deleted'));
@@ -575,9 +576,9 @@ class ModulesController extends Controller
 
                     // \Session::flash does not work after BufferedOutput
                     $flash = [
-                        'text'      => '<strong>'.$msg.'</strong><pre class="margin-top">'.$update_result['output'].'</pre>',
+                        'text' => '<strong>'.$msg.'</strong><pre class="margin-top">'.$update_result['output'].'</pre>',
                         'unescaped' => true,
-                        'type'      => $type,
+                        'type' => $type,
                     ];
                     \Cache::forever('modules_flash', $flash);
                     $response['status'] = 'success';
@@ -608,9 +609,9 @@ class ModulesController extends Controller
 
                     // \Session::flash does not work after BufferedOutput
                     $update_all_flashes[] = [
-                        'text'      => $text,
+                        'text' => $text,
                         'unescaped' => true,
-                        'type'      => $type,
+                        'type' => $type,
                     ];
                 }
                 if ($update_all_flashes) {

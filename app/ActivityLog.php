@@ -7,10 +7,15 @@ use Spatie\Activitylog\Models\Activity;
 class ActivityLog extends Activity
 {
     const NAME_USER = 'users';
+
     const NAME_OUT_EMAILS = 'out_emails'; // used to display send_log in Logs
+
     const NAME_EMAILS_SENDING = 'send_errors';
+
     const NAME_EMAILS_FETCHING = 'fetch_errors';
+
     const NAME_SYSTEM = 'system';
+
     const NAME_APP_LOGS = 'app';
 
     public static $available_logs = [
@@ -23,19 +28,33 @@ class ActivityLog extends Activity
     ];
 
     const DESCRIPTION_USER_LOGIN = 'login';
+
     const DESCRIPTION_USER_LOGOUT = 'logout';
+
     const DESCRIPTION_USER_REGISTER = 'register';
+
     const DESCRIPTION_USER_LOCKED = 'locked';
+
     const DESCRIPTION_USER_LOGIN_FAILED = 'login_failed';
+
     const DESCRIPTION_USER_PASSWORD_RESET = 'password_reset';
+
     const DESCRIPTION_EMAILS_SENDING_ERROR_TO_CUSTOMER = 'error_sending_email_to_customer';
+
     const DESCRIPTION_EMAILS_SENDING_ERROR_TO_USER = 'error_sending_email_to_user';
+
     const DESCRIPTION_EMAILS_SENDING_ERROR_INVITE = 'error_sending_invite_to_user';
+
     const DESCRIPTION_EMAILS_SENDING_ERROR_PASSWORD_CHANGED = 'error_sending_password_changed';
+
     const DESCRIPTION_EMAILS_SENDING_ERROR_ALERT = 'error_sending_alert';
+
     const DESCRIPTION_EMAILS_SENDING_WRONG_EMAIL = 'error_sending_wrong_email';
+
     const DESCRIPTION_EMAILS_FETCHING_ERROR = 'error_fetching_email';
+
     const DESCRIPTION_SYSTEM_ERROR = 'system_error';
+
     const DESCRIPTION_USER_DELETED = 'user_deleted';
 
     public function getEventDescription()

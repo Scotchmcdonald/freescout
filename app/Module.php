@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 'active' parameter in module.json is not taken in account.
  * Module 'active' flag is taken from DB.
@@ -23,7 +24,7 @@ class Module extends Model
 
     public static function getCached()
     {
-        if (!self::$modules) {
+        if (! self::$modules) {
             // At this stage modules table may not exist
             try {
                 self::$modules = self::all();
@@ -84,7 +85,6 @@ class Module extends Model
      *
      * @param [type] $alias       [description]
      * @param [type] $details_url [description]
-     *
      * @return bool [description]
      */
     public static function activateLicense($alias, $license)
@@ -106,8 +106,8 @@ class Module extends Model
     public static function getByAliasOrCreate($alias)
     {
         $module = self::getByAlias($alias);
-        if (!$module) {
-            $module = new self();
+        if (! $module) {
+            $module = new self;
             $module->alias = $alias;
         }
 
@@ -176,7 +176,6 @@ class Module extends Model
      * Check missing extensions among required by module.
      *
      * @param [type] $required_extensions [description]
-     *
      * @return [type] [description]
      */
     public static function getMissingExtensions($required_extensions)
@@ -184,12 +183,12 @@ class Module extends Model
         $missing = [];
 
         $list = explode(',', $required_extensions ?? '');
-        if (!is_array($list) || !count($list)) {
+        if (! is_array($list) || ! count($list)) {
             return [];
         }
         foreach ($list as $ext) {
             $ext = trim($ext);
-            if ($ext && !extension_loaded($ext)) {
+            if ($ext && ! extension_loaded($ext)) {
                 $missing[] = $ext;
             }
         }
@@ -204,11 +203,11 @@ class Module extends Model
     {
         $missing = [];
 
-        if (!$modules) {
+        if (! $modules) {
             $modules = \Module::all();
         }
 
-        if (!is_array($required_modules) || !count($required_modules)) {
+        if (! is_array($required_modules) || ! count($required_modules)) {
             return [];
         }
         foreach ($required_modules as $alias => $version) {
@@ -218,12 +217,13 @@ class Module extends Model
                     $module = $module_item;
                 }
             }
-            if (!$module) {
+            if (! $module) {
                 $missing[$alias] = $version;
+
                 continue;
             }
 
-            if (!self::isActive($alias) || !version_compare($module->version, $version, '>=')) {
+            if (! self::isActive($alias) || ! version_compare($module->version, $version, '>=')) {
                 $missing[$alias] = $version;
             }
         }
@@ -239,18 +239,19 @@ class Module extends Model
     public static function formatModuleData($module_data)
     {
         // Add (Third-Party).
-        if (\App\Module::isOfficial($module_data['authorUrl']) 
+        if (\App\Module::isOfficial($module_data['authorUrl'])
             && $module_data['author'] != 'FreeScout'
-            && mb_substr(trim($module_data['name']), -1)  != ']'
+            && mb_substr(trim($module_data['name']), -1) != ']'
         ) {
             $module_data['name'] = $module_data['name'].' ['.__('Third-Party').']';
         }
+
         return $module_data;
     }
 
     public static function isThirdParty($module_data)
     {
-        if (\App\Module::isOfficial($module_data['authorUrl']) 
+        if (\App\Module::isOfficial($module_data['authorUrl'])
             && $module_data['author'] != 'FreeScout'
         ) {
             return true;
@@ -286,14 +287,14 @@ class Module extends Model
                 // file_exists() also checks if symlink target exists.
                 // file_exists() and is_dir() may throw "open_basedir restriction in effect".
                 try {
-                    if (!file_exists($from) || !is_link($from)) {
+                    if (! file_exists($from) || ! is_link($from)) {
                         if (is_dir($from)) {
                             @rename($from, $from.'_'.date('YmdHis'));
                         } else {
                             @unlink($from);
                         }
                         $create = true;
-                    } 
+                    }
                 } catch (\Exception $e) {
                     $create = true;
                 }
@@ -308,7 +309,7 @@ class Module extends Model
                 if ($create) {
                     $to = self::createModuleSymlink($module_alias);
 
-                    if ($to && (!is_link($from) || is_link($to) || !file_exists($from))) {
+                    if ($to && (! is_link($from) || is_link($to) || ! file_exists($from))) {
                         $invalid_symlinks[$from] = $to;
                     }
                 }
@@ -324,7 +325,7 @@ class Module extends Model
         $from = self::getSymlinkPath($alias);
 
         $module = \Module::findByAlias($alias);
-        if (!$module) {
+        if (! $module) {
             return false;
         }
 
@@ -339,7 +340,7 @@ class Module extends Model
 
             // Symlimk may exist but lead to the module folder in a wrong case.
             // So we need first try to remove it.
-            if (!file_exists($from)) {
+            if (! file_exists($from)) {
                 @unlink($from);
             }
 
@@ -347,7 +348,7 @@ class Module extends Model
                 return $to;
             }
 
-            if (!file_exists($to)) {
+            if (! file_exists($to)) {
                 // Try to create Public folder.
                 try {
                     \File::makeDirectory($to, \Helper::DIR_PERMISSIONS);
@@ -363,7 +364,7 @@ class Module extends Model
                 symlink($to, $from);
             } catch (\Exception $e) {
                 \Log::error('Error occurred creating ['.$from.' » '.$to.'] symlink: '.$e->getMessage());
-                //return false;
+                // return false;
             }
         } catch (\Exception $e) {
             return false;
@@ -388,7 +389,7 @@ class Module extends Model
 
         $module = \Module::findByAlias($alias);
 
-        if (!$module) {
+        if (! $module) {
             $result['msg'] = __('Module not found').': '.$alias;
         }
 
@@ -400,27 +401,27 @@ class Module extends Model
         }
 
         // Download new version.
-        if (!$result['msg']) {
+        if (! $result['msg']) {
             // Check if the module's author is officially recognized
             if (self::isOfficial($module->authorUrl)) {
                 $params = [
-                    'license'      => self::getLicense($alias),
+                    'license' => self::getLicense($alias),
                     'module_alias' => $alias,
-                    'url'          => self::getAppUrl(),
+                    'url' => self::getAppUrl(),
                 ];
                 $license_details = WpApi::getVersion($params);
 
                 if (WpApi::$lastError) {
                     $result['msg'] = WpApi::$lastError['message'];
-                } elseif (!empty($license_details['code']) && !empty($license_details['message'])) {
+                } elseif (! empty($license_details['code']) && ! empty($license_details['message'])) {
                     $result['msg'] = $license_details['message'];
-                } elseif (!empty($license_details['required_app_version']) && !\Helper::checkAppVersion($license_details['required_app_version'])) {
+                } elseif (! empty($license_details['required_app_version']) && ! \Helper::checkAppVersion($license_details['required_app_version'])) {
                     $result['msg'] = 'Module requires app version:'.' '.$license_details['required_app_version'];
-                } elseif (!empty($license_details['download_link'])) {
+                } elseif (! empty($license_details['download_link'])) {
                     // If a download link is available, proceed to update the module from the URL
                     $result = self::updateFromUrl($module, $license_details['download_link'], $result);
                 } elseif ($license_details['status'] && $result['msg'] = self::getErrorMessage($license_details['status'])) {
-                    //$result['msg'] = ;
+                    // $result['msg'] = ;
                 } else {
                     $result['msg'] = __('Error occurred').': '.json_encode($license_details);
                 }
@@ -428,19 +429,19 @@ class Module extends Model
                 // If the module's author is not officially recognized, check for a direct download link
                 $latest_version_zip_url = $module->latestVersionZipUrl ?? null;
 
-                if (!empty($latest_version_zip_url)) {
+                if (! empty($latest_version_zip_url)) {
                     // Update the module from the provided ZIP URL
                     $result = self::updateFromUrl($module, $module->latestVersionZipUrl, $result);
                 } else {
                     // If no download link is available, set an error message indicating the module cannot be downloaded
-                    $result['msg'] = __('Error occurred') . ': module not available for download';
+                    $result['msg'] = __('Error occurred').': module not available for download';
                 }
             }
         }
 
         // Run post-update instructions.
-        if (!$result['msg'] && !$result['download_error']) {
-            $output_log = new BufferedOutput();
+        if (! $result['msg'] && ! $result['download_error']) {
+            $output_log = new BufferedOutput;
             \Artisan::call('freescout:module-install', ['module_alias' => $alias], $output_log);
             $result['output'] = $output_log->fetch() ?: ' ';
 
@@ -472,17 +473,16 @@ class Module extends Model
     /**
      * Updates a module from a given URL.
      *
-     * @param Module $module The module to be updated.
-     * @param string $url The URL where the new version of the module can be downloaded.
-     * @param array $result An associative array to store the result of the update operation.
-     *
+     * @param  Module  $module  The module to be updated.
+     * @param  string  $url  The URL where the new version of the module can be downloaded.
+     * @param  array  $result  An associative array to store the result of the update operation.
      * @return void
      */
     private static function updateFromUrl($module, $url, $result)
     {
         $alias = $module->alias;
         // Download module.
-        $module_archive = \Module::getPath() . DIRECTORY_SEPARATOR . $alias . '.zip';
+        $module_archive = \Module::getPath().DIRECTORY_SEPARATOR.$alias.'.zip';
 
         try {
             \Helper::downloadRemoteFile($url, $module_archive);
@@ -490,7 +490,7 @@ class Module extends Model
             $result['msg'] = $e->getMessage();
         }
 
-        if (!file_exists($module_archive)) {
+        if (! file_exists($module_archive)) {
             $result['download_error'] = true;
         } else {
             // Extract.
@@ -525,7 +525,7 @@ class Module extends Model
             // Check if extracted module exists.
             \Module::clearCache();
             $module = \Module::findByAlias($alias);
-            if (!$module) {
+            if (! $module) {
                 $result['download_error'] = true;
             }
         }
@@ -537,9 +537,9 @@ class Module extends Model
 
         if ($result['download_error']) {
             $result['download_msg'] = __('Error occurred downloading the module. Please :%a_being%download:%a_end% module manually and extract into :folder', [
-                '%a_being%' => '<a href="' . $url . '" target="_blank">',
-                '%a_end%'   => '</a>',
-                'folder'    => '<strong>' . \Module::getPath() . '</strong>',
+                '%a_being%' => '<a href="'.$url.'" target="_blank">',
+                '%a_end%' => '</a>',
+                'folder' => '<strong>'.\Module::getPath().'</strong>',
             ]);
         }
 
@@ -569,17 +569,17 @@ class Module extends Model
             case 'key_mismatch':
                 $msg = __('License key belongs to another module');
                 break;
-            // This also happens when entering a valid license key for wrong module.
+                // This also happens when entering a valid license key for wrong module.
             case 'invalid_item_id':
                 $msg = __('Invalid license key');
-                //$msg = __('Module not found in the modules directory');
+                // $msg = __('Module not found in the modules directory');
                 break;
             case 'site_inactive':
                 $msg = __('License key is activated on another domain.').' '.__("Use 'Deactivate License' link above to transfer license key from another domain");
-                //$msg = __('Module not found in the modules directory');
+                // $msg = __('Module not found in the modules directory');
                 break;
             default:
-                if ($result && !empty($result['error'])) {
+                if ($result && ! empty($result['error'])) {
                     $msg = __('Error code:'.' '.$result['error']);
                 }
                 break;

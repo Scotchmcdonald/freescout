@@ -30,13 +30,13 @@ class Swift_Mime_MimePart extends Swift_Mime_SimpleMimeEntity
     /**
      * Create a new MimePart with $headers, $encoder and $cache.
      *
-     * @param string $charset
+     * @param  string  $charset
      */
     public function __construct(Swift_Mime_SimpleHeaderSet $headers, Swift_Mime_ContentEncoder $encoder, Swift_KeyCache $cache, Swift_IdGenerator $idGenerator, $charset = null)
     {
         parent::__construct($headers, $encoder, $cache, $idGenerator);
         $this->setContentType('text/plain');
-        if (null !== $charset) {
+        if ($charset !== null) {
             $this->setCharset($charset);
         }
     }
@@ -45,10 +45,9 @@ class Swift_Mime_MimePart extends Swift_Mime_SimpleMimeEntity
      * Set the body of this entity, either as a string, or as an instance of
      * {@link Swift_OutputByteStream}.
      *
-     * @param mixed  $body
-     * @param string $contentType optional
-     * @param string $charset     optional
-     *
+     * @param  mixed  $body
+     * @param  string  $contentType  optional
+     * @param  string  $charset  optional
      * @return $this
      */
     public function setBody($body, $contentType = null, $charset = null)
@@ -76,8 +75,7 @@ class Swift_Mime_MimePart extends Swift_Mime_SimpleMimeEntity
     /**
      * Set the character set of this entity.
      *
-     * @param string $charset
-     *
+     * @param  string  $charset
      * @return $this
      */
     public function setCharset($charset)
@@ -105,8 +103,7 @@ class Swift_Mime_MimePart extends Swift_Mime_SimpleMimeEntity
     /**
      * Set the format of this entity (flowed or fixed).
      *
-     * @param string $format
-     *
+     * @param  string  $format
      * @return $this
      */
     public function setFormat($format)
@@ -124,14 +121,13 @@ class Swift_Mime_MimePart extends Swift_Mime_SimpleMimeEntity
      */
     public function getDelSp()
     {
-        return 'yes' === $this->getHeaderParameter('Content-Type', 'delsp');
+        return $this->getHeaderParameter('Content-Type', 'delsp') === 'yes';
     }
 
     /**
      * Turn delsp on or off for this entity.
      *
-     * @param bool $delsp
-     *
+     * @param  bool  $delsp
      * @return $this
      */
     public function setDelSp($delsp = true)
@@ -158,7 +154,7 @@ class Swift_Mime_MimePart extends Swift_Mime_SimpleMimeEntity
      * Receive notification that the charset has changed on this document, or a
      * parent document.
      *
-     * @param string $charset
+     * @param  string  $charset
      */
     public function charsetChanged($charset)
     {
@@ -190,7 +186,7 @@ class Swift_Mime_MimePart extends Swift_Mime_SimpleMimeEntity
     protected function convertString($string)
     {
         $charset = strtolower($this->getCharset() ?? '');
-        if (!in_array($charset, ['utf-8', 'iso-8859-1', 'iso-8859-15', ''])) {
+        if (! in_array($charset, ['utf-8', 'iso-8859-1', 'iso-8859-15', ''])) {
             // mb_convert_encoding must be the first one to check, since iconv cannot convert some words.
             if (function_exists('mb_convert_encoding')) {
                 $string = mb_convert_encoding($string, $charset, 'utf-8');

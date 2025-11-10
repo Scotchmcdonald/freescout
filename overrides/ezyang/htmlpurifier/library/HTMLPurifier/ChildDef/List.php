@@ -15,19 +15,20 @@ class HTMLPurifier_ChildDef_List extends HTMLPurifier_ChildDef
      * @type string
      */
     public $type = 'list';
+
     /**
      * @type array
      */
     // lying a little bit, so that we can handle ul and ol ourselves
     // XXX: This whole business with 'wrap' is all a bit unsatisfactory
-    public $elements = array('li' => true, 'ul' => true, 'ol' => true);
+    public $elements = ['li' => true, 'ul' => true, 'ol' => true];
 
     public $whitespace;
 
     /**
-     * @param array $children
-     * @param HTMLPurifier_Config $config
-     * @param HTMLPurifier_Context $context
+     * @param  array  $children
+     * @param  HTMLPurifier_Config  $config
+     * @param  HTMLPurifier_Context  $context
      * @return array
      */
     public function validateChildren($children, $config, $context)
@@ -41,13 +42,14 @@ class HTMLPurifier_ChildDef_List extends HTMLPurifier_ChildDef
         }
 
         // if li is not allowed, delete parent node
-        if (!isset($config->getHTMLDefinition()->info['li'])) {
-            trigger_error("Cannot allow ul/ol without allowing li", E_USER_WARNING);
+        if (! isset($config->getHTMLDefinition()->info['li'])) {
+            trigger_error('Cannot allow ul/ol without allowing li', E_USER_WARNING);
+
             return false;
         }
 
         // the new set of children
-        $result = array();
+        $result = [];
 
         // a little sanity check to make sure it's not ALL whitespace
         $all_whitespace = true;
@@ -55,8 +57,9 @@ class HTMLPurifier_ChildDef_List extends HTMLPurifier_ChildDef
         $current_li = null;
 
         foreach ($children as $node) {
-            if (!empty($node->is_whitespace)) {
+            if (! empty($node->is_whitespace)) {
                 $result[] = $node;
+
                 continue;
             }
             $all_whitespace = false; // phew, we're not talking about whitespace
@@ -87,6 +90,7 @@ class HTMLPurifier_ChildDef_List extends HTMLPurifier_ChildDef
         if ($all_whitespace) {
             return false;
         }
+
         return $result;
     }
 }

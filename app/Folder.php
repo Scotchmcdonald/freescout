@@ -10,25 +10,32 @@ class Folder extends Model
      * Folders types (ids from HelpScout interface).
      */
     const TYPE_UNASSIGNED = 1;
+
     // User specific
     const TYPE_MINE = 20;
+
     // User specific
     const TYPE_STARRED = 25;
+
     const TYPE_DRAFTS = 30;
+
     const TYPE_ASSIGNED = 40;
+
     const TYPE_CLOSED = 60;
+
     const TYPE_DELETED = 70;
+
     const TYPE_SPAM = 80;
 
     public static $types = [
         self::TYPE_UNASSIGNED => 'Unassigned',
-        self::TYPE_MINE       => 'Mine',
-        self::TYPE_STARRED    => 'Starred',
-        self::TYPE_DRAFTS     => 'Drafts',
-        self::TYPE_ASSIGNED   => 'Assigned',
-        self::TYPE_CLOSED     => 'Closed',
-        self::TYPE_SPAM       => 'Spam',
-        self::TYPE_DELETED    => 'Deleted',
+        self::TYPE_MINE => 'Mine',
+        self::TYPE_STARRED => 'Starred',
+        self::TYPE_DRAFTS => 'Drafts',
+        self::TYPE_ASSIGNED => 'Assigned',
+        self::TYPE_CLOSED => 'Closed',
+        self::TYPE_SPAM => 'Spam',
+        self::TYPE_DELETED => 'Deleted',
     ];
 
     /**
@@ -36,13 +43,13 @@ class Folder extends Model
      */
     public static $type_icons = [
         self::TYPE_UNASSIGNED => 'folder-open',
-        self::TYPE_MINE       => 'hand-right',
-        self::TYPE_DRAFTS     => 'duplicate',
-        self::TYPE_ASSIGNED   => 'user',
-        self::TYPE_CLOSED     => 'lock', // lock
-        self::TYPE_SPAM       => 'ban-circle',
-        self::TYPE_DELETED    => 'trash',
-        self::TYPE_STARRED    => 'star',
+        self::TYPE_MINE => 'hand-right',
+        self::TYPE_DRAFTS => 'duplicate',
+        self::TYPE_ASSIGNED => 'user',
+        self::TYPE_CLOSED => 'lock', // lock
+        self::TYPE_SPAM => 'ban-circle',
+        self::TYPE_DELETED => 'trash',
+        self::TYPE_STARRED => 'star',
     ];
 
     // Public non-user specific mailbox types
@@ -70,7 +77,8 @@ class Folder extends Model
 
     // Counter mode.
     const COUNTER_ACTIVE = 1;
-    const COUNTER_TOTAL  = 2;
+
+    const COUNTER_TOTAL = 2;
 
     public $timestamps = false;
 
@@ -179,7 +187,7 @@ class Folder extends Model
         $sorting = Conversation::getConvTableSorting();
         if ($sorting['sort_by'] == 'date') {
             if ($sorting['order'] != 'desc') {
-                 foreach ($order_by as $block_i => $block) {
+                foreach ($order_by as $block_i => $block) {
                     foreach ($block as $field => $order) {
                         if ($field == 'status') {
                             unset($order_by[$block_i][$field]);
@@ -224,7 +232,7 @@ class Folder extends Model
     public function updateCounters()
     {
         if (config('app.update_folder_counters_in_background')) {
-            if(!\Illuminate\Support\Facades\Cache::has("folder_update_lock_{$this->id}")) {
+            if (! \Illuminate\Support\Facades\Cache::has("folder_update_lock_{$this->id}")) {
                 \App\Jobs\UpdateFolderCounters::dispatch($this);
             }
         } else {
@@ -259,7 +267,7 @@ class Folder extends Model
             // Drafts.
             $this->active_count = ConversationFolder::where('conversation_folder.folder_id', $this->id)
                 ->join('conversations', 'conversations.id', '=', 'conversation_folder.conversation_id')
-                //->where('state', Conversation::STATE_PUBLISHED)
+                // ->where('state', Conversation::STATE_PUBLISHED)
                 ->count();
             $this->total_count = $this->active_count;
         } else {
@@ -277,8 +285,7 @@ class Folder extends Model
     /**
      * Get count to display in folders list.
      *
-     * @param array $folders [description]
-     *
+     * @param  array  $folders  [description]
      * @return [type] [description]
      */
     public function getCount($folders = [])
@@ -306,7 +313,7 @@ class Folder extends Model
         if ($this->type == self::TYPE_ASSIGNED) {
             $mine_folder = \Eventy::filter('folder.active_count_mine_folder', null, $this, $folders);
 
-            if (!$mine_folder) {
+            if (! $mine_folder) {
                 if ($folders) {
                     $mine_folder = $folders->firstWhere('type', self::TYPE_MINE);
                 } elseif ($this->mailbox_id) {
@@ -339,7 +346,7 @@ class Folder extends Model
         } elseif ($this->isIndirect()) {
             // Via intermediate table.
             $query = Conversation::join('conversation_folder', 'conversations.id', '=', 'conversation_folder.conversation_id')
-                    ->where('conversation_folder.folder_id', $this->id);
+                ->where('conversation_folder.folder_id', $this->id);
         } else {
             // All other conversations.
             $query = $this->conversations();
@@ -382,25 +389,25 @@ class Folder extends Model
         } elseif ($this->type == \App\Folder::TYPE_DELETED) {
             return 'user_updated_at';
         } else {
-            return'last_reply_at';
+            return 'last_reply_at';
         }
     }
 
     public function url($mailbox_id)
     {
-        return \Eventy::filter('folder.url', route('mailboxes.view.folder', ['id'=>$mailbox_id, 'folder_id'=>$this->id]), $mailbox_id, $this);
+        return \Eventy::filter('folder.url', route('mailboxes.view.folder', ['id' => $mailbox_id, 'folder_id' => $this->id]), $mailbox_id, $this);
     }
 
     public static function create($data, $unique_per_user = true, $save = true)
     {
-        if (!isset($data['mailbox_id']) || !isset($data['type'])) {
+        if (! isset($data['mailbox_id']) || ! isset($data['type'])) {
             return null;
         }
-        $folder = new Folder ();
+        $folder = new Folder;
         $folder->mailbox_id = $data['mailbox_id'];
         $folder->type = $data['type'];
 
-        if (!empty($data['user_id'])) {
+        if (! empty($data['user_id'])) {
             if ($unique_per_user) {
                 $user_folder = Folder::where('mailbox_id', $data['mailbox_id'])
                     ->where('user_id', $data['user_id'])

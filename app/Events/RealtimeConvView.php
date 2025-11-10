@@ -3,7 +3,7 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
-//use Illuminate\Broadcasting\PrivateChannel;
+// use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Queue\SerializesModels;
 
@@ -16,14 +16,14 @@ class RealtimeConvView implements ShouldBroadcastNow
      *
      * @var mixed
      */
-    //public $notifiable;
+    // public $notifiable;
 
     /**
      * The notification instance.
      *
      * @var \Illuminate\Notifications\Notification
      */
-    //public $notification;
+    // public $notification;
 
     /**
      * The notification data.
@@ -37,7 +37,7 @@ class RealtimeConvView implements ShouldBroadcastNow
      *
      * @return void
      */
-    public function __construct(/*$notifiable, $notification,*/ $data)
+    public function __construct(/* $notifiable, $notification, */ $data)
     {
         $this->data = $data;
         // $this->notifiable = $notifiable;
@@ -58,7 +58,7 @@ class RealtimeConvView implements ShouldBroadcastNow
         // }
 
         return new \Illuminate\Broadcasting\Channel($this->channelName());
-        //return [new PrivateChannel()];
+        // return [new PrivateChannel()];
     }
 
     /**
@@ -101,12 +101,12 @@ class RealtimeConvView implements ShouldBroadcastNow
     {
         $notification_data = [
             'conversation_id' => $conversation_id,
-            'user_id'         => $user->id,
-            'user_photo_url'  => $user->getPhotoUrl(false),
+            'user_id' => $user->id,
+            'user_photo_url' => $user->getPhotoUrl(false),
             // These has to be encoded to avoid "Unable to JSON encode payload. Error code: 5"
-            'user_initials'   => htmlentities($user->getInitials()),
-            'user_name'       => htmlentities($user->getFullName()),
-            'replying'        => (int)$replying,
+            'user_initials' => htmlentities($user->getInitials()),
+            'user_name' => htmlentities($user->getFullName()),
+            'replying' => (int) $replying,
         ];
         event(new \App\Events\RealtimeConvView($notification_data));
     }
