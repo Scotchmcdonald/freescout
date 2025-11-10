@@ -1,44 +1,70 @@
+# Dependencies
 /node_modules
+/vendor
+
+# Build artifacts
 /public/hot
+/public/css/builds/
+/public/js/builds/
+/public/modules
+/public/docs
+/bootstrap/compiled.php
+/bootstrap/cache/*
+
+# Storage & Logs
 /public/storage
 /storage/*.key
 /storage/logs/*
 /storage/framework/cache/*
 /storage/framework/sessions/*
 /storage/framework/views/*
-/coverage-report/*
-# We are committing /vendor directory to make installation process super easy, even on a shared hosting:
-# - https://www.codeenigma.com/build/blog/do-you-really-need-composer-production
-# - https://getcomposer.org/doc/faqs/should-i-commit-the-dependencies-in-my-vendor-directory.md
-/vendor/**/.git
-#/vendor
+/storage/.ignore_locales
+/storage/.installed
+
+# Environment & Secrets
+.env
+.env.backup
+.env.production
+
+# IDE & Editor
 /.idea
+/.vscode
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Development Tools
 /.vagrant
 Homestead.json
 Homestead.yaml
-npm-debug.log
-yarn-error.log
-.env
-app/Console/Commands/Test*
-/bootstrap/compiled.php
 composer.phar
-#composer.lock
-.DS_Store
-Thumbs.db
-#/.htaccess
-/public/css/builds/
-/public/js/builds/
-/public/.well-known
-/Modules
-/Modules/**/.git
-/public/modules
-/public/docs
-/storage/.ignore_locales
-/storage/.installed
 /tools
-.well-known
-/resources/lang/module.*
+
+# Test & Coverage
 .phpunit.result.cache
 /.phpunit.cache
 /database/database.sqlite
-/bootstrap/cache/*
+/coverage-report/*
+/reports/coverage-report/*
+
+# Logs
+npm-debug.log
+yarn-error.log
+*.log
+
+# Temporary test files
+app/Console/Commands/Test*
+
+# Well-known
+/public/.well-known
+.well-known
+
+# Modules (if dynamically managed)
+/Modules
+/resources/lang/module.*
+
+# Optional: Uncomment if you want to track these
+#composer.lock
+#/.htaccess
