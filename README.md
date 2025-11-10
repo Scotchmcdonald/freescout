@@ -23,8 +23,14 @@
 
 ### 📚 Documentation
 
-- **[Progress Tracking](docs/PROGRESS.md)** - Current status and next steps
-- **[Planning Documents](docs/archive/)** - Original analysis and strategy
+**New! Reorganized documentation structure (Nov 10, 2025)**
+
+- **[Documentation Index](docs/README.md)** - Complete documentation guide
+- **[Progress Tracking](docs/PROGRESS.md)** - Current status and next steps (~97% complete)
+- **[Success Metrics](docs/SUCCESS_METRICS_STATUS.md)** - Current metrics and KPIs
+- **[Development Guides](docs/guides/)** - Operational documentation for developers
+- **[Strategic Plans](docs/plans/)** - Roadmaps and planning documents
+- **[Historical Docs](docs/archive/)** - Completed work and archived planning
 
 ---
 
