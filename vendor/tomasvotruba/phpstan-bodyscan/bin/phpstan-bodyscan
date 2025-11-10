@@ -1,5 +1,0 @@
-#!/usr/bin/env php
-<?php 
-namespace PHPStanBodyscan202501;
-
-require __DIR__ . '/phpstan-bodyscan.php';

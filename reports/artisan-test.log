@@ -1,6 +1,6 @@
 ParaTest v7.8.4 upon PHPUnit 11.5.43 by Sebastian Bergmann and contributors.
 
-Warming cache for static analysis ... [00:00.002]
+Warming cache for static analysis ... [00:00.003]
 Processes:     8
 Runtime:       PHP 8.3.6 with PCOV 1.0.11
 Configuration: /var/www/html/phpunit.xml
@@ -8,7 +8,7 @@ Configuration: /var/www/html/phpunit.xml
 .............................................................   61 / 1323 (  4%)
 .............................................................  122 / 1323 (  9%)
 .............................................................  183 / 1323 ( 13%)
-.........E...................................................  244 / 1323 ( 18%)
+.............................................................  244 / 1323 ( 18%)
 .............................................................  305 / 1323 ( 23%)
 .............................................................  366 / 1323 ( 27%)
 .............................................................  427 / 1323 ( 32%)
@@ -28,27 +28,8 @@ Configuration: /var/www/html/phpunit.xml
 ............................................................. 1281 / 1323 ( 96%)
 ..........................................                    1323 / 1323 (100%)
 
-Time: 00:08.702, Memory: 42.00 MB
+Time: 00:08.459, Memory: 42.00 MB
 
-There was 1 error:
+OK (1323 tests, 3062 assertions)
 
-1) Tests\Unit\EdgeCases\ModelEdgeCasesTest::test_conversation_with_very_long_subject
-ErrorException: require(/var/www/html/bootstrap/cache/routes-v7.php): Failed to open stream: No such file or directory
-
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:258
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Support/Providers/RouteServiceProvider.php:150
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Support/Providers/RouteServiceProvider.php:150
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php:1194
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php:1137
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/BootProviders.php:17
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php:342
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:474
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/TestCase.php:32
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/TestCase.php:54
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/Concerns/InteractsWithTestCaseLifecycle.php:92
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/TestCase.php:44
-
-ERRORS!
-Tests: 1323, Assertions: 3061, Errors: 1.
-
-Generating code coverage report in HTML format ... done [00:00.221]
+Generating code coverage report in HTML format ... done [00:00.203]

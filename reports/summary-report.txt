@@ -2,7 +2,7 @@
            Test Run Summary
 ========================================
 
-❌ Artisan Test (w/ Coverage) (Failed with code 2)
+✅ Artisan Test (w/ Coverage) (Passed)
 ❌ Dusk (Browser Tests) (Failed with code 2)
 ✅ PHPStan Analyse (Fast) (Passed)
 ❌ Pint (Code Style Linting) (Failed with code 1)
@@ -13,72 +13,13 @@
 ---
 
 ========================================
-Logs for ❌ Artisan Test (w/ Coverage)
-========================================
-
-ParaTest v7.8.4 upon PHPUnit 11.5.43 by Sebastian Bergmann and contributors.
-
-Warming cache for static analysis ... [00:00.002]
-Processes:     8
-Runtime:       PHP 8.3.6 with PCOV 1.0.11
-Configuration: /var/www/html/phpunit.xml
-
-.............................................................   61 / 1323 (  4%)
-.............................................................  122 / 1323 (  9%)
-.............................................................  183 / 1323 ( 13%)
-.........E...................................................  244 / 1323 ( 18%)
-.............................................................  305 / 1323 ( 23%)
-.............................................................  366 / 1323 ( 27%)
-.............................................................  427 / 1323 ( 32%)
-.............................................................  488 / 1323 ( 36%)
-.............................................................  549 / 1323 ( 41%)
-.............................................................  610 / 1323 ( 46%)
-.............................................................  671 / 1323 ( 50%)
-.............................................................  732 / 1323 ( 55%)
-.............................................................  793 / 1323 ( 59%)
-.............................................................  854 / 1323 ( 64%)
-.............................................................  915 / 1323 ( 69%)
-.............................................................  976 / 1323 ( 73%)
-............................................................. 1037 / 1323 ( 78%)
-............................................................. 1098 / 1323 ( 82%)
-............................................................. 1159 / 1323 ( 87%)
-............................................................. 1220 / 1323 ( 92%)
-............................................................. 1281 / 1323 ( 96%)
-..........................................                    1323 / 1323 (100%)
-
-Time: 00:08.702, Memory: 42.00 MB
-
-There was 1 error:
-
-1) Tests\Unit\EdgeCases\ModelEdgeCasesTest::test_conversation_with_very_long_subject
-ErrorException: require(/var/www/html/bootstrap/cache/routes-v7.php): Failed to open stream: No such file or directory
-
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php:258
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Support/Providers/RouteServiceProvider.php:150
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Support/Providers/RouteServiceProvider.php:150
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php:1194
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php:1137
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/BootProviders.php:17
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php:342
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php:474
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/TestCase.php:32
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/TestCase.php:54
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/Concerns/InteractsWithTestCaseLifecycle.php:92
-/var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Testing/TestCase.php:44
-
-ERRORS!
-Tests: 1323, Assertions: 3061, Errors: 1.
-
-Generating code coverage report in HTML format ... done [00:00.221]
-
-========================================
 Logs for ❌ Dusk (Browser Tests)
 ========================================
 
 Warning: TTY mode requires /dev/tty to be read/writable.
 
    FAIL  Tests\Browser\ExampleTest
-  ⨯ basic example                                                        0.28s  
+  ⨯ basic example                                                        0.31s  
   ────────────────────────────────────────────────────────────────────────────  
    FAILED  Tests\Browser\ExampleTest > basic example   WebDriverCurlException   
   Curl error thrown for http POST to /session with params: {"capabilities":{"firstMatch":[{"browserName":"chrome","goog:chromeOptions":{"args":["--window-size=1920,1080","--disable-search-engine-choice-screen","--disable-smooth-scrolling","--disable-gpu","--headless=new"]}}]},"desiredCapabilities":{"browserName":"chrome","platform":"ANY","goog:chromeOptions":{"args":["--window-size=1920,1080","--disable-search-engine-choice-screen","--disable-smooth-scrolling","--disable-gpu","--headless=new"]}}}
@@ -102,7 +43,7 @@ Failed to connect to localhost port 9515 after 0 ms: Couldn't connect to server
 
 
   Tests:    1 failed (0 assertions)
-  Duration: 0.32s
+  Duration: 0.35s
 
 
 ========================================
@@ -292,32 +233,32 @@ Logs for ❌ NPM/Yarn (Frontend Tests)
 [90mstderr[2m | tests/javascript/notifications.test.js[2m > [22m[2mRealtimeNotifications[2m > [22m[2minit[2m > [22m[2mshould not initialize if userId is missing
 [22m[39mEcho or user ID not available
 
- [31m❯[39m tests/javascript/notifications.test.js [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 45[2mms[22m[39m
-       [32m✓[39m should initialize with user ID from meta tag[32m 13[2mms[22m[39m
-       [32m✓[39m should initialize with conversation ID from meta tag[32m 2[2mms[22m[39m
-       [32m✓[39m should create notification container[32m 5[2mms[22m[39m
-       [32m✓[39m should not create duplicate containers[32m 5[2mms[22m[39m
-       [32m✓[39m should not initialize if userId is missing[32m 5[2mms[22m[39m
-[31m       [31m×[31m should set up Echo listeners when Echo is available[39m[32m 13[2mms[22m[39m
- [31m❯[39m tests/javascript/ui-helpers.test.js [2m([22m[2m18 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 94[2mms[22m[39m
-       [32m✓[39m should create and show a toast notification[32m 12[2mms[22m[39m
+ [31m❯[39m tests/javascript/notifications.test.js [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 50[2mms[22m[39m
+       [32m✓[39m should initialize with user ID from meta tag[32m 8[2mms[22m[39m
+       [32m✓[39m should initialize with conversation ID from meta tag[32m 11[2mms[22m[39m
+       [32m✓[39m should create notification container[32m 8[2mms[22m[39m
+       [32m✓[39m should not create duplicate containers[32m 2[2mms[22m[39m
+       [32m✓[39m should not initialize if userId is missing[32m 3[2mms[22m[39m
+[31m       [31m×[31m should set up Echo listeners when Echo is available[39m[32m 15[2mms[22m[39m
+ [31m❯[39m tests/javascript/ui-helpers.test.js [2m([22m[2m18 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 60[2mms[22m[39m
+       [32m✓[39m should create and show a toast notification[32m 5[2mms[22m[39m
        [32m✓[39m should use custom duration when provided[32m 1[2mms[22m[39m
        [32m✓[39m should call Swal.fire with confirmation options[32m 1[2mms[22m[39m
-       [32m✓[39m should return true when confirmed[32m 1[2mms[22m[39m
-       [32m✓[39m should return false when cancelled[32m 4[2mms[22m[39m
-       [32m✓[39m should support custom button text[32m 1[2mms[22m[39m
-       [32m✓[39m should call Swal.fire with loading state[32m 1[2mms[22m[39m
+       [32m✓[39m should return true when confirmed[32m 0[2mms[22m[39m
+       [32m✓[39m should return false when cancelled[32m 0[2mms[22m[39m
+       [32m✓[39m should support custom button text[32m 0[2mms[22m[39m
+       [32m✓[39m should call Swal.fire with loading state[32m 0[2mms[22m[39m
        [32m✓[39m should show loading spinner on open[32m 0[2mms[22m[39m
-       [32m✓[39m should default to "Processing..." message[32m 1[2mms[22m[39m
+       [32m✓[39m should default to "Processing..." message[32m 0[2mms[22m[39m
        [32m✓[39m should close the Swal modal[32m 0[2mms[22m[39m
-       [32m✓[39m should format date in short format[32m 37[2mms[22m[39m
+       [32m✓[39m should format date in short format[32m 34[2mms[22m[39m
        [32m✓[39m should format date in long format[32m 0[2mms[22m[39m
        [32m✓[39m should handle string dates[32m 0[2mms[22m[39m
-       [32m✓[39m should debounce function calls[32m 10[2mms[22m[39m
-       [32m✓[39m should throttle function calls[32m 6[2mms[22m[39m
-[31m       [31m×[31m should copy text to clipboard[39m[32m 8[2mms[22m[39m
-[31m       [31m×[31m should return true on success[39m[32m 2[2mms[22m[39m
-[31m       [31m×[31m should return false on error[39m[32m 5[2mms[22m[39m
+       [32m✓[39m should debounce function calls[32m 2[2mms[22m[39m
+       [32m✓[39m should throttle function calls[32m 1[2mms[22m[39m
+[31m       [31m×[31m should copy text to clipboard[39m[32m 9[2mms[22m[39m
+[31m       [31m×[31m should return true on success[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should return false on error[39m[32m 1[2mms[22m[39m
 
 [31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
 
@@ -352,8 +293,8 @@ Logs for ❌ NPM/Yarn (Frontend Tests)
 
 [2m Test Files [22m [1m[31m2 failed[39m[22m[90m (2)[39m
 [2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m20 passed[39m[22m[90m (24)[39m
-[2m   Start at [22m 04:06:59
-[2m   Duration [22m 791ms[2m (transform 283ms, setup 165ms, collect 270ms, tests 139ms, environment 641ms, prepare 25ms)[22m
+[2m   Start at [22m 04:10:50
+[2m   Duration [22m 780ms[2m (transform 217ms, setup 113ms, collect 238ms, tests 110ms, environment 659ms, prepare 18ms)[22m
 
 
 ========================================
@@ -367,7 +308,7 @@ npm error   npm link # Symlink a package folder
 npm error
 npm error To see a list of scripts, run:
 npm error   npm run
-npm error A complete log of this run can be found in: /home/dev/.npm/_logs/2025-11-10T04_06_59_341Z-debug-0.log
+npm error A complete log of this run can be found in: /home/dev/.npm/_logs/2025-11-10T04_10_50_075Z-debug-0.log
 
 Coverage report (if generated): file:///var/www/html/reports/coverage-report/index.html
 ========================================

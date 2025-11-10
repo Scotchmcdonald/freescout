@@ -11,32 +11,32 @@
 [90mstderr[2m | tests/javascript/notifications.test.js[2m > [22m[2mRealtimeNotifications[2m > [22m[2minit[2m > [22m[2mshould not initialize if userId is missing
 [22m[39mEcho or user ID not available
 
- [31m❯[39m tests/javascript/notifications.test.js [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 45[2mms[22m[39m
-       [32m✓[39m should initialize with user ID from meta tag[32m 13[2mms[22m[39m
-       [32m✓[39m should initialize with conversation ID from meta tag[32m 2[2mms[22m[39m
-       [32m✓[39m should create notification container[32m 5[2mms[22m[39m
-       [32m✓[39m should not create duplicate containers[32m 5[2mms[22m[39m
-       [32m✓[39m should not initialize if userId is missing[32m 5[2mms[22m[39m
-[31m       [31m×[31m should set up Echo listeners when Echo is available[39m[32m 13[2mms[22m[39m
- [31m❯[39m tests/javascript/ui-helpers.test.js [2m([22m[2m18 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 94[2mms[22m[39m
-       [32m✓[39m should create and show a toast notification[32m 12[2mms[22m[39m
+ [31m❯[39m tests/javascript/notifications.test.js [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 50[2mms[22m[39m
+       [32m✓[39m should initialize with user ID from meta tag[32m 8[2mms[22m[39m
+       [32m✓[39m should initialize with conversation ID from meta tag[32m 11[2mms[22m[39m
+       [32m✓[39m should create notification container[32m 8[2mms[22m[39m
+       [32m✓[39m should not create duplicate containers[32m 2[2mms[22m[39m
+       [32m✓[39m should not initialize if userId is missing[32m 3[2mms[22m[39m
+[31m       [31m×[31m should set up Echo listeners when Echo is available[39m[32m 15[2mms[22m[39m
+ [31m❯[39m tests/javascript/ui-helpers.test.js [2m([22m[2m18 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 60[2mms[22m[39m
+       [32m✓[39m should create and show a toast notification[32m 5[2mms[22m[39m
        [32m✓[39m should use custom duration when provided[32m 1[2mms[22m[39m
        [32m✓[39m should call Swal.fire with confirmation options[32m 1[2mms[22m[39m
-       [32m✓[39m should return true when confirmed[32m 1[2mms[22m[39m
-       [32m✓[39m should return false when cancelled[32m 4[2mms[22m[39m
-       [32m✓[39m should support custom button text[32m 1[2mms[22m[39m
-       [32m✓[39m should call Swal.fire with loading state[32m 1[2mms[22m[39m
+       [32m✓[39m should return true when confirmed[32m 0[2mms[22m[39m
+       [32m✓[39m should return false when cancelled[32m 0[2mms[22m[39m
+       [32m✓[39m should support custom button text[32m 0[2mms[22m[39m
+       [32m✓[39m should call Swal.fire with loading state[32m 0[2mms[22m[39m
        [32m✓[39m should show loading spinner on open[32m 0[2mms[22m[39m
-       [32m✓[39m should default to "Processing..." message[32m 1[2mms[22m[39m
+       [32m✓[39m should default to "Processing..." message[32m 0[2mms[22m[39m
        [32m✓[39m should close the Swal modal[32m 0[2mms[22m[39m
-       [32m✓[39m should format date in short format[32m 37[2mms[22m[39m
+       [32m✓[39m should format date in short format[32m 34[2mms[22m[39m
        [32m✓[39m should format date in long format[32m 0[2mms[22m[39m
        [32m✓[39m should handle string dates[32m 0[2mms[22m[39m
-       [32m✓[39m should debounce function calls[32m 10[2mms[22m[39m
-       [32m✓[39m should throttle function calls[32m 6[2mms[22m[39m
-[31m       [31m×[31m should copy text to clipboard[39m[32m 8[2mms[22m[39m
-[31m       [31m×[31m should return true on success[39m[32m 2[2mms[22m[39m
-[31m       [31m×[31m should return false on error[39m[32m 5[2mms[22m[39m
+       [32m✓[39m should debounce function calls[32m 2[2mms[22m[39m
+       [32m✓[39m should throttle function calls[32m 1[2mms[22m[39m
+[31m       [31m×[31m should copy text to clipboard[39m[32m 9[2mms[22m[39m
+[31m       [31m×[31m should return true on success[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should return false on error[39m[32m 1[2mms[22m[39m
 
 [31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
 
@@ -71,6 +71,6 @@
 
 [2m Test Files [22m [1m[31m2 failed[39m[22m[90m (2)[39m
 [2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m20 passed[39m[22m[90m (24)[39m
-[2m   Start at [22m 04:06:59
-[2m   Duration [22m 791ms[2m (transform 283ms, setup 165ms, collect 270ms, tests 139ms, environment 641ms, prepare 25ms)[22m
+[2m   Start at [22m 04:10:50
+[2m   Duration [22m 780ms[2m (transform 217ms, setup 113ms, collect 238ms, tests 110ms, environment 659ms, prepare 18ms)[22m
 

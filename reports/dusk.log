@@ -1,7 +1,7 @@
 Warning: TTY mode requires /dev/tty to be read/writable.
 
    FAIL  Tests\Browser\ExampleTest
-  ⨯ basic example                                                        0.28s  
+  ⨯ basic example                                                        0.31s  
   ────────────────────────────────────────────────────────────────────────────  
    FAILED  Tests\Browser\ExampleTest > basic example   WebDriverCurlException   
   Curl error thrown for http POST to /session with params: {"capabilities":{"firstMatch":[{"browserName":"chrome","goog:chromeOptions":{"args":["--window-size=1920,1080","--disable-search-engine-choice-screen","--disable-smooth-scrolling","--disable-gpu","--headless=new"]}}]},"desiredCapabilities":{"browserName":"chrome","platform":"ANY","goog:chromeOptions":{"args":["--window-size=1920,1080","--disable-search-engine-choice-screen","--disable-smooth-scrolling","--disable-gpu","--headless=new"]}}}
@@ -25,5 +25,5 @@ Failed to connect to localhost port 9515 after 0 ms: Couldn't connect to server
 
 
   Tests:    1 failed (0 assertions)
-  Duration: 0.32s
+  Duration: 0.35s
 
