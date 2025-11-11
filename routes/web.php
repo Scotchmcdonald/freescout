@@ -22,6 +22,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'verified'])->group(function () {
     // Mailboxes
     Route::get('/mailboxes', [MailboxController::class, 'index'])->name('mailboxes.index');
+    Route::get('/mailboxes/create', [MailboxController::class, 'create'])->name('mailboxes.create');
     Route::post('/mailboxes', [MailboxController::class, 'store'])->name('mailboxes.store');
     Route::get('/mailbox/{mailbox}', [MailboxController::class, 'show'])->name('mailboxes.view');
     Route::match(['patch', 'put'], '/mailbox/{mailbox}', [MailboxController::class, 'update'])->name('mailboxes.update');
