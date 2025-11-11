@@ -4,13 +4,37 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Events\ConversationStatusChanged;
+use App\Events\ConversationUserChanged;
 use App\Events\CustomerCreatedConversation;
 use App\Events\CustomerReplied;
 use App\Events\NewMessageReceived;
+use App\Events\UserAddedNote;
+use App\Events\UserCreatedConversation;
+use App\Events\UserDeleted;
+use App\Events\UserReplied;
 use App\Listeners\HandleNewMessage;
+use App\Listeners\LogFailedLogin;
+use App\Listeners\LogLockout;
+use App\Listeners\LogPasswordReset;
+use App\Listeners\LogRegisteredUser;
+use App\Listeners\LogSuccessfulLogin;
+use App\Listeners\LogSuccessfulLogout;
+use App\Listeners\LogUserDeletion;
+use App\Listeners\RememberUserLocale;
 use App\Listeners\SendAutoReply;
+use App\Listeners\SendNotificationToUsers;
+use App\Listeners\SendPasswordChanged;
+use App\Listeners\SendReplyToCustomer;
+use App\Listeners\UpdateMailboxCounters;
 use App\Models\Thread;
 use App\Observers\ThreadObserver;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -21,12 +45,61 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
-        CustomerCreatedConversation::class => [
-            SendAutoReply::class,
+        // Authentication events
+        Registered::class => [
+            LogRegisteredUser::class,
+        ],
+        Login::class => [
+            RememberUserLocale::class,
+            LogSuccessfulLogin::class,
+        ],
+        Failed::class => [
+            LogFailedLogin::class,
+        ],
+        Logout::class => [
+            LogSuccessfulLogout::class,
+        ],
+        Lockout::class => [
+            LogLockout::class,
+        ],
+        PasswordReset::class => [
+            LogPasswordReset::class,
+            SendPasswordChanged::class,
+        ],
+
+        // User events
+        UserDeleted::class => [
+            LogUserDeletion::class,
+        ],
+
+        // Conversation events
+        ConversationStatusChanged::class => [
+            UpdateMailboxCounters::class,
+        ],
+        ConversationUserChanged::class => [
+            UpdateMailboxCounters::class,
+            SendNotificationToUsers::class,
+        ],
+        UserReplied::class => [
+            SendReplyToCustomer::class,
+            SendNotificationToUsers::class,
         ],
         CustomerReplied::class => [
-            // Add listeners for customer replies here
+            SendNotificationToUsers::class,
         ],
+        UserCreatedConversation::class => [
+            SendReplyToCustomer::class,
+            SendNotificationToUsers::class,
+        ],
+        CustomerCreatedConversation::class => [
+            SendAutoReply::class,
+            SendNotificationToUsers::class,
+        ],
+        UserAddedNote::class => [
+            SendNotificationToUsers::class,
+        ],
+
+        // Message handling
         NewMessageReceived::class => [
             HandleNewMessage::class,
         ],

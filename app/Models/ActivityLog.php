@@ -14,6 +14,23 @@ class ActivityLog extends Model
 
     protected $table = 'activity_log';
 
+    // Log names
+    public const NAME_USER = 'users';
+    public const NAME_OUT_EMAILS = 'out_emails';
+    public const NAME_EMAILS_SENDING = 'send_errors';
+    public const NAME_EMAILS_FETCHING = 'fetch_errors';
+    public const NAME_SYSTEM = 'system';
+    public const NAME_APP_LOGS = 'app';
+
+    // Log descriptions
+    public const DESCRIPTION_USER_LOGIN = 'login';
+    public const DESCRIPTION_USER_LOGOUT = 'logout';
+    public const DESCRIPTION_USER_REGISTER = 'register';
+    public const DESCRIPTION_USER_LOCKED = 'locked';
+    public const DESCRIPTION_USER_LOGIN_FAILED = 'login_failed';
+    public const DESCRIPTION_USER_PASSWORD_RESET = 'password_reset';
+    public const DESCRIPTION_USER_DELETED = 'user_deleted';
+
     protected $fillable = [
         'log_name',
         'description',
