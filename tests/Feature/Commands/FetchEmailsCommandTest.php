@@ -45,7 +45,7 @@ class FetchEmailsCommandTest extends TestCase
         // Act
         $this->artisan('freescout:fetch-emails', ['mailbox_id' => $mailbox->id])
             ->expectsOutput('Processing 1 mailbox(es)...')
-            ->expectsOutput("Processing mailbox: Support Inbox (support@example.com)")
+            ->expectsOutput('Processing mailbox: Support Inbox (support@example.com)')
             ->expectsOutputToContain('Fetched: 5')
             ->expectsOutputToContain('Created: 3')
             ->expectsOutputToContain('Errors: 0')
@@ -110,7 +110,7 @@ class FetchEmailsCommandTest extends TestCase
                     'success' => true,
                     'message' => 'Connected successfully. Found 10 messages in INBOX (3 unread).',
                 ]);
-            
+
             $mock->shouldNotReceive('fetchEmails');
         });
 
@@ -240,7 +240,7 @@ class FetchEmailsCommandTest extends TestCase
                     'errors' => 1,
                     'messages' => ['Error message'],
                 ]);
-            
+
             // Second mailbox
             $mock->shouldReceive('fetchEmails')
                 ->once()
@@ -392,7 +392,7 @@ class FetchEmailsCommandTest extends TestCase
         // Act & Assert - exception should propagate
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('IMAP connection timeout');
-        
+
         $this->artisan('freescout:fetch-emails', ['mailbox_id' => $mailbox->id]);
     }
 
@@ -419,7 +419,7 @@ class FetchEmailsCommandTest extends TestCase
                     'success' => true,
                     'message' => 'Connected successfully.',
                 ]);
-            
+
             $mock->shouldNotReceive('fetchEmails');
         });
 
@@ -542,12 +542,12 @@ class FetchEmailsCommandTest extends TestCase
             $mock->shouldReceive('testConnection')
                 ->once()
                 ->andReturn(['success' => true, 'message' => 'OK']);
-            
+
             // Second mailbox: failure
             $mock->shouldReceive('testConnection')
                 ->once()
                 ->andReturn(['success' => false, 'message' => 'Failed']);
-            
+
             // Third mailbox: success
             $mock->shouldReceive('testConnection')
                 ->once()

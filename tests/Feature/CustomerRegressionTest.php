@@ -498,7 +498,7 @@ class CustomerRegressionTest extends TestCase
         // Assert
         // In memory, the company should be set
         $this->assertEquals('New Company', $customer->company);
-        
+
         // But in database, it should not be saved
         $customer->refresh();
         $this->assertEquals('', $customer->company);

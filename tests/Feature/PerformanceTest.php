@@ -16,7 +16,7 @@ use Tests\TestCase;
 
 /**
  * Phase 6 - Task 6.2: Performance Tests
- * 
+ *
  * Tests performance characteristics and validates system behavior under load:
  * - Large conversation list loading
  * - Search with large dataset
@@ -151,7 +151,7 @@ class PerformanceTest extends TestCase
     {
         // Create multiple customers
         $customers = Customer::factory()->count(10)->create();
-        
+
         foreach ($customers as $customer) {
             Email::factory()->create([
                 'customer_id' => $customer->id,
@@ -277,8 +277,11 @@ class PerformanceTest extends TestCase
         // Not strict count check as different implementations vary
         // But should be significantly less than 10 conversations × 3 relationships = 30+ queries
         $queryCount = count($queries);
-        $this->assertLessThan(50, $queryCount, 
-            "Query count is {$queryCount}, might indicate N+1 problem. Review eager loading.");
+        $this->assertLessThan(
+            50,
+            $queryCount,
+            "Query count is {$queryCount}, might indicate N+1 problem. Review eager loading."
+        );
     }
 
     /**
@@ -318,8 +321,11 @@ class PerformanceTest extends TestCase
         $memoryIncrease = ($finalMemory - $initialMemory) / 1024 / 1024; // MB
 
         // Memory increase should be reasonable (< 30MB for 5 full cycles)
-        $this->assertLessThan(30, $memoryIncrease, 
-            "Memory increased by {$memoryIncrease}MB, expected < 30MB");
+        $this->assertLessThan(
+            30,
+            $memoryIncrease,
+            "Memory increased by {$memoryIncrease}MB, expected < 30MB"
+        );
     }
 
     /**
@@ -370,12 +376,15 @@ class PerformanceTest extends TestCase
 
         // Assert all operations complete within reasonable time
         foreach ($benchmarks as $operation => $time) {
-            $this->assertLessThan(2000, $time, 
-                "{$operation} took {$time}ms, expected < 2000ms");
+            $this->assertLessThan(
+                2000,
+                $time,
+                "{$operation} took {$time}ms, expected < 2000ms"
+            );
         }
 
         // Log benchmarks for reference (visible in test output with -v)
-        dump("Performance Benchmarks:", $benchmarks);
+        dump('Performance Benchmarks:', $benchmarks);
     }
 
     /**
@@ -400,10 +409,13 @@ class PerformanceTest extends TestCase
         $queryTime = (microtime(true) - $startTime) * 1000;
 
         $this->assertCount(20, $conversations);
-        
+
         // Query should be fast with proper indexing (< 100ms for 20 records)
-        $this->assertLessThan(100, $queryTime, 
-            "Indexed query took {$queryTime}ms, expected < 100ms");
+        $this->assertLessThan(
+            100,
+            $queryTime,
+            "Indexed query took {$queryTime}ms, expected < 100ms"
+        );
 
         // Test pagination is efficient
         $startTime = microtime(true);
@@ -413,10 +425,13 @@ class PerformanceTest extends TestCase
 
         $this->assertEquals(10, $paginated->count());
         $this->assertEquals(20, $paginated->total());
-        
+
         // Pagination should also be fast
-        $this->assertLessThan(100, $paginationTime, 
-            "Pagination query took {$paginationTime}ms, expected < 100ms");
+        $this->assertLessThan(
+            100,
+            $paginationTime,
+            "Pagination query took {$paginationTime}ms, expected < 100ms"
+        );
     }
 
     /**
@@ -441,8 +456,11 @@ class PerformanceTest extends TestCase
         $response->assertViewHas('conversations');
 
         // Empty list should load very quickly (< 500ms)
-        $this->assertLessThan(500, $loadTime,
-            "Empty list took {$loadTime}ms, expected < 500ms");
+        $this->assertLessThan(
+            500,
+            $loadTime,
+            "Empty list took {$loadTime}ms, expected < 500ms"
+        );
 
         // Verify result is actually empty
         $conversations = $response->viewData('conversations');
@@ -482,12 +500,18 @@ class PerformanceTest extends TestCase
         $response->assertOk();
 
         // Should load within reasonable time even with 100 threads
-        $this->assertLessThan(5000, $loadTime,
-            "Conversation with 100 threads took {$loadTime}ms, expected < 5000ms");
+        $this->assertLessThan(
+            5000,
+            $loadTime,
+            "Conversation with 100 threads took {$loadTime}ms, expected < 5000ms"
+        );
 
         // Memory usage should be reasonable
-        $this->assertLessThan(100, $memoryUsed,
-            "Used {$memoryUsed}MB memory for 100 threads, expected < 100MB");
+        $this->assertLessThan(
+            100,
+            $memoryUsed,
+            "Used {$memoryUsed}MB memory for 100 threads, expected < 100MB"
+        );
     }
 
     /**
@@ -517,8 +541,11 @@ class PerformanceTest extends TestCase
         $response->assertOk();
 
         // Empty search should complete quickly
-        $this->assertLessThan(1000, $searchTime,
-            "Empty search took {$searchTime}ms, expected < 1000ms");
+        $this->assertLessThan(
+            1000,
+            $searchTime,
+            "Empty search took {$searchTime}ms, expected < 1000ms"
+        );
     }
 
     /**
@@ -554,8 +581,11 @@ class PerformanceTest extends TestCase
         $response->assertOk();
 
         // Should handle mixed statuses efficiently
-        $this->assertLessThan(2000, $loadTime,
-            "Mixed status list took {$loadTime}ms, expected < 2000ms");
+        $this->assertLessThan(
+            2000,
+            $loadTime,
+            "Mixed status list took {$loadTime}ms, expected < 2000ms"
+        );
 
         // Verify all statuses are present
         $conversations = $response->viewData('conversations');
@@ -586,12 +616,18 @@ class PerformanceTest extends TestCase
         $averageTime = $totalTime / 5;
 
         // Average time per conversation should be reasonable
-        $this->assertLessThan(1000, $averageTime,
-            "Average load time was {$averageTime}ms per conversation, expected < 1000ms");
+        $this->assertLessThan(
+            1000,
+            $averageTime,
+            "Average load time was {$averageTime}ms per conversation, expected < 1000ms"
+        );
 
         // Total time should show good connection reuse
-        $this->assertLessThan(5000, $totalTime,
-            "Total time for 5 conversations was {$totalTime}ms, expected < 5000ms");
+        $this->assertLessThan(
+            5000,
+            $totalTime,
+            "Total time for 5 conversations was {$totalTime}ms, expected < 5000ms"
+        );
     }
 
     /**
@@ -622,15 +658,24 @@ class PerformanceTest extends TestCase
         $response2->assertOk();
 
         // Both pages should load in similar time
-        $this->assertLessThan(2000, $page1Time,
-            "Page 1 took {$page1Time}ms, expected < 2000ms");
-        $this->assertLessThan(2000, $page2Time,
-            "Page 2 took {$page2Time}ms, expected < 2000ms");
+        $this->assertLessThan(
+            2000,
+            $page1Time,
+            "Page 1 took {$page1Time}ms, expected < 2000ms"
+        );
+        $this->assertLessThan(
+            2000,
+            $page2Time,
+            "Page 2 took {$page2Time}ms, expected < 2000ms"
+        );
 
         // Page 2 shouldn't be significantly slower than page 1
         $timeDifference = abs($page2Time - $page1Time);
-        $this->assertLessThan(1000, $timeDifference,
-            "Page load time difference was {$timeDifference}ms, expected < 1000ms");
+        $this->assertLessThan(
+            1000,
+            $timeDifference,
+            "Page load time difference was {$timeDifference}ms, expected < 1000ms"
+        );
     }
 
     /**
@@ -682,17 +727,26 @@ class PerformanceTest extends TestCase
         $totalTime = ($endTime - $startTime) * 1000;
 
         // Should complete most operations successfully
-        $this->assertGreaterThanOrEqual(8, $operations,
-            "Only {$operations} of 10 operations succeeded");
+        $this->assertGreaterThanOrEqual(
+            8,
+            $operations,
+            "Only {$operations} of 10 operations succeeded"
+        );
 
         // Should complete in reasonable total time
-        $this->assertLessThan(10000, $totalTime,
-            "10 rapid operations took {$totalTime}ms, expected < 10000ms");
+        $this->assertLessThan(
+            10000,
+            $totalTime,
+            "10 rapid operations took {$totalTime}ms, expected < 10000ms"
+        );
 
         // Failure rate should be acceptable
         $failureRate = ($failures / 10) * 100;
-        $this->assertLessThan(30, $failureRate,
-            "Failure rate was {$failureRate}%, expected < 30%");
+        $this->assertLessThan(
+            30,
+            $failureRate,
+            "Failure rate was {$failureRate}%, expected < 30%"
+        );
     }
 
     /**
@@ -724,8 +778,11 @@ class PerformanceTest extends TestCase
         $memoryGrowth = ($finalMemory - $initialMemory) / 1024 / 1024; // MB
 
         // Memory growth should be minimal (< 20MB for 20 operations)
-        $this->assertLessThan(20, $memoryGrowth,
-            "Memory grew by {$memoryGrowth}MB over 20 operations, expected < 20MB");
+        $this->assertLessThan(
+            20,
+            $memoryGrowth,
+            "Memory grew by {$memoryGrowth}MB over 20 operations, expected < 20MB"
+        );
 
         // Check that memory isn't continuously growing
         if (count($memoryReadings) >= 2) {

@@ -34,17 +34,17 @@ class RegistrationTest extends TestCase
         ]);
 
         $response->assertRedirect(route('dashboard', absolute: false));
-        
+
         // Verify user is authenticated
         $this->assertAuthenticated();
-        
+
         // Verify user exists in database with correct data
         $this->assertDatabaseHas('users', [
             'email' => 'test@example.com',
             'first_name' => 'Test',
             'last_name' => 'User',
         ]);
-        
+
         // Verify user attributes
         $user = User::where('email', 'test@example.com')->first();
         $this->assertNotNull($user);

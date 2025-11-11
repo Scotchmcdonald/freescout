@@ -125,7 +125,7 @@ class ConversationModelTest extends TestCase
     {
         $cc = ['cc1@example.com', 'cc2@example.com'];
         $bcc = ['bcc1@example.com'];
-        
+
         $conversation = Conversation::factory()->create([
             'cc' => $cc,
             'bcc' => $bcc,
@@ -160,7 +160,7 @@ class ConversationModelTest extends TestCase
             'type' => 1, // Assigned folder
             'user_id' => $user->id,
         ]);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'status' => Conversation::STATUS_ACTIVE,
@@ -181,7 +181,7 @@ class ConversationModelTest extends TestCase
             'mailbox_id' => $mailbox->id,
             'type' => 2, // Unassigned folder
         ]);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'status' => Conversation::STATUS_ACTIVE,
@@ -202,7 +202,7 @@ class ConversationModelTest extends TestCase
             'mailbox_id' => $mailbox->id,
             'type' => 4, // Closed/Deleted folder
         ]);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'status' => Conversation::STATUS_CLOSED,
@@ -222,7 +222,7 @@ class ConversationModelTest extends TestCase
             'mailbox_id' => $mailbox->id,
             'type' => 30, // Spam folder
         ]);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'status' => Conversation::STATUS_SPAM,
@@ -238,7 +238,7 @@ class ConversationModelTest extends TestCase
     {
         $mailbox = \App\Models\Mailbox::factory()->create();
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'status' => Conversation::STATUS_ACTIVE,

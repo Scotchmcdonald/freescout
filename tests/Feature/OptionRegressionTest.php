@@ -15,10 +15,10 @@ class OptionRegressionTest extends TestCase
 
     /**
      * Regression Test: Verify option retrieval logic matches L5 implementation.
-     * 
+     *
      * Modern File: app/Models/Option.php
      * Archived File: archive/app/Option.php
-     * 
+     *
      * The L5 version used Option::get($name, $default) static method.
      * The modern version uses Option::getValue($name, $default).
      * Both should behave identically.
@@ -46,7 +46,7 @@ class OptionRegressionTest extends TestCase
 
     /**
      * Regression Test: Verify option setting logic matches L5 implementation.
-     * 
+     *
      * The L5 version used Option::set($name, $value).
      * The modern version uses Option::setValue($name, $value).
      * Both should create or update the option.
@@ -76,7 +76,7 @@ class OptionRegressionTest extends TestCase
 
     /**
      * Regression Test: Verify option deletion matches L5 implementation.
-     * 
+     *
      * The L5 version used Option::remove($name).
      * The modern version uses Option::deleteOption($name).
      */
@@ -100,7 +100,7 @@ class OptionRegressionTest extends TestCase
 
     /**
      * Regression Test: Verify settings are retrieved with same defaults as L5.
-     * 
+     *
      * In L5, the helper function option('setting_key') was used.
      * In modern app, we use Option::getValue('setting_key', $default).
      * Both should return the same default values.
@@ -154,7 +154,7 @@ class OptionRegressionTest extends TestCase
 
     /**
      * Regression Test: Verify boolean values are handled correctly.
-     * 
+     *
      * In L5, boolean options were stored as integers (0 or 1).
      * The modern implementation should maintain this compatibility.
      */
@@ -188,7 +188,7 @@ class OptionRegressionTest extends TestCase
 
     /**
      * Regression Test: Verify updateOrCreate behavior matches L5.
-     * 
+     *
      * In L5, Option::set() used firstOrCreate() + save().
      * In modern, Option::setValue() uses updateOrCreate().
      * Both should result in the same database state.

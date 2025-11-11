@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\Customer;
 use App\Models\Conversation;
+use App\Models\Customer;
 use App\Models\Email;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,7 +14,7 @@ class CustomerComprehensiveTest extends TestCase
 
     public function test_customer_can_be_instantiated()
     {
-        $customer = new Customer();
+        $customer = new Customer;
         $this->assertInstanceOf(Customer::class, $customer);
     }
 
@@ -34,7 +34,7 @@ class CustomerComprehensiveTest extends TestCase
     {
         $customer = Customer::factory()->create([
             'first_name' => 'John',
-            'last_name' => 'Doe'
+            'last_name' => 'Doe',
         ]);
         $this->assertEquals('John Doe', $customer->getFullName());
     }
@@ -43,7 +43,7 @@ class CustomerComprehensiveTest extends TestCase
     {
         $customer = Customer::factory()->create([
             'first_name' => 'John',
-            'last_name' => null
+            'last_name' => null,
         ]);
         $this->assertEquals('John', $customer->getFullName());
     }
@@ -53,7 +53,7 @@ class CustomerComprehensiveTest extends TestCase
         $customer = Customer::factory()
             ->has(Conversation::factory()->count(3))
             ->create();
-        
+
         $this->assertCount(3, $customer->conversations);
     }
 
@@ -61,7 +61,7 @@ class CustomerComprehensiveTest extends TestCase
     {
         $customer = Customer::factory()->create();
         Email::factory()->count(2)->create(['customer_id' => $customer->id]);
-        
+
         $this->assertCount(2, $customer->emails);
     }
 
@@ -73,9 +73,9 @@ class CustomerComprehensiveTest extends TestCase
             'city' => null,
             'state' => null,
             'zip' => null,
-            'country' => null
+            'country' => null,
         ]);
-        
+
         $this->assertNull($customer->company);
         $this->assertNull($customer->job_title);
     }
@@ -83,7 +83,7 @@ class CustomerComprehensiveTest extends TestCase
     public function test_customer_timestamps_are_set()
     {
         $customer = Customer::factory()->create();
-        
+
         $this->assertNotNull($customer->created_at);
         $this->assertNotNull($customer->updated_at);
     }
@@ -108,9 +108,9 @@ class CustomerComprehensiveTest extends TestCase
         $longName = str_repeat('A', 255);
         $customer = Customer::factory()->create([
             'first_name' => $longName,
-            'last_name' => $longName
+            'last_name' => $longName,
         ]);
-        
+
         $this->assertEquals($longName, $customer->first_name);
         $this->assertEquals($longName, $customer->last_name);
     }
@@ -119,16 +119,16 @@ class CustomerComprehensiveTest extends TestCase
     {
         $longCompany = str_repeat('Company ', 30);
         $customer = Customer::factory()->create(['company' => $longCompany]);
-        
+
         $this->assertEquals($longCompany, $customer->company);
     }
 
     public function test_customer_can_update_without_changing_email()
     {
         $customer = Customer::factory()->create();
-        
+
         $customer->update(['first_name' => 'Updated']);
-        
+
         $this->assertEquals('Updated', $customer->first_name);
     }
 
@@ -137,9 +137,9 @@ class CustomerComprehensiveTest extends TestCase
         $customer = Customer::factory()
             ->has(Conversation::factory()->count(2))
             ->create();
-        
+
         $loaded = Customer::with('conversations')->find($customer->id);
-        
+
         $this->assertTrue($loaded->relationLoaded('conversations'));
     }
 
@@ -147,10 +147,10 @@ class CustomerComprehensiveTest extends TestCase
     {
         $customer = Customer::factory()->create([
             'first_name' => "O'Brien",
-            'last_name' => "Müller-Schmidt"
+            'last_name' => 'Müller-Schmidt',
         ]);
-        
+
         $this->assertEquals("O'Brien", $customer->first_name);
-        $this->assertEquals("Müller-Schmidt", $customer->last_name);
+        $this->assertEquals('Müller-Schmidt', $customer->last_name);
     }
 }

@@ -17,7 +17,7 @@ class ImapService
 {
     /**
      * Fetch emails from a mailbox.
-     * 
+     *
      * @return array{fetched: int, created: int, errors: int, messages: array<int, string>}
      */
     public function fetchEmails(Mailbox $mailbox): array
@@ -222,8 +222,6 @@ class ImapService
 
     /**
      * Get encryption protocol.
-     * 
-     * @param int|string|null $encryption
      */
     protected function getEncryption(int|string|null $encryption): ?string
     {
@@ -231,7 +229,7 @@ class ImapService
         if (is_string($encryption)) {
             $encryption = (int) $encryption;
         }
-        
+
         return match ($encryption) {
             1 => 'ssl',
             2 => 'tls',
@@ -308,7 +306,7 @@ class ImapService
             // Check if sender is an internal user
             /** @var \App\Models\User|null $senderUser */
             $senderUser = \App\Models\User::where('email', $fromEmail)->first();
-            
+
             if ($senderUser) {
                 Log::debug('Sender is an internal user', [
                     'user_id' => $senderUser->id,
@@ -347,11 +345,11 @@ class ImapService
 
             // Check if conversation already exists by Message-ID
             $messageIdRaw = $message->getMessageId();
-            
+
             // Convert Attribute to string if needed (IMAP library returns Attribute objects)
             $messageId = (string) $messageIdRaw;
 
-            if (!$messageId || trim($messageId) === '') {
+            if (! $messageId || trim($messageId) === '') {
                 Log::warning('Message has no Message-ID header, generating one');
                 $messageId = '<'.uniqid('freescout-', true).'@'.($mailbox->in_server ?? 'localhost').'>';
             }
@@ -394,7 +392,7 @@ class ImapService
             // Get subject (IMAP library returns Attribute objects)
             $subjectRaw = $message->getSubject();
             $subject = (string) $subjectRaw;
-            if (!$subject || trim($subject) === '') {
+            if (! $subject || trim($subject) === '') {
                 $subject = '(No Subject)';
             }
 
@@ -549,8 +547,8 @@ class ImapService
                 'cc' => ! empty($cc) ? json_encode($cc) : null,
                 'bcc' => ! empty($bcc) ? json_encode($bcc) : null,
                 'message_id' => $messageId,
-                'headers' => method_exists($message, 'getRawHeader') 
-                    ? $message->getRawHeader() 
+                'headers' => method_exists($message, 'getRawHeader')
+                    ? $message->getRawHeader()
                     : ($message->getHeader() && method_exists($message->getHeader(), '__toString') ? (string) $message->getHeader() : ''),
                 'first' => $conversation->threads_count === 0,
             ];
@@ -561,7 +559,7 @@ class ImapService
                 $threadData['user_id'] = $senderUser->id; // Assignee is the user who replied
                 $threadData['source_via'] = 1; // User
                 $threadData['source_type'] = 1; // Email
-                
+
                 // Update conversation to show last reply was from user
                 $conversation->last_reply_from = 1; // User
                 $conversation->save();
@@ -751,7 +749,7 @@ class ImapService
 
     /**
      * Test IMAP connection.
-     * 
+     *
      * @return array{success: bool, message: string}
      */
     public function testConnection(Mailbox $mailbox): array
@@ -766,8 +764,8 @@ class ImapService
             $client->connect();
 
             $folder = $client->getFolder('INBOX');
-            
-            if (!$folder) {
+
+            if (! $folder) {
                 throw new \Exception('Could not access INBOX folder');
             }
 
@@ -871,7 +869,7 @@ class ImapService
     /**
      * Get original sender from a forwarded email body.
      * Matches original FreeScout implementation.
-     * 
+     *
      * @return array{email: string, name: string}|null
      */
     protected function getOriginalSenderFromFwd(string $body): ?array
@@ -892,7 +890,7 @@ class ImapService
         if (preg_match("/[\"'<:;]([^\"'<:;!@\s]+@[^\"'>:&@\s]+)[\"'>:&]/", $cleanBody, $matches)) {
             $emailRaw = preg_replace('#.*&lt;(.*)&gt.*#', '$1', $matches[1]);
             $emailSanitized = is_string($emailRaw) ? \App\Models\Email::sanitizeEmail($emailRaw) : false;
-            
+
             if ($emailSanitized) {
                 return [
                     'name' => '',
@@ -937,7 +935,7 @@ class ImapService
 
     /**
      * Get email addresses with names from IMAP address objects.
-     * 
+     *
      * @return array<int, array{email: string, first_name: string, last_name: string}>
      */
     protected function getAddressesWithNames(mixed $addresses): array
@@ -999,7 +997,7 @@ class ImapService
 
     /**
      * Parse email addresses from IMAP Attribute object.
-     * 
+     *
      * @return array<int, string>
      */
     protected function parseAddresses(mixed $addresses): array

@@ -9,7 +9,6 @@ use App\Services\ImapService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Mockery;
-use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
@@ -36,7 +35,7 @@ class ImapServiceAdvancedTest extends TestCase
         $service = Mockery::mock(ImapService::class)
             ->makePartial()
             ->shouldAllowMockingProtectedMethods();
-        
+
         $service->shouldReceive('createClient')
             ->andReturn($mockClient);
 
@@ -46,7 +45,7 @@ class ImapServiceAdvancedTest extends TestCase
     /** Test handling of empty IMAP server configuration */
     public function test_handles_missing_imap_server_configuration(): void
     {
-                $mailbox = Mailbox::factory()->create([
+        $mailbox = Mailbox::factory()->create([
             'in_server' => null,
         ]);
 
@@ -207,7 +206,7 @@ class ImapServiceAdvancedTest extends TestCase
                 $result = $service->fetchEmails($mailbox);
                 $this->assertIsArray($result);
             } catch (\Exception $e) {
-                $this->fail('Service should not throw exceptions: ' . $e->getMessage());
+                $this->fail('Service should not throw exceptions: '.$e->getMessage());
             }
         }
     }
@@ -269,10 +268,10 @@ class ImapServiceAdvancedTest extends TestCase
     {
         // When server is configured, it should log info about starting fetch
         Log::shouldReceive('info')->atLeast()->once();
-        
+
         // When connection fails, it should log error
         Log::shouldReceive('error')->atLeast()->once();
-        
+
         // Allow other log levels
         Log::shouldReceive('warning')->zeroOrMoreTimes();
         Log::shouldReceive('debug')->zeroOrMoreTimes();

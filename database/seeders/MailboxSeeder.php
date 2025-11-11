@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
-use App\Models\Folder;
 use Illuminate\Database\Seeder;
 
 class MailboxSeeder extends Seeder

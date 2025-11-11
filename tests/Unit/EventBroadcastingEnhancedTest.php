@@ -12,9 +12,7 @@ use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class EventBroadcastingEnhancedTest extends TestCase
@@ -42,17 +40,17 @@ class EventBroadcastingEnhancedTest extends TestCase
 
     public function test_new_message_received_broadcast_with_contains_thread_data(): void
     {
-        $customer = new Customer();
+        $customer = new Customer;
         $customer->id = 100;
         $customer->first_name = 'John';
         $customer->last_name = 'Doe';
 
-        $user = new User();
+        $user = new User;
         $user->id = 200;
         $user->first_name = 'Jane';
         $user->last_name = 'Smith';
 
-        $mailbox = new Mailbox();
+        $mailbox = new Mailbox;
         $mailbox->id = 300;
         $mailbox->name = 'Support';
 
@@ -156,7 +154,7 @@ class EventBroadcastingEnhancedTest extends TestCase
 
     public function test_user_viewing_conversation_broadcast_with_contains_user_data(): void
     {
-        $user = new User();
+        $user = new User;
         $user->id = 456;
         $user->first_name = 'Jane';
         $user->last_name = 'Smith';

@@ -136,7 +136,7 @@ class ConfigureGmailMailboxTest extends TestCase
         $this->artisan('mailbox:configure-gmail', ['mailbox_id' => $mailbox->id])
             ->expectsQuestion('Enter your Gmail address', 'support@gmail.com')
             ->expectsQuestion('Enter your Gmail App Password (input will be hidden)', 'app-pass-16-chars')
-            ->expectsOutput('Configuring mailbox: Customer Support (ID: ' . $mailbox->id . ')')
+            ->expectsOutput('Configuring mailbox: Customer Support (ID: '.$mailbox->id.')')
             ->expectsOutputToContain('smtp.gmail.com:587 (TLS)')
             ->expectsOutputToContain('imap.gmail.com:993 (SSL)')
             ->assertExitCode(0);
@@ -205,10 +205,10 @@ class ConfigureGmailMailboxTest extends TestCase
         // Assert all were configured correctly
         $mailbox1->refresh();
         $this->assertEquals('user@gmail.com', $mailbox1->email);
-        
+
         $mailbox2->refresh();
         $this->assertEquals('admin@company.com', $mailbox2->email);
-        
+
         $mailbox3->refresh();
         $this->assertEquals('first.last@gmail.com', $mailbox3->email);
     }
@@ -232,13 +232,13 @@ class ConfigureGmailMailboxTest extends TestCase
 
         // Assert - both settings updated
         $mailbox->refresh();
-        
+
         // Outgoing (SMTP)
         $this->assertEquals('smtp.gmail.com', $mailbox->out_server);
         $this->assertEquals(587, $mailbox->out_port);
         $this->assertEquals('new@gmail.com', $mailbox->out_username);
         $this->assertEquals(2, $mailbox->out_encryption); // TLS
-        
+
         // Incoming (IMAP)
         $this->assertEquals('imap.gmail.com', $mailbox->in_server);
         $this->assertEquals(993, $mailbox->in_port);

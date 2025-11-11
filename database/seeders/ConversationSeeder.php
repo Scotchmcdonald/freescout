@@ -6,7 +6,6 @@ namespace Database\Seeders;
 
 use App\Models\Conversation;
 use App\Models\Customer;
-use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
@@ -22,6 +21,7 @@ class ConversationSeeder extends Seeder
 
         if ($mailboxes->isEmpty() || $users->isEmpty() || $customers->isEmpty()) {
             $this->command->warn('Please run UserSeeder, MailboxSeeder, and CustomerSeeder first.');
+
             return;
         }
 
@@ -30,7 +30,7 @@ class ConversationSeeder extends Seeder
             $folderQuery = $mailbox->folders();
             $inboxFolder = $folderQuery->where('type', 1)->first();
 
-            if (!$inboxFolder) {
+            if (! $inboxFolder) {
                 continue;
             }
 

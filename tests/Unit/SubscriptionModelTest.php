@@ -15,7 +15,7 @@ class SubscriptionModelTest extends TestCase
 
     public function test_model_can_be_instantiated(): void
     {
-        $subscription = new Subscription();
+        $subscription = new Subscription;
         $this->assertInstanceOf(Subscription::class, $subscription);
     }
 
@@ -131,13 +131,13 @@ class SubscriptionModelTest extends TestCase
     public function test_multiple_subscriptions_for_same_user(): void
     {
         $user = User::factory()->create();
-        
+
         Subscription::factory()->create([
             'user_id' => $user->id,
             'medium' => 1,
             'event' => 1,
         ]);
-        
+
         Subscription::factory()->create([
             'user_id' => $user->id,
             'medium' => 2,

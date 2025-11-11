@@ -173,3 +173,50 @@ Web installer:
 Login page:
 
 ![Login page](https://freescout-helpdesk.github.io/img/screenshots/freescout-login.png)
+
+---
+
+## 🚀 Development Setup
+
+This project includes several scripts to help you get your development environment up and running quickly.
+
+### Quick Setup
+
+To set up the entire environment in one go, run the master setup script:
+
+```bash
+./scripts/setup.sh
+```
+
+This will present a menu allowing you to:
+1.  **Setup Development Environment**: Installs necessary PHP extensions, Composer, and other tools.
+2.  **Setup Web Server**: Configures Nginx to serve the application.
+3.  **Setup Auto-Start Services**: Configures Supervisor to run queue workers and Reverb automatically.
+
+You can also run all steps non-interactively:
+```bash
+./scripts/setup.sh --all
+```
+
+### Starting the Development Servers
+
+To start the development servers (Laravel backend and Vite frontend), use the `start_dev.sh` script:
+
+```bash
+# Start the servers
+./scripts/start_dev.sh start
+
+# Stop the servers
+./scripts/start_dev.sh stop
+
+# Restart the servers
+./scripts/start_dev.sh restart
+```
+
+### Running Tests
+
+A script is provided to run the test suite:
+
+```bash
+./scripts/run_tests.sh
+```

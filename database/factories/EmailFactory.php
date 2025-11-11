@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\Email;
 use App\Models\Customer;
+use App\Models\Email;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

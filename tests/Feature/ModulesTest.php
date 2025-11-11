@@ -6,7 +6,6 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Artisan;
 use Nwidart\Modules\Facades\Module;
 use Tests\TestCase;
 
@@ -75,11 +74,12 @@ class ModulesTest extends TestCase
         $response->assertViewHas('modules', function ($modules) {
             // Verify each module has required metadata
             foreach ($modules as $module) {
-                if (!isset($module['name']) || !isset($module['alias']) || 
-                    !isset($module['description']) || !isset($module['enabled'])) {
+                if (! isset($module['name']) || ! isset($module['alias']) ||
+                    ! isset($module['description']) || ! isset($module['enabled'])) {
                     return false;
                 }
             }
+
             return true;
         });
     }

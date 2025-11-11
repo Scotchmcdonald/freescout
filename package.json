@@ -4,6 +4,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
+        "lint": "echo 'No linting configured - consider adding ESLint'",
         "test": "vitest",
         "test:ui": "vitest --ui",
         "test:coverage": "vitest --coverage"

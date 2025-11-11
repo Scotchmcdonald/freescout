@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Customer;
-use App\Models\Email;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -20,7 +19,7 @@ class CustomerEdgeCasesTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get(route('customers.show', $customer->id));
-        
+
         $response->assertOk();
         $this->assertDatabaseHas('customers', ['id' => $customer->id]);
     }
@@ -28,12 +27,12 @@ class CustomerEdgeCasesTest extends TestCase
     public function test_customer_list_displays_with_many_records(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        
+
         // Create 30 customers
         Customer::factory()->count(30)->create();
 
         $response = $this->actingAs($user)->get('/customers');
-        
+
         $response->assertOk();
         $response->assertViewHas('customers');
     }
@@ -46,7 +45,7 @@ class CustomerEdgeCasesTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get(route('customers.show', $customer->id));
-        
+
         $response->assertOk();
         // Verify XSS is escaped
         $response->assertDontSee('<script>', false);
@@ -62,7 +61,7 @@ class CustomerEdgeCasesTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get(route('customers.show', $customer->id));
-        
+
         $response->assertOk();
         $response->assertViewHas('customer');
     }
@@ -72,7 +71,7 @@ class CustomerEdgeCasesTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
         $response = $this->actingAs($user)->get('/customers');
-        
+
         $response->assertOk();
         $response->assertViewHas('customers');
     }
@@ -80,7 +79,7 @@ class CustomerEdgeCasesTest extends TestCase
     public function test_guest_cannot_access_customer_list(): void
     {
         $response = $this->get('/customers');
-        
+
         $response->assertRedirect(route('login'));
     }
 
@@ -89,7 +88,7 @@ class CustomerEdgeCasesTest extends TestCase
         $customer = Customer::factory()->create();
 
         $response = $this->get(route('customers.show', $customer->id));
-        
+
         $response->assertRedirect(route('login'));
     }
 
@@ -97,8 +96,8 @@ class CustomerEdgeCasesTest extends TestCase
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
-        $response = $this->actingAs($user)->get("/customers/99999");
-        
+        $response = $this->actingAs($user)->get('/customers/99999');
+
         $response->assertStatus(404);
     }
 }

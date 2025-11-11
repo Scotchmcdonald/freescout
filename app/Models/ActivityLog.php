@@ -61,13 +61,14 @@ class ActivityLog extends Model
         if ($this->causer_type === \App\Models\User::class && $this->causer instanceof \App\Models\User) {
             return $this->causer;
         }
+
         return null;
     }
 
     /**
      * Scope to filter by log name.
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog> $query
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>  $query
      * @return \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>
      */
     public function scopeInLog(\Illuminate\Database\Eloquent\Builder $query, string $logName): \Illuminate\Database\Eloquent\Builder
@@ -77,8 +78,8 @@ class ActivityLog extends Model
 
     /**
      * Scope to filter by causer.
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog> $query
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>  $query
      * @return \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>
      */
     public function scopeCausedBy(\Illuminate\Database\Eloquent\Builder $query, Model $causer): \Illuminate\Database\Eloquent\Builder

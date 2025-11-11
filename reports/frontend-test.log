@@ -11,66 +11,11 @@
 [90mstderr[2m | tests/javascript/notifications.test.js[2m > [22m[2mRealtimeNotifications[2m > [22m[2minit[2m > [22m[2mshould not initialize if userId is missing
 [22m[39mEcho or user ID not available
 
- [31m❯[39m tests/javascript/notifications.test.js [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 50[2mms[22m[39m
-       [32m✓[39m should initialize with user ID from meta tag[32m 8[2mms[22m[39m
-       [32m✓[39m should initialize with conversation ID from meta tag[32m 11[2mms[22m[39m
-       [32m✓[39m should create notification container[32m 8[2mms[22m[39m
-       [32m✓[39m should not create duplicate containers[32m 2[2mms[22m[39m
-       [32m✓[39m should not initialize if userId is missing[32m 3[2mms[22m[39m
-[31m       [31m×[31m should set up Echo listeners when Echo is available[39m[32m 15[2mms[22m[39m
- [31m❯[39m tests/javascript/ui-helpers.test.js [2m([22m[2m18 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 60[2mms[22m[39m
-       [32m✓[39m should create and show a toast notification[32m 5[2mms[22m[39m
-       [32m✓[39m should use custom duration when provided[32m 1[2mms[22m[39m
-       [32m✓[39m should call Swal.fire with confirmation options[32m 1[2mms[22m[39m
-       [32m✓[39m should return true when confirmed[32m 0[2mms[22m[39m
-       [32m✓[39m should return false when cancelled[32m 0[2mms[22m[39m
-       [32m✓[39m should support custom button text[32m 0[2mms[22m[39m
-       [32m✓[39m should call Swal.fire with loading state[32m 0[2mms[22m[39m
-       [32m✓[39m should show loading spinner on open[32m 0[2mms[22m[39m
-       [32m✓[39m should default to "Processing..." message[32m 0[2mms[22m[39m
-       [32m✓[39m should close the Swal modal[32m 0[2mms[22m[39m
-       [32m✓[39m should format date in short format[32m 34[2mms[22m[39m
-       [32m✓[39m should format date in long format[32m 0[2mms[22m[39m
-       [32m✓[39m should handle string dates[32m 0[2mms[22m[39m
-       [32m✓[39m should debounce function calls[32m 2[2mms[22m[39m
-       [32m✓[39m should throttle function calls[32m 1[2mms[22m[39m
-[31m       [31m×[31m should copy text to clipboard[39m[32m 9[2mms[22m[39m
-[31m       [31m×[31m should return true on success[39m[32m 1[2mms[22m[39m
-[31m       [31m×[31m should return false on error[39m[32m 1[2mms[22m[39m
+ [32m✓[39m tests/javascript/notifications.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/javascript/ui-helpers.test.js [2m([22m[2m18 tests[22m[2m)[22m[32m 48[2mms[22m[39m
 
-[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
-
-[41m[1m FAIL [22m[49m tests/javascript/notifications.test.js[2m > [22mRealtimeNotifications[2m > [22minit[2m > [22mshould set up Echo listeners when Echo is available
-[31m[1mTypeError[22m: window.Echo.private(...).listen(...).listen(...).notification is not a function[39m
-[36m [2m❯[22m RealtimeNotifications.subscribeToUserChannel resources/js/notifications.js:[2m49:14[22m[39m
-    [90m 47| [39m                [35mthis[39m[33m.[39m[34mhandleConversationUpdate[39m(data)[33m;[39m
-    [90m 48| [39m            })
-    [90m 49| [39m            [33m.[39m[34mnotification[39m((notification) [33m=>[39m {
-    [90m   | [39m             [31m^[39m
-    [90m 50| [39m                [35mthis[39m[33m.[39m[34mshowNotification[39m(notification)[33m;[39m
-    [90m 51| [39m            })[33m;[39m
-[90m [2m❯[22m RealtimeNotifications.init resources/js/notifications.js:[2m33:14[22m[39m
-[90m [2m❯[22m tests/javascript/notifications.test.js:[2m53:33[22m[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/javascript/ui-helpers.test.js[2m > [22mUI Helpers[2m > [22mcopyToClipboard[2m > [22mshould copy text to clipboard
-[41m[1m FAIL [22m[49m tests/javascript/ui-helpers.test.js[2m > [22mUI Helpers[2m > [22mcopyToClipboard[2m > [22mshould return true on success
-[41m[1m FAIL [22m[49m tests/javascript/ui-helpers.test.js[2m > [22mUI Helpers[2m > [22mcopyToClipboard[2m > [22mshould return false on error
-[31m[1mTypeError[22m: Cannot set property clipboard of [object Object] which has only a getter[39m
-[36m [2m❯[22m tests/javascript/ui-helpers.test.js:[2m204:20[22m[39m
-    [90m202| [39m        [34mbeforeEach[39m(() [33m=>[39m {
-    [90m203| [39m            [90m// Mock clipboard API[39m
-    [90m204| [39m            [33mObject[39m[33m.[39m[34massign[39m(navigator[33m,[39m {
-    [90m   | [39m                   [31m^[39m
-    [90m205| [39m                clipboard[33m:[39m {
-    [90m206| [39m                    writeText[33m:[39m vi[33m.[39m[34mfn[39m()[33m.[39m[34mmockResolvedValue[39m(undefined)
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
-
-
-[2m Test Files [22m [1m[31m2 failed[39m[22m[90m (2)[39m
-[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m20 passed[39m[22m[90m (24)[39m
-[2m   Start at [22m 04:10:50
-[2m   Duration [22m 780ms[2m (transform 217ms, setup 113ms, collect 238ms, tests 110ms, environment 659ms, prepare 18ms)[22m
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m24 passed[39m[22m[90m (24)[39m
+[2m   Start at [22m 23:40:44
+[2m   Duration [22m 782ms[2m (transform 103ms, setup 55ms, collect 100ms, tests 62ms, environment 895ms, prepare 21ms)[22m
 

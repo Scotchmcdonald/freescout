@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $active_count
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * 
  * @property-read \App\Models\Mailbox $mailbox
  * @property-read \App\Models\User|null $user
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
@@ -65,7 +64,7 @@ class Folder extends Model
 
     /**
      * Get the mailbox that owns the folder.
-     * 
+     *
      * @return BelongsTo<Mailbox, $this>
      */
     public function mailbox(): BelongsTo
@@ -75,7 +74,7 @@ class Folder extends Model
 
     /**
      * Get the user that owns the folder.
-     * 
+     *
      * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
@@ -85,7 +84,7 @@ class Folder extends Model
 
     /**
      * Get the conversations in this folder.
-     * 
+     *
      * @return HasMany<Conversation, $this>
      */
     public function conversations(): HasMany
@@ -95,7 +94,7 @@ class Folder extends Model
 
     /**
      * Get the conversations through the pivot table.
-     * 
+     *
      * @return BelongsToMany<Conversation, $this>
      */
     public function conversationsViaFolder(): BelongsToMany

@@ -128,7 +128,7 @@ class SettingsOperationsTest extends TestCase
         // This test would mock Artisan to throw an exception
         // For now, just verify the route exists and requires auth
         $response = $this->actingAs($this->admin)->post(route('settings.migrate'));
-        
+
         // Should not throw exception
         $this->assertTrue($response->isRedirect() || $response->isOk());
     }

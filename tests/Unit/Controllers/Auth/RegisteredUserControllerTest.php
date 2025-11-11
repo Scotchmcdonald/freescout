@@ -2,11 +2,9 @@
 
 namespace Tests\Unit\Controllers\Auth;
 
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class RegisteredUserControllerTest extends TestCase

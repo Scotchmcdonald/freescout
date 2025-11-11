@@ -45,7 +45,7 @@ class ErrorHandlingTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         // User not assigned to this mailbox
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -56,7 +56,7 @@ class ErrorHandlingTest extends TestCase
 
         // Should be forbidden, redirect, or not found
         $this->assertTrue(
-            $response->status() === 403 || 
+            $response->status() === 403 ||
             $response->status() === 302 ||
             $response->status() === 404
         );
@@ -108,11 +108,11 @@ class ErrorHandlingTest extends TestCase
         // Attempt SQL injection
         $maliciousQuery = "'; DROP TABLE users; --";
 
-        $response = $this->actingAs($user)->post('/customers/ajax?action=search&q=' . urlencode($maliciousQuery));
+        $response = $this->actingAs($user)->post('/customers/ajax?action=search&q='.urlencode($maliciousQuery));
 
         // Should handle gracefully without SQL injection
         $response->assertOk();
-        
+
         // Verify database tables still exist
         $this->assertDatabaseHas('users', ['id' => $user->id]);
     }
@@ -120,9 +120,9 @@ class ErrorHandlingTest extends TestCase
     public function test_xss_attempt_in_customer_name_is_escaped(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
-        
+
         $xssAttempt = "<script>alert('XSS')</script>";
-        
+
         $customer = Customer::factory()->create([
             'first_name' => $xssAttempt,
             'last_name' => 'Test',
@@ -140,14 +140,14 @@ class ErrorHandlingTest extends TestCase
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
         ]);
-        
+
         $conversationId = $conversation->id;
-        
+
         // Delete mailbox (which might cascade delete conversation)
         $mailbox->delete();
 
@@ -164,7 +164,7 @@ class ErrorHandlingTest extends TestCase
         // Very long search query
         $longQuery = str_repeat('a', 1000);
 
-        $response = $this->actingAs($user)->post('/customers/ajax?action=search&q=' . urlencode($longQuery));
+        $response = $this->actingAs($user)->post('/customers/ajax?action=search&q='.urlencode($longQuery));
 
         // Should handle gracefully
         $response->assertOk();
@@ -176,7 +176,7 @@ class ErrorHandlingTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($user);
         $customer = Customer::factory()->create();
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,

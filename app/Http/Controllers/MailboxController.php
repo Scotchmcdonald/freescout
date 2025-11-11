@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Mailbox;
+use App\Models\User;
 use App\Services\ImapService;
+use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Contracts\View\View;
-use Illuminate\Contracts\View\Factory as ViewFactory;
-use App\Models\User;
 
 class MailboxController extends Controller
 {
@@ -295,7 +294,7 @@ class MailboxController extends Controller
         $validated['out_encryption'] = $encryptionMap[$validated['out_encryption']] ?? 0;
 
         // Handle from_name
-        if (!empty($validated['from_name'])) {
+        if (! empty($validated['from_name'])) {
             $validated['from_name_custom'] = $validated['from_name'];
             $validated['from_name'] = 3; // custom
         } else {
@@ -322,7 +321,7 @@ class MailboxController extends Controller
         $this->authorize('update', $mailbox);
 
         $users = User::where('status', User::STATUS_ACTIVE)
-            ->with(['mailboxes' => fn($query) => $query->where('mailboxes.id', $mailbox->id)])
+            ->with(['mailboxes' => fn ($query) => $query->where('mailboxes.id', $mailbox->id)])
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
@@ -344,7 +343,7 @@ class MailboxController extends Controller
 
         $syncData = [];
         foreach ($validated['permissions'] as $userId => $access) {
-            if (!empty($access)) {
+            if (! empty($access)) {
                 $syncData[$userId] = ['access' => $access];
             }
         }

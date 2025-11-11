@@ -1,29 +1,28 @@
 Warning: TTY mode requires /dev/tty to be read/writable.
 
    FAIL  Tests\Browser\ExampleTest
-  ⨯ basic example                                                        0.31s  
+  ⨯ basic example                                                        1.36s  
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Browser\ExampleTest > basic example   WebDriverCurlException   
-  Curl error thrown for http POST to /session with params: {"capabilities":{"firstMatch":[{"browserName":"chrome","goog:chromeOptions":{"args":["--window-size=1920,1080","--disable-search-engine-choice-screen","--disable-smooth-scrolling","--disable-gpu","--headless=new"]}}]},"desiredCapabilities":{"browserName":"chrome","platform":"ANY","goog:chromeOptions":{"args":["--window-size=1920,1080","--disable-search-engine-choice-screen","--disable-smooth-scrolling","--disable-gpu","--headless=new"]}}}
+   FAILED  Tests\Browser\ExampleTest > basic example    UnknownErrorException   
+  unknown error: net::ERR_CONNECTION_REFUSED
+  (Session info: chrome=142.0.7444.61)
 
-Failed to connect to localhost port 9515 after 0 ms: Couldn't connect to server
+  at vendor/php-webdriver/webdriver/lib/Exception/WebDriverException.php:146
+    142▕                     throw new UnexpectedAlertOpenException($message, $results);
+    143▕                 case 'unknown command':
+    144▕                     throw new UnknownCommandException($message, $results);
+    145▕                 case 'unknown error':
+  ➜ 146▕                     throw new UnknownErrorException($message, $results);
+    147▕                 case 'unknown method':
+    148▕                     throw new UnknownMethodException($message, $results);
+    149▕                 case 'unsupported operation':
+    150▕                     throw new UnsupportedOperationException($message, $results);
 
-  at vendor/php-webdriver/webdriver/lib/Exception/Internal/WebDriverCurlException.php:20
-     16▕         }
-     17▕ 
-     18▕         $message .= "\n\n" . $curlError;
-     19▕ 
-  ➜  20▕         return new self($message);
-     21▕     }
-     22▕ }
-     23▕
-
-      [2m+3 vendor frames [22m
-  4   tests/DuskTestCase.php:41
-      [2m+1 vendor frames [22m
+      [2m+5 vendor frames [22m
   6   tests/Browser/ExampleTest.php:16
+  7   tests/Browser/ExampleTest.php:15
 
 
   Tests:    1 failed (0 assertions)
-  Duration: 0.35s
+  Duration: 1.47s
 

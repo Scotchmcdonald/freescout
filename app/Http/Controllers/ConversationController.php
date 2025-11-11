@@ -138,7 +138,7 @@ class ConversationController extends Controller
 
         try {
             // Find or create customer
-            if (!empty($validated['customer_id'])) {
+            if (! empty($validated['customer_id'])) {
                 /** @var \App\Models\Customer $customer */
                 $customer = Customer::findOrFail($validated['customer_id']);
                 $customerEmail = $customer->getMainEmail() ?? $validated['customer_email'];
@@ -149,9 +149,9 @@ class ConversationController extends Controller
                     'first_name' => $validated['customer_first_name'] ?? '',
                     'last_name' => $validated['customer_last_name'] ?? '',
                 ]);
-                
-                if (!$customer) {
-                    throw new \Exception('Failed to create customer with email: ' . $customerEmail);
+
+                if (! $customer) {
+                    throw new \Exception('Failed to create customer with email: '.$customerEmail);
                 }
             }
 
@@ -162,8 +162,8 @@ class ConversationController extends Controller
             // Get default folder
             $folder = $mailbox->folders()->where('type', 1)->first(); // Inbox type
 
-            if (!$folder) {
-                throw new \Exception('Inbox folder not found for mailbox: ' . $mailbox->name);
+            if (! $folder) {
+                throw new \Exception('Inbox folder not found for mailbox: '.$mailbox->name);
             }
 
             // Create conversation
@@ -367,7 +367,7 @@ class ConversationController extends Controller
                             ->orWhere('last_name', 'like', "%{$searchQuery}%");
                     });
             });
-        
+
         $conversations = $queryBuilder
             ->with(['mailbox', 'customer', 'user', 'folder'])
             ->orderBy('last_reply_at', 'desc')
@@ -434,12 +434,12 @@ class ConversationController extends Controller
         ]);
 
         $file = $request->file('file');
-        
+
         // Ensure file is an UploadedFile instance
-        if (!$file instanceof \Illuminate\Http\UploadedFile) {
+        if (! $file instanceof \Illuminate\Http\UploadedFile) {
             return response()->json(['success' => false, 'message' => 'Invalid file upload'], 400);
         }
-        
+
         $path = $file->store('attachments', 'public');
 
         return response()->json([
@@ -466,7 +466,7 @@ class ConversationController extends Controller
         $this->authorize('view', $originalConversation);
 
         // Create new conversation with same properties
-        $conversation = new Conversation();
+        $conversation = new Conversation;
         $conversation->type = $originalConversation->type;
         $conversation->subject = $originalConversation->subject;
         $conversation->mailbox_id = $originalConversation->mailbox_id;
@@ -485,7 +485,7 @@ class ConversationController extends Controller
         $conversation->updateFolder();
 
         // Create cloned thread
-        $newThread = new Thread();
+        $newThread = new Thread;
         $newThread->conversation_id = $conversation->id;
         $newThread->user_id = $thread->user_id;
         $newThread->type = $thread->type;
@@ -498,7 +498,7 @@ class ConversationController extends Controller
         $newThread->cc = $thread->cc;
         $newThread->bcc = $thread->bcc;
         $newThread->has_attachments = $thread->has_attachments;
-        $newThread->message_id = 'clone' . crc32(microtime()) . '-' . $thread->message_id;
+        $newThread->message_id = 'clone'.crc32(microtime()).'-'.$thread->message_id;
         $newThread->source_via = $thread->source_via;
         $newThread->source_type = $thread->source_type;
         $newThread->customer_id = $thread->customer_id;

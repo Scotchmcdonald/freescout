@@ -23,8 +23,8 @@ class ImapServiceComprehensiveTest extends TestCase
             'in_password' => 'password',
         ]);
 
-        $service = new ImapService();
-        
+        $service = new ImapService;
+
         // This will fail to connect in test env, but should return valid structure
         $stats = $service->fetchEmails($mailbox);
 
@@ -46,7 +46,7 @@ class ImapServiceComprehensiveTest extends TestCase
             ->once()
             ->with('IMAP fetch skipped - no server configured', \Mockery::any());
 
-        $service = new ImapService();
+        $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
 
         $this->assertEquals(0, $stats['fetched']);
@@ -77,7 +77,7 @@ class ImapServiceComprehensiveTest extends TestCase
         Log::shouldReceive('warning')->zeroOrMoreTimes();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
 
-        $service = new ImapService();
+        $service = new ImapService;
         $service->fetchEmails($mailbox);
     }
 
@@ -89,7 +89,7 @@ class ImapServiceComprehensiveTest extends TestCase
 
         Log::shouldReceive('warning')->once();
 
-        $service = new ImapService();
+        $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
 
         $this->assertEquals(0, $stats['fetched']);
@@ -107,7 +107,7 @@ class ImapServiceComprehensiveTest extends TestCase
 
         Log::shouldReceive('warning')->once();
 
-        $service = new ImapService();
+        $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
 
         $this->assertNotNull($stats);
@@ -117,19 +117,19 @@ class ImapServiceComprehensiveTest extends TestCase
 
     public function test_test_connection_method_exists(): void
     {
-        $service = new ImapService();
-        
+        $service = new ImapService;
+
         $this->assertTrue(method_exists($service, 'testConnection'));
     }
 
     public function test_create_client_method_exists(): void
     {
-        $service = new ImapService();
-        
+        $service = new ImapService;
+
         $reflection = new \ReflectionClass($service);
         $methods = $reflection->getMethods();
-        $methodNames = array_map(fn($method) => $method->getName(), $methods);
-        
+        $methodNames = array_map(fn ($method) => $method->getName(), $methods);
+
         $this->assertContains('createClient', $methodNames);
     }
 }

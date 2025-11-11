@@ -30,13 +30,13 @@ class UserSecurityBatch1Test extends TestCase
 
         // Assert - Should fail validation for invalid email format
         $response->assertSessionHasErrors('email');
-        
+
         // Verify error message exists
         $errors = session('errors');
         $this->assertNotNull($errors);
         $emailErrors = $errors->get('email');
         $this->assertNotEmpty($emailErrors);
-        
+
         // Verify no user was created with XSS in email
         $this->assertDatabaseMissing('users', [
             'email' => '<script>alert("xss")</script>@example.com',
@@ -61,7 +61,7 @@ class UserSecurityBatch1Test extends TestCase
 
         // Assert
         $response->assertRedirect();
-        
+
         $user = User::where('email', 'test@example.com')->first();
         // NOTE: HTML is stored as-is in the database. This test verifies that:
         // 1. Input is not automatically stripped/sanitized at storage level
@@ -87,13 +87,13 @@ class UserSecurityBatch1Test extends TestCase
         // Assert
         $user->refresh();
         $this->assertEquals(User::ROLE_USER, $user->role); // Role should not change
-        
+
         // Verify role was not updated in database
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'role' => User::ROLE_USER,
         ]);
-        
+
         // Verify no admin-level user was created
         $this->assertDatabaseMissing('users', [
             'email' => $user->email,
@@ -106,7 +106,7 @@ class UserSecurityBatch1Test extends TestCase
         // Arrange
         $user = User::factory()->create();
         $this->actingAs($user);
-        
+
         $sessionId = session()->getId();
         $this->assertNotEmpty($sessionId);
 

@@ -30,11 +30,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $notes
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Email> $emails
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
- * 
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<Customer>|Customer findOrFail(int $id, array<int, string> $columns = ['*'])
+ *
  * @mixin \Illuminate\Database\Eloquent\Builder<Customer>
  */
 class Customer extends Model
@@ -79,7 +79,7 @@ class Customer extends Model
 
     /**
      * Get the emails for this customer.
-     * 
+     *
      * @return HasMany<Email, $this>
      */
     public function emails(): HasMany
@@ -89,7 +89,7 @@ class Customer extends Model
 
     /**
      * Get the conversations for this customer.
-     * 
+     *
      * @return HasMany<Conversation, $this>
      */
     public function conversations(): HasMany
@@ -99,7 +99,7 @@ class Customer extends Model
 
     /**
      * Get the threads for this customer.
-     * 
+     *
      * @return HasMany<Thread, $this>
      */
     public function threads(): HasMany
@@ -109,7 +109,7 @@ class Customer extends Model
 
     /**
      * Get the channels associated with this customer.
-     * 
+     *
      * @return BelongsToMany<Channel, $this>
      */
     public function channels(): BelongsToMany
@@ -149,6 +149,7 @@ class Customer extends Model
     {
         /** @var \App\Models\Email|null $email */
         $email = $this->emails()->where('type', 1)->first();
+
         return $email?->email;
     }
 
@@ -166,6 +167,7 @@ class Customer extends Model
 
         /** @var \App\Models\Email|null $firstEmail */
         $firstEmail = $this->emails()->first();
+
         return $firstEmail ? $firstEmail->email : null;
     }
 

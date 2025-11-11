@@ -14,7 +14,7 @@ class ModuleModelTest extends TestCase
 
     public function test_model_can_be_instantiated(): void
     {
-        $module = new Module();
+        $module = new Module;
         $this->assertInstanceOf(Module::class, $module);
     }
 

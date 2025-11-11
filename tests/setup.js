@@ -2,10 +2,19 @@
 import { beforeEach, vi } from 'vitest';
 
 // Mock window.Echo for tests
-global.Echo = {
-    private: vi.fn().mockReturnThis(),
-    channel: vi.fn().mockReturnThis(),
+const createEchoChannelMock = () => ({
     listen: vi.fn().mockReturnThis(),
+    notification: vi.fn().mockReturnThis(),
+    here: vi.fn().mockReturnThis(),
+    joining: vi.fn().mockReturnThis(),
+    leaving: vi.fn().mockReturnThis(),
+    leave: vi.fn(),
+});
+
+global.Echo = {
+    private: vi.fn(() => createEchoChannelMock()),
+    channel: vi.fn(() => createEchoChannelMock()),
+    join: vi.fn(() => createEchoChannelMock()),
     leave: vi.fn(),
 };
 

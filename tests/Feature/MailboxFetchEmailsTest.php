@@ -67,7 +67,7 @@ class MailboxFetchEmailsTest extends TestCase
                 'created' => 3,
             ],
         ]);
-        
+
         $data = $response->json();
         $this->assertTrue($data['success']);
         $this->assertEquals(5, $data['stats']['fetched']);

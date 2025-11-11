@@ -15,13 +15,13 @@ class AttachmentFactory extends Factory
 {
     public function definition(): array
     {
-        $fileName = fake()->word() . '.' . fake()->fileExtension();
-        
+        $fileName = fake()->word().'.'.fake()->fileExtension();
+
         return [
             'thread_id' => Thread::factory(),
             'conversation_id' => null,
             'file_name' => $fileName,
-            'file_dir' => 'attachments/' . fake()->uuid(),
+            'file_dir' => 'attachments/'.fake()->uuid(),
             'file_size' => fake()->numberBetween(1024, 10485760), // 1KB to 10MB
             'mime_type' => fake()->mimeType(),
             'embedded' => false,
@@ -31,7 +31,7 @@ class AttachmentFactory extends Factory
     public function image(): static
     {
         return $this->state(fn (array $attributes) => [
-            'file_name' => fake()->word() . '.jpg',
+            'file_name' => fake()->word().'.jpg',
             'mime_type' => 'image/jpeg',
             'embedded' => fake()->boolean(),
         ]);
@@ -40,7 +40,7 @@ class AttachmentFactory extends Factory
     public function pdf(): static
     {
         return $this->state(fn (array $attributes) => [
-            'file_name' => fake()->word() . '.pdf',
+            'file_name' => fake()->word().'.pdf',
             'mime_type' => 'application/pdf',
         ]);
     }

@@ -306,7 +306,7 @@ class EmailModelEnhancedTest extends TestCase
         $expectedFields = ['customer_id', 'email', 'type'];
 
         // Act
-        $email = new Email();
+        $email = new Email;
         $fillable = $email->getFillable();
 
         // Assert

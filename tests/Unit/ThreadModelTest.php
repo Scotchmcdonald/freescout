@@ -6,7 +6,6 @@ namespace Tests\Unit;
 
 use App\Models\Attachment;
 use App\Models\Conversation;
-use App\Models\Customer;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -129,7 +128,7 @@ class ThreadModelTest extends TestCase
         $to = ['to@example.com'];
         $cc = ['cc1@example.com', 'cc2@example.com'];
         $bcc = ['bcc@example.com'];
-        
+
         $thread = Thread::factory()->create([
             'to' => $to,
             'cc' => $cc,
@@ -283,7 +282,7 @@ class ThreadModelTest extends TestCase
                 'attempts' => 3,
             ],
         ];
-        
+
         $thread = Thread::factory()->create(['meta' => $complexMeta]);
 
         $this->assertIsArray($thread->meta);

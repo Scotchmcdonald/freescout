@@ -29,7 +29,7 @@ class EmailTestSeeder extends Seeder
         );
 
         $this->command->info("Created/found admin user: {$user->email}");
-        $this->command->info("Password: password");
+        $this->command->info('Password: password');
 
         // Create test mailbox
         $mailbox = Mailbox::firstOrCreate(
@@ -78,9 +78,9 @@ class EmailTestSeeder extends Seeder
         }
 
         // Attach user to mailbox
-        if (!$mailbox->users()->wherePivot('user_id', $user->id)->exists()) {
+        if (! $mailbox->users()->wherePivot('user_id', $user->id)->exists()) {
             $mailbox->users()->attach($user->id);
-            $this->command->info("Attached user to mailbox");
+            $this->command->info('Attached user to mailbox');
         }
 
         $this->command->info('');

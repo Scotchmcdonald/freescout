@@ -14,6 +14,7 @@ class AppLayout extends Component
     {
         /** @var view-string $viewName */
         $viewName = 'layouts.app';
+
         return view($viewName);
     }
 }

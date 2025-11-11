@@ -40,7 +40,7 @@ class ConversationValidationTest extends TestCase
         );
 
         $response->assertSessionHasErrors('subject');
-        
+
         // Verify error message is helpful
         $errors = session('errors');
         $this->assertNotNull($errors);
@@ -74,7 +74,7 @@ class ConversationValidationTest extends TestCase
         );
 
         $response->assertSessionHasErrors('body');
-        
+
         // Verify no conversation was created
         $this->assertDatabaseMissing('conversations', [
             'subject' => 'Test',
@@ -108,14 +108,14 @@ class ConversationValidationTest extends TestCase
 
         // Laravel validates array elements individually, so error key is 'to.0'
         $response->assertSessionHasErrors('to.0');
-        
+
         // Verify error message mentions email format
         $errors = session('errors');
         if ($errors) {
             $emailErrors = $errors->get('to.0');
             $this->assertNotEmpty($emailErrors);
         }
-        
+
         // Verify no conversation was created with invalid email
         $this->assertDatabaseMissing('conversations', [
             'subject' => 'Test',
@@ -178,7 +178,7 @@ class ConversationValidationTest extends TestCase
         );
 
         $response->assertSessionHasErrors('body');
-        
+
         // Test edge case: null body
         $response2 = $this->actingAs($user)->post(
             route('conversations.store', $mailbox),
@@ -189,7 +189,7 @@ class ConversationValidationTest extends TestCase
                 'to' => [$customer->email],
             ]
         );
-        
+
         $response2->assertSessionHasErrors('body');
     }
 

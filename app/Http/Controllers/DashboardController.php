@@ -7,9 +7,9 @@ namespace App\Http\Controllers;
 use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Contracts\View\View;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {

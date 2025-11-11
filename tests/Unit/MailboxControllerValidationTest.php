@@ -43,7 +43,7 @@ class MailboxControllerValidationTest extends TestCase
     {
         // Arrange
         Mailbox::factory()->create(['email' => 'existing@example.com']);
-        
+
         $data = [
             'name' => 'New Mailbox',
             'email' => 'existing@example.com',
@@ -67,7 +67,7 @@ class MailboxControllerValidationTest extends TestCase
     {
         // Arrange
         $mailbox = Mailbox::factory()->create(['email' => 'existing@example.com']);
-        
+
         $data = [
             'name' => 'Updated Mailbox',
             'email' => 'existing@example.com',
@@ -76,7 +76,7 @@ class MailboxControllerValidationTest extends TestCase
         // Act - Use the ignore rule for updates
         $validator = Validator::make($data, [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:mailboxes,email,' . $mailbox->id,
+            'email' => 'required|email|unique:mailboxes,email,'.$mailbox->id,
         ]);
 
         // Assert

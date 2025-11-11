@@ -104,13 +104,13 @@ class ModelEdgeCasesTest extends TestCase
         User::factory()->create(['email' => 'admin@example.com']);
 
         $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
         User::factory()->create(['email' => 'admin@example.com']);
     }
 
     public function test_mailbox_with_special_characters_in_name(): void
     {
-        $specialName = "Support & Sales <info@example.com>";
+        $specialName = 'Support & Sales <info@example.com>';
         $mailbox = Mailbox::factory()->create([
             'name' => $specialName,
             'email' => 'info@example.com',

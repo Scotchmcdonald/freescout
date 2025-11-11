@@ -17,14 +17,14 @@ class CustomerControllerTest extends TestCase
 
     public function test_controller_can_be_instantiated(): void
     {
-        $controller = new CustomerController();
+        $controller = new CustomerController;
 
         $this->assertInstanceOf(CustomerController::class, $controller);
     }
 
     public function test_index_returns_view(): void
     {
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $request = Request::create('/customers', 'GET');
 
         $view = $controller->index($request);
@@ -36,7 +36,7 @@ class CustomerControllerTest extends TestCase
     {
         Customer::factory()->count(3)->create();
 
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $request = Request::create('/customers', 'GET');
 
         $view = $controller->index($request);
@@ -49,7 +49,7 @@ class CustomerControllerTest extends TestCase
         Customer::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
         Customer::factory()->create(['first_name' => 'Jane', 'last_name' => 'Smith']);
 
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $request = Request::create('/customers?search=John', 'GET');
 
         $view = $controller->index($request);
@@ -64,7 +64,7 @@ class CustomerControllerTest extends TestCase
         Customer::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
         Customer::factory()->create(['first_name' => 'Jane', 'last_name' => 'Smith']);
 
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $request = Request::create('/customers?search=Smith', 'GET');
 
         $view = $controller->index($request);
@@ -78,7 +78,7 @@ class CustomerControllerTest extends TestCase
     {
         $customer = Customer::factory()->create();
 
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $view = $controller->show($customer);
 
         $this->assertEquals('customers.show', $view->name());
@@ -90,7 +90,7 @@ class CustomerControllerTest extends TestCase
         $customer = Customer::factory()->create();
         Conversation::factory()->create(['customer_id' => $customer->id]);
 
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $view = $controller->show($customer);
 
         $customer = $view->getData()['customer'];
@@ -101,7 +101,7 @@ class CustomerControllerTest extends TestCase
     {
         $customer = Customer::factory()->create();
 
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $view = $controller->edit($customer);
 
         $this->assertEquals('customers.edit', $view->name());
@@ -111,8 +111,8 @@ class CustomerControllerTest extends TestCase
     {
         $customer = Customer::factory()->create();
 
-        $controller = new CustomerController();
-        $request = Request::create('/customers/' . $customer->id, 'PUT');
+        $controller = new CustomerController;
+        $request = Request::create('/customers/'.$customer->id, 'PUT');
         $request->merge([
             'first_name' => 'Updated',
             'last_name' => 'Name',
@@ -130,8 +130,8 @@ class CustomerControllerTest extends TestCase
     {
         $customer = Customer::factory()->create();
 
-        $controller = new CustomerController();
-        $request = Request::create('/customers/' . $customer->id, 'PUT');
+        $controller = new CustomerController;
+        $request = Request::create('/customers/'.$customer->id, 'PUT');
         $request->merge([
             'first_name' => 'John',
             'last_name' => 'Doe',
@@ -154,7 +154,7 @@ class CustomerControllerTest extends TestCase
         $target = Customer::factory()->create();
         Conversation::factory()->create(['customer_id' => $source->id]);
 
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $request = Request::create('/customers/merge', 'POST');
         $request->merge([
             'source_id' => $source->id,
@@ -172,7 +172,7 @@ class CustomerControllerTest extends TestCase
     {
         $customer = Customer::factory()->create();
 
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $request = Request::create('/customers/merge', 'POST');
         $request->merge([
             'source_id' => $customer->id,
@@ -188,7 +188,7 @@ class CustomerControllerTest extends TestCase
         Customer::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
         Customer::factory()->create(['first_name' => 'Jane', 'last_name' => 'Smith']);
 
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $request = Request::create('/customers/ajax', 'POST');
         $request->merge(['action' => 'search', 'q' => 'John']);
 
@@ -207,7 +207,7 @@ class CustomerControllerTest extends TestCase
             'state' => 2,
         ]);
 
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $request = Request::create('/customers/ajax', 'POST');
         $request->merge(['action' => 'conversations', 'customer_id' => $customer->id]);
 
@@ -220,7 +220,7 @@ class CustomerControllerTest extends TestCase
 
     public function test_ajax_returns_error_for_invalid_action(): void
     {
-        $controller = new CustomerController();
+        $controller = new CustomerController;
         $request = Request::create('/customers/ajax', 'POST');
         $request->merge(['action' => 'invalid']);
 

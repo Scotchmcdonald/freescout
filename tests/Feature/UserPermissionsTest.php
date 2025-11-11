@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -169,7 +168,7 @@ class UserPermissionsTest extends TestCase
         // Assert - Should either succeed with no assignments or show error
         $this->assertTrue($response->isOk() || $response->isRedirect());
         $this->user->refresh();
-        
+
         // The behavior depends on implementation - either filters invalid IDs or accepts them
         // Just verify the operation completed without error
         $this->assertTrue(true);
@@ -182,17 +181,17 @@ class UserPermissionsTest extends TestCase
     {
         // Arrange
         $mailbox1 = Mailbox::factory()->create();
-        
+
         // Regular user needs explicit permission
         $regularUser = User::factory()->create(['role' => User::ROLE_USER]);
-        
+
         // Admin doesn't need explicit permission (handled by isAdmin() checks in controllers)
         // This test documents the intended behavior
-        
+
         // Assert - Verify roles are set correctly
         $this->assertTrue($this->admin->isAdmin());
         $this->assertFalse($regularUser->isAdmin());
-        
+
         // Admin should have access to features regular users don't
         $this->assertEquals(User::ROLE_ADMIN, $this->admin->role);
         $this->assertEquals(User::ROLE_USER, $regularUser->role);

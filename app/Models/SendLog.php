@@ -24,11 +24,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array|null $meta
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * 
  * @property-read \App\Models\Thread $thread
  * @property-read \App\Models\Customer|null $customer
  * @property-read \App\Models\User|null $user
- * 
+ *
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
 class SendLog extends Model

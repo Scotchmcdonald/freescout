@@ -14,6 +14,7 @@ class GuestLayout extends Component
     {
         /** @var view-string $viewName */
         $viewName = 'layouts.guest';
+
         return view($viewName);
     }
 }

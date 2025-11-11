@@ -33,7 +33,7 @@ class ThreadFactory extends Factory
             'bcc' => null,
             'from' => fake()->email(),
             'headers' => null,
-            'message_id' => fake()->uuid() . '@example.com',
+            'message_id' => fake()->uuid().'@example.com',
             'opened_at' => null,
             'meta' => null,
         ];

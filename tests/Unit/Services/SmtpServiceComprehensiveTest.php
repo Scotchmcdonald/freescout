@@ -30,7 +30,7 @@ class SmtpServiceComprehensiveTest extends TestCase
         Log::shouldReceive('error')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
 
-        $service = new SmtpService();
+        $service = new SmtpService;
         $result = $service->testConnection($mailbox, 'recipient@example.com');
 
         $this->assertIsArray($result);
@@ -49,7 +49,7 @@ class SmtpServiceComprehensiveTest extends TestCase
             ->once()
             ->with('SMTP test skipped due to invalid configuration', \Mockery::any());
 
-        $service = new SmtpService();
+        $service = new SmtpService;
         $result = $service->testConnection($mailbox, 'recipient@example.com');
 
         $this->assertFalse($result['success']);
@@ -82,48 +82,48 @@ class SmtpServiceComprehensiveTest extends TestCase
         Log::shouldReceive('error')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
 
-        $service = new SmtpService();
+        $service = new SmtpService;
         $service->testConnection($mailbox, 'recipient@example.com');
     }
 
     public function test_configure_smtp_method_exists_and_is_callable(): void
     {
-        $service = new SmtpService();
-        
+        $service = new SmtpService;
+
         $this->assertTrue(method_exists($service, 'configureSmtp'));
         $this->assertTrue(is_callable([$service, 'configureSmtp']));
     }
 
     public function test_validate_settings_method_exists(): void
     {
-        $service = new SmtpService();
-        
+        $service = new SmtpService;
+
         $reflection = new \ReflectionClass($service);
         $methods = $reflection->getMethods();
-        $methodNames = array_map(fn($method) => $method->getName(), $methods);
-        
+        $methodNames = array_map(fn ($method) => $method->getName(), $methods);
+
         $this->assertContains('validateSettings', $methodNames);
     }
 
     public function test_get_encryption_method_exists(): void
     {
-        $service = new SmtpService();
-        
+        $service = new SmtpService;
+
         $reflection = new \ReflectionClass($service);
         $methods = $reflection->getMethods();
-        $methodNames = array_map(fn($method) => $method->getName(), $methods);
-        
+        $methodNames = array_map(fn ($method) => $method->getName(), $methods);
+
         $this->assertContains('getEncryption', $methodNames);
     }
 
     public function test_validate_mailbox_settings_method_exists(): void
     {
-        $service = new SmtpService();
-        
+        $service = new SmtpService;
+
         $reflection = new \ReflectionClass($service);
         $methods = $reflection->getMethods();
-        $methodNames = array_map(fn($method) => $method->getName(), $methods);
-        
+        $methodNames = array_map(fn ($method) => $method->getName(), $methods);
+
         $this->assertContains('validateMailboxSettings', $methodNames);
     }
 
@@ -140,7 +140,7 @@ class SmtpServiceComprehensiveTest extends TestCase
         Log::shouldReceive('error')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
 
-        $service = new SmtpService();
+        $service = new SmtpService;
         $result = $service->testConnection($mailbox, 'recipient@example.com');
 
         // Should have processed the request (even if it fails in test env)

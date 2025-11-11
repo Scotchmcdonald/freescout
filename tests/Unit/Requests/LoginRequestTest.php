@@ -12,14 +12,14 @@ class LoginRequestTest extends TestCase
 {
     public function test_login_request_authorization_returns_true(): void
     {
-        $request = new LoginRequest();
+        $request = new LoginRequest;
 
         $this->assertTrue($request->authorize());
     }
 
     public function test_login_request_validation_rules(): void
     {
-        $request = new LoginRequest();
+        $request = new LoginRequest;
         $rules = $request->rules();
 
         $this->assertArrayHasKey('email', $rules);
@@ -33,7 +33,7 @@ class LoginRequestTest extends TestCase
 
     public function test_login_request_validates_email_format(): void
     {
-        $request = new LoginRequest();
+        $request = new LoginRequest;
         $validator = Validator::make(
             ['email' => 'invalid-email', 'password' => 'password123'],
             $request->rules()
@@ -45,7 +45,7 @@ class LoginRequestTest extends TestCase
 
     public function test_login_request_requires_email(): void
     {
-        $request = new LoginRequest();
+        $request = new LoginRequest;
         $validator = Validator::make(
             ['password' => 'password123'],
             $request->rules()
@@ -57,7 +57,7 @@ class LoginRequestTest extends TestCase
 
     public function test_login_request_requires_password(): void
     {
-        $request = new LoginRequest();
+        $request = new LoginRequest;
         $validator = Validator::make(
             ['email' => 'test@example.com'],
             $request->rules()
@@ -69,7 +69,7 @@ class LoginRequestTest extends TestCase
 
     public function test_login_request_accepts_valid_credentials(): void
     {
-        $request = new LoginRequest();
+        $request = new LoginRequest;
         $validator = Validator::make(
             ['email' => 'test@example.com', 'password' => 'password123'],
             $request->rules()

@@ -29,16 +29,16 @@ class FolderHierarchyTest extends TestCase
         // Assert
         $this->assertTrue($inboxFolder->isInbox());
         $this->assertFalse($inboxFolder->isSent());
-        
+
         $this->assertTrue($sentFolder->isSent());
         $this->assertFalse($sentFolder->isInbox());
-        
+
         $this->assertTrue($draftsFolder->isDrafts());
         $this->assertFalse($draftsFolder->isSpam());
-        
+
         $this->assertTrue($spamFolder->isSpam());
         $this->assertFalse($spamFolder->isTrash());
-        
+
         $this->assertTrue($trashFolder->isTrash());
         $this->assertFalse($trashFolder->isDrafts());
     }
@@ -51,7 +51,7 @@ class FolderHierarchyTest extends TestCase
         // Arrange
         $mailbox1 = Mailbox::factory()->create(['name' => 'Support']);
         $mailbox2 = Mailbox::factory()->create(['name' => 'Sales']);
-        
+
         $folder1 = Folder::factory()->create(['mailbox_id' => $mailbox1->id, 'type' => Folder::TYPE_INBOX]);
         $folder2 = Folder::factory()->create(['mailbox_id' => $mailbox1->id, 'type' => Folder::TYPE_SENT]);
         $folder3 = Folder::factory()->create(['mailbox_id' => $mailbox2->id, 'type' => Folder::TYPE_INBOX]);
@@ -72,7 +72,7 @@ class FolderHierarchyTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $personalFolder = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
             'user_id' => $user->id,
@@ -91,7 +91,7 @@ class FolderHierarchyTest extends TestCase
     {
         // Arrange
         $mailbox = Mailbox::factory()->create();
-        
+
         $inboxFolder = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
             'type' => Folder::TYPE_INBOX,
@@ -128,7 +128,7 @@ class FolderHierarchyTest extends TestCase
         // Arrange
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
-        
+
         // Note: This test requires Conversation model and factory
         // If not available yet, this test validates the relationship method exists
         $this->assertTrue(method_exists($folder, 'conversationsViaFolder'));
@@ -145,7 +145,7 @@ class FolderHierarchyTest extends TestCase
     {
         // Arrange
         $mailbox = Mailbox::factory()->create();
-        
+
         $inbox = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => Folder::TYPE_INBOX]);
         $sent = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => Folder::TYPE_SENT]);
         $drafts = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => Folder::TYPE_DRAFTS]);

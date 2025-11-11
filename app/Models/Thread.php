@@ -37,13 +37,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $has_attachments
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * 
  * @property-read \App\Models\Conversation $conversation
  * @property-read \App\Models\User|null $user
  * @property-read \App\Models\Customer|null $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Attachment> $attachments
- * 
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<Thread>|Thread create(array<string, mixed> $attributes = [])
+ *
  * @mixin \Illuminate\Database\Eloquent\Builder<Thread>
  */
 class Thread extends Model
@@ -101,7 +101,7 @@ class Thread extends Model
 
     /**
      * Get the conversation that owns the thread.
-     * 
+     *
      * @return BelongsTo<Conversation, $this>
      */
     public function conversation(): BelongsTo
@@ -111,7 +111,7 @@ class Thread extends Model
 
     /**
      * Get the user that created the thread.
-     * 
+     *
      * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
@@ -121,7 +121,7 @@ class Thread extends Model
 
     /**
      * Get the customer associated with the thread.
-     * 
+     *
      * @return BelongsTo<Customer, $this>
      */
     public function customer(): BelongsTo
@@ -131,7 +131,7 @@ class Thread extends Model
 
     /**
      * Get the user who created the thread (for email replies from users).
-     * 
+     *
      * @return BelongsTo<User, $this>
      */
     public function createdByUser(): BelongsTo
@@ -141,7 +141,7 @@ class Thread extends Model
 
     /**
      * Get the user who edited the thread.
-     * 
+     *
      * @return BelongsTo<User, $this>
      */
     public function editedByUser(): BelongsTo
@@ -151,7 +151,7 @@ class Thread extends Model
 
     /**
      * Get the attachments for the thread.
-     * 
+     *
      * @return HasMany<Attachment, $this>
      */
     public function attachments(): HasMany
@@ -191,6 +191,7 @@ class Thread extends Model
     {
         $headers = is_array($this->headers) ? json_encode($this->headers) : $this->headers;
         $headers = $headers !== false ? $headers : null;
+
         return \App\Misc\MailHelper::isAutoResponder($headers);
     }
 

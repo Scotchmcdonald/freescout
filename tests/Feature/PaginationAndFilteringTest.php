@@ -40,11 +40,11 @@ class PaginationAndFilteringTest extends TestCase
 
         // Create 25 customers with "Smith" in name for search
         Customer::factory()->count(25)->create(['last_name' => 'Smith']);
-        
+
         // Create some with other names
         Customer::factory()->count(10)->create(['last_name' => 'Jones']);
 
-                        $response = $this->actingAs($user)->post(route('customers.ajax', ['action' => 'search', 'q' => 'Smith']));
+        $response = $this->actingAs($user)->post(route('customers.ajax', ['action' => 'search', 'q' => 'Smith']));
 
         $response->assertOk();
         $response->assertJsonStructure([
@@ -52,7 +52,7 @@ class PaginationAndFilteringTest extends TestCase
                 '*' => ['id', 'text'],
             ],
         ]);
-        
+
         $json = $response->json();
         $this->assertGreaterThan(0, count($json['results']));
     }
@@ -124,7 +124,7 @@ class PaginationAndFilteringTest extends TestCase
 
         $response->assertOk();
         $response->assertViewHas('customers');
-        
+
         // Pagination should limit results per page
         $customers = $response->viewData('customers');
         $this->assertLessThanOrEqual(50, $customers->count());

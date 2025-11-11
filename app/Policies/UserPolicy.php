@@ -24,6 +24,7 @@ class UserPolicy
         if ($user === null) {
             return false;
         }
+
         return $user->isAdmin() || $user->id === $model->id;
     }
 
@@ -43,6 +44,7 @@ class UserPolicy
         if ($user === null) {
             return false;
         }
+
         return $user->isAdmin() || $user->id === $model->id;
     }
 
@@ -54,6 +56,7 @@ class UserPolicy
         if ($user === null) {
             return false;
         }
+
         return $user->isAdmin() && $user->id !== $model->id;
     }
 }

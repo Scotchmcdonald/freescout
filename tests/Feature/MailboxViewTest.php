@@ -6,7 +6,6 @@ namespace Tests\Feature;
 
 use App\Models\Mailbox;
 use App\Models\User;
-use App\Services\ImapService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -137,9 +136,9 @@ class MailboxViewTest extends TestCase
         // Arrange
         $mailbox1 = Mailbox::factory()->create(['name' => 'Accessible Mailbox']);
         $mailbox2 = Mailbox::factory()->create(['name' => 'Inaccessible Mailbox']);
-        
+
         $mailbox1->users()->attach($this->regularUser);
-        
+
         $this->actingAs($this->regularUser);
 
         // Act
@@ -159,7 +158,7 @@ class MailboxViewTest extends TestCase
         // Arrange
         $mailbox1 = Mailbox::factory()->create(['name' => 'Mailbox One']);
         $mailbox2 = Mailbox::factory()->create(['name' => 'Mailbox Two']);
-        
+
         $this->actingAs($this->admin);
 
         // Act

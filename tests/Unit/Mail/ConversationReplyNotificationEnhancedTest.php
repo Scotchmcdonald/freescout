@@ -57,15 +57,15 @@ class ConversationReplyNotificationEnhancedTest extends TestCase
     public function test_conversation_reply_notification_content_returns_markdown_view(): void
     {
         // Create a conversation with proper attributes to avoid route generation issues
-        $mailbox = new Mailbox();
+        $mailbox = new Mailbox;
         $mailbox->id = 1;
         $mailbox->email = 'support@example.com';
-        
-        $conversation = new Conversation();
+
+        $conversation = new Conversation;
         $conversation->id = 123;
         $conversation->subject = 'Test';
         $conversation->setRelation('mailbox', $mailbox);
-        
+
         $thread = new Thread(['body' => 'Reply body']);
         $thread->id = 1;
 
@@ -80,16 +80,16 @@ class ConversationReplyNotificationEnhancedTest extends TestCase
 
     public function test_conversation_reply_notification_content_includes_conversation(): void
     {
-        $mailbox = new Mailbox();
+        $mailbox = new Mailbox;
         $mailbox->id = 1;
         $mailbox->email = 'support@example.com';
-        
-        $conversation = new Conversation();
+
+        $conversation = new Conversation;
         $conversation->id = 1;
         $conversation->subject = 'Test';
         $conversation->setRelation('mailbox', $mailbox);
-        
-        $thread = new Thread();
+
+        $thread = new Thread;
         $thread->id = 1;
 
         $mail = new ConversationReplyNotification($conversation, $thread);
@@ -100,15 +100,15 @@ class ConversationReplyNotificationEnhancedTest extends TestCase
 
     public function test_conversation_reply_notification_content_includes_thread(): void
     {
-        $mailbox = new Mailbox();
+        $mailbox = new Mailbox;
         $mailbox->id = 1;
         $mailbox->email = 'support@example.com';
-        
-        $conversation = new Conversation();
+
+        $conversation = new Conversation;
         $conversation->id = 1;
         $conversation->subject = 'Test';
         $conversation->setRelation('mailbox', $mailbox);
-        
+
         $thread = new Thread(['body' => 'Test body']);
         $thread->id = 1;
 

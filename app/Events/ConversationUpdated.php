@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Events;
 
 use App\Models\Conversation;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -20,16 +18,13 @@ class ConversationUpdated implements ShouldBroadcast
     /**
      * Create a new event instance.
      *
-     * @param Conversation $conversation
-     * @param string $updateType
-     * @param array<string, mixed>|null $meta
+     * @param  array<string, mixed>|null  $meta
      */
     public function __construct(
         public Conversation $conversation,
         public string $updateType = 'status_changed', // status_changed, assigned, new_thread, etc
         public ?array $meta = null,
-    ) {
-    }
+    ) {}
 
     /**
      * Get the channels the event should broadcast on.

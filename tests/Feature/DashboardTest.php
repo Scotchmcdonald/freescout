@@ -185,7 +185,7 @@ class DashboardTest extends TestCase
         // Assert
         $response->assertOk();
         $response->assertViewHas('stats', function ($stats) {
-            return isset($stats[$this->mailbox1->id]) 
+            return isset($stats[$this->mailbox1->id])
                 && $stats[$this->mailbox1->id]['active'] === 3
                 && $stats[$this->mailbox1->id]['unassigned'] === 1
                 && isset($stats[$this->mailbox2->id])

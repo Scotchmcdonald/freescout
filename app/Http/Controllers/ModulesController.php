@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Nwidart\Modules\Facades\Module;
-use Illuminate\Contracts\View\View;
-use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class ModulesController extends Controller
 {
@@ -48,7 +48,7 @@ class ModulesController extends Controller
         /** @var \Nwidart\Modules\Module|null $module */
         $module = Module::find($alias);
 
-        if (!$module) {
+        if (! $module) {
             return response()->json([
                 'status' => 'error',
                 'message' => __('Module not found'),
@@ -57,10 +57,10 @@ class ModulesController extends Controller
 
         try {
             $module->enable();
-            
+
             // Run module migrations
             Artisan::call('module:migrate', ['module' => $module->getName()]);
-            
+
             // Clear cache
             Artisan::call('cache:clear');
             Artisan::call('config:clear');
@@ -85,7 +85,7 @@ class ModulesController extends Controller
         /** @var \Nwidart\Modules\Module|null $module */
         $module = Module::find($alias);
 
-        if (!$module) {
+        if (! $module) {
             return response()->json([
                 'status' => 'error',
                 'message' => __('Module not found'),
@@ -94,7 +94,7 @@ class ModulesController extends Controller
 
         try {
             $module->disable();
-            
+
             // Clear cache
             Artisan::call('cache:clear');
             Artisan::call('config:clear');
@@ -119,7 +119,7 @@ class ModulesController extends Controller
         /** @var \Nwidart\Modules\Module|null $module */
         $module = Module::find($alias);
 
-        if (!$module) {
+        if (! $module) {
             return response()->json([
                 'status' => 'error',
                 'message' => __('Module not found'),

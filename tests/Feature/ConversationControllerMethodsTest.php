@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Conversation;
-use App\Models\Customer;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class ConversationControllerMethodsTest extends TestCase
@@ -249,8 +247,6 @@ class ConversationControllerMethodsTest extends TestCase
         ]);
     }
 
-
-
     /**
      * Test clone() method - NOTE: Skipped due to incomplete implementation
      * The clone method in the controller doesn't set the required 'number' field
@@ -364,7 +360,7 @@ class ConversationControllerMethodsTest extends TestCase
         // Test with SQL injection attempt in conversation_id
         $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'change_status',
-            'conversation_id' => "1 OR 1=1",
+            'conversation_id' => '1 OR 1=1',
             'status' => 2,
         ]);
 
@@ -397,7 +393,8 @@ class ConversationControllerMethodsTest extends TestCase
         $response->assertViewHas('folders', function ($folders) use ($userFolder, $otherUserFolder) {
             // Should include user's own folder and public folders (user_id = null)
             $folderIds = $folders->pluck('id')->toArray();
-            return in_array($userFolder->id, $folderIds) && !in_array($otherUserFolder->id, $folderIds);
+
+            return in_array($userFolder->id, $folderIds) && ! in_array($otherUserFolder->id, $folderIds);
         });
     }
 }

@@ -32,7 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/mailbox/{mailbox}/connection/outgoing', [MailboxController::class, 'connectionOutgoing'])->name('mailboxes.connection.outgoing');
     Route::post('/mailbox/{mailbox}/connection/outgoing', [MailboxController::class, 'saveConnectionOutgoing']);
     Route::post('/mailbox/{mailbox}/fetch-emails', [MailboxController::class, 'fetchEmails'])->name('mailboxes.fetch-emails');
-    
+
     // Conversations
     Route::get('/mailbox/{mailbox}/conversations', [ConversationController::class, 'index'])->name('conversations.index');
     Route::get('/conversation/{conversation}', [ConversationController::class, 'show'])->name('conversations.show');
@@ -44,7 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/conversation/{conversation}', [ConversationController::class, 'destroy'])->name('conversations.destroy');
     Route::get('/conversations/search', [ConversationController::class, 'search'])->name('conversations.search');
     Route::get('/mailbox/{mailbox}/clone-ticket/{thread}', [ConversationController::class, 'clone'])->name('conversations.clone');
-    
+
     // Customers
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
@@ -52,7 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::post('/customers/merge', [CustomerController::class, 'merge'])->name('customers.merge');
-    
+
     // Users (admin only)
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
@@ -62,7 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::match(['patch', 'put'], '/user/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::post('/user/{user}/permissions', [UserController::class, 'permissions'])->name('users.permissions');
-    
+
     // Settings (admin only)
     Route::middleware(['admin'])->group(function () {
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
@@ -76,7 +76,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/settings/test-imap', [SettingsController::class, 'testImap'])->name('settings.test-imap');
         Route::post('/settings/validate-smtp', [SettingsController::class, 'validateSmtp'])->name('settings.validate-smtp');
     });
-    
+
     // System (admin only)
     Route::middleware(['admin'])->group(function () {
         Route::get('/system', [SystemController::class, 'index'])->name('system');
@@ -84,7 +84,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/system/diagnostics', [SystemController::class, 'diagnostics'])->name('system.diagnostics');
         Route::get('/system/logs', [SystemController::class, 'logs'])->name('system.logs');
     });
-    
+
     // Modules (admin only)
     Route::middleware(['admin'])->group(function () {
         Route::get('/modules', [ModulesController::class, 'index'])->name('modules');
@@ -92,7 +92,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/modules/{alias}/disable', [ModulesController::class, 'disable'])->name('modules.disable');
         Route::delete('/modules/{alias}', [ModulesController::class, 'delete'])->name('modules.delete');
     });
-    
+
     // Mailbox Permissions
     Route::get('/mailboxes/{mailbox}/permissions', [MailboxController::class, 'permissions'])
         ->name('mailboxes.permissions');

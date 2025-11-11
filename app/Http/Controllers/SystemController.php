@@ -9,12 +9,12 @@ use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Contracts\View\View;
-use Illuminate\Contracts\View\Factory;
 
 class SystemController extends Controller
 {
@@ -59,6 +59,7 @@ class SystemController extends Controller
         ];
 
         $viewName = 'system.index';
+
         return view($viewName, compact('stats', 'systemInfo'));
     }
 
@@ -228,9 +229,9 @@ class SystemController extends Controller
     public function logs(Request $request): View|Factory
     {
         $type = $request->get('type', 'application');
-        
+
         $data = [];
-        
+
         switch ($type) {
             case 'application':
                 $logFile = storage_path('logs/laravel.log');
@@ -241,32 +242,33 @@ class SystemController extends Controller
                     $content = $content !== false ? $content : '';
                     $lines = array_slice(explode("\n", $content), -100); // Last 100 lines
                 }
-                
+
                 $data = ['lines' => $lines];
                 break;
-                
+
             case 'email':
                 // Get recent email send logs
                 $sendLogs = \App\Models\SendLog::with(['user', 'customer'])
                     ->latest()
                     ->paginate(50);
-                    
+
                 $data = ['sendLogs' => $sendLogs];
                 break;
-                
+
             case 'activity':
                 // Get recent activity logs
                 $activityLogs = \App\Models\ActivityLog::with(['causer'])
                     ->latest()
                     ->paginate(50);
-                    
+
                 $data = ['activityLogs' => $activityLogs];
                 break;
         }
-        
+
         $data['currentType'] = $type;
 
         $viewName = 'system.logs';
+
         return view($viewName, $data);
     }
 }

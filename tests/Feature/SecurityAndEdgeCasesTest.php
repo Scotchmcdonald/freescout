@@ -39,7 +39,7 @@ class SecurityAndEdgeCasesTest extends TestCase
     {
         $response = $this->get(route('settings'));
         $response->assertRedirect(route('login'));
-        
+
         // Verify no settings data is leaked
         $this->assertStringNotContainsString('company_name', $response->getContent());
         $this->assertStringNotContainsString('option', $response->getContent());
@@ -60,13 +60,13 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
 
         $response->assertForbidden();
-        
+
         // Verify the setting was not updated
         $this->assertDatabaseMissing('options', [
             'name' => 'company_name',
             'value' => 'Hacked Company',
         ]);
-        
+
         // Verify no sensitive data is leaked in the forbidden response
         $content = $response->getContent();
         $this->assertStringNotContainsString('Hacked Company', $content);
@@ -116,7 +116,7 @@ class SecurityAndEdgeCasesTest extends TestCase
     public function option_handles_null_values_correctly(): void
     {
         Option::setValue('nullable_option', null);
-        
+
         $value = Option::getValue('nullable_option');
         $this->assertNull($value);
     }
@@ -125,7 +125,7 @@ class SecurityAndEdgeCasesTest extends TestCase
     public function option_handles_empty_string_values(): void
     {
         Option::setValue('empty_option', '');
-        
+
         $value = Option::getValue('empty_option');
         $this->assertEquals('', $value);
     }
@@ -134,7 +134,7 @@ class SecurityAndEdgeCasesTest extends TestCase
     public function option_handles_numeric_values(): void
     {
         Option::setValue('numeric_option', 12345);
-        
+
         $value = Option::getValue('numeric_option');
         $this->assertEquals(12345, $value);
     }
@@ -144,7 +144,7 @@ class SecurityAndEdgeCasesTest extends TestCase
     {
         $arrayValue = ['key1' => 'value1', 'key2' => 'value2'];
         Option::setValue('array_option', json_encode($arrayValue));
-        
+
         $value = Option::getValue('array_option');
         $this->assertIsString($value);
         $this->assertEquals($arrayValue, json_decode($value, true));
@@ -161,16 +161,16 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
 
         $response->assertRedirect();
-        
+
         // Verify the malicious input was safely stored
         $this->assertDatabaseHas('options', [
             'name' => 'company_name',
             'value' => $maliciousInput,
         ]);
-        
+
         // Verify options table still exists and other options are intact
         $this->assertNotNull(Option::all());
-        
+
         // Verify no SQL was executed by checking table structure
         $this->assertDatabaseHas('options', ['name' => 'company_name']);
     }
@@ -186,7 +186,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
 
         $response->assertRedirect();
-        
+
         // Verify the value was stored (sanitization should happen on output)
         $this->assertDatabaseHas('options', [
             'name' => 'company_name',
@@ -206,13 +206,13 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('mail_from_address');
-        
+
         // Verify error message is helpful
         $errors = session('errors');
         $this->assertNotNull($errors);
         $emailErrors = $errors->get('mail_from_address');
         $this->assertNotEmpty($emailErrors);
-        
+
         // Verify the invalid email was not saved
         $this->assertDatabaseMissing('options', [
             'name' => 'mail_from_address',
@@ -268,12 +268,12 @@ class SecurityAndEdgeCasesTest extends TestCase
     }
 
     #[Test]
-    public function option_setValue_creates_new_record_when_not_exists(): void
+    public function option_set_value_creates_new_record_when_not_exists(): void
     {
         $this->assertDatabaseMissing('options', ['name' => 'new_test_option']);
-        
+
         Option::setValue('new_test_option', 'new_value');
-        
+
         $this->assertDatabaseHas('options', [
             'name' => 'new_test_option',
             'value' => 'new_value',
@@ -281,26 +281,26 @@ class SecurityAndEdgeCasesTest extends TestCase
     }
 
     #[Test]
-    public function option_setValue_updates_existing_record(): void
+    public function option_set_value_updates_existing_record(): void
     {
         Option::create(['name' => 'existing_option', 'value' => 'old_value']);
-        
+
         Option::setValue('existing_option', 'new_value');
-        
+
         $this->assertDatabaseHas('options', [
             'name' => 'existing_option',
             'value' => 'new_value',
         ]);
-        
+
         // Ensure only one record exists
         $this->assertEquals(1, Option::where('name', 'existing_option')->count());
     }
 
     #[Test]
-    public function option_deleteOption_handles_non_existent_keys_gracefully(): void
+    public function option_delete_option_handles_non_existent_keys_gracefully(): void
     {
         $result = Option::deleteOption('non_existent_key');
-        
+
         $this->assertFalse($result);
     }
 

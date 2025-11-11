@@ -10,7 +10,6 @@ use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 

@@ -4,7 +4,6 @@ namespace Tests\Unit\Controllers\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 
 class PasswordResetLinkControllerTest extends TestCase

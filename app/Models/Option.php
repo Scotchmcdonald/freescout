@@ -71,7 +71,7 @@ class Option extends Model
             ['name' => $name],
             ['value' => $value]
         );
-        
+
         return true;
     }
 

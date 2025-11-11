@@ -1,6 +1,2 @@
 Note: Using configuration file /var/www/html/phpstan.neon.
-   0/102 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%[1G[2K 102/102 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100%
-
-
- [OK] No errors                                                                 
-
+TypeError thrown in /var/www/html/vendor/pusher/pusher-php-server/src/Pusher.php on line 63 while loading bootstrap file /var/www/html/vendor/larastan/larastan/bootstrap.php: Pusher\Pusher::__construct(): Argument #1 ($auth_key) must be of type string, null given, called in /var/www/html/vendor/laravel/framework/src/Illuminate/Broadcasting/BroadcastManager.php on line 341

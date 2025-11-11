@@ -194,7 +194,7 @@ class UserControllerMethodsTest extends TestCase
         // Admin should still be able to view inactive users
         $response->assertOk();
         $response->assertViewHas('user', function ($viewUser) use ($inactiveUser) {
-            return $viewUser->id === $inactiveUser->id 
+            return $viewUser->id === $inactiveUser->id
                 && $viewUser->status === User::STATUS_INACTIVE;
         });
     }
@@ -253,7 +253,7 @@ class UserControllerMethodsTest extends TestCase
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
         $mailbox3 = Mailbox::factory()->create();
-        
+
         $user->mailboxes()->attach([$mailbox1->id, $mailbox2->id, $mailbox3->id]);
 
         $response = $this->get(route('users.show', $user));
@@ -310,7 +310,7 @@ class UserControllerMethodsTest extends TestCase
             'last_name' => 'José-María',
             'email' => 'test+user@example.com',
         ]);
-        
+
         $this->actingAs($user);
 
         $response = $this->get(route('users.show', $user));

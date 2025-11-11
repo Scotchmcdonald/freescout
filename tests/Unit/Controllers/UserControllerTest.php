@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Controllers;
 
 use App\Http\Controllers\UserController;
-use App\Models\Mailbox;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -16,7 +15,7 @@ class UserControllerTest extends TestCase
 
     public function test_controller_can_be_instantiated(): void
     {
-        $controller = new UserController();
+        $controller = new UserController;
 
         $this->assertInstanceOf(UserController::class, $controller);
     }

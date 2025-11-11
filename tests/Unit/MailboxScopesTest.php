@@ -22,15 +22,15 @@ class MailboxScopesTest extends TestCase
         // Arrange
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
-        
+
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
         $mailbox3 = Mailbox::factory()->create();
-        
+
         // User 1 has access to mailbox1 and mailbox2
         $mailbox1->users()->attach($user1);
         $mailbox2->users()->attach($user1);
-        
+
         // User 2 has access to mailbox2 and mailbox3
         $mailbox2->users()->attach($user2);
         $mailbox3->users()->attach($user2);
@@ -58,18 +58,18 @@ class MailboxScopesTest extends TestCase
         // Arrange
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $regularUser = User::factory()->create(['role' => User::ROLE_USER]);
-        
+
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
         $mailbox3 = Mailbox::factory()->create();
-        
+
         // Regular user only has access to mailbox1
         $mailbox1->users()->attach($regularUser);
 
         // Act & Assert - Admin can see all mailboxes
         $allMailboxes = Mailbox::all();
         $this->assertCount(3, $allMailboxes);
-        
+
         // Regular user sees only their assigned mailboxes
         $userMailboxes = $regularUser->mailboxes;
         $this->assertCount(1, $userMailboxes);

@@ -47,7 +47,7 @@ class ConversationTest extends TestCase
     public function test_user_can_view_conversations_list(): void
     {
         $this->actingAs($this->user);
-        
+
         // Create multiple conversations
         $conv1 = Conversation::factory()
             ->for($this->mailbox)
@@ -109,7 +109,7 @@ class ConversationTest extends TestCase
             ->create([
                 'subject' => 'Important Issue',
             ]);
-            
+
         // Create threads for the conversation
         $thread1 = Thread::factory()->create([
             'conversation_id' => $conversation->id,

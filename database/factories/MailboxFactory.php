@@ -15,7 +15,7 @@ class MailboxFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => substr(fake()->company(), 0, 20) . ' Support',
+            'name' => substr(fake()->company(), 0, 20).' Support',
             'email' => fake()->unique()->companyEmail(),
             'aliases' => null,
             'from_name' => 1, // 1=mailbox, 2=user, 3=custom

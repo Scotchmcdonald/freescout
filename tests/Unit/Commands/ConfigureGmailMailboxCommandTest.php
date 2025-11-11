@@ -14,14 +14,14 @@ class ConfigureGmailMailboxCommandTest extends TestCase
 
     public function test_command_can_be_instantiated(): void
     {
-        $command = new ConfigureGmailMailbox();
+        $command = new ConfigureGmailMailbox;
 
         $this->assertInstanceOf(ConfigureGmailMailbox::class, $command);
     }
 
     public function test_command_has_signature(): void
     {
-        $command = new ConfigureGmailMailbox();
+        $command = new ConfigureGmailMailbox;
 
         $this->assertIsString($command->getName());
         $this->assertNotEmpty($command->getName());
@@ -29,7 +29,7 @@ class ConfigureGmailMailboxCommandTest extends TestCase
 
     public function test_command_has_description(): void
     {
-        $command = new ConfigureGmailMailbox();
+        $command = new ConfigureGmailMailbox;
 
         $this->assertIsString($command->getDescription());
     }

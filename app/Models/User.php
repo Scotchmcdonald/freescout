@@ -32,13 +32,13 @@ use Illuminate\Notifications\Notifiable;
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mailbox> $mailboxes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Folder> $folders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
- * 
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<User>|User create(array<string, mixed> $attributes = [])
+ *
  * @mixin \Illuminate\Database\Eloquent\Builder<User>
  */
 class User extends Authenticatable implements MustVerifyEmail
@@ -92,7 +92,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the attributes that should be cast.
-     * 
+     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -112,7 +112,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the mailboxes that the user has access to.
-     * 
+     *
      * @return BelongsToMany<Mailbox, $this>
      */
     public function mailboxes(): BelongsToMany
@@ -124,7 +124,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the folders created by this user.
-     * 
+     *
      * @return HasMany<Folder, $this>
      */
     public function folders(): HasMany
@@ -134,7 +134,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the conversations assigned to this user.
-     * 
+     *
      * @return HasMany<Conversation, $this>
      */
     public function conversations(): HasMany
@@ -144,7 +144,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the conversations this user is following.
-     * 
+     *
      * @return BelongsToMany<Conversation, $this>
      */
     public function followedConversations(): BelongsToMany
@@ -155,7 +155,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the threads created by this user.
-     * 
+     *
      * @return HasMany<Thread, $this>
      */
     public function threads(): HasMany
@@ -165,7 +165,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the subscriptions for this user.
-     * 
+     *
      * @return HasMany<Subscription, $this>
      */
     public function subscriptions(): HasMany
@@ -202,7 +202,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getFullName(): string
     {
-        $fullName = trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''));
+        $fullName = trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
 
         return $fullName !== '' ? $fullName : $this->email;
     }
@@ -229,6 +229,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getPhotoUrl(): string
     {
         $hash = md5(strtolower(trim($this->email)));
+
         return "https://www.gravatar.com/avatar/{$hash}?d=mp&f=y";
     }
 }

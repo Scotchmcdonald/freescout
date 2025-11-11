@@ -17,7 +17,7 @@ class SendLogModelTest extends TestCase
 
     public function test_model_can_be_instantiated(): void
     {
-        $log = new SendLog();
+        $log = new SendLog;
         $this->assertInstanceOf(SendLog::class, $log);
     }
 
@@ -175,7 +175,7 @@ class SendLogModelTest extends TestCase
 
     public function test_send_log_with_smtp_queue_id(): void
     {
-        $queueId = 'smtp-queue-' . uniqid();
+        $queueId = 'smtp-queue-'.uniqid();
         $log = SendLog::factory()->create(['smtp_queue_id' => $queueId]);
 
         $this->assertEquals($queueId, $log->smtp_queue_id);
@@ -191,13 +191,13 @@ class SendLogModelTest extends TestCase
     public function test_multiple_send_logs_for_same_thread(): void
     {
         $thread = Thread::factory()->create();
-        
+
         SendLog::factory()->count(3)->create(['thread_id' => $thread->id]);
 
         $sendLogs = SendLog::where('thread_id', $thread->id)->get();
 
         $this->assertCount(3, $sendLogs);
-        $this->assertTrue($sendLogs->every(fn($log) => $log->thread_id === $thread->id));
+        $this->assertTrue($sendLogs->every(fn ($log) => $log->thread_id === $thread->id));
     }
 
     public function test_created_at_and_updated_at_timestamps(): void

@@ -22,7 +22,7 @@ Broadcast::channel('mailbox.{mailboxId}', function (User $user, int $mailboxId) 
 // Conversation presence channel - user must have access to the mailbox
 Broadcast::channel('conversation.{conversationId}', function (User $user, int $conversationId) {
     $conversation = Conversation::find($conversationId);
-    
+
     if (! $conversation) {
         return false;
     }
@@ -32,4 +32,3 @@ Broadcast::channel('conversation.{conversationId}', function (User $user, int $c
         ? ['id' => $user->id, 'name' => $user->getFullName(), 'email' => $user->email]
         : false;
 });
-

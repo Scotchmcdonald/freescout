@@ -21,7 +21,7 @@ class SendLogFactory extends Factory
             'thread_id' => Thread::factory(),
             'customer_id' => null,
             'user_id' => null,
-            'message_id' => fake()->uuid() . '@example.com',
+            'message_id' => fake()->uuid().'@example.com',
             'email' => fake()->safeEmail(),
             'status' => 1, // Sent
             'status_message' => null,

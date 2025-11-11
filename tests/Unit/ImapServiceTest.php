@@ -6,7 +6,6 @@ namespace Tests\Unit;
 
 use App\Models\Mailbox;
 use App\Services\ImapService;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class ImapServiceTest extends TestCase
@@ -16,12 +15,12 @@ class ImapServiceTest extends TestCase
         $mailbox = new Mailbox([
             'id' => 1,
             'name' => 'Test Mailbox',
-            'in_server' => null
+            'in_server' => null,
         ]);
-        
-        $service = new ImapService();
+
+        $service = new ImapService;
         $result = $service->fetchEmails($mailbox);
-        
+
         $this->assertIsArray($result);
         $this->assertArrayHasKey('fetched', $result);
         $this->assertArrayHasKey('created', $result);
@@ -31,7 +30,7 @@ class ImapServiceTest extends TestCase
 
     public function test_fetch_emails_method_exists(): void
     {
-        $service = new ImapService();
+        $service = new ImapService;
         $this->assertTrue(method_exists($service, 'fetchEmails'));
     }
 }

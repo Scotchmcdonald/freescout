@@ -17,7 +17,7 @@ class ProfileUpdateRequest extends FormRequest
     {
         /** @var \App\Models\User $user */
         $user = $this->user();
-        
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'first_name' => ['sometimes', 'string', 'max:255'],

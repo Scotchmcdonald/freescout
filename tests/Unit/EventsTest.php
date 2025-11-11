@@ -20,7 +20,7 @@ class EventsTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1]);
         $event = new ConversationUpdated($conversation);
-        
+
         $this->assertSame($conversation, $event->conversation);
     }
 
@@ -28,7 +28,7 @@ class EventsTest extends TestCase
     {
         $conversation = new Conversation(['id' => 123, 'mailbox_id' => 456]);
         $event = new ConversationUpdated($conversation);
-        
+
         $channels = $event->broadcastOn();
         $this->assertGreaterThanOrEqual(1, count($channels));
         $this->assertEquals('private-mailbox.456', $channels[0]->name);
@@ -39,9 +39,9 @@ class EventsTest extends TestCase
         $conversation = new Conversation(['id' => 1]);
         $thread = new Thread(['id' => 2]);
         $customer = new Customer(['id' => 3]);
-        
+
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        
+
         $this->assertSame($conversation, $event->conversation);
         $this->assertSame($thread, $event->thread);
         $this->assertSame($customer, $event->customer);
@@ -52,9 +52,9 @@ class EventsTest extends TestCase
         $conversation = new Conversation(['id' => 1]);
         $thread = new Thread(['id' => 2]);
         $customer = new Customer(['id' => 3]);
-        
+
         $event = new CustomerReplied($conversation, $thread, $customer);
-        
+
         $this->assertSame($conversation, $event->conversation);
         $this->assertSame($thread, $event->thread);
         $this->assertSame($customer, $event->customer);
@@ -64,9 +64,9 @@ class EventsTest extends TestCase
     {
         $thread = new Thread(['id' => 1]);
         $conversation = new Conversation(['id' => 456]);
-        
+
         $event = new NewMessageReceived($thread, $conversation);
-        
+
         $this->assertSame($thread, $event->thread);
         $this->assertSame($conversation, $event->conversation);
     }
@@ -75,7 +75,7 @@ class EventsTest extends TestCase
     {
         $user = new \App\Models\User(['id' => 456, 'first_name' => 'John', 'last_name' => 'Doe', 'email' => 'test@example.com']);
         $event = new UserViewingConversation(123, $user);
-        
+
         $this->assertEquals(123, $event->conversationId);
         $this->assertSame($user, $event->user);
     }
@@ -84,7 +84,7 @@ class EventsTest extends TestCase
     {
         $user = new \App\Models\User(['id' => 321, 'first_name' => 'Jane', 'last_name' => 'Smith', 'email' => 'jane@example.com']);
         $event = new UserViewingConversation(789, $user);
-        
+
         $channels = $event->broadcastOn();
         $this->assertCount(1, $channels);
         $this->assertEquals('presence-conversation.789', $channels[0]->name);

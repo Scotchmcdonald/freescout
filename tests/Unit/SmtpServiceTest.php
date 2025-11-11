@@ -6,7 +6,6 @@ namespace Tests\Unit;
 
 use App\Models\Mailbox;
 use App\Services\SmtpService;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class SmtpServiceTest extends TestCase
@@ -19,12 +18,12 @@ class SmtpServiceTest extends TestCase
             'out_server' => null, // Missing required field
             'out_port' => null,
             'out_username' => null,
-            'out_password' => null
+            'out_password' => null,
         ]);
-        
-        $service = new SmtpService();
+
+        $service = new SmtpService;
         $result = $service->testConnection($mailbox, 'test@example.com');
-        
+
         $this->assertIsArray($result);
         $this->assertArrayHasKey('success', $result);
         $this->assertArrayHasKey('message', $result);
@@ -32,7 +31,7 @@ class SmtpServiceTest extends TestCase
 
     public function test_test_connection_method_exists(): void
     {
-        $service = new SmtpService();
+        $service = new SmtpService;
         $this->assertTrue(method_exists($service, 'testConnection'));
     }
 
@@ -42,14 +41,14 @@ class SmtpServiceTest extends TestCase
             'out_server' => 'smtp.example.com',
             'out_port' => 587,
             'out_username' => 'test@example.com',
-            'out_password' => 'password'
+            'out_password' => 'password',
         ]);
-        
-        $service = new SmtpService();
-        
+
+        $service = new SmtpService;
+
         // Just test that the method exists and can be called
         $this->assertTrue(method_exists($service, 'configureSmtp'));
-        
+
         try {
             $service->configureSmtp($mailbox);
             $this->assertTrue(true);

@@ -2,13 +2,12 @@
 
 namespace Tests\Unit\Policies;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Mailbox;
-use App\Models\Conversation;
+use App\Models\User;
 use App\Policies\MailboxPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class AdvancedPolicyTest extends TestCase
 {
@@ -18,8 +17,8 @@ class AdvancedPolicyTest extends TestCase
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
-        $policy = new MailboxPolicy();
-        
+        $policy = new MailboxPolicy;
+
         $this->assertTrue($policy->viewAny($admin));
         $this->assertTrue($policy->view($admin, $mailbox));
         $this->assertTrue($policy->update($admin, $mailbox));
@@ -31,11 +30,11 @@ class AdvancedPolicyTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $assignedMailbox = Mailbox::factory()->create();
         $user->mailboxes()->attach($assignedMailbox->id);
-        
+
         $unassignedMailbox = Mailbox::factory()->create();
-        
-        $policy = new MailboxPolicy();
-        
+
+        $policy = new MailboxPolicy;
+
         $this->assertTrue($policy->view($user, $assignedMailbox));
         $this->assertFalse($policy->view($user, $unassignedMailbox));
     }
@@ -45,9 +44,9 @@ class AdvancedPolicyTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $mailbox = Mailbox::factory()->create();
         $user->mailboxes()->attach($mailbox->id);
-        
-        $policy = new MailboxPolicy();
-        
+
+        $policy = new MailboxPolicy;
+
         $this->assertFalse($policy->delete($user, $mailbox));
     }
 
@@ -55,8 +54,8 @@ class AdvancedPolicyTest extends TestCase
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $targetUser = User::factory()->create();
-        $policy = new UserPolicy();
-        
+        $policy = new UserPolicy;
+
         $this->assertTrue($policy->viewAny($admin));
         $this->assertTrue($policy->view($admin, $targetUser));
         $this->assertTrue($policy->update($admin, $targetUser));
@@ -67,8 +66,8 @@ class AdvancedPolicyTest extends TestCase
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $otherUser = User::factory()->create();
-        $policy = new UserPolicy();
-        
+        $policy = new UserPolicy;
+
         $this->assertFalse($policy->viewAny($user));
         $this->assertFalse($policy->update($user, $otherUser));
         $this->assertFalse($policy->delete($user, $otherUser));
@@ -77,8 +76,8 @@ class AdvancedPolicyTest extends TestCase
     public function test_user_can_view_own_profile()
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
-        $policy = new UserPolicy();
-        
+        $policy = new UserPolicy;
+
         $this->assertTrue($policy->view($user, $user));
     }
 
@@ -86,10 +85,10 @@ class AdvancedPolicyTest extends TestCase
     {
         $mailbox = Mailbox::factory()->create();
         $user = User::factory()->create();
-        
-        $mailboxPolicy = new MailboxPolicy();
-        $userPolicy = new UserPolicy();
-        
+
+        $mailboxPolicy = new MailboxPolicy;
+        $userPolicy = new UserPolicy;
+
         $this->assertFalse($mailboxPolicy->viewAny(null));
         $this->assertFalse($mailboxPolicy->view(null, $mailbox));
         $this->assertFalse($userPolicy->viewAny(null));

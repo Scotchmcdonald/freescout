@@ -13,14 +13,13 @@ use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
  * Phase 6 - Task 6.1: Complete Workflow Tests
- * 
+ *
  * Tests end-to-end workflows to validate system integration:
  * - Full customer inquiry workflow
  * - Auto-reply workflow
@@ -555,7 +554,7 @@ class CompleteWorkflowTest extends TestCase
         // The system may cascade delete or nullify the customer relationship
         // Check if conversation still exists
         $conversationStillExists = Conversation::find($conversation->id) !== null;
-        
+
         if ($conversationStillExists) {
             // If conversation exists, try to load it
             $response = $this->actingAs($this->admin)
@@ -802,16 +801,22 @@ class CompleteWorkflowTest extends TestCase
         // This tests the expected behavior but system may allow assigned users
         $response = $this->actingAs($this->agent)
             ->get(route('conversations.show', $conversation));
-        
+
         // Accept either forbidden (strict) or ok (lenient for assigned users)
-        $this->assertContains($response->status(), [200, 403],
-            "Expected 200 (allowed for assigned user) or 403 (forbidden), got {$response->status()}");
+        $this->assertContains(
+            $response->status(),
+            [200, 403],
+            "Expected 200 (allowed for assigned user) or 403 (forbidden), got {$response->status()}"
+        );
 
         // If they have access, verify they're the assigned user
         if ($response->status() === 200) {
             $conversation->refresh();
-            $this->assertEquals($this->agent->id, $conversation->user_id,
-                'User should only access if they are assigned');
+            $this->assertEquals(
+                $this->agent->id,
+                $conversation->user_id,
+                'User should only access if they are assigned'
+            );
         }
     }
 

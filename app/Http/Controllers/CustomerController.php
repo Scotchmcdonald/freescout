@@ -6,12 +6,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Conversation;
 use App\Models\Customer;
+use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Contracts\View\View;
-use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class CustomerController extends Controller
 {
@@ -43,8 +43,6 @@ class CustomerController extends Controller
 
     /**
      * Store a newly created customer in storage.
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request): RedirectResponse
     {
@@ -58,8 +56,8 @@ class CustomerController extends Controller
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'] ?? '',
         ]);
-        
-        if (!$customer) {
+
+        if (! $customer) {
             return back()->withErrors(['email' => 'Invalid email address']);
         }
 
@@ -198,7 +196,7 @@ class CustomerController extends Controller
                     'results' => $customers->map(function (\App\Models\Customer $customer) {
                         return [
                             'id' => $customer->id,
-                            'text' => $customer->getFullName() . ' (' . $customer->getMainEmail() . ')',
+                            'text' => $customer->getFullName().' ('.$customer->getMainEmail().')',
                         ];
                     }),
                 ]);

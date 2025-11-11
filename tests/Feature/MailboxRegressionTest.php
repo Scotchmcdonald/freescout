@@ -16,7 +16,7 @@ class MailboxRegressionTest extends TestCase
 
     /**
      * Regression Test: Verify mailbox permission logic is consistent with L5 version.
-     * 
+     *
      * In L5, users can access mailboxes through the mailbox_user pivot table.
      * This test ensures the modern version maintains the same access control.
      */
@@ -26,10 +26,10 @@ class MailboxRegressionTest extends TestCase
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $user1 = User::factory()->create(['role' => User::ROLE_USER]);
         $user2 = User::factory()->create(['role' => User::ROLE_USER]);
-        
+
         $mailbox1 = Mailbox::factory()->create(['name' => 'Support']);
         $mailbox2 = Mailbox::factory()->create(['name' => 'Sales']);
-        
+
         // User1 has access to mailbox1, User2 has access to mailbox2
         $mailbox1->users()->attach($user1);
         $mailbox2->users()->attach($user2);
@@ -38,11 +38,11 @@ class MailboxRegressionTest extends TestCase
         $this->actingAs($user1);
         $response1 = $this->get(route('mailboxes.view', $mailbox1));
         $response1->assertStatus(200);
-        
+
         // Act & Assert - User1 cannot access mailbox2
         $response2 = $this->get(route('mailboxes.view', $mailbox2));
         $response2->assertStatus(403);
-        
+
         // Act & Assert - Admin can access all mailboxes
         $this->actingAs($admin);
         $response3 = $this->get(route('mailboxes.view', $mailbox1));
@@ -53,7 +53,7 @@ class MailboxRegressionTest extends TestCase
 
     /**
      * Regression Test: Verify mailbox-user relationship with pivot data.
-     * 
+     *
      * In L5, the mailbox_user pivot table stores additional data like 'after_send', 'hide', 'mute', 'access'.
      * This test ensures the modern version maintains compatibility.
      */
@@ -62,7 +62,7 @@ class MailboxRegressionTest extends TestCase
         // Arrange
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         // Attach user with pivot data (as in L5)
         $mailbox->users()->attach($user->id, [
             'after_send' => 1,
@@ -81,7 +81,7 @@ class MailboxRegressionTest extends TestCase
 
     /**
      * Regression Test: Verify folder structure and relationships match L5.
-     * 
+     *
      * In L5, folders have types (Inbox=1, Sent=2, Drafts=3, Spam=4, Trash=5, etc.)
      * and belong to both mailboxes and optionally users (personal folders).
      */
@@ -90,20 +90,20 @@ class MailboxRegressionTest extends TestCase
         // Arrange
         $mailbox = Mailbox::factory()->create();
         $user = User::factory()->create();
-        
+
         // Create system folders (as in L5)
         $inboxFolder = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
             'user_id' => null,
             'type' => Folder::TYPE_INBOX,
         ]);
-        
+
         $sentFolder = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
             'user_id' => null,
             'type' => Folder::TYPE_SENT,
         ]);
-        
+
         // Create personal folder (as in L5)
         $mineFolder = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -120,7 +120,7 @@ class MailboxRegressionTest extends TestCase
         $this->assertEquals(20, Folder::TYPE_ASSIGNED);
         $this->assertEquals(25, Folder::TYPE_MINE);
         $this->assertEquals(30, Folder::TYPE_STARRED);
-        
+
         // Assert - Folder relationships work as in L5
         $this->assertInstanceOf(Mailbox::class, $inboxFolder->mailbox);
         $this->assertNull($inboxFolder->user_id);
@@ -129,7 +129,7 @@ class MailboxRegressionTest extends TestCase
 
     /**
      * Regression Test: Verify conversation-folder relationships.
-     * 
+     *
      * In L5, conversations can belong to folders through the conversation_folder pivot table.
      */
     public function test_conversation_folder_relationship_matches_l5(): void
@@ -137,7 +137,7 @@ class MailboxRegressionTest extends TestCase
         // Arrange
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
-        
+
         // Assert - The conversationsViaFolder relationship exists (as in L5)
         $this->assertTrue(method_exists($folder, 'conversationsViaFolder'));
         $relationship = $folder->conversationsViaFolder();
@@ -145,14 +145,14 @@ class MailboxRegressionTest extends TestCase
             \Illuminate\Database\Eloquent\Relations\BelongsToMany::class,
             $relationship
         );
-        
+
         // Assert - The pivot table name is conversation_folder (as in L5)
         $this->assertEquals('conversation_folder', $relationship->getTable());
     }
 
     /**
      * Regression Test: Verify mailbox password encryption.
-     * 
+     *
      * In L5, passwords are automatically encrypted/decrypted via accessors/mutators.
      * The modern version uses manual encryption in the controller.
      */
@@ -161,9 +161,9 @@ class MailboxRegressionTest extends TestCase
         // Arrange
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $this->actingAs($admin);
-        
+
         $plainPassword = 'my-secret-password';
-        
+
         // Act - Create mailbox with password
         $response = $this->post(route('mailboxes.store'), [
             'name' => 'Test Mailbox',
@@ -177,12 +177,12 @@ class MailboxRegressionTest extends TestCase
             'out_username' => 'user@example.com',
             'out_password' => $plainPassword,
         ]);
-        
+
         // Assert
         $response->assertRedirect();
         $mailbox = Mailbox::where('email', 'test@example.com')->first();
         $this->assertNotNull($mailbox);
-        
+
         // Assert - Passwords are encrypted in database (not plain text)
         $this->assertNotEquals($plainPassword, $mailbox->getRawOriginal('in_password'));
         $this->assertNotEquals($plainPassword, $mailbox->getRawOriginal('out_password'));
@@ -192,7 +192,7 @@ class MailboxRegressionTest extends TestCase
 
     /**
      * Regression Test: Verify mailbox getMailFrom method behavior.
-     * 
+     *
      * This method should return the correct "from" name and address for outgoing emails.
      * Note: The current implementation returns the integer from_name value when not using custom name.
      */
@@ -205,10 +205,10 @@ class MailboxRegressionTest extends TestCase
             'from_name' => 1,
             'from_name_custom' => null,
         ]);
-        
+
         // Act
         $from = $mailbox->getMailFrom();
-        
+
         // Assert
         $this->assertIsArray($from);
         $this->assertArrayHasKey('address', $from);
@@ -232,10 +232,10 @@ class MailboxRegressionTest extends TestCase
             'from_name' => 1,
             'from_name_custom' => 'Custom Support Name',
         ]);
-        
+
         // Act
         $from = $mailbox->getMailFrom();
-        
+
         // Assert
         $this->assertEquals('Custom Support Name', $from['name']);
     }
@@ -255,10 +255,10 @@ class MailboxRegressionTest extends TestCase
             'from_name' => 2, // Another truthy value
             'from_name_custom' => null,
         ]);
-        
+
         // Act
         $from = $mailbox->getMailFrom();
-        
+
         // Assert - Current implementation returns from_name value (integer 2)
         $this->assertEquals(2, $from['name']);
     }

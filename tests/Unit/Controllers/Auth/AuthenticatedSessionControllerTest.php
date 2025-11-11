@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Controllers\Auth;
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -72,7 +71,7 @@ class AuthenticatedSessionControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $this->actingAs($user);
-        
+
         session(['test_key' => 'test_value']);
 
         $this->post(route('logout'));

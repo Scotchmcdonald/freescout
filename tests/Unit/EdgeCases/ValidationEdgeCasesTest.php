@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\EdgeCases;
 
-use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
@@ -147,7 +146,7 @@ class ValidationEdgeCasesTest extends TestCase
                 ['flag' => $value],
                 ['flag' => 'boolean']
             );
-            $this->assertFalse($validator->fails(), "Value " . var_export($value, true) . " should be accepted as boolean");
+            $this->assertFalse($validator->fails(), 'Value '.var_export($value, true).' should be accepted as boolean');
         }
 
         // These should fail boolean validation

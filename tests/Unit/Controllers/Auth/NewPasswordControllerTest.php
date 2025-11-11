@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Controllers\Auth;
 
-use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class NewPasswordControllerTest extends TestCase
 {
@@ -16,28 +16,28 @@ class NewPasswordControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $token = Password::createToken($user);
-        
+
         $response = $this->post(route('password.store'), [
             'token' => $token,
             'email' => $user->email,
             'password' => 'NewPassword123!',
             'password_confirmation' => 'NewPassword123!',
         ]);
-        
+
         $response->assertRedirect(route('login'));
     }
 
     public function test_password_reset_fails_with_invalid_token()
     {
         $user = User::factory()->create();
-        
+
         $response = $this->post(route('password.store'), [
             'token' => 'invalid-token',
             'email' => $user->email,
             'password' => 'NewPassword123!',
             'password_confirmation' => 'NewPassword123!',
         ]);
-        
+
         $response->assertSessionHasErrors('email');
     }
 
@@ -45,14 +45,14 @@ class NewPasswordControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $token = Password::createToken($user);
-        
+
         $response = $this->post(route('password.store'), [
             'token' => $token,
             'email' => $user->email,
             'password' => 'short',
             'password_confirmation' => 'short',
         ]);
-        
+
         $response->assertSessionHasErrors('password');
     }
 
@@ -60,14 +60,14 @@ class NewPasswordControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $token = Password::createToken($user);
-        
+
         $response = $this->post(route('password.store'), [
             'token' => $token,
             'email' => $user->email,
             'password' => 'NewPassword123!',
             'password_confirmation' => 'DifferentPassword123!',
         ]);
-        
+
         $response->assertSessionHasErrors('password');
     }
 
@@ -76,14 +76,14 @@ class NewPasswordControllerTest extends TestCase
         $user = User::factory()->create();
         $token = Password::createToken($user);
         $newPassword = 'NewPassword123!';
-        
+
         $this->post(route('password.store'), [
             'token' => $token,
             'email' => $user->email,
             'password' => $newPassword,
             'password_confirmation' => $newPassword,
         ]);
-        
+
         $this->assertTrue(Hash::check($newPassword, $user->fresh()->password));
     }
 }

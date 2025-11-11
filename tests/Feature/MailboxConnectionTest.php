@@ -56,7 +56,7 @@ class MailboxConnectionTest extends TestCase
         $this->actingAs($this->adminUser);
 
         $response = $this->get(route('mailboxes.connection.incoming', $this->mailbox));
-        
+
         $response->assertStatus(200);
         $response->assertViewIs('mailboxes.connection_incoming');
         $response->assertSee('Incoming Connection');
@@ -83,7 +83,7 @@ class MailboxConnectionTest extends TestCase
         $response = $this->post(route('mailboxes.connection.incoming', $this->mailbox), $data);
 
         $response->assertRedirect(route('mailboxes.connection.incoming', $this->mailbox))
-                 ->assertSessionHas('success');
+            ->assertSessionHas('success');
 
         $this->mailbox->refresh();
 
@@ -113,7 +113,7 @@ class MailboxConnectionTest extends TestCase
         $this->actingAs($this->adminUser);
 
         $response = $this->get(route('mailboxes.connection.outgoing', $this->mailbox));
-        
+
         $response->assertStatus(200);
         $response->assertViewIs('mailboxes.connection_outgoing');
         $response->assertSee('Outgoing Connection');
@@ -141,7 +141,7 @@ class MailboxConnectionTest extends TestCase
         $response = $this->post(route('mailboxes.connection.outgoing', $this->mailbox), $data);
 
         $response->assertRedirect(route('mailboxes.connection.outgoing', $this->mailbox))
-                 ->assertSessionHas('success');
+            ->assertSessionHas('success');
 
         $this->mailbox->refresh();
 

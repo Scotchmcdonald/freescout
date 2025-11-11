@@ -19,9 +19,9 @@ class ConversationEdgeCasesTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $longSubject = str_repeat('Very Long Subject Line ', 20); // ~460 chars
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
@@ -31,7 +31,7 @@ class ConversationEdgeCasesTest extends TestCase
         $user->mailboxes()->attach($mailbox->id);
 
         $response = $this->actingAs($user)->get(route('conversations.show', $conversation->id));
-        
+
         $response->assertOk();
         // Verify subject is displayed (may be truncated in display)
         $this->assertDatabaseHas('conversations', [
@@ -44,7 +44,7 @@ class ConversationEdgeCasesTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         // Create 35 conversations (more than one page)
         Conversation::factory()->count(35)->create([
             'mailbox_id' => $mailbox->id,
@@ -55,10 +55,10 @@ class ConversationEdgeCasesTest extends TestCase
         $user->mailboxes()->attach($mailbox->id);
 
         $response = $this->actingAs($user)->get(route('conversations.index', $mailbox->id));
-        
+
         $response->assertOk();
         $response->assertViewHas('conversations');
-        
+
         // Verify pagination is working
         $conversations = $response->viewData('conversations');
         $this->assertLessThanOrEqual(35, $conversations->count());
@@ -69,19 +69,19 @@ class ConversationEdgeCasesTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
         ]);
-        
+
         // Ensure no threads
         Thread::where('conversation_id', $conversation->id)->delete();
 
         $user->mailboxes()->attach($mailbox->id);
 
         $response = $this->actingAs($user)->get(route('conversations.show', $conversation->id));
-        
+
         $response->assertOk();
         $response->assertViewHas('conversation');
     }
@@ -91,7 +91,7 @@ class ConversationEdgeCasesTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
@@ -102,7 +102,7 @@ class ConversationEdgeCasesTest extends TestCase
         $response = $this->actingAs($user)->patch(route('conversations.update', $conversation->id), [
             'status' => 999, // Invalid status
         ]);
-        
+
         // Verify invalid status not saved
         $this->assertDatabaseMissing('conversations', [
             'id' => $conversation->id,
@@ -114,15 +114,15 @@ class ConversationEdgeCasesTest extends TestCase
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
-        
+
         $user->mailboxes()->attach($mailbox->id);
 
         // No conversations in mailbox
         $response = $this->actingAs($user)->get(route('conversations.index', $mailbox->id));
-        
+
         $response->assertOk();
         $response->assertViewHas('conversations');
-        
+
         $conversations = $response->viewData('conversations');
         $this->assertEquals(0, $conversations->count());
     }
@@ -132,9 +132,9 @@ class ConversationEdgeCasesTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $specialSubject = "Test <script>alert('XSS')</script> & special chars";
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
@@ -144,7 +144,7 @@ class ConversationEdgeCasesTest extends TestCase
         $user->mailboxes()->attach($mailbox->id);
 
         $response = $this->actingAs($user)->get(route('conversations.show', $conversation->id));
-        
+
         $response->assertOk();
         // Verify XSS is escaped in output
         $response->assertSee(e($specialSubject), false);
@@ -155,14 +155,14 @@ class ConversationEdgeCasesTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $activeConv = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
             'status' => Conversation::STATUS_ACTIVE,
             'subject' => 'Active Conversation',
         ]);
-        
+
         $closedConv = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
@@ -173,7 +173,7 @@ class ConversationEdgeCasesTest extends TestCase
         $user->mailboxes()->attach($mailbox->id);
 
         $response = $this->actingAs($user)->get(route('conversations.index', $mailbox->id));
-        
+
         $response->assertOk();
         $response->assertViewHas('conversations');
     }
@@ -183,7 +183,7 @@ class ConversationEdgeCasesTest extends TestCase
         $mailbox = Mailbox::factory()->create();
 
         $response = $this->get(route('conversations.index', $mailbox->id));
-        
+
         $response->assertRedirect(route('login'));
     }
 }

@@ -78,7 +78,7 @@ class ConversationAdvancedTest extends TestCase
         $response->assertSee($published->subject);
         $response->assertDontSee($draft->subject);
         $response->assertViewHas('conversations', function ($conversations) use ($published, $draft) {
-            return $conversations->contains($published) && !$conversations->contains($draft);
+            return $conversations->contains($published) && ! $conversations->contains($draft);
         });
     }
 
@@ -111,14 +111,15 @@ class ConversationAdvancedTest extends TestCase
             $ids = $conversations->pluck('id')->toArray();
             $newerIndex = array_search($newer->id, $ids);
             $olderIndex = array_search($older->id, $ids);
+
             return $newerIndex !== false && $olderIndex !== false && $newerIndex < $olderIndex;
         });
-        
+
         // Newer should appear before older in the HTML
         $content = $response->getContent();
         $newerPos = strpos($content, 'Newer Conversation');
         $olderPos = strpos($content, 'Older Conversation');
-        
+
         $this->assertNotFalse($newerPos);
         $this->assertNotFalse($olderPos);
         $this->assertLessThan($olderPos, $newerPos, 'Newer conversation should appear before older');
@@ -184,13 +185,13 @@ class ConversationAdvancedTest extends TestCase
 
         $response->assertOk();
         $response->assertViewIs('conversations.show');
-        
+
         // Check threads appear in chronological order
         $content = $response->getContent();
         $firstPos = strpos($content, 'First message');
         $secondPos = strpos($content, 'Second message');
         $thirdPos = strpos($content, 'Third message');
-        
+
         $this->assertNotFalse($firstPos);
         $this->assertNotFalse($secondPos);
         $this->assertNotFalse($thirdPos);
@@ -447,7 +448,7 @@ class ConversationAdvancedTest extends TestCase
             'success',
             'thread' => ['id', 'body', 'user'],
         ]);
-        
+
         // Verify the response data
         $data = $response->json();
         $this->assertTrue($data['success']);
@@ -488,7 +489,7 @@ class ConversationAdvancedTest extends TestCase
                 'subject' => 'Password Reset Help',
                 'state' => 2,
             ]);
-            
+
         $otherConv = Conversation::factory()
             ->for($this->mailbox)
             ->create([
@@ -503,7 +504,7 @@ class ConversationAdvancedTest extends TestCase
         $response->assertSee('Password Reset Help');
         $response->assertDontSee('Billing Question');
         $response->assertViewHas('conversations', function ($conversations) use ($targetConv, $otherConv) {
-            return $conversations->contains($targetConv) && !$conversations->contains($otherConv);
+            return $conversations->contains($targetConv) && ! $conversations->contains($otherConv);
         });
     }
 
@@ -611,7 +612,7 @@ class ConversationAdvancedTest extends TestCase
 
         $response->assertOk();
         $response->assertViewHas('conversations');
-        
+
         $conversations = $response->viewData('conversations');
         $this->assertEquals(50, $conversations->count());
         $this->assertTrue($conversations->hasMorePages());

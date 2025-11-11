@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property bool $active
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Customer> $customers
  */
 class Channel extends Model
@@ -46,7 +45,7 @@ class Channel extends Model
 
     /**
      * Get the customers using this channel.
-     * 
+     *
      * @return BelongsToMany<Customer, $this>
      */
     public function customers(): BelongsToMany

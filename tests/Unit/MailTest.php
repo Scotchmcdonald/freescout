@@ -19,9 +19,9 @@ class MailTest extends TestCase
         $conversation = new Conversation(['id' => 1]);
         $mailbox = new Mailbox(['id' => 1, 'name' => 'Support']);
         $customer = new Customer(['id' => 1, 'first_name' => 'John']);
-        
+
         $mail = new AutoReply($conversation, $mailbox, $customer);
-        
+
         $this->assertSame($conversation, $mail->conversation);
         $this->assertSame($mailbox, $mail->mailbox);
         $this->assertSame($customer, $mail->customer);
@@ -32,10 +32,10 @@ class MailTest extends TestCase
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test Subject']);
         $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'auto_reply_subject' => null]);
         $customer = new Customer(['id' => 1]);
-        
+
         $mail = new AutoReply($conversation, $mailbox, $customer);
         $envelope = $mail->envelope();
-        
+
         $this->assertEquals('Re: Test Subject', $envelope->subject);
     }
 
@@ -43,9 +43,9 @@ class MailTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1]);
         $thread = new Thread(['id' => 1, 'body' => 'Reply message']);
-        
+
         $mail = new ConversationReplyNotification($conversation, $thread);
-        
+
         $this->assertSame($thread, $mail->thread);
         $this->assertSame($conversation, $mail->conversation);
     }

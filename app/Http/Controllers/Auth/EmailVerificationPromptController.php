@@ -16,11 +16,11 @@ class EmailVerificationPromptController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
-        
+
         if ($user->hasVerifiedEmail()) {
             return redirect()->intended(route('dashboard', absolute: false));
         }
-        
+
         /** @var \Illuminate\Contracts\View\View */
         return view('auth.verify-email');
     }

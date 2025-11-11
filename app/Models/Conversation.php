@@ -43,13 +43,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property array|null $meta
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * 
  * @property-read \App\Models\Mailbox $mailbox
  * @property-read \App\Models\Customer $customer
  * @property-read \App\Models\User|null $user
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
- * 
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<Conversation>|Conversation create(array<string, mixed> $attributes = [])
+ *
  * @mixin \Illuminate\Database\Eloquent\Builder<Conversation>
  */
 class Conversation extends Model
@@ -130,7 +130,7 @@ class Conversation extends Model
 
     /**
      * Get the folder that owns the conversation.
-     * 
+     *
      * @return BelongsTo<Folder, $this>
      */
     public function folder(): BelongsTo
@@ -140,7 +140,7 @@ class Conversation extends Model
 
     /**
      * Get the mailbox that owns the conversation.
-     * 
+     *
      * @return BelongsTo<Mailbox, $this>
      */
     public function mailbox(): BelongsTo
@@ -150,7 +150,7 @@ class Conversation extends Model
 
     /**
      * Get the user assigned to the conversation.
-     * 
+     *
      * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
@@ -160,7 +160,7 @@ class Conversation extends Model
 
     /**
      * Get the customer associated with the conversation.
-     * 
+     *
      * @return BelongsTo<Customer, $this>
      */
     public function customer(): BelongsTo
@@ -170,7 +170,7 @@ class Conversation extends Model
 
     /**
      * Get the user who created the conversation.
-     * 
+     *
      * @return BelongsTo<User, $this>
      */
     public function createdByUser(): BelongsTo
@@ -180,7 +180,7 @@ class Conversation extends Model
 
     /**
      * Get the user who closed the conversation.
-     * 
+     *
      * @return BelongsTo<User, $this>
      */
     public function closedByUser(): BelongsTo
@@ -190,7 +190,7 @@ class Conversation extends Model
 
     /**
      * Get the threads for the conversation.
-     * 
+     *
      * @return HasMany<Thread, $this>
      */
     public function threads(): HasMany
@@ -200,7 +200,7 @@ class Conversation extends Model
 
     /**
      * Get the users following this conversation.
-     * 
+     *
      * @return BelongsToMany<User, $this>
      */
     public function followers(): BelongsToMany
@@ -211,7 +211,7 @@ class Conversation extends Model
 
     /**
      * Get the folders this conversation belongs to.
-     * 
+     *
      * @return BelongsToMany<Folder, $this>
      */
     public function folders(): BelongsToMany

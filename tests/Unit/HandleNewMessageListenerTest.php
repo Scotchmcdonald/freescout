@@ -20,16 +20,16 @@ class HandleNewMessageListenerTest extends TestCase
     /** Test listener can be instantiated */
     public function test_listener_can_be_instantiated(): void
     {
-        $listener = new HandleNewMessage();
-        
+        $listener = new HandleNewMessage;
+
         $this->assertInstanceOf(HandleNewMessage::class, $listener);
     }
 
     /** Test listener has handle method */
     public function test_listener_has_handle_method(): void
     {
-        $listener = new HandleNewMessage();
-        
+        $listener = new HandleNewMessage;
+
         $this->assertTrue(method_exists($listener, 'handle'));
     }
 
@@ -45,21 +45,21 @@ class HandleNewMessageListenerTest extends TestCase
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
         ]);
-        
+
         $event = new NewMessageReceived($thread, $conversation);
-        $listener = new HandleNewMessage();
-        
+        $listener = new HandleNewMessage;
+
         // Should not throw exception
         $listener->handle($event);
-        
+
         $this->assertTrue(true);
     }
 
     /** Test listener can be constructed without parameters */
     public function test_listener_constructor_no_parameters(): void
     {
-        $listener = new HandleNewMessage();
-        
+        $listener = new HandleNewMessage;
+
         $this->assertNotNull($listener);
     }
 
@@ -74,7 +74,7 @@ class HandleNewMessageListenerTest extends TestCase
     {
         $reflection = new \ReflectionMethod(HandleNewMessage::class, 'handle');
         $parameters = $reflection->getParameters();
-        
+
         $this->assertCount(1, $parameters);
         $this->assertEquals('event', $parameters[0]->getName());
     }
@@ -82,10 +82,10 @@ class HandleNewMessageListenerTest extends TestCase
     /** Test listener processes multiple events */
     public function test_listener_processes_multiple_events(): void
     {
-        $listener = new HandleNewMessage();
+        $listener = new HandleNewMessage;
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         for ($i = 0; $i < 3; $i++) {
             $conversation = Conversation::factory()->create([
                 'mailbox_id' => $mailbox->id,
@@ -94,11 +94,11 @@ class HandleNewMessageListenerTest extends TestCase
             $thread = Thread::factory()->create([
                 'conversation_id' => $conversation->id,
             ]);
-            
+
             $event = new NewMessageReceived($thread, $conversation);
             $listener->handle($event);
         }
-        
+
         // Should handle multiple events without error
         $this->assertTrue(true);
     }
@@ -115,15 +115,15 @@ class HandleNewMessageListenerTest extends TestCase
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
         ]);
-        
+
         $event = new NewMessageReceived($thread, $conversation);
-        $listener = new HandleNewMessage();
-        
+        $listener = new HandleNewMessage;
+
         try {
             $listener->handle($event);
             $this->assertTrue(true);
         } catch (\Exception $e) {
-            $this->fail('Listener should not throw exception: ' . $e->getMessage());
+            $this->fail('Listener should not throw exception: '.$e->getMessage());
         }
     }
 
@@ -136,19 +136,19 @@ class HandleNewMessageListenerTest extends TestCase
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
         ]);
-        
+
         $threadTypes = [1, 2, 3, 4]; // Different thread types
-        
-        $listener = new HandleNewMessage();
-        
+
+        $listener = new HandleNewMessage;
+
         foreach ($threadTypes as $type) {
             $thread = Thread::factory()->create([
                 'conversation_id' => $conversation->id,
                 'type' => $type,
             ]);
-            
+
             $event = new NewMessageReceived($thread, $conversation);
-            
+
             try {
                 $listener->handle($event);
                 $this->assertTrue(true);
@@ -161,24 +161,24 @@ class HandleNewMessageListenerTest extends TestCase
     /** Test listener handles rapid successive events */
     public function test_listener_handles_rapid_successive_events(): void
     {
-        $listener = new HandleNewMessage();
+        $listener = new HandleNewMessage;
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
         ]);
-        
+
         // Create many events rapidly
         for ($i = 0; $i < 10; $i++) {
             $thread = Thread::factory()->create([
                 'conversation_id' => $conversation->id,
             ]);
-            
+
             $event = new NewMessageReceived($thread, $conversation);
             $listener->handle($event);
         }
-        
+
         // Should handle all without memory or performance issues
         $this->assertTrue(true);
     }
@@ -186,10 +186,10 @@ class HandleNewMessageListenerTest extends TestCase
     /** Test listener is stateless between calls */
     public function test_listener_is_stateless(): void
     {
-        $listener = new HandleNewMessage();
+        $listener = new HandleNewMessage;
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         // First event
         $conversation1 = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -198,7 +198,7 @@ class HandleNewMessageListenerTest extends TestCase
         $thread1 = Thread::factory()->create(['conversation_id' => $conversation1->id]);
         $event1 = new NewMessageReceived($thread1, $conversation1);
         $listener->handle($event1);
-        
+
         // Second event - listener should not retain state from first
         $conversation2 = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -207,7 +207,7 @@ class HandleNewMessageListenerTest extends TestCase
         $thread2 = Thread::factory()->create(['conversation_id' => $conversation2->id]);
         $event2 = new NewMessageReceived($thread2, $conversation2);
         $listener->handle($event2);
-        
+
         // No state should be retained
         $this->assertTrue(true);
     }
@@ -215,10 +215,10 @@ class HandleNewMessageListenerTest extends TestCase
     /** Test listener constructor is idempotent */
     public function test_listener_can_be_instantiated_multiple_times(): void
     {
-        $listener1 = new HandleNewMessage();
-        $listener2 = new HandleNewMessage();
-        $listener3 = new HandleNewMessage();
-        
+        $listener1 = new HandleNewMessage;
+        $listener2 = new HandleNewMessage;
+        $listener3 = new HandleNewMessage;
+
         $this->assertInstanceOf(HandleNewMessage::class, $listener1);
         $this->assertInstanceOf(HandleNewMessage::class, $listener2);
         $this->assertInstanceOf(HandleNewMessage::class, $listener3);
@@ -227,8 +227,8 @@ class HandleNewMessageListenerTest extends TestCase
     /** Test listener handles events from different mailboxes */
     public function test_listener_handles_events_from_different_mailboxes(): void
     {
-        $listener = new HandleNewMessage();
-        
+        $listener = new HandleNewMessage;
+
         for ($i = 0; $i < 3; $i++) {
             $mailbox = Mailbox::factory()->create();
             $customer = Customer::factory()->create();
@@ -239,11 +239,11 @@ class HandleNewMessageListenerTest extends TestCase
             $thread = Thread::factory()->create([
                 'conversation_id' => $conversation->id,
             ]);
-            
+
             $event = new NewMessageReceived($thread, $conversation);
             $listener->handle($event);
         }
-        
+
         // Should handle events from different mailboxes
         $this->assertTrue(true);
     }

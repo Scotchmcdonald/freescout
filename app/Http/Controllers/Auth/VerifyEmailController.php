@@ -16,7 +16,7 @@ class VerifyEmailController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
-        
+
         if ($user->hasVerifiedEmail()) {
             return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
         }

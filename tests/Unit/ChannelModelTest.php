@@ -11,7 +11,7 @@ class ChannelModelTest extends TestCase
 {
     public function test_model_can_be_instantiated(): void
     {
-        $channel = new Channel();
+        $channel = new Channel;
         $this->assertInstanceOf(Channel::class, $channel);
     }
 

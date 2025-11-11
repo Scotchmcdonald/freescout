@@ -8,13 +8,13 @@ use App\Models\Mailbox;
 use App\Models\Option;
 use App\Services\ImapService;
 use App\Services\SmtpService;
+use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Contracts\View\View;
-use Illuminate\Contracts\View\Factory as ViewFactory;
 
 class SettingsController extends Controller
 {
@@ -240,8 +240,8 @@ class SettingsController extends Controller
 
     /**
      * Update .env file with new values.
-     * 
-     * @param array<string, mixed> $data
+     *
+     * @param  array<string, mixed>  $data
      */
     protected function updateEnvFile(array $data): void
     {

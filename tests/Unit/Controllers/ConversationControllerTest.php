@@ -21,7 +21,7 @@ class ConversationControllerTest extends TestCase
 
     public function test_controller_can_be_instantiated(): void
     {
-        $controller = new ConversationController();
+        $controller = new ConversationController;
 
         $this->assertInstanceOf(ConversationController::class, $controller);
     }
@@ -32,10 +32,10 @@ class ConversationControllerTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         $user->mailboxes()->attach($mailbox->id);
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/conversations', 'GET');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
         $view = $controller->index($request, $mailbox);
 
         $this->assertEquals('conversations.index', $view->name());
@@ -46,10 +46,10 @@ class ConversationControllerTest extends TestCase
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/conversations', 'GET');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->index($request, $mailbox);
@@ -64,10 +64,10 @@ class ConversationControllerTest extends TestCase
         Conversation::factory()->create(['mailbox_id' => $mailbox->id, 'state' => 2]); // Published
         Conversation::factory()->create(['mailbox_id' => $mailbox->id, 'state' => 1]); // Draft
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/conversations', 'GET');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
         $view = $controller->index($request, $mailbox);
 
         $conversations = $view->getData()['conversations'];
@@ -81,10 +81,10 @@ class ConversationControllerTest extends TestCase
         $user->mailboxes()->attach($mailbox->id);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-        $request = Request::create('/conversations/' . $conversation->id, 'GET');
+        $request = Request::create('/conversations/'.$conversation->id, 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
         $view = $controller->show($request, $conversation);
 
         $this->assertEquals('conversations.show', $view->name());
@@ -96,10 +96,10 @@ class ConversationControllerTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-        $request = Request::create('/conversations/' . $conversation->id, 'GET');
+        $request = Request::create('/conversations/'.$conversation->id, 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->show($request, $conversation);
@@ -113,10 +113,10 @@ class ConversationControllerTest extends TestCase
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         Thread::factory()->create(['conversation_id' => $conversation->id, 'state' => 2]);
 
-        $request = Request::create('/conversations/' . $conversation->id, 'GET');
+        $request = Request::create('/conversations/'.$conversation->id, 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
         $view = $controller->show($request, $conversation);
 
         $loadedConversation = $view->getData()['conversation'];
@@ -130,10 +130,10 @@ class ConversationControllerTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/conversations/create', 'GET');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations/create', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
         $view = $controller->create($request, $mailbox);
 
         $this->assertEquals('conversations.create', $view->name());
@@ -145,10 +145,10 @@ class ConversationControllerTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         $user->mailboxes()->attach($mailbox->id);
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/conversations/create', 'GET');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations/create', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
         $view = $controller->create($request, $mailbox);
 
         $this->assertEquals('conversations.create', $view->name());
@@ -159,10 +159,10 @@ class ConversationControllerTest extends TestCase
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/conversations/create', 'GET');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations/create', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->create($request, $mailbox);
@@ -175,13 +175,13 @@ class ConversationControllerTest extends TestCase
         $user->mailboxes()->attach($mailbox->id);
         $customer = Customer::factory()->create();
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/conversations', 'POST');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations', 'POST');
         $request->setUserResolver(fn () => $user);
         $request->merge([
             'customer_id' => $customer->id,
         ]);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->store($request, $mailbox);
@@ -193,7 +193,7 @@ class ConversationControllerTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         $user->mailboxes()->attach($mailbox->id);
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/conversations', 'POST');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations', 'POST');
         $request->setUserResolver(fn () => $user);
         $request->merge([
             'customer_id' => 99999, // Non-existent
@@ -201,7 +201,7 @@ class ConversationControllerTest extends TestCase
             'body' => 'Test',
         ]);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->store($request, $mailbox);
@@ -213,11 +213,11 @@ class ConversationControllerTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-        $request = Request::create('/conversations/' . $conversation->id, 'PUT');
+        $request = Request::create('/conversations/'.$conversation->id, 'PUT');
         $request->setUserResolver(fn () => $user);
         $request->merge(['status' => 2]);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->update($request, $conversation);
@@ -231,11 +231,11 @@ class ConversationControllerTest extends TestCase
         $user->mailboxes()->attach($mailbox->id);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-        $request = Request::create('/conversations/' . $conversation->id, 'PUT');
+        $request = Request::create('/conversations/'.$conversation->id, 'PUT');
         $request->setUserResolver(fn () => $user);
         $request->merge(['user_id' => $assignee->id]);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
         $controller->update($request, $conversation);
 
         $this->assertEquals($assignee->id, $conversation->fresh()->user_id);
@@ -250,11 +250,11 @@ class ConversationControllerTest extends TestCase
         $folder2 = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id, 'folder_id' => $folder1->id]);
 
-        $request = Request::create('/conversations/' . $conversation->id, 'PUT');
+        $request = Request::create('/conversations/'.$conversation->id, 'PUT');
         $request->setUserResolver(fn () => $user);
         $request->merge(['folder_id' => $folder2->id]);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
         $controller->update($request, $conversation);
 
         $this->assertEquals($folder2->id, $conversation->fresh()->folder_id);
@@ -267,11 +267,11 @@ class ConversationControllerTest extends TestCase
         $user->mailboxes()->attach($mailbox->id);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-        $request = Request::create('/conversations/' . $conversation->id . '/reply', 'POST');
+        $request = Request::create('/conversations/'.$conversation->id.'/reply', 'POST');
         $request->setUserResolver(fn () => $user);
         $request->merge(['body' => 'This is a reply']);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
         $response = $controller->reply($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -285,11 +285,11 @@ class ConversationControllerTest extends TestCase
         $user->mailboxes()->attach($mailbox->id);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-        $request = Request::create('/conversations/' . $conversation->id . '/reply', 'POST');
+        $request = Request::create('/conversations/'.$conversation->id.'/reply', 'POST');
         $request->setUserResolver(fn () => $user);
         $request->merge([]);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->reply($request, $conversation);
@@ -301,10 +301,10 @@ class ConversationControllerTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-        $request = Request::create('/conversations/' . $conversation->id, 'DELETE');
+        $request = Request::create('/conversations/'.$conversation->id, 'DELETE');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new ConversationController();
+        $controller = new ConversationController;
 
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->destroy($request, $conversation);

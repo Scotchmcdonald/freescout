@@ -16,7 +16,7 @@ class ActivityLogModelTest extends TestCase
 
     public function test_model_can_be_instantiated(): void
     {
-        $log = new ActivityLog();
+        $log = new ActivityLog;
         $this->assertInstanceOf(ActivityLog::class, $log);
     }
 
@@ -58,7 +58,7 @@ class ActivityLogModelTest extends TestCase
         $filtered = ActivityLog::inLog('default')->get();
 
         $this->assertCount(2, $filtered);
-        $this->assertTrue($filtered->every(fn($log) => $log->log_name === 'default'));
+        $this->assertTrue($filtered->every(fn ($log) => $log->log_name === 'default'));
     }
 
     public function test_scope_caused_by_filters_by_causer(): void
@@ -73,7 +73,7 @@ class ActivityLogModelTest extends TestCase
             'subject_type' => Conversation::class,
             'subject_id' => $conversation->id,
         ]);
-        
+
         ActivityLog::factory()->create([
             'causer_type' => User::class,
             'causer_id' => $user2->id,
@@ -96,7 +96,7 @@ class ActivityLogModelTest extends TestCase
             'subject_type' => Conversation::class,
             'subject_id' => $conversation1->id,
         ]);
-        
+
         ActivityLog::factory()->create([
             'subject_type' => Conversation::class,
             'subject_id' => $conversation2->id,
@@ -192,7 +192,7 @@ class ActivityLogModelTest extends TestCase
     public function test_multiple_activity_logs_for_same_subject(): void
     {
         $conversation = Conversation::factory()->create();
-        
+
         ActivityLog::factory()->count(3)->create([
             'subject_type' => Conversation::class,
             'subject_id' => $conversation->id,
@@ -207,7 +207,7 @@ class ActivityLogModelTest extends TestCase
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
-        
+
         ActivityLog::factory()->create([
             'log_name' => 'conversation',
             'causer_type' => User::class,
@@ -215,7 +215,7 @@ class ActivityLogModelTest extends TestCase
             'subject_type' => Conversation::class,
             'subject_id' => $conversation->id,
         ]);
-        
+
         ActivityLog::factory()->create([
             'log_name' => 'other',
             'causer_type' => User::class,

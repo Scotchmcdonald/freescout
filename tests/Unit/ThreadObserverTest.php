@@ -22,10 +22,10 @@ class ThreadObserverTest extends TestCase
         $conversation = new Conversation(['threads_count' => 5]);
         $thread = new Thread(['conversation_id' => 1]);
         $thread->setRelation('conversation', $conversation);
-        
-        $observer = new ThreadObserver();
+
+        $observer = new ThreadObserver;
         $observer->created($thread);
-        
+
         // Since we're using a mock, we just verify the method runs without error
         $this->assertTrue(true);
     }
@@ -36,10 +36,10 @@ class ThreadObserverTest extends TestCase
     public function test_created_handles_missing_conversation(): void
     {
         $thread = new Thread(['conversation_id' => null]);
-        
-        $observer = new ThreadObserver();
+
+        $observer = new ThreadObserver;
         $observer->created($thread);
-        
+
         // Should not throw an error
         $this->assertTrue(true);
     }
@@ -52,10 +52,10 @@ class ThreadObserverTest extends TestCase
         $conversation = new Conversation(['threads_count' => 5]);
         $thread = new Thread(['conversation_id' => 1]);
         $thread->setRelation('conversation', $conversation);
-        
-        $observer = new ThreadObserver();
+
+        $observer = new ThreadObserver;
         $observer->deleted($thread);
-        
+
         // Since we're using a mock, we just verify the method runs without error
         $this->assertTrue(true);
     }
@@ -66,10 +66,10 @@ class ThreadObserverTest extends TestCase
     public function test_deleted_handles_missing_conversation(): void
     {
         $thread = new Thread(['conversation_id' => null]);
-        
-        $observer = new ThreadObserver();
+
+        $observer = new ThreadObserver;
         $observer->deleted($thread);
-        
+
         // Should not throw an error
         $this->assertTrue(true);
     }

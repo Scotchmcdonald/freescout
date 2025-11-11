@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * 
  * @property-read \App\Models\Customer $customer
  */
 class Email extends Model
@@ -43,7 +42,7 @@ class Email extends Model
 
     /**
      * Get the customer that owns the email.
-     * 
+     *
      * @return BelongsTo<Customer, $this>
      */
     public function customer(): BelongsTo

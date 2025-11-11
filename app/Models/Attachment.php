@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property bool $embedded
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * 
  * @property-read \App\Models\Thread $thread
  */
 class Attachment extends Model
@@ -52,7 +51,7 @@ class Attachment extends Model
 
     /**
      * Get the thread that owns the attachment.
-     * 
+     *
      * @return BelongsTo<Thread, $this>
      */
     public function thread(): BelongsTo

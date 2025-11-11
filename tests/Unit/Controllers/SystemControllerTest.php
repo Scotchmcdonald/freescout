@@ -6,9 +6,7 @@ namespace Tests\Unit\Controllers;
 
 use App\Http\Controllers\SystemController;
 use App\Models\Conversation;
-use App\Models\Customer;
 use App\Models\Mailbox;
-use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
@@ -20,14 +18,14 @@ class SystemControllerTest extends TestCase
 
     public function test_controller_can_be_instantiated(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
 
         $this->assertInstanceOf(SystemController::class, $controller);
     }
 
     public function test_index_returns_view(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $view = $controller->index();
 
         $this->assertEquals('system.index', $view->name());
@@ -35,7 +33,7 @@ class SystemControllerTest extends TestCase
 
     public function test_index_passes_stats_to_view(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $view = $controller->index();
 
         $this->assertArrayHasKey('stats', $view->getData());
@@ -44,7 +42,7 @@ class SystemControllerTest extends TestCase
 
     public function test_index_stats_contains_correct_keys(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $view = $controller->index();
 
         $stats = $view->getData()['stats'];
@@ -59,7 +57,7 @@ class SystemControllerTest extends TestCase
 
     public function test_index_system_info_contains_correct_keys(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $view = $controller->index();
 
         $systemInfo = $view->getData()['systemInfo'];
@@ -78,7 +76,7 @@ class SystemControllerTest extends TestCase
         Mailbox::factory()->count(1)->create();
         Conversation::factory()->count(3)->create();
 
-        $controller = new SystemController();
+        $controller = new SystemController;
         $view = $controller->index();
 
         $stats = $view->getData()['stats'];
@@ -93,7 +91,7 @@ class SystemControllerTest extends TestCase
 
     public function test_diagnostics_returns_json_response(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $response = $controller->diagnostics();
 
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
@@ -101,7 +99,7 @@ class SystemControllerTest extends TestCase
 
     public function test_diagnostics_checks_database_connection(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -112,7 +110,7 @@ class SystemControllerTest extends TestCase
 
     public function test_diagnostics_checks_storage_writable(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -122,7 +120,7 @@ class SystemControllerTest extends TestCase
 
     public function test_diagnostics_checks_cache_working(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -132,7 +130,7 @@ class SystemControllerTest extends TestCase
 
     public function test_diagnostics_checks_required_extensions(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
@@ -147,7 +145,7 @@ class SystemControllerTest extends TestCase
         $request->setUserResolver(fn () => $user);
         $request->merge(['action' => 'clear_cache']);
 
-        $controller = new SystemController();
+        $controller = new SystemController;
         $response = $controller->ajax($request);
 
         $this->assertEquals(403, $response->getStatusCode());
@@ -160,7 +158,7 @@ class SystemControllerTest extends TestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'invalid_action']);
 
-        $controller = new SystemController();
+        $controller = new SystemController;
         $response = $controller->ajax($request);
 
         $this->assertEquals(400, $response->getStatusCode());
@@ -173,7 +171,7 @@ class SystemControllerTest extends TestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'clear_cache']);
 
-        $controller = new SystemController();
+        $controller = new SystemController;
         $response = $controller->ajax($request);
 
         $data = $response->getData(true);
@@ -187,7 +185,7 @@ class SystemControllerTest extends TestCase
         $request->setUserResolver(fn () => $admin);
         $request->merge(['action' => 'system_info']);
 
-        $controller = new SystemController();
+        $controller = new SystemController;
         $response = $controller->ajax($request);
 
         $data = $response->getData(true);
@@ -199,7 +197,7 @@ class SystemControllerTest extends TestCase
 
     public function test_logs_returns_view(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $request = Request::create('/system/logs', 'GET');
 
         $view = $controller->logs($request);
@@ -209,7 +207,7 @@ class SystemControllerTest extends TestCase
 
     public function test_logs_defaults_to_application_type(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $request = Request::create('/system/logs', 'GET');
 
         $view = $controller->logs($request);
@@ -220,7 +218,7 @@ class SystemControllerTest extends TestCase
 
     public function test_logs_can_filter_by_type(): void
     {
-        $controller = new SystemController();
+        $controller = new SystemController;
         $request = Request::create('/system/logs?type=email', 'GET');
 
         $view = $controller->logs($request);

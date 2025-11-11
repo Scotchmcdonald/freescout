@@ -4,11 +4,11 @@
 
 ✅ Artisan Test (w/ Coverage) (Passed)
 ❌ Dusk (Browser Tests) (Failed with code 2)
-✅ PHPStan Analyse (Fast) (Passed)
+❌ PHPStan Analyse (Fast) (Failed with code 1)
 ❌ Pint (Code Style Linting) (Failed with code 1)
 ✅ Composer (Security Audit) (Passed)
-❌ NPM/Yarn (Frontend Tests) (Failed with code 1)
-❌ NPM/Yarn (Frontend Linting) (Failed with code 1)
+✅ NPM/Yarn (Frontend Tests) (Passed)
+✅ NPM/Yarn (Frontend Linting) (Passed)
 
 ---
 
@@ -19,296 +19,58 @@ Logs for ❌ Dusk (Browser Tests)
 Warning: TTY mode requires /dev/tty to be read/writable.
 
    FAIL  Tests\Browser\ExampleTest
-  ⨯ basic example                                                        0.31s  
+  ⨯ basic example                                                        1.36s  
   ────────────────────────────────────────────────────────────────────────────  
-   FAILED  Tests\Browser\ExampleTest > basic example   WebDriverCurlException   
-  Curl error thrown for http POST to /session with params: {"capabilities":{"firstMatch":[{"browserName":"chrome","goog:chromeOptions":{"args":["--window-size=1920,1080","--disable-search-engine-choice-screen","--disable-smooth-scrolling","--disable-gpu","--headless=new"]}}]},"desiredCapabilities":{"browserName":"chrome","platform":"ANY","goog:chromeOptions":{"args":["--window-size=1920,1080","--disable-search-engine-choice-screen","--disable-smooth-scrolling","--disable-gpu","--headless=new"]}}}
+   FAILED  Tests\Browser\ExampleTest > basic example    UnknownErrorException   
+  unknown error: net::ERR_CONNECTION_REFUSED
+  (Session info: chrome=142.0.7444.61)
 
-Failed to connect to localhost port 9515 after 0 ms: Couldn't connect to server
+  at vendor/php-webdriver/webdriver/lib/Exception/WebDriverException.php:146
+    142▕                     throw new UnexpectedAlertOpenException($message, $results);
+    143▕                 case 'unknown command':
+    144▕                     throw new UnknownCommandException($message, $results);
+    145▕                 case 'unknown error':
+  ➜ 146▕                     throw new UnknownErrorException($message, $results);
+    147▕                 case 'unknown method':
+    148▕                     throw new UnknownMethodException($message, $results);
+    149▕                 case 'unsupported operation':
+    150▕                     throw new UnsupportedOperationException($message, $results);
 
-  at vendor/php-webdriver/webdriver/lib/Exception/Internal/WebDriverCurlException.php:20
-     16▕         }
-     17▕ 
-     18▕         $message .= "\n\n" . $curlError;
-     19▕ 
-  ➜  20▕         return new self($message);
-     21▕     }
-     22▕ }
-     23▕
-
-      [2m+3 vendor frames [22m
-  4   tests/DuskTestCase.php:41
-      [2m+1 vendor frames [22m
+      [2m+5 vendor frames [22m
   6   tests/Browser/ExampleTest.php:16
+  7   tests/Browser/ExampleTest.php:15
 
 
   Tests:    1 failed (0 assertions)
-  Duration: 0.35s
+  Duration: 1.47s
 
+
+========================================
+Logs for ❌ PHPStan Analyse (Fast)
+========================================
+
+Note: Using configuration file /var/www/html/phpstan.neon.
+TypeError thrown in /var/www/html/vendor/pusher/pusher-php-server/src/Pusher.php on line 63 while loading bootstrap file /var/www/html/vendor/larastan/larastan/bootstrap.php: Pusher\Pusher::__construct(): Argument #1 ($auth_key) must be of type string, null given, called in /var/www/html/vendor/laravel/framework/src/Illuminate/Broadcasting/BroadcastManager.php on line 341
 
 ========================================
 Logs for ❌ Pint (Code Style Linting)
 ========================================
 
 
-  ⨯......⨯⨯⨯.⨯⨯⨯⨯⨯.⨯.⨯⨯⨯⨯..⨯⨯⨯⨯⨯.⨯..⨯.⨯⨯⨯⨯⨯⨯⨯⨯.⨯...⨯..⨯⨯⨯⨯⨯.⨯⨯..⨯..⨯.⨯⨯⨯⨯⨯⨯⨯⨯⨯
-  ⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯.⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯..⨯.⨯⨯.⨯...⨯⨯⨯⨯⨯⨯.⨯⨯⨯⨯⨯⨯.............⨯⨯⨯
-  ⨯⨯⨯⨯⨯⨯⨯⨯⨯.⨯⨯⨯..⨯.⨯⨯⨯..⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯⨯.⨯....⨯⨯.⨯..⨯⨯⨯..⨯.⨯..⨯..⨯.⨯⨯...⨯⨯⨯⨯....⨯⨯.
-  .⨯.⨯⨯⨯.⨯.⨯..⨯........
+  ...........................................⨯................................
+  ............................................................................
+  .....................................⨯.⨯⨯⨯.⨯................................
+  ...........................
 
   ──────────────────────────────────────────────────────────────────── Laravel  
-    FAIL   ....................................... 249 files, 156 style issues  
-  ⨯ Modules/SampleModule/app/Http/Controllers/SampleModuleController.php no_e…  
-  ⨯ Modules/SampleModule/app/Providers/EventServiceProvider.php no_empty_comm…  
-  ⨯ Modules/SampleModule/app/Providers/RouteServiceProvider.php ordered_impor…  
-  ⨯ Modules/SampleModule/app/Providers/SampleModuleServiceProvider.php concat…  
-  ⨯ app/Events/ConversationUpdated.php no_superfluous_phpdoc_tags, no_unused_…  
-  ⨯ app/Events/NewMessageReceived.php no_unused_imports, single_line_empty_bo…  
-  ⨯ app/Events/UserViewingConversation.php no_unused_imports, single_line_emp…  
-  ⨯ app/Http/Controllers/Auth/ConfirmablePasswordController.php unary_operato…  
-  ⨯ app/Http/Controllers/Auth/EmailVerificationNotificationController.php no_…  
-  ⨯ app/Http/Controllers/Auth/EmailVerificationPromptController.php no_whites…  
-  ⨯ app/Http/Controllers/Auth/NewPasswordController.php blank_line_before_sta…  
-  ⨯ app/Http/Controllers/Auth/VerifyEmailController.php no_whitespace_in_blan…  
-  ⨯ app/Http/Controllers/ConversationController.php new_with_parentheses, con…  
-  ⨯ app/Http/Controllers/CustomerController.php no_superfluous_phpdoc_tags, c…  
-  ⨯ app/Http/Controllers/DashboardController.php               ordered_imports  
-  ⨯ app/Http/Controllers/MailboxController.php function_declaration, unary_op…  
-  ⨯ app/Http/Controllers/ModulesController.php not_operator_with_successor_sp…  
-  ⨯ app/Http/Controllers/ProfileController.php                 ordered_imports  
-  ⨯ app/Http/Controllers/SettingsController.php no_trailing_whitespace_in_com…  
-  ⨯ app/Http/Controllers/SystemController.php unary_operator_spaces, not_oper…  
-  ⨯ app/Http/Controllers/UserController.php unary_operator_spaces, not_operat…  
-  ⨯ app/Http/Middleware/EnsureUserIsAdmin.php unary_operator_spaces, no_unuse…  
-  ⨯ app/Http/Requests/ProfileUpdateRequest.php unary_operator_spaces, not_ope…  
-  ⨯ app/Listeners/HandleNewMessage.php no_empty_comment, no_unused_imports, s…  
-  ⨯ app/Misc/MailHelper.php  concat_space, no_trailing_whitespace_in_comment,…  
-  ⨯ app/Models/ActivityLog.php no_trailing_whitespace_in_comment, blank_line_…  
-  ⨯ app/Models/Attachment.php no_trailing_whitespace_in_comment, phpdoc_separ…  
-  ⨯ app/Models/Channel.php no_trailing_whitespace_in_comment, phpdoc_separati…  
-  ⨯ app/Models/Conversation.php no_trailing_whitespace_in_comment, phpdoc_sep…  
-  ⨯ app/Models/Customer.php no_trailing_whitespace_in_comment, unary_operator…  
-  ⨯ app/Models/Email.php no_trailing_whitespace_in_comment, unary_operator_sp…  
-  ⨯ app/Models/Folder.php no_trailing_whitespace_in_comment, phpdoc_separatio…  
-  ⨯ app/Models/Mailbox.php no_trailing_whitespace_in_comment, phpdoc_separati…  
-  ⨯ app/Models/Option.php                          no_whitespace_in_blank_line  
-  ⨯ app/Models/SendLog.php no_trailing_whitespace_in_comment, phpdoc_separati…  
-  ⨯ app/Models/Subscription.php              no_trailing_whitespace_in_comment  
-  ⨯ app/Models/Thread.php no_trailing_whitespace_in_comment, unary_operator_s…  
-  ⨯ app/Models/User.php concat_space, no_trailing_whitespace_in_comment, phpd…  
-  ⨯ app/Policies/UserPolicy.php                    blank_line_before_statement  
-  ⨯ app/Providers/AppServiceProvider.php braces, no_empty_comment, single_lin…  
-  ⨯ app/Providers/EventServiceProvider.php braces, single_line_empty_body, si…  
-  ⨯ app/Services/ImapService.php no_superfluous_phpdoc_tags, no_trailing_whit…  
-  ⨯ app/View/Components/AppLayout.php              blank_line_before_statement  
-  ⨯ app/View/Components/GuestLayout.php            blank_line_before_statement  
-  ⨯ database/factories/ActivityLogFactory.php                no_unused_imports  
-  ⨯ database/factories/AttachmentFactory.php concat_space, no_whitespace_in_b…  
-  ⨯ database/factories/EmailFactory.php                        ordered_imports  
-  ⨯ database/factories/MailboxFactory.php                         concat_space  
-  ⨯ database/factories/SendLogFactory.php                         concat_space  
-  ⨯ database/factories/ThreadFactory.php                          concat_space  
-  ⨯ database/seeders/ConversationSeeder.php no_unused_imports, not_operator_w…  
-  ⨯ database/seeders/EmailTestSeeder.php single_quote, not_operator_with_succ…  
-  ⨯ database/seeders/MailboxSeeder.php                         ordered_imports  
-  ⨯ routes/channels.php unary_operator_spaces, not_operator_with_successor_sp…  
-  ⨯ routes/web.php                                 no_whitespace_in_blank_line  
-  ⨯ scripts/local-development/test-imap.php new_with_parentheses, braces, sin…  
-  ⨯ tests/Browser/ExampleTest.php method_chaining_indentation, php_unit_metho…  
-  ⨯ tests/Browser/Pages/HomePage.php  no_empty_comment, single_line_empty_body  
-  ⨯ tests/DuskTestCase.php method_argument_space, unary_operator_spaces, not_…  
-  ⨯ tests/Feature/Auth/RegistrationTest.php        no_whitespace_in_blank_line  
-  ⨯ tests/Feature/Commands/ConfigureGmailMailboxTest.php concat_space, no_whi…  
-  ⨯ tests/Feature/Commands/FetchEmailsCommandTest.php single_quote, no_whites…  
-  ⨯ tests/Feature/Commands/TestEventSystemTest.php no_whitespace_in_blank_lin…  
-  ⨯ tests/Feature/CompleteWorkflowTest.php method_argument_space, no_trailing…  
-  ⨯ tests/Feature/ConversationAdvancedTest.php not_operator_with_successor_sp…  
-  ⨯ tests/Feature/ConversationControllerMethodsTest.php class_attributes_sepa…  
-  ⨯ tests/Feature/ConversationControllerSecurityTest.php concat_space, not_op…  
-  ⨯ tests/Feature/ConversationEdgeCasesTest.php    no_whitespace_in_blank_line  
-  ⨯ tests/Feature/ConversationReplyTest.php                  no_unused_imports  
-  ⨯ tests/Feature/ConversationTest.php             no_whitespace_in_blank_line  
-  ⨯ tests/Feature/ConversationValidationTest.php   no_whitespace_in_blank_line  
-  ⨯ tests/Feature/CustomerEdgeCasesTest.php  single_quote, no_unused_imports,…  
-  ⨯ tests/Feature/CustomerManagementTest.php          single_blank_line_at_eof  
-  ⨯ tests/Feature/CustomerRegressionTest.php       no_whitespace_in_blank_line  
-  ⨯ tests/Feature/DashboardTest.php                     no_trailing_whitespace  
-  ⨯ tests/Feature/ErrorHandlingTest.php concat_space, no_trailing_whitespace,…  
-  ⨯ tests/Feature/MailboxConnectionTest.php method_chaining_indentation, no_w…  
-  ⨯ tests/Feature/MailboxFetchEmailsTest.php       no_whitespace_in_blank_line  
-  ⨯ tests/Feature/MailboxRegressionTest.php no_trailing_whitespace_in_comment…  
-  ⨯ tests/Feature/MailboxViewTest.php no_unused_imports, no_whitespace_in_bla…  
-  ⨯ tests/Feature/ModulesTest.php  no_trailing_whitespace, no_unused_imports,…  
-  ⨯ tests/Feature/OptionRegressionTest.php   no_trailing_whitespace_in_comment  
-  ⨯ tests/Feature/PaginationAndFilteringTest.php braces, no_whitespace_in_bla…  
-  ⨯ tests/Feature/PerformanceTest.php method_argument_space, single_quote, no…  
-  ⨯ tests/Feature/SecurityAndEdgeCasesTest.php php_unit_method_casing, no_whi…  
-  ⨯ tests/Feature/SettingsOperationsTest.php       no_whitespace_in_blank_line  
-  ⨯ tests/Feature/UserControllerMethodsTest.php no_trailing_whitespace, no_wh…  
-  ⨯ tests/Feature/UserManagementAdminBatch1Test.php            ordered_imports  
-  ⨯ tests/Feature/UserPermissionsTest.php no_unused_imports, no_whitespace_in…  
-  ⨯ tests/Feature/UserSecurityBatch1Test.php       no_whitespace_in_blank_line  
-  ⨯ tests/Unit/ActivityLogModelTest.php new_with_parentheses, function_declar…  
-  ⨯ tests/Unit/AttachmentModelTest.php                    new_with_parentheses  
-  ⨯ tests/Unit/ChannelModelTest.php                       new_with_parentheses  
-  ⨯ tests/Unit/Commands/ConfigureGmailMailboxCommandTest.php new_with_parenth…  
-  ⨯ tests/Unit/Controllers/Auth/AuthenticatedSessionControllerTest.php no_unu…  
-  ⨯ tests/Unit/Controllers/Auth/EmailVerificationReminderControllerTest.php o…  
-  ⨯ tests/Unit/Controllers/Auth/NewPasswordControllerTest.php ordered_imports…  
-  ⨯ tests/Unit/Controllers/Auth/PasswordResetLinkControllerTest.php no_unused…  
-  ⨯ tests/Unit/Controllers/Auth/RegisteredUserControllerTest.php no_unused_im…  
-  ⨯ tests/Unit/Controllers/Auth/VerifyEmailControllerTest.php trailing_comma_…  
-  ⨯ tests/Unit/Controllers/ConversationControllerTest.php new_with_parenthese…  
-  ⨯ tests/Unit/Controllers/CustomerControllerTest.php new_with_parentheses, c…  
-  ⨯ tests/Unit/Controllers/DashboardControllerTest.php  new_with_parentheses,…  
-  ⨯ tests/Unit/Controllers/MailboxControllerEnhancedTest.php new_with_parenth…  
-  ⨯ tests/Unit/Controllers/ModulesControllerTest.php      new_with_parentheses  
-  ⨯ tests/Unit/Controllers/ProfileControllerTest.php         no_unused_imports  
-  ⨯ tests/Unit/Controllers/SystemControllerTest.php new_with_parentheses, no_…  
-  ⨯ tests/Unit/Controllers/UserControllerTest.php new_with_parentheses, no_un…  
-  ⨯ tests/Unit/ConversationModelTest.php           no_whitespace_in_blank_line  
-  ⨯ tests/Unit/CustomerControllerTest.php new_with_parentheses, no_unused_imp…  
-  ⨯ tests/Unit/CustomerModelTest.php new_with_parentheses, no_whitespace_in_b…  
-  ⨯ tests/Unit/DashboardControllerTest.php new_with_parentheses, no_whitespac…  
-  ⨯ tests/Unit/EdgeCases/ModelEdgeCasesTest.php single_quote, no_whitespace_i…  
-  ⨯ tests/Unit/EdgeCases/ValidationEdgeCasesTest.php single_quote, concat_spa…  
-  ⨯ tests/Unit/EmailModelEnhancedTest.php                 new_with_parentheses  
-  ⨯ tests/Unit/EmailModelTest.php                  no_whitespace_in_blank_line  
-  ⨯ tests/Unit/EventBroadcastingEnhancedTest.php new_with_parentheses, no_unu…  
-  ⨯ tests/Unit/Events/EventEdgeCasesTest.php no_unused_imports, ordered_impor…  
-  ⨯ tests/Unit/EventsTest.php                      no_whitespace_in_blank_line  
-  ⨯ tests/Unit/FolderEdgeCasesTest.php                       no_unused_imports  
-  ⨯ tests/Unit/FolderHierarchyTest.php             no_whitespace_in_blank_line  
-  ⨯ tests/Unit/HandleNewMessageListenerTest.php new_with_parentheses, concat_…  
-  ⨯ tests/Unit/ImapServiceAdvancedTest.php braces, concat_space, no_unused_im…  
-  ⨯ tests/Unit/ImapServiceTest.php new_with_parentheses, trailing_comma_in_mu…  
-  ⨯ tests/Unit/Jobs/SendAutoReplyComprehensiveTest.php       no_unused_imports  
-  ⨯ tests/Unit/Mail/ConversationReplyNotificationEnhancedTest.php new_with_pa…  
-  ⨯ tests/Unit/MailHelperTest.php                  no_whitespace_in_blank_line  
-  ⨯ tests/Unit/MailTest.php                        no_whitespace_in_blank_line  
-  ⨯ tests/Unit/MailVarsTest.php class_definition, trailing_comma_in_multiline…  
-  ⨯ tests/Unit/MailboxControllerValidationTest.php concat_space, no_whitespac…  
-  ⨯ tests/Unit/MailboxPolicyTest.php new_with_parentheses, no_whitespace_in_b…  
-  ⨯ tests/Unit/MailboxScopesTest.php               no_whitespace_in_blank_line  
-  ⨯ tests/Unit/Middleware/EnsureUserIsAdminTest.php new_with_parentheses, bla…  
-  ⨯ tests/Unit/ModelRelationshipsTest.php          no_whitespace_in_blank_line  
-  ⨯ tests/Unit/Models/CustomerComprehensiveTest.php new_with_parentheses, sin…  
-  ⨯ tests/Unit/ModuleModelTest.php                        new_with_parentheses  
-  ⨯ tests/Unit/OptionModelTest.php                        new_with_parentheses  
-  ⨯ tests/Unit/Policies/AdvancedPolicyTest.php new_with_parentheses, no_unuse…  
-  ⨯ tests/Unit/Requests/LoginRequestTest.php              new_with_parentheses  
-  ⨯ tests/Unit/SendAutoReplyJobTest.php trailing_comma_in_multiline, no_unuse…  
-  ⨯ tests/Unit/SendAutoReplyListenerTest.php new_with_parentheses, no_unused_…  
-  ⨯ tests/Unit/SendConversationReplyJobTest.php new_with_parentheses, concat_…  
-  ⨯ tests/Unit/SendLogModelTest.php new_with_parentheses, function_declaratio…  
-  ⨯ tests/Unit/Services/ImapServiceComprehensiveTest.php new_with_parentheses…  
-  ⨯ tests/Unit/Services/ImapServiceTest.php               new_with_parentheses  
-  ⨯ tests/Unit/Services/SmtpServiceComprehensiveTest.php new_with_parentheses…  
-  ⨯ tests/Unit/Services/SmtpServiceTest.php               new_with_parentheses  
-  ⨯ tests/Unit/SettingsControllerTest.php new_with_parentheses, no_whitespace…  
-  ⨯ tests/Unit/SmtpServiceTest.php new_with_parentheses, trailing_comma_in_mu…  
-  ⨯ tests/Unit/SubscriptionModelTest.php new_with_parentheses, no_whitespace_…  
-  ⨯ tests/Unit/ThreadModelTest.php no_unused_imports, no_whitespace_in_blank_…  
-  ⨯ tests/Unit/ThreadObserverTest.php new_with_parentheses, no_whitespace_in_…  
-  ⨯ tests/Unit/UserModelBatch1Test.php                         ordered_imports  
-  ⨯ tests/Unit/UserPolicyTest.php new_with_parentheses, no_whitespace_in_blan…  
-  ⨯ tests/Unit/View/Components/AppLayoutTest.php          new_with_parentheses  
-  ⨯ tests/Unit/View/Components/GuestLayoutTest.php        new_with_parentheses  
+    FAIL   ......................................... 255 files, 6 style issues  
+  ⨯ app/Console/Commands/ClearCache.php      not_operator_with_successor_space  
+  ⨯ app/Console/Commands/CreateUser.php new_with_parentheses, no_superfluous_…  
+  ⨯ app/Console/Commands/LogoutUsers.php           no_whitespace_in_blank_line  
+  ⨯ app/Console/Commands/ModuleInstall.php blank_line_after_opening_tag, not_…  
+  ⨯ app/Console/Commands/ModuleUpdate.php new_with_parentheses, braces, blank…  
+  ⨯ tests/Feature/PerformanceTest.php                    method_argument_space  
 
-
-========================================
-Logs for ❌ NPM/Yarn (Frontend Tests)
-========================================
-
-
-> test
-> vitest --watch=false
-
-
-[1m[46m RUN [49m[22m [36mv4.0.7 [39m[90m/var/www/html[39m
-
-[90mstderr[2m | tests/javascript/notifications.test.js
-[22m[39mEcho or user ID not available
-
-[90mstderr[2m | tests/javascript/notifications.test.js[2m > [22m[2mRealtimeNotifications[2m > [22m[2minit[2m > [22m[2mshould not initialize if userId is missing
-[22m[39mEcho or user ID not available
-
- [31m❯[39m tests/javascript/notifications.test.js [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 50[2mms[22m[39m
-       [32m✓[39m should initialize with user ID from meta tag[32m 8[2mms[22m[39m
-       [32m✓[39m should initialize with conversation ID from meta tag[32m 11[2mms[22m[39m
-       [32m✓[39m should create notification container[32m 8[2mms[22m[39m
-       [32m✓[39m should not create duplicate containers[32m 2[2mms[22m[39m
-       [32m✓[39m should not initialize if userId is missing[32m 3[2mms[22m[39m
-[31m       [31m×[31m should set up Echo listeners when Echo is available[39m[32m 15[2mms[22m[39m
- [31m❯[39m tests/javascript/ui-helpers.test.js [2m([22m[2m18 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[32m 60[2mms[22m[39m
-       [32m✓[39m should create and show a toast notification[32m 5[2mms[22m[39m
-       [32m✓[39m should use custom duration when provided[32m 1[2mms[22m[39m
-       [32m✓[39m should call Swal.fire with confirmation options[32m 1[2mms[22m[39m
-       [32m✓[39m should return true when confirmed[32m 0[2mms[22m[39m
-       [32m✓[39m should return false when cancelled[32m 0[2mms[22m[39m
-       [32m✓[39m should support custom button text[32m 0[2mms[22m[39m
-       [32m✓[39m should call Swal.fire with loading state[32m 0[2mms[22m[39m
-       [32m✓[39m should show loading spinner on open[32m 0[2mms[22m[39m
-       [32m✓[39m should default to "Processing..." message[32m 0[2mms[22m[39m
-       [32m✓[39m should close the Swal modal[32m 0[2mms[22m[39m
-       [32m✓[39m should format date in short format[32m 34[2mms[22m[39m
-       [32m✓[39m should format date in long format[32m 0[2mms[22m[39m
-       [32m✓[39m should handle string dates[32m 0[2mms[22m[39m
-       [32m✓[39m should debounce function calls[32m 2[2mms[22m[39m
-       [32m✓[39m should throttle function calls[32m 1[2mms[22m[39m
-[31m       [31m×[31m should copy text to clipboard[39m[32m 9[2mms[22m[39m
-[31m       [31m×[31m should return true on success[39m[32m 1[2mms[22m[39m
-[31m       [31m×[31m should return false on error[39m[32m 1[2mms[22m[39m
-
-[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
-
-[41m[1m FAIL [22m[49m tests/javascript/notifications.test.js[2m > [22mRealtimeNotifications[2m > [22minit[2m > [22mshould set up Echo listeners when Echo is available
-[31m[1mTypeError[22m: window.Echo.private(...).listen(...).listen(...).notification is not a function[39m
-[36m [2m❯[22m RealtimeNotifications.subscribeToUserChannel resources/js/notifications.js:[2m49:14[22m[39m
-    [90m 47| [39m                [35mthis[39m[33m.[39m[34mhandleConversationUpdate[39m(data)[33m;[39m
-    [90m 48| [39m            })
-    [90m 49| [39m            [33m.[39m[34mnotification[39m((notification) [33m=>[39m {
-    [90m   | [39m             [31m^[39m
-    [90m 50| [39m                [35mthis[39m[33m.[39m[34mshowNotification[39m(notification)[33m;[39m
-    [90m 51| [39m            })[33m;[39m
-[90m [2m❯[22m RealtimeNotifications.init resources/js/notifications.js:[2m33:14[22m[39m
-[90m [2m❯[22m tests/javascript/notifications.test.js:[2m53:33[22m[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/javascript/ui-helpers.test.js[2m > [22mUI Helpers[2m > [22mcopyToClipboard[2m > [22mshould copy text to clipboard
-[41m[1m FAIL [22m[49m tests/javascript/ui-helpers.test.js[2m > [22mUI Helpers[2m > [22mcopyToClipboard[2m > [22mshould return true on success
-[41m[1m FAIL [22m[49m tests/javascript/ui-helpers.test.js[2m > [22mUI Helpers[2m > [22mcopyToClipboard[2m > [22mshould return false on error
-[31m[1mTypeError[22m: Cannot set property clipboard of [object Object] which has only a getter[39m
-[36m [2m❯[22m tests/javascript/ui-helpers.test.js:[2m204:20[22m[39m
-    [90m202| [39m        [34mbeforeEach[39m(() [33m=>[39m {
-    [90m203| [39m            [90m// Mock clipboard API[39m
-    [90m204| [39m            [33mObject[39m[33m.[39m[34massign[39m(navigator[33m,[39m {
-    [90m   | [39m                   [31m^[39m
-    [90m205| [39m                clipboard[33m:[39m {
-    [90m206| [39m                    writeText[33m:[39m vi[33m.[39m[34mfn[39m()[33m.[39m[34mmockResolvedValue[39m(undefined)
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
-
-
-[2m Test Files [22m [1m[31m2 failed[39m[22m[90m (2)[39m
-[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m20 passed[39m[22m[90m (24)[39m
-[2m   Start at [22m 04:10:50
-[2m   Duration [22m 780ms[2m (transform 217ms, setup 113ms, collect 238ms, tests 110ms, environment 659ms, prepare 18ms)[22m
-
-
-========================================
-Logs for ❌ NPM/Yarn (Frontend Linting)
-========================================
-
-npm error Missing script: "lint"
-npm error
-npm error Did you mean this?
-npm error   npm link # Symlink a package folder
-npm error
-npm error To see a list of scripts, run:
-npm error   npm run
-npm error A complete log of this run can be found in: /home/dev/.npm/_logs/2025-11-10T04_10_50_075Z-debug-0.log
 
 Coverage report (if generated): file:///var/www/html/reports/coverage-report/index.html
 ========================================

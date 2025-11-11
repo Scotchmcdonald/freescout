@@ -15,9 +15,9 @@ class EnsureUserIsAdminTest extends TestCase
 {
     public function test_admin_user_can_pass_through_middleware(): void
     {
-        $middleware = new EnsureUserIsAdmin();
+        $middleware = new EnsureUserIsAdmin;
 
-        $user = new User();
+        $user = new User;
         $user->id = 1;
         $user->role = User::ROLE_ADMIN;
 
@@ -39,9 +39,9 @@ class EnsureUserIsAdminTest extends TestCase
         $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Unauthorized action.');
 
-        $middleware = new EnsureUserIsAdmin();
+        $middleware = new EnsureUserIsAdmin;
 
-        $user = new User();
+        $user = new User;
         $user->id = 2;
         $user->role = User::ROLE_USER;
 
@@ -60,7 +60,7 @@ class EnsureUserIsAdminTest extends TestCase
         $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Unauthorized action.');
 
-        $middleware = new EnsureUserIsAdmin();
+        $middleware = new EnsureUserIsAdmin;
 
         $request = Request::create('/admin/test', 'GET');
         $request->setUserResolver(fn () => null);
@@ -74,9 +74,9 @@ class EnsureUserIsAdminTest extends TestCase
 
     public function test_middleware_passes_request_to_next_handler(): void
     {
-        $middleware = new EnsureUserIsAdmin();
+        $middleware = new EnsureUserIsAdmin;
 
-        $user = new User();
+        $user = new User;
         $user->id = 1;
         $user->role = User::ROLE_ADMIN;
 
@@ -86,6 +86,7 @@ class EnsureUserIsAdminTest extends TestCase
         $nextCalled = false;
         $next = function ($req) use (&$nextCalled) {
             $nextCalled = true;
+
             return new Response('Next handler called');
         };
 
@@ -99,9 +100,9 @@ class EnsureUserIsAdminTest extends TestCase
     {
         $this->expectException(HttpException::class);
 
-        $middleware = new EnsureUserIsAdmin();
+        $middleware = new EnsureUserIsAdmin;
 
-        $user = new User();
+        $user = new User;
         $user->id = 3;
         $user->role = 'not_admin'; // Invalid role
 

@@ -113,7 +113,7 @@ class TestEventSystemTest extends TestCase
         $conversation = Conversation::factory()
             ->for($mailbox)
             ->create(['customer_id' => null]);
-        
+
         // Act
         $this->artisan('freescout:test-events')
             ->expectsOutput('Conversation missing thread or customer.')
@@ -136,7 +136,7 @@ class TestEventSystemTest extends TestCase
             ->create();
         Thread::factory()
             ->for($conversation)
-            
+
             ->create();
 
         // Act
@@ -164,7 +164,7 @@ class TestEventSystemTest extends TestCase
             ->create();
         Thread::factory()
             ->for($conversation)
-            
+
             ->create();
 
         // Act & Assert
@@ -183,7 +183,7 @@ class TestEventSystemTest extends TestCase
 
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         // Create first conversation with thread
         $conversation1 = Conversation::factory()
             ->for($mailbox)
@@ -191,7 +191,7 @@ class TestEventSystemTest extends TestCase
             ->create();
         Thread::factory()
             ->for($conversation1)
-            
+
             ->create();
 
         // Create second conversation with thread
@@ -201,7 +201,7 @@ class TestEventSystemTest extends TestCase
             ->create();
         Thread::factory()
             ->for($conversation2)
-            
+
             ->create();
 
         // Act
@@ -226,7 +226,7 @@ class TestEventSystemTest extends TestCase
             ->create();
         $thread = Thread::factory()
             ->for($conversation)
-            
+
             ->create();
 
         // Act
@@ -257,7 +257,7 @@ class TestEventSystemTest extends TestCase
             ->create();
         Thread::factory()
             ->for($conversation)
-            
+
             ->create();
 
         // Act & Assert
@@ -282,7 +282,7 @@ class TestEventSystemTest extends TestCase
             ->create();
         Thread::factory()
             ->for($conversation)
-            
+
             ->create();
 
         // Act & Assert
@@ -305,15 +305,15 @@ class TestEventSystemTest extends TestCase
             ->for($mailbox)
             ->for($customer)
             ->create();
-        
+
         // Create multiple threads
         $thread1 = Thread::factory()
             ->for($conversation)
-            
+
             ->create(['created_at' => now()->subHours(2)]);
         $thread2 = Thread::factory()
             ->for($conversation)
-            
+
             ->create(['created_at' => now()->subHour()]);
 
         // Act
@@ -334,13 +334,13 @@ class TestEventSystemTest extends TestCase
         // Note: SQLite enforces foreign key constraints, so we can't create
         // a conversation with an invalid customer_id. This test documents
         // that the database prevents invalid data at the constraint level.
-        
+
         // Arrange
         $mailbox = Mailbox::factory()->create();
-        
+
         // Attempting to create conversation with invalid customer_id would fail
         // at database level due to foreign key constraint, which is correct behavior
-        
+
         // Instead, test with NULL customer_id
         $conversation = Conversation::factory()
             ->for($mailbox)
@@ -500,7 +500,7 @@ class TestEventSystemTest extends TestCase
 
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         // Create multiple conversations
         $conversation1 = Conversation::factory()
             ->for($mailbox)

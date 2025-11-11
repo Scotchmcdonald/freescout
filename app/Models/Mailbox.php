@@ -47,14 +47,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool $ratings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Folder> $folders
- * 
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<Mailbox>|Mailbox find(int $id, array<int, string> $columns = ['*'])
  * @method static \Illuminate\Database\Eloquent\Builder<Mailbox>|Mailbox where(string $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
  * @method static \Illuminate\Database\Eloquent\Builder<Mailbox>|Mailbox whereNotNull(string $column, string $boolean = 'and')
+ *
  * @mixin \Illuminate\Database\Eloquent\Builder<Mailbox>
  */
 class Mailbox extends Model
@@ -132,7 +132,7 @@ class Mailbox extends Model
 
     /**
      * Get the users that have access to this mailbox.
-     * 
+     *
      * @return BelongsToMany<User, $this>
      */
     public function users(): BelongsToMany
@@ -144,7 +144,7 @@ class Mailbox extends Model
 
     /**
      * Get the folders for this mailbox.
-     * 
+     *
      * @return HasMany<Folder, $this>
      */
     public function folders(): HasMany
@@ -154,7 +154,7 @@ class Mailbox extends Model
 
     /**
      * Get the conversations for this mailbox.
-     * 
+     *
      * @return HasMany<Conversation, $this>
      */
     public function conversations(): HasMany
@@ -164,8 +164,8 @@ class Mailbox extends Model
 
     /**
      * Get the "From" name and email for outgoing mail.
-     * 
-     * @param User|null $user User sending the email (optional)
+     *
+     * @param  User|null  $user  User sending the email (optional)
      * @return array{address: string, name: string}
      */
     public function getMailFrom(?User $user = null): array

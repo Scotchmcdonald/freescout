@@ -12,14 +12,14 @@ class GuestLayoutTest extends TestCase
 {
     public function test_guest_layout_can_be_instantiated(): void
     {
-        $component = new GuestLayout();
+        $component = new GuestLayout;
 
         $this->assertInstanceOf(GuestLayout::class, $component);
     }
 
     public function test_guest_layout_render_returns_view(): void
     {
-        $component = new GuestLayout();
+        $component = new GuestLayout;
 
         $view = $component->render();
 
@@ -28,7 +28,7 @@ class GuestLayoutTest extends TestCase
 
     public function test_guest_layout_renders_correct_view_name(): void
     {
-        $component = new GuestLayout();
+        $component = new GuestLayout;
 
         $view = $component->render();
 
@@ -37,7 +37,7 @@ class GuestLayoutTest extends TestCase
 
     public function test_guest_layout_view_exists(): void
     {
-        $component = new GuestLayout();
+        $component = new GuestLayout;
 
         $view = $component->render();
 
@@ -47,7 +47,7 @@ class GuestLayoutTest extends TestCase
 
     public function test_guest_layout_component_is_subclass_of_component(): void
     {
-        $component = new GuestLayout();
+        $component = new GuestLayout;
 
         $this->assertInstanceOf(\Illuminate\View\Component::class, $component);
     }

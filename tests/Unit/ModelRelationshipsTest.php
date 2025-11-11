@@ -149,7 +149,7 @@ class ModelRelationshipsTest extends TestCase
 
         // Clear model instances to ensure fresh queries
         Conversation::clearBootedModels();
-        
+
         // With eager loading - fewer queries
         DB::flushQueryLog();
         DB::enableQueryLog();
@@ -421,9 +421,9 @@ class ModelRelationshipsTest extends TestCase
         Conversation::factory()->count(3)->for($mailbox)->create();
 
         DB::enableQueryLog();
-        
+
         $mailboxes = Mailbox::withCount('conversations')->get();
-        
+
         $queryCount = count(DB::getQueryLog());
         DB::disableQueryLog();
 
@@ -438,7 +438,7 @@ class ModelRelationshipsTest extends TestCase
     public function test_thread_has_many_attachments_relationship(): void
     {
         $thread = Thread::factory()->create();
-        
+
         // Create attachments directly in database using raw SQL to match actual schema
         DB::table('attachments')->insert([
             [
@@ -483,7 +483,7 @@ class ModelRelationshipsTest extends TestCase
         DB::enableQueryLog();
 
         $conversations = Conversation::with(['mailbox', 'threads'])->get();
-        
+
         foreach ($conversations as $conv) {
             $_ = $conv->mailbox->name;
             foreach ($conv->threads as $thread) {
@@ -527,12 +527,12 @@ class ModelRelationshipsTest extends TestCase
     {
         $conversation = Conversation::factory()->create();
         $user = User::factory()->create();
-        
+
         $log1 = \App\Models\ActivityLog::factory()->create([
             'subject_type' => Conversation::class,
             'subject_id' => $conversation->id,
         ]);
-        
+
         $log2 = \App\Models\ActivityLog::factory()->create([
             'subject_type' => User::class,
             'subject_id' => $user->id,
@@ -613,7 +613,7 @@ class ModelRelationshipsTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         $convWithThreads = Conversation::factory()->for($mailbox)->create();
         Thread::factory()->count(3)->for($convWithThreads)->create();
-        
+
         $convWithoutThreads = Conversation::factory()->for($mailbox)->create();
 
         $conversationsWithThreads = Conversation::has('threads')->get();
@@ -631,7 +631,7 @@ class ModelRelationshipsTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         $activeConv = Conversation::factory()->for($mailbox)->create(['status' => Conversation::STATUS_ACTIVE]);
         Thread::factory()->for($activeConv)->create(['type' => 1]);
-        
+
         $closedConv = Conversation::factory()->for($mailbox)->create(['status' => Conversation::STATUS_CLOSED]);
         Thread::factory()->for($closedConv)->create(['type' => 2]);
 

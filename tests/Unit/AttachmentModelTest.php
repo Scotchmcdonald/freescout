@@ -15,7 +15,7 @@ class AttachmentModelTest extends TestCase
 
     public function test_model_can_be_instantiated(): void
     {
-        $attachment = new Attachment();
+        $attachment = new Attachment;
         $this->assertInstanceOf(Attachment::class, $attachment);
     }
 

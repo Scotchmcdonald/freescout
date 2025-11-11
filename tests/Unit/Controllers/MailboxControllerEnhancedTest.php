@@ -24,7 +24,7 @@ class MailboxControllerEnhancedTest extends TestCase
         $request = Request::create('/mailboxes', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new MailboxController();
+        $controller = new MailboxController;
         $view = $controller->index($request);
 
         $this->assertEquals('mailboxes.index', $view->name());
@@ -36,10 +36,10 @@ class MailboxControllerEnhancedTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
 
-        $request = Request::create('/mailboxes/' . $mailbox->id, 'GET');
+        $request = Request::create('/mailboxes/'.$mailbox->id, 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new MailboxController();
+        $controller = new MailboxController;
         $view = $controller->show($request, $mailbox);
 
         $this->assertEquals('mailboxes.show', $view->name());
@@ -50,10 +50,10 @@ class MailboxControllerEnhancedTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/settings', 'GET');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/settings', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new MailboxController();
+        $controller = new MailboxController;
         $view = $controller->settings($request, $mailbox);
 
         $this->assertEquals('mailboxes.settings', $view->name());
@@ -64,10 +64,10 @@ class MailboxControllerEnhancedTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $mailbox = Mailbox::factory()->create();
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/connection-incoming', 'GET');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/connection-incoming', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new MailboxController();
+        $controller = new MailboxController;
 
         $this->expectException(\Illuminate\Auth\Access\AuthorizationException::class);
         $controller->connectionIncoming($request, $mailbox);
@@ -78,10 +78,10 @@ class MailboxControllerEnhancedTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $mailbox = Mailbox::factory()->create();
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/connection-outgoing', 'GET');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/connection-outgoing', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new MailboxController();
+        $controller = new MailboxController;
 
         $this->expectException(\Illuminate\Auth\Access\AuthorizationException::class);
         $controller->connectionOutgoing($request, $mailbox);
@@ -98,13 +98,13 @@ class MailboxControllerEnhancedTest extends TestCase
         ]);
         $user->mailboxes()->attach($mailbox->id);
 
-        $request = Request::create('/mailboxes/' . $mailbox->id . '/fetch', 'POST');
+        $request = Request::create('/mailboxes/'.$mailbox->id.'/fetch', 'POST');
         $request->setUserResolver(fn () => $user);
 
         $imapService = $this->createMock(ImapService::class);
         $imapService->method('fetchEmails')->willReturn([]);
 
-        $controller = new MailboxController();
+        $controller = new MailboxController;
         $response = $controller->fetchEmails($request, $mailbox, $imapService);
 
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);

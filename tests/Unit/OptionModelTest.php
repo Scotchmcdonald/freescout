@@ -15,7 +15,7 @@ class OptionModelTest extends TestCase
 
     public function test_model_can_be_instantiated(): void
     {
-        $option = new Option();
+        $option = new Option;
         $this->assertInstanceOf(Option::class, $option);
     }
 
