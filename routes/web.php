@@ -89,6 +89,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
         Route::get('/settings/email', [SettingsController::class, 'email'])->name('settings.email');
         Route::post('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email.update');
+        Route::get('/settings/alerts', [SettingsController::class, 'alerts'])->name('settings.alerts');
+        Route::put('/settings/alerts', [SettingsController::class, 'updateAlerts'])->name('settings.alerts.update');
         Route::get('/settings/system', [SettingsController::class, 'system'])->name('settings.system');
         Route::post('/settings/cache/clear', [SettingsController::class, 'clearCache'])->name('settings.cache.clear');
         Route::post('/settings/migrate', [SettingsController::class, 'migrate'])->name('settings.migrate');
