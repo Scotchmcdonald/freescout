@@ -44,9 +44,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/conversation/{conversation}', [ConversationController::class, 'destroy'])->name('conversations.destroy');
     Route::get('/conversations/search', [ConversationController::class, 'search'])->name('conversations.search');
     Route::get('/mailbox/{mailbox}/clone-ticket/{thread}', [ConversationController::class, 'clone'])->name('conversations.clone');
+    
+    // Conversation AJAX operations
+    Route::get('/conversations/ajax-html', [ConversationController::class, 'ajaxHtml'])->name('conversations.ajax_html');
+    Route::post('/conversation/{conversation}/change-customer', [ConversationController::class, 'changeCustomer'])->name('conversations.change_customer');
+    Route::post('/conversation/{conversation}/merge', [ConversationController::class, 'merge'])->name('conversations.merge');
+    Route::post('/conversation/{conversation}/move', [ConversationController::class, 'move'])->name('conversations.move');
+    Route::put('/conversation/{conversation}/thread/{thread}', [ConversationController::class, 'updateThread'])->name('conversations.update_thread');
+    Route::put('/conversation/{conversation}/settings', [ConversationController::class, 'updateSettings'])->name('conversations.update_settings');
+    
+    // Chats view
+    Route::get('/conversations/chats', [ConversationController::class, 'chats'])->name('conversations.chats');
 
     // Customers
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers');
+    Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
     Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
     Route::patch('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
