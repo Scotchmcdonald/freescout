@@ -34,12 +34,51 @@ class SendLog extends Model
 {
     use HasFactory;
 
+    // Status constants
+    public const STATUS_ACCEPTED = 1; // accepted (for delivery)
+
+    public const STATUS_SEND_ERROR = 2;
+
+    public const STATUS_DELIVERY_SUCCESS = 4;
+
+    public const STATUS_DELIVERY_ERROR = 5; // rejected, failed
+
+    public const STATUS_OPENED = 6;
+
+    public const STATUS_CLICKED = 7;
+
+    public const STATUS_UNSUBSCRIBED = 8;
+
+    public const STATUS_COMPLAINED = 9;
+
+    public const STATUS_SEND_INTERMEDIATE_ERROR = 10;
+
+    public const STATUS_SENT = 1; // alias for ACCEPTED
+
+    // Mail type constants
+    public const MAIL_TYPE_EMAIL_TO_CUSTOMER = 1;
+
+    public const MAIL_TYPE_USER_NOTIFICATION = 2;
+
+    public const MAIL_TYPE_AUTO_REPLY = 3;
+
+    public const MAIL_TYPE_INVITE = 4;
+
+    public const MAIL_TYPE_PASSWORD_CHANGED = 5;
+
+    public const MAIL_TYPE_WRONG_USER_EMAIL_MESSAGE = 6;
+
+    public const MAIL_TYPE_TEST = 7;
+
+    public const MAIL_TYPE_ALERT = 8;
+
     protected $fillable = [
         'thread_id',
         'customer_id',
         'user_id',
         'message_id',
         'email',
+        'mail_type',
         'status',
         'status_message',
         'opens',
