@@ -123,4 +123,35 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | FreeScout Brand Colors
+    |--------------------------------------------------------------------------
+    |
+    | These colors are used throughout the application and in email templates.
+    |
+    */
+
+    'colors' => [
+        'main_light'    => '#0078d7',
+        'main_dark'     => '#005a9e',
+        'note'          => '#ffc646',
+        'text_note'     => '#e6b216',
+        'text_customer' => '#8d959b',
+        'text_user'     => '#8d959b',
+        'bg_user_reply' => '#f4f8fd',
+        'bg_note'       => '#fffbf1',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | FreeScout URL
+    |--------------------------------------------------------------------------
+    |
+    | FreeScout project website URL for branding in emails.
+    |
+    */
+
+    'freescout_url' => 'https://freescout.net',
+
 ];
