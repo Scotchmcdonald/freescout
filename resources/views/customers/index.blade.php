@@ -12,7 +12,7 @@
                     <div class="mb-6 flex justify-between items-center">
                         <h3 class="text-lg font-semibold">All Customers</h3>
                         
-                        <form method="GET" action="{{ route('customers') }}" class="flex gap-2">
+                        <form method="GET" action="{{ route('customers.index') }}" class="flex gap-2">
                             <input type="text" name="search" value="{{ request('search') }}" 
                                    placeholder="Search customers..."
                                    class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
