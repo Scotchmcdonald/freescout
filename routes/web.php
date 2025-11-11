@@ -61,10 +61,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers');
     Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+    Route::get('/customers/{customer}/conversations', [CustomerController::class, 'conversations'])->name('customers.conversations');
     Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
+    Route::get('/customers/{customer}/merge', [CustomerController::class, 'mergeForm'])->name('customers.merge.form');
     Route::patch('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
     Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
     Route::post('/customers/merge', [CustomerController::class, 'merge'])->name('customers.merge');
+    Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
 
     // Users (admin only)
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -72,9 +75,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/user/{user}', [UserController::class, 'show'])->name('users.show');
     Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::get('/user/{user}/notifications', [UserController::class, 'notifications'])->name('users.notifications');
+    Route::post('/user/{user}/notifications', [UserController::class, 'updateNotifications'])->name('users.notifications.update');
+    Route::get('/user/{user}/permissions', [UserController::class, 'permissionsForm'])->name('users.permissions');
+    Route::post('/user/{user}/permissions', [UserController::class, 'permissions'])->name('users.permissions.update');
     Route::match(['patch', 'put'], '/user/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-    Route::post('/user/{user}/permissions', [UserController::class, 'permissions'])->name('users.permissions');
 
     // Settings (admin only)
     Route::middleware(['admin'])->group(function () {

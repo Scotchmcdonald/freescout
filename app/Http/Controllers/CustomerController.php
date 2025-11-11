@@ -223,35 +223,41 @@ class CustomerController extends Controller
     }
 
     /**
-     * Search customers via AJAX (for autocomplete/typeahead).
+     * Show customer conversations page.
      */
-    public function search(Request $request): JsonResponse
+    public function conversations(Customer $customer): View|ViewFactory
     {
-        $query = $request->input('q', '');
+        $conversations = $customer->conversations()
+            ->with(['mailbox', 'folder', 'user'])
+            ->orderBy('last_reply_at', 'desc')
+            ->paginate(25);
 
-        if (strlen($query) < 2) {
-            return response()->json(['customers' => []]);
+        return view('customers.conversations', compact('customer', 'conversations'));
+    }
+
+    /**
+     * Show merge customer form.
+     */
+    public function mergeForm(Customer $customer): View|ViewFactory
+    {
+        return view('customers.merge', compact('customer'));
+    }
+
+    /**
+     * Delete the specified customer.
+     */
+    public function destroy(Customer $customer): RedirectResponse
+    {
+        if ($customer->conversations()->exists()) {
+            return back()->withErrors([
+                'error' => 'Cannot delete customer with existing conversations.',
+            ]);
         }
 
-        $customers = Customer::where(function ($q) use ($query) {
-            $q->where('first_name', 'like', "%{$query}%")
-                ->orWhere('last_name', 'like', "%{$query}%")
-                ->orWhere('email', 'like', "%{$query}%")
-                ->orWhereHas('emails', function ($q) use ($query) {
-                    // @phpstan-ignore-next-line
-                    $q->where('email', 'like', "%{$query}%");
-                });
-        })
-        ->limit(10)
-        ->get()
-        ->map(function ($customer) {
-            return [
-                'id' => $customer->id,
-                'full_name' => $customer->getFullName(true),
-                'email' => $customer->email ?? ($customer->emails[0] ?? ''),
-            ];
-        });
+        $customer->delete();
 
-        return response()->json(['customers' => $customers]);
+        return redirect()
+            ->route('customers')
+            ->with('success', 'Customer deleted successfully.');
     }
 }

@@ -156,4 +156,28 @@ class SubscriptionModelTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $subscription->created_at);
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $subscription->updated_at);
     }
+
+    public function test_subscription_constants_are_defined(): void
+    {
+        // Test medium constants
+        $this->assertEquals(1, Subscription::MEDIUM_EMAIL);
+        $this->assertEquals(2, Subscription::MEDIUM_BROWSER);
+        $this->assertEquals(3, Subscription::MEDIUM_MOBILE);
+
+        // Test event constants - general
+        $this->assertEquals(1, Subscription::EVENT_NEW_CONVERSATION);
+        $this->assertEquals(2, Subscription::EVENT_CONVERSATION_ASSIGNED_TO_ME);
+        $this->assertEquals(6, Subscription::EVENT_CONVERSATION_ASSIGNED);
+        $this->assertEquals(13, Subscription::EVENT_FOLLOWED_CONVERSATION_UPDATED);
+
+        // Test event constants - customer replies
+        $this->assertEquals(3, Subscription::EVENT_CUSTOMER_REPLIED_TO_MY);
+        $this->assertEquals(4, Subscription::EVENT_CUSTOMER_REPLIED_TO_UNASSIGNED);
+        $this->assertEquals(7, Subscription::EVENT_CUSTOMER_REPLIED_TO_ASSIGNED);
+
+        // Test event constants - user replies
+        $this->assertEquals(5, Subscription::EVENT_USER_REPLIED_TO_MY);
+        $this->assertEquals(8, Subscription::EVENT_USER_REPLIED_TO_UNASSIGNED);
+        $this->assertEquals(9, Subscription::EVENT_USER_REPLIED_TO_ASSIGNED);
+    }
 }
