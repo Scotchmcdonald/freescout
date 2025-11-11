@@ -15,6 +15,10 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
+// User invitation setup (public route for invited users)
+Route::get('/user/setup/{hash}', [UserController::class, 'userSetup'])->name('user_setup');
+Route::post('/user/setup/{hash}', [UserController::class, 'userSetupSave'])->name('user_setup.save');
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
