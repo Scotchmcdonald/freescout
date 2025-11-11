@@ -221,4 +221,37 @@ class CustomerController extends Controller
                 return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
         }
     }
+
+    /**
+     * Search customers via AJAX (for autocomplete/typeahead).
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $query = $request->input('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json(['customers' => []]);
+        }
+
+        $customers = Customer::where(function ($q) use ($query) {
+            $q->where('first_name', 'like', "%{$query}%")
+                ->orWhere('last_name', 'like', "%{$query}%")
+                ->orWhere('email', 'like', "%{$query}%")
+                ->orWhereHas('emails', function ($q) use ($query) {
+                    // @phpstan-ignore-next-line
+                    $q->where('email', 'like', "%{$query}%");
+                });
+        })
+        ->limit(10)
+        ->get()
+        ->map(function ($customer) {
+            return [
+                'id' => $customer->id,
+                'full_name' => $customer->getFullName(true),
+                'email' => $customer->email ?? ($customer->emails[0] ?? ''),
+            ];
+        });
+
+        return response()->json(['customers' => $customers]);
+    }
 }

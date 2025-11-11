@@ -540,4 +540,304 @@ class ConversationController extends Controller
         return redirect()->route('mailboxes.view', $mailboxId)
             ->with('success', 'Conversation deleted successfully.');
     }
+
+    /**
+     * Load AJAX HTML partials (for modals, dropdowns, etc.).
+     */
+    public function ajaxHtml(Request $request): View|ViewFactory
+    {
+        $action = $request->input('action');
+        $conversationId = $request->input('conversation_id');
+        $threadId = $request->input('thread_id');
+
+        $conversation = $conversationId ? Conversation::find($conversationId) : null;
+        $thread = $threadId ? Thread::find($threadId) : null;
+
+        // Return the appropriate partial based on action
+        $viewPath = "conversations.ajax_html.{$action}";
+        
+        if (view()->exists($viewPath)) {
+            return view($viewPath, compact('conversation', 'thread'));
+        }
+
+        abort(404, 'View not found');
+    }
+
+    /**
+     * Change the customer for a conversation.
+     */
+    public function changeCustomer(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        // Check access
+        if (! $user->mailboxes->contains($conversation->mailbox_id)) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'customer_id' => 'nullable|integer|exists:customers,id',
+            'new_customer_email' => 'nullable|email|required_without:customer_id',
+            'new_customer_first_name' => 'nullable|string',
+            'new_customer_last_name' => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $customerId = $validated['customer_id'];
+
+            // Create new customer if needed
+            if (! $customerId && ! empty($validated['new_customer_email'])) {
+                /** @var \App\Models\Customer $newCustomer */
+                $newCustomer = Customer::create([
+                    'first_name' => $validated['new_customer_first_name'] ?? '',
+                    'last_name' => $validated['new_customer_last_name'] ?? '',
+                    'email' => $validated['new_customer_email'],
+                ]);
+                $customerId = $newCustomer->id;
+            }
+
+            if ($customerId) {
+                $customer = Customer::findOrFail($customerId);
+                $conversation->update([
+                    'customer_id' => $customerId,
+                    'customer_email' => $customer->email,
+                ]);
+            }
+
+            DB::commit();
+
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true]);
+            }
+
+            return redirect()
+                ->route('conversations.show', $conversation)
+                ->with('success', 'Customer changed successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            }
+
+            return back()->withErrors(['error' => 'Failed to change customer: '.$e->getMessage()]);
+        }
+    }
+
+    /**
+     * Merge conversations.
+     */
+    public function merge(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        // Check access
+        if (! $user->mailboxes->contains($conversation->mailbox_id)) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'target_conversation_id' => 'required|integer|exists:conversations,id',
+            'keep_threads' => 'nullable|boolean',
+            'update_customer' => 'nullable|boolean',
+        ]);
+
+        $targetConversation = Conversation::findOrFail($validated['target_conversation_id']);
+
+        // Prevent merging into self
+        if ($conversation->id === $targetConversation->id) {
+            return back()->withErrors(['error' => 'Cannot merge a conversation into itself']);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Move threads if requested
+            if ($validated['keep_threads'] ?? true) {
+                Thread::where('conversation_id', $conversation->id)
+                    ->update(['conversation_id' => $targetConversation->id]);
+                
+                // Update thread count
+                $targetConversation->increment('threads_count', $conversation->threads_count);
+            }
+
+            // Update customer if requested
+            if ($validated['update_customer'] ?? false) {
+                $conversation->update([
+                    'customer_id' => $targetConversation->customer_id,
+                    'customer_email' => $targetConversation->customer_email,
+                ]);
+            }
+
+            // Mark source conversation as merged/deleted
+            $conversation->update(['state' => 3]); // Deleted state
+
+            DB::commit();
+
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true]);
+            }
+
+            return redirect()
+                ->route('conversations.show', $targetConversation)
+                ->with('success', 'Conversations merged successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            }
+
+            return back()->withErrors(['error' => 'Failed to merge conversations: '.$e->getMessage()]);
+        }
+    }
+
+    /**
+     * Move conversation to different mailbox.
+     */
+    public function move(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        // Check access
+        if (! $user->mailboxes->contains($conversation->mailbox_id)) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'mailbox_id' => 'required|integer|exists:mailboxes,id',
+        ]);
+
+        // Check user has access to target mailbox
+        if (! $user->mailboxes->contains($validated['mailbox_id'])) {
+            abort(403, 'You do not have access to the target mailbox');
+        }
+
+        $conversation->update(['mailbox_id' => $validated['mailbox_id']]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()
+            ->route('conversations.show', $conversation)
+            ->with('success', 'Conversation moved successfully.');
+    }
+
+    /**
+     * Update a specific thread.
+     */
+    public function updateThread(Request $request, Conversation $conversation, Thread $thread): RedirectResponse|JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        // Check access
+        if (! $user->mailboxes->contains($conversation->mailbox_id)) {
+            abort(403);
+        }
+
+        // Verify thread belongs to conversation
+        if ($thread->conversation_id !== $conversation->id) {
+            abort(404, 'Thread not found in this conversation');
+        }
+
+        $validated = $request->validate([
+            'body' => 'required|string',
+        ]);
+
+        $thread->update([
+            'body' => $validated['body'],
+            'edited_by_user_id' => $user->id,
+            'edited_at' => now(),
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()
+            ->route('conversations.show', $conversation)
+            ->with('success', 'Thread updated successfully.');
+    }
+
+    /**
+     * Update conversation settings (tags, priority, custom fields).
+     */
+    public function updateSettings(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        // Check access
+        if (! $user->mailboxes->contains($conversation->mailbox_id)) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'tags' => 'nullable|string',
+            'priority' => 'nullable|string|in:normal,high,urgent',
+            'custom_field_1' => 'nullable|string',
+            'custom_field_2' => 'nullable|string',
+            'internal_notes' => 'nullable|string',
+        ]);
+
+        // Parse tags
+        $tags = [];
+        if (! empty($validated['tags'])) {
+            $tags = array_map('trim', explode(',', $validated['tags']));
+        }
+
+        // Update meta field
+        $meta = $conversation->meta ?? [];
+        $meta['tags'] = $tags;
+        $meta['priority'] = $validated['priority'] ?? 'normal';
+        $meta['custom_field_1'] = $validated['custom_field_1'] ?? '';
+        $meta['custom_field_2'] = $validated['custom_field_2'] ?? '';
+        $meta['internal_notes'] = $validated['internal_notes'] ?? '';
+
+        $conversation->update(['meta' => $meta]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()
+            ->route('conversations.show', $conversation)
+            ->with('success', 'Settings updated successfully.');
+    }
+
+    /**
+     * Display chats view.
+     */
+    public function chats(Request $request): View|ViewFactory
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        // Get conversations in chat mode
+        $conversations = Conversation::with(['customer', 'threads'])
+            ->whereHas('mailbox', function ($query) use ($user) {
+                $query->whereHas('users', function ($q) use ($user) {
+                    $q->where('users.id', $user->id);
+                });
+            })
+            ->where('type', 1) // Chat type
+            ->orderBy('last_reply_at', 'desc')
+            ->limit(50)
+            ->get();
+
+        $activeConversation = null;
+        if ($request->has('id')) {
+            $activeConversation = Conversation::with(['customer', 'threads.user', 'threads.customer'])
+                ->find($request->input('id'));
+        }
+
+        return view('conversations.chats', compact('conversations', 'activeConversation'));
+    }
 }
