@@ -225,4 +225,62 @@ class UserController extends Controller
                 return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
         }
     }
+
+    /**
+     * Show user notifications preferences form.
+     */
+    public function notifications(User $user): View|Factory
+    {
+        $this->authorize('view', $user);
+
+        $subscriptions = $user->subscriptions;
+        $users = User::where('status', 1)->orderBy('first_name')->get();
+
+        return view('users.notifications', compact('user', 'subscriptions', 'users'));
+    }
+
+    /**
+     * Update user notification preferences.
+     */
+    public function updateNotifications(Request $request, User $user): RedirectResponse
+    {
+        $this->authorize('update', $user);
+
+        $validated = $request->validate([
+            'subscriptions' => 'nullable|array',
+            'subscriptions.*' => 'array',
+            'subscriptions.*.*' => 'integer',
+        ]);
+
+        // Delete all existing subscriptions
+        $user->subscriptions()->delete();
+
+        // Create new subscriptions
+        if (isset($validated['subscriptions'])) {
+            foreach ($validated['subscriptions'] as $medium => $events) {
+                foreach ($events as $event) {
+                    $user->subscriptions()->create([
+                        'medium' => (int) $medium,
+                        'event' => (int) $event,
+                    ]);
+                }
+            }
+        }
+
+        return back()->with('success', 'Notification preferences updated successfully.');
+    }
+
+    /**
+     * Show user permissions form.
+     */
+    public function permissionsForm(User $user): View|Factory
+    {
+        $this->authorize('update', $user);
+
+        $mailboxes = \App\Models\Mailbox::orderBy('name')->get();
+        $user_mailboxes = $user->mailboxes->pluck('id');
+        $users = User::where('status', 1)->orderBy('first_name')->get();
+
+        return view('users.permissions', compact('user', 'mailboxes', 'user_mailboxes', 'users'));
+    }
 }

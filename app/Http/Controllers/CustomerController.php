@@ -221,4 +221,43 @@ class CustomerController extends Controller
                 return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
         }
     }
+
+    /**
+     * Show customer conversations page.
+     */
+    public function conversations(Customer $customer): View|ViewFactory
+    {
+        $conversations = $customer->conversations()
+            ->with(['mailbox', 'folder', 'user'])
+            ->orderBy('last_reply_at', 'desc')
+            ->paginate(25);
+
+        return view('customers.conversations', compact('customer', 'conversations'));
+    }
+
+    /**
+     * Show merge customer form.
+     */
+    public function mergeForm(Customer $customer): View|ViewFactory
+    {
+        return view('customers.merge', compact('customer'));
+    }
+
+    /**
+     * Delete the specified customer.
+     */
+    public function destroy(Customer $customer): RedirectResponse
+    {
+        if ($customer->conversations()->exists()) {
+            return back()->withErrors([
+                'error' => 'Cannot delete customer with existing conversations.',
+            ]);
+        }
+
+        $customer->delete();
+
+        return redirect()
+            ->route('customers')
+            ->with('success', 'Customer deleted successfully.');
+    }
 }
