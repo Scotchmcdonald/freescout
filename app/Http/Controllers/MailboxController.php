@@ -73,6 +73,23 @@ class MailboxController extends Controller
     }
 
     /**
+     * Show the form for creating a new mailbox.
+     */
+    public function create(Request $request): View|ViewFactory
+    {
+        $this->authorize('create', Mailbox::class);
+
+        // Get all non-admin users to assign to mailbox
+        $users = User::where('role', '!=', User::ROLE_ADMIN)
+            ->whereNull('deleted_at')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get();
+
+        return view('mailboxes.create', compact('users'));
+    }
+
+    /**
      * Store a newly created mailbox.
      */
     public function store(Request $request): RedirectResponse
@@ -83,6 +100,8 @@ class MailboxController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:mailboxes,email',
             'from_name' => 'nullable|string|max:255',
+            'users' => 'nullable|array',
+            'users.*' => 'exists:users,id',
             'out_method' => 'nullable|in:mail,smtp',
             'out_server' => 'nullable|string|max:255',
             'out_port' => 'nullable|integer',
@@ -112,7 +131,16 @@ class MailboxController extends Controller
             $validated['from_name'] = 1; // mailbox name
         }
 
+        // Remove users from validated data before creating mailbox
+        $users = $validated['users'] ?? [];
+        unset($validated['users']);
+
         $mailbox = Mailbox::create($validated);
+
+        // Sync users to mailbox
+        if (! empty($users)) {
+            $mailbox->users()->sync($users);
+        }
 
         return redirect()->route('mailboxes.index')
             ->with('success', 'Mailbox created successfully.');
