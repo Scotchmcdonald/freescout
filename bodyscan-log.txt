@@ -150,3 +150,21 @@ Project directory "/var/www/html" - PHPStan level 1: 0 errors
 
 Project directory "/var/www/html" - PHPStan level 2: 2 errors
 
+Project directory "/var/www/html" - PHPStan level 0: 28 errors
+
+Project directory "/var/www/html" - PHPStan level 1: 33 errors
+
+Project directory "/var/www/html" - PHPStan level 2: 34 errors
+
+Project directory "/var/www/html" - PHPStan level 3: 37 errors
+
+Project directory "/var/www/html" - PHPStan level 4: 42 errors
+
+Project directory "/var/www/html" - PHPStan level 5: 49 errors
+
+Project directory "/var/www/html" - PHPStan level 6: 105 errors
+
+Project directory "/var/www/html" - PHPStan level 7: 119 errors
+
+Project directory "/var/www/html" - PHPStan level 8: 121 errors
+

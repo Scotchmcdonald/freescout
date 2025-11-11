@@ -1,7 +1,7 @@
 Warning: TTY mode requires /dev/tty to be read/writable.
 
    FAIL  Tests\Browser\ExampleTest
-  ⨯ basic example                                                        1.36s  
+  ⨯ basic example                                                        0.67s  
   ────────────────────────────────────────────────────────────────────────────  
    FAILED  Tests\Browser\ExampleTest > basic example    UnknownErrorException   
   unknown error: net::ERR_CONNECTION_REFUSED
@@ -24,5 +24,5 @@ Warning: TTY mode requires /dev/tty to be read/writable.
 
 
   Tests:    1 failed (0 assertions)
-  Duration: 1.47s
+  Duration: 0.86s
 

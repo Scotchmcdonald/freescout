@@ -11,11 +11,11 @@
 [90mstderr[2m | tests/javascript/notifications.test.js[2m > [22m[2mRealtimeNotifications[2m > [22m[2minit[2m > [22m[2mshould not initialize if userId is missing
 [22m[39mEcho or user ID not available
 
- [32m✓[39m tests/javascript/notifications.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 14[2mms[22m[39m
- [32m✓[39m tests/javascript/ui-helpers.test.js [2m([22m[2m18 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m tests/javascript/notifications.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/javascript/ui-helpers.test.js [2m([22m[2m18 tests[22m[2m)[22m[32m 23[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
 [2m      Tests [22m [1m[32m24 passed[39m[22m[90m (24)[39m
-[2m   Start at [22m 23:40:44
-[2m   Duration [22m 782ms[2m (transform 103ms, setup 55ms, collect 100ms, tests 62ms, environment 895ms, prepare 21ms)[22m
+[2m   Start at [22m 06:09:17
+[2m   Duration [22m 655ms[2m (transform 121ms, setup 47ms, collect 131ms, tests 34ms, environment 759ms, prepare 15ms)[22m
 
