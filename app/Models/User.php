@@ -232,4 +232,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return "https://www.gravatar.com/avatar/{$hash}?d=mp&f=y";
     }
+
+    /**
+     * Get URL for user setup/invitation.
+     */
+    public function urlSetup(): string
+    {
+        return route('user_setup', ['hash' => $this->invite_hash]);
+    }
 }
