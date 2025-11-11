@@ -119,6 +119,16 @@ class Customer extends Model
     }
 
     /**
+     * Get the customer channel records.
+     *
+     * @return HasMany<CustomerChannel, $this>
+     */
+    public function customerChannels(): HasMany
+    {
+        return $this->hasMany(CustomerChannel::class);
+    }
+
+    /**
      * Get the customer's full name.
      */
     public function getFullNameAttribute(): string

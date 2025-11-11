@@ -124,7 +124,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function mailboxes(): BelongsToMany
     {
-        return $this->belongsToMany(Mailbox::class)
+        return $this->belongsToMany(Mailbox::class, 'mailbox_user')
+            ->using(MailboxUser::class)
             ->withPivot('access', 'after_send')
             ->withTimestamps();
     }
@@ -238,5 +239,19 @@ class User extends Authenticatable implements MustVerifyEmail
         $hash = md5(strtolower(trim($this->email)));
 
         return "https://www.gravatar.com/avatar/{$hash}?d=mp&f=y";
+    }
+
+    /**
+     * Check if user has access to a mailbox at minimum level.
+     */
+    public function hasAccessToMailbox(int $mailboxId, int $minLevel = MailboxUser::ACCESS_VIEW): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        $pivot = $this->mailboxes()->where('mailbox_id', $mailboxId)->first()?->pivot;
+
+        return $pivot && $pivot->access >= $minLevel;
     }
 }

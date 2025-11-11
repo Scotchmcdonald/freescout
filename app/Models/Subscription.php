@@ -12,6 +12,18 @@ class Subscription extends Model
 {
     use HasFactory;
 
+    // Medium constants
+    public const MEDIUM_EMAIL = 1;
+    public const MEDIUM_BROWSER = 2;
+    public const MEDIUM_MOBILE = 3;
+
+    // Event constants
+    public const EVENT_NEW_CONVERSATION = 1;
+    public const EVENT_USER_ASSIGNED = 2;
+    public const EVENT_NEW_REPLY = 3;
+    public const EVENT_CUSTOMER_REPLY = 4;
+    public const EVENT_FOLLOWED = 5;
+
     protected $fillable = [
         'user_id',
         'medium',
@@ -47,7 +59,7 @@ class Subscription extends Model
      */
     public function isEmail(): bool
     {
-        return $this->medium === 1;
+        return $this->medium === self::MEDIUM_EMAIL;
     }
 
     /**
@@ -55,7 +67,7 @@ class Subscription extends Model
      */
     public function isBrowser(): bool
     {
-        return $this->medium === 2;
+        return $this->medium === self::MEDIUM_BROWSER;
     }
 
     /**
@@ -63,6 +75,6 @@ class Subscription extends Model
      */
     public function isMobile(): bool
     {
-        return $this->medium === 3;
+        return $this->medium === self::MEDIUM_MOBILE;
     }
 }
