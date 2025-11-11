@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Mail\Alert;
 use App\Models\Mailbox;
 use App\Models\Option;
 use App\Services\ImapService;
@@ -15,6 +16,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 
 class SettingsController extends Controller
 {
@@ -236,6 +238,118 @@ class SettingsController extends Controller
             'success' => true,
             'message' => 'SMTP settings are valid.',
         ]);
+    }
+
+    /**
+     * Display alert settings.
+     */
+    public function alerts(): View|ViewFactory
+    {
+        $settings = Option::whereIn('name', [
+            'alert_system_errors',
+            'alert_high_queue',
+            'alert_failed_jobs',
+            'alert_disk_space',
+            'alert_db_connection',
+            'queue_threshold',
+            'alert_recipients',
+        ])->pluck('value', 'name')->toArray();
+
+        return view('settings.alerts', compact('settings'));
+    }
+
+    /**
+     * Update alert settings.
+     */
+    public function updateAlerts(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'alerts' => 'nullable|array',
+            'alerts.system_errors' => 'nullable|boolean',
+            'alerts.high_queue' => 'nullable|boolean',
+            'alerts.failed_jobs' => 'nullable|boolean',
+            'alerts.disk_space' => 'nullable|boolean',
+            'alerts.db_connection' => 'nullable|boolean',
+            'queue_threshold' => 'nullable|integer|min:10|max:10000',
+            'alert_recipients' => 'nullable|string',
+        ]);
+
+        // Handle test alert action
+        if ($request->input('action') === 'test') {
+            return $this->sendTestAlert($request);
+        }
+
+        // Update alert settings
+        $alerts = $validated['alerts'] ?? [];
+        
+        Option::updateOrCreate(
+            ['name' => 'alert_system_errors'],
+            ['value' => (int) ($alerts['system_errors'] ?? false)]
+        );
+        
+        Option::updateOrCreate(
+            ['name' => 'alert_high_queue'],
+            ['value' => (int) ($alerts['high_queue'] ?? false)]
+        );
+        
+        Option::updateOrCreate(
+            ['name' => 'alert_failed_jobs'],
+            ['value' => (int) ($alerts['failed_jobs'] ?? false)]
+        );
+        
+        Option::updateOrCreate(
+            ['name' => 'alert_disk_space'],
+            ['value' => (int) ($alerts['disk_space'] ?? false)]
+        );
+        
+        Option::updateOrCreate(
+            ['name' => 'alert_db_connection'],
+            ['value' => (int) ($alerts['db_connection'] ?? false)]
+        );
+
+        if (isset($validated['queue_threshold'])) {
+            Option::updateOrCreate(
+                ['name' => 'queue_threshold'],
+                ['value' => $validated['queue_threshold']]
+            );
+        }
+
+        if (isset($validated['alert_recipients'])) {
+            Option::updateOrCreate(
+                ['name' => 'alert_recipients'],
+                ['value' => $validated['alert_recipients']]
+            );
+        }
+
+        return back()->with('success', 'Alert settings updated successfully.');
+    }
+
+    /**
+     * Send test alert email.
+     */
+    protected function sendTestAlert(Request $request): RedirectResponse
+    {
+        $recipients = $request->input('alert_recipients', '');
+        $emails = array_filter(array_map('trim', explode("\n", $recipients)));
+
+        if (empty($emails)) {
+            return back()->with('error', 'No recipients configured for alerts.');
+        }
+
+        try {
+            foreach ($emails as $email) {
+                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    Mail::to($email)->send(new Alert(
+                        'Test Alert',
+                        'This is a test alert from FreeScout. Your alert configuration is working correctly.'
+                    ));
+                }
+            }
+
+            return back()->with('success', 'Test alert sent successfully to ' . count($emails) . ' recipient(s).');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to send test alert: ' . $e->getMessage());
+        }
     }
 
     /**

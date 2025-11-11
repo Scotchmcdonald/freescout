@@ -283,4 +283,76 @@ class UserController extends Controller
 
         return view('users.permissions', compact('user', 'mailboxes', 'user_mailboxes', 'users'));
     }
+
+    /**
+     * Setup user from invitation (public route).
+     * Allows invited users to complete their profile setup.
+     */
+    public function userSetup(string $hash): View|Factory|RedirectResponse
+    {
+        // If already authenticated, redirect to dashboard
+        if (auth()->check()) {
+            return redirect()->route('dashboard');
+        }
+
+        $user = User::where('invite_hash', $hash)->first();
+
+        if (!$user) {
+            abort(404, 'Invalid invitation link');
+        }
+
+        return view('users.setup', compact('user'));
+    }
+
+    /**
+     * Save user setup from invitation.
+     */
+    public function userSetupSave(string $hash, Request $request): RedirectResponse
+    {
+        // If already authenticated, redirect to dashboard
+        if (auth()->check()) {
+            return redirect()->route('dashboard');
+        }
+
+        $user = User::where('invite_hash', $hash)->first();
+
+        if (!$user) {
+            abort(404, 'Invalid invitation link');
+        }
+
+        $validated = $request->validate([
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'required|string|min:8|confirmed',
+            'job_title' => 'nullable|string|max:100',
+            'phone' => 'nullable|string|max:60',
+            'timezone' => 'required|string|max:255',
+            'time_format' => 'required|in:12,24',
+            'photo_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Handle photo upload
+        if ($request->hasFile('photo_url')) {
+            $path = $request->file('photo_url')->store('avatars', 'public');
+            $user->photo_url = $path;
+        }
+
+        // Update user
+        $user->fill([
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'job_title' => $validated['job_title'] ?? null,
+            'phone' => $validated['phone'] ?? null,
+            'timezone' => $validated['timezone'],
+            'time_format' => (int) $validated['time_format'],
+            'invite_state' => 1, // Mark as activated
+            'invite_hash' => null, // Clear invite hash
+        ]);
+
+        $user->save();
+
+        // Log the user in
+        auth()->login($user);
+
+        return redirect()->route('dashboard')->with('success', 'Your account has been set up successfully!');
+    }
 }

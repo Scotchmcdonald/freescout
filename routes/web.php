@@ -15,6 +15,10 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
+// User invitation setup (public route for invited users)
+Route::get('/user/setup/{hash}', [UserController::class, 'userSetup'])->name('user_setup');
+Route::post('/user/setup/{hash}', [UserController::class, 'userSetupSave'])->name('user_setup.save');
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
@@ -89,6 +93,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
         Route::get('/settings/email', [SettingsController::class, 'email'])->name('settings.email');
         Route::post('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email.update');
+        Route::get('/settings/alerts', [SettingsController::class, 'alerts'])->name('settings.alerts');
+        Route::put('/settings/alerts', [SettingsController::class, 'updateAlerts'])->name('settings.alerts.update');
         Route::get('/settings/system', [SettingsController::class, 'system'])->name('settings.system');
         Route::post('/settings/cache/clear', [SettingsController::class, 'clearCache'])->name('settings.cache.clear');
         Route::post('/settings/migrate', [SettingsController::class, 'migrate'])->name('settings.migrate');

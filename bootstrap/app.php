@@ -19,5 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ]);
+        
+        // Add FrameGuard middleware to web group for security
+        $middleware->web(append: [
+            \App\Http\Middleware\FrameGuard::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {})->create();
