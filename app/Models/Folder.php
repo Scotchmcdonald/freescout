@@ -142,4 +142,16 @@ class Folder extends Model
     {
         return $this->type === self::TYPE_TRASH;
     }
+
+    /**
+     * Update conversation counters for this folder.
+     */
+    public function updateCounters(): void
+    {
+        $this->total_count = $this->conversations()->count();
+        $this->active_count = $this->conversations()
+            ->where('status', Conversation::STATUS_ACTIVE)
+            ->count();
+        $this->save();
+    }
 }
