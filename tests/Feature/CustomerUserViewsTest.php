@@ -9,6 +9,7 @@ use App\Models\Mailbox;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CustomerUserViewsTest extends TestCase
@@ -26,7 +27,7 @@ class CustomerUserViewsTest extends TestCase
         $this->adminUser = User::factory()->create(['role' => User::ROLE_ADMIN, 'status' => 1]);
     }
 
-    /** @test */
+    #[Test]
     public function it_displays_customer_conversations_page(): void
     {
         $customer = Customer::factory()->create();
@@ -39,7 +40,7 @@ class CustomerUserViewsTest extends TestCase
         $response->assertViewHas('conversations');
     }
 
-    /** @test */
+    #[Test]
     public function it_displays_customer_merge_form(): void
     {
         $customer = Customer::factory()->create();
@@ -52,7 +53,7 @@ class CustomerUserViewsTest extends TestCase
         $response->assertSee('Merge Customer');
     }
 
-    /** @test */
+    #[Test]
     public function it_displays_user_notifications_page(): void
     {
         $response = $this->actingAs($this->user)->get(route('users.notifications', $this->user));
@@ -64,7 +65,7 @@ class CustomerUserViewsTest extends TestCase
         $response->assertSee('Notification Preferences');
     }
 
-    /** @test */
+    #[Test]
     public function it_displays_user_permissions_page(): void
     {
         Mailbox::factory()->create(['name' => 'Support']);
@@ -78,7 +79,7 @@ class CustomerUserViewsTest extends TestCase
         $response->assertSee('User Permissions');
     }
 
-    /** @test */
+    #[Test]
     public function it_updates_user_notifications(): void
     {
         $response = $this->actingAs($this->user)->post(
@@ -108,7 +109,7 @@ class CustomerUserViewsTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_updates_user_mailbox_permissions(): void
     {
         $mailbox1 = Mailbox::factory()->create();
@@ -128,7 +129,7 @@ class CustomerUserViewsTest extends TestCase
         $this->assertTrue($this->user->mailboxes()->where('mailboxes.id', $mailbox2->id)->exists());
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_non_admin_from_viewing_other_users_permissions(): void
     {
         $otherUser = User::factory()->create(['role' => 2, 'status' => 1]);
@@ -138,7 +139,7 @@ class CustomerUserViewsTest extends TestCase
         $response->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function it_allows_users_to_view_their_own_notifications(): void
     {
         $response = $this->actingAs($this->user)->get(route('users.notifications', $this->user));
@@ -146,19 +147,19 @@ class CustomerUserViewsTest extends TestCase
         $response->assertOk();
     }
 
-    /** @test */
+    #[Test]
     public function it_deletes_customer_without_conversations(): void
     {
         $customer = Customer::factory()->create();
 
         $response = $this->actingAs($this->user)->delete(route('customers.destroy', $customer));
 
-        $response->assertRedirect(route('customers'));
+        $response->assertRedirect(route('customers.index'));
         $response->assertSessionHas('success');
         $this->assertDatabaseMissing('customers', ['id' => $customer->id]);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_deleting_customer_with_conversations(): void
     {
         $customer = Customer::factory()->hasConversations(1)->create();
@@ -170,7 +171,7 @@ class CustomerUserViewsTest extends TestCase
         $this->assertDatabaseHas('customers', ['id' => $customer->id]);
     }
 
-    /** @test */
+    #[Test]
     public function subscriptions_table_displays_all_notification_events(): void
     {
         $response = $this->actingAs($this->user)->get(route('users.notifications', $this->user));
@@ -183,12 +184,12 @@ class CustomerUserViewsTest extends TestCase
         $response->assertSee('Mobile');
     }
 
-    /** @test */
+    #[Test]
     public function customers_table_partial_displays_customers(): void
     {
         $customers = Customer::factory()->count(3)->create();
 
-        $response = $this->actingAs($this->user)->get(route('customers'));
+        $response = $this->actingAs($this->user)->get(route('customers.index'));
 
         foreach ($customers as $customer) {
             $response->assertSee($customer->getFullName());

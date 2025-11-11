@@ -37,7 +37,7 @@ class CompleteWorkflowTest extends TestCase
 
         // 4. Create conversation
         $response = $this->actingAs($admin)
-            ->post(route('conversations.store'), [
+            ->post(route('conversations.store', $mailbox), [
                 'mailbox_id' => $mailbox->id,
                 'customer_id' => $customer->id,
                 'subject' => 'Test Ticket',
@@ -91,7 +91,7 @@ class CompleteWorkflowTest extends TestCase
         // User CAN create conversation in assigned mailbox
         $customer = Customer::factory()->create();
         $this->actingAs($user)
-            ->post(route('conversations.store'), [
+            ->post(route('conversations.store', $mailbox), [
                 'mailbox_id' => $mailbox->id,
                 'customer_id' => $customer->id,
                 'subject' => 'Test',
@@ -116,7 +116,9 @@ class CompleteWorkflowTest extends TestCase
             ])
             ->assertRedirect();
 
-        $customer = Customer::where('email', 'john@example.com')->first();
+        $customer = Customer::whereHas('emails', function ($query) {
+            $query->where('email', 'john@example.com');
+        })->first();
         $this->assertNotNull($customer);
         $this->assertEquals('John', $customer->first_name);
 
@@ -151,6 +153,7 @@ class CompleteWorkflowTest extends TestCase
                 'password' => 'password123',
                 'password_confirmation' => 'password123',
                 'role' => User::ROLE_USER,
+                'status' => User::STATUS_ACTIVE,
             ])
             ->assertRedirect();
 

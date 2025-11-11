@@ -82,7 +82,7 @@ class SecurityTest extends TestCase
         // POST without CSRF token should fail
         $response = $this->actingAs($user)
             ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
-            ->post(route('conversations.store'), [
+            ->post(route('conversations.store', $mailbox), [
                 'mailbox_id' => $mailbox->id,
                 'subject' => 'Test',
             ]);
@@ -99,7 +99,7 @@ class SecurityTest extends TestCase
 
         // Create conversation with potentially malicious content
         $this->actingAs($admin)
-            ->post(route('conversations.store'), [
+            ->post(route('conversations.store', $mailbox), [
                 'mailbox_id' => $mailbox->id,
                 'customer_id' => $customer->id,
                 'subject' => '<script>alert("xss")</script>Test',
@@ -134,7 +134,9 @@ class SecurityTest extends TestCase
                 'email' => 'test@example.com',
             ]);
 
-        $customer = Customer::where('email', 'test@example.com')->first();
+        $customer = Customer::whereHas('emails', function ($query) {
+            $query->where('email', 'test@example.com');
+        })->first();
 
         // View customer profile
         $response = $this->actingAs($admin)
@@ -212,6 +214,7 @@ class SecurityTest extends TestCase
                 'password' => 'PlainTextPassword123',
                 'password_confirmation' => 'PlainTextPassword123',
                 'role' => User::ROLE_USER,
+                'status' => User::STATUS_ACTIVE,
             ]);
 
         $user = User::where('email', 'secure@example.com')->first();
@@ -305,9 +308,14 @@ class SecurityTest extends TestCase
         // This test would verify file upload security
         // For now, we just ensure the routes are protected
         $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
 
         // Note: Actual file upload testing would require more complex setup
         // This tests that routes are at least authenticated
-        $this->assertAuthenticated('web', $user);
+        $this->actingAs($user)
+            ->get(route('conversations.index', $mailbox))
+            ->assertOk();
+        
+        $this->assertAuthenticated('web');
     }
 }

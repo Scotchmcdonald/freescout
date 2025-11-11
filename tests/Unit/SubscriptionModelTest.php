@@ -10,6 +10,7 @@ use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SubscriptionModelTest extends TestCase
@@ -111,9 +112,7 @@ class SubscriptionModelTest extends TestCase
         $this->assertIsInt($subscription->event);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_multiple_subscriptions_for_same_user()
     {
         // Disable events to prevent UserObserver from creating default subscriptions.
