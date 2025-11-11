@@ -50,6 +50,28 @@ class Thread extends Model
 {
     use HasFactory;
 
+    // Thread type constants
+    public const TYPE_CUSTOMER = 1;
+
+    public const TYPE_MESSAGE = 2;
+
+    public const TYPE_NOTE = 3;
+
+    public const TYPE_LINEITEM = 4;
+
+    public const TYPE_CHAT = 8;
+
+    public const TYPE_BOUNCE = 9; // For bounce detection
+
+    // Thread state constants
+    public const STATE_DRAFT = 1;
+
+    public const STATE_PUBLISHED = 2;
+
+    public const STATE_HIDDEN = 3;
+
+    public const STATE_REVIEW = 4;
+
     protected $fillable = [
         'conversation_id',
         'user_id',

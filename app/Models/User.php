@@ -59,6 +59,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public const STATUS_DELETED = 3;
 
+    // Invite state constants
+    public const INVITE_STATE_ACTIVATED = 1;
+
+    public const INVITE_STATE_SENT = 2;
+
+    public const INVITE_STATE_NOT_INVITED = 3;
+
     /**
      * The attributes that are mass assignable.
      */
