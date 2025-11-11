@@ -137,8 +137,9 @@ class Mailbox extends Model
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)
-            ->withPivot('after_send')
+        return $this->belongsToMany(User::class, 'mailbox_user')
+            ->using(MailboxUser::class)
+            ->withPivot('access', 'after_send')
             ->withTimestamps();
     }
 

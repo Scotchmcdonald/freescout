@@ -69,6 +69,10 @@ class Conversation extends Model
     public const STATE_DRAFT = 1;
     public const STATE_PUBLISHED = 2;
 
+    // Source via constants (who created)
+    public const PERSON_CUSTOMER = 1;
+    public const PERSON_USER = 2;
+
     protected $fillable = [
         'number',
         'threads_count',
