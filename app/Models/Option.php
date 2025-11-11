@@ -82,4 +82,12 @@ class Option extends Model
     {
         return static::where('name', $name)->delete() > 0;
     }
+
+    /**
+     * Alias for getValue for backward compatibility.
+     */
+    public static function get(string $name, mixed $default = null): mixed
+    {
+        return static::getValue($name, $default);
+    }
 }

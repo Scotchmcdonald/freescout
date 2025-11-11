@@ -254,4 +254,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return $pivot && $pivot->access >= $minLevel;
     }
+
+    /**
+     * Get URL for user setup/invitation.
+     */
+    public function urlSetup(): string
+    {
+        return route('user_setup', ['hash' => $this->invite_hash]);
+    }
 }
