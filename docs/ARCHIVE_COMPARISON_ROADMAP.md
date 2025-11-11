@@ -398,7 +398,100 @@
 
 ---
 
-## 14. Implementation Roadmap
+## 14. Blade Views & Templates Comparison
+
+### Archive Views (144 total, excluding vendor)
+
+**Quick Stats:**
+- Archive: 144 Blade templates
+- Modernized: 56 Blade templates  
+- Coverage: 39% (56/144)
+- Missing: 88 view files
+
+### Views by Category
+
+| Category | Archive | Modernized | Missing | Coverage | Priority |
+|----------|---------|------------|---------|----------|----------|
+| **Auth Views** | 4 | 6 | -2 | 150% ✅ | - |
+| **Conversations** | 30 | 5 | 25 | 17% ❌ | 🔴 HIGH |
+| **Customers** | 8 | 4 | 4 | 50% ⚠️ | 🔴 HIGH |
+| **Email Templates** | 15 | 2 | 13 | 13% ❌ | 🟡 MEDIUM |
+| **Mailboxes** | 12 | 7 | 5 | 58% ⚠️ | 🔴 HIGH |
+| **Users** | 9 | 4 | 5 | 44% ⚠️ | 🟡 MEDIUM |
+| **Settings** | 4 | 3 | 1 | 75% ✅ | 🟢 LOW |
+| **System** | 3 | 2 | 1 | 67% ✅ | 🟢 LOW |
+| **Modules** | 3 | 1 | 2 | 33% ⚠️ | 🟡 MEDIUM |
+| **Partials** | 12 | 0 | 12 | 0% ❌ | 🟡 MEDIUM |
+| **AJAX HTML** | 7 | 0 | 7 | 0% ❌ | 🟡 MEDIUM |
+| **Components** | 0 | 11 | -11 | ∞ ✅ | - |
+| **Layouts** | 1 | 3 | -2 | 300% ✅ | - |
+| **Errors** | 3 | 0 | 3 | 0% ❌ | 🟢 LOW |
+| **Other** | 33 | 8 | 25 | 24% ❌ | Varies |
+
+### Critical Missing Views (HIGH Priority)
+
+**Conversation UI (25 files) - 🔴 CRITICAL**
+- AJAX partials (7 files): assignee_filter, change_customer, merge_conv, move_conv, send_log, show_original, default_redirect
+- Display partials (10 files): thread, threads, thread_attachments, customer_sidebar, edit_thread, badges, bulk_actions, settings_modal, merge_search_result, prev_convs_short
+- Specialized views (8 files): chats, pagination, table, editor_toolbar, thread_by
+
+**Core Features (6 files) - 🔴 CRITICAL**
+- Editor partial: partials/editor.blade.php
+- Mailbox creation: mailboxes/create.blade.php
+- Customer merging: customers/merge.blade.php
+- Email templates: user/notification, user/alert, user/email_reply_error
+
+**Total Critical Views**: 31 files (~45 hours effort)
+
+### Medium Priority Views
+
+**Email Templates (9 files) - 🟡 MEDIUM**
+- Plain text versions (5 files)
+- User invites and password notifications (4 files)
+
+**Customer Features (4 files) - 🟡 MEDIUM**
+- Profile components: profile_menu, profile_tabs, profile_snippet, conversations
+
+**Shared Partials (12 files) - 🟡 MEDIUM**
+- UI components: calendar, flash_messages, person_photo, empty, etc.
+
+**Total Medium Priority**: 25 files (~35 hours effort)
+
+### Low Priority Views
+
+**Error Pages (3 files) - 🟢 LOW**
+- Custom 403, 404, 500 pages
+
+**Other (7 files) - 🟢 LOW**
+- Settings, system tools, misc
+
+**Total Low Priority**: 10 files (~10 hours effort)
+
+### Architecture Improvements
+
+**✅ Modern Blade Architecture:**
+- 11 reusable components from Laravel Breeze
+- Separate guest/authenticated layouts
+- RESTful view naming (index, show, edit, create)
+- Better code organization
+
+**⚠️ Trade-offs:**
+- Many small partials not yet ported
+- All AJAX HTML partials missing
+- Minimal email template coverage
+
+**Summary**:
+- ✅ 56 views implemented with modern architecture
+- ❌ 88 views missing (39% coverage)
+- 🔴 31 critical views blocking core features (~45 hours)
+- 🟡 25 important views for better UX (~35 hours)
+- 🟢 10 nice-to-have views (~10 hours)
+
+**See [VIEWS_COMPARISON.md](VIEWS_COMPARISON.md) for detailed analysis**
+
+---
+
+## 15. Implementation Roadmap
 
 ### Phase 1: Critical Console Commands (Priority 🔴)
 
@@ -607,10 +700,11 @@ These phases cover:
 ### Missing Critical Features
 
 1. **Console Commands** (22/24 missing) - Highest priority
-2. **Audit Logging** (8 listeners missing)
-3. **Model Observers** (9/10 missing)
-4. **Authorization Policies** (3/5 missing)
-5. **Email Templates** (6/8 missing)
+2. **Blade Views** (88/144 missing) - Critical UI gaps
+3. **Audit Logging** (8 listeners missing)
+4. **Model Observers** (9/10 missing)
+5. **Authorization Policies** (3/5 missing)
+6. **Email Templates** (6/8 mailables + 13/15 view templates missing)
 
 ### Technical Debt
 
