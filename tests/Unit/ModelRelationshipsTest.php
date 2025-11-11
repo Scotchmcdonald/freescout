@@ -92,7 +92,8 @@ class ModelRelationshipsTest extends TestCase
         $folder1 = Folder::factory()->for($mailbox)->create();
         $folder2 = Folder::factory()->for($mailbox)->create();
 
-        $this->assertCount(2, $mailbox->folders);
+        // 5 default folders (created by MailboxObserver) + 2 manually created = 7
+        $this->assertCount(7, $mailbox->folders);
         $this->assertTrue($mailbox->folders->contains($folder1));
     }
 

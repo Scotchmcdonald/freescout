@@ -200,13 +200,15 @@ class PartialsComponentsTest extends TestCase
 
     public function test_editor_partial_renders_with_custom_placeholder(): void
     {
-        $view = view('partials.editor', [
-            'name' => 'content',
-            'value' => '',
-            'placeholder' => 'Enter your custom text here...',
-        ]);
-        $html = $view->render();
+        $placeholder = 'Enter your custom text here...';
+        
+        // Create a simple wrapper that includes the stack
+        $html = \Blade::render(
+            '<html><body>@include("partials.editor", ["name" => "content", "value" => "", "placeholder" => $placeholder])@stack("scripts")</body></html>',
+            ['placeholder' => $placeholder]
+        );
 
-        $this->assertStringContainsString('Enter your custom text here...', $html);
+        // The placeholder is configured in JavaScript which is pushed to the scripts stack
+        $this->assertStringContainsString($placeholder, $html);
     }
 }

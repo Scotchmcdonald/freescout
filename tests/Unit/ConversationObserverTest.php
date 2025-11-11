@@ -18,9 +18,9 @@ class ConversationObserverTest extends TestCase
 
     public function test_creating_sets_read_by_user_when_created_by_user(): void
     {
-        $conversation = new Conversation([
+        $conversation = Conversation::factory()->create([
             'source_via' => Conversation::PERSON_USER,
-            'status' => null,
+            'read_by_user' => null,
         ]);
 
         $this->assertTrue($conversation->read_by_user);

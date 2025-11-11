@@ -198,10 +198,11 @@ class ConversationModelTest extends TestCase
     {
         $mailbox = \App\Models\Mailbox::factory()->create();
         $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
-        $targetFolder = Folder::factory()->create([
-            'mailbox_id' => $mailbox->id,
-            'type' => 4, // Closed/Deleted folder
-        ]);
+        
+        // Get the default spam folder (type 4) created by MailboxObserver
+        $targetFolder = Folder::where('mailbox_id', $mailbox->id)
+            ->where('type', 4)
+            ->first();
 
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,

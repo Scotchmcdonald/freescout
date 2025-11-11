@@ -58,7 +58,8 @@ class FolderHierarchyTest extends TestCase
 
         // Act & Assert
         $mailbox1Folders = $mailbox1->folders;
-        $this->assertCount(2, $mailbox1Folders);
+        // 5 default folders (created by MailboxObserver) + 2 manually created = 7
+        $this->assertCount(7, $mailbox1Folders);
         $this->assertTrue($mailbox1Folders->contains($folder1));
         $this->assertTrue($mailbox1Folders->contains($folder2));
         $this->assertFalse($mailbox1Folders->contains($folder3));
@@ -156,7 +157,8 @@ class FolderHierarchyTest extends TestCase
         $folders = $mailbox->folders;
 
         // Assert
-        $this->assertCount(5, $folders);
+        // 5 default folders (created by MailboxObserver) + 5 manually created = 10
+        $this->assertCount(10, $folders);
         $this->assertTrue($folders->contains($inbox));
         $this->assertTrue($folders->contains($sent));
         $this->assertTrue($folders->contains($drafts));

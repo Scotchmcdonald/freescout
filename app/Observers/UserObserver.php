@@ -67,14 +67,14 @@ class UserObserver
         Subscription::firstOrCreate([
             'user_id' => $user->id,
             'medium' => Subscription::MEDIUM_EMAIL,
-            'event' => Subscription::EVENT_USER_ASSIGNED,
+            'event' => Subscription::EVENT_CONVERSATION_ASSIGNED_TO_ME,
         ]);
 
         // Subscribe to followed conversations
         Subscription::firstOrCreate([
             'user_id' => $user->id,
             'medium' => Subscription::MEDIUM_EMAIL,
-            'event' => Subscription::EVENT_NEW_REPLY,
+            'event' => Subscription::EVENT_FOLLOWED_CONVERSATION_UPDATED,
         ]);
     }
 }

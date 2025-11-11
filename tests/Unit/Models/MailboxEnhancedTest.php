@@ -29,7 +29,8 @@ class MailboxEnhancedTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         Folder::factory()->count(2)->create(['mailbox_id' => $mailbox->id]);
 
-        $this->assertCount(2, $mailbox->folders);
+        // 5 default folders (created by MailboxObserver) + 2 manually created = 7
+        $this->assertCount(7, $mailbox->folders);
         $this->assertInstanceOf(Folder::class, $mailbox->folders->first());
     }
 

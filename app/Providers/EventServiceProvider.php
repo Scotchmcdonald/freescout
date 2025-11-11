@@ -27,8 +27,18 @@ use App\Listeners\SendNotificationToUsers;
 use App\Listeners\SendPasswordChanged;
 use App\Listeners\SendReplyToCustomer;
 use App\Listeners\UpdateMailboxCounters;
+use App\Models\Attachment;
+use App\Models\Conversation;
+use App\Models\Customer;
+use App\Models\Mailbox;
 use App\Models\Thread;
+use App\Models\User;
+use App\Observers\AttachmentObserver;
+use App\Observers\ConversationObserver;
+use App\Observers\CustomerObserver;
+use App\Observers\MailboxObserver;
 use App\Observers\ThreadObserver;
+use App\Observers\UserObserver;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Auth\Events\Login;
@@ -111,7 +121,12 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, class-string|array<int, class-string>>
      */
     protected $observers = [
+        Attachment::class => [AttachmentObserver::class],
+        Conversation::class => [ConversationObserver::class],
+        Customer::class => [CustomerObserver::class],
+        Mailbox::class => [MailboxObserver::class],
         Thread::class => [ThreadObserver::class],
+        User::class => [UserObserver::class],
     ];
 
     /**

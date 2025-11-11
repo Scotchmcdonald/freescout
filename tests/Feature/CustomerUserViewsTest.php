@@ -22,8 +22,8 @@ class CustomerUserViewsTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = User::factory()->create(['role' => 2, 'status' => 1]);
-        $this->adminUser = User::factory()->create(['role' => 1, 'status' => 1]);
+        $this->user = User::factory()->create(['role' => User::ROLE_USER, 'status' => 1]);
+        $this->adminUser = User::factory()->create(['role' => User::ROLE_ADMIN, 'status' => 1]);
     }
 
     /** @test */
@@ -124,8 +124,8 @@ class CustomerUserViewsTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        $this->assertTrue($this->user->mailboxes()->where('id', $mailbox1->id)->exists());
-        $this->assertTrue($this->user->mailboxes()->where('id', $mailbox2->id)->exists());
+        $this->assertTrue($this->user->mailboxes()->where('mailboxes.id', $mailbox1->id)->exists());
+        $this->assertTrue($this->user->mailboxes()->where('mailboxes.id', $mailbox2->id)->exists());
     }
 
     /** @test */

@@ -23,13 +23,13 @@ class UserObserverTest extends TestCase
         $this->assertDatabaseHas('subscriptions', [
             'user_id' => $user->id,
             'medium' => Subscription::MEDIUM_EMAIL,
-            'event' => Subscription::EVENT_USER_ASSIGNED,
+            'event' => Subscription::EVENT_CONVERSATION_ASSIGNED_TO_ME,
         ]);
 
         $this->assertDatabaseHas('subscriptions', [
             'user_id' => $user->id,
             'medium' => Subscription::MEDIUM_EMAIL,
-            'event' => Subscription::EVENT_NEW_REPLY,
+            'event' => Subscription::EVENT_FOLLOWED_CONVERSATION_UPDATED,
         ]);
     }
 

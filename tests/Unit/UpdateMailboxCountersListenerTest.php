@@ -7,6 +7,7 @@ namespace Tests\Unit;
 use App\Events\ConversationStatusChanged;
 use App\Listeners\UpdateMailboxCounters;
 use App\Models\Conversation;
+use App\Models\Mailbox;
 use Tests\TestCase;
 
 class UpdateMailboxCountersListenerTest extends TestCase
@@ -19,7 +20,8 @@ class UpdateMailboxCountersListenerTest extends TestCase
 
     public function test_listener_handles_status_changed_event(): void
     {
-        $conversation = new Conversation(['id' => 1]);
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         $event = new ConversationStatusChanged($conversation);
         $listener = new UpdateMailboxCounters;
 
