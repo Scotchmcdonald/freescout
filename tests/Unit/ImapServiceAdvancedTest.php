@@ -6,16 +6,14 @@ namespace Tests\Unit;
 
 use App\Models\Mailbox;
 use App\Services\ImapService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Mockery;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 
-class ImapServiceAdvancedTest extends TestCase
+class ImapServiceAdvancedTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     protected function tearDown(): void
     {

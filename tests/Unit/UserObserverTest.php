@@ -9,12 +9,10 @@ use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Subscription;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class UserObserverTest extends TestCase
+class UserObserverTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_created_adds_default_subscriptions(): void
     {

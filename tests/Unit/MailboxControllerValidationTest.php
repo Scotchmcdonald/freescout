@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Models\Mailbox;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class MailboxControllerValidationTest extends TestCase
+class MailboxControllerValidationTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     /**
      * Test that mailbox name is required for creation.

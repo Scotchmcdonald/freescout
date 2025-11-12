@@ -6,13 +6,11 @@ namespace Tests\Unit\Services;
 
 use App\Models\Mailbox;
 use App\Services\ImapService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ImapServiceComprehensiveTest extends TestCase
+class ImapServiceComprehensiveTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_fetch_emails_returns_stats_array_with_required_keys(): void
     {

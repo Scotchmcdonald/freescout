@@ -8,9 +8,9 @@ use App\Events\ConversationStatusChanged;
 use App\Listeners\UpdateMailboxCounters;
 use App\Models\Conversation;
 use App\Models\Mailbox;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class UpdateMailboxCountersListenerTest extends TestCase
+class UpdateMailboxCountersListenerTest extends UnitTestCase
 {
     public function test_listener_has_handle_method(): void
     {

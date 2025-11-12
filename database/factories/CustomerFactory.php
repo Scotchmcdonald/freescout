@@ -42,12 +42,36 @@ class CustomerFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (Customer $customer) {
-            // Create a primary email for the customer
+            // Create a primary email for the customer (if not already created)
+            if ($customer->emails()->count() === 0) {
+                $customer->emails()->create([
+                    'email' => fake()->unique()->safeEmail(),
+                    'type' => 'work',
+                ]);
+            }
+        });
+    }
+
+    public function create($attributes = [], ?\Illuminate\Database\Eloquent\Model $parent = null): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
+    {
+        // If email attribute is provided, extract it and create the email separately
+        $emailAttribute = null;
+        if (is_array($attributes) && isset($attributes['email'])) {
+            $emailAttribute = $attributes['email'];
+            unset($attributes['email']);
+        }
+
+        $customer = parent::create($attributes, $parent);
+
+        // If email was provided, create it as a separate email record
+        if ($emailAttribute && $customer instanceof Customer) {
             $customer->emails()->create([
-                'email' => fake()->unique()->safeEmail(),
+                'email' => $emailAttribute,
                 'type' => 'work',
             ]);
-        });
+        }
+
+        return $customer;
     }
 
     public function withCompany(): static

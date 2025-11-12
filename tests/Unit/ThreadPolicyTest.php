@@ -7,9 +7,9 @@ namespace Tests\Unit;
 use App\Models\Thread;
 use App\Models\User;
 use App\Policies\ThreadPolicy;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ThreadPolicyTest extends TestCase
+class ThreadPolicyTest extends UnitTestCase
 {
     public function test_user_can_edit_own_message(): void
     {

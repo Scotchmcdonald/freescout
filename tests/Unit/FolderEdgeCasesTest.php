@@ -7,16 +7,14 @@ namespace Tests\Unit;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
 /**
  * Advanced edge case tests for Folder model.
  * Complements FolderHierarchyTest.php with more complex scenarios.
  */
-class FolderEdgeCasesTest extends TestCase
+class FolderEdgeCasesTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     /**
      * Test that deleting a mailbox cascades to its folders.

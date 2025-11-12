@@ -7,13 +7,11 @@ namespace Tests\Unit;
 use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class UserModelBatch1Test extends TestCase
+class UserModelBatch1Test extends UnitTestCase
 {
-    use RefreshDatabase;
 
     #[Test]
     public function user_has_is_admin_method(): void

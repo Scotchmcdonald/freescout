@@ -7,13 +7,11 @@ namespace Tests\Unit\Controllers;
 use App\Http\Controllers\CustomerController;
 use App\Models\Conversation;
 use App\Models\Customer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class CustomerControllerTest extends TestCase
+class CustomerControllerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_controller_can_be_instantiated(): void
     {

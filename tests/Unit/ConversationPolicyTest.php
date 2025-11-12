@@ -8,12 +8,10 @@ use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\User;
 use App\Policies\ConversationPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ConversationPolicyTest extends TestCase
+class ConversationPolicyTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_admin_can_view_conversation(): void
     {

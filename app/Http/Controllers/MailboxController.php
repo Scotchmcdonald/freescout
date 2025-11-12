@@ -413,4 +413,84 @@ class MailboxController extends Controller
         return redirect()->route('mailboxes.auto_reply', $mailbox)
             ->with('success', 'Auto-reply settings saved successfully.');
     }
+
+    /**
+     * Handle AJAX requests for mailbox operations.
+     */
+    public function ajax(Request $request, ImapService $imapService): JsonResponse
+    {
+        $response = [
+            'status' => 'error',
+            'msg' => '',
+        ];
+
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        switch ($request->action) {
+            case 'fetch_test':
+                $mailbox = Mailbox::find($request->mailbox_id);
+
+                if (! $mailbox) {
+                    $response['msg'] = 'Mailbox not found';
+                } elseif (! $user->can('admin', $mailbox)) {
+                    $response['msg'] = 'Not enough permissions';
+                }
+
+                if (! $response['msg']) {
+                    try {
+                        $testResult = $imapService->testConnection($mailbox);
+
+                        if ($testResult['success']) {
+                            $response['status'] = 'success';
+                            $response['msg_success'] = $testResult['message'];
+                        } else {
+                            $response['msg'] = $testResult['message'];
+                        }
+                    } catch (\Exception $e) {
+                        $response['msg'] = 'Error occurred connecting to the server: '.$e->getMessage();
+                    }
+                }
+                break;
+
+            case 'imap_folders':
+                $mailbox = Mailbox::find($request->mailbox_id);
+
+                if (! $mailbox) {
+                    $response['msg'] = 'Mailbox not found';
+                } elseif (! $user->can('admin', $mailbox)) {
+                    $response['msg'] = 'Not enough permissions';
+                }
+
+                $response['folders'] = [];
+
+                if (! $response['msg']) {
+                    try {
+                        $folderResult = $imapService->getFolders($mailbox);
+
+                        if ($folderResult['success']) {
+                            $response['folders'] = $folderResult['folders'];
+                            $response['status'] = 'success';
+
+                            if (count($response['folders']) > 0) {
+                                $response['msg_success'] = 'IMAP folders retrieved: '.implode(', ', $response['folders']);
+                            } else {
+                                $response['msg_success'] = 'Connected, but no IMAP folders found';
+                            }
+                        } else {
+                            $response['msg'] = $folderResult['message'];
+                        }
+                    } catch (\Exception $e) {
+                        $response['msg'] = $e->getMessage();
+                    }
+                }
+                break;
+
+            default:
+                $response['msg'] = 'Unknown action';
+                break;
+        }
+
+        return response()->json($response);
+    }
 }

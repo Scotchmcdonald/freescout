@@ -8,14 +8,12 @@ use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Subscription;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class SubscriptionModelTest extends TestCase
+class SubscriptionModelTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_model_can_be_instantiated(): void
     {

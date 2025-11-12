@@ -8,13 +8,11 @@ use App\Events\UserViewingConversation;
 use App\Models\Conversation;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class EventEdgeCasesTest extends TestCase
+class EventEdgeCasesTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_new_message_received_event_with_null_preview()
     {

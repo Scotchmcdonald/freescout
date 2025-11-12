@@ -4,14 +4,12 @@ namespace Tests\Unit\Controllers\Auth;
 
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class VerifyEmailControllerTest extends TestCase
+class VerifyEmailControllerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_email_can_be_verified()
     {

@@ -7,12 +7,10 @@ namespace Tests\Unit\Events;
 use App\Events\NewMessageReceived;
 use App\Models\Conversation;
 use App\Models\Thread;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class NewMessageReceivedTest extends TestCase
+class NewMessageReceivedTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     // Additional Target: NewMessageReceived Event Testing
 
@@ -21,10 +19,11 @@ class NewMessageReceivedTest extends TestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $event = new NewMessageReceived($conversation, $thread);
+        $event = new NewMessageReceived($thread, $conversation);
 
-        $this->assertEquals($conversation->id, $event->conversation->id);
-        $this->assertEquals($thread->id, $event->thread->id);
+        $this->assertInstanceOf(NewMessageReceived::class, $event);
+        $this->assertSame($conversation->id, $event->conversation->id);
+        $this->assertSame($thread->id, $event->thread->id);
     }
 
     public function test_event_broadcasts_on_correct_channel(): void
@@ -32,7 +31,7 @@ class NewMessageReceivedTest extends TestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $event = new NewMessageReceived($conversation, $thread);
+        $event = new NewMessageReceived($thread, $conversation);
 
         // Check if broadcastOn method exists
         $this->assertTrue(method_exists($event, 'broadcastOn'));
@@ -52,7 +51,7 @@ class NewMessageReceivedTest extends TestCase
             'body' => 'Test message body',
         ]);
 
-        $event = new NewMessageReceived($conversation, $thread);
+        $event = new NewMessageReceived($thread, $conversation);
 
         // Check if broadcastWith method exists
         if (method_exists($event, 'broadcastWith')) {
@@ -71,7 +70,7 @@ class NewMessageReceivedTest extends TestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $event = new NewMessageReceived($conversation, $thread);
+        $event = new NewMessageReceived($thread, $conversation);
 
         // Verify properties are accessible
         $this->assertInstanceOf(Conversation::class, $event->conversation);
@@ -83,7 +82,7 @@ class NewMessageReceivedTest extends TestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $event = new NewMessageReceived($conversation, $thread);
+        $event = new NewMessageReceived($thread, $conversation);
 
         // Test serialization
         $serialized = serialize($event);

@@ -8,12 +8,10 @@ use App\Models\Attachment;
 use App\Models\Conversation;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ThreadModelTest extends TestCase
+class ThreadModelTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_thread_has_conversation_id(): void
     {

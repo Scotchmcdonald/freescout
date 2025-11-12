@@ -6,12 +6,10 @@ namespace Tests\Unit;
 
 use App\Models\Attachment;
 use App\Models\Thread;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class AttachmentModelTest extends TestCase
+class AttachmentModelTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_model_can_be_instantiated(): void
     {

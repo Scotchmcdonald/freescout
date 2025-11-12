@@ -6,13 +6,11 @@ namespace Tests\Unit\Services;
 
 use App\Models\Mailbox;
 use App\Services\ImapService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ImapServiceEdgeCasesTest extends TestCase
+class ImapServiceEdgeCasesTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     // Additional Edge Cases and Security Tests
 

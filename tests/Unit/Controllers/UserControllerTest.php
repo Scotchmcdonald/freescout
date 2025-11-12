@@ -6,12 +6,10 @@ namespace Tests\Unit\Controllers;
 
 use App\Http\Controllers\UserController;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class UserControllerTest extends TestCase
+class UserControllerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_controller_can_be_instantiated(): void
     {

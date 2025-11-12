@@ -6,12 +6,10 @@ use App\Models\Mailbox;
 use App\Models\User;
 use App\Policies\MailboxPolicy;
 use App\Policies\UserPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class AdvancedPolicyTest extends TestCase
+class AdvancedPolicyTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_admin_can_manage_all_mailboxes()
     {

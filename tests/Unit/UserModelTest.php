@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class UserModelTest extends TestCase
+class UserModelTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_user_is_admin_returns_true_for_admin_role(): void
     {

@@ -49,8 +49,8 @@ class ModuleUpdate extends Command
         // Create a symlink for the module (or all modules)
         $module_alias = $this->argument('module_alias');
         
-        $modules_directory = \WpApi::getModules();
-        if (\WpApi::$lastError) {
+        $modules_directory = \App\Misc\WpApi::getModules();
+        if (\App\Misc\WpApi::$lastError) {
             $this->error(__('Error occurred').': '.$lastError['message'].' ('.$lastError['code'].')');
             return;
         }
@@ -114,7 +114,7 @@ class ModuleUpdate extends Command
 
             try {
                 // Send a GET request to the latest version URL
-                $response = $client->request('GET', $latest_version_number_url, \Helper::setGuzzleDefaultOptions());
+                $response = $client->request('GET', $latest_version_number_url, \App\Misc\Helper::setGuzzleDefaultOptions());
 
                 // Get the latest version number from the response body
                 $latest_version = trim((string) $response->getBody());

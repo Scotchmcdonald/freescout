@@ -9,12 +9,10 @@ use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ConversationRelationshipsTest extends TestCase
+class ConversationRelationshipsTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_conversation_belongs_to_mailbox(): void
     {

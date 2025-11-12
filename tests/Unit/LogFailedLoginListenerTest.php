@@ -7,13 +7,11 @@ namespace Tests\Unit;
 use App\Listeners\LogFailedLogin;
 use App\Models\ActivityLog;
 use Illuminate\Auth\Events\Failed;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class LogFailedLoginListenerTest extends TestCase
+class LogFailedLoginListenerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_listener_logs_failed_login(): void
     {

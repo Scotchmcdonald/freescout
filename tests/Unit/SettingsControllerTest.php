@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Http\Controllers\SettingsController;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class SettingsControllerTest extends TestCase
+class SettingsControllerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_controller_can_be_instantiated(): void
     {

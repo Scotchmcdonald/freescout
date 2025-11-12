@@ -8,13 +8,11 @@ use App\Http\Controllers\MailboxController;
 use App\Models\Mailbox;
 use App\Models\User;
 use App\Services\ImapService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class MailboxControllerEnhancedTest extends TestCase
+class MailboxControllerEnhancedTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_index_returns_view_with_mailboxes(): void
     {

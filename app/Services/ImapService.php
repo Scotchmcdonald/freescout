@@ -269,12 +269,13 @@ class ImapService
             if (is_object($fromAddress)) {
                 // Use the Address object methods
                 // @phpstan-ignore-next-line - IMAP extension Address object properties
-                $fromEmail = method_exists($fromAddress, 'mail') ? $fromAddress->mail : null;
+                $fromEmail = method_exists($fromAddress, 'mail') ? $fromAddress->mail : ($fromAddress->mail ?? null);
                 // @phpstan-ignore-next-line - IMAP extension Address object properties
-                $fromName = method_exists($fromAddress, 'personal') ? $fromAddress->personal : '';
+                $fromName = method_exists($fromAddress, 'personal') ? $fromAddress->personal : ($fromAddress->personal ?? '');
 
                 // If mail is not a property, try as array access or string parsing
-                if (! $fromEmail) {
+                // Only attempt string conversion if the object has a __toString method
+                if (! $fromEmail && method_exists($fromAddress, '__toString')) {
                     // @phpstan-ignore-next-line - IMAP extension Address object cast
                     $addressString = (string) $fromAddress;
                     // Parse "Name <email@example.com>" format
@@ -752,6 +753,47 @@ class ImapService
      *
      * @return array{success: bool, message: string}
      */
+    /**
+     * Get list of available IMAP folders from server.
+     *
+     * @return array{success: bool, message?: string, folders: array<int, string>}
+     */
+    public function getFolders(Mailbox $mailbox): array
+    {
+        $result = [
+            'success' => false,
+            'message' => '',
+            'folders' => [],
+        ];
+
+        try {
+            $client = $this->createClient($mailbox);
+            $client->connect();
+
+            $folders = $client->getFolders();
+
+            if (count($folders) > 0) {
+                foreach ($folders as $folder) {
+                    /** @var \Webklex\PHPIMAP\Folder $folder */
+                    $result['folders'][] = $folder->full_name;
+                }
+
+                $result['success'] = true;
+            } else {
+                $result['success'] = true;
+                $result['message'] = 'Connected, but no folders found';
+            }
+
+            $client->disconnect();
+        } catch (ConnectionFailedException $e) {
+            $result['message'] = 'Connection failed: '.$e->getMessage();
+        } catch (\Exception $e) {
+            $result['message'] = 'Error: '.$e->getMessage();
+        }
+
+        return $result;
+    }
+
     public function testConnection(Mailbox $mailbox): array
     {
         $result = [
@@ -963,7 +1005,8 @@ class ImapService
                 $name = $addr->personal ?? $addr->name ?? '';
 
                 // If mail is not a property, try parsing the string representation
-                if (! $email) {
+                // Only attempt string conversion if the object has a __toString method
+                if (! $email && method_exists($addr, '__toString')) {
                     // @phpstan-ignore-next-line - IMAP extension Address object cast
                     $addressString = (string) $addr;
                     if (preg_match('/<([^>]+)>/', $addressString, $matches)) {

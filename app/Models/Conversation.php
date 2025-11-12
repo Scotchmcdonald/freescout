@@ -117,6 +117,7 @@ class Conversation extends Model
             'state' => 'integer',
             'cc' => 'json',
             'bcc' => 'json',
+            'meta' => 'json',
             'imported' => 'boolean',
             'has_attachments' => 'boolean',
             'source_via' => 'integer',

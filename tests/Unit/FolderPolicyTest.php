@@ -8,12 +8,10 @@ use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
 use App\Policies\FolderPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class FolderPolicyTest extends TestCase
+class FolderPolicyTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_admin_can_view_any_folder(): void
     {

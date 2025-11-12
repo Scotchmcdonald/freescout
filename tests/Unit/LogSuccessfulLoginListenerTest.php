@@ -8,12 +8,10 @@ use App\Listeners\LogSuccessfulLogin;
 use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class LogSuccessfulLoginListenerTest extends TestCase
+class LogSuccessfulLoginListenerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_listener_logs_successful_login(): void
     {

@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Tests\Unit\Commands;
 
 use App\Console\Commands\ConfigureGmailMailbox;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ConfigureGmailMailboxCommandTest extends TestCase
+class ConfigureGmailMailboxCommandTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_command_can_be_instantiated(): void
     {

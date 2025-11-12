@@ -8,12 +8,10 @@ use App\Listeners\LogSuccessfulLogout;
 use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Auth\Events\Logout;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class LogSuccessfulLogoutListenerTest extends TestCase
+class LogSuccessfulLogoutListenerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_listener_logs_successful_logout(): void
     {

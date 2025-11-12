@@ -8,12 +8,10 @@ use App\Models\Customer;
 use App\Models\SendLog;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class SendLogModelTest extends TestCase
+class SendLogModelTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_model_can_be_instantiated(): void
     {

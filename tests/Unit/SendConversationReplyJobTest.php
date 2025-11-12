@@ -10,13 +10,11 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class SendConversationReplyJobTest extends TestCase
+class SendConversationReplyJobTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     /** Test job has required properties */
     public function test_job_has_required_properties(): void

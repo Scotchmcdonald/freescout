@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Tests\Unit\EdgeCases;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ValidationEdgeCasesTest extends TestCase
+class ValidationEdgeCasesTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_email_validation_rejects_invalid_formats(): void
     {

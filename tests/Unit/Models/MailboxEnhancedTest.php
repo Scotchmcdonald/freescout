@@ -8,12 +8,10 @@ use App\Models\Conversation;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class MailboxEnhancedTest extends TestCase
+class MailboxEnhancedTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_mailbox_has_many_conversations(): void
     {

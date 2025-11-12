@@ -7,12 +7,10 @@ namespace Tests\Unit\Models;
 use App\Models\Conversation;
 use App\Models\Follower;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class FollowerTest extends TestCase
+class FollowerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_follower_belongs_to_conversation(): void
     {

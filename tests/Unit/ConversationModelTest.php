@@ -6,12 +6,10 @@ namespace Tests\Unit;
 
 use App\Models\Conversation;
 use App\Models\Folder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ConversationModelTest extends TestCase
+class ConversationModelTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_conversation_status_constants(): void
     {

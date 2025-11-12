@@ -10,13 +10,11 @@ use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ModelRelationshipsTest extends TestCase
+class ModelRelationshipsTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     /**
      * Test that a conversation belongs to a mailbox.

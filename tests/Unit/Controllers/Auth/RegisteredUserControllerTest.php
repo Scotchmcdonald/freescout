@@ -3,13 +3,11 @@
 namespace Tests\Unit\Controllers\Auth;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class RegisteredUserControllerTest extends TestCase
+class RegisteredUserControllerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_create_shows_registration_form()
     {

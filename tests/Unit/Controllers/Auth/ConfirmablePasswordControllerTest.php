@@ -3,12 +3,10 @@
 namespace Tests\Unit\Controllers\Auth;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ConfirmablePasswordControllerTest extends TestCase
+class ConfirmablePasswordControllerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_show_displays_confirmation_form()
     {

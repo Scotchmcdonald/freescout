@@ -9,12 +9,10 @@ use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ModelEdgeCasesTest extends TestCase
+class ModelEdgeCasesTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_conversation_with_null_subject(): void
     {

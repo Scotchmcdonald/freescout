@@ -7,12 +7,10 @@ namespace Tests\Unit;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Email;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class CustomerObserverTest extends TestCase
+class CustomerObserverTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_deleting_removes_conversations(): void
     {

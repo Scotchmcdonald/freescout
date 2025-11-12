@@ -3,12 +3,10 @@
 namespace Tests\Unit\Controllers;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ProfileControllerTest extends TestCase
+class ProfileControllerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_edit_shows_profile_form()
     {

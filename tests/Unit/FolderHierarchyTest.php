@@ -7,12 +7,10 @@ namespace Tests\Unit;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class FolderHierarchyTest extends TestCase
+class FolderHierarchyTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     /**
      * Test that folder type helper methods work correctly.

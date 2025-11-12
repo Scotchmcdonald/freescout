@@ -8,13 +8,11 @@ use App\Http\Controllers\SystemController;
 use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class SystemControllerTest extends TestCase
+class SystemControllerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_controller_can_be_instantiated(): void
     {

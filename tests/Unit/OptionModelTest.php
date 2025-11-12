@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Models\Option;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class OptionModelTest extends TestCase
+class OptionModelTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_model_can_be_instantiated(): void
     {

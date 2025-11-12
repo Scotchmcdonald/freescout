@@ -6,12 +6,10 @@ namespace Tests\Unit;
 
 use App\Models\Folder;
 use App\Models\Mailbox;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class FolderModelTest extends TestCase
+class FolderModelTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_folder_type_constants_are_defined(): void
     {

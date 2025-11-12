@@ -3,12 +3,10 @@
 namespace Tests\Unit\Controllers\Auth;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class AuthenticatedSessionControllerTest extends TestCase
+class AuthenticatedSessionControllerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_create_shows_login_form()
     {

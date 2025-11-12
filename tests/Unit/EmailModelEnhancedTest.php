@@ -6,13 +6,11 @@ namespace Tests\Unit;
 
 use App\Models\Customer;
 use App\Models\Email;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class EmailModelEnhancedTest extends TestCase
+class EmailModelEnhancedTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     #[Test]
     public function email_has_customer_relationship(): void

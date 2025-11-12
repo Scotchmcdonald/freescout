@@ -9,13 +9,11 @@ use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class SendNotificationEdgeCasesTest extends TestCase
+class SendNotificationEdgeCasesTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     // Additional Edge Cases for SendNotificationToUsers
 

@@ -26,7 +26,7 @@ class UserNotification extends Mailable
         public Conversation $conversation,
         public Collection $threads,
         public array $headers = [],
-        public array $from = [],
+        public array $fromAddress = [],
         public Mailbox $mailbox
     ) {}
 
@@ -39,7 +39,7 @@ class UserNotification extends Mailable
 
         return new Envelope(
             subject: $subject,
-            from: $this->from['address'] ?? config('mail.from.address'),
+            from: $this->fromAddress['address'] ?? config('mail.from.address'),
         );
     }
 
@@ -72,7 +72,7 @@ class UserNotification extends Mailable
         $thread = $this->threads->first();
 
         $mail = $this->subject($subject)
-            ->from($this->from['address'] ?? config('mail.from.address'), $this->from['name'] ?? config('mail.from.name'))
+            ->from($this->fromAddress['address'] ?? config('mail.from.address'), $this->fromAddress['name'] ?? config('mail.from.name'))
             ->view('emails.user.notification', [
                 'customer' => $customer,
                 'thread' => $thread,

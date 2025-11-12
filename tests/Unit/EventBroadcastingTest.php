@@ -11,13 +11,11 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class EventBroadcastingTest extends TestCase
+class EventBroadcastingTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     /** Test CustomerCreatedConversation event can be dispatched */
     public function test_customer_created_conversation_event_dispatched(): void

@@ -8,13 +8,11 @@ use App\Jobs\SendConversationReply;
 use App\Models\Conversation;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class SendConversationReplyComprehensiveTest extends TestCase
+class SendConversationReplyComprehensiveTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_job_stores_conversation_correctly(): void
     {

@@ -7,13 +7,11 @@ namespace Tests\Unit;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Email;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class CustomerModelTest extends TestCase
+class CustomerModelTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_customer_has_first_name_attribute(): void
     {

@@ -7,12 +7,10 @@ namespace Tests\Unit\Models;
 use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class UserRelationshipsTest extends TestCase
+class UserRelationshipsTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_user_has_many_mailboxes(): void
     {

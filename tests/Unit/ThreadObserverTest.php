@@ -7,12 +7,10 @@ namespace Tests\Unit;
 use App\Models\Conversation;
 use App\Models\Thread;
 use App\Observers\ThreadObserver;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ThreadObserverTest extends TestCase
+class ThreadObserverTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     /**
      * Test that creating a thread increments the conversation's thread count.

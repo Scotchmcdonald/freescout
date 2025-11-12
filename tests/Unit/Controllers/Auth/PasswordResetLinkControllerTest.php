@@ -3,12 +3,10 @@
 namespace Tests\Unit\Controllers\Auth;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class PasswordResetLinkControllerTest extends TestCase
+class PasswordResetLinkControllerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_create_shows_request_form()
     {

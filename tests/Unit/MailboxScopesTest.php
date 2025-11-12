@@ -6,12 +6,10 @@ namespace Tests\Unit;
 
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class MailboxScopesTest extends TestCase
+class MailboxScopesTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     /**
      * Test that mailboxes can be filtered by user access.

@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Models\Module;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ModuleModelTest extends TestCase
+class ModuleModelTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_model_can_be_instantiated(): void
     {

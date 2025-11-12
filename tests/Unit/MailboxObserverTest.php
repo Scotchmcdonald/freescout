@@ -7,12 +7,10 @@ namespace Tests\Unit;
 use App\Models\Conversation;
 use App\Models\Folder;
 use App\Models\Mailbox;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class MailboxObserverTest extends TestCase
+class MailboxObserverTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_created_creates_default_folders(): void
     {

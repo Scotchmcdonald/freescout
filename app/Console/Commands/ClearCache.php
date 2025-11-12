@@ -72,8 +72,8 @@ class ClearCache extends Command
             $this->call('freescout:generate-vars');
         }
         // This should not be done during installation.
-        if (\Helper::isInstalled()) {
-            \Helper::queueWorkerRestart();
+        if (\App\Misc\Helper::isInstalled()) {
+            \App\Misc\Helper::queueWorkerRestart();
         }
     }
 }

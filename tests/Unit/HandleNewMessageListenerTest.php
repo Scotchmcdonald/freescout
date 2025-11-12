@@ -10,12 +10,10 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class HandleNewMessageListenerTest extends TestCase
+class HandleNewMessageListenerTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     /** Test listener can be instantiated */
     public function test_listener_can_be_instantiated(): void

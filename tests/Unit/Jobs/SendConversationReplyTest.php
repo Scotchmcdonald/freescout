@@ -7,12 +7,10 @@ namespace Tests\Unit\Jobs;
 use App\Jobs\SendConversationReply;
 use App\Models\Conversation;
 use App\Models\Thread;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class SendConversationReplyTest extends TestCase
+class SendConversationReplyTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_job_can_be_instantiated(): void
     {

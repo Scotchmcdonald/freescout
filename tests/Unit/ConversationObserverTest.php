@@ -9,12 +9,10 @@ use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ConversationObserverTest extends TestCase
+class ConversationObserverTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_creating_sets_read_by_user_when_created_by_user(): void
     {

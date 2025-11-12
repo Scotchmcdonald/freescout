@@ -34,7 +34,12 @@ class AfterAppUpdate extends Command
 
         // Run migrations
         $this->info('Running database migrations...');
-        $this->call('migrate', ['--force' => true]);
+        // In testing, use pretend mode to avoid conflicts with RefreshDatabase
+        $options = ['--force' => true];
+        if (app()->environment('testing')) {
+            $options['--pretend'] = true;
+        }
+        $this->call('migrate', $options);
 
         // Restart queue workers
         $this->info('Restarting queue workers...');

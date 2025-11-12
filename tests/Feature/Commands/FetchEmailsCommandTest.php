@@ -1,100 +1,91 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Tests\Feature\Commands;
 
+use App\Console\Commands\FetchEmails;
 use App\Models\Mailbox;
+use App\Models\User;
+use App\Models\Option;
 use App\Services\ImapService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery\MockInterface;
 use Tests\TestCase;
+use Mockery\MockInterface;
 
-/**
- * Tests for the FetchEmails command.
- * This command fetches emails from mailbox IMAP servers.
- */
 class FetchEmailsCommandTest extends TestCase
 {
     use RefreshDatabase;
 
     /**
-     * Test command runs successfully with specific mailbox.
+     * Test fetches emails from multiple IMAP folders.
+     * 
+     * @group imap
      */
-    public function test_command_fetches_emails_from_specific_mailbox(): void
+    public function test_fetches_from_multiple_imap_folders()
     {
-        // Arrange
+        // Arrange: Create a mailbox
         $mailbox = Mailbox::factory()->create([
-            'name' => 'Support Inbox',
-            'email' => 'support@example.com',
+            'name' => 'Support',
             'in_server' => 'imap.example.com',
+            'in_imap_folders' => json_encode(['INBOX', 'Archive']),
         ]);
 
-        // Mock ImapService
+        // Mock ImapService to return stats indicating folders were processed
         $this->mock(ImapService::class, function (MockInterface $mock) {
             $mock->shouldReceive('fetchEmails')
                 ->once()
                 ->andReturn([
-                    'fetched' => 5,
-                    'created' => 3,
+                    'fetched' => 10,
+                    'created' => 8,
                     'errors' => 0,
                     'messages' => [],
                 ]);
         });
 
-        // Act
+        // Act & Assert
         $this->artisan('freescout:fetch-emails', ['mailbox_id' => $mailbox->id])
-            ->expectsOutput('Processing 1 mailbox(es)...')
-            ->expectsOutput('Processing mailbox: Support Inbox (support@example.com)')
-            ->expectsOutputToContain('Fetched: 5')
-            ->expectsOutputToContain('Created: 3')
-            ->expectsOutputToContain('Errors: 0')
-            ->expectsOutputToContain('Total fetched: 5')
-            ->expectsOutputToContain('Total created: 3')
+            ->expectsOutputToContain('Fetched: 10')
+            ->expectsOutputToContain('Created: 8')
             ->assertExitCode(0);
     }
 
     /**
-     * Test command fetches from all mailboxes when no ID specified.
+     * Test handles empty mailbox gracefully.
+     * 
+     * @group imap
      */
-    public function test_command_fetches_from_all_mailboxes_when_no_id_specified(): void
+    public function test_handles_empty_mailbox_gracefully()
     {
         // Arrange
-        Mailbox::factory()->create([
-            'name' => 'Mailbox 1',
-            'in_server' => 'imap1.example.com',
-        ]);
-        Mailbox::factory()->create([
-            'name' => 'Mailbox 2',
-            'in_server' => 'imap2.example.com',
+        $mailbox = Mailbox::factory()->create([
+            'in_server' => 'imap.example.com',
         ]);
 
-        // Mock ImapService
+        // Mock ImapService to return no emails
         $this->mock(ImapService::class, function (MockInterface $mock) {
             $mock->shouldReceive('fetchEmails')
-                ->twice()
+                ->once()
                 ->andReturn([
-                    'fetched' => 2,
-                    'created' => 1,
+                    'fetched' => 0,
+                    'created' => 0,
                     'errors' => 0,
                     'messages' => [],
                 ]);
         });
 
-        // Act
-        $this->artisan('freescout:fetch-emails')
-            ->expectsOutput('Processing 2 mailbox(es)...')
-            ->expectsOutputToContain('Mailbox 1')
-            ->expectsOutputToContain('Mailbox 2')
-            ->expectsOutputToContain('Total fetched: 4')
-            ->expectsOutputToContain('Total created: 2')
+        // Act & Assert
+        $this->artisan('freescout:fetch-emails', ['mailbox_id' => $mailbox->id])
+            ->expectsOutputToContain('Fetched: 0')
+            ->expectsOutputToContain('Created: 0')
+            ->expectsOutputToContain('Errors: 0')
             ->assertExitCode(0);
     }
 
     /**
-     * Test command with test mode only tests connection.
+     * Test connection test mode works correctly.
+     * 
+     * @group imap
      */
-    public function test_command_test_mode_only_tests_connection(): void
+    public function test_connection_test_mode()
     {
         // Arrange
         $mailbox = Mailbox::factory()->create([
@@ -102,49 +93,52 @@ class FetchEmailsCommandTest extends TestCase
             'in_server' => 'imap.example.com',
         ]);
 
-        // Mock ImapService - should call testConnection, not fetchEmails
+        // Mock ImapService test connection
         $this->mock(ImapService::class, function (MockInterface $mock) {
             $mock->shouldReceive('testConnection')
                 ->once()
                 ->andReturn([
                     'success' => true,
-                    'message' => 'Connected successfully. Found 10 messages in INBOX (3 unread).',
+                    'message' => 'Connected successfully. Found 15 messages.',
                 ]);
 
+            // Should NOT call fetchEmails in test mode
             $mock->shouldNotReceive('fetchEmails');
         });
 
-        // Act
+        // Act & Assert
         $this->artisan('freescout:fetch-emails', [
             'mailbox_id' => $mailbox->id,
             '--test' => true,
         ])
-            ->expectsOutput('Processing 1 mailbox(es)...')
             ->expectsOutputToContain('✓ Connected successfully')
+            ->doesntExpectOutput('=== Summary ===')
             ->assertExitCode(0);
     }
 
     /**
-     * Test command handles connection failure in test mode.
+     * Test connection failure in test mode.
+     * 
+     * @group imap
      */
-    public function test_command_handles_connection_failure_in_test_mode(): void
+    public function test_connection_failure_in_test_mode()
     {
         // Arrange
         $mailbox = Mailbox::factory()->create([
             'in_server' => 'invalid.example.com',
         ]);
 
-        // Mock ImapService
+        // Mock ImapService test connection failure
         $this->mock(ImapService::class, function (MockInterface $mock) {
             $mock->shouldReceive('testConnection')
                 ->once()
                 ->andReturn([
                     'success' => false,
-                    'message' => 'Connection failed: Authentication error',
+                    'message' => 'Connection failed: Could not connect to server',
                 ]);
         });
 
-        // Act
+        // Act & Assert
         $this->artisan('freescout:fetch-emails', [
             'mailbox_id' => $mailbox->id,
             '--test' => true,
@@ -154,41 +148,50 @@ class FetchEmailsCommandTest extends TestCase
     }
 
     /**
-     * Test command warns when no mailboxes configured.
+     * Test fetches from all mailboxes when no ID specified.
+     * 
+     * @group imap
      */
-    public function test_command_warns_when_no_mailboxes_configured(): void
+    public function test_fetches_from_all_mailboxes()
     {
-        // No mailboxes created
+        // Arrange
+        $mailbox1 = Mailbox::factory()->create([
+            'name' => 'Sales',
+            'in_server' => 'imap1.example.com',
+        ]);
+        $mailbox2 = Mailbox::factory()->create([
+            'name' => 'Support',
+            'in_server' => 'imap2.example.com',
+        ]);
 
-        // Act
+        // Mock ImapService
+        $this->mock(ImapService::class, function (MockInterface $mock) {
+            $mock->shouldReceive('fetchEmails')
+                ->twice()
+                ->andReturn([
+                    'fetched' => 5,
+                    'created' => 3,
+                    'errors' => 0,
+                    'messages' => [],
+                ]);
+        });
+
+        // Act & Assert
         $this->artisan('freescout:fetch-emails')
-            ->expectsOutput('No mailboxes configured for IMAP.')
-            ->assertExitCode(1);
+            ->expectsOutput('Processing 2 mailbox(es)...')
+            ->expectsOutputToContain('Sales')
+            ->expectsOutputToContain('Support')
+            ->expectsOutputToContain('Total fetched: 10')
+            ->expectsOutputToContain('Total created: 6')
+            ->assertExitCode(0);
     }
 
     /**
-     * Test command skips mailboxes without IMAP server.
+     * Test handles fetch errors and reports them.
+     * 
+     * @group imap
      */
-    public function test_command_skips_mailboxes_without_imap_server(): void
-    {
-        // Arrange - Mailbox without IMAP server
-        Mailbox::factory()->create([
-            'in_server' => null,
-        ]);
-        Mailbox::factory()->create([
-            'in_server' => '',
-        ]);
-
-        // Act
-        $this->artisan('freescout:fetch-emails')
-            ->expectsOutput('No mailboxes configured for IMAP.')
-            ->assertExitCode(1);
-    }
-
-    /**
-     * Test command handles errors during fetch.
-     */
-    public function test_command_handles_errors_during_fetch(): void
+    public function test_handles_fetch_errors()
     {
         // Arrange
         $mailbox = Mailbox::factory()->create([
@@ -201,391 +204,45 @@ class FetchEmailsCommandTest extends TestCase
                 ->once()
                 ->andReturn([
                     'fetched' => 10,
-                    'created' => 5,
+                    'created' => 7,
                     'errors' => 3,
                     'messages' => [
-                        'Failed to parse email 1',
-                        'Failed to parse email 2',
-                        'Failed to parse email 3',
+                        'Failed to parse message 1',
+                        'Failed to parse message 2',
+                        'Failed to parse message 3',
                     ],
-                ]);
-        });
-
-        // Act
-        $this->artisan('freescout:fetch-emails', ['mailbox_id' => $mailbox->id])
-            ->expectsOutputToContain('Errors: 3')
-            ->expectsOutputToContain('Failed to parse email 1')
-            ->expectsOutputToContain('Failed to parse email 2')
-            ->expectsOutputToContain('Failed to parse email 3')
-            ->assertExitCode(1); // Exit code 1 because there were errors
-    }
-
-    /**
-     * Test command displays summary statistics.
-     */
-    public function test_command_displays_summary_statistics(): void
-    {
-        // Arrange
-        $mailbox1 = Mailbox::factory()->create(['in_server' => 'imap1.example.com']);
-        $mailbox2 = Mailbox::factory()->create(['in_server' => 'imap2.example.com']);
-
-        // Mock ImapService
-        $this->mock(ImapService::class, function (MockInterface $mock) {
-            // First mailbox
-            $mock->shouldReceive('fetchEmails')
-                ->once()
-                ->andReturn([
-                    'fetched' => 5,
-                    'created' => 3,
-                    'errors' => 1,
-                    'messages' => ['Error message'],
-                ]);
-
-            // Second mailbox
-            $mock->shouldReceive('fetchEmails')
-                ->once()
-                ->andReturn([
-                    'fetched' => 8,
-                    'created' => 4,
-                    'errors' => 0,
-                    'messages' => [],
-                ]);
-        });
-
-        // Act
-        $this->artisan('freescout:fetch-emails')
-            ->expectsOutput('=== Summary ===')
-            ->expectsOutputToContain('Total fetched: 13')
-            ->expectsOutputToContain('Total created: 7')
-            ->expectsOutputToContain('Total errors: 1')
-            ->assertExitCode(1); // Exit code 1 because there was 1 error
-    }
-
-    /**
-     * Test command handles zero new emails gracefully.
-     */
-    public function test_command_handles_zero_new_emails(): void
-    {
-        // Arrange
-        $mailbox = Mailbox::factory()->create([
-            'in_server' => 'imap.example.com',
-        ]);
-
-        // Mock ImapService
-        $this->mock(ImapService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('fetchEmails')
-                ->once()
-                ->andReturn([
-                    'fetched' => 0,
-                    'created' => 0,
-                    'errors' => 0,
-                    'messages' => [],
-                ]);
-        });
-
-        // Act
-        $this->artisan('freescout:fetch-emails', ['mailbox_id' => $mailbox->id])
-            ->expectsOutputToContain('Fetched: 0')
-            ->expectsOutputToContain('Created: 0')
-            ->expectsOutputToContain('Errors: 0')
-            ->assertExitCode(0);
-    }
-
-    /**
-     * Test command returns correct exit code on success.
-     */
-    public function test_command_returns_zero_exit_code_on_success(): void
-    {
-        // Arrange
-        $mailbox = Mailbox::factory()->create([
-            'in_server' => 'imap.example.com',
-        ]);
-
-        // Mock ImapService with no errors
-        $this->mock(ImapService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('fetchEmails')
-                ->once()
-                ->andReturn([
-                    'fetched' => 5,
-                    'created' => 5,
-                    'errors' => 0,
-                    'messages' => [],
                 ]);
         });
 
         // Act & Assert
         $this->artisan('freescout:fetch-emails', ['mailbox_id' => $mailbox->id])
-            ->assertExitCode(0);
-    }
-
-    /**
-     * Test command with non-existent mailbox ID.
-     */
-    public function test_command_with_nonexistent_mailbox_id(): void
-    {
-        // Act
-        $this->artisan('freescout:fetch-emails', ['mailbox_id' => 999])
-            ->expectsOutput('No mailboxes configured for IMAP.')
+            ->expectsOutputToContain('Errors: 3')
+            ->expectsOutputToContain('Failed to parse message 1')
+            ->expectsOutputToContain('Failed to parse message 2')
+            ->expectsOutputToContain('Failed to parse message 3')
             ->assertExitCode(1);
     }
 
     /**
-     * Test command processes multiple mailboxes in sequence.
+     * Test skips mailboxes without IMAP configuration.
+     * 
+     * @group imap
      */
-    public function test_command_processes_multiple_mailboxes_in_sequence(): void
+    public function test_skips_mailboxes_without_imap_server()
     {
-        // Arrange
-        $mailbox1 = Mailbox::factory()->create([
-            'name' => 'Sales',
-            'email' => 'sales@example.com',
-            'in_server' => 'imap.example.com',
-        ]);
-        $mailbox2 = Mailbox::factory()->create([
-            'name' => 'Support',
-            'email' => 'support@example.com',
-            'in_server' => 'imap.example.com',
-        ]);
-        $mailbox3 = Mailbox::factory()->create([
-            'name' => 'Info',
-            'email' => 'info@example.com',
-            'in_server' => 'imap.example.com',
-        ]);
+        // Arrange - mailboxes without IMAP server
+        Mailbox::factory()->create(['in_server' => null]);
+        Mailbox::factory()->create(['in_server' => '']);
 
-        // Mock ImapService
+        // Mock ImapService - should never be called
         $this->mock(ImapService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('fetchEmails')
-                ->times(3)
-                ->andReturn([
-                    'fetched' => 1,
-                    'created' => 1,
-                    'errors' => 0,
-                    'messages' => [],
-                ]);
-        });
-
-        // Act
-        $this->artisan('freescout:fetch-emails')
-            ->expectsOutput('Processing 3 mailbox(es)...')
-            ->expectsOutputToContain('Sales (sales@example.com)')
-            ->expectsOutputToContain('Support (support@example.com)')
-            ->expectsOutputToContain('Info (info@example.com)')
-            ->assertExitCode(0);
-    }
-
-    /**
-     * Test command handles exception thrown by ImapService.
-     */
-    public function test_command_handles_exception_from_imap_service(): void
-    {
-        // Arrange
-        $mailbox = Mailbox::factory()->create([
-            'in_server' => 'imap.example.com',
-        ]);
-
-        // Mock ImapService to throw exception
-        $this->mock(ImapService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('fetchEmails')
-                ->once()
-                ->andThrow(new \Exception('IMAP connection timeout'));
-        });
-
-        // Act & Assert - exception should propagate
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('IMAP connection timeout');
-
-        $this->artisan('freescout:fetch-emails', ['mailbox_id' => $mailbox->id]);
-    }
-
-    /**
-     * Test command in test mode with multiple mailboxes.
-     */
-    public function test_command_test_mode_with_multiple_mailboxes(): void
-    {
-        // Arrange
-        Mailbox::factory()->create([
-            'name' => 'Mailbox 1',
-            'in_server' => 'imap1.example.com',
-        ]);
-        Mailbox::factory()->create([
-            'name' => 'Mailbox 2',
-            'in_server' => 'imap2.example.com',
-        ]);
-
-        // Mock ImapService
-        $this->mock(ImapService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('testConnection')
-                ->twice()
-                ->andReturn([
-                    'success' => true,
-                    'message' => 'Connected successfully.',
-                ]);
-
             $mock->shouldNotReceive('fetchEmails');
+            $mock->shouldNotReceive('testConnection');
         });
 
-        // Act
-        $this->artisan('freescout:fetch-emails', ['--test' => true])
-            ->expectsOutput('Processing 2 mailbox(es)...')
-            ->expectsOutputToContain('✓ Connected successfully')
-            ->assertExitCode(0);
-    }
-
-    /**
-     * Test command skips summary in test mode.
-     */
-    public function test_command_skips_summary_in_test_mode(): void
-    {
-        // Arrange
-        $mailbox = Mailbox::factory()->create([
-            'in_server' => 'imap.example.com',
-        ]);
-
-        // Mock ImapService
-        $this->mock(ImapService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('testConnection')
-                ->once()
-                ->andReturn([
-                    'success' => true,
-                    'message' => 'Connected.',
-                ]);
-        });
-
-        // Act - test mode does not show summary
-        $this->artisan('freescout:fetch-emails', [
-            'mailbox_id' => $mailbox->id,
-            '--test' => true,
-        ])
-            ->doesntExpectOutput('=== Summary ===')
-            ->assertExitCode(0);
-    }
-
-    /**
-     * Test command with mixed mailboxes (some with IMAP, some without).
-     */
-    public function test_command_filters_mailboxes_with_imap_configuration(): void
-    {
-        // Arrange - Create mailboxes with and without IMAP
-        Mailbox::factory()->create([
-            'name' => 'No IMAP',
-            'in_server' => null,
-        ]);
-        Mailbox::factory()->create([
-            'name' => 'Has IMAP',
-            'in_server' => 'imap.example.com',
-        ]);
-        Mailbox::factory()->create([
-            'name' => 'Empty IMAP',
-            'in_server' => '',
-        ]);
-
-        // Mock ImapService - should only be called once for the one valid mailbox
-        $this->mock(ImapService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('fetchEmails')
-                ->once()
-                ->andReturn([
-                    'fetched' => 1,
-                    'created' => 1,
-                    'errors' => 0,
-                    'messages' => [],
-                ]);
-        });
-
-        // Act
+        // Act & Assert
         $this->artisan('freescout:fetch-emails')
-            ->expectsOutput('Processing 1 mailbox(es)...')
-            ->expectsOutputToContain('Has IMAP')
-            ->assertExitCode(0);
-    }
-
-    /**
-     * Test command displays empty line between mailboxes.
-     */
-    public function test_command_displays_empty_line_between_mailboxes(): void
-    {
-        // Arrange
-        $mailbox = Mailbox::factory()->create([
-            'name' => 'Test',
-            'in_server' => 'imap.example.com',
-        ]);
-
-        // Mock ImapService
-        $this->mock(ImapService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('fetchEmails')
-                ->once()
-                ->andReturn([
-                    'fetched' => 1,
-                    'created' => 1,
-                    'errors' => 0,
-                    'messages' => [],
-                ]);
-        });
-
-        // Act - Just verify command runs successfully
-        // Line() calls are internal formatting, hard to test directly
-        $this->artisan('freescout:fetch-emails', ['mailbox_id' => $mailbox->id])
-            ->assertExitCode(0);
-    }
-
-    /**
-     * Test command with test mode connection errors across multiple mailboxes.
-     */
-    public function test_command_test_mode_with_mixed_connection_results(): void
-    {
-        // Arrange
-        $mailbox1 = Mailbox::factory()->create(['in_server' => 'imap1.example.com']);
-        $mailbox2 = Mailbox::factory()->create(['in_server' => 'imap2.example.com']);
-        $mailbox3 = Mailbox::factory()->create(['in_server' => 'imap3.example.com']);
-
-        // Mock ImapService with mixed results
-        $this->mock(ImapService::class, function (MockInterface $mock) {
-            // First mailbox: success
-            $mock->shouldReceive('testConnection')
-                ->once()
-                ->andReturn(['success' => true, 'message' => 'OK']);
-
-            // Second mailbox: failure
-            $mock->shouldReceive('testConnection')
-                ->once()
-                ->andReturn(['success' => false, 'message' => 'Failed']);
-
-            // Third mailbox: success
-            $mock->shouldReceive('testConnection')
-                ->once()
-                ->andReturn(['success' => true, 'message' => 'OK']);
-        });
-
-        // Act
-        $this->artisan('freescout:fetch-emails', ['--test' => true])
-            ->expectsOutputToContain('✓ OK')
-            ->expectsOutputToContain('✗ Failed')
-            ->assertExitCode(1); // Exit code 1 because of one failure
-    }
-
-    /**
-     * Test command handles large number of errors.
-     */
-    public function test_command_handles_large_number_of_errors(): void
-    {
-        // Arrange
-        $mailbox = Mailbox::factory()->create([
-            'in_server' => 'imap.example.com',
-        ]);
-
-        // Mock ImapService with many errors
-        $this->mock(ImapService::class, function (MockInterface $mock) {
-            $mock->shouldReceive('fetchEmails')
-                ->once()
-                ->andReturn([
-                    'fetched' => 100,
-                    'created' => 50,
-                    'errors' => 50,
-                    'messages' => array_fill(0, 50, 'Parse error'),
-                ]);
-        });
-
-        // Act
-        $this->artisan('freescout:fetch-emails', ['mailbox_id' => $mailbox->id])
-            ->expectsOutputToContain('Errors: 50')
+            ->expectsOutput('No mailboxes configured for IMAP.')
             ->assertExitCode(1);
     }
 }

@@ -117,7 +117,7 @@ class ModuleInstall extends Command
             if (!file_exists($to)) {
                 // Try to create Public folder.
                 try {
-                    \File::makeDirectory($to, \Helper::DIR_PERMISSIONS);
+                    \File::makeDirectory($to, \App\Misc\Helper::DIR_PERMISSIONS);
                 } catch (\Exception $e) {
                     // If it's a broken symlink.
                     if (is_link($to)) {

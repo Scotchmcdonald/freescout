@@ -6,13 +6,11 @@ namespace Tests\Unit\Services;
 
 use App\Models\Mailbox;
 use App\Services\SmtpService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class SmtpServiceComprehensiveTest extends TestCase
+class SmtpServiceComprehensiveTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     public function test_test_connection_returns_result_array_with_required_keys(): void
     {
