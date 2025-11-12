@@ -70,4 +70,30 @@ class SendNotificationToUsersTest extends TestCase
 
         $this->assertTrue(method_exists($job, 'failed'));
     }
+
+    // Story 2.1.2: Job Failure and Retry Logic
+
+    public function test_respects_timeout_property(): void
+    {
+        $user = User::factory()->make();
+        $conversation = Conversation::factory()->make();
+        $thread = Thread::factory()->make();
+
+        $job = new SendNotificationToUsers(collect([$user]), $conversation, collect([$thread]));
+
+        // Verify timeout is set correctly (120 seconds)
+        $this->assertEquals(120, $job->timeout);
+    }
+
+    public function test_respects_retry_attempts_property(): void
+    {
+        $user = User::factory()->make();
+        $conversation = Conversation::factory()->make();
+        $thread = Thread::factory()->make();
+
+        $job = new SendNotificationToUsers(collect([$user]), $conversation, collect([$thread]));
+
+        // Verify tries is set correctly (168 attempts = 1 per hour for a week)
+        $this->assertEquals(168, $job->tries);
+    }
 }

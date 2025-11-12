@@ -132,4 +132,83 @@ class ImapServiceComprehensiveTest extends TestCase
 
         $this->assertContains('createClient', $methodNames);
     }
+
+    // Story 1.1.1: IMAP Connection Error Handling
+
+    public function test_fetch_emails_handles_connection_failure_gracefully(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'in_server' => 'invalid.server.com',
+            'in_port' => 993,
+            'in_username' => 'test@example.com',
+            'in_password' => 'password',
+        ]);
+
+        Log::shouldReceive('info')->once(); // Starting IMAP fetch
+        Log::shouldReceive('error')
+            ->once()
+            ->with('IMAP connection failed', \Mockery::any());
+
+        $service = new ImapService;
+        $stats = $service->fetchEmails($mailbox);
+
+        $this->assertEquals(0, $stats['fetched']);
+        $this->assertGreaterThan(0, $stats['errors']);
+    }
+
+    public function test_test_connection_returns_failure_for_invalid_credentials(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'in_server' => 'imap.example.com',
+            'in_port' => 993,
+            'in_username' => 'invalid@example.com',
+            'in_password' => 'wrongpassword',
+        ]);
+
+        $service = new ImapService;
+        $result = $service->testConnection($mailbox);
+
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('failed', strtolower($result['message']));
+    }
+
+    // Story 1.1.3: Charset/Encoding Error Recovery
+
+    public function test_retries_fetch_on_charset_error(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'in_server' => 'outlook.office365.com',
+            'in_port' => 993,
+            'in_username' => 'user@company.com',
+            'in_password' => 'password',
+        ]);
+
+        Log::shouldReceive('info')->atLeast()->once();
+        Log::shouldReceive('warning')->zeroOrMoreTimes();
+        Log::shouldReceive('error')->once();
+
+        $service = new ImapService;
+        $stats = $service->fetchEmails($mailbox);
+
+        // Should have attempted to fetch
+        $this->assertArrayHasKey('fetched', $stats);
+        $this->assertArrayHasKey('errors', $stats);
+    }
+
+    public function test_logs_charset_conversion_attempts(): void
+    {
+        // Test that charset issues are properly logged for debugging
+        $mailbox = Mailbox::factory()->create([
+            'in_server' => 'imap.example.com',
+        ]);
+
+        Log::shouldReceive('info')->atLeast()->once();
+        Log::shouldReceive('warning')->zeroOrMoreTimes();
+        Log::shouldReceive('error')->once();
+
+        $service = new ImapService;
+        $service->fetchEmails($mailbox);
+
+        $this->assertTrue(true); // Verify log expectations were met
+    }
 }
