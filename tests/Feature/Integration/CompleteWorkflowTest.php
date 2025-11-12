@@ -36,14 +36,22 @@ class CompleteWorkflowTest extends TestCase
         $customer = Customer::factory()->create();
 
         // 4. Create conversation
+        $customerEmail = $customer->getMainEmail();
+        $this->assertNotNull($customerEmail, 'Customer should have email');
+        
         $response = $this->actingAs($admin)
             ->post(route('conversations.store', $mailbox), [
                 'mailbox_id' => $mailbox->id,
                 'customer_id' => $customer->id,
                 'subject' => 'Test Ticket',
                 'body' => 'This is a test message',
-                'type' => 1, // Message type
+                'to' => [$customerEmail],
             ]);
+        
+        if ($response->status() !== 302) {
+            dump($response->getContent());
+        }
+        $response->assertRedirect();
 
         $conversation = Conversation::first();
         $this->assertNotNull($conversation);
@@ -96,7 +104,7 @@ class CompleteWorkflowTest extends TestCase
                 'customer_id' => $customer->id,
                 'subject' => 'Test',
                 'body' => 'Message',
-                'type' => 1,
+                'to' => [$customer->getMainEmail()],
             ])
             ->assertRedirect();
 
@@ -124,12 +132,12 @@ class CompleteWorkflowTest extends TestCase
 
         // Update customer
         $this->actingAs($admin)
-            ->patch(route('customers.update', $customer), [
+            ->patchJson(route('customers.update', $customer), [
                 'first_name' => 'Jane',
                 'last_name' => 'Doe',
-                'email' => 'john@example.com',
             ])
-            ->assertRedirect();
+            ->assertOk()
+            ->assertJson(['success' => true]);
 
         $this->assertEquals('Jane', $customer->fresh()->first_name);
 
@@ -168,6 +176,7 @@ class CompleteWorkflowTest extends TestCase
                 'last_name' => 'User',
                 'email' => 'testuser@example.com',
                 'role' => User::ROLE_USER,
+                'status' => User::STATUS_ACTIVE,
             ])
             ->assertRedirect();
 

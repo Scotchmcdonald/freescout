@@ -150,6 +150,8 @@ class CustomerModelTest extends TestCase
     {
         // Arrange
         $customer = Customer::factory()->create();
+        // Factory creates 1 email, delete it for test isolation
+        $customer->emails()->delete();
         $email = Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'test@example.com',
@@ -169,6 +171,8 @@ class CustomerModelTest extends TestCase
     {
         // Arrange
         $customer = Customer::factory()->create();
+        // Factory creates 1 email, delete it for test isolation
+        $customer->emails()->delete();
         Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'primary@example.com',
@@ -192,6 +196,8 @@ class CustomerModelTest extends TestCase
     {
         // Arrange
         $customer = Customer::factory()->create();
+        // Factory creates 1 email, delete it for test isolation
+        $customer->emails()->delete();
         Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'only@example.com',
@@ -210,6 +216,8 @@ class CustomerModelTest extends TestCase
     {
         // Arrange
         $customer = Customer::factory()->create();
+        // Factory creates 1 email, delete it for test isolation
+        $customer->emails()->delete();
 
         // Act
         $mainEmail = $customer->getMainEmail();

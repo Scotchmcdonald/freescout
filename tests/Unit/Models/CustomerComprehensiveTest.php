@@ -60,9 +60,10 @@ class CustomerComprehensiveTest extends TestCase
     public function test_customer_can_have_multiple_emails()
     {
         $customer = Customer::factory()->create();
+        // Factory already creates 1 email, add 2 more
         Email::factory()->count(2)->create(['customer_id' => $customer->id]);
 
-        $this->assertCount(2, $customer->emails);
+        $this->assertCount(3, $customer->emails);
     }
 
     public function test_customer_optional_fields_can_be_null()

@@ -377,6 +377,8 @@ class CustomerRegressionTest extends TestCase
         // Arrange
         $emailAddress = 'existing@example.com';
         $existingCustomer = Customer::factory()->create();
+        // Factory creates 1 email, we'll replace it
+        $existingCustomer->emails()->delete();
         $existingEmail = Email::factory()->create([
             'customer_id' => $existingCustomer->id,
             'email' => $emailAddress,
