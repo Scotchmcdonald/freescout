@@ -107,7 +107,7 @@ class SendEmailReplyErrorTest extends TestCase
         $job = new SendEmailReplyError('success@example.com', $user, $mailbox);
         $job->handle();
 
-        $this->assertDatabaseHas('send_log', [
+        $this->assertDatabaseHas('send_logs', [
             'email' => 'success@example.com',
             'user_id' => $user->id,
             'mail_type' => SendLog::MAIL_TYPE_WRONG_USER_EMAIL_MESSAGE,
@@ -177,7 +177,7 @@ class SendEmailReplyErrorTest extends TestCase
             // Expected
         }
 
-        $this->assertDatabaseHas('send_log', [
+        $this->assertDatabaseHas('send_logs', [
             'email' => 'exception@example.com',
             'status' => SendLog::STATUS_SEND_ERROR,
             'status_message' => 'Test error message',

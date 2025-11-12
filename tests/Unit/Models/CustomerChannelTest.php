@@ -235,7 +235,7 @@ class CustomerChannelTest extends TestCase
     public function customer_channel_records_timestamps(): void
     {
         $customer = Customer::factory()->create();
-        $before = now();
+        $before = now()->subSecond();
         
         $channel = CustomerChannel::create([
             'customer_id' => $customer->id,
@@ -243,7 +243,7 @@ class CustomerChannelTest extends TestCase
             'channel_id' => 'test@example.com',
         ]);
         
-        $after = now();
+        $after = now()->addSecond();
 
         $this->assertTrue($channel->created_at->between($before, $after));
         $this->assertTrue($channel->updated_at->between($before, $after));

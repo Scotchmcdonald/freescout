@@ -148,7 +148,7 @@ class SendAutoReplyTest extends TestCase
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
         $job->handle($smtpService);
 
-        $this->assertDatabaseHas('send_log', [
+        $this->assertDatabaseHas('send_logs', [
             'thread_id' => $thread->id,
             'email' => 'customer@example.com',
             'mail_type' => 3, // SendLog::MAIL_TYPE_AUTO_REPLY
@@ -254,7 +254,7 @@ class SendAutoReplyTest extends TestCase
         $job->handle($smtpService);
 
         Mail::assertNothingSent();
-        $this->assertDatabaseMissing('send_log', [
+        $this->assertDatabaseMissing('send_logs', [
             'thread_id' => $thread->id,
         ]);
     }

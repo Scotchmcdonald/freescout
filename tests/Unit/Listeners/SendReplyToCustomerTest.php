@@ -9,6 +9,8 @@ use App\Events\UserReplied;
 use App\Listeners\SendReplyToCustomer;
 use App\Models\Conversation;
 use App\Models\Customer;
+use App\Models\Folder;
+use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -59,7 +61,7 @@ class SendReplyToCustomerTest extends TestCase
             'imported' => false,
         ]);
 
-        $event = new UserCreatedConversation($conversation, collect([$thread]));
+        $event = new UserCreatedConversation($conversation, $thread);
         $listener = new SendReplyToCustomer();
         
         $listener->handle($event);
@@ -94,7 +96,8 @@ class SendReplyToCustomerTest extends TestCase
     public function listener_handles_phone_conversation_with_email(): void
     {
         $user = User::factory()->create();
-        $customer = Customer::factory()->create(['email' => 'customer@example.com']);
+        $customer = Customer::factory()->create();
+        $customer->emails()->create(['email' => 'customer@example.com', 'type' => 'work']);
         $conversation = Conversation::factory()->create([
             'customer_id' => $customer->id,
             'type' => 2, // TYPE_PHONE (if defined)
@@ -120,22 +123,15 @@ class SendReplyToCustomerTest extends TestCase
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
         
-        $threads = collect([
-            Thread::factory()->create([
-                'conversation_id' => $conversation->id,
-                'type' => Thread::TYPE_MESSAGE,
-                'imported' => false,
-                'created_at' => now()->subMinutes(5),
-            ]),
-            Thread::factory()->create([
-                'conversation_id' => $conversation->id,
-                'type' => Thread::TYPE_MESSAGE,
-                'imported' => false,
-                'created_at' => now(),
-            ]),
+        // Create the most recent thread to use
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'type' => Thread::TYPE_MESSAGE,
+            'imported' => false,
+            'created_at' => now(),
         ]);
 
-        $event = new UserCreatedConversation($conversation, $threads);
+        $event = new UserCreatedConversation($conversation, $thread);
         $listener = new SendReplyToCustomer();
         
         $listener->handle($event);
@@ -161,16 +157,24 @@ class SendReplyToCustomerTest extends TestCase
     }
 
     #[Test]
-    public function listener_handles_empty_replies_collection(): void
+    public function listener_handles_conversation_with_thread(): void
     {
         $user = User::factory()->create();
-        $conversation = Conversation::factory()->create(['customer_id' => User::factory()->create()->id]);
-        $threads = collect([]);
+        $customer = Customer::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
+        $conversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+            'mailbox_id' => $mailbox->id,
+            'folder_id' => $folder->id,
+            'user_id' => $user->id,
+        ]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $event = new UserCreatedConversation($conversation, $threads);
+        $event = new UserCreatedConversation($conversation, $thread);
         $listener = new SendReplyToCustomer();
         
-        // Should handle empty replies gracefully
+        // Should handle conversation with thread
         $listener->handle($event);
         $this->assertTrue(true);
     }

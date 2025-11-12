@@ -69,9 +69,9 @@ class SendNotificationToUsersTest extends TestCase
             'status' => 1,
             'created_by_user_id' => $user->id,
         ]);
-        $threads = collect([]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $event = new UserCreatedConversation($conversation, $threads);
+        $event = new UserCreatedConversation($conversation, $thread);
         $listener = new SendNotificationToUsers();
         
         $listener->handle($event);
@@ -128,7 +128,7 @@ class SendNotificationToUsersTest extends TestCase
             'imported' => false,
         ]);
 
-        $event = new CustomerReplied($conversation, $thread);
+        $event = new CustomerReplied($conversation, $thread, $customer);
         $listener = new SendNotificationToUsers();
         
         $listener->handle($event);
@@ -204,7 +204,7 @@ class SendNotificationToUsersTest extends TestCase
             'type' => Thread::TYPE_CUSTOMER,
         ]);
 
-        $event = new CustomerReplied($conversation, $thread);
+        $event = new CustomerReplied($conversation, $thread, $customer);
         $listener = new SendNotificationToUsers();
         
         // Should detect event type 4 (EVENT_TYPE_CUSTOMER_REPLIED)
@@ -260,11 +260,12 @@ class SendNotificationToUsersTest extends TestCase
         ]);
 
         $listener = new SendNotificationToUsers();
+        $customer = Customer::factory()->create();
         
         // Test multiple event types
         $listener->handle(new UserReplied($conversation, $thread));
         $listener->handle(new UserAddedNote($conversation, $thread));
-        $listener->handle(new CustomerReplied($conversation, $thread));
+        $listener->handle(new CustomerReplied($conversation, $thread, $customer));
         $listener->handle(new ConversationUserChanged($conversation, $user));
         
         $this->assertTrue(true);
@@ -278,12 +279,12 @@ class SendNotificationToUsersTest extends TestCase
             'status' => 1,
             'created_by_user_id' => $user->id,
         ]);
-        $threads = collect([]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $event = new UserCreatedConversation($conversation, $threads);
+        $event = new UserCreatedConversation($conversation, $thread);
         $listener = new SendNotificationToUsers();
         
-        // Should handle events without thread property
+        // Should handle events with thread
         $listener->handle($event);
         $this->assertTrue(true);
     }

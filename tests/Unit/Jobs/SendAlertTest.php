@@ -102,8 +102,8 @@ class SendAlertTest extends TestCase
         $job->handle();
 
         $this->assertEquals(1, SendLog::where('mail_type', SendLog::MAIL_TYPE_ALERT)->count());
-        $this->assertDatabaseHas('send_log', ['email' => 'active@example.com']);
-        $this->assertDatabaseMissing('send_log', ['email' => 'inactive@example.com']);
+        $this->assertDatabaseHas('send_logs', ['email' => 'active@example.com']);
+        $this->assertDatabaseMissing('send_logs', ['email' => 'inactive@example.com']);
     }
 
     #[Test]
@@ -127,8 +127,8 @@ class SendAlertTest extends TestCase
         $job->handle();
 
         $this->assertEquals(1, SendLog::where('mail_type', SendLog::MAIL_TYPE_ALERT)->count());
-        $this->assertDatabaseHas('send_log', ['email' => 'admin@example.com']);
-        $this->assertDatabaseMissing('send_log', ['email' => 'user@example.com']);
+        $this->assertDatabaseHas('send_logs', ['email' => 'admin@example.com']);
+        $this->assertDatabaseMissing('send_logs', ['email' => 'user@example.com']);
     }
 
     #[Test]
@@ -146,7 +146,7 @@ class SendAlertTest extends TestCase
         $job = new SendAlert('Test alert', 'Alert Title');
         $job->handle();
 
-        $this->assertDatabaseHas('send_log', [
+        $this->assertDatabaseHas('send_logs', [
             'email' => 'admin@example.com',
             'mail_type' => SendLog::MAIL_TYPE_ALERT,
             'status' => SendLog::STATUS_ACCEPTED,
@@ -227,7 +227,7 @@ class SendAlertTest extends TestCase
         $job = new SendAlert('Test alert');
         $job->handle();
 
-        $this->assertDatabaseHas('send_log', [
+        $this->assertDatabaseHas('send_logs', [
             'email' => 'admin@example.com',
             'thread_id' => null,
             'user_id' => null,

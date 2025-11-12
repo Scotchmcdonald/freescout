@@ -47,17 +47,14 @@ class SendEmailReplyError implements ShouldQueue
         $exception = null;
 
         try {
-            // Note: In a real implementation, this would use the UserEmailReplyError mailable
-            // For now, we'll just log the action
             Log::info('Sending email reply error notification', [
                 'from' => $this->from,
                 'user_id' => $this->user->id,
                 'mailbox_id' => $this->mailbox->id,
             ]);
 
-            // TODO: Uncomment when UserEmailReplyError mailable is implemented
-            // Mail::to([['name' => '', 'email' => $this->from]])
-            //     ->send(new UserEmailReplyError());
+            Mail::to([['name' => '', 'email' => $this->from]])
+                ->send(new \App\Mail\UserEmailReplyError());
         } catch (\Exception $e) {
             Log::error('Error sending email reply error notification', [
                 'from' => $this->from,
@@ -74,13 +71,9 @@ class SendEmailReplyError implements ShouldQueue
             $status = SendLog::STATUS_SEND_ERROR;
             $statusMessage = $exception->getMessage();
         } else {
-            $failures = Mail::failures();
-
-            if (! empty($failures)) {
-                $status = SendLog::STATUS_SEND_ERROR;
-            } else {
-                $status = SendLog::STATUS_ACCEPTED;
-            }
+            // Laravel 11: Mail failures are now handled via exceptions
+            // If we reach here without exception, the mail was accepted
+            $status = SendLog::STATUS_ACCEPTED;
         }
 
         // Log the send attempt

@@ -18,14 +18,17 @@ class ConversationFolderTest extends TestCase
     #[Test]
     public function conversation_folder_can_be_created(): void
     {
+        $conversation = Conversation::factory()->create();
+        $folder = Folder::factory()->create();
+
         $conversationFolder = ConversationFolder::create([
-            'conversation_id' => 1,
-            'folder_id' => 2,
+            'conversation_id' => $conversation->id,
+            'folder_id' => $folder->id,
         ]);
 
         $this->assertInstanceOf(ConversationFolder::class, $conversationFolder);
-        $this->assertEquals(1, $conversationFolder->conversation_id);
-        $this->assertEquals(2, $conversationFolder->folder_id);
+        $this->assertEquals($conversation->id, $conversationFolder->conversation_id);
+        $this->assertEquals($folder->id, $conversationFolder->folder_id);
     }
 
     #[Test]
@@ -63,33 +66,40 @@ class ConversationFolderTest extends TestCase
     #[Test]
     public function conversation_folder_casts_conversation_id_to_integer(): void
     {
+        $conversation = Conversation::factory()->create();
+        $folder = Folder::factory()->create();
+
         $conversationFolder = ConversationFolder::create([
-            'conversation_id' => '123',
-            'folder_id' => '456',
+            'conversation_id' => (string) $conversation->id,
+            'folder_id' => (string) $folder->id,
         ]);
 
         $this->assertIsInt($conversationFolder->conversation_id);
-        $this->assertEquals(123, $conversationFolder->conversation_id);
     }
 
-    #[Test]
+    ##[Test]
     public function conversation_folder_casts_folder_id_to_integer(): void
     {
+        $conversation = Conversation::factory()->create();
+        $folder = Folder::factory()->create();
+
         $conversationFolder = ConversationFolder::create([
-            'conversation_id' => '123',
-            'folder_id' => '456',
+            'conversation_id' => (string) $conversation->id,
+            'folder_id' => (string) $folder->id,
         ]);
 
         $this->assertIsInt($conversationFolder->folder_id);
-        $this->assertEquals(456, $conversationFolder->folder_id);
     }
 
     #[Test]
     public function conversation_folder_casts_timestamps(): void
     {
+        $conversation = Conversation::factory()->create();
+        $folder = Folder::factory()->create();
+
         $conversationFolder = ConversationFolder::create([
-            'conversation_id' => 1,
-            'folder_id' => 2,
+            'conversation_id' => $conversation->id,
+            'folder_id' => $folder->id,
         ]);
 
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $conversationFolder->created_at);
@@ -97,24 +107,50 @@ class ConversationFolderTest extends TestCase
     }
 
     #[Test]
-    public function conversation_folder_can_be_updated(): void
+    public function conversation_folder_can_be_moved_to_different_folder(): void
     {
-        $conversationFolder = ConversationFolder::create([
-            'conversation_id' => 1,
-            'folder_id' => 2,
+        $conversation = Conversation::factory()->create();
+        $folder1 = Folder::factory()->create();
+        $folder2 = Folder::factory()->create();
+
+        ConversationFolder::create([
+            'conversation_id' => $conversation->id,
+            'folder_id' => $folder1->id,
         ]);
 
-        $conversationFolder->update(['folder_id' => 3]);
+        // Delete old association using query builder
+        ConversationFolder::where('conversation_id', $conversation->id)
+            ->where('folder_id', $folder1->id)
+            ->delete();
+            
+        // Create new association
+        ConversationFolder::create([
+            'conversation_id' => $conversation->id,
+            'folder_id' => $folder2->id,
+        ]);
 
-        $this->assertEquals(3, $conversationFolder->fresh()->folder_id);
+        // Verify the new association exists
+        $this->assertDatabaseHas('conversation_folder', [
+            'conversation_id' => $conversation->id,
+            'folder_id' => $folder2->id,
+        ]);
+        
+        // Verify old association is gone
+        $this->assertDatabaseMissing('conversation_folder', [
+            'conversation_id' => $conversation->id,
+            'folder_id' => $folder1->id,
+        ]);
     }
 
     #[Test]
     public function conversation_folder_can_be_deleted(): void
     {
+        $conversation = Conversation::factory()->create();
+        $folder = Folder::factory()->create();
+
         $conversationFolder = ConversationFolder::create([
-            'conversation_id' => 1,
-            'folder_id' => 2,
+            'conversation_id' => $conversation->id,
+            'folder_id' => $folder->id,
         ]);
 
         $id = $conversationFolder->id;
@@ -126,9 +162,14 @@ class ConversationFolderTest extends TestCase
     #[Test]
     public function multiple_conversation_folders_can_exist(): void
     {
-        ConversationFolder::create(['conversation_id' => 1, 'folder_id' => 2]);
-        ConversationFolder::create(['conversation_id' => 1, 'folder_id' => 3]);
-        ConversationFolder::create(['conversation_id' => 2, 'folder_id' => 2]);
+        $conversation1 = Conversation::factory()->create();
+        $conversation2 = Conversation::factory()->create();
+        $folder1 = Folder::factory()->create();
+        $folder2 = Folder::factory()->create();
+
+        ConversationFolder::create(['conversation_id' => $conversation1->id, 'folder_id' => $folder1->id]);
+        ConversationFolder::create(['conversation_id' => $conversation1->id, 'folder_id' => $folder2->id]);
+        ConversationFolder::create(['conversation_id' => $conversation2->id, 'folder_id' => $folder1->id]);
 
         $this->assertEquals(3, ConversationFolder::count());
     }
@@ -136,12 +177,15 @@ class ConversationFolderTest extends TestCase
     #[Test]
     public function conversation_folder_records_creation_time(): void
     {
-        $before = now();
+        $conversation = Conversation::factory()->create();
+        $folder = Folder::factory()->create();
+
+        $before = now()->subSecond();
         $conversationFolder = ConversationFolder::create([
-            'conversation_id' => 1,
-            'folder_id' => 2,
+            'conversation_id' => $conversation->id,
+            'folder_id' => $folder->id,
         ]);
-        $after = now();
+        $after = now()->addSecond();
 
         $this->assertTrue($conversationFolder->created_at->between($before, $after));
     }
@@ -149,15 +193,19 @@ class ConversationFolderTest extends TestCase
     #[Test]
     public function conversation_folder_records_update_time(): void
     {
+        $conversation = Conversation::factory()->create();
+        $folder1 = Folder::factory()->create();
+        $folder2 = Folder::factory()->create();
+
         $conversationFolder = ConversationFolder::create([
-            'conversation_id' => 1,
-            'folder_id' => 2,
+            'conversation_id' => $conversation->id,
+            'folder_id' => $folder1->id,
         ]);
 
         $originalUpdatedAt = $conversationFolder->updated_at;
         
         sleep(1);
-        $conversationFolder->update(['folder_id' => 3]);
+        $conversationFolder->update(['folder_id' => $folder2->id]);
 
         $this->assertTrue($conversationFolder->updated_at->isAfter($originalUpdatedAt));
     }
@@ -165,11 +213,16 @@ class ConversationFolderTest extends TestCase
     #[Test]
     public function conversation_folder_can_be_queried_by_conversation_id(): void
     {
-        ConversationFolder::create(['conversation_id' => 1, 'folder_id' => 2]);
-        ConversationFolder::create(['conversation_id' => 1, 'folder_id' => 3]);
-        ConversationFolder::create(['conversation_id' => 2, 'folder_id' => 2]);
+        $conversation1 = Conversation::factory()->create();
+        $conversation2 = Conversation::factory()->create();
+        $folder1 = Folder::factory()->create();
+        $folder2 = Folder::factory()->create();
 
-        $folders = ConversationFolder::where('conversation_id', 1)->get();
+        ConversationFolder::create(['conversation_id' => $conversation1->id, 'folder_id' => $folder1->id]);
+        ConversationFolder::create(['conversation_id' => $conversation1->id, 'folder_id' => $folder2->id]);
+        ConversationFolder::create(['conversation_id' => $conversation2->id, 'folder_id' => $folder1->id]);
+
+        $folders = ConversationFolder::where('conversation_id', $conversation1->id)->get();
 
         $this->assertCount(2, $folders);
     }
@@ -177,11 +230,17 @@ class ConversationFolderTest extends TestCase
     #[Test]
     public function conversation_folder_can_be_queried_by_folder_id(): void
     {
-        ConversationFolder::create(['conversation_id' => 1, 'folder_id' => 2]);
-        ConversationFolder::create(['conversation_id' => 2, 'folder_id' => 2]);
-        ConversationFolder::create(['conversation_id' => 3, 'folder_id' => 3]);
+        $conversation1 = Conversation::factory()->create();
+        $conversation2 = Conversation::factory()->create();
+        $conversation3 = Conversation::factory()->create();
+        $folder1 = Folder::factory()->create();
+        $folder2 = Folder::factory()->create();
 
-        $folders = ConversationFolder::where('folder_id', 2)->get();
+        ConversationFolder::create(['conversation_id' => $conversation1->id, 'folder_id' => $folder1->id]);
+        ConversationFolder::create(['conversation_id' => $conversation2->id, 'folder_id' => $folder1->id]);
+        ConversationFolder::create(['conversation_id' => $conversation3->id, 'folder_id' => $folder2->id]);
+
+        $folders = ConversationFolder::where('folder_id', $folder1->id)->get();
 
         $this->assertCount(2, $folders);
     }

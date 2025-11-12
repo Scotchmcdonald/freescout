@@ -67,7 +67,9 @@ class UserNotificationTest extends TestCase
         $mailable = new UserNotification($user, $conversation, $threads, [], $from, $mailbox);
         $envelope = $mailable->envelope();
 
-        $this->assertEquals('custom@example.com', $envelope->from[0]->address);
+        // In Laravel 11, envelope->from is a single Address object
+        $this->assertInstanceOf(\Illuminate\Mail\Mailables\Address::class, $envelope->from);
+        $this->assertEquals('custom@example.com', $envelope->from->address);
     }
 
     #[Test]
@@ -168,7 +170,9 @@ class UserNotificationTest extends TestCase
         $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         $envelope = $mailable->envelope();
 
-        $this->assertEquals('default@example.com', $envelope->from[0]->address);
+        // In Laravel 11, envelope->from is a single Address object
+        $this->assertInstanceOf(\Illuminate\Mail\Mailables\Address::class, $envelope->from);
+        $this->assertEquals('default@example.com', $envelope->from->address);
     }
 
     #[Test]

@@ -10,12 +10,20 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 use Mockery;
+use PHPUnit\Framework\Attributes\Group;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\Folder;
 use Webklex\PHPIMAP\Message;
 use Webklex\PHPIMAP\Query\WhereQuery;
 use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 
+/**
+ * Integration tests that make real IMAP connection attempts.
+ * These tests are slow and require network access.
+ * Run separately with: php artisan test --group=integration
+ */
+#[Group('integration')]
+#[Group('slow')]
 class ImapServiceTest extends TestCase
 {
     use RefreshDatabase;

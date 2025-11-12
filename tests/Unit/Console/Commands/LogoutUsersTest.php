@@ -20,9 +20,9 @@ class LogoutUsersTest extends TestCase
     #[Test]
     public function command_has_correct_description(): void
     {
-        $output = $this->artisan('list');
-        
-        $this->assertStringContainsString('freescout:logout-users', $output);
+        $this->artisan('list')
+            ->expectsOutputToContain('freescout:logout-users')
+            ->run();
     }
 
     #[Test]

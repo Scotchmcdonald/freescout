@@ -263,13 +263,15 @@ class EventsTest extends TestCase
     public function customer_replied_can_be_instantiated(): void
     {
         $conversation = Conversation::factory()->create();
+        $customer = Customer::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $event = new CustomerReplied($conversation, $thread);
+        $event = new CustomerReplied($conversation, $thread, $customer);
 
         $this->assertInstanceOf(CustomerReplied::class, $event);
         $this->assertEquals($conversation->id, $event->conversation->id);
         $this->assertEquals($thread->id, $event->thread->id);
+        $this->assertEquals($customer->id, $event->customer->id);
     }
 
     #[Test]
@@ -278,9 +280,10 @@ class EventsTest extends TestCase
         Event::fake();
 
         $conversation = Conversation::factory()->create();
+        $customer = Customer::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        CustomerReplied::dispatch($conversation, $thread);
+        CustomerReplied::dispatch($conversation, $thread, $customer);
 
         Event::assertDispatched(CustomerReplied::class);
     }
@@ -300,7 +303,7 @@ class EventsTest extends TestCase
             new UserDeleted($user, $user),
             new UserReplied($conversation, $thread),
             new CustomerCreatedConversation($conversation, $thread, $customer),
-            new CustomerReplied($conversation, $thread),
+            new CustomerReplied($conversation, $thread, $customer),
         ];
 
         foreach ($events as $event) {
@@ -324,7 +327,7 @@ class EventsTest extends TestCase
         UserDeleted::dispatch($user, $user);
         UserReplied::dispatch($conversation, $thread);
         CustomerCreatedConversation::dispatch($conversation, $thread, $customer);
-        CustomerReplied::dispatch($conversation, $thread);
+        CustomerReplied::dispatch($conversation, $thread, $customer);
 
         Event::assertDispatched(ConversationUserChanged::class);
         Event::assertDispatched(UserAddedNote::class);

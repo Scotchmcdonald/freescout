@@ -89,13 +89,9 @@ class SendAlert implements ShouldQueue
                 $status = SendLog::STATUS_SEND_ERROR;
                 $statusMessage = $exception->getMessage();
             } else {
-                $failures = Mail::failures();
-
-                if (! empty($failures)) {
-                    $status = SendLog::STATUS_SEND_ERROR;
-                } else {
-                    $status = SendLog::STATUS_ACCEPTED;
-                }
+                // Laravel 11: Mail failures are now handled via exceptions
+                // If we reach here without exception, the mail was accepted
+                $status = SendLog::STATUS_ACCEPTED;
             }
 
             // Log the send attempt
