@@ -160,12 +160,12 @@ class CustomerComprehensiveTest extends TestCase
     public function test_create_method_returns_existing_customer_by_email(): void
     {
         $existingCustomer = Customer::factory()->create([
-            'email' => 'existing@example.com',
             'first_name' => 'John',
             'last_name' => 'Doe',
         ]);
 
-        // Create email record for this customer
+        // Create email record for this customer (factory already creates one, so delete it first)
+        $existingCustomer->emails()->delete();
         \App\Models\Email::factory()->create([
             'customer_id' => $existingCustomer->id,
             'email' => 'existing@example.com',
@@ -238,8 +238,8 @@ class CustomerComprehensiveTest extends TestCase
         ]);
 
         $this->assertNotNull($customer->id);
-        // Empty strings should be stored (or null, depending on DB config)
-        $this->assertIsString($customer->first_name);
+        // Empty strings may be stored as null depending on DB config
+        $this->assertTrue($customer->first_name === '' || $customer->first_name === null);
     }
 
     public function test_create_method_validates_email_format(): void

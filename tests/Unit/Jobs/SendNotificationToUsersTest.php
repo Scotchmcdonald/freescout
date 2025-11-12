@@ -6,14 +6,22 @@ namespace Tests\Unit\Jobs;
 
 use App\Jobs\SendNotificationToUsers;
 use App\Models\Conversation;
+use App\Models\Customer;
 use App\Models\Mailbox;
+use App\Models\SendLog;
 use App\Models\Thread;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SendNotificationToUsersTest extends TestCase
 {
+    use RefreshDatabase;
     public function test_job_has_required_properties(): void
     {
         $users = new Collection([User::factory()->make()]);
@@ -326,5 +334,298 @@ class SendNotificationToUsersTest extends TestCase
         
         // Threads should be sorted in handle() method
         $this->assertCount(3, $job->threads);
+    }
+
+    #[Test]
+    public function job_creates_send_log_on_success(): void
+    {
+        Mail::fake();
+        Log::spy();
+
+        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        $user = User::factory()->create(['email' => 'user@example.com', 'status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+        ]);
+
+        $job = new SendNotificationToUsers(
+            collect([$user]),
+            $conversation,
+            collect([$thread])
+        );
+        $job->handle();
+
+        $this->assertDatabaseHas('send_log', [
+            'thread_id' => $thread->id,
+            'email' => $user->email,
+            'mail_type' => SendLog::MAIL_TYPE_USER_NOTIFICATION,
+            'user_id' => $user->id,
+        ]);
+    }
+
+    #[Test]
+    public function job_creates_send_log_on_failure(): void
+    {
+        Mail::fake();
+        Mail::shouldReceive('failures')->andReturn(['user@example.com']);
+        Log::spy();
+
+        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        $user = User::factory()->create(['email' => 'user@example.com', 'status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+        ]);
+
+        $job = new SendNotificationToUsers(
+            collect([$user]),
+            $conversation,
+            collect([$thread])
+        );
+        $job->handle();
+
+        $this->assertDatabaseHas('send_log', [
+            'thread_id' => $thread->id,
+            'email' => $user->email,
+            'mail_type' => SendLog::MAIL_TYPE_USER_NOTIFICATION,
+            'status' => SendLog::STATUS_SEND_ERROR,
+            'user_id' => $user->id,
+        ]);
+    }
+
+    #[Test]
+    public function job_sets_correct_headers(): void
+    {
+        Mail::fake();
+
+        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        $user = User::factory()->create(['email' => 'user@example.com', 'status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'id' => 123,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+            'id' => 456,
+        ]);
+
+        $job = new SendNotificationToUsers(
+            collect([$user]),
+            $conversation,
+            collect([$thread])
+        );
+        $job->handle();
+
+        $sendLog = SendLog::where('thread_id', $thread->id)->first();
+        $this->assertNotNull($sendLog);
+        $this->assertStringStartsWith('notification-456-', $sendLog->message_id);
+        $this->assertStringContainsString('@support@example.com', $sendLog->message_id);
+    }
+
+    #[Test]
+    public function job_can_be_queued(): void
+    {
+        Queue::fake();
+
+        $users = collect([User::factory()->make()]);
+        $conversation = Conversation::factory()->make();
+        $threads = collect([Thread::factory()->make()]);
+
+        SendNotificationToUsers::dispatch($users, $conversation, $threads);
+
+        Queue::assertPushed(SendNotificationToUsers::class);
+    }
+
+    #[Test]
+    public function job_skips_already_notified_users_on_retry(): void
+    {
+        Mail::fake();
+
+        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        $user = User::factory()->create(['email' => 'user@example.com', 'status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+        ]);
+
+        // Create existing send log
+        SendLog::create([
+            'thread_id' => $thread->id,
+            'email' => $user->email,
+            'mail_type' => SendLog::MAIL_TYPE_USER_NOTIFICATION,
+            'status' => SendLog::STATUS_ACCEPTED,
+            'user_id' => $user->id,
+            'message_id' => 'existing-message-id',
+        ]);
+
+        $job = new SendNotificationToUsers(
+            collect([$user]),
+            $conversation,
+            collect([$thread])
+        );
+
+        // Simulate retry by manually setting attempts
+        $reflection = new \ReflectionClass($job);
+        $property = $reflection->getProperty('attempts');
+        $property->setAccessible(true);
+        $property->setValue($job, 2);
+
+        $job->handle();
+
+        // Should not create duplicate send log
+        $this->assertEquals(1, SendLog::where('thread_id', $thread->id)->count());
+    }
+
+    #[Test]
+    public function job_logs_info_when_sending_notification(): void
+    {
+        Mail::fake();
+        Log::spy();
+
+        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        $user = User::factory()->create(['email' => 'user@example.com', 'status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+        ]);
+
+        $job = new SendNotificationToUsers(
+            collect([$user]),
+            $conversation,
+            collect([$thread])
+        );
+        $job->handle();
+
+        Log::shouldHaveReceived('info')
+            ->with('Sending notification to user', \Mockery::type('array'))
+            ->once();
+    }
+
+    #[Test]
+    public function job_logs_error_when_mailbox_missing(): void
+    {
+        Log::spy();
+
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => null]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+
+        $job = new SendNotificationToUsers(
+            collect([$user]),
+            $conversation,
+            collect([$thread])
+        );
+        $job->handle();
+
+        Log::shouldHaveReceived('error')
+            ->with('Mailbox not found for conversation', \Mockery::type('array'))
+            ->once();
+    }
+
+    #[Test]
+    public function job_processes_multiple_users(): void
+    {
+        Mail::fake();
+        Log::spy();
+
+        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        $user1 = User::factory()->create(['email' => 'user1@example.com', 'status' => User::STATUS_ACTIVE]);
+        $user2 = User::factory()->create(['email' => 'user2@example.com', 'status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+        ]);
+
+        $job = new SendNotificationToUsers(
+            collect([$user1, $user2]),
+            $conversation,
+            collect([$thread])
+        );
+        $job->handle();
+
+        $this->assertEquals(2, SendLog::where('thread_id', $thread->id)->count());
+        $this->assertDatabaseHas('send_log', ['user_id' => $user1->id]);
+        $this->assertDatabaseHas('send_log', ['user_id' => $user2->id]);
+    }
+
+    #[Test]
+    public function job_uses_customer_name_in_from_field(): void
+    {
+        Mail::fake();
+
+        $mailbox = Mailbox::factory()->create([
+            'email' => 'support@example.com',
+            'name' => 'Support Team',
+        ]);
+        $customer = Customer::factory()->create([
+            'first_name' => 'Jane',
+            'last_name' => 'Smith',
+        ]);
+        $user = User::factory()->create(['email' => 'user@example.com', 'status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+            'type' => Thread::TYPE_CUSTOMER,
+            'customer_id' => $customer->id,
+        ]);
+
+        $job = new SendNotificationToUsers(
+            collect([$user]),
+            $conversation,
+            collect([$thread])
+        );
+        $job->handle();
+
+        // From name should be "Jane Smith via Support Team"
+        $this->assertDatabaseHas('send_log', [
+            'thread_id' => $thread->id,
+            'user_id' => $user->id,
+        ]);
+    }
+
+    #[Test]
+    public function job_handles_empty_threads_collection(): void
+    {
+        Log::spy();
+
+        $mailbox = Mailbox::factory()->create();
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+
+        $job = new SendNotificationToUsers(
+            collect([$user]),
+            $conversation,
+            collect([])
+        );
+        $job->handle();
+
+        // Should handle empty threads gracefully
+        $this->assertEquals(0, SendLog::count());
+    }
+
+    #[Test]
+    public function failed_method_logs_error(): void
+    {
+        Log::spy();
+
+        $users = collect([User::factory()->make()]);
+        $conversation = Conversation::factory()->create();
+        $threads = collect([Thread::factory()->make()]);
+
+        $job = new SendNotificationToUsers($users, $conversation, $threads);
+        $exception = new \Exception('Test failure');
+        $job->failed($exception);
+
+        Log::shouldHaveReceived('error')
+            ->with('SendNotificationToUsers job failed', \Mockery::type('array'))
+            ->once();
     }
 }

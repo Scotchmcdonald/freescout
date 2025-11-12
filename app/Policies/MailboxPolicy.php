@@ -115,4 +115,26 @@ class MailboxPolicy
 
         return $pivot && $pivot->access >= self::ACCESS_REPLY;
     }
+
+    /**
+     * Determine whether the user can administer the mailbox (admin access required).
+     * This is used for connection testing and folder retrieval operations.
+     */
+    public function admin(?User $user, Mailbox $mailbox): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        /** @var Mailbox|null $mailboxWithPivot */
+        $mailboxWithPivot = $user->mailboxes->find($mailbox->id);
+        // @phpstan-ignore-next-line - Pivot property exists on BelongsToMany relationship models
+        $pivot = $mailboxWithPivot?->pivot;
+
+        return $pivot && $pivot->access >= self::ACCESS_ADMIN;
+    }
 }

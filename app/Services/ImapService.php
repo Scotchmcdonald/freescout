@@ -752,6 +752,47 @@ class ImapService
      *
      * @return array{success: bool, message: string}
      */
+    /**
+     * Get list of available IMAP folders from server.
+     *
+     * @return array{success: bool, message?: string, folders: array<int, string>}
+     */
+    public function getFolders(Mailbox $mailbox): array
+    {
+        $result = [
+            'success' => false,
+            'message' => '',
+            'folders' => [],
+        ];
+
+        try {
+            $client = $this->createClient($mailbox);
+            $client->connect();
+
+            $folders = $client->getFolders();
+
+            if (count($folders) > 0) {
+                foreach ($folders as $folder) {
+                    /** @var \Webklex\PHPIMAP\Folder $folder */
+                    $result['folders'][] = $folder->full_name;
+                }
+
+                $result['success'] = true;
+            } else {
+                $result['success'] = true;
+                $result['message'] = 'Connected, but no folders found';
+            }
+
+            $client->disconnect();
+        } catch (ConnectionFailedException $e) {
+            $result['message'] = 'Connection failed: '.$e->getMessage();
+        } catch (\Exception $e) {
+            $result['message'] = 'Error: '.$e->getMessage();
+        }
+
+        return $result;
+    }
+
     public function testConnection(Mailbox $mailbox): array
     {
         $result = [

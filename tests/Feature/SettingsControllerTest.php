@@ -19,7 +19,7 @@ class SettingsControllerTest extends TestCase
     {
         $regularUser = User::factory()->create(['role' => User::ROLE_USER]);
 
-        $response = $this->actingAs($regularUser)->get(route('settings.index'));
+        $response = $this->actingAs($regularUser)->get(route('settings'));
 
         // Should be forbidden or redirected
         $this->assertTrue($response->isForbidden() || $response->isRedirect());
@@ -29,7 +29,7 @@ class SettingsControllerTest extends TestCase
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
-        $response = $this->actingAs($admin)->get(route('settings.index'));
+        $response = $this->actingAs($admin)->get(route('settings'));
 
         // Should be successful or redirect (depending on implementation)
         $this->assertTrue($response->isSuccessful() || $response->isRedirect());
@@ -37,7 +37,7 @@ class SettingsControllerTest extends TestCase
 
     public function test_guest_redirected_to_login(): void
     {
-        $response = $this->get(route('settings.index'));
+        $response = $this->get(route('settings'));
 
         $response->assertRedirect(route('login'));
     }

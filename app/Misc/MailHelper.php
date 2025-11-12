@@ -193,4 +193,88 @@ class MailHelper
     {
         return (bool) preg_match('/({%|%})/', $text ?? '');
     }
+
+    /**
+     * Parse email address from string (removes name if present).
+     * Examples:
+     *   - "John Doe <john@example.com>" => "john@example.com"
+     *   - "<john@example.com>" => "john@example.com"
+     *   - "john@example.com" => "john@example.com"
+     */
+    public static function parseEmail(string $emailString): string
+    {
+        // Extract email from "Name <email@domain.com>" format
+        if (preg_match('/<([^>]+)>/', $emailString, $matches)) {
+            return trim($matches[1]);
+        }
+
+        // Return as-is if already a plain email
+        return trim($emailString);
+    }
+
+    /**
+     * Sanitize email body HTML - remove dangerous tags and attributes.
+     */
+    public static function sanitizeEmail(string $html): string
+    {
+        // Remove script tags and their content
+        $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
+        
+        // Remove iframe tags
+        $html = preg_replace('/<iframe\b[^>]*>(.*?)<\/iframe>/is', '', $html);
+        
+        // Remove object and embed tags
+        $html = preg_replace('/<(object|embed)\b[^>]*>(.*?)<\/\1>/is', '', $html);
+        
+        // Remove on* event handlers
+        $html = preg_replace('/\s*on\w+\s*=\s*["\'][^"\']*["\']/i', '', $html);
+        $html = preg_replace('/\s*on\w+\s*=\s*[^\s>]*/i', '', $html);
+
+        return $html ?? '';
+    }
+
+    /**
+     * Format email address with name.
+     * 
+     * @param  string  $email  Email address
+     * @param  string|null  $name  Name to include (optional)
+     * @return string Formatted email
+     */
+    public static function formatEmail(string $email, ?string $name = null): string
+    {
+        if (empty($name)) {
+            return $email;
+        }
+
+        return $name.' <'.$email.'>';
+    }
+
+    /**
+     * Extract reply content from email body by removing quoted text.
+     * Attempts to identify and remove previous message content.
+     * 
+     * @param  string  $body  Email body content
+     * @return string Reply content with quoted text removed
+     */
+    public static function extractReply(string $body): string
+    {
+        // Common reply separators
+        $separators = [
+            '/On .+ wrote:/',  // Gmail style: "On Mon, Nov 11, 2024 at 10:30 AM, sender@example.com wrote:"
+            '/---- ?Original Message ?----/',
+            '/________________________________/',  // Outlook horizontal line
+            '/From: .+/',  // Forwarded message header
+            '/>+ .+/',  // Quoted lines starting with >
+        ];
+
+        foreach ($separators as $separator) {
+            if (preg_match($separator, $body, $matches, PREG_OFFSET_CAPTURE)) {
+                // Get content before the separator
+                $body = substr($body, 0, $matches[0][1]);
+                break;
+            }
+        }
+
+        return trim($body);
+    }
 }

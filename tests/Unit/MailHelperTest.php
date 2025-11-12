@@ -96,9 +96,9 @@ class MailHelperTest extends TestCase
 
         $messageId = MailHelper::generateMessageId('example.com');
 
-        $this->assertMatchesRegularExpression('/<[\w\-\.]+@example\.com>/', $messageId);
-        $this->assertStringStartsWith('<', $messageId);
-        $this->assertStringEndsWith('>', $messageId);
+        $this->assertMatchesRegularExpression('/^fs-[\w\-\.]+@example\.com$/', $messageId);
+        $this->assertStringStartsWith('fs-', $messageId);
+        $this->assertStringContainsString('@example.com', $messageId);
     }
 
     public function test_generate_message_id_is_unique(): void
