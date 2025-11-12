@@ -147,4 +147,87 @@ class SmtpServiceComprehensiveTest extends TestCase
         $this->assertIsArray($result);
         $this->assertArrayHasKey('success', $result);
     }
+
+    // Story 1.2.1: SMTP Connection Testing
+
+    public function test_test_connection_fails_with_invalid_server(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'invalid.smtp.server',
+            'out_port' => 587,
+            'out_username' => 'test@example.com',
+            'out_password' => 'wrongpass',
+            'email' => 'test@example.com',
+        ]);
+
+        Log::shouldReceive('info')->once();
+        Log::shouldReceive('error')->once();
+
+        $service = new SmtpService;
+        $result = $service->testConnection($mailbox, 'recipient@example.com');
+
+        $this->assertFalse($result['success']);
+        $this->assertArrayHasKey('message', $result);
+    }
+
+    public function test_test_connection_handles_authentication_errors(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'smtp.gmail.com',
+            'out_port' => 587,
+            'out_username' => 'test@gmail.com',
+            'out_password' => 'invalid_app_password',
+            'email' => 'test@gmail.com',
+        ]);
+
+        Log::shouldReceive('info')->once();
+        Log::shouldReceive('error')
+            ->once()
+            ->with(\Mockery::pattern('/SMTP test failed/i'), \Mockery::any());
+
+        $service = new SmtpService;
+        $result = $service->testConnection($mailbox, 'recipient@example.com');
+
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_test_connection_validates_port_number(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'smtp.example.com',
+            'out_port' => 99999, // Invalid port
+            'out_username' => 'test@example.com',
+            'out_password' => 'password',
+            'email' => 'test@example.com',
+        ]);
+
+        Log::shouldReceive('info')->once();
+        Log::shouldReceive('error')->once();
+
+        $service = new SmtpService;
+        $result = $service->testConnection($mailbox, 'recipient@example.com');
+
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_test_connection_handles_timeout(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'non-responsive-server.com',
+            'out_port' => 587,
+            'out_username' => 'test@example.com',
+            'out_password' => 'password',
+            'email' => 'test@example.com',
+        ]);
+
+        Log::shouldReceive('info')->once();
+        Log::shouldReceive('error')->once();
+
+        // Should timeout and return failure gracefully
+        $service = new SmtpService;
+        $result = $service->testConnection($mailbox, 'recipient@example.com');
+
+        $this->assertFalse($result['success']);
+        $this->assertArrayHasKey('message', $result);
+    }
 }
