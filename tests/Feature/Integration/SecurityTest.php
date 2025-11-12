@@ -78,17 +78,28 @@ class SecurityTest extends TestCase
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($user->id);
+        $customer = Customer::factory()->create();
 
-        // POST without CSRF token should fail
+        // With CSRF protection enabled (default in tests), POST requests work
         $response = $this->actingAs($user)
-            ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
-            ->post(route('conversations.store'), [
+            ->post(route('conversations.store', $mailbox), [
                 'mailbox_id' => $mailbox->id,
+                'customer_id' => $customer->id,
                 'subject' => 'Test',
+                'body' => 'Test body',
+                'to' => [$customer->getMainEmail()],
             ]);
 
-        // Note: With middleware disabled, this tests the route exists
-        // In production, CSRF protection is enforced by Laravel
+        // Should successfully redirect (CSRF token is automatically included in tests)
+        $this->assertTrue(in_array($response->status(), [302, 303]));
+        
+        // Verify CSRF middleware is registered in kernel
+        $kernel = app(\Illuminate\Contracts\Http\Kernel::class);
+        $this->assertContains(
+            \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+            $kernel->getMiddlewareGroups()['web']
+        );
     }
 
     public function test_xss_protection_in_conversation_subject(): void
@@ -99,15 +110,16 @@ class SecurityTest extends TestCase
 
         // Create conversation with potentially malicious content
         $this->actingAs($admin)
-            ->post(route('conversations.store'), [
+            ->post(route('conversations.store', $mailbox), [
                 'mailbox_id' => $mailbox->id,
                 'customer_id' => $customer->id,
                 'subject' => '<script>alert("xss")</script>Test',
                 'body' => 'Normal body',
-                'type' => 1,
+                'to' => [$customer->getMainEmail()],
             ]);
 
         $conversation = Conversation::first();
+        $this->assertNotNull($conversation, 'Conversation should be created');
 
         // Laravel's blade templating auto-escapes by default
         // Check the database value is stored as-is (not executed)
@@ -134,7 +146,9 @@ class SecurityTest extends TestCase
                 'email' => 'test@example.com',
             ]);
 
-        $customer = Customer::where('email', 'test@example.com')->first();
+        $customer = Customer::whereHas('emails', function ($query) {
+            $query->where('email', 'test@example.com');
+        })->first();
 
         // View customer profile
         $response = $this->actingAs($admin)
@@ -142,8 +156,11 @@ class SecurityTest extends TestCase
 
         $content = $response->getContent();
         
-        // Should be escaped
-        $this->assertStringNotContainsString('onerror=', $content);
+        // Check that the actual <img tag is not present (should be escaped)
+        // Blade {{ }} escapes to &lt;img&gt; so raw <img> should not exist
+        $this->assertStringNotContainsString('<img src=x onerror', $content);
+        // The escaped version should be present
+        $this->assertStringContainsString('&lt;img', $content);
     }
 
     public function test_sql_injection_is_prevented_in_search(): void
@@ -212,6 +229,7 @@ class SecurityTest extends TestCase
                 'password' => 'PlainTextPassword123',
                 'password_confirmation' => 'PlainTextPassword123',
                 'role' => User::ROLE_USER,
+                'status' => User::STATUS_ACTIVE,
             ]);
 
         $user = User::where('email', 'secure@example.com')->first();
@@ -305,9 +323,17 @@ class SecurityTest extends TestCase
         // This test would verify file upload security
         // For now, we just ensure the routes are protected
         $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        
+        // Grant user access to mailbox
+        $mailbox->users()->attach($user->id);
 
         // Note: Actual file upload testing would require more complex setup
         // This tests that routes are at least authenticated
-        $this->assertAuthenticated('web', $user);
+        $this->actingAs($user)
+            ->get(route('conversations.index', $mailbox))
+            ->assertOk();
+        
+        $this->assertAuthenticated('web');
     }
 }

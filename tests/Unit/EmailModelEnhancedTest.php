@@ -370,7 +370,7 @@ class EmailModelEnhancedTest extends TestCase
         // Arrange
         $customer = Customer::factory()->create();
 
-        // Act
+        // Act - factory already creates 1 email, we add 2 more
         $email1 = Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'primary@example.com',
@@ -385,6 +385,6 @@ class EmailModelEnhancedTest extends TestCase
         // Assert
         $this->assertEquals($customer->id, $email1->customer_id);
         $this->assertEquals($customer->id, $email2->customer_id);
-        $this->assertCount(2, $customer->emails);
+        $this->assertCount(3, $customer->emails); // Factory creates 1, we added 2 more
     }
 }

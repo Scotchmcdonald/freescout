@@ -39,6 +39,17 @@ class CustomerFactory extends Factory
         ];
     }
 
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Customer $customer) {
+            // Create a primary email for the customer
+            $customer->emails()->create([
+                'email' => fake()->unique()->safeEmail(),
+                'type' => 'work',
+            ]);
+        });
+    }
+
     public function withCompany(): static
     {
         return $this->state(fn (array $attributes) => [

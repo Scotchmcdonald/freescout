@@ -63,7 +63,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Customers
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
-    Route::get('/customers', [CustomerController::class, 'index'])->name('customers');
     Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
     Route::get('/customers/{customer}/conversations', [CustomerController::class, 'conversations'])->name('customers.conversations');
