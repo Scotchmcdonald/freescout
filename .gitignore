@@ -67,4 +67,4 @@ app/Console/Commands/Test*
 
 # Optional: Uncomment if you want to track these
 #composer.lock
-#/.htaccess
+#/.htaccess/overrides
