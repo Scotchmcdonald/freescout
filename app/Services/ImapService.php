@@ -920,16 +920,25 @@ class ImapService
         $cleanBody = (string) preg_replace("/[\"']cid:/", '!', $body);
         $cleanBody = (string) preg_replace("/@fwd([\s<]+)/isu", '$1', $cleanBody);
 
-        // Regex to find "From: Name <email@example.com>"
-        if (preg_match('/From:\s*(.*?)\s*<([^>]+)>/i', $cleanBody, $matches)) {
-            return [
-                'name' => trim($matches[1]),
-                'email' => trim($matches[2]),
-            ];
+        // Regex to find "From: Name <email@example.com>" or "From: email@example.com"
+        if (preg_match('/From:\s*(?:(.*?)\s*<([^>]+)>|(\S+@\S+))/i', $cleanBody, $matches)) {
+            if (! empty($matches[3])) {
+                // Matched "From: email@example.com" format
+                return [
+                    'name' => '',
+                    'email' => trim($matches[3]),
+                ];
+            } else {
+                // Matched "From: Name <email@example.com>" format
+                return [
+                    'name' => trim($matches[1]),
+                    'email' => trim($matches[2]),
+                ];
+            }
         }
 
-        // Regex to find just an email address
-        if (preg_match("/[\"'<:;]([^\"'<:;!@\s]+@[^\"'>:&@\s]+)[\"'>:&]/", $cleanBody, $matches)) {
+        // Regex to find just an email address (with flexible delimiters)
+        if (preg_match("/[\"'<:;]([^\"'<:;!@\s]+@[^\"'>:&@\s]+)[\s\"'>:;&]/", $cleanBody, $matches)) {
             $emailRaw = preg_replace('#.*&lt;(.*)&gt.*#', '$1', $matches[1]);
             $emailSanitized = is_string($emailRaw) ? \App\Models\Email::sanitizeEmail($emailRaw) : false;
 
@@ -1002,6 +1011,11 @@ class ImapService
 
         $result = [];
         foreach ($addresses as $addr) {
+            // Skip null and empty entries
+            if (empty($addr)) {
+                continue;
+            }
+            
             $email = null;
             $name = '';
 
@@ -1028,7 +1042,8 @@ class ImapService
                 $email = $addr;
             }
 
-            if (is_string($email)) {
+            // Only add if we have a valid, non-empty email
+            if (is_string($email) && ! empty(trim($email))) {
                 $nameParts = explode(' ', $name, 2);
                 $firstName = isset($nameParts[0]) ? $nameParts[0] : '';
                 $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
@@ -1070,6 +1085,11 @@ class ImapService
 
         $result = [];
         foreach ($addresses as $addr) {
+            // Skip null and empty entries
+            if (empty($addr)) {
+                continue;
+            }
+            
             if (is_object($addr)) {
                 // Try to get email as property
                 $email = $addr->mail ?? $addr->email ?? null;
@@ -1085,15 +1105,15 @@ class ImapService
                     }
                 }
 
-                if (is_string($email)) {
+                if (is_string($email) && ! empty(trim($email))) {
                     $result[] = $email;
                 }
             } elseif (is_array($addr)) {
                 $email = $addr['mail'] ?? $addr['email'] ?? null;
-                if (is_string($email)) {
+                if (is_string($email) && ! empty(trim($email))) {
                     $result[] = $email;
                 }
-            } elseif (is_string($addr)) {
+            } elseif (is_string($addr) && ! empty(trim($addr))) {
                 $result[] = $addr;
             }
         }

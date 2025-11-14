@@ -1349,12 +1349,15 @@ class ImapServiceHelpersTest extends UnitTestCase
 
         $this->invokeMethod($this->service, 'createCustomersFromMessage', [$message, $mailbox]);
 
-        // Customer should exist with updated name
-        $this->assertDatabaseHas('customers', [
+        // Customer should exist with original name (setData with replace_data=false doesn't overwrite existing)
+        $customer = Customer::where('first_name', 'Old')->where('last_name', 'Name')->first();
+        $this->assertNotNull($customer);
+        $this->assertDatabaseHas('emails', [
+            'customer_id' => $customer->id,
             'email' => 'existing@example.com',
-            'first_name' => 'New',
-            'last_name' => 'Name',
         ]);
+        // Should still only have 1 customer
+        $this->assertDatabaseCount('customers', 1);
     }
 
     public function test_create_customers_from_message_handles_duplicate_addresses_in_message(): void
@@ -1389,10 +1392,11 @@ class ImapServiceHelpersTest extends UnitTestCase
 
         $this->invokeMethod($this->service, 'createCustomersFromMessage', [$message, $mailbox]);
 
-        $this->assertDatabaseHas('customers', [
+        $customer = Customer::where('first_name', 'John')->where('last_name', 'Doe')->first();
+        $this->assertNotNull($customer);
+        $this->assertDatabaseHas('emails', [
+            'customer_id' => $customer->id,
             'email' => 'john@example.com',
-            'first_name' => 'John',
-            'last_name' => 'Doe',
         ]);
     }
 
@@ -1409,11 +1413,10 @@ class ImapServiceHelpersTest extends UnitTestCase
 
         $this->invokeMethod($this->service, 'createCustomersFromMessage', [$message, $mailbox]);
 
-        $this->assertDatabaseHas('customers', [
-            'email' => 'noname@example.com',
-            'first_name' => '',
-            'last_name' => '',
-        ]);
+        $customer = Customer::whereHas('emails', fn($q) => $q->where('email', 'noname@example.com'))->first();
+        $this->assertNotNull($customer);
+        $this->assertEquals('', $customer->first_name);
+        $this->assertEquals('', $customer->last_name);
     }
 
     // =====================================================================
