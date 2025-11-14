@@ -8,7 +8,9 @@ use App\Jobs\SendAutoReply;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
+use App\Models\SendLog;
 use App\Models\Thread;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Tests\UnitTestCase;
 
@@ -309,20 +311,72 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
 
     public function test_creates_send_log_entry(): void
     {
-        $this->markTestIncomplete(
-            'OPTIONAL: Integration test requiring Mail facade mocking. '.
-            'Can be implemented with Mail::fake() if integration testing is desired. '.
-            'See docs/INCOMPLETE_TESTS_REVIEW.md'
-        );
+        Mail::fake();
+        
+        $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true, 'auto_reply_subject' => 'Auto Reply']);
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+            'mailbox_id' => $mailbox->id,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'type' => Thread::TYPE_CUSTOMER,
+            'customer_id' => $customer->id,
+        ]);
+
+        // Get initial send log count
+        $initialCount = SendLog::count();
+        
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle();
+
+        // Verify send log entry was created
+        $this->assertGreaterThan($initialCount, SendLog::count());
+        
+        // Verify the log entry has correct attributes
+        $logEntry = SendLog::latest()->first();
+        $this->assertEquals($thread->id, $logEntry->thread_id);
+        $this->assertEquals(SendLog::MAIL_TYPE_AUTO_REPLY, $logEntry->mail_type);
+        $this->assertNotNull($logEntry->message_id);
     }
 
     public function test_prevents_duplicate_auto_reply_via_send_log(): void
     {
-        $this->markTestIncomplete(
-            'OPTIONAL: Integration test requiring Mail facade and send_log table interaction. '.
-            'Can be implemented with Mail::fake() and proper database assertions. '.
-            'See docs/INCOMPLETE_TESTS_REVIEW.md'
-        );
+        Mail::fake();
+        
+        $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true, 'auto_reply_subject' => 'Auto Reply']);
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+            'mailbox_id' => $mailbox->id,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'type' => Thread::TYPE_CUSTOMER,
+            'customer_id' => $customer->id,
+        ]);
+
+        // Create a send log entry indicating auto-reply was already sent
+        SendLog::create([
+            'thread_id' => $thread->id,
+            'mail_type' => SendLog::MAIL_TYPE_AUTO_REPLY,
+            'customer_id' => $customer->id,
+            'message_id' => 'test-message-id',
+            'email' => $customer->getMainEmail(),
+            'status' => SendLog::STATUS_SENT,
+        ]);
+
+        $initialCount = SendLog::count();
+        
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle();
+
+        // Should not create another send log entry (duplicate prevention)
+        $this->assertEquals($initialCount, SendLog::count(), 'Should not create duplicate send log entry');
+        
+        // Should not send mail
+        Mail::assertNothingSent();
     }
 
     public function test_handles_smtp_configuration_errors(): void
