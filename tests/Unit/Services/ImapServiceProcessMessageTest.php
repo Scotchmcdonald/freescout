@@ -155,10 +155,14 @@ class ImapServiceProcessMessageTest extends UnitTestCase
             'status' => 1, // Active
         ]);
 
-        $this->assertDatabaseHas('customers', [
+        // Check customer exists with email in emails table
+        $customer = Customer::where('first_name', 'Jane')
+            ->where('last_name', 'Customer')
+            ->first();
+        $this->assertNotNull($customer);
+        $this->assertDatabaseHas('emails', [
+            'customer_id' => $customer->id,
             'email' => 'customer@example.com',
-            'first_name' => 'Jane',
-            'last_name' => 'Customer',
         ]);
 
         $this->assertDatabaseHas('threads', [
@@ -231,11 +235,14 @@ class ImapServiceProcessMessageTest extends UnitTestCase
         // Act
         $this->invokeProcessMessage($mailbox, $message);
 
-        // Assert
-        $this->assertDatabaseHas('customers', [
+        // Assert - Check customer and email exist
+        $customer = Customer::where('first_name', 'New')
+            ->where('last_name', 'Customer')
+            ->first();
+        $this->assertNotNull($customer);
+        $this->assertDatabaseHas('emails', [
+            'customer_id' => $customer->id,
             'email' => 'newcustomer@example.com',
-            'first_name' => 'New',
-            'last_name' => 'Customer',
         ]);
     }
 
@@ -507,9 +514,8 @@ This is the forwarded message content';
         $this->invokeProcessMessage($mailbox, $message);
 
         // Assert - Should extract original sender
-        $this->assertDatabaseHas('customers', [
-            'email' => 'original@customer.com',
-        ]);
+        $customer = Customer::whereHas('emails', fn($q) => $q->where('email', 'original@customer.com'))->first();
+        $this->assertNotNull($customer);
 
         $conversation = Conversation::where('mailbox_id', $mailbox->id)->first();
         $this->assertNotNull($conversation);
@@ -1009,9 +1015,13 @@ This is the forwarded message content';
         $message->shouldReceive('getAttachments')->andReturn(new AttachmentCollection());
         $message->shouldReceive('getRawHeader')->andReturn('From: attr@example.com');
         
+        // Mock Header with Attribute returns
+        $emptyAttribute = Mockery::mock(Attribute::class);
+        $emptyAttribute->shouldReceive('first')->andReturn(null);
+        
         $header = Mockery::mock(Header::class);
-        $header->shouldReceive('get')->with('in_reply_to')->andReturn(null);
-        $header->shouldReceive('get')->with('references')->andReturn(null);
+        $header->shouldReceive('get')->with('in_reply_to')->andReturn($emptyAttribute);
+        $header->shouldReceive('get')->with('references')->andReturn($emptyAttribute);
         $message->shouldReceive('getHeader')->andReturn($header);
 
         // Act
@@ -1049,9 +1059,13 @@ This is the forwarded message content';
         $message->shouldReceive('getAttachments')->andReturn(new AttachmentCollection());
         $message->shouldReceive('getRawHeader')->andReturn('From: getmethod@example.com');
         
+        // Mock Header with Attribute returns
+        $emptyAttribute = Mockery::mock(Attribute::class);
+        $emptyAttribute->shouldReceive('first')->andReturn(null);
+        
         $header = Mockery::mock(Header::class);
-        $header->shouldReceive('get')->with('in_reply_to')->andReturn(null);
-        $header->shouldReceive('get')->with('references')->andReturn(null);
+        $header->shouldReceive('get')->with('in_reply_to')->andReturn($emptyAttribute);
+        $header->shouldReceive('get')->with('references')->andReturn($emptyAttribute);
         $message->shouldReceive('getHeader')->andReturn($header);
 
         // Act
