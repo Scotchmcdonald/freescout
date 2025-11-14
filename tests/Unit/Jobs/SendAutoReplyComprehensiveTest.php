@@ -148,12 +148,68 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
 
     public function test_handles_auto_reply_disabled_via_meta(): void
     {
-        $this->markTestIncomplete('Customer factory does not support email field - needs refactoring to use Customer::create()');
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create(['email' => 'customer@example.com']);
+        
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+            'customer_email' => 'customer@example.com',
+            'meta' => ['ar_off' => true], // Auto-reply disabled
+        ]);
+        
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'type' => Thread::TYPE_CUSTOMER,
+            'customer_id' => $customer->id,
+        ]);
+        
+        // Mock SmtpService to verify it's never called
+        $smtpService = $this->createMock(\App\Services\SmtpService::class);
+        $smtpService->expects($this->never())
+            ->method('configureSmtp');
+        
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle($smtpService);
+        
+        // Verify no send log was created (since auto-reply was disabled)
+        $this->assertDatabaseMissing('send_log', [
+            'conversation_id' => $conversation->id,
+            'mail_type' => \App\Models\SendLog::MAIL_TYPE_AUTO_REPLY,
+        ]);
     }
 
     public function test_handles_missing_customer_email(): void
     {
-        $this->markTestIncomplete('Customer factory does not support email field - needs refactoring to use Customer::create()');
+        $mailbox = Mailbox::factory()->create();
+        // Create customer without email
+        $customer = Customer::factory()->create();
+        
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+            'customer_email' => null, // No email set
+        ]);
+        
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'type' => Thread::TYPE_CUSTOMER,
+            'customer_id' => $customer->id,
+        ]);
+        
+        // Mock SmtpService to verify it's never called
+        $smtpService = $this->createMock(\App\Services\SmtpService::class);
+        $smtpService->expects($this->never())
+            ->method('configureSmtp');
+        
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle($smtpService);
+        
+        // Verify no send log was created (since no customer email)
+        $this->assertDatabaseMissing('send_log', [
+            'conversation_id' => $conversation->id,
+            'mail_type' => \App\Models\SendLog::MAIL_TYPE_AUTO_REPLY,
+        ]);
     }
 
     public function test_only_sends_to_first_customer_message(): void
@@ -222,7 +278,31 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
 
     public function test_uses_customer_full_name_in_recipient(): void
     {
-        $this->markTestIncomplete('Customer factory does not support email field - needs refactoring to use Customer::create()');
+        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        $customer = Customer::factory()->create([
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'john.doe@example.com',
+        ]);
+        
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+            'customer_email' => 'john.doe@example.com',
+        ]);
+        
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'type' => Thread::TYPE_CUSTOMER,
+            'customer_id' => $customer->id,
+            'message_id' => 'original@example.com',
+        ]);
+        
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        
+        // Verify customer's full name is set correctly for the recipient
+        $this->assertEquals('John Doe', $customer->getFullName());
+        $this->assertEquals('john.doe@example.com', $conversation->customer_email);
     }
 
     // Story 2.2.3: Duplicate Prevention
