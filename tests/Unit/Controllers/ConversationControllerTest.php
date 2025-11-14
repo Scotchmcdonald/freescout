@@ -531,7 +531,12 @@ class ConversationControllerTest extends UnitTestCase
 
     public function test_change_customer_creates_new_customer_from_email(): void
     {
-        $this->markTestIncomplete('Controller method needs investigation - customer creation returning unexpected data');
+        $this->markTestIncomplete(
+            'REQUIRES INVESTIGATION: Controller method changeCustomer() appears to return unexpected data. '.
+            'Debug shows assertDatabaseHas receiving "email": "email" instead of actual email value. '.
+            'This indicates a potential bug in the controller implementation or test setup. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
         
         // TODO: Debug why assertDatabaseHas shows "\"email\"": "email" instead of actual value
         // May indicate issue with changeCustomer implementation or test setup
@@ -645,7 +650,12 @@ class ConversationControllerTest extends UnitTestCase
 
     public function test_clone_creates_new_conversation_with_same_properties(): void
     {
-        $this->markTestIncomplete('Authorization fails - needs proper policy setup or should be Feature test');
+        $this->markTestIncomplete(
+            'REQUIRES REFACTORING: This test should be converted to a Feature test. '.
+            'Direct controller method calls in Unit tests don\'t properly bind authorization context. '.
+            'Solution: Move to Feature test suite and use actingAs() for proper authentication. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
         
         // TODO: Either mock Gate authorization or convert to Feature test with actingAs()
         // Direct controller method calls don't properly bind authorization context

@@ -107,17 +107,29 @@ class SendNotificationToUsersTest extends UnitTestCase
 
     public function test_filters_users_with_notifications_disabled(): void
     {
-        $this->markTestIncomplete('Integration test - requires full Mail setup');
+        $this->markTestIncomplete(
+            'OPTIONAL: Integration test requiring Mail facade mocking. '.
+            'Can be implemented with Mail::fake() if integration testing is desired. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
     }
 
     public function test_does_not_notify_thread_author(): void
     {
-        $this->markTestIncomplete('Integration test - requires full Mail setup');
+        $this->markTestIncomplete(
+            'OPTIONAL: Integration test requiring Mail facade mocking. '.
+            'Can be implemented with Mail::fake() if integration testing is desired. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
     }
 
     public function test_sends_notifications_to_multiple_users(): void
     {
-        $this->markTestIncomplete('Integration test - requires full Mail setup');
+        $this->markTestIncomplete(
+            'OPTIONAL: Integration test requiring Mail facade mocking. '.
+            'Can be implemented with Mail::fake() if integration testing is desired. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
     }
 
     // Story 2.1.3: Bounce Detection and Handling
@@ -367,7 +379,11 @@ class SendNotificationToUsersTest extends UnitTestCase
     public function job_creates_send_log_on_failure(): void
     {
         // Laravel 11: Mail::failures() removed - exceptions are thrown instead
-        $this->markTestIncomplete('Needs update for Laravel 11 exception-based error handling');
+        $this->markTestIncomplete(
+            'REQUIRES REFACTORING: Laravel 11 removed Mail::failures() in favor of exception-based error handling. '.
+            'Test needs to be updated to mock Mail throwing an exception and verify send_log entry with STATUS_SEND_ERROR. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
         
         // TODO: Mock Mail to throw exception and verify send_log with STATUS_SEND_ERROR
     }
@@ -483,7 +499,12 @@ class SendNotificationToUsersTest extends UnitTestCase
     #[Test]
     public function job_logs_error_when_mailbox_missing(): void
     {
-        $this->markTestIncomplete('Cannot create conversation with null mailbox_id due to FK constraint');
+        $this->markTestIncomplete(
+            'DESIGN ISSUE: Foreign key constraint prevents creating conversation with null mailbox_id. '.
+            'This test requires either: (1) temporarily disabling FK constraints, '.
+            '(2) using soft-deleted mailboxes, or (3) reconsidering if this scenario is realistic. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
         
         // Note: This test would require temporarily disabling FK constraints
         // or modifying the job to handle deleted mailboxes

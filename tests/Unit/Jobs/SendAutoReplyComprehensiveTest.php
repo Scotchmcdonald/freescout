@@ -309,12 +309,20 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
 
     public function test_creates_send_log_entry(): void
     {
-        $this->markTestIncomplete('Integration test - requires Mail setup');
+        $this->markTestIncomplete(
+            'OPTIONAL: Integration test requiring Mail facade mocking. '.
+            'Can be implemented with Mail::fake() if integration testing is desired. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
     }
 
     public function test_prevents_duplicate_auto_reply_via_send_log(): void
     {
-        $this->markTestIncomplete('Integration test - requires Mail and database');
+        $this->markTestIncomplete(
+            'OPTIONAL: Integration test requiring Mail facade and send_log table interaction. '.
+            'Can be implemented with Mail::fake() and proper database assertions. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
     }
 
     public function test_handles_smtp_configuration_errors(): void
