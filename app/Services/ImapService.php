@@ -986,9 +986,14 @@ class ImapService
             return [];
         }
 
-        // Convert Attribute to array
-        if (is_object($addresses) && get_class($addresses) === 'Webklex\PHPIMAP\Attribute') {
+        // Convert Attribute to array (check for method rather than exact class for mock compatibility)
+        if (is_object($addresses) && method_exists($addresses, 'get') && ! is_string($addresses)) {
             $addresses = $addresses->get();
+        }
+
+        // Convert string to array for consistent processing
+        if (is_string($addresses)) {
+            $addresses = [$addresses];
         }
 
         if (! is_array($addresses)) {
@@ -1049,9 +1054,14 @@ class ImapService
             return [];
         }
 
-        // Convert Attribute to array
-        if (is_object($addresses) && get_class($addresses) === 'Webklex\PHPIMAP\Attribute') {
+        // Convert Attribute to array (check for method rather than exact class for mock compatibility)
+        if (is_object($addresses) && method_exists($addresses, 'get') && ! is_string($addresses)) {
             $addresses = $addresses->get();
+        }
+
+        // Convert string to array for consistent processing
+        if (is_string($addresses)) {
+            $addresses = [$addresses];
         }
 
         if (! is_array($addresses)) {
@@ -1065,7 +1075,7 @@ class ImapService
                 $email = $addr->mail ?? $addr->email ?? null;
 
                 // If not a property, try parsing the string representation
-                if (! $email) {
+                if (! $email && method_exists($addr, '__toString')) {
                     // @phpstan-ignore-next-line - IMAP extension Address object cast
                     $addressString = (string) $addr;
                     if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
