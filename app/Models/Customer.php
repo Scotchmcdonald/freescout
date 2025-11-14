@@ -114,7 +114,7 @@ class Customer extends Model
      */
     public function channels(): BelongsToMany
     {
-        return $this->belongsToMany(Channel::class, 'customer_channel')
+        return $this->belongsToMany(Channel::class, 'channel_customer')
             ->withTimestamps();
     }
 

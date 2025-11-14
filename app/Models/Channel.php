@@ -50,7 +50,7 @@ class Channel extends Model
      */
     public function customers(): BelongsToMany
     {
-        return $this->belongsToMany(Customer::class, 'customer_channel')
+        return $this->belongsToMany(Customer::class, 'channel_customer')
             ->withTimestamps();
     }
 
