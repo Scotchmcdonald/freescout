@@ -3065,7 +3065,9 @@ Some text that looks like quote but is not';
         $this->invokeProcessMessage($mailbox, $message);
 
         // Assert - Email should be normalized
-        $customerCount = Customer::whereRaw('LOWER(email) = ?', ['customer@example.com'])->count();
+        $customerCount = Customer::whereHas('emails', function ($q) {
+            $q->whereRaw('LOWER(email) = ?', ['customer@example.com']);
+        })->count();
         $this->assertGreaterThan(0, $customerCount);
     }
 }

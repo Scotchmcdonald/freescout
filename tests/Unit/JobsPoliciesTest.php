@@ -473,7 +473,7 @@ class JobsPoliciesTest extends UnitTestCase
         ]);
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
-            'customer_email' => $customer->email,
+            'customer_email' => $customer->emails->first()->email,
         ]);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
@@ -491,7 +491,7 @@ class JobsPoliciesTest extends UnitTestCase
         // Should create send log
         $this->assertDatabaseHas('send_logs', [
             'thread_id' => $thread->id,
-            'email' => $customer->email,
+            'email' => $customer->emails->first()->email,
             'mail_type' => SendLog::MAIL_TYPE_AUTO_REPLY,
         ]);
     }
@@ -521,7 +521,7 @@ class JobsPoliciesTest extends UnitTestCase
         ]);
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
-            'customer_email' => $customer->email,
+            'customer_email' => $customer->emails->first()->email,
         ]);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
@@ -1435,7 +1435,7 @@ class JobsPoliciesTest extends UnitTestCase
         ]);
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
-            'customer_email' => $customer->email,
+            'customer_email' => $customer->emails->first()->email,
         ]);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
