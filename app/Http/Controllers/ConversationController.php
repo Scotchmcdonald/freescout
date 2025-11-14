@@ -467,6 +467,11 @@ class ConversationController extends Controller
 
         // Create new conversation with same properties
         $conversation = new Conversation;
+        
+        // Generate new conversation number
+        $currentNumber = Conversation::max('number') ?? 0;
+        $conversation->number = $currentNumber + 1;
+        
         $conversation->type = $originalConversation->type;
         $conversation->subject = $originalConversation->subject;
         $conversation->mailbox_id = $originalConversation->mailbox_id;
@@ -590,20 +595,20 @@ class ConversationController extends Controller
 
             // Create new customer if needed
             if (! $customerId && ! empty($validated['new_customer_email'])) {
+                // Customer::create() signature: create(string $email, array $data = [])
                 /** @var \App\Models\Customer $newCustomer */
-                $newCustomer = Customer::create([
+                $newCustomer = Customer::create($validated['new_customer_email'], [
                     'first_name' => $validated['new_customer_first_name'] ?? '',
                     'last_name' => $validated['new_customer_last_name'] ?? '',
-                    'email' => $validated['new_customer_email'],
                 ]);
-                $customerId = $newCustomer->id;
+                $customerId = $newCustomer?->id;
             }
 
             if ($customerId) {
                 $customer = Customer::findOrFail($customerId);
                 $conversation->update([
                     'customer_id' => $customerId,
-                    'customer_email' => $customer->email,
+                    'customer_email' => $customer->getMainEmail(),
                 ]);
             }
 

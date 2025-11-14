@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Commands;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
-use Tests\TestCase;
+use Tests\FeatureTestCase;
 
-class ModuleInstallCommandTest extends TestCase
+class ModuleInstallCommandTest extends FeatureTestCase
 {
-    use RefreshDatabase;
+    // RefreshDatabase is inherited from FeatureTestCase
 
     protected string $testModulePath;
 
@@ -48,39 +47,62 @@ class ModuleInstallCommandTest extends TestCase
 
     public function test_installs_specific_module_successfully(): void
     {
-        $this->markTestIncomplete('Module system API has changed - findByAlias method not available');
+        $this->markTestIncomplete(
+            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API. '.
+            'The \Module::findByAlias() method needs to be confirmed available or replaced with v11 equivalent. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md for implementation details.'
+        );
     }
 
     public function test_creates_symlink_in_public_directory(): void
     {
-        $this->markTestIncomplete('Module system API has changed - findByAlias method not available');
+        $this->markTestIncomplete(
+            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API. '.
+            'Needs module system working to test symlink creation. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
     }
 
     public function test_clears_cache_before_installation(): void
     {
-        $this->markTestIncomplete('Module system API has changed - findByAlias method not available');
+        $this->markTestIncomplete(
+            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
     }
 
     // Story 3.1.2: Module Installation Error Handling
 
     public function test_fails_gracefully_when_module_not_found(): void
     {
-        $this->markTestIncomplete('Module system API has changed - findByAlias method not available');
+        $this->markTestIncomplete(
+            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
     }
 
     public function test_handles_missing_module_json(): void
     {
-        $this->markTestIncomplete('Module system API has changed - test needs refactoring');
+        $this->markTestIncomplete(
+            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API and test refactoring. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
     }
 
     public function test_handles_invalid_permissions(): void
     {
-        $this->markTestIncomplete('Module system API has changed - findByAlias method not available');
+        $this->markTestIncomplete(
+            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
     }
 
     public function test_validates_module_alias_format(): void
     {
-        $this->markTestIncomplete('Module system implementation changed - test needs refactoring');
+        $this->markTestIncomplete(
+            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API and possible command refactoring. '.
+            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        );
     }
 
     /**
