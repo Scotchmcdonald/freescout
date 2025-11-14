@@ -9,7 +9,7 @@
         "doctrine/dbal": "^4.0",
         "enshrined/svg-sanitize": "^0.22",
         "guzzlehttp/guzzle": "^7.8",
-        "laravel/framework": "*",
+        "laravel/framework": "^11.0",
         "laravel/reverb": "^1.6",
         "laravel/tinker": "^2.9",
         "mews/purifier": "^3.4",
