@@ -10,8 +10,10 @@ use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\SendLog;
 use App\Models\Thread;
+use App\Services\SmtpService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
+use Mockery;
 use Tests\UnitTestCase;
 
 class SendAutoReplyComprehensiveTest extends UnitTestCase
@@ -175,8 +177,8 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         $job->handle($smtpService);
         
         // Verify no send log was created (since auto-reply was disabled)
-        $this->assertDatabaseMissing('send_log', [
-            'conversation_id' => $conversation->id,
+        $this->assertDatabaseMissing('send_logs', [
+            'thread_id' => $thread->id,
             'mail_type' => \App\Models\SendLog::MAIL_TYPE_AUTO_REPLY,
         ]);
     }
@@ -208,8 +210,8 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         $job->handle($smtpService);
         
         // Verify no send log was created (since no customer email)
-        $this->assertDatabaseMissing('send_log', [
-            'conversation_id' => $conversation->id,
+        $this->assertDatabaseMissing('send_logs', [
+            'thread_id' => $thread->id,
             'mail_type' => \App\Models\SendLog::MAIL_TYPE_AUTO_REPLY,
         ]);
     }
@@ -328,8 +330,12 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         // Get initial send log count
         $initialCount = SendLog::count();
         
+        $smtpService = Mockery::mock(SmtpService::class);
+        $smtpService->shouldReceive('configureSmtp')->andReturnNull();
+        $smtpService->shouldReceive('send')->andReturn(true);
+        
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        $job->handle();
+        $job->handle($smtpService);
 
         // Verify send log entry was created
         $this->assertGreaterThan($initialCount, SendLog::count());
@@ -369,8 +375,12 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
 
         $initialCount = SendLog::count();
         
+        $smtpService = Mockery::mock(SmtpService::class);
+        $smtpService->shouldReceive('configureSmtp')->andReturnNull();
+        $smtpService->shouldReceive('send')->andReturn(true);
+        
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        $job->handle();
+        $job->handle($smtpService);
 
         // Should not create another send log entry (duplicate prevention)
         $this->assertEquals($initialCount, SendLog::count(), 'Should not create duplicate send log entry');

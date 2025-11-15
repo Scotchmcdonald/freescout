@@ -64,6 +64,19 @@ class SendAutoReply implements ShouldQueue
             return;
         }
 
+        // Check if auto-reply was already sent for this thread (duplicate prevention)
+        $existingLog = SendLog::where('thread_id', $this->thread->id)
+            ->where('mail_type', SendLog::MAIL_TYPE_AUTO_REPLY)
+            ->exists();
+
+        if ($existingLog) {
+            Log::debug('Auto-reply already sent for this thread', [
+                'thread_id' => $this->thread->id,
+            ]);
+
+            return;
+        }
+
         Log::info('Executing SendAutoReply job', [
             'conversation_id' => $this->conversation->id,
             'mailbox_id' => $this->mailbox->id,
