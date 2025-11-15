@@ -886,17 +886,18 @@ class ImapService
             $body = nl2br($body);
         }
 
-        // List of reply separators, from most to least specific
+        // List of reply separators (literal strings and regex patterns)
         $separators = [
-            '<div class="protonmail_quote">', // ProtonMail
-            '---- Replied Above ----', // Generic separator
-            'On(.*)wrote:', // "On [date], [sender] wrote:"
-            'From: ', // Forwarded message header
-            '________', // Underscore separator
+            ['pattern' => '<div class="protonmail_quote">', 'is_regex' => false], // ProtonMail
+            ['pattern' => '---- Replied Above ----', 'is_regex' => false], // Generic separator
+            ['pattern' => 'On.*wrote:', 'is_regex' => true], // "On [date], [sender] wrote:"
+            ['pattern' => 'From: ', 'is_regex' => false], // Forwarded message header
+            ['pattern' => '________', 'is_regex' => false], // Underscore separator
         ];
 
-        foreach ($separators as $separator) {
-            $parts = preg_split('/'.preg_quote($separator, '/').'/i', $body);
+        foreach ($separators as $sep) {
+            $pattern = $sep['is_regex'] ? $sep['pattern'] : preg_quote($sep['pattern'], '/');
+            $parts = preg_split('/'.$pattern.'/i', $body);
             if ($parts !== false && count($parts) > 1) {
                 // Check if the part before the separator has actual content
                 if (trim(strip_tags($parts[0]))) {
@@ -937,8 +938,8 @@ class ImapService
             }
         }
 
-        // Regex to find just an email address (with flexible delimiters)
-        if (preg_match("/[\"'<:;]([^\"'<:;!@\s]+@[^\"'>:&@\s]+)[\s\"'>:;&]/", $cleanBody, $matches)) {
+        // Regex to find just an email address (with flexible delimiters including whitespace)
+        if (preg_match("/[\"'<:;\s]([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})[\s\"'>:;&]/", $cleanBody, $matches)) {
             $emailRaw = preg_replace('#.*&lt;(.*)&gt.*#', '$1', $matches[1]);
             $emailSanitized = is_string($emailRaw) ? \App\Models\Email::sanitizeEmail($emailRaw) : false;
 
