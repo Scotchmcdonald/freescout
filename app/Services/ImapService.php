@@ -457,15 +457,17 @@ class ImapService
 
             // Create new conversation if not found
             if (! $conversation) {
-                // Lock to prevent race condition with conversation number
-                $maxNumber = $mailbox->conversations()->lockForUpdate()->max('number');
-                $number = (is_int($maxNumber) ? $maxNumber : 0) + 1;
+                // Validate folder exists BEFORE any database operations
                 /** @var \App\Models\Folder|null $folder */
                 $folder = $mailbox->folders()->where('type', 1)->first(); // Inbox
 
                 if (! $folder) {
                     throw new \Exception("No inbox folder found for mailbox {$mailbox->id}");
                 }
+
+                // Lock to prevent race condition with conversation number
+                $maxNumber = $mailbox->conversations()->lockForUpdate()->max('number');
+                $number = (is_int($maxNumber) ? $maxNumber : 0) + 1;
 
                 /** @var \App\Models\Conversation $conversation */
                 $conversation = Conversation::create([

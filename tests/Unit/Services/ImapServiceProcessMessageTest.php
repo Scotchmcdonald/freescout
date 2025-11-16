@@ -1905,10 +1905,10 @@ Clean message content';
     {
         // Arrange
         $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
-        $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
-
-        // Create message that will fail (no folder)
-        $folder->delete();
+        
+        // Observer creates default folders on mailbox creation, delete ALL of them
+        // to simulate scenario where inbox folder is missing
+        $mailbox->folders()->delete();
 
         $message = $this->createMockMessage([
             'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
@@ -2547,7 +2547,10 @@ Some text that looks like quote but is not';
     public function test_process_message_throws_exception_when_inbox_folder_missing(): void
     {
         // Arrange
-        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        // Create mailbox without firing observer (which auto-creates folders)
+        $mailbox = Mailbox::withoutEvents(function () {
+            return Mailbox::factory()->create(['email' => 'support@example.com']);
+        });
         // Don't create inbox folder
 
         $message = $this->createMockMessage([
