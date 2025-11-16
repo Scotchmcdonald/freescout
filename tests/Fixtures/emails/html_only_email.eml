@@ -1,0 +1,16 @@
+From: customer@example.com
+To: support@myapp.com
+Subject: HTML Email
+Date: Mon, 1 Jan 2024 12:00:00 +0000
+Message-ID: <html-only@example.com>
+Content-Type: text/html; charset=UTF-8
+
+<html>
+<head><title>Test Email</title></head>
+<body>
+  <h1>This is an HTML-only email</h1>
+  <p>It has <strong>no plain text alternative</strong>.</p>
+  <p>Some systems may have trouble with this.</p>
+  <img src="https://example.com/image.jpg" alt="Test Image">
+</body>
+</html>

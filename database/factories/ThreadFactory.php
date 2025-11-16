@@ -57,4 +57,45 @@ class ThreadFactory extends Factory
             'from' => null,
         ]);
     }
+
+    public function customerMessage(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 4, // Customer message
+            'user_id' => null,
+            'customer_id' => Customer::factory(),
+        ]);
+    }
+
+    public function userReply(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 1, // Message/Reply
+            'user_id' => User::factory(),
+            'customer_id' => null,
+        ]);
+    }
+
+    public function withLargeBody(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'body' => fake()->paragraphs(50, true), // ~5KB of text
+        ]);
+    }
+
+    public function withHtmlBody(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'body' => '<html><body><h1>Test Email</h1>' . fake()->paragraphs(5, true) . '</body></html>',
+        ]);
+    }
+
+    public function withAttachments(int $count = 2): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'has_attachments' => true,
+        ])->has(
+            \App\Models\Attachment::factory()->count($count)
+        );
+    }
 }

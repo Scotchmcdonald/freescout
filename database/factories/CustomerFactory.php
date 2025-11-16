@@ -81,4 +81,41 @@ class CustomerFactory extends Factory
             'job_title' => fake()->jobTitle(),
         ]);
     }
+
+    public function withMultipleEmails(int $count = 3): static
+    {
+        return $this->afterCreating(function (Customer $customer) use ($count) {
+            // Create additional emails beyond the primary one
+            for ($i = 1; $i < $count; $i++) {
+                $customer->emails()->create([
+                    'email' => fake()->unique()->safeEmail(),
+                    'type' => fake()->randomElement(['work', 'home', 'other']),
+                ]);
+            }
+        });
+    }
+
+    public function withUnicodeName(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'first_name' => '山田',
+            'last_name' => '太郎',
+        ]);
+    }
+
+    public function withEmoji(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'first_name' => '😀 Happy',
+            'last_name' => 'Customer',
+        ]);
+    }
+
+    public function withChannels(int $count = 2): static
+    {
+        return $this->afterCreating(function (Customer $customer) use ($count) {
+            // This would attach to channels if Channel model exists
+            // Placeholder for future implementation
+        });
+    }
 }

@@ -65,4 +65,47 @@ class ConversationFactory extends Factory
             'has_attachments' => true,
         ]);
     }
+
+    public function active(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 1, // Active
+        ]);
+    }
+
+    public function spam(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 4, // Spam
+        ]);
+    }
+
+    public function draft(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'state' => 1, // Draft
+        ]);
+    }
+
+    public function withThreads(int $count = 3): static
+    {
+        return $this->has(
+            \App\Models\Thread::factory()->count($count),
+            'threads'
+        );
+    }
+
+    public function withUnicodeSubject(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'subject' => '日本語のタイトル - Unicode Test 🎉',
+        ]);
+    }
+
+    public function withLargeThreadCount(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'threads_count' => 100,
+        ]);
+    }
 }
