@@ -189,6 +189,6 @@ class Mailbox extends Model
      */
     public function url(): string
     {
-        return route('mailboxes.view', ['id' => $this->id]);
+        return route('mailboxes.view', ['mailbox' => $this->id]);
     }
 }

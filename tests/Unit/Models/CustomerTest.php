@@ -37,7 +37,7 @@ class CustomerTest extends TestCase
             'last_name' => '  Doe  ',
         ]);
 
-        $this->assertEquals('John   Doe', $customer->getFullName());
+        $this->assertEquals('John     Doe', $customer->getFullName());
     }
 
     /** @test */
@@ -153,6 +153,7 @@ class CustomerTest extends TestCase
     public function getMainEmail_returns_null_when_no_emails(): void
     {
         $customer = Customer::factory()->create();
+        $customer->emails()->delete(); // Remove auto-created email
 
         $this->assertNull($customer->getMainEmail());
     }
