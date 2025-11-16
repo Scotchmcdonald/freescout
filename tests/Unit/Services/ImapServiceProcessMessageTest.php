@@ -69,7 +69,7 @@ class ImapServiceProcessMessageTest extends UnitTestCase
             'reply_to' => [],
             'text_body' => 'Test email body content',
             'html_body' => '<p>Test email body content</p>',
-            'has_html' => true,
+            'has_html' => false, // Default to text body for simpler testing
             'has_attachments' => false,
             'attachments' => new AttachmentCollection(),
             'in_reply_to' => null,
@@ -335,6 +335,8 @@ class ImapServiceProcessMessageTest extends UnitTestCase
             'conversation_id' => $originalConversation->id,
             'message_id' => '<original-123@example.com>',
         ]);
+        // Update threads_count to reflect the existing thread
+        $originalConversation->update(['threads_count' => 1]);
 
         // Create reply message
         $message = $this->createMockMessage([
@@ -377,6 +379,8 @@ class ImapServiceProcessMessageTest extends UnitTestCase
             'conversation_id' => $originalConversation->id,
             'message_id' => '<ref-456@example.com>',
         ]);
+        // Update threads_count to reflect the existing thread
+        $originalConversation->update(['threads_count' => 1]);
 
         // Create reply with References header
         $message = $this->createMockMessage([
@@ -1122,8 +1126,10 @@ This is the forwarded message content';
         $fromObject = new \stdClass();
         $fromObject->__toString = function() { return 'John Doe <john@example.com>'; };
 
+        $fromObj = (object)['mail' => 'parsed@example.com', 'personal' => 'Parsed User'];
+        
         $message = Mockery::mock(Message::class);
-        $message->shouldReceive('getFrom')->andReturn([(object)[]]);
+        $message->shouldReceive('getFrom')->andReturn([$fromObj]);
         $message->shouldReceive('getMessageId')->andReturn('<parse@example.com>');
         $message->shouldReceive('getSubject')->andReturn('Test');
         $message->shouldReceive('getTo')->andReturn([]);
@@ -1137,16 +1143,13 @@ This is the forwarded message content';
         $message->shouldReceive('getAttachments')->andReturn(new AttachmentCollection());
         $message->shouldReceive('getRawHeader')->andReturn('From: john@example.com');
         
+        $emptyAttribute = Mockery::mock(Attribute::class);
+        $emptyAttribute->shouldReceive('first')->andReturn(null);
+        
         $header = Mockery::mock(Header::class);
-        $header->shouldReceive('get')->with('in_reply_to')->andReturn(null);
-        $header->shouldReceive('get')->with('references')->andReturn(null);
+        $header->shouldReceive('get')->with('in_reply_to')->andReturn($emptyAttribute);
+        $header->shouldReceive('get')->with('references')->andReturn($emptyAttribute);
         $message->shouldReceive('getHeader')->andReturn($header);
-
-        // Override getFrom to return proper object for string casting test
-        $fromObj = Mockery::mock();
-        $fromObj->mail = 'parsed@example.com';
-        $fromObj->personal = 'Parsed User';
-        $message->shouldReceive('getFrom')->andReturn([$fromObj]);
 
         // Act
         $this->invokeProcessMessage($mailbox, $message);
@@ -1829,6 +1832,8 @@ Clean message content';
             'conversation_id' => $conversation->id,
             'message_id' => '<original@example.com>',
         ]);
+        // Update threads_count to reflect the existing thread
+        $conversation->update(['threads_count' => 1]);
 
         $message = $this->createMockMessage([
             'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],

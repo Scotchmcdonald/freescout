@@ -15,7 +15,7 @@ return new class extends Migration
         // Conversations - ticket/conversation threads
         Schema::create('conversations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('number')->unique(); // human-readable conversation number
+            $table->unsignedInteger('number'); // human-readable conversation number per mailbox
             $table->unsignedInteger('threads_count')->default(0);
             $table->unsignedTinyInteger('type'); // 1=email, 2=phone, 3=chat
             $table->foreignId('folder_id')->constrained()->cascadeOnDelete();
@@ -60,6 +60,9 @@ return new class extends Migration
             $table->index('user_id');
             $table->index('state');
             $table->index('last_reply_at');
+            
+            // Unique constraint: conversation number is unique per mailbox
+            $table->unique(['mailbox_id', 'number']);
         });
 
         // Threads - individual messages/replies within a conversation

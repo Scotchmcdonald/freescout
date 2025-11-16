@@ -475,10 +475,12 @@ class ConversationController extends Controller
         $conversation->type = $originalConversation->type;
         $conversation->subject = $originalConversation->subject;
         $conversation->mailbox_id = $originalConversation->mailbox_id;
+        $conversation->folder_id = $originalConversation->folder_id; // Must be set before save
         $conversation->source_via = $originalConversation->source_via;
         $conversation->source_type = $originalConversation->source_type;
         $conversation->customer_id = $originalConversation->customer_id;
         $conversation->customer_email = $originalConversation->customer_email;
+        $conversation->preview = $originalConversation->preview;
         $conversation->status = 1; // Active
         $conversation->state = 2; // Published
         $conversation->cc = $thread->cc;
@@ -486,8 +488,10 @@ class ConversationController extends Controller
         $conversation->user_id = $originalConversation->user_id;
         $conversation->save();
 
-        // Update folder
-        $conversation->updateFolder();
+        // Update folder if status/state changed
+        if ($conversation->status != $originalConversation->status || $conversation->state != $originalConversation->state) {
+            $conversation->updateFolder();
+        }
 
         // Create cloned thread
         $newThread = new Thread;
@@ -591,7 +595,7 @@ class ConversationController extends Controller
         DB::beginTransaction();
 
         try {
-            $customerId = $validated['customer_id'];
+            $customerId = $validated['customer_id'] ?? null;
 
             // Create new customer if needed
             if (! $customerId && ! empty($validated['new_customer_email'])) {

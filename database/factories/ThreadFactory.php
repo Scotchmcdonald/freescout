@@ -34,6 +34,7 @@ class ThreadFactory extends Factory
             'from' => fake()->email(),
             'headers' => null,
             'message_id' => fake()->uuid().'@example.com',
+            'has_attachments' => false,
             'opened_at' => null,
             'meta' => null,
         ];

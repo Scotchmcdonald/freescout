@@ -17,6 +17,7 @@ use App\Observers\ThreadObserver;
 use App\Observers\UserObserver;
 use App\Policies\ConversationPolicy;
 use App\Policies\FolderPolicy;
+use App\Policies\MailboxPolicy;
 use App\Policies\ThreadPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -43,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Register authorization policies
         Gate::policy(Conversation::class, ConversationPolicy::class);
+        Gate::policy(Mailbox::class, MailboxPolicy::class);
         Gate::policy(Thread::class, ThreadPolicy::class);
         Gate::policy(Folder::class, FolderPolicy::class);
     }

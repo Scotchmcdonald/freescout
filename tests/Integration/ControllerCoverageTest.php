@@ -42,6 +42,8 @@ class ControllerCoverageTest extends IntegrationTestCase
 
     public function test_clone_creates_duplicate_conversation(): void
     {
+        $this->actingAs($this->admin);
+        
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
         
@@ -225,6 +227,8 @@ class ControllerCoverageTest extends IntegrationTestCase
 
     public function test_destroy_soft_deletes_conversation(): void
     {
+        $this->actingAs($this->admin);
+        
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
         
@@ -242,8 +246,8 @@ class ControllerCoverageTest extends IntegrationTestCase
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
         
-        // Verify conversation is soft-deleted
-        $this->assertSoftDeleted('conversations', ['id' => $conversationId]);
+        // Verify conversation is deleted (Conversation model doesn't use SoftDeletes)
+        $this->assertDatabaseMissing('conversations', ['id' => $conversationId]);
     }
 
     // ========================================
@@ -267,6 +271,8 @@ class ControllerCoverageTest extends IntegrationTestCase
 
     public function test_clone_preserves_all_thread_properties(): void
     {
+        $this->actingAs($this->admin);
+        
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
         
@@ -604,6 +610,8 @@ class ControllerCoverageTest extends IntegrationTestCase
 
     public function test_destroy_only_soft_deletes(): void
     {
+        $this->actingAs($this->admin);
+        
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
         
@@ -616,9 +624,11 @@ class ControllerCoverageTest extends IntegrationTestCase
         $controller = new ConversationController;
         $controller->destroy($request, $conversation);
 
-        // Verify conversation still exists in database but is soft-deleted
-        $this->assertDatabaseHas('conversations', ['id' => $conversationId]);
-        $this->assertSoftDeleted('conversations', ['id' => $conversationId]);
+        // Verify conversation is deleted (Conversation model doesn't use SoftDeletes)
+        $this->assertDatabaseMissing('conversations', ['id' => $conversationId]);
+        
+        // Verify related threads are also deleted via cascade
+        $this->assertDatabaseMissing('threads', ['conversation_id' => $conversationId]);
     }
 
     // ========================================
@@ -871,6 +881,8 @@ class ControllerCoverageTest extends IntegrationTestCase
 
     public function test_ajax_handles_toggle_status_action(): void
     {
+        $this->actingAs($this->admin);
+        
         $targetUser = User::factory()->create(['status' => 1]);
 
         $request = Request::create('/users/ajax', 'POST', [
@@ -894,6 +906,8 @@ class ControllerCoverageTest extends IntegrationTestCase
 
     public function test_ajax_toggle_status_toggles_back(): void
     {
+        $this->actingAs($this->admin);
+        
         $targetUser = User::factory()->create(['status' => 2]);
 
         $request = Request::create('/users/ajax', 'POST', [
@@ -1124,7 +1138,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $mockModule = $this->createMock(\Nwidart\Modules\Module::class);
         $mockModule->expects($this->once())
             ->method('enable');
-        $mockModule->expects($this->once())
+        $mockModule->expects($this->exactly(2)) // Called twice: for migration and for success message
             ->method('getName')
             ->willReturn('TestModule');
 
@@ -1182,18 +1196,15 @@ class ControllerCoverageTest extends IntegrationTestCase
         $mockModule->expects($this->once())
             ->method('enable')
             ->willThrowException(new \Exception('Migration failed'));
-        $mockModule->expects($this->once())
-            ->method('getName')
-            ->willReturn('TestModule');
+        // getName() is NOT called in the error handler, remove this expectation
 
         Module::shouldReceive('find')
             ->once()
             ->with('testmodule')
             ->andReturn($mockModule);
 
-        Artisan::shouldReceive('call')
-            ->with('module:migrate', ['module' => 'TestModule'])
-            ->andThrow(new \Exception('Migration failed'));
+        // Artisan::call is not reached because enable() throws exception first
+        // Remove Artisan mock expectations
 
         $request = Request::create('/modules/enable/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
@@ -1205,6 +1216,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('error', $data['status']);
+        $this->assertEquals('Migration failed', $data['message']);
     }
 
     public function test_disable_deactivates_module(): void
@@ -1267,9 +1279,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $mockModule->expects($this->once())
             ->method('disable')
             ->willThrowException(new \Exception('Disable failed'));
-        $mockModule->expects($this->once())
-            ->method('getName')
-            ->willReturn('TestModule');
+        // getName() is NOT called in the error handler, remove this expectation
 
         Module::shouldReceive('find')
             ->once()
@@ -1286,6 +1296,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('error', $data['status']);
+        $this->assertEquals('Disable failed', $data['message']);
     }
 
     public function test_delete_removes_module_from_system(): void
@@ -1402,9 +1413,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $mockModule->expects($this->once())
             ->method('getPath')
             ->willReturn('/tmp/test-module-path');
-        $mockModule->expects($this->once())
-            ->method('getName')
-            ->willReturn('TestModule');
+        // getName() is NOT called in the error handler, remove this expectation
 
         Module::shouldReceive('find')
             ->once()
@@ -1426,5 +1435,6 @@ class ControllerCoverageTest extends IntegrationTestCase
         
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('error', $data['status']);
+        $this->assertEquals('Directory deletion failed', $data['message']);
     }
 }

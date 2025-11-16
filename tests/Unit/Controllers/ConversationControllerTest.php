@@ -544,6 +544,9 @@ class ConversationControllerTest extends UnitTestCase
             'customer_email' => 'old@example.com',
         ]);
 
+        // Ensure no customer with new email exists yet
+        $this->assertDatabaseMissing('emails', ['email' => 'newcustomer@example.com']);
+        
         $request = Request::create('/conversations/'.$conversation->id.'/change-customer', 'POST');
         $request->setUserResolver(fn () => $user);
         $request->merge([
@@ -555,16 +558,18 @@ class ConversationControllerTest extends UnitTestCase
         $controller = new ConversationController;
         $response = $controller->changeCustomer($request, $conversation);
 
-        // Verify new customer was created
-        $this->assertDatabaseHas('customers', [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-        ]);
-        
+        $this->assertTrue($response->isSuccessful() || $response->isRedirection());
+
         // Verify email was created in emails table
         $this->assertDatabaseHas('emails', [
             'email' => 'newcustomer@example.com',
         ]);
+
+        // Verify new customer was created/found with the correct email
+        $newCustomer = Customer::whereHas('emails', fn($q) => $q->where('email', 'newcustomer@example.com'))->first();
+        $this->assertNotNull($newCustomer);
+        $this->assertEquals('John', $newCustomer->first_name);
+        $this->assertEquals('Doe', $newCustomer->last_name);
 
         // Verify conversation was updated
         $conversation->refresh();
