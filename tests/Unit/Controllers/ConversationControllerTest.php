@@ -682,16 +682,4 @@ class ConversationControllerTest extends UnitTestCase
         $controller->upload($request);
     }
 
-    /**
-     * Note: Clone functionality is tested in Feature/ConversationControllerMethodsTest
-     * Unit tests cannot properly test authorization context for controller methods.
-     * See test_guest_cannot_clone_conversation() in Feature test suite.
-     */
-    public function test_clone_creates_new_conversation_with_same_properties(): void
-    {
-        // This test is intentionally skipped as clone() requires proper authentication context
-        // which is better tested in Feature tests with actingAs().
-        // See ConversationControllerMethodsTest::test_guest_cannot_clone_conversation()
-        $this->markTestSkipped('Clone functionality tested in Feature test suite with proper authentication');
-    }
 }

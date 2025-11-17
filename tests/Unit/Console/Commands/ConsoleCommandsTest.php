@@ -43,11 +43,6 @@ class ConsoleCommandsTest extends UnitTestCase
     {
         parent::setUp();
         
-        // Skip these tests during coverage runs to prevent PCOV hang
-        if (extension_loaded('pcov') && ini_get('pcov.enabled')) {
-            $this->markTestSkipped('Console command tests skipped during coverage collection to prevent PCOV hang');
-        }
-        
         // Ensure clean state
         Cache::flush();
     }

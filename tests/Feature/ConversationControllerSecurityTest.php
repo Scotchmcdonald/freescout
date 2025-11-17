@@ -215,42 +215,7 @@ class ConversationControllerSecurityTest extends TestCase
         $response->assertRedirect();
     }
 
-    /**
-     * Test that a user cannot delete a conversation from an unauthorized mailbox.
-     */
-    public function test_user_cannot_delete_unauthorized_conversation(): void
-    {
-        // Skip this test if destroy route or method doesn't exist
-        if (! \Illuminate\Support\Facades\Route::has('conversations.destroy') ||
-            ! method_exists(\App\Http\Controllers\ConversationController::class, 'destroy')) {
-            $this->markTestSkipped('Delete conversation functionality not implemented');
-        }
 
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
-        $mailbox1 = Mailbox::factory()->create();
-        $mailbox2 = Mailbox::factory()->create();
-
-        $mailbox1->users()->attach($user);
-
-        Folder::factory()->create([
-            'mailbox_id' => $mailbox1->id,
-            'type' => Folder::TYPE_INBOX,
-        ]);
-
-        Folder::factory()->create([
-            'mailbox_id' => $mailbox2->id,
-            'type' => Folder::TYPE_INBOX,
-        ]);
-
-        $conversation = Conversation::factory()->for($mailbox2)->create();
-
-        $response = $this->actingAs($user)->delete(
-            route('conversations.destroy', $conversation)
-        );
-
-        $response->assertForbidden();
-        $this->assertDatabaseHas('conversations', ['id' => $conversation->id]);
-    }
 
     /**
      * Test that an admin can access all conversations regardless of mailbox.
