@@ -8,14 +8,14 @@ use App\Models\Mailbox;
 use App\Models\User;
 use App\Services\ImapService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 use Mockery\MockInterface;
 
 /**
  * Tests for IMAP connection testing and folder retrieval in MailboxesController.
- *
- * @group imap
  */
+#[Group('imap')]
 class MailboxConnectionImapTest extends TestCase
 {
     use RefreshDatabase;

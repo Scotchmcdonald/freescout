@@ -134,6 +134,9 @@ class CustomerTest extends TestCase
     {
         $customer = Customer::factory()->create();
         
+        // Delete auto-created email from factory
+        $customer->emails()->delete();
+        
         Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'first@example.com',

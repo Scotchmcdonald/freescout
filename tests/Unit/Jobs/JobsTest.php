@@ -72,9 +72,11 @@ class JobsTest extends TestCase
     public function send_auto_reply_job_can_be_constructed(): void
     {
         $conversation = Conversation::factory()->create();
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $mailbox = $conversation->mailbox;
         $customer = Customer::factory()->create();
 
-        $job = new SendAutoReply($conversation, $customer);
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 
         $this->assertInstanceOf(SendAutoReply::class, $job);
         $this->assertEquals($conversation->id, $job->conversation->id);
@@ -86,7 +88,9 @@ class JobsTest extends TestCase
     {
         Mail::fake();
 
-        $conversation = Conversation::factory()->create();
+        $conversation = Conversation::factory()->create(['customer_email' => 'customer@example.com']);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $mailbox = $conversation->mailbox;
         $customer = Customer::factory()->create();
         
         // Create email for customer
@@ -96,10 +100,10 @@ class JobsTest extends TestCase
             'type' => 1,
         ]);
 
-        $job = new SendAutoReply($conversation, $customer);
-        $job->handle();
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle(app(\App\Services\SmtpService::class));
 
-        Mail::assertSent(AutoReplyNotification::class);
+        Mail::assertSent(\App\Mail\AutoReply::class);
     }
 
     /** @test */
@@ -150,9 +154,11 @@ class JobsTest extends TestCase
     public function send_auto_reply_job_is_queueable(): void
     {
         $conversation = Conversation::factory()->create();
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $mailbox = $conversation->mailbox;
         $customer = Customer::factory()->create();
 
-        $job = new SendAutoReply($conversation, $customer);
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 
         $this->assertInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class, $job);
     }

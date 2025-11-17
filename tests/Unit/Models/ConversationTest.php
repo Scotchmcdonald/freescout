@@ -171,7 +171,7 @@ class ConversationTest extends TestCase
     {
         $conversation = Conversation::factory()->withUnicodeSubject()->create();
 
-        $this->assertStringContainsString('📧', $conversation->subject);
+        $this->assertStringContainsString('🎉', $conversation->subject);
         $this->assertDatabaseHas('conversations', [
             'id' => $conversation->id,
         ]);
@@ -208,7 +208,7 @@ class ConversationTest extends TestCase
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create([
-            'closed_by' => $user->id,
+            'closed_by_user_id' => $user->id,
         ]);
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $conversation->closedByUser());

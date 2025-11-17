@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Option;
 use App\Services\ImapService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 use Mockery\MockInterface;
 
@@ -17,9 +18,8 @@ class FetchEmailsCommandTest extends TestCase
 
     /**
      * Test fetches emails from multiple IMAP folders.
-     * 
-     * @group imap
      */
+    #[Group('imap')]
     public function test_fetches_from_multiple_imap_folders()
     {
         // Arrange: Create a mailbox
@@ -50,9 +50,8 @@ class FetchEmailsCommandTest extends TestCase
 
     /**
      * Test handles empty mailbox gracefully.
-     * 
-     * @group imap
      */
+    #[Group('imap')]
     public function test_handles_empty_mailbox_gracefully()
     {
         // Arrange
@@ -82,9 +81,8 @@ class FetchEmailsCommandTest extends TestCase
 
     /**
      * Test connection test mode works correctly.
-     * 
-     * @group imap
      */
+    #[Group('imap')]
     public function test_connection_test_mode()
     {
         // Arrange
@@ -118,9 +116,8 @@ class FetchEmailsCommandTest extends TestCase
 
     /**
      * Test connection failure in test mode.
-     * 
-     * @group imap
      */
+    #[Group('imap')]
     public function test_connection_failure_in_test_mode()
     {
         // Arrange
@@ -149,9 +146,8 @@ class FetchEmailsCommandTest extends TestCase
 
     /**
      * Test fetches from all mailboxes when no ID specified.
-     * 
-     * @group imap
      */
+    #[Group('imap')]
     public function test_fetches_from_all_mailboxes()
     {
         // Arrange
@@ -188,9 +184,8 @@ class FetchEmailsCommandTest extends TestCase
 
     /**
      * Test handles fetch errors and reports them.
-     * 
-     * @group imap
      */
+    #[Group('imap')]
     public function test_handles_fetch_errors()
     {
         // Arrange
@@ -225,9 +220,8 @@ class FetchEmailsCommandTest extends TestCase
 
     /**
      * Test skips mailboxes without IMAP configuration.
-     * 
-     * @group imap
      */
+    #[Group('imap')]
     public function test_skips_mailboxes_without_imap_server()
     {
         // Arrange - mailboxes without IMAP server

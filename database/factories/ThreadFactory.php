@@ -19,8 +19,8 @@ class ThreadFactory extends Factory
     {
         return [
             'conversation_id' => Conversation::factory(),
-            'user_id' => User::factory(),
-            'customer_id' => null,
+            'user_id' => null, // Don't auto-create - tests should specify
+            'customer_id' => null, // Don't auto-create - tests should specify
             'type' => 1, // Message
             'status' => 2, // Active
             'state' => 2, // Published

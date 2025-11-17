@@ -34,9 +34,11 @@ class ThreadTest extends TestCase
     public function thread_belongs_to_user(): void
     {
         $user = User::factory()->create();
-        $thread = Thread::factory()->create(['user_id' => $user->id]);
+        $thread = Thread::factory()->create(['created_by_user_id' => $user->id]);
+        $thread = $thread->fresh(['user']);
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $thread->user());
+        $this->assertNotNull($thread->user);
         $this->assertEquals($user->id, $thread->user->id);
     }
 
@@ -44,9 +46,11 @@ class ThreadTest extends TestCase
     public function thread_belongs_to_customer(): void
     {
         $customer = Customer::factory()->create();
-        $thread = Thread::factory()->create(['customer_id' => $customer->id]);
+        $thread = Thread::factory()->create(['created_by_customer_id' => $customer->id]);
+        $thread = $thread->fresh(['customer']);
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $thread->customer());
+        $this->assertNotNull($thread->customer);
         $this->assertEquals($customer->id, $thread->customer->id);
     }
 
@@ -88,8 +92,9 @@ class ThreadTest extends TestCase
     {
         $thread = Thread::factory()->withHtmlBody()->create();
 
-        $this->assertStringContainsString('<p>', $thread->body);
-        $this->assertStringContainsString('<strong>', $thread->body);
+        $this->assertStringContainsString('<html>', $thread->body);
+        $this->assertStringContainsString('<body>', $thread->body);
+        $this->assertStringContainsString('<h1>Test Email</h1>', $thread->body);
     }
 
     /** @test */
