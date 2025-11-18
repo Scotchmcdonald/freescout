@@ -16,12 +16,14 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 /**
  * COMPREHENSIVE Test Suite for Console Commands
- * 
+ *
  * This is an extensive test suite with 100+ tests covering:
  * - Command existence and structure
  * - Signature and argument validation
@@ -33,9 +35,11 @@ use Tests\UnitTestCase;
  * - Exit code verification
  * - Exception handling
  * - Performance considerations
- * 
+ *
  * Target Coverage: 95%+ on all commands
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 class ConsoleCommandsTest extends UnitTestCase
 {
 
@@ -49,7 +53,6 @@ class ConsoleCommandsTest extends UnitTestCase
 
     protected function tearDown(): void
     {
-        // Comprehensive cleanup
         $this->cleanupTestArtifacts();
         
         parent::tearDown();

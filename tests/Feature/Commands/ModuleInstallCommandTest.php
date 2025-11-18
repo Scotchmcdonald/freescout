@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Commands;
 
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
+use Nwidart\Modules\Facades\Module as ModuleFacade;
 use Tests\FeatureTestCase;
 
 class ModuleInstallCommandTest extends FeatureTestCase
@@ -14,13 +16,15 @@ class ModuleInstallCommandTest extends FeatureTestCase
     // RefreshDatabase is inherited from FeatureTestCase
 
     protected string $testModulePath;
+    protected string $testModuleName = 'TestModule';
 
     protected function setUp(): void
     {
         parent::setUp();
 
         // Create test module directory structure
-        $this->testModulePath = base_path('Modules/TestModule');
+        $this->testModulePath = base_path('Modules/'.$this->testModuleName);
+        $this->createTestModule($this->testModuleName);
     }
 
     protected function tearDown(): void
@@ -31,7 +35,7 @@ class ModuleInstallCommandTest extends FeatureTestCase
         }
 
         // Clean up public symlinks
-        $publicSymlink = public_path('modules/testmodule');
+        $publicSymlink = public_path('modules/'.strtolower($this->testModuleName));
         if (File::exists($publicSymlink) || is_link($publicSymlink)) {
             if (is_link($publicSymlink)) {
                 unlink($publicSymlink);
@@ -47,62 +51,92 @@ class ModuleInstallCommandTest extends FeatureTestCase
 
     public function test_installs_specific_module_successfully(): void
     {
-        $this->markTestIncomplete(
-            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API. '.
-            'The \Module::findByAlias() method needs to be confirmed available or replaced with v11 equivalent. '.
-            'See docs/INCOMPLETE_TESTS_REVIEW.md for implementation details.'
-        );
+        $module = ModuleFacade::find($this->testModuleName);
+        $this->assertNotNull($module, "Test module '{$this->testModuleName}' not found.");
+
+        // Disable the module to ensure the command enables it.
+        $module->disable();
+        $this->assertFalse($module->isEnabled(), 'Module should be disabled before running the install command.');
+
+        $this->artisan('freescout:module-install', ['module_alias' => strtolower($this->testModuleName)])
+            ->expectsOutputToContain('symlink has been created')
+            ->assertExitCode(0);
+
+        // Re-find the module instance to get the updated status.
+        $updatedModule = ModuleFacade::find($this->testModuleName);
+        $this->assertTrue($updatedModule->isEnabled(), 'Module was not enabled after installation.');
     }
 
     public function test_creates_symlink_in_public_directory(): void
     {
-        $this->markTestIncomplete(
-            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API. '.
-            'Needs module system working to test symlink creation. '.
-            'See docs/INCOMPLETE_TESTS_REVIEW.md'
-        );
+        $publicSymlink = public_path('modules/'.strtolower($this->testModuleName));
+        
+        // Ensure it doesn't exist before running the command
+        if (is_link($publicSymlink)) {
+            unlink($publicSymlink);
+        }
+        $this->assertFalse(is_link($publicSymlink), "Symlink existed before test run.");
+
+        $this->artisan('freescout:module-install', ['module_alias' => strtolower($this->testModuleName)])
+            ->assertExitCode(0);
+
+        $this->assertTrue(is_link($publicSymlink), 'Symlink was not created or is not a link.');
     }
 
     public function test_clears_cache_before_installation(): void
     {
-        $this->markTestIncomplete(
-            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API. '.
-            'See docs/INCOMPLETE_TESTS_REVIEW.md'
-        );
+        // The command calls 'cache:clear' and 'freescout:clear-cache'.
+        // A successful run of the main command is sufficient to test this integration.
+        $this->artisan('freescout:module-install', ['module_alias' => strtolower($this->testModuleName)])
+            ->expectsOutputToContain('Clearing cache...')
+            ->assertExitCode(0);
     }
 
     // Story 3.1.2: Module Installation Error Handling
 
     public function test_fails_gracefully_when_module_not_found(): void
     {
-        $this->markTestIncomplete(
-            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API. '.
-            'See docs/INCOMPLETE_TESTS_REVIEW.md'
-        );
+        $this->artisan('freescout:module-install', ['module_alias' => 'nonexistentmodule'])
+            ->expectsOutput('Module with the specified alias not found: nonexistentmodule')
+            ->assertExitCode(0);
     }
 
     public function test_handles_missing_module_json(): void
     {
-        $this->markTestIncomplete(
-            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API and test refactoring. '.
-            'See docs/INCOMPLETE_TESTS_REVIEW.md'
-        );
+        File::delete($this->testModulePath.'/module.json');
+
+        $this->artisan('freescout:module-install', ['module_alias' => strtolower($this->testModuleName)])
+            ->expectsOutput('Module with the specified alias not found: '.strtolower($this->testModuleName))
+            ->assertExitCode(0);
     }
 
     public function test_handles_invalid_permissions(): void
     {
-        $this->markTestIncomplete(
-            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API. '.
-            'See docs/INCOMPLETE_TESTS_REVIEW.md'
-        );
+        // Create a partial mock of the Filesystem class
+        $mock = \Mockery::mock(Filesystem::class)->makePartial();
+        
+        // Expect the link method to be called and throw an exception
+        $mock->shouldReceive('link')
+            ->once()
+            ->andThrow(new \Exception('Permission denied'));
+
+        // Swap the 'files' instance in the container
+        $this->instance('files', $mock);
+        $this->instance(Filesystem::class, $mock);
+
+        $this->artisan('freescout:module-install', ['module_alias' => strtolower($this->testModuleName)])
+            ->expectsOutputToContain('Permission denied')
+            ->assertExitCode(1);
     }
 
+    /**
+     * @withoutMiddleware
+     */
     public function test_validates_module_alias_format(): void
     {
-        $this->markTestIncomplete(
-            'BLOCKED: Requires verification of nwidart/laravel-modules v11 API and possible command refactoring. '.
-            'See docs/INCOMPLETE_TESTS_REVIEW.md'
-        );
+        $this->artisan('freescout:module-install', ['module_alias' => 'Invalid-Module-Name'])
+            ->expectsOutput('Module with the specified alias not found: Invalid-Module-Name')
+            ->assertExitCode(0);
     }
 
     /**
@@ -174,3 +208,4 @@ PHP;
         }
     }
 }
+

@@ -113,6 +113,9 @@ class PolicyDebugTest extends IntegrationTestCase
         $request = \Illuminate\Http\Request::create('/conversations/clone', 'POST');
         $request->setUserResolver(fn () => $admin);
 
+        // Ensure global auth state is set for Gate/Policy checks
+        $this->actingAs($admin);
+
         dump('Calling controller...');
         $controller = new \App\Http\Controllers\ConversationController;
         
