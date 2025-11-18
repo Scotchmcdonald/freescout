@@ -1,1 +1,4 @@
-{"SampleModule": false}
+{
+    "SampleModule": false,
+    "TestModule": true
+}

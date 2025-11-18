@@ -141,13 +141,155 @@ $customer = Customer::factory()->create([
 // 4. Associates email with customer
 ```
 
+## Unit vs Feature Tests: Database Usage
+
+### When to Use Pure Unit Tests (No Database)
+
+**Rule of Thumb:** If you can test the logic without touching the database, you should.
+
+#### Pure Unit Test Pattern
+
+```php
+class ImapServiceFetchEmailsTest extends TestCase  // Note: Plain TestCase, not UnitTestCase!
+{
+    // No RefreshDatabase trait!
+    // No database migrations!
+    
+    public function test_successful_fetch_with_mocked_dependencies(): void
+    {
+        // Mock the Mailbox model instead of creating it
+        $mailbox = Mockery::mock(Mailbox::class)->makePartial();
+        $mailbox->id = 1;
+        $mailbox->in_server = 'imap.example.com';
+        $mailbox->in_port = 993;
+        $mailbox->imap_folder_path = 'INBOX';
+        
+        // Mock IMAP client
+        $mockClient = Mockery::mock(Client::class);
+        $mockClient->shouldReceive('connect')->once();
+        // ... more mocks
+        
+        // Test the service logic without database
+        $service = Mockery::mock(ImapService::class)
+            ->makePartial()
+            ->shouldAllowMockingProtectedMethods();
+        $service->shouldReceive('createClient')->andReturn($mockClient);
+        
+        $result = $service->fetchEmails($mailbox);
+        
+        $this->assertIsArray($result);
+    }
+    
+    protected function tearDown(): void
+    {
+        Mockery::close();  // Always close Mockery in unit tests
+        parent::tearDown();
+    }
+}
+```
+
+#### Key Points:
+
+1. **Extend `TestCase`** (NOT `UnitTestCase`) - no database needed
+2. **Mock model objects** instead of `factory()->create()`:
+   ```php
+   // ❌ WRONG - Requires database
+   $mailbox = Mailbox::factory()->create();
+   
+   // ✅ RIGHT - Pure mocking
+   $mailbox = Mockery::mock(Mailbox::class)->makePartial();
+   $mailbox->id = 1;
+   $mailbox->in_server = 'imap.example.com';
+   ```
+3. **Use `makePartial()`** to allow property assignment without triggering `setAttribute()`
+4. **Always `Mockery::close()`** in `tearDown()` to verify expectations
+
+#### Protected Method Mocking
+
+When testing a class that calls its own protected methods:
+
+```php
+// Enable protected method mocking
+$service = Mockery::mock(ImapService::class)
+    ->makePartial()
+    ->shouldAllowMockingProtectedMethods();
+
+// Now you can mock protected createClient()
+$service->shouldReceive('createClient')
+    ->with($mailbox)
+    ->andReturn($mockClient);
+```
+
+#### Common Pitfall: Eloquent Model Properties
+
+```php
+// ❌ WRONG - Triggers setAttribute() which needs expectations
+$mailbox = Mockery::mock(Mailbox::class);
+$mailbox->in_server = 'test';  // BadMethodCallException!
+
+// ✅ RIGHT - makePartial() allows property setting
+$mailbox = Mockery::mock(Mailbox::class)->makePartial();
+$mailbox->in_server = 'test';  // Works!
+```
+
+### When to Use Feature Tests (With Database)
+
+Use `FeatureTestCase` when:
+- Testing end-to-end user workflows
+- Verifying actual database persistence
+- Testing model relationships
+- Integration between multiple components
+
+```php
+class ConversationCreationTest extends FeatureTestCase
+{
+    use RefreshDatabase;  // Already in FeatureTestCase, shown for clarity
+    
+    public function test_creates_conversation_from_email(): void
+    {
+        $mailbox = Mailbox::factory()->create();  // Real database record
+        
+        // ... test actual database interactions
+        
+        $this->assertDatabaseHas('conversations', [
+            'mailbox_id' => $mailbox->id,
+        ]);
+    }
+}
+```
+
 ## IMAP Testing Patterns
 
 ### Mock Object Requirements
 
 When mocking IMAP objects, be aware of type requirements:
 
-#### 1. Address Objects Must Be Stringable
+#### 1. Query Must Return WhereQuery
+
+The IMAP library uses `WhereQuery` for query building, not the base `Query` class:
+
+❌ **WRONG:**
+```php
+use Webklex\PHPIMAP\Query\Query;
+
+$mockQuery = Mockery::mock(Query::class);
+$mockFolder->shouldReceive('query')->andReturn($mockQuery);
+// TypeError: Return value must be of type Webklex\PHPIMAP\Query\WhereQuery
+```
+
+✅ **CORRECT:**
+```php
+use Webklex\PHPIMAP\Query\WhereQuery;
+
+$mockQuery = Mockery::mock(WhereQuery::class);
+$mockFolder->shouldReceive('query')->andReturn($mockQuery);
+$mockQuery->shouldReceive('since')->andReturnSelf();
+$mockQuery->shouldReceive('unseen')->andReturnSelf();
+$mockQuery->shouldReceive('leaveUnread')->andReturnSelf();
+$mockQuery->shouldReceive('get')->andReturn(new MessageCollection());
+```
+
+#### 2. Address Objects Must Be Stringable
 
 ❌ **WRONG:**
 ```php

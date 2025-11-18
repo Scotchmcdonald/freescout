@@ -6,6 +6,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Symfony\Component\Filesystem\Filesystem;
 
 class ModuleInstall extends Command
 {
@@ -40,101 +41,90 @@ class ModuleInstall extends Command
      */
     public function handle()
     {
-        $install_all = false;
-        $modules = [];
-
-        // We have to clear modules cache first to update modules cache
-        $this->call('cache:clear');
-
-        // Create a symlink for the module (or all modules)
-        $module_alias = $this->argument('module_alias');
-        if (!$module_alias) {
-            $modules = \Module::all();
-
-            $modules_aliases = [];
-            foreach ($modules as $module) {
-                $modules_aliases[] = $module->getName();
-            }
-            if (!$modules_aliases) {
-                $this->error('No modules found');
-
-                return;
-            }
-            $install_all = $this->confirm('You have not specified a module alias, would you like to install all available modules ('.implode(', ', $modules_aliases).')?');
-            if (!$install_all) {
-                return;
-            }
-        }
-
-        if ($install_all) {
-            foreach ($modules as $module) {
-                $this->line('Module: '.$module->getName());
-                $this->call('module:migrate', ['module' => $module->getName()]);
-                $this->createModulePublicSymlink($module);
-            }
-        } else {
-            $module = \Module::findByAlias($module_alias);
-            if (!$module) {
-                $this->error('Module with the specified alias not found: '.$module_alias);
-
-                return;
-            }
-            $this->call('module:migrate', ['module' => $module->getName(), '--force' => true]);
-            $this->createModulePublicSymlink($module);
-        }
-        $this->line('Clearing cache...');
-        $this->call('freescout:clear-cache');
-    }
-
-    // There is similar function in \App\Module.
-    public function createModulePublicSymlink($module)
-    {
-        $from = public_path('modules').DIRECTORY_SEPARATOR.$module->alias;
-        $to = $module->getExtraPath('Public');
-
-        // file_exists() may throw "open_basedir restriction in effect".
         try {
-            // If module's Public is symlink.
-            if (is_link($to)) {
-                unlink($to);
-            }
-            
-            // Symlimk may exist but lead to the module folder in a wrong case.
-            // So we need first try to remove it.
-            if (!file_exists($from) || !is_link($from)) {
-                if (is_dir($from)) {
-                    rename($from, $from.'_'.date('YmdHis'));
-                } else {
-                    unlink($from);
-                }
-            }
+            $this->call('cache:clear');
 
-            if (file_exists($from)) {
-                return $this->info('Public symlink already exists');
-            }
+            $module_alias = $this->argument('module_alias');
 
-            // Check target.
-            if (!file_exists($to)) {
-                // Try to create Public folder.
+            if ($module_alias) {
                 try {
-                    \File::makeDirectory($to, \App\Misc\Helper::DIR_PERMISSIONS);
+                    $module = \Module::find($module_alias);
                 } catch (\Exception $e) {
-                    // If it's a broken symlink.
-                    if (is_link($to)) {
-                        unlink($to);
+                    $module = null;
+                }
+
+                if (!$module) {
+                    $this->error('Module with the specified alias not found: '.$module_alias);
+                    return 0; // Not a failure, just an informational message.
+                }
+                return $this->installModule($module);
+            }
+
+            $modules = \Module::all();
+            if (empty($modules)) {
+                $this->info('No modules found.');
+                return 0;
+            }
+
+            $moduleNames = array_map(fn($m) => $m->getName(), $modules);
+            if ($this->confirm('Install all modules ('.implode(', ', $moduleNames).')?')) {
+                foreach ($modules as $module) {
+                    if ($this->installModule($module) !== 0) {
+                        return 1; // Stop on first error
                     }
                 }
             }
-
-            try {
-                symlink($to, $from);
-            } catch (\Exception $e) {
-                $this->error('Error occurred creating ['.$from.' » '.$to.'] symlink: '.$e->getMessage());
-            }
+            
+            return 0;
         } catch (\Exception $e) {
-            $this->error('Error occurred creating ['.$from.' » '.$to.'] symlink: '.$e->getMessage());
+            $this->error($e->getMessage());
+            return 1;
+        }
+    }
+
+    protected function installModule(\Nwidart\Modules\Module $module): int
+    {
+        $this->line('Installing module: '.$module->getName());
+
+        try {
+            $module->enable();
+            
+            $this->call('module:migrate', ['module' => $module->getName(), '--force' => true]);
+            
+            $this->createModulePublicSymlink($module);
+
+            $this->line('Clearing cache...');
+            $this->call('freescout:clear-cache');
+
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
+            return 1;
         }
 
-        $this->info('The ['.$from.'] symlink has been created');
+        return 0;
+    }
+
+    /**
+     * Create a public symlink for the module.
+     *
+     * @param \Nwidart\Modules\Module $module
+     * @return void
+     * @throws \Exception
+     */
+    public function createModulePublicSymlink($module)
+    {
+        $target = $module->getExtraPath('Resources/assets');
+        $link = public_path('modules/'.$module->getLowerName());
+
+        if (!file_exists($target)) {
+            return;
+        }
+
+        if (file_exists($link) || is_link($link)) {
+            $this->laravel['files']->delete($link);
+        }
+        
+        $this->laravel['files']->link($target, $link);
+        $this->info('The ['.$link.'] symlink has been created.');
     }
 }
