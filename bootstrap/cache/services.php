@@ -37,6 +37,7 @@
     33 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
     34 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
     35 => 'App\\Providers\\EventServiceProvider',
+    36 => 'App\\Providers\\ModuleCompatibilityServiceProvider',
   ),
   'eager' => 
   array (
@@ -59,6 +60,7 @@
     16 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
     17 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
     18 => 'App\\Providers\\EventServiceProvider',
+    19 => 'App\\Providers\\ModuleCompatibilityServiceProvider',
   ),
   'deferred' => 
   array (

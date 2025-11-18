@@ -24,7 +24,6 @@ class JobsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
     public function send_conversation_reply_job_can_be_constructed(): void
     {
         $conversation = Conversation::factory()->create();
@@ -38,7 +37,6 @@ class JobsTest extends TestCase
         $this->assertEquals('test@example.com', $job->recipientEmail);
     }
 
-    /** @test */
     public function send_conversation_reply_job_sends_email(): void
     {
         Mail::fake();
@@ -54,7 +52,6 @@ class JobsTest extends TestCase
         });
     }
 
-    /** @test */
     public function send_conversation_reply_job_uses_correct_mailable(): void
     {
         Mail::fake();
@@ -68,7 +65,6 @@ class JobsTest extends TestCase
         Mail::assertSent(ConversationReplyNotification::class);
     }
 
-    /** @test */
     public function send_auto_reply_job_can_be_constructed(): void
     {
         $conversation = Conversation::factory()->create();
@@ -83,7 +79,6 @@ class JobsTest extends TestCase
         $this->assertEquals($customer->id, $job->customer->id);
     }
 
-    /** @test */
     public function send_auto_reply_job_sends_email(): void
     {
         Mail::fake();
@@ -106,7 +101,6 @@ class JobsTest extends TestCase
         Mail::assertSent(\App\Mail\AutoReply::class);
     }
 
-    /** @test */
     public function send_conversation_reply_job_handles_unicode_email(): void
     {
         Mail::fake();
@@ -123,7 +117,6 @@ class JobsTest extends TestCase
         Mail::assertSent(ConversationReplyNotification::class);
     }
 
-    /** @test */
     public function send_conversation_reply_job_handles_long_email_body(): void
     {
         Mail::fake();
@@ -139,7 +132,6 @@ class JobsTest extends TestCase
         Mail::assertSent(ConversationReplyNotification::class);
     }
 
-    /** @test */
     public function send_conversation_reply_job_is_queueable(): void
     {
         $conversation = Conversation::factory()->create();
@@ -150,7 +142,6 @@ class JobsTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class, $job);
     }
 
-    /** @test */
     public function send_auto_reply_job_is_queueable(): void
     {
         $conversation = Conversation::factory()->create();

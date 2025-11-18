@@ -20,7 +20,6 @@ class MailboxTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
     public function getMailFrom_returns_email_and_name(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -34,7 +33,6 @@ class MailboxTest extends TestCase
         $this->assertArrayHasKey('name', $result);
     }
 
-    /** @test */
     public function getMailFrom_uses_from_name_when_set(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -48,7 +46,6 @@ class MailboxTest extends TestCase
         $this->assertEquals('Custom Support', $result['name']);
     }
 
-    /** @test */
     public function getMailFrom_prioritizes_from_name_custom(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -63,7 +60,6 @@ class MailboxTest extends TestCase
         $this->assertEquals('Highest Priority Name', $result['name']);
     }
 
-    /** @test */
     public function getMailFrom_falls_back_to_name_when_no_from_name(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -78,7 +74,6 @@ class MailboxTest extends TestCase
         $this->assertArrayHasKey('name', $result);
     }
 
-    /** @test */
     public function getMailFrom_accepts_user_parameter(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -91,7 +86,6 @@ class MailboxTest extends TestCase
         $this->assertArrayHasKey('name', $result);
     }
 
-    /** @test */
     public function url_returns_correct_route(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -104,7 +98,6 @@ class MailboxTest extends TestCase
         $this->assertStringContainsString((string) $mailbox->id, $url);
     }
 
-    /** @test */
     public function users_relationship_loads(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -116,7 +109,6 @@ class MailboxTest extends TestCase
         $this->assertEquals($user->id, $mailbox->users->first()->id);
     }
 
-    /** @test */
     public function folders_relationship_loads(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -126,7 +118,6 @@ class MailboxTest extends TestCase
         $this->assertCount(8, $mailbox->folders); // 5 auto-created + 3 factory
     }
 
-    /** @test */
     public function conversations_relationship_loads(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -136,7 +127,6 @@ class MailboxTest extends TestCase
         $this->assertCount(5, $mailbox->conversations);
     }
 
-    /** @test */
     public function mailbox_has_required_fillable_fields(): void
     {
         $mailbox = new Mailbox();
@@ -148,7 +138,6 @@ class MailboxTest extends TestCase
         $this->assertContains('signature', $fillable);
     }
 
-    /** @test */
     public function mailbox_casts_boolean_fields(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -160,7 +149,6 @@ class MailboxTest extends TestCase
         $this->assertIsBool($mailbox->auto_reply_enabled);
     }
 
-    /** @test */
     public function mailbox_casts_integer_fields(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -172,7 +160,6 @@ class MailboxTest extends TestCase
         $this->assertIsInt($mailbox->out_method);
     }
 
-    /** @test */
     public function mailbox_can_be_created_with_factory(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -187,7 +174,6 @@ class MailboxTest extends TestCase
         ]);
     }
 
-    /** @test */
     public function mailbox_has_timestamps(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -196,7 +182,6 @@ class MailboxTest extends TestCase
         $this->assertNotNull($mailbox->updated_at);
     }
 
-    /** @test */
     public function mailbox_email_is_required(): void
     {
         $mailbox = Mailbox::factory()->make(['email' => null]);
@@ -206,7 +191,6 @@ class MailboxTest extends TestCase
         $mailbox->save();
     }
 
-    /** @test */
     public function mailbox_name_is_required(): void
     {
         $mailbox = Mailbox::factory()->make(['name' => null]);
@@ -216,7 +200,6 @@ class MailboxTest extends TestCase
         $mailbox->save();
     }
 
-    /** @test */
     public function mailbox_can_have_signature(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -226,7 +209,6 @@ class MailboxTest extends TestCase
         $this->assertEquals('Best regards,<br>Support Team', $mailbox->signature);
     }
 
-    /** @test */
     public function mailbox_can_have_auto_reply_settings(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -240,7 +222,6 @@ class MailboxTest extends TestCase
         $this->assertEquals('I am currently out of office.', $mailbox->auto_reply_message);
     }
 
-    /** @test */
     public function mailbox_can_have_imap_settings(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -256,7 +237,6 @@ class MailboxTest extends TestCase
         $this->assertEquals('user@example.com', $mailbox->in_username);
     }
 
-    /** @test */
     public function mailbox_can_have_smtp_settings(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -271,7 +251,6 @@ class MailboxTest extends TestCase
         $this->assertEquals('user@example.com', $mailbox->out_username);
     }
 
-    /** @test */
     public function mailbox_meta_field_casts_to_array(): void
     {
         $meta = ['key1' => 'value1', 'key2' => 'value2'];
@@ -281,7 +260,6 @@ class MailboxTest extends TestCase
         $this->assertEquals($meta, $mailbox->meta);
     }
 
-    /** @test */
     public function multiple_users_can_access_mailbox(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -293,7 +271,6 @@ class MailboxTest extends TestCase
         $this->assertCount(2, $mailbox->users);
     }
 
-    /** @test */
     public function mailbox_with_unicode_name(): void
     {
         $mailbox = Mailbox::factory()->create([

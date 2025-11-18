@@ -53,7 +53,7 @@ class ModuleInstall extends Command
 
             $modules_aliases = [];
             foreach ($modules as $module) {
-                $modules_aliases[] = $module->name;
+                $modules_aliases[] = $module->getName();
             }
             if (!$modules_aliases) {
                 $this->error('No modules found');

@@ -16,8 +16,7 @@ class UserObserverTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function it_creates_admin_personal_folders_when_admin_user_created()
+    public function test_it_creates_admin_personal_folders_when_admin_user_created()
     {
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
@@ -36,8 +35,7 @@ class UserObserverTest extends TestCase
         $this->assertEquals('My Conversations', $folder1->name);
     }
 
-    /** @test */
-    public function it_does_not_create_personal_folders_for_non_admin_users()
+    public function test_it_does_not_create_personal_folders_for_non_admin_users()
     {
         Mailbox::factory()->count(2)->create();
 
@@ -46,8 +44,7 @@ class UserObserverTest extends TestCase
         $this->assertEquals(0, Folder::where('user_id', $user->id)->count());
     }
 
-    /** @test */
-    public function it_adds_default_subscriptions_when_user_created()
+    public function test_it_adds_default_subscriptions_when_user_created()
     {
         $user = User::factory()->create();
 
@@ -71,8 +68,7 @@ class UserObserverTest extends TestCase
         $this->assertNotNull($followedSub);
     }
 
-    /** @test */
-    public function it_deletes_user_personal_folders_when_user_deleted()
+    public function test_it_deletes_user_personal_folders_when_user_deleted()
     {
         $mailbox = Mailbox::factory()->create();
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -87,8 +83,7 @@ class UserObserverTest extends TestCase
         $this->assertDatabaseMissing('folders', ['id' => $folderId]);
     }
 
-    /** @test */
-    public function it_detaches_user_from_followed_conversations_when_deleted()
+    public function test_it_detaches_user_from_followed_conversations_when_deleted()
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
@@ -103,8 +98,7 @@ class UserObserverTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function it_unassigns_user_from_conversations_when_deleted()
+    public function test_it_unassigns_user_from_conversations_when_deleted()
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create(['user_id' => $user->id]);
@@ -116,8 +110,7 @@ class UserObserverTest extends TestCase
         $this->assertNull($conversation->fresh()->user_id);
     }
 
-    /** @test */
-    public function it_unassigns_multiple_conversations_when_user_deleted()
+    public function test_it_unassigns_multiple_conversations_when_user_deleted()
     {
         $user = User::factory()->create();
         $conversation1 = Conversation::factory()->create(['user_id' => $user->id]);

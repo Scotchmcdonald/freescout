@@ -18,7 +18,6 @@ class EmailTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
     public function email_belongs_to_customer(): void
     {
         $email = Email::factory()->create();
@@ -27,7 +26,6 @@ class EmailTest extends TestCase
         $this->assertInstanceOf(Customer::class, $email->customer);
     }
 
-    /** @test */
     public function email_can_be_primary_type(): void
     {
         $email = Email::factory()->create(['type' => 1]);
@@ -35,7 +33,6 @@ class EmailTest extends TestCase
         $this->assertEquals(1, $email->type);
     }
 
-    /** @test */
     public function email_can_be_work_type(): void
     {
         $email = Email::factory()->create(['type' => 2]);
@@ -43,7 +40,6 @@ class EmailTest extends TestCase
         $this->assertEquals(2, $email->type);
     }
 
-    /** @test */
     public function email_can_be_other_type(): void
     {
         $email = Email::factory()->create(['type' => 3]);
@@ -51,7 +47,6 @@ class EmailTest extends TestCase
         $this->assertEquals(3, $email->type);
     }
 
-    /** @test */
     public function sanitizeEmail_converts_to_lowercase(): void
     {
         $result = Email::sanitizeEmail('TEST@EXAMPLE.COM');
@@ -59,7 +54,6 @@ class EmailTest extends TestCase
         $this->assertEquals('test@example.com', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_trims_whitespace(): void
     {
         $result = Email::sanitizeEmail('  test@example.com  ');
@@ -67,7 +61,6 @@ class EmailTest extends TestCase
         $this->assertEquals('test@example.com', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_returns_null_for_empty_string(): void
     {
         $result = Email::sanitizeEmail('');
@@ -75,7 +68,6 @@ class EmailTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /** @test */
     public function sanitizeEmail_returns_null_for_whitespace_only(): void
     {
         $result = Email::sanitizeEmail('   ');
@@ -83,7 +75,6 @@ class EmailTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /** @test */
     public function sanitizeEmail_handles_unicode_domain(): void
     {
         $result = Email::sanitizeEmail('test@例え.jp');
@@ -92,7 +83,6 @@ class EmailTest extends TestCase
         $this->assertStringContainsString('@', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_preserves_plus_addressing(): void
     {
         $result = Email::sanitizeEmail('user+tag@example.com');
@@ -100,7 +90,6 @@ class EmailTest extends TestCase
         $this->assertEquals('user+tag@example.com', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_preserves_dots_in_local_part(): void
     {
         $result = Email::sanitizeEmail('first.last@example.com');
@@ -108,7 +97,6 @@ class EmailTest extends TestCase
         $this->assertEquals('first.last@example.com', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_preserves_subdomain(): void
     {
         $result = Email::sanitizeEmail('user@mail.example.com');
@@ -116,7 +104,6 @@ class EmailTest extends TestCase
         $this->assertEquals('user@mail.example.com', $result);
     }
 
-    /** @test */
     public function email_has_required_fillable_fields(): void
     {
         $email = new Email();
@@ -127,7 +114,6 @@ class EmailTest extends TestCase
         $this->assertContains('customer_id', $fillable);
     }
 
-    /** @test */
     public function email_can_be_created_with_factory(): void
     {
         $email = Email::factory()->create([
@@ -140,7 +126,6 @@ class EmailTest extends TestCase
         ]);
     }
 
-    /** @test */
     public function email_has_timestamps(): void
     {
         $email = Email::factory()->create();
@@ -149,7 +134,6 @@ class EmailTest extends TestCase
         $this->assertNotNull($email->updated_at);
     }
 
-    /** @test */
     public function customer_can_have_multiple_emails(): void
     {
         $customer = Customer::factory()->create();
@@ -169,7 +153,6 @@ class EmailTest extends TestCase
         $this->assertCount(3, $customer->emails); // 1 auto-created + 2 factory
     }
 
-    /** @test */
     public function email_address_must_be_unique_per_customer(): void
     {
         $customer = Customer::factory()->create();
@@ -187,7 +170,6 @@ class EmailTest extends TestCase
         ]);
     }
 
-    /** @test */
     public function sanitizeEmail_handles_mixed_case(): void
     {
         $result = Email::sanitizeEmail('TeSt@ExAmPlE.CoM');
@@ -195,7 +177,6 @@ class EmailTest extends TestCase
         $this->assertEquals('test@example.com', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_with_very_long_email(): void
     {
         $longLocal = str_repeat('a', 64);

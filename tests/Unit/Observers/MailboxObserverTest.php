@@ -14,8 +14,7 @@ class MailboxObserverTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function it_creates_default_folders_when_mailbox_created()
+    public function test_it_creates_default_folders_when_mailbox_created()
     {
         $mailbox = Mailbox::factory()->create();
 
@@ -23,8 +22,7 @@ class MailboxObserverTest extends TestCase
         $this->assertEquals(5, Folder::where('mailbox_id', $mailbox->id)->count());
     }
 
-    /** @test */
-    public function it_creates_inbox_folder_when_mailbox_created()
+    public function test_it_creates_inbox_folder_when_mailbox_created()
     {
         $mailbox = Mailbox::factory()->create();
 
@@ -37,8 +35,7 @@ class MailboxObserverTest extends TestCase
         $this->assertNull($inbox->user_id); // Global folder
     }
 
-    /** @test */
-    public function it_creates_assigned_folder_when_mailbox_created()
+    public function test_it_creates_assigned_folder_when_mailbox_created()
     {
         $mailbox = Mailbox::factory()->create();
 
@@ -50,8 +47,7 @@ class MailboxObserverTest extends TestCase
         $this->assertEquals('Assigned', $assigned->name);
     }
 
-    /** @test */
-    public function it_creates_drafts_folder_when_mailbox_created()
+    public function test_it_creates_drafts_folder_when_mailbox_created()
     {
         $mailbox = Mailbox::factory()->create();
 
@@ -63,8 +59,7 @@ class MailboxObserverTest extends TestCase
         $this->assertEquals('Drafts', $drafts->name);
     }
 
-    /** @test */
-    public function it_creates_spam_folder_when_mailbox_created()
+    public function test_it_creates_spam_folder_when_mailbox_created()
     {
         $mailbox = Mailbox::factory()->create();
 
@@ -76,8 +71,7 @@ class MailboxObserverTest extends TestCase
         $this->assertEquals('Spam', $spam->name);
     }
 
-    /** @test */
-    public function it_creates_trash_folder_when_mailbox_created()
+    public function test_it_creates_trash_folder_when_mailbox_created()
     {
         $mailbox = Mailbox::factory()->create();
 
@@ -89,8 +83,7 @@ class MailboxObserverTest extends TestCase
         $this->assertEquals('Trash', $trash->name);
     }
 
-    /** @test */
-    public function it_deletes_all_conversations_when_mailbox_deleted()
+    public function test_it_deletes_all_conversations_when_mailbox_deleted()
     {
         $mailbox = Mailbox::factory()->create();
         $conversation1 = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -102,8 +95,7 @@ class MailboxObserverTest extends TestCase
         $this->assertDatabaseMissing('conversations', ['id' => $conversation2->id]);
     }
 
-    /** @test */
-    public function it_deletes_all_folders_when_mailbox_deleted()
+    public function test_it_deletes_all_folders_when_mailbox_deleted()
     {
         $mailbox = Mailbox::factory()->create();
 
@@ -117,8 +109,7 @@ class MailboxObserverTest extends TestCase
         $this->assertEquals(0, Folder::where('mailbox_id', $mailbox->id)->count());
     }
 
-    /** @test */
-    public function it_deletes_both_global_and_user_folders_when_mailbox_deleted()
+    public function test_it_deletes_both_global_and_user_folders_when_mailbox_deleted()
     {
         $mailbox = Mailbox::factory()->create();
         $user = \App\Models\User::factory()->create();

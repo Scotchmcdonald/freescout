@@ -21,7 +21,6 @@ class ThreadTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
     public function thread_belongs_to_conversation(): void
     {
         $thread = Thread::factory()->create();
@@ -30,7 +29,6 @@ class ThreadTest extends TestCase
         $this->assertInstanceOf(Conversation::class, $thread->conversation);
     }
 
-    /** @test */
     public function thread_belongs_to_user(): void
     {
         $user = User::factory()->create();
@@ -42,7 +40,6 @@ class ThreadTest extends TestCase
         $this->assertEquals($user->id, $thread->user->id);
     }
 
-    /** @test */
     public function thread_belongs_to_customer(): void
     {
         $customer = Customer::factory()->create();
@@ -54,7 +51,6 @@ class ThreadTest extends TestCase
         $this->assertEquals($customer->id, $thread->customer->id);
     }
 
-    /** @test */
     public function thread_has_many_attachments(): void
     {
         $thread = Thread::factory()->withAttachments(3)->create();
@@ -63,7 +59,6 @@ class ThreadTest extends TestCase
         $this->assertCount(3, $thread->attachments);
     }
 
-    /** @test */
     public function customer_message_factory_creates_type_4(): void
     {
         $thread = Thread::factory()->customerMessage()->create();
@@ -71,7 +66,6 @@ class ThreadTest extends TestCase
         $this->assertEquals(4, $thread->type);
     }
 
-    /** @test */
     public function user_reply_factory_creates_type_1(): void
     {
         $thread = Thread::factory()->userReply()->create();
@@ -79,7 +73,6 @@ class ThreadTest extends TestCase
         $this->assertEquals(1, $thread->type);
     }
 
-    /** @test */
     public function thread_with_large_body_creates_successfully(): void
     {
         $thread = Thread::factory()->withLargeBody()->create();
@@ -87,7 +80,6 @@ class ThreadTest extends TestCase
         $this->assertGreaterThan(1000, strlen($thread->body));
     }
 
-    /** @test */
     public function thread_with_html_body_saves_html(): void
     {
         $thread = Thread::factory()->withHtmlBody()->create();
@@ -97,7 +89,6 @@ class ThreadTest extends TestCase
         $this->assertStringContainsString('<h1>Test Email</h1>', $thread->body);
     }
 
-    /** @test */
     public function thread_has_required_fillable_fields(): void
     {
         $thread = new Thread();
@@ -109,7 +100,6 @@ class ThreadTest extends TestCase
         $this->assertContains('conversation_id', $fillable);
     }
 
-    /** @test */
     public function thread_can_be_created_with_factory(): void
     {
         $thread = Thread::factory()->create([
@@ -122,7 +112,6 @@ class ThreadTest extends TestCase
         ]);
     }
 
-    /** @test */
     public function thread_defaults_to_published_state(): void
     {
         $thread = Thread::factory()->create();
@@ -130,7 +119,6 @@ class ThreadTest extends TestCase
         $this->assertEquals(2, $thread->state);
     }
 
-    /** @test */
     public function thread_has_timestamps(): void
     {
         $thread = Thread::factory()->create();
@@ -139,7 +127,6 @@ class ThreadTest extends TestCase
         $this->assertNotNull($thread->updated_at);
     }
 
-    /** @test */
     public function thread_can_have_empty_body(): void
     {
         $thread = Thread::factory()->create(['body' => '']);
@@ -147,7 +134,6 @@ class ThreadTest extends TestCase
         $this->assertEquals('', $thread->body);
     }
 
-    /** @test */
     public function thread_body_preserves_newlines(): void
     {
         $body = "Line 1\nLine 2\nLine 3";
@@ -156,7 +142,6 @@ class ThreadTest extends TestCase
         $this->assertEquals($body, $thread->body);
     }
 
-    /** @test */
     public function thread_body_preserves_unicode(): void
     {
         $body = '这是中文内容 和 日本語 そして 한국어';
@@ -165,7 +150,6 @@ class ThreadTest extends TestCase
         $this->assertEquals($body, $thread->body);
     }
 
-    /** @test */
     public function thread_body_preserves_emoji(): void
     {
         $body = 'Hello 👋 World 🌍 Testing 🧪';
@@ -174,7 +158,6 @@ class ThreadTest extends TestCase
         $this->assertEquals($body, $thread->body);
     }
 
-    /** @test */
     public function thread_can_have_from_field(): void
     {
         $thread = Thread::factory()->create([
@@ -184,7 +167,6 @@ class ThreadTest extends TestCase
         $this->assertEquals('user@example.com', $thread->from);
     }
 
-    /** @test */
     public function thread_can_have_to_field(): void
     {
         $thread = Thread::factory()->create([
@@ -194,7 +176,6 @@ class ThreadTest extends TestCase
         $this->assertEquals('customer@example.com', $thread->to);
     }
 
-    /** @test */
     public function thread_can_have_cc_field(): void
     {
         $thread = Thread::factory()->create([
@@ -204,7 +185,6 @@ class ThreadTest extends TestCase
         $this->assertEquals('cc1@example.com,cc2@example.com', $thread->cc);
     }
 
-    /** @test */
     public function thread_can_have_bcc_field(): void
     {
         $thread = Thread::factory()->create([
@@ -214,7 +194,6 @@ class ThreadTest extends TestCase
         $this->assertEquals('bcc@example.com', $thread->bcc);
     }
 
-    /** @test */
     public function thread_action_type_can_be_set(): void
     {
         $thread = Thread::factory()->create([
@@ -224,7 +203,6 @@ class ThreadTest extends TestCase
         $this->assertEquals(5, $thread->action_type);
     }
 
-    /** @test */
     public function thread_source_via_can_be_set(): void
     {
         $thread = Thread::factory()->create([
@@ -234,7 +212,6 @@ class ThreadTest extends TestCase
         $this->assertEquals(2, $thread->source_via);
     }
 
-    /** @test */
     public function thread_opened_at_can_be_null(): void
     {
         $thread = Thread::factory()->create([
@@ -244,7 +221,6 @@ class ThreadTest extends TestCase
         $this->assertNull($thread->opened_at);
     }
 
-    /** @test */
     public function thread_opened_at_can_be_set(): void
     {
         $time = now();

@@ -17,7 +17,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
 {
     // ==================== hasVars() tests ====================
 
-    /** @test */
     public function hasVars_with_null_returns_false(): void
     {
         $result = MailHelper::hasVars(null);
@@ -25,7 +24,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    /** @test */
     public function hasVars_with_empty_string_returns_false(): void
     {
         $result = MailHelper::hasVars('');
@@ -33,7 +31,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    /** @test */
     public function hasVars_with_no_vars_returns_false(): void
     {
         $result = MailHelper::hasVars('Hello, this is plain text.');
@@ -41,7 +38,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    /** @test */
     public function hasVars_detects_opening_brace_percent(): void
     {
         $result = MailHelper::hasVars('Hello {%customer.name%}');
@@ -49,7 +45,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    /** @test */
     public function hasVars_detects_closing_percent_brace(): void
     {
         $result = MailHelper::hasVars('Hello customer.name%}');
@@ -57,7 +52,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    /** @test */
     public function hasVars_detects_partial_var_syntax(): void
     {
         // Checks for presence of {% or %}, not full syntax
@@ -66,7 +60,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    /** @test */
     public function hasVars_with_multiple_vars(): void
     {
         $result = MailHelper::hasVars('{%var1%} and {%var2%}');
@@ -76,7 +69,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
 
     // ==================== parseEmail() tests ====================
 
-    /** @test */
     public function parseEmail_with_plain_email_returns_trimmed(): void
     {
         $result = MailHelper::parseEmail('  john@example.com  ');
@@ -84,7 +76,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('john@example.com', $result);
     }
 
-    /** @test */
     public function parseEmail_extracts_from_name_and_angle_brackets(): void
     {
         $result = MailHelper::parseEmail('John Doe <john@example.com>');
@@ -92,7 +83,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('john@example.com', $result);
     }
 
-    /** @test */
     public function parseEmail_extracts_from_quoted_name(): void
     {
         $result = MailHelper::parseEmail('"Doe, John" <john@example.com>');
@@ -100,7 +90,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('john@example.com', $result);
     }
 
-    /** @test */
     public function parseEmail_extracts_from_angle_brackets_only(): void
     {
         $result = MailHelper::parseEmail('<john@example.com>');
@@ -108,7 +97,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('john@example.com', $result);
     }
 
-    /** @test */
     public function parseEmail_with_spaces_in_angle_brackets(): void
     {
         $result = MailHelper::parseEmail('Name <  john@example.com  >');
@@ -116,7 +104,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('john@example.com', $result);
     }
 
-    /** @test */
     public function parseEmail_with_unicode_name(): void
     {
         $result = MailHelper::parseEmail('山田太郎 <yamada@example.jp>');
@@ -124,7 +111,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('yamada@example.jp', $result);
     }
 
-    /** @test */
     public function parseEmail_with_multiple_angle_brackets_takes_first(): void
     {
         $result = MailHelper::parseEmail('Name <<john@example.com>>');
@@ -132,7 +118,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('<john@example.com', $result);
     }
 
-    /** @test */
     public function parseEmail_with_empty_string(): void
     {
         $result = MailHelper::parseEmail('');
@@ -142,7 +127,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
 
     // ==================== sanitizeEmail() tests ====================
 
-    /** @test */
     public function sanitizeEmail_removes_script_tags(): void
     {
         $html = '<p>Hello</p><script>alert("XSS")</script>';
@@ -154,7 +138,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringContainsString('<p>Hello</p>', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_removes_iframe_tags(): void
     {
         $html = '<p>Hello</p><iframe src="evil.com"></iframe>';
@@ -165,7 +148,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringNotContainsString('evil.com', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_removes_object_tags(): void
     {
         $html = '<p>Hello</p><object data="flash.swf"></object>';
@@ -176,7 +158,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringNotContainsString('flash.swf', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_removes_embed_tags(): void
     {
         $html = '<p>Hello</p><embed src="evil.swf">';
@@ -189,7 +170,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringContainsString('<p>Hello</p>', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_removes_onclick_handlers(): void
     {
         $html = '<a href="#" onclick="alert(\'XSS\')">Click</a>';
@@ -200,7 +180,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringContainsString('Click', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_removes_onload_handlers(): void
     {
         $html = '<body onload="steal()">Content</body>';
@@ -210,7 +189,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringNotContainsString('onload', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_removes_onerror_handlers(): void
     {
         $html = '<img src="x" onerror="alert(1)">';
@@ -220,7 +198,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringNotContainsString('onerror', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_removes_event_handlers_with_single_quotes(): void
     {
         $html = '<div onmouseover=\'evil()\'>Hover</div>';
@@ -230,7 +207,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringNotContainsString('onmouseover', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_removes_event_handlers_with_double_quotes(): void
     {
         $html = '<div onmouseover="evil()">Hover</div>';
@@ -240,7 +216,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringNotContainsString('onmouseover', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_preserves_safe_html(): void
     {
         $html = '<p>Hello <b>World</b></p><div><a href="example.com">Link</a></div>';
@@ -251,7 +226,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringContainsString('<a href="example.com">Link</a>', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_with_empty_string(): void
     {
         $result = MailHelper::sanitizeEmail('');
@@ -259,7 +233,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_with_multiple_threats(): void
     {
         $html = '<script>bad()</script><iframe src="x"></iframe><div onclick="evil()">Text</div>';
@@ -273,7 +246,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringContainsString('Text', $result);
     }
 
-    /** @test */
     public function sanitizeEmail_case_insensitive_script_removal(): void
     {
         $html = '<ScRiPt>alert(1)</ScRiPt>';
@@ -286,7 +258,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
 
     // ==================== formatEmail() tests ====================
 
-    /** @test */
     public function formatEmail_with_email_only_returns_email(): void
     {
         $result = MailHelper::formatEmail('john@example.com');
@@ -294,7 +265,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('john@example.com', $result);
     }
 
-    /** @test */
     public function formatEmail_with_name_formats_correctly(): void
     {
         $result = MailHelper::formatEmail('john@example.com', 'John Doe');
@@ -302,7 +272,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('John Doe <john@example.com>', $result);
     }
 
-    /** @test */
     public function formatEmail_with_empty_name_returns_email(): void
     {
         $result = MailHelper::formatEmail('john@example.com', '');
@@ -310,7 +279,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('john@example.com', $result);
     }
 
-    /** @test */
     public function formatEmail_with_null_name_returns_email(): void
     {
         $result = MailHelper::formatEmail('john@example.com', null);
@@ -318,7 +286,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('john@example.com', $result);
     }
 
-    /** @test */
     public function formatEmail_with_unicode_name(): void
     {
         $result = MailHelper::formatEmail('yamada@example.jp', '山田太郎');
@@ -326,7 +293,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertEquals('山田太郎 <yamada@example.jp>', $result);
     }
 
-    /** @test */
     public function formatEmail_with_special_characters_in_name(): void
     {
         $result = MailHelper::formatEmail('john@example.com', 'John "The Boss" Doe');
@@ -335,7 +301,6 @@ class MailHelperUtilityMethodsTest extends UnitTestCase
         $this->assertStringContainsString('john@example.com', $result);
     }
 
-    /** @test */
     public function formatEmail_with_comma_in_name(): void
     {
         $result = MailHelper::formatEmail('john@example.com', 'Doe, John');

@@ -19,7 +19,6 @@ use Tests\UnitTestCase;
  */
 class MailHelperReplaceMailVarsTest extends UnitTestCase
 {
-    /** @test */
     public function replaceMailVars_with_empty_text_returns_empty(): void
     {
         $result = MailHelper::replaceMailVars('');
@@ -27,7 +26,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertSame('', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_no_vars_returns_original(): void
     {
         $text = 'Hello, this is plain text without variables.';
@@ -37,7 +35,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertSame($text, $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_conversation_subject(): void
     {
         $conversation = new Conversation(['subject' => 'Test Subject']);
@@ -48,7 +45,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Test Subject', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_conversation_number(): void
     {
         $conversation = new Conversation(['number' => 12345]);
@@ -59,7 +55,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('12345', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_customer_email_from_conversation(): void
     {
         $conversation = new Conversation(['customer_email' => 'customer@example.com']);
@@ -70,7 +65,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('customer@example.com', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_mailbox_email(): void
     {
         $mailbox = new Mailbox(['email' => 'support@example.com']);
@@ -81,7 +75,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('support@example.com', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_mailbox_name(): void
     {
         $mailbox = new Mailbox(['name' => 'Support Team']);
@@ -92,7 +85,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Support Team', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_customer_full_name(): void
     {
         $customer = Customer::factory()->create([
@@ -106,7 +98,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('John Doe', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_customer_first_name(): void
     {
         $customer = Customer::factory()->create(['first_name' => 'Jane']);
@@ -117,7 +108,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Jane', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_customer_last_name(): void
     {
         $customer = Customer::factory()->create(['last_name' => 'Smith']);
@@ -128,7 +118,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Smith', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_customer_company(): void
     {
         $customer = Customer::factory()->create(['company' => 'Acme Corp']);
@@ -139,7 +128,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Acme Corp', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_user_full_name(): void
     {
         $user = User::factory()->create([
@@ -153,7 +141,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Agent Smith', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_user_first_name(): void
     {
         $user = User::factory()->create(['first_name' => 'Alice']);
@@ -164,7 +151,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Alice', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_user_phone(): void
     {
         $user = User::factory()->create(['phone' => '555-1234']);
@@ -175,7 +161,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('555-1234', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_user_email(): void
     {
         $user = User::factory()->create(['email' => 'agent@example.com']);
@@ -186,7 +171,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('agent@example.com', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_user_job_title(): void
     {
         $user = User::factory()->create(['job_title' => 'Support Manager']);
@@ -197,7 +181,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Support Manager', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_fallback_value_when_var_missing(): void
     {
         $text = 'Hello {%customer.firstName,fallback=Guest%}!';
@@ -207,7 +190,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Guest', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_fallback_not_used_when_var_exists(): void
     {
         $customer = Customer::factory()->create(['first_name' => 'John']);
@@ -219,7 +201,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringNotContainsString('Guest', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_empty_fallback(): void
     {
         $text = 'Hello {%customer.firstName,fallback=%}!';
@@ -229,7 +210,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Hello !', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_multiple_vars(): void
     {
         $conversation = new Conversation(['subject' => 'Test', 'number' => 123]);
@@ -247,7 +227,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Test', $result);
     }
 
-    /** @test */
     public function replaceMailVars_preserves_newlines_as_html_br(): void
     {
         $customer = Customer::factory()->create(['first_name' => "John\nDoe"]);
@@ -258,7 +237,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('<br />', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_escape_true_escapes_html(): void
     {
         $customer = Customer::factory()->create(['first_name' => '<script>alert("XSS")</script>']);
@@ -270,7 +248,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('&lt;script&gt;', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_escape_false_preserves_html(): void
     {
         $customer = Customer::factory()->create(['first_name' => '<b>John</b>']);
@@ -281,7 +258,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('<b>John</b>', $result);
     }
 
-    /** @test */
     public function replaceMailVars_removes_non_replaced_placeholders_when_flag_true(): void
     {
         $text = 'Hello {%customer.firstName%}, your ticket is {%unknown.var%}';
@@ -292,7 +268,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Hello', $result);
     }
 
-    /** @test */
     public function replaceMailVars_keeps_non_replaced_placeholders_when_flag_false(): void
     {
         $text = 'Hello {%customer.firstName%}';
@@ -302,7 +277,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('{%customer.firstName%}', $result);
     }
 
-    /** @test */
     public function replaceMailVars_handles_null_values_gracefully(): void
     {
         $customer = Customer::factory()->create(['company' => null]);
@@ -313,7 +287,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Company:', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_unicode_characters(): void
     {
         $customer = Customer::factory()->withUnicodeName()->create();
@@ -324,7 +297,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('山田', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_emoji_in_values(): void
     {
         $customer = Customer::factory()->withEmoji()->create();
@@ -335,7 +307,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('😀', $result);
     }
 
-    /** @test */
     public function replaceMailVars_complex_fallback_with_special_chars(): void
     {
         $text = 'Status: {%ticket.status,fallback=Open (Default)%}';
@@ -345,7 +316,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Open (Default)', $result);
     }
 
-    /** @test */
     public function replaceMailVars_all_entity_types_together(): void
     {
         $conversation = Conversation::factory()->create(['subject' => 'Issue', 'number' => 789]);
@@ -369,7 +339,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertStringContainsString('Issue', $result);
     }
 
-    /** @test */
     public function replaceMailVars_with_repeated_vars(): void
     {
         $customer = Customer::factory()->create(['first_name' => 'John']);
@@ -380,7 +349,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertEquals(2, substr_count($result, 'John'));
     }
 
-    /** @test */
     public function replaceMailVars_handles_very_long_text(): void
     {
         $customer = Customer::factory()->create(['first_name' => 'Alice']);
@@ -391,7 +359,6 @@ class MailHelperReplaceMailVarsTest extends UnitTestCase
         $this->assertEquals(1000, substr_count($result, 'Alice'));
     }
 
-    /** @test */
     public function replaceMailVars_with_mixed_valid_and_invalid_vars(): void
     {
         $customer = Customer::factory()->create(['first_name' => 'Bob']);

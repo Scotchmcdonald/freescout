@@ -13,8 +13,7 @@ class ThreadObserverTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function it_increments_conversation_thread_count_when_thread_created()
+    public function test_it_increments_conversation_thread_count_when_thread_created()
     {
         $conversation = Conversation::factory()->create(['threads_count' => 0]);
 
@@ -23,8 +22,7 @@ class ThreadObserverTest extends TestCase
         $this->assertEquals(1, $conversation->fresh()->threads_count);
     }
 
-    /** @test */
-    public function it_increments_thread_count_multiple_times()
+    public function test_it_increments_thread_count_multiple_times()
     {
         $conversation = Conversation::factory()->create(['threads_count' => 0]);
 
@@ -35,8 +33,7 @@ class ThreadObserverTest extends TestCase
         $this->assertEquals(3, $conversation->fresh()->threads_count);
     }
 
-    /** @test */
-    public function it_decrements_conversation_thread_count_when_thread_deleted()
+    public function test_it_decrements_conversation_thread_count_when_thread_deleted()
     {
         $conversation = Conversation::factory()->create(['threads_count' => 5]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
@@ -50,8 +47,7 @@ class ThreadObserverTest extends TestCase
         $this->assertEquals(5, $conversation->fresh()->threads_count);
     }
 
-    /** @test */
-    public function it_handles_thread_count_with_existing_threads()
+    public function test_it_handles_thread_count_with_existing_threads()
     {
         $conversation = Conversation::factory()->create(['threads_count' => 2]);
 
@@ -66,8 +62,7 @@ class ThreadObserverTest extends TestCase
         $this->assertEquals(2, $conversation->fresh()->threads_count);
     }
 
-    /** @test */
-    public function it_only_affects_own_conversation_thread_count()
+    public function test_it_only_affects_own_conversation_thread_count()
     {
         $conversation1 = Conversation::factory()->create(['threads_count' => 0]);
         $conversation2 = Conversation::factory()->create(['threads_count' => 0]);

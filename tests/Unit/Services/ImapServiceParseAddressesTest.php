@@ -23,8 +23,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->service = new ImapService();
     }
 
-    /** @test */
-    public function parseAddresses_with_empty_input_returns_empty_array(): void
+    public function test_parseAddresses_with_empty_input_returns_empty_array(): void
     {
         $result = $this->invokeMethod($this->service, 'parseAddresses', [null]);
         
@@ -32,8 +31,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEmpty($result);
     }
 
-    /** @test */
-    public function parseAddresses_with_empty_string_returns_empty_array(): void
+    public function test_parseAddresses_with_empty_string_returns_empty_array(): void
     {
         $result = $this->invokeMethod($this->service, 'parseAddresses', ['']);
         
@@ -41,8 +39,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEmpty($result);
     }
 
-    /** @test */
-    public function parseAddresses_with_empty_array_returns_empty_array(): void
+    public function test_parseAddresses_with_empty_array_returns_empty_array(): void
     {
         $result = $this->invokeMethod($this->service, 'parseAddresses', [[]]);
         
@@ -50,8 +47,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEmpty($result);
     }
 
-    /** @test */
-    public function parseAddresses_with_simple_string_email_returns_array(): void
+    public function test_parseAddresses_with_simple_string_email_returns_array(): void
     {
         $result = $this->invokeMethod($this->service, 'parseAddresses', ['john@example.com']);
         
@@ -60,8 +56,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('john@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_email_and_name_string_returns_full_string(): void
+    public function test_parseAddresses_with_email_and_name_string_returns_full_string(): void
     {
         // Plain strings are returned as-is (no extraction from angle brackets)
         $result = $this->invokeMethod($this->service, 'parseAddresses', ['John Doe <john@example.com>']);
@@ -71,8 +66,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('John Doe <john@example.com>', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_quoted_name_returns_full_string(): void
+    public function test_parseAddresses_with_quoted_name_returns_full_string(): void
     {
         // Plain strings are returned as-is (no extraction from angle brackets)
         $result = $this->invokeMethod($this->service, 'parseAddresses', ['"Doe, John" <john@example.com>']);
@@ -82,8 +76,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('"Doe, John" <john@example.com>', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_array_of_strings_returns_all(): void
+    public function test_parseAddresses_with_array_of_strings_returns_all(): void
     {
         $addresses = [
             'john@example.com',
@@ -98,8 +91,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals($addresses, $result);
     }
 
-    /** @test */
-    public function parseAddresses_with_mixed_format_array_returns_all_as_is(): void
+    public function test_parseAddresses_with_mixed_format_array_returns_all_as_is(): void
     {
         // Plain strings are NOT parsed - returned as-is
         $addresses = [
@@ -117,8 +109,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('"Smith, Bob" <bob@example.com>', $result[2]);
     }
 
-    /** @test */
-    public function parseAddresses_with_object_having_mail_property_returns_email(): void
+    public function test_parseAddresses_with_object_having_mail_property_returns_email(): void
     {
         $address = (object) ['mail' => 'test@example.com'];
         
@@ -129,8 +120,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('test@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_object_having_email_property_returns_email(): void
+    public function test_parseAddresses_with_object_having_email_property_returns_email(): void
     {
         $address = (object) ['email' => 'test@example.com'];
         
@@ -141,8 +131,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('test@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_array_having_mail_key_returns_email(): void
+    public function test_parseAddresses_with_array_having_mail_key_returns_email(): void
     {
         $addresses = [
             ['mail' => 'test1@example.com'],
@@ -157,8 +146,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('test2@example.com', $result[1]);
     }
 
-    /** @test */
-    public function parseAddresses_with_array_having_email_key_returns_email(): void
+    public function test_parseAddresses_with_array_having_email_key_returns_email(): void
     {
         $addresses = [
             ['email' => 'test1@example.com'],
@@ -173,8 +161,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('test2@example.com', $result[1]);
     }
 
-    /** @test */
-    public function parseAddresses_skips_null_entries_in_array(): void
+    public function test_parseAddresses_skips_null_entries_in_array(): void
     {
         $addresses = [
             'john@example.com',
@@ -191,8 +178,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('jane@example.com', $result[1]);
     }
 
-    /** @test */
-    public function parseAddresses_skips_empty_string_entries(): void
+    public function test_parseAddresses_skips_empty_string_entries(): void
     {
         $addresses = [
             'john@example.com',
@@ -209,8 +195,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('jane@example.com', $result[1]);
     }
 
-    /** @test */
-    public function parseAddresses_with_unicode_characters_preserves_them(): void
+    public function test_parseAddresses_with_unicode_characters_preserves_them(): void
     {
         // Plain strings are returned as-is, including unicode
         $result = $this->invokeMethod($this->service, 'parseAddresses', ['山田太郎 <yamada@example.jp>']);
@@ -220,8 +205,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('山田太郎 <yamada@example.jp>', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_plus_addressing_preserves_it(): void
+    public function test_parseAddresses_with_plus_addressing_preserves_it(): void
     {
         $result = $this->invokeMethod($this->service, 'parseAddresses', ['user+tag@example.com']);
         
@@ -230,8 +214,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('user+tag@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_subdomain_email_works(): void
+    public function test_parseAddresses_with_subdomain_email_works(): void
     {
         $result = $this->invokeMethod($this->service, 'parseAddresses', ['user@mail.example.com']);
         
@@ -240,8 +223,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('user@mail.example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_multiple_angle_brackets_returns_as_is(): void
+    public function test_parseAddresses_with_multiple_angle_brackets_returns_as_is(): void
     {
         // Plain strings are not parsed - returned as-is
         $result = $this->invokeMethod($this->service, 'parseAddresses', ['<<test@example.com>>']);
@@ -251,8 +233,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('<<test@example.com>>', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_object_toString_method_parses(): void
+    public function test_parseAddresses_with_object_toString_method_parses(): void
     {
         $address = new class {
             public function __toString(): string
@@ -268,8 +249,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('test@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_object_toString_without_brackets(): void
+    public function test_parseAddresses_with_object_toString_without_brackets(): void
     {
         $address = new class {
             public function __toString(): string
@@ -285,8 +265,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('test@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_object_get_method_calls_it(): void
+    public function test_parseAddresses_with_object_get_method_calls_it(): void
     {
         $attribute = new class {
             public function get(): array
@@ -303,8 +282,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('test2@example.com', $result[1]);
     }
 
-    /** @test */
-    public function parseAddresses_with_non_array_non_string_returns_empty(): void
+    public function test_parseAddresses_with_non_array_non_string_returns_empty(): void
     {
         $result = $this->invokeMethod($this->service, 'parseAddresses', [12345]);
         
@@ -312,8 +290,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEmpty($result);
     }
 
-    /** @test */
-    public function parseAddresses_with_boolean_returns_empty(): void
+    public function test_parseAddresses_with_boolean_returns_empty(): void
     {
         $result = $this->invokeMethod($this->service, 'parseAddresses', [true]);
         
@@ -321,8 +298,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEmpty($result);
     }
 
-    /** @test */
-    public function parseAddresses_with_object_having_both_mail_and_email_prefers_mail(): void
+    public function test_parseAddresses_with_object_having_both_mail_and_email_prefers_mail(): void
     {
         $address = (object) [
             'mail' => 'mail-property@example.com',
@@ -336,8 +312,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('mail-property@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_object_toString_extracts_from_angle_brackets(): void
+    public function test_parseAddresses_with_object_toString_extracts_from_angle_brackets(): void
     {
         // Objects with __toString() DO extract from angle brackets
         $address = new class {
@@ -354,8 +329,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('extracted@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_object_no_properties_no_toString_skips(): void
+    public function test_parseAddresses_with_object_no_properties_no_toString_skips(): void
     {
         $address = new class {};
         
@@ -365,8 +339,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEmpty($result);
     }
 
-    /** @test */
-    public function parseAddresses_with_array_having_both_keys_prefers_mail(): void
+    public function test_parseAddresses_with_array_having_both_keys_prefers_mail(): void
     {
         $addresses = [
             [
@@ -382,8 +355,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('mail-key@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_array_having_empty_mail_skips(): void
+    public function test_parseAddresses_with_array_having_empty_mail_skips(): void
     {
         $addresses = [
             ['mail' => ''],
@@ -396,8 +368,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEmpty($result);
     }
 
-    /** @test */
-    public function parseAddresses_with_mixed_objects_arrays_strings(): void
+    public function test_parseAddresses_with_mixed_objects_arrays_strings(): void
     {
         $addresses = [
             'plain@example.com',
@@ -421,8 +392,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('tostring@example.com', $result[3]);
     }
 
-    /** @test */
-    public function parseAddresses_with_object_mail_property_null_tries_email(): void
+    public function test_parseAddresses_with_object_mail_property_null_tries_email(): void
     {
         $address = (object) [
             'mail' => null,
@@ -436,8 +406,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('fallback@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_array_mail_key_null_tries_email(): void
+    public function test_parseAddresses_with_array_mail_key_null_tries_email(): void
     {
         $addresses = [
             [
@@ -453,8 +422,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('fallback@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_object_toString_no_brackets_returns_full(): void
+    public function test_parseAddresses_with_object_toString_no_brackets_returns_full(): void
     {
         $address = new class {
             public function __toString(): string
@@ -470,8 +438,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('noBrackets@example.com', $result[0]);
     }
 
-    /** @test */
-    public function parseAddresses_with_object_toString_empty_skips(): void
+    public function test_parseAddresses_with_object_toString_empty_skips(): void
     {
         $address = new class {
             public function __toString(): string
@@ -486,8 +453,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEmpty($result);
     }
 
-    /** @test */
-    public function parseAddresses_with_get_method_returning_complex_array(): void
+    public function test_parseAddresses_with_get_method_returning_complex_array(): void
     {
         $attribute = new class {
             public function get(): array
@@ -509,8 +475,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('array@example.com', $result[2]);
     }
 
-    /** @test */
-    public function parseAddresses_handles_large_array(): void
+    public function test_parseAddresses_handles_large_array(): void
     {
         $addresses = array_map(fn($i) => "user{$i}@example.com", range(1, 100));
         
@@ -522,8 +487,7 @@ class ImapServiceParseAddressesTest extends UnitTestCase
         $this->assertEquals('user100@example.com', $result[99]);
     }
 
-    /** @test */
-    public function parseAddresses_with_nested_array_not_supported(): void
+    public function test_parseAddresses_with_nested_array_not_supported(): void
     {
         // Nested arrays are treated as invalid entries (not recursively processed)
         $addresses = [

@@ -7,16 +7,20 @@
 # tests in parallel and generates a consolidated summary report.
 
 # --- Configuration ---
+# NOTE: Code coverage is VERY SLOW (~5-10 min for Unit tests, 20-30+ min for full suite)
+#       The artisan-test command runs only Unit tests with coverage by default.
+#       To run all tests WITHOUT coverage, use: php artisan test
+#       To run full suite WITH coverage, change --testsuite=Unit to remove filter
 AVAILABLE_TESTS=("phpstan-bodyscan" "phpstan-analyse" "artisan-test")
 declare -A TEST_COMMANDS=(
     ["phpstan-bodyscan"]="vendor/bin/phpstan-bodyscan analyse"
     ["phpstan-analyse"]="vendor/bin/phpstan analyse --memory-limit=2G"
-    ["artisan-test"]="php artisan test --parallel --coverage-html reports/coverage-report"
+    ["artisan-test"]="php -d pcov.enabled=1 -d pcov.directory=/var/www/html/app -d memory_limit=-1 artisan test --testsuite=Unit --coverage-html reports/coverage-report"
 )
 declare -A TEST_NAMES=(
     ["phpstan-bodyscan"]="PHPStan Bodyscan"
     ["phpstan-analyse"]="PHPStan Analyse"
-    ["artisan-test"]="PHP Artisan Test (with Coverage)"
+    ["artisan-test"]="PHP Artisan Unit Tests (with Coverage)"
 )
 
 LOG_DIR="reports"

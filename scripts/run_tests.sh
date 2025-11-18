@@ -31,7 +31,7 @@ AVAILABLE_TESTS=(
 
 # Define the exact shell commands for each test
 declare -A TEST_COMMANDS=(
-    ["artisan-test"]="php artisan test --parallel --coverage-html reports/coverage-report"
+    ["artisan-test"]="php -d pcov.enabled=1 -d pcov.directory=/var/www/html/app -d memory_limit=-1 artisan test --testsuite=Unit --coverage-html reports/coverage-report"
     ["dusk"]="php artisan dusk"
     ["phpstan-analyse"]="vendor/bin/phpstan analyse --memory-limit=2G"
     ["phpstan-bodyscan"]="vendor/bin/phpstan-bodyscan" # 'analyse' arg is not needed
@@ -43,7 +43,7 @@ declare -A TEST_COMMANDS=(
 
 # Define friendly, human-readable names for each test
 declare -A TEST_NAMES=(
-    ["artisan-test"]="Artisan Test (w/ Coverage)"
+    ["artisan-test"]="Artisan Unit Tests (w/ Coverage)"
     ["dusk"]="Dusk (Browser Tests)"
     ["phpstan-analyse"]="PHPStan Analyse (Fast)"
     ["phpstan-bodyscan"]="PHPStan Bodyscan (Full Report)"

@@ -19,7 +19,6 @@ class UserTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
     public function isAdmin_returns_true_for_admin_role(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -27,7 +26,6 @@ class UserTest extends TestCase
         $this->assertTrue($admin->isAdmin());
     }
 
-    /** @test */
     public function isAdmin_returns_false_for_regular_user(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
@@ -35,7 +33,6 @@ class UserTest extends TestCase
         $this->assertFalse($user->isAdmin());
     }
 
-    /** @test */
     public function isActive_returns_true_for_status_1(): void
     {
         $user = User::factory()->create(['status' => 1]);
@@ -43,7 +40,6 @@ class UserTest extends TestCase
         $this->assertTrue($user->isActive());
     }
 
-    /** @test */
     public function isActive_returns_false_for_inactive_status(): void
     {
         $user = User::factory()->create(['status' => User::STATUS_INACTIVE]);
@@ -51,7 +47,6 @@ class UserTest extends TestCase
         $this->assertFalse($user->isActive());
     }
 
-    /** @test */
     public function getFullName_returns_first_and_last_name(): void
     {
         $user = User::factory()->create([
@@ -62,7 +57,6 @@ class UserTest extends TestCase
         $this->assertEquals('John Doe', $user->getFullName());
     }
 
-    /** @test */
     public function getFullName_returns_email_when_no_name(): void
     {
         $user = User::factory()->create([
@@ -74,7 +68,6 @@ class UserTest extends TestCase
         $this->assertEquals('user@example.com', $user->getFullName());
     }
 
-    /** @test */
     public function getFullName_handles_only_first_name(): void
     {
         $user = User::factory()->create([
@@ -85,7 +78,6 @@ class UserTest extends TestCase
         $this->assertEquals('Jane', $user->getFullName());
     }
 
-    /** @test */
     public function getFullName_handles_only_last_name(): void
     {
         $user = User::factory()->create([
@@ -96,7 +88,6 @@ class UserTest extends TestCase
         $this->assertEquals('Smith', $user->getFullName());
     }
 
-    /** @test */
     public function getFirstName_returns_first_name(): void
     {
         $user = User::factory()->create(['first_name' => 'Alice']);
@@ -104,7 +95,6 @@ class UserTest extends TestCase
         $this->assertEquals('Alice', $user->getFirstName());
     }
 
-    /** @test */
     public function getFullNameAttribute_returns_trimmed_name(): void
     {
         $user = User::factory()->create([
@@ -115,7 +105,6 @@ class UserTest extends TestCase
         $this->assertEquals('John     Doe', $user->full_name);
     }
 
-    /** @test */
     public function name_attribute_aliases_getFullName(): void
     {
         $user = User::factory()->create([
@@ -126,7 +115,6 @@ class UserTest extends TestCase
         $this->assertEquals($user->getFullName(), $user->name);
     }
 
-    /** @test */
     public function getPhotoUrl_returns_gravatar_url(): void
     {
         $user = User::factory()->create(['email' => 'test@example.com']);
@@ -137,7 +125,6 @@ class UserTest extends TestCase
         $this->assertStringContainsString('d=mp', $url);
     }
 
-    /** @test */
     public function getPhotoUrl_generates_consistent_hash(): void
     {
         $user = User::factory()->create(['email' => 'test@example.com']);
@@ -148,7 +135,6 @@ class UserTest extends TestCase
         $this->assertEquals($url1, $url2);
     }
 
-    /** @test */
     public function hasAccessToMailbox_returns_true_for_admin(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -157,7 +143,6 @@ class UserTest extends TestCase
         $this->assertTrue($admin->hasAccessToMailbox($mailbox->id));
     }
 
-    /** @test */
     public function hasAccessToMailbox_returns_true_when_attached(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
@@ -170,7 +155,6 @@ class UserTest extends TestCase
         $this->assertTrue($user->hasAccessToMailbox($mailbox->id));
     }
 
-    /** @test */
     public function hasAccessToMailbox_returns_false_when_not_attached(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
@@ -179,7 +163,6 @@ class UserTest extends TestCase
         $this->assertFalse($user->hasAccessToMailbox($mailbox->id));
     }
 
-    /** @test */
     public function hasAccessToMailbox_checks_minimum_access_level(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
@@ -193,7 +176,6 @@ class UserTest extends TestCase
         $this->assertFalse($user->hasAccessToMailbox($mailbox->id, 30));
     }
 
-    /** @test */
     public function mailboxes_relationship_loads(): void
     {
         $user = User::factory()->create();
@@ -204,7 +186,6 @@ class UserTest extends TestCase
         $this->assertCount(1, $user->mailboxes);
     }
 
-    /** @test */
     public function conversations_relationship_loads(): void
     {
         $user = User::factory()->create();
@@ -212,7 +193,6 @@ class UserTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $user->conversations());
     }
 
-    /** @test */
     public function threads_relationship_loads(): void
     {
         $user = User::factory()->create();
@@ -220,7 +200,6 @@ class UserTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $user->threads());
     }
 
-    /** @test */
     public function folders_relationship_loads(): void
     {
         $user = User::factory()->create();
@@ -228,7 +207,6 @@ class UserTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $user->folders());
     }
 
-    /** @test */
     public function user_has_required_fillable_fields(): void
     {
         $user = new User();
@@ -240,7 +218,6 @@ class UserTest extends TestCase
         $this->assertContains('role', $fillable);
     }
 
-    /** @test */
     public function user_can_be_created_with_factory(): void
     {
         $user = User::factory()->create([
@@ -255,7 +232,6 @@ class UserTest extends TestCase
         ]);
     }
 
-    /** @test */
     public function user_has_timestamps(): void
     {
         $user = User::factory()->create();
@@ -264,7 +240,6 @@ class UserTest extends TestCase
         $this->assertNotNull($user->updated_at);
     }
 
-    /** @test */
     public function user_email_is_unique(): void
     {
         User::factory()->create(['email' => 'unique@example.com']);
@@ -274,7 +249,6 @@ class UserTest extends TestCase
         User::factory()->create(['email' => 'unique@example.com']);
     }
 
-    /** @test */
     public function user_with_unicode_name(): void
     {
         $user = User::factory()->create([
@@ -285,7 +259,6 @@ class UserTest extends TestCase
         $this->assertEquals('山田 太郎', $user->getFullName());
     }
 
-    /** @test */
     public function user_can_have_job_title(): void
     {
         $user = User::factory()->create([
@@ -295,7 +268,6 @@ class UserTest extends TestCase
         $this->assertEquals('Support Manager', $user->job_title);
     }
 
-    /** @test */
     public function user_can_have_phone(): void
     {
         $user = User::factory()->create([
@@ -305,7 +277,6 @@ class UserTest extends TestCase
         $this->assertEquals('+1-555-1234', $user->phone);
     }
 
-    /** @test */
     public function user_can_have_timezone(): void
     {
         $user = User::factory()->create([
@@ -315,7 +286,6 @@ class UserTest extends TestCase
         $this->assertEquals('America/New_York', $user->timezone);
     }
 
-    /** @test */
     public function user_role_defaults_to_user(): void
     {
         $user = User::factory()->create();
@@ -323,7 +293,6 @@ class UserTest extends TestCase
         $this->assertEquals(User::ROLE_USER, $user->role);
     }
 
-    /** @test */
     public function user_status_defaults_to_active(): void
     {
         $user = User::factory()->create();
@@ -331,7 +300,6 @@ class UserTest extends TestCase
         $this->assertEquals(User::STATUS_ACTIVE, $user->status);
     }
 
-    /** @test */
     public function multiple_mailboxes_can_be_attached(): void
     {
         $user = User::factory()->create();

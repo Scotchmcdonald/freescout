@@ -22,7 +22,6 @@ class ConversationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
     public function isActive_returns_true_for_status_1(): void
     {
         $conversation = Conversation::factory()->active()->create();
@@ -30,7 +29,6 @@ class ConversationTest extends TestCase
         $this->assertTrue($conversation->isActive());
     }
 
-    /** @test */
     public function isActive_returns_false_for_other_statuses(): void
     {
         $pending = Conversation::factory()->create(['status' => 2]);
@@ -42,7 +40,6 @@ class ConversationTest extends TestCase
         $this->assertFalse($spam->isActive());
     }
 
-    /** @test */
     public function isClosed_returns_true_for_status_3(): void
     {
         $conversation = Conversation::factory()->create(['status' => 3]);
@@ -50,7 +47,6 @@ class ConversationTest extends TestCase
         $this->assertTrue($conversation->isClosed());
     }
 
-    /** @test */
     public function isClosed_returns_false_for_other_statuses(): void
     {
         $active = Conversation::factory()->active()->create();
@@ -62,7 +58,6 @@ class ConversationTest extends TestCase
         $this->assertFalse($spam->isClosed());
     }
 
-    /** @test */
     public function folder_relationship_loads(): void
     {
         $conversation = Conversation::factory()->create();
@@ -70,7 +65,6 @@ class ConversationTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $conversation->folder());
     }
 
-    /** @test */
     public function mailbox_relationship_loads(): void
     {
         $conversation = Conversation::factory()->create();
@@ -79,7 +73,6 @@ class ConversationTest extends TestCase
         $this->assertInstanceOf(Mailbox::class, $conversation->mailbox);
     }
 
-    /** @test */
     public function user_relationship_loads(): void
     {
         $user = User::factory()->create();
@@ -89,7 +82,6 @@ class ConversationTest extends TestCase
         $this->assertEquals($user->id, $conversation->user->id);
     }
 
-    /** @test */
     public function customer_relationship_loads(): void
     {
         $conversation = Conversation::factory()->create();
@@ -98,7 +90,6 @@ class ConversationTest extends TestCase
         $this->assertInstanceOf(Customer::class, $conversation->customer);
     }
 
-    /** @test */
     public function threads_relationship_returns_all_threads(): void
     {
         $conversation = Conversation::factory()->withThreads(5)->create();
@@ -107,7 +98,6 @@ class ConversationTest extends TestCase
         $this->assertCount(5, $conversation->threads);
     }
 
-    /** @test */
     public function followers_relationship_loads(): void
     {
         $conversation = Conversation::factory()->create();
@@ -115,7 +105,6 @@ class ConversationTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $conversation->followers());
     }
 
-    /** @test */
     public function conversation_has_required_fillable_fields(): void
     {
         $conversation = new Conversation();
@@ -128,7 +117,6 @@ class ConversationTest extends TestCase
         $this->assertContains('customer_id', $fillable);
     }
 
-    /** @test */
     public function conversation_can_be_created_with_factory(): void
     {
         $conversation = Conversation::factory()->create([
@@ -141,7 +129,6 @@ class ConversationTest extends TestCase
         ]);
     }
 
-    /** @test */
     public function active_factory_state_creates_active_conversation(): void
     {
         $conversation = Conversation::factory()->active()->create();
@@ -150,7 +137,6 @@ class ConversationTest extends TestCase
         $this->assertTrue($conversation->isActive());
     }
 
-    /** @test */
     public function spam_factory_state_creates_spam_conversation(): void
     {
         $conversation = Conversation::factory()->spam()->create();
@@ -158,7 +144,6 @@ class ConversationTest extends TestCase
         $this->assertEquals(4, $conversation->status);
     }
 
-    /** @test */
     public function draft_factory_state_creates_draft_conversation(): void
     {
         $conversation = Conversation::factory()->draft()->create();
@@ -166,7 +151,6 @@ class ConversationTest extends TestCase
         $this->assertEquals(1, $conversation->state);
     }
 
-    /** @test */
     public function conversation_with_unicode_subject(): void
     {
         $conversation = Conversation::factory()->withUnicodeSubject()->create();
@@ -177,7 +161,6 @@ class ConversationTest extends TestCase
         ]);
     }
 
-    /** @test */
     public function conversation_with_large_thread_count(): void
     {
         $conversation = Conversation::factory()->withLargeThreadCount()->create();
@@ -185,7 +168,6 @@ class ConversationTest extends TestCase
         $this->assertEquals(100, $conversation->threads_count);
     }
 
-    /** @test */
     public function conversation_number_is_unique(): void
     {
         $conv1 = Conversation::factory()->create();
@@ -194,7 +176,6 @@ class ConversationTest extends TestCase
         $this->assertNotEquals($conv1->number, $conv2->number);
     }
 
-    /** @test */
     public function conversation_has_timestamps(): void
     {
         $conversation = Conversation::factory()->create();
@@ -203,7 +184,6 @@ class ConversationTest extends TestCase
         $this->assertNotNull($conversation->updated_at);
     }
 
-    /** @test */
     public function conversation_can_have_closed_by_user(): void
     {
         $user = User::factory()->create();
@@ -214,7 +194,6 @@ class ConversationTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $conversation->closedByUser());
     }
 
-    /** @test */
     public function conversation_can_have_created_by_user(): void
     {
         $user = User::factory()->create();
@@ -225,7 +204,6 @@ class ConversationTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $conversation->createdByUser());
     }
 
-    /** @test */
     public function conversation_defaults_to_published_state(): void
     {
         $conversation = Conversation::factory()->create();
@@ -233,7 +211,6 @@ class ConversationTest extends TestCase
         $this->assertEquals(2, $conversation->state);
     }
 
-    /** @test */
     public function conversation_has_customer_email_field(): void
     {
         $conversation = Conversation::factory()->create([
@@ -243,7 +220,6 @@ class ConversationTest extends TestCase
         $this->assertEquals('test@example.com', $conversation->customer_email);
     }
 
-    /** @test */
     public function conversation_preview_can_be_set(): void
     {
         $conversation = Conversation::factory()->create([
@@ -253,7 +229,6 @@ class ConversationTest extends TestCase
         $this->assertEquals('This is a preview of the conversation', $conversation->preview);
     }
 
-    /** @test */
     public function conversation_last_reply_at_tracks_latest_reply(): void
     {
         $time = now()->subHours(2);

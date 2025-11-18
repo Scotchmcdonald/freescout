@@ -4,6 +4,44 @@
 
 This guide documents critical lessons learned from fixing 813+ failing tests during the Laravel 11 migration. Following these guidelines will help you write tests that pass on the first try.
 
+## ⚠️ CRITICAL: Use PHP 8 Attributes, NOT Doc-Comments
+
+**PHPUnit 12 Requirement:** All test metadata MUST use PHP 8 attributes instead of doc-comment annotations.
+
+❌ **WRONG (Deprecated):**
+```php
+/**
+ * @test
+ * @dataProvider myDataProvider
+ * @depends testSomething
+ */
+public function it_does_something()
+{
+}
+```
+
+✅ **CORRECT (Required):**
+```php
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+
+#[Test]
+#[DataProvider('myDataProvider')]
+#[Depends('testSomething')]
+public function it_does_something(): void
+{
+}
+```
+
+**OR simply prefix method names with `test_`:**
+```php
+public function test_it_does_something(): void
+{
+    // No attributes needed when method starts with "test_"
+}
+```
+
 ## Test Architecture
 
 ### Base Test Classes
@@ -287,6 +325,8 @@ Tests are executed in a specific order to minimize issues:
 
 Before submitting a test, verify:
 
+- [ ] ⚠️ **CRITICAL:** Does NOT use `/** @test */` annotations (use `test_` prefix instead)
+- [ ] ⚠️ **CRITICAL:** Does NOT use any doc-comment annotations (`@dataProvider`, `@depends`, `@group`)
 - [ ] Extends correct base class (`FeatureTestCase`, `UnitTestCase`, or `IntegrationTestCase`)
 - [ ] Does NOT extend `TestCase` directly if using database
 - [ ] Does NOT use `RefreshDatabase` trait directly (inherited from base class)
@@ -376,6 +416,41 @@ class ThreadPolicyTest extends UnitTestCase // Not TestCase!
 
 ## Debugging Test Failures
 
+### ⚠️ CRITICAL: Check for @test Annotations FIRST
+
+**If your test suite hangs or times out, this is the #1 cause:**
+
+```bash
+# Search for problematic @test annotations
+grep -r "/** @test \*/" tests/
+
+# Count how many files have the issue
+grep -r "/** @test \*/" tests/ --include="*Test.php" | cut -d: -f1 | sort -u | wc -l
+```
+
+**Quick Fix for All Files:**
+```bash
+# Remove all @test annotations
+find tests/ -name "*Test.php" -exec sed -i '/^[[:space:]]*\/\*\* @test \*\/$/d' {} \;
+
+# Add test_ prefix to methods starting with "it_"
+find tests/ -name "*Test.php" -exec sed -i 's/public function it_/public function test_it_/g' {} \;
+
+# Verify all annotations are gone
+grep -r "/** @test \*/" tests/  # Should return nothing
+```
+
+**Why This Causes Hangs:**
+- PHPUnit 11 generates 1 deprecation warning per `@test` annotation
+- 200+ annotations = 200+ warnings flooding the output buffer
+- Output buffer overflow causes test process to hang/timeout
+- Tests pass individually but hang when run together
+
+**Real Example from Phase 4K:**
+- 21 test files with `@test` annotations
+- Full test suite hung after 60 seconds
+- After removing annotations: 2744 tests pass in 140 seconds
+
 ### Enable Detailed Errors
 
 ```bash
@@ -393,6 +468,8 @@ php artisan test > test_results.txt 2>&1
 
 | Error | Likely Cause | Fix |
 |-------|-------------|-----|
+| **Test suite hangs/times out** | `/** @test */` annotations causing 200+ deprecation warnings that flood output | Remove all `@test` annotations, use `test_` prefix |
+| **Deprecation warnings in test output** | Using doc-comment annotations instead of attributes | Replace `@test` with `test_` prefix or `#[Test]` attribute |
 | `PDOException: There is already an active transaction` | Wrong base class or missing transaction cleanup | Extend `FeatureTestCase`, `UnitTestCase`, or `IntegrationTestCase` |
 | `SQLSTATE[HY000]: General error: 1 no such column: email` | Querying customers.email column | Query `emails` table or use `whereHas('emails', ...)` |
 | `Object of class stdClass could not be converted to string` | IMAP mock without __toString() | Use `MockImapAddress` class |
@@ -454,3 +531,71 @@ If your test fails:
   - Added base test class architecture
   - Documented customer/email relationship pattern
   - Added IMAP testing patterns
+
+## PHPUnit 12 Compatibility - MANDATORY
+
+### ⚠️ ALL Metadata Must Use Attributes
+
+**PHPUnit 12 will REMOVE support for doc-comment annotations.** All test metadata must use PHP 8 attributes.
+
+### Quick Reference - Annotation to Attribute Conversion
+
+| Deprecated Annotation | Required Attribute | Import |
+|----------------------|-------------------|--------|
+| `/** @test */` | Use `test_` prefix OR `#[Test]` | `use PHPUnit\Framework\Attributes\Test;` |
+| `/** @dataProvider myProvider */` | `#[DataProvider('myProvider')]` | `use PHPUnit\Framework\Attributes\DataProvider;` |
+| `/** @depends testSomething */` | `#[Depends('testSomething')]` | `use PHPUnit\Framework\Attributes\Depends;` |
+| `/** @group slow */` | `#[Group('slow')]` | `use PHPUnit\Framework\Attributes\Group;` |
+| `/** @covers \App\Service */` | `#[CoversClass(Service::class)]` | `use PHPUnit\Framework\Attributes\CoversClass;` |
+
+### Best Practice: Use `test_` Prefix (Simplest)
+
+The easiest way to avoid deprecation warnings is to prefix all test method names with `test_`:
+
+```php
+class MyTest extends UnitTestCase
+{
+    // ✅ No attributes needed - method name starts with "test_"
+    public function test_it_does_something(): void
+    {
+        $this->assertTrue(true);
+    }
+    
+    // ✅ Also works
+    public function test_another_behavior(): void
+    {
+        $this->assertTrue(true);
+    }
+}
+```
+
+### When You MUST Use Attributes
+
+Only use attributes when you need specific PHPUnit features:
+
+```php
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+
+class MyTest extends UnitTestCase
+{
+    #[DataProvider('provideTestData')]
+    public function test_with_data_provider(string $input, string $expected): void
+    {
+        $this->assertEquals($expected, $input);
+    }
+    
+    public static function provideTestData(): array
+    {
+        return [
+            ['input1', 'expected1'],
+            ['input2', 'expected2'],
+        ];
+    }
+    
+    #[Group('slow')]
+    public function test_slow_operation(): void
+    {
+        // Test code
+    }
+}

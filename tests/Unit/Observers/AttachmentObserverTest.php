@@ -13,8 +13,7 @@ class AttachmentObserverTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function it_deletes_file_from_storage_when_attachment_deleted()
+    public function test_it_deletes_file_from_storage_when_attachment_deleted()
     {
         Storage::fake('local');
 
@@ -33,8 +32,7 @@ class AttachmentObserverTest extends TestCase
         $this->assertFalse(Storage::exists($filePath));
     }
 
-    /** @test */
-    public function it_handles_missing_file_gracefully()
+    public function test_it_handles_missing_file_gracefully()
     {
         Storage::fake('local');
 
@@ -52,8 +50,7 @@ class AttachmentObserverTest extends TestCase
         $this->assertDatabaseMissing('attachments', ['id' => $attachment->id]);
     }
 
-    /** @test */
-    public function it_only_deletes_own_file()
+    public function test_it_only_deletes_own_file()
     {
         Storage::fake('local');
 
@@ -79,8 +76,7 @@ class AttachmentObserverTest extends TestCase
         $this->assertTrue(Storage::exists($filePath2));
     }
 
-    /** @test */
-    public function it_handles_attachment_without_file_dir()
+    public function test_it_handles_attachment_without_file_dir()
     {
         Storage::fake('local');
 
@@ -95,8 +91,7 @@ class AttachmentObserverTest extends TestCase
         $this->assertDatabaseMissing('attachments', ['id' => $attachment->id]);
     }
 
-    /** @test */
-    public function it_handles_attachment_without_file_name()
+    public function test_it_handles_attachment_without_file_name()
     {
         Storage::fake('local');
 

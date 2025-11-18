@@ -19,7 +19,6 @@ class FolderTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
     public function folder_belongs_to_mailbox(): void
     {
         $folder = Folder::factory()->create();
@@ -28,7 +27,6 @@ class FolderTest extends TestCase
         $this->assertInstanceOf(Mailbox::class, $folder->mailbox);
     }
 
-    /** @test */
     public function folder_belongs_to_user(): void
     {
         $user = User::factory()->create();
@@ -38,7 +36,6 @@ class FolderTest extends TestCase
         $this->assertEquals($user->id, $folder->user->id);
     }
 
-    /** @test */
     public function folder_can_be_global(): void
     {
         $folder = Folder::factory()->create(['user_id' => null]);
@@ -46,7 +43,6 @@ class FolderTest extends TestCase
         $this->assertNull($folder->user_id);
     }
 
-    /** @test */
     public function folder_can_be_user_specific(): void
     {
         $user = User::factory()->create();
@@ -56,7 +52,6 @@ class FolderTest extends TestCase
         $this->assertEquals($user->id, $folder->user_id);
     }
 
-    /** @test */
     public function folder_has_required_fillable_fields(): void
     {
         $folder = new Folder();
@@ -67,7 +62,6 @@ class FolderTest extends TestCase
         $this->assertContains('mailbox_id', $fillable);
     }
 
-    /** @test */
     public function folder_can_be_created_with_factory(): void
     {
         $folder = Folder::factory()->create([
@@ -82,7 +76,6 @@ class FolderTest extends TestCase
         ]);
     }
 
-    /** @test */
     public function folder_has_timestamps(): void
     {
         $folder = Folder::factory()->create();
@@ -91,7 +84,6 @@ class FolderTest extends TestCase
         $this->assertNotNull($folder->updated_at);
     }
 
-    /** @test */
     public function folder_type_can_be_assigned(): void
     {
         $folder = Folder::factory()->create(['type' => 1]);
@@ -99,7 +91,6 @@ class FolderTest extends TestCase
         $this->assertEquals(1, $folder->type);
     }
 
-    /** @test */
     public function folder_type_can_be_unassigned(): void
     {
         $folder = Folder::factory()->create(['type' => 2]);
@@ -107,7 +98,6 @@ class FolderTest extends TestCase
         $this->assertEquals(2, $folder->type);
     }
 
-    /** @test */
     public function folder_type_can_be_drafts(): void
     {
         $folder = Folder::factory()->create(['type' => 3]);
@@ -115,7 +105,6 @@ class FolderTest extends TestCase
         $this->assertEquals(3, $folder->type);
     }
 
-    /** @test */
     public function folder_type_can_be_deleted(): void
     {
         $folder = Folder::factory()->create(['type' => 4]);
@@ -123,7 +112,6 @@ class FolderTest extends TestCase
         $this->assertEquals(4, $folder->type);
     }
 
-    /** @test */
     public function folder_type_can_be_spam(): void
     {
         $folder = Folder::factory()->create(['type' => 30]);
@@ -131,7 +119,6 @@ class FolderTest extends TestCase
         $this->assertEquals(30, $folder->type);
     }
 
-    /** @test */
     public function folder_active_count_defaults_to_zero(): void
     {
         $folder = Folder::factory()->create();
@@ -139,7 +126,6 @@ class FolderTest extends TestCase
         $this->assertEquals(0, $folder->active_count);
     }
 
-    /** @test */
     public function folder_total_count_defaults_to_zero(): void
     {
         $folder = Folder::factory()->create();
@@ -147,7 +133,6 @@ class FolderTest extends TestCase
         $this->assertEquals(0, $folder->total_count);
     }
 
-    /** @test */
     public function folder_with_unicode_name(): void
     {
         $folder = Folder::factory()->create([
@@ -157,7 +142,6 @@ class FolderTest extends TestCase
         $this->assertEquals('受信トレイ Inbox', $folder->name);
     }
 
-    /** @test */
     public function multiple_folders_can_belong_to_same_mailbox(): void
     {
         $mailbox = Mailbox::factory()->create();

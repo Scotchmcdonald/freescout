@@ -14,7 +14,6 @@ use Tests\UnitTestCase;
  */
 class MailHelperGetMessageIdHashTest extends UnitTestCase
 {
-    /** @test */
     public function getMessageIdHash_returns_md5_hash(): void
     {
         $result = MailHelper::getMessageIdHash(123);
@@ -24,7 +23,6 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $result);
     }
 
-    /** @test */
     public function getMessageIdHash_is_deterministic(): void
     {
         $hash1 = MailHelper::getMessageIdHash(123);
@@ -33,7 +31,6 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertEquals($hash1, $hash2);
     }
 
-    /** @test */
     public function getMessageIdHash_different_ids_produce_different_hashes(): void
     {
         $hash1 = MailHelper::getMessageIdHash(123);
@@ -42,7 +39,6 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertNotEquals($hash1, $hash2);
     }
 
-    /** @test */
     public function getMessageIdHash_with_zero_id(): void
     {
         $result = MailHelper::getMessageIdHash(0);
@@ -51,7 +47,6 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertEquals(32, strlen($result));
     }
 
-    /** @test */
     public function getMessageIdHash_with_large_id(): void
     {
         $result = MailHelper::getMessageIdHash(999999999);
@@ -60,7 +55,6 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertEquals(32, strlen($result));
     }
 
-    /** @test */
     public function getMessageIdHash_uses_app_key_in_hash(): void
     {
         // If app key changes, hash should change for same ID
@@ -75,7 +69,6 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertNotEmpty($hash1);
     }
 
-    /** @test */
     public function getMessageIdHash_sequential_ids_have_different_hashes(): void
     {
         $hashes = [];

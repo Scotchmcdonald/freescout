@@ -16,8 +16,7 @@ class ConversationObserverTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function it_marks_conversation_as_read_when_created_by_user()
+    public function test_it_marks_conversation_as_read_when_created_by_user()
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -36,8 +35,7 @@ class ConversationObserverTest extends TestCase
         $this->assertTrue($conversation->read_by_user);
     }
 
-    /** @test */
-    public function it_does_not_mark_conversation_as_read_when_created_by_customer()
+    public function test_it_does_not_mark_conversation_as_read_when_created_by_customer()
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -56,8 +54,7 @@ class ConversationObserverTest extends TestCase
         $this->assertNull($conversation->read_by_user);
     }
 
-    /** @test */
-    public function it_sets_default_status_to_active_if_not_provided()
+    public function test_it_sets_default_status_to_active_if_not_provided()
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -76,8 +73,7 @@ class ConversationObserverTest extends TestCase
         $this->assertEquals(Conversation::STATUS_ACTIVE, $conversation->status);
     }
 
-    /** @test */
-    public function it_increments_folder_total_count_when_conversation_created()
+    public function test_it_increments_folder_total_count_when_conversation_created()
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create([
@@ -100,8 +96,7 @@ class ConversationObserverTest extends TestCase
         $this->assertEquals(6, $folder->fresh()->total_count);
     }
 
-    /** @test */
-    public function it_increments_folder_active_count_when_active_conversation_created()
+    public function test_it_increments_folder_active_count_when_active_conversation_created()
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create([
@@ -124,8 +119,7 @@ class ConversationObserverTest extends TestCase
         $this->assertEquals(4, $folder->fresh()->active_count);
     }
 
-    /** @test */
-    public function it_does_not_increment_folder_active_count_when_closed_conversation_created()
+    public function test_it_does_not_increment_folder_active_count_when_closed_conversation_created()
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create([
@@ -151,8 +145,7 @@ class ConversationObserverTest extends TestCase
         $this->assertEquals(11, $folder->total_count);
     }
 
-    /** @test */
-    public function it_updates_folder_counters_when_conversation_status_changes()
+    public function test_it_updates_folder_counters_when_conversation_status_changes()
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -178,8 +171,7 @@ class ConversationObserverTest extends TestCase
         $this->assertEquals(2, $folder->active_count); // Counters recalculated, both show as active in count
     }
 
-    /** @test */
-    public function it_deletes_related_threads_when_conversation_deleted()
+    public function test_it_deletes_related_threads_when_conversation_deleted()
     {
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
@@ -189,8 +181,7 @@ class ConversationObserverTest extends TestCase
         $this->assertDatabaseMissing('threads', ['id' => $thread->id]);
     }
 
-    /** @test */
-    public function it_detaches_followers_when_conversation_deleted()
+    public function test_it_detaches_followers_when_conversation_deleted()
     {
         $conversation = Conversation::factory()->create();
         $user = User::factory()->create();
@@ -205,8 +196,7 @@ class ConversationObserverTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function it_decrements_folder_total_count_when_conversation_deleted()
+    public function test_it_decrements_folder_total_count_when_conversation_deleted()
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create([
@@ -235,8 +225,7 @@ class ConversationObserverTest extends TestCase
         $this->assertEquals(5, $folder->fresh()->total_count);
     }
 
-    /** @test */
-    public function it_decrements_folder_active_count_when_active_conversation_deleted()
+    public function test_it_decrements_folder_active_count_when_active_conversation_deleted()
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create([
@@ -265,8 +254,7 @@ class ConversationObserverTest extends TestCase
         $this->assertEquals(3, $folder->fresh()->active_count);
     }
 
-    /** @test */
-    public function it_does_not_decrement_folder_active_count_when_closed_conversation_deleted()
+    public function test_it_does_not_decrement_folder_active_count_when_closed_conversation_deleted()
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create([

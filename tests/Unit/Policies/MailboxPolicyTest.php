@@ -14,7 +14,6 @@ class MailboxPolicyTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
     public function authenticated_user_can_view_any_mailboxes()
     {
         $user = User::factory()->create();
@@ -23,7 +22,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertTrue($policy->viewAny($user));
     }
 
-    /** @test */
     public function unauthenticated_user_cannot_view_any_mailboxes()
     {
         $policy = new MailboxPolicy;
@@ -31,7 +29,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertFalse($policy->viewAny(null));
     }
 
-    /** @test */
     public function admin_can_view_any_mailbox()
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -42,7 +39,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertTrue($policy->view($admin, $mailbox));
     }
 
-    /** @test */
     public function user_with_view_access_can_view_mailbox()
     {
         $user = User::factory()->create();
@@ -55,7 +51,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertTrue($policy->view($user, $mailbox));
     }
 
-    /** @test */
     public function user_without_access_cannot_view_mailbox()
     {
         $user = User::factory()->create();
@@ -66,7 +61,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertFalse($policy->view($user, $mailbox));
     }
 
-    /** @test */
     public function unauthenticated_user_cannot_view_mailbox()
     {
         $mailbox = Mailbox::factory()->create();
@@ -75,7 +69,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertFalse($policy->view(null, $mailbox));
     }
 
-    /** @test */
     public function admin_can_create_mailbox()
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -84,7 +77,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertTrue($policy->create($admin));
     }
 
-    /** @test */
     public function non_admin_cannot_create_mailbox()
     {
         $user = User::factory()->create();
@@ -93,7 +85,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertFalse($policy->create($user));
     }
 
-    /** @test */
     public function admin_can_update_any_mailbox()
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -104,7 +95,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertTrue($policy->update($admin, $mailbox));
     }
 
-    /** @test */
     public function user_with_admin_access_can_update_mailbox()
     {
         $user = User::factory()->create();
@@ -117,7 +107,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertTrue($policy->update($user, $mailbox));
     }
 
-    /** @test */
     public function user_with_view_or_reply_access_cannot_update_mailbox()
     {
         $user = User::factory()->create();
@@ -130,7 +119,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertFalse($policy->update($user, $mailbox));
     }
 
-    /** @test */
     public function admin_can_delete_mailbox()
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -141,7 +129,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertTrue($policy->delete($admin, $mailbox));
     }
 
-    /** @test */
     public function non_admin_cannot_delete_mailbox()
     {
         $user = User::factory()->create();
@@ -154,7 +141,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertFalse($policy->delete($user, $mailbox));
     }
 
-    /** @test */
     public function user_with_reply_access_can_reply_to_conversations()
     {
         $user = User::factory()->create();
@@ -167,7 +153,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertTrue($policy->reply($user, $mailbox));
     }
 
-    /** @test */
     public function user_with_view_access_cannot_reply_to_conversations()
     {
         $user = User::factory()->create();
@@ -180,7 +165,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertFalse($policy->reply($user, $mailbox));
     }
 
-    /** @test */
     public function admin_can_administer_mailbox()
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -191,7 +175,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertTrue($policy->admin($admin, $mailbox));
     }
 
-    /** @test */
     public function user_with_admin_access_can_administer_mailbox()
     {
         $user = User::factory()->create();
@@ -204,7 +187,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertTrue($policy->admin($user, $mailbox));
     }
 
-    /** @test */
     public function user_with_reply_access_cannot_administer_mailbox()
     {
         $user = User::factory()->create();
@@ -217,7 +199,6 @@ class MailboxPolicyTest extends TestCase
         $this->assertFalse($policy->admin($user, $mailbox));
     }
 
-    /** @test */
     public function access_level_hierarchy_is_respected()
     {
         $user = User::factory()->create();

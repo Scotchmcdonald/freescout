@@ -14,8 +14,7 @@ class CustomerObserverTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function it_deletes_conversations_when_customer_deleted()
+    public function test_it_deletes_conversations_when_customer_deleted()
     {
         $customer = Customer::factory()->create();
         $conversation1 = Conversation::factory()->create(['customer_id' => $customer->id]);
@@ -27,8 +26,7 @@ class CustomerObserverTest extends TestCase
         $this->assertDatabaseMissing('conversations', ['id' => $conversation2->id]);
     }
 
-    /** @test */
-    public function it_deletes_email_records_when_customer_deleted()
+    public function test_it_deletes_email_records_when_customer_deleted()
     {
         $customer = Customer::factory()->create();
         $email1 = Email::factory()->create(['customer_id' => $customer->id]);
@@ -40,8 +38,7 @@ class CustomerObserverTest extends TestCase
         $this->assertDatabaseMissing('emails', ['id' => $email2->id]);
     }
 
-    /** @test */
-    public function it_deletes_both_conversations_and_emails_when_customer_deleted()
+    public function test_it_deletes_both_conversations_and_emails_when_customer_deleted()
     {
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
@@ -53,8 +50,7 @@ class CustomerObserverTest extends TestCase
         $this->assertDatabaseMissing('emails', ['id' => $email->id]);
     }
 
-    /** @test */
-    public function it_only_deletes_customer_own_conversations()
+    public function test_it_only_deletes_customer_own_conversations()
     {
         $customer1 = Customer::factory()->create();
         $customer2 = Customer::factory()->create();
@@ -68,8 +64,7 @@ class CustomerObserverTest extends TestCase
         $this->assertDatabaseHas('conversations', ['id' => $conversation2->id]);
     }
 
-    /** @test */
-    public function it_only_deletes_customer_own_emails()
+    public function test_it_only_deletes_customer_own_emails()
     {
         $customer1 = Customer::factory()->create();
         $customer2 = Customer::factory()->create();
