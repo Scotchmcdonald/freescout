@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use Tests\FeatureTestCase;
@@ -15,13 +17,13 @@ use Illuminate\Support\Facades\Session;
 class RemainingControllersAndRoutesTest extends FeatureTestCase
 {
     // SearchController Tests
-    public function test_search_requires_authentication()
+    public function test_search_requires_authentication(): void
     {
         $response = $this->get(route('search'));
         $response->assertRedirect(route('login'));
     }
 
-    public function test_search_can_find_conversations_by_subject()
+    public function test_search_can_find_conversations_by_subject(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -37,7 +39,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertSee('Unique Test Subject');
     }
 
-    public function test_search_can_find_conversations_by_number()
+    public function test_search_can_find_conversations_by_number(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -52,7 +54,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_search_respects_mailbox_access_control()
+    public function test_search_respects_mailbox_access_control(): void
     {
         $user = User::factory()->create();
         $mailbox1 = Mailbox::factory()->create();
@@ -73,7 +75,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_search_handles_empty_query()
+    public function test_search_handles_empty_query(): void
     {
         $user = User::factory()->create();
 
@@ -81,7 +83,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_search_handles_special_characters()
+    public function test_search_handles_special_characters(): void
     {
         $user = User::factory()->create();
 
@@ -90,7 +92,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // UpdateController Tests
-    public function test_update_check_requires_admin()
+    public function test_update_check_requires_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
@@ -98,7 +100,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(403);
     }
 
-    public function test_update_check_allows_admin()
+    public function test_update_check_allows_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
@@ -107,7 +109,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // LogsController Tests
-    public function test_logs_requires_admin()
+    public function test_logs_requires_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
@@ -115,7 +117,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(403);
     }
 
-    public function test_logs_allows_admin()
+    public function test_logs_allows_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
@@ -123,7 +125,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_logs_download_requires_admin()
+    public function test_logs_download_requires_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
@@ -132,7 +134,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // PermissionsController Tests
-    public function test_permissions_index_requires_admin()
+    public function test_permissions_index_requires_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
@@ -140,7 +142,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(403);
     }
 
-    public function test_permissions_index_allows_admin()
+    public function test_permissions_index_allows_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
@@ -148,7 +150,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_permissions_save_requires_admin()
+    public function test_permissions_save_requires_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
@@ -156,7 +158,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(403);
     }
 
-    public function test_permissions_save_allows_admin()
+    public function test_permissions_save_allows_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
@@ -167,13 +169,13 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // TagsController Tests
-    public function test_tags_ajax_search_requires_authentication()
+    public function test_tags_ajax_search_requires_authentication(): void
     {
         $response = $this->get(route('tags.ajax_search'));
         $response->assertStatus(302);
     }
 
-    public function test_tags_ajax_search_returns_json()
+    public function test_tags_ajax_search_returns_json(): void
     {
         $user = User::factory()->create();
 
@@ -183,7 +185,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // WebhooksController Tests
-    public function test_webhooks_index_requires_admin()
+    public function test_webhooks_index_requires_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
@@ -191,7 +193,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(403);
     }
 
-    public function test_webhooks_index_allows_admin()
+    public function test_webhooks_index_allows_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
@@ -199,7 +201,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_webhooks_create_requires_admin()
+    public function test_webhooks_create_requires_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
@@ -207,7 +209,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(403);
     }
 
-    public function test_webhooks_store_validates_url()
+    public function test_webhooks_store_validates_url(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
@@ -217,7 +219,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertSessionHasErrors('url');
     }
 
-    public function test_webhooks_store_validates_events()
+    public function test_webhooks_store_validates_events(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
@@ -229,13 +231,13 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // LocaleController Tests
-    public function test_locale_update_requires_authentication()
+    public function test_locale_update_requires_authentication(): void
     {
         $response = $this->post(route('locale.update'), ['locale' => 'en']);
         $response->assertStatus(302);
     }
 
-    public function test_locale_update_changes_user_locale()
+    public function test_locale_update_changes_user_locale(): void
     {
         $user = User::factory()->create(['locale' => 'en']);
 
@@ -246,7 +248,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $this->assertEquals('es', $user->fresh()->locale);
     }
 
-    public function test_locale_update_validates_locale()
+    public function test_locale_update_validates_locale(): void
     {
         $user = User::factory()->create();
 
@@ -257,13 +259,13 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // NotificationsController Tests
-    public function test_notifications_index_requires_authentication()
+    public function test_notifications_index_requires_authentication(): void
     {
         $response = $this->get(route('notifications'));
         $response->assertRedirect(route('login'));
     }
 
-    public function test_notifications_index_displays_user_notifications()
+    public function test_notifications_index_displays_user_notifications(): void
     {
         $user = User::factory()->create();
 
@@ -271,20 +273,20 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_notifications_mark_as_read_requires_authentication()
+    public function test_notifications_mark_as_read_requires_authentication(): void
     {
         $response = $this->post(route('notifications.mark_as_read', ['id' => 1]));
         $response->assertStatus(302);
     }
 
     // ApiController Tests
-    public function test_api_requires_authentication()
+    public function test_api_requires_authentication(): void
     {
         $response = $this->get(route('api.conversations'));
         $response->assertStatus(401);
     }
 
-    public function test_api_requires_valid_token()
+    public function test_api_requires_valid_token(): void
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer invalid-token',
@@ -293,13 +295,13 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // DownloadController Tests  
-    public function test_download_attachment_requires_authentication()
+    public function test_download_attachment_requires_authentication(): void
     {
         $response = $this->get(route('attachments.download', ['id' => 1]));
         $response->assertRedirect(route('login'));
     }
 
-    public function test_download_attachment_requires_access_to_conversation()
+    public function test_download_attachment_requires_access_to_conversation(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -312,13 +314,13 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // MergeController Tests
-    public function test_merge_conversation_requires_authentication()
+    public function test_merge_conversation_requires_authentication(): void
     {
         $response = $this->post(route('conversations.merge', ['id' => 1]));
         $response->assertRedirect(route('login'));
     }
 
-    public function test_merge_conversation_validates_target_conversation()
+    public function test_merge_conversation_validates_target_conversation(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -332,7 +334,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertSessionHasErrors();
     }
 
-    public function test_merge_conversation_prevents_merging_into_self()
+    public function test_merge_conversation_prevents_merging_into_self(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -347,13 +349,13 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // PrintController Tests
-    public function test_print_conversation_requires_authentication()
+    public function test_print_conversation_requires_authentication(): void
     {
         $response = $this->get(route('conversations.print', ['id' => 1]));
         $response->assertRedirect(route('login'));
     }
 
-    public function test_print_conversation_renders_printable_version()
+    public function test_print_conversation_renders_printable_version(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -366,7 +368,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // ExportController Tests
-    public function test_export_conversations_requires_admin()
+    public function test_export_conversations_requires_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
@@ -374,7 +376,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(403);
     }
 
-    public function test_export_conversations_allows_admin()
+    public function test_export_conversations_allows_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
@@ -385,7 +387,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     }
 
     // ImportController Tests
-    public function test_import_conversations_requires_admin()
+    public function test_import_conversations_requires_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
@@ -393,7 +395,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         $response->assertStatus(403);
     }
 
-    public function test_import_conversations_allows_admin()
+    public function test_import_conversations_allows_admin(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 

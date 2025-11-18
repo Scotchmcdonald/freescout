@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use Tests\UnitTestCase;
@@ -9,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 class ComplexValidationScenariosTest extends UnitTestCase
 {
     // Complex Validation Rules
-    public function test_conditional_validation_required_if()
+    public function test_conditional_validation_required_if(): void
     {
         $data = [
             'type' => 'email',
@@ -23,7 +25,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_conditional_validation_required_unless()
+    public function test_conditional_validation_required_unless(): void
     {
         $data = [
             'type' => 'phone',
@@ -37,7 +39,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_conditional_validation_required_with()
+    public function test_conditional_validation_required_with(): void
     {
         $data = [
             'address' => '123 Main St',
@@ -51,7 +53,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_conditional_validation_required_without()
+    public function test_conditional_validation_required_without(): void
     {
         $data = [
             'email' => '',
@@ -64,7 +66,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_array_validation_with_nested_rules()
+    public function test_array_validation_with_nested_rules(): void
     {
         $data = [
             'users' => [
@@ -82,7 +84,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertArrayHasKey('users.1.email', $validator->errors()->messages());
     }
 
-    public function test_complex_email_validation()
+    public function test_complex_email_validation(): void
     {
         $validEmails = [
             'test@example.com',
@@ -108,7 +110,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         }
     }
 
-    public function test_regex_validation_complex_patterns()
+    public function test_regex_validation_complex_patterns(): void
     {
         $data = ['phone' => '+1-234-567-8900'];
         
@@ -119,7 +121,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_date_validation_with_format()
+    public function test_date_validation_with_format(): void
     {
         $data = ['date' => '2024-01-15'];
         
@@ -130,7 +132,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_date_validation_before_and_after()
+    public function test_date_validation_before_and_after(): void
     {
         $data = [
             'start_date' => '2024-01-01',
@@ -145,7 +147,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_numeric_validation_with_min_max()
+    public function test_numeric_validation_with_min_max(): void
     {
         $data = ['age' => 25];
         
@@ -156,7 +158,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_string_validation_with_min_max_length()
+    public function test_string_validation_with_min_max_length(): void
     {
         $data = ['password' => 'secret123'];
         
@@ -167,7 +169,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_in_validation_with_array()
+    public function test_in_validation_with_array(): void
     {
         $data = ['status' => 'active'];
         
@@ -178,7 +180,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_confirmed_validation_for_password()
+    public function test_confirmed_validation_for_password(): void
     {
         $data = [
             'password' => 'secret123',
@@ -192,7 +194,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_confirmed_validation_fails_on_mismatch()
+    public function test_confirmed_validation_fails_on_mismatch(): void
     {
         $data = [
             'password' => 'secret123',
@@ -206,7 +208,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_nullable_validation_allows_null()
+    public function test_nullable_validation_allows_null(): void
     {
         $data = ['optional_field' => null];
         
@@ -217,7 +219,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_sometimes_validation_only_when_present()
+    public function test_sometimes_validation_only_when_present(): void
     {
         $data = ['name' => 'John'];
         
@@ -228,7 +230,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_file_validation_mimes_and_size()
+    public function test_file_validation_mimes_and_size(): void
     {
         // This would typically use UploadedFile::fake()
         $data = ['document' => 'test.pdf'];
@@ -240,7 +242,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_image_validation_dimensions()
+    public function test_image_validation_dimensions(): void
     {
         // This would typically use UploadedFile::fake()
         $data = ['avatar' => 'avatar.jpg'];
@@ -252,7 +254,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_json_validation()
+    public function test_json_validation(): void
     {
         $data = ['config' => '{"key":"value"}'];
         
@@ -263,7 +265,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_json_validation_fails_on_invalid()
+    public function test_json_validation_fails_on_invalid(): void
     {
         $data = ['config' => '{invalid-json}'];
         
@@ -274,7 +276,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_distinct_validation_for_arrays()
+    public function test_distinct_validation_for_arrays(): void
     {
         $data = [
             'emails' => ['test@example.com', 'test@example.com'],
@@ -287,7 +289,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertTrue($validator->fails());
     }
 
-    public function test_multiple_of_validation()
+    public function test_multiple_of_validation(): void
     {
         $data = ['quantity' => 15];
         
@@ -298,7 +300,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertFalse($validator->fails());
     }
 
-    public function test_custom_validation_messages()
+    public function test_custom_validation_messages(): void
     {
         $data = ['name' => ''];
         
@@ -312,7 +314,7 @@ class ComplexValidationScenariosTest extends UnitTestCase
         $this->assertEquals('The name field is absolutely required!', $validator->errors()->first('name'));
     }
 
-    public function test_validation_with_attribute_names()
+    public function test_validation_with_attribute_names(): void
     {
         $data = ['user_email' => ''];
         

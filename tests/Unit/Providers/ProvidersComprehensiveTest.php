@@ -1,5 +1,7 @@
 <?php
 
+
+declare(strict_types=1);
 namespace Tests\Unit\Providers;
 
 use Tests\UnitTestCase;
@@ -17,13 +19,13 @@ class ProvidersComprehensiveTest extends UnitTestCase
     // AppServiceProvider Tests (20+ tests)
     // ========================================
 
-    public function test_app_service_provider_can_be_instantiated()
+    public function test_app_service_provider_can_be_instantiated(): void
     {
         $provider = new AppServiceProvider($this->app);
         $this->assertInstanceOf(AppServiceProvider::class, $provider);
     }
 
-    public function test_app_service_provider_registers_services()
+    public function test_app_service_provider_registers_services(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->register();
@@ -32,7 +34,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_app_service_provider_boots_services()
+    public function test_app_service_provider_boots_services(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -41,7 +43,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_app_service_provider_registers_singleton_services()
+    public function test_app_service_provider_registers_singleton_services(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->register();
@@ -50,7 +52,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertNotNull($this->app);
     }
 
-    public function test_app_service_provider_registers_view_composers()
+    public function test_app_service_provider_registers_view_composers(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -59,7 +61,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_app_service_provider_registers_macros()
+    public function test_app_service_provider_registers_macros(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -68,7 +70,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_app_service_provider_handles_environment_configuration()
+    public function test_app_service_provider_handles_environment_configuration(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -76,7 +78,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertNotNull(config('app.env'));
     }
 
-    public function test_app_service_provider_sets_locale()
+    public function test_app_service_provider_sets_locale(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -84,7 +86,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertNotNull(app()->getLocale());
     }
 
-    public function test_app_service_provider_registers_custom_validation_rules()
+    public function test_app_service_provider_registers_custom_validation_rules(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -93,7 +95,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_app_service_provider_configures_database()
+    public function test_app_service_provider_configures_database(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -101,7 +103,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertNotNull(config('database.default'));
     }
 
-    public function test_app_service_provider_configures_mail()
+    public function test_app_service_provider_configures_mail(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -109,7 +111,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertNotNull(config('mail.default'));
     }
 
-    public function test_app_service_provider_configures_queue()
+    public function test_app_service_provider_configures_queue(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -117,7 +119,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertNotNull(config('queue.default'));
     }
 
-    public function test_app_service_provider_registers_blade_directives()
+    public function test_app_service_provider_registers_blade_directives(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -126,7 +128,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_app_service_provider_registers_event_listeners()
+    public function test_app_service_provider_registers_event_listeners(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -135,7 +137,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_app_service_provider_configures_pagination()
+    public function test_app_service_provider_configures_pagination(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -144,7 +146,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_app_service_provider_registers_helpers()
+    public function test_app_service_provider_registers_helpers(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -153,7 +155,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(function_exists('config'));
     }
 
-    public function test_app_service_provider_configures_filesystem()
+    public function test_app_service_provider_configures_filesystem(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -161,7 +163,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertNotNull(config('filesystems.default'));
     }
 
-    public function test_app_service_provider_registers_observers()
+    public function test_app_service_provider_registers_observers(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
@@ -170,7 +172,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_app_service_provider_handles_service_container_bindings()
+    public function test_app_service_provider_handles_service_container_bindings(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->register();
@@ -179,7 +181,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue($this->app->bound('config'));
     }
 
-    public function test_app_service_provider_does_not_throw_exceptions_on_boot()
+    public function test_app_service_provider_does_not_throw_exceptions_on_boot(): void
     {
         $provider = new AppServiceProvider($this->app);
         
@@ -195,13 +197,13 @@ class ProvidersComprehensiveTest extends UnitTestCase
     // AuthServiceProvider Tests (25+ tests)
     // ========================================
 
-    public function test_auth_service_provider_can_be_instantiated()
+    public function test_auth_service_provider_can_be_instantiated(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $this->assertInstanceOf(AuthServiceProvider::class, $provider);
     }
 
-    public function test_auth_service_provider_registers_policies()
+    public function test_auth_service_provider_registers_policies(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -210,7 +212,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_boots_without_errors()
+    public function test_auth_service_provider_boots_without_errors(): void
     {
         $provider = new AuthServiceProvider($this->app);
         
@@ -222,7 +224,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         }
     }
 
-    public function test_auth_service_provider_defines_gates()
+    public function test_auth_service_provider_defines_gates(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -231,7 +233,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_registers_conversation_policy()
+    public function test_auth_service_provider_registers_conversation_policy(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -240,7 +242,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_registers_mailbox_policy()
+    public function test_auth_service_provider_registers_mailbox_policy(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -249,7 +251,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_registers_user_policy()
+    public function test_auth_service_provider_registers_user_policy(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -258,7 +260,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_registers_thread_policy()
+    public function test_auth_service_provider_registers_thread_policy(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -267,7 +269,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_registers_folder_policy()
+    public function test_auth_service_provider_registers_folder_policy(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -276,7 +278,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_handles_super_admin_gate()
+    public function test_auth_service_provider_handles_super_admin_gate(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -285,7 +287,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_handles_admin_gate()
+    public function test_auth_service_provider_handles_admin_gate(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -294,7 +296,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_handles_before_callback()
+    public function test_auth_service_provider_handles_before_callback(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -303,7 +305,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_registers_model_policies()
+    public function test_auth_service_provider_registers_model_policies(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -312,7 +314,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_handles_policy_discovery()
+    public function test_auth_service_provider_handles_policy_discovery(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -321,7 +323,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_registers_authorization_callbacks()
+    public function test_auth_service_provider_registers_authorization_callbacks(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -330,7 +332,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_handles_guest_users()
+    public function test_auth_service_provider_handles_guest_users(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -339,7 +341,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_handles_authenticated_users()
+    public function test_auth_service_provider_handles_authenticated_users(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -348,7 +350,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_configures_password_resets()
+    public function test_auth_service_provider_configures_password_resets(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -357,7 +359,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_configures_email_verification()
+    public function test_auth_service_provider_configures_email_verification(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -366,7 +368,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_handles_remember_me_tokens()
+    public function test_auth_service_provider_handles_remember_me_tokens(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -375,7 +377,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_configures_session_authentication()
+    public function test_auth_service_provider_configures_session_authentication(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -384,7 +386,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_handles_api_authentication()
+    public function test_auth_service_provider_handles_api_authentication(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -393,7 +395,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_registers_custom_guards()
+    public function test_auth_service_provider_registers_custom_guards(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $provider->boot();
@@ -402,7 +404,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_auth_service_provider_does_not_throw_on_register()
+    public function test_auth_service_provider_does_not_throw_on_register(): void
     {
         $provider = new AuthServiceProvider($this->app);
         
@@ -414,7 +416,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         }
     }
 
-    public function test_auth_service_provider_has_policies_property()
+    public function test_auth_service_provider_has_policies_property(): void
     {
         $provider = new AuthServiceProvider($this->app);
         $reflection = new \ReflectionClass($provider);
@@ -430,13 +432,13 @@ class ProvidersComprehensiveTest extends UnitTestCase
     // EventServiceProvider Tests (25+ tests)
     // ========================================
 
-    public function test_event_service_provider_can_be_instantiated()
+    public function test_event_service_provider_can_be_instantiated(): void
     {
         $provider = new EventServiceProvider($this->app);
         $this->assertInstanceOf(EventServiceProvider::class, $provider);
     }
 
-    public function test_event_service_provider_boots_without_errors()
+    public function test_event_service_provider_boots_without_errors(): void
     {
         $provider = new EventServiceProvider($this->app);
         
@@ -448,7 +450,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         }
     }
 
-    public function test_event_service_provider_registers_event_listeners()
+    public function test_event_service_provider_registers_event_listeners(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -457,7 +459,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_conversation_status_changed()
+    public function test_event_service_provider_handles_conversation_status_changed(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -466,7 +468,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_conversation_user_changed()
+    public function test_event_service_provider_handles_conversation_user_changed(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -475,7 +477,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_user_created_conversation()
+    public function test_event_service_provider_handles_user_created_conversation(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -484,7 +486,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_customer_created_conversation()
+    public function test_event_service_provider_handles_customer_created_conversation(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -493,7 +495,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_user_replied()
+    public function test_event_service_provider_handles_user_replied(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -502,7 +504,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_customer_replied()
+    public function test_event_service_provider_handles_customer_replied(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -511,7 +513,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_user_added_note()
+    public function test_event_service_provider_handles_user_added_note(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -520,7 +522,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_user_deleted()
+    public function test_event_service_provider_handles_user_deleted(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -529,7 +531,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_new_message_received()
+    public function test_event_service_provider_handles_new_message_received(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -538,7 +540,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_conversation_updated()
+    public function test_event_service_provider_handles_conversation_updated(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -547,7 +549,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_user_viewing_conversation()
+    public function test_event_service_provider_handles_user_viewing_conversation(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -556,7 +558,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_registers_subscribers()
+    public function test_event_service_provider_registers_subscribers(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -565,7 +567,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_model_events()
+    public function test_event_service_provider_handles_model_events(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -574,7 +576,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_auth_events()
+    public function test_event_service_provider_handles_auth_events(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -583,7 +585,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_queue_events()
+    public function test_event_service_provider_handles_queue_events(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -592,7 +594,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_mail_events()
+    public function test_event_service_provider_handles_mail_events(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -601,7 +603,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_notification_events()
+    public function test_event_service_provider_handles_notification_events(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -610,7 +612,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_discovers_events_automatically()
+    public function test_event_service_provider_discovers_events_automatically(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -619,7 +621,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_wildcard_listeners()
+    public function test_event_service_provider_handles_wildcard_listeners(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -628,7 +630,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_queued_listeners()
+    public function test_event_service_provider_handles_queued_listeners(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -637,7 +639,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_handles_listener_priority()
+    public function test_event_service_provider_handles_listener_priority(): void
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
@@ -646,7 +648,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_event_service_provider_does_not_throw_on_register()
+    public function test_event_service_provider_does_not_throw_on_register(): void
     {
         $provider = new EventServiceProvider($this->app);
         
@@ -662,13 +664,13 @@ class ProvidersComprehensiveTest extends UnitTestCase
     // RouteServiceProvider Tests (20+ tests)
     // ========================================
 
-    public function test_route_service_provider_can_be_instantiated()
+    public function test_route_service_provider_can_be_instantiated(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $this->assertInstanceOf(RouteServiceProvider::class, $provider);
     }
 
-    public function test_route_service_provider_boots_without_errors()
+    public function test_route_service_provider_boots_without_errors(): void
     {
         $provider = new RouteServiceProvider($this->app);
         
@@ -680,7 +682,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         }
     }
 
-    public function test_route_service_provider_registers_routes()
+    public function test_route_service_provider_registers_routes(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -689,7 +691,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_web_routes()
+    public function test_route_service_provider_handles_web_routes(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -698,7 +700,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_api_routes()
+    public function test_route_service_provider_handles_api_routes(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -707,7 +709,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_route_model_binding()
+    public function test_route_service_provider_handles_route_model_binding(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -716,7 +718,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_route_caching()
+    public function test_route_service_provider_handles_route_caching(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -725,7 +727,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_middleware_groups()
+    public function test_route_service_provider_handles_middleware_groups(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -734,7 +736,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_route_prefixes()
+    public function test_route_service_provider_handles_route_prefixes(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -743,7 +745,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_route_namespaces()
+    public function test_route_service_provider_handles_route_namespaces(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -752,7 +754,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_subdomain_routing()
+    public function test_route_service_provider_handles_subdomain_routing(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -761,7 +763,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_route_groups()
+    public function test_route_service_provider_handles_route_groups(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -770,7 +772,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_route_names()
+    public function test_route_service_provider_handles_route_names(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -779,7 +781,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_rate_limiting()
+    public function test_route_service_provider_handles_rate_limiting(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -788,7 +790,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_cors_configuration()
+    public function test_route_service_provider_handles_cors_configuration(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -797,7 +799,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_route_constraints()
+    public function test_route_service_provider_handles_route_constraints(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -806,7 +808,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_fallback_routes()
+    public function test_route_service_provider_handles_fallback_routes(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -815,7 +817,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_handles_resource_routes()
+    public function test_route_service_provider_handles_resource_routes(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();
@@ -824,7 +826,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    public function test_route_service_provider_does_not_throw_on_register()
+    public function test_route_service_provider_does_not_throw_on_register(): void
     {
         $provider = new RouteServiceProvider($this->app);
         
@@ -836,7 +838,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
         }
     }
 
-    public function test_route_service_provider_configures_home_route()
+    public function test_route_service_provider_configures_home_route(): void
     {
         $provider = new RouteServiceProvider($this->app);
         $provider->boot();

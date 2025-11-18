@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use Tests\UnitTestCase;
@@ -14,7 +16,7 @@ use Illuminate\Support\Facades\Cache;
 class PerformanceAndOptimizationTest extends UnitTestCase
 {
     // Query Optimization Tests
-    public function test_select_only_needed_columns()
+    public function test_select_only_needed_columns(): void
     {
         Conversation::factory()->count(10)->create();
         
@@ -28,7 +30,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         DB::disableQueryLog();
     }
 
-    public function test_pagination_limits_results()
+    public function test_pagination_limits_results(): void
     {
         Conversation::factory()->count(100)->create();
         
@@ -38,7 +40,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         $this->assertEquals(100, $paginated->total());
     }
 
-    public function test_where_in_optimization()
+    public function test_where_in_optimization(): void
     {
         $mailboxIds = Mailbox::factory()->count(5)->create()->pluck('id');
         Conversation::factory()->count(20)->create();
@@ -53,7 +55,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         DB::disableQueryLog();
     }
 
-    public function test_exists_is_more_efficient_than_count()
+    public function test_exists_is_more_efficient_than_count(): void
     {
         Conversation::factory()->count(1000)->create();
         
@@ -67,7 +69,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         DB::disableQueryLog();
     }
 
-    public function test_first_is_more_efficient_than_get_first()
+    public function test_first_is_more_efficient_than_get_first(): void
     {
         Conversation::factory()->count(100)->create();
         
@@ -82,7 +84,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     }
 
     // Caching Tests
-    public function test_cache_remember_reduces_queries()
+    public function test_cache_remember_reduces_queries(): void
     {
         $mailbox = Mailbox::factory()->create();
         
@@ -109,7 +111,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     }
 
     // Batch Operations
-    public function test_bulk_insert_is_efficient()
+    public function test_bulk_insert_is_efficient(): void
     {
         $data = [];
         for ($i = 0; $i < 100; $i++) {
@@ -132,7 +134,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         DB::disableQueryLog();
     }
 
-    public function test_bulk_update_is_efficient()
+    public function test_bulk_update_is_efficient(): void
     {
         $conversations = Conversation::factory()->count(10)->create([
             'status' => Conversation::STATUS_ACTIVE,
@@ -150,7 +152,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     }
 
     // Index Usage Tests
-    public function test_primary_key_lookup_is_fast()
+    public function test_primary_key_lookup_is_fast(): void
     {
         $conversation = Conversation::factory()->create();
         
@@ -164,7 +166,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         DB::disableQueryLog();
     }
 
-    public function test_indexed_column_lookup_is_efficient()
+    public function test_indexed_column_lookup_is_efficient(): void
     {
         Conversation::factory()->count(100)->create();
         
@@ -179,7 +181,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     }
 
     // Memory Usage Tests
-    public function test_cursor_reduces_memory_for_large_datasets()
+    public function test_cursor_reduces_memory_for_large_datasets(): void
     {
         Conversation::factory()->count(1000)->create();
         
@@ -192,7 +194,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         $this->assertEquals(10, $processedCount);
     }
 
-    public function test_lazy_collection_for_memory_efficiency()
+    public function test_lazy_collection_for_memory_efficiency(): void
     {
         Conversation::factory()->count(100)->create();
         
@@ -202,7 +204,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     }
 
     // Query Scope Performance
-    public function test_scope_methods_are_chainable()
+    public function test_scope_methods_are_chainable(): void
     {
         Conversation::factory()->count(50)->create(['status' => Conversation::STATUS_ACTIVE]);
         Conversation::factory()->count(50)->create(['status' => Conversation::STATUS_CLOSED]);
@@ -221,7 +223,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     }
 
     // Relationship Loading Performance
-    public function test_has_check_is_efficient()
+    public function test_has_check_is_efficient(): void
     {
         $mailbox = Mailbox::factory()->create();
         Conversation::factory()->count(5)->create(['mailbox_id' => $mailbox->id]);
@@ -236,7 +238,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         DB::disableQueryLog();
     }
 
-    public function test_where_has_with_callback_is_efficient()
+    public function test_where_has_with_callback_is_efficient(): void
     {
         $user = User::factory()->create();
         Conversation::factory()->count(5)->create();
@@ -254,7 +256,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     }
 
     // Count Optimization
-    public function test_count_uses_optimized_query()
+    public function test_count_uses_optimized_query(): void
     {
         Conversation::factory()->count(100)->create();
         
@@ -269,7 +271,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     }
 
     // Pluck Optimization
-    public function test_pluck_only_retrieves_specified_column()
+    public function test_pluck_only_retrieves_specified_column(): void
     {
         Conversation::factory()->count(50)->create();
         
@@ -284,7 +286,7 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     }
 
     // Subquery Optimization
-    public function test_subquery_in_select_is_efficient()
+    public function test_subquery_in_select_is_efficient(): void
     {
         $mailbox = Mailbox::factory()->create();
         Conversation::factory()->count(10)->create(['mailbox_id' => $mailbox->id]);

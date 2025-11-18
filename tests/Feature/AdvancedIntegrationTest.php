@@ -10,7 +10,6 @@ use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Tests\FeatureTestCase;
@@ -21,7 +20,6 @@ use Tests\FeatureTestCase;
  */
 class AdvancedIntegrationTest extends FeatureTestCase
 {
-    use RefreshDatabase;
 
     // ==================== Complete Conversation Workflows ====================
 

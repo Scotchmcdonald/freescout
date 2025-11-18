@@ -16,7 +16,6 @@ use App\Models\SendLog;
 use App\Models\Thread;
 use App\Models\User;
 use App\Services\SmtpService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Tests\UnitTestCase;
@@ -27,7 +26,6 @@ use Tests\UnitTestCase;
  */
 class JobsComprehensiveTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     // ==================== SendAutoReply Tests ====================
 

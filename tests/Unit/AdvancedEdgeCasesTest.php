@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit;
 
 use Tests\UnitTestCase;
@@ -18,7 +20,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 class AdvancedEdgeCasesTest extends UnitTestCase
 {
     // Database Transaction Edge Cases
-    public function test_nested_transactions_rollback_correctly()
+    public function test_nested_transactions_rollback_correctly(): void
     {
         $initialCount = Conversation::count();
 
@@ -38,7 +40,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertEquals($initialCount, Conversation::count());
     }
 
-    public function test_concurrent_updates_handle_race_conditions()
+    public function test_concurrent_updates_handle_race_conditions(): void
     {
         $conversation = Conversation::factory()->create(['status' => Conversation::STATUS_ACTIVE]);
         
@@ -54,7 +56,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertEquals(Conversation::STATUS_SPAM, Conversation::find($conversation->id)->status);
     }
 
-    public function test_soft_deleted_models_excluded_from_queries()
+    public function test_soft_deleted_models_excluded_from_queries(): void
     {
         $conversation = Conversation::factory()->create();
         $conversationId = $conversation->id;
@@ -65,7 +67,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertNotNull(Conversation::withTrashed()->find($conversationId));
     }
 
-    public function test_soft_deleted_models_can_be_restored()
+    public function test_soft_deleted_models_can_be_restored(): void
     {
         $conversation = Conversation::factory()->create();
         $conversationId = $conversation->id;
@@ -77,7 +79,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertNotNull(Conversation::find($conversationId));
     }
 
-    public function test_force_delete_permanently_removes_model()
+    public function test_force_delete_permanently_removes_model(): void
     {
         $conversation = Conversation::factory()->create();
         $conversationId = $conversation->id;
@@ -88,7 +90,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
     }
 
     // Relationship Edge Cases
-    public function test_deleting_parent_cascades_to_children()
+    public function test_deleting_parent_cascades_to_children(): void
     {
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
@@ -99,14 +101,14 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertNull(Thread::withTrashed()->find($threadId));
     }
 
-    public function test_orphaned_children_are_handled()
+    public function test_orphaned_children_are_handled(): void
     {
         $thread = Thread::factory()->create(['conversation_id' => 99999]);
         
         $this->assertNull($thread->conversation);
     }
 
-    public function test_many_to_many_detach_removes_pivot_records()
+    public function test_many_to_many_detach_removes_pivot_records(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -118,7 +120,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertFalse($user->fresh()->mailboxes->contains($mailbox));
     }
 
-    public function test_polymorphic_relationship_handles_missing_morph()
+    public function test_polymorphic_relationship_handles_missing_morph(): void
     {
         $attachment = Attachment::factory()->create([
             'attachable_type' => 'App\\Models\\NonExistentModel',
@@ -129,7 +131,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
     }
 
     // Validation Edge Cases
-    public function test_unique_validation_ignores_soft_deleted()
+    public function test_unique_validation_ignores_soft_deleted(): void
     {
         $email1 = 'test@example.com';
         
@@ -144,7 +146,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertEquals($email1, $email2->email);
     }
 
-    public function test_mass_assignment_protection_prevents_guarded_fields()
+    public function test_mass_assignment_protection_prevents_guarded_fields(): void
     {
         $user = new User();
         $user->fill([
@@ -160,7 +162,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
     }
 
     // Query Performance Edge Cases
-    public function test_eager_loading_prevents_n_plus_1()
+    public function test_eager_loading_prevents_n_plus_1(): void
     {
         $conversations = Conversation::factory()->count(5)->create();
         foreach ($conversations as $conversation) {
@@ -180,7 +182,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         DB::disableQueryLog();
     }
 
-    public function test_chunk_processing_handles_large_datasets()
+    public function test_chunk_processing_handles_large_datasets(): void
     {
         Conversation::factory()->count(100)->create();
         
@@ -193,7 +195,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
     }
 
     // Attribute Casting Edge Cases
-    public function test_json_casting_handles_invalid_json()
+    public function test_json_casting_handles_invalid_json(): void
     {
         $mailbox = Mailbox::factory()->create();
         $mailbox->meta = 'invalid-json';
@@ -203,14 +205,14 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertIsArray($reloaded->meta ?? []);
     }
 
-    public function test_date_casting_handles_null_values()
+    public function test_date_casting_handles_null_values(): void
     {
         $conversation = Conversation::factory()->create(['closed_at' => null]);
         
         $this->assertNull($conversation->closed_at);
     }
 
-    public function test_boolean_casting_handles_truthy_values()
+    public function test_boolean_casting_handles_truthy_values(): void
     {
         $mailbox = Mailbox::factory()->create(['active' => 1]);
         
@@ -219,7 +221,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
     }
 
     // Event Handling Edge Cases
-    public function test_event_listeners_handle_exceptions_gracefully()
+    public function test_event_listeners_handle_exceptions_gracefully(): void
     {
         Event::fake();
         
@@ -228,7 +230,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         Event::assertDispatched(\App\Events\ConversationUpdated::class);
     }
 
-    public function test_observer_events_fire_in_correct_order()
+    public function test_observer_events_fire_in_correct_order(): void
     {
         $events = [];
         
@@ -246,7 +248,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
     }
 
     // Security Edge Cases
-    public function test_sql_injection_is_prevented()
+    public function test_sql_injection_is_prevented(): void
     {
         $maliciousInput = "'; DROP TABLE conversations; --";
         
@@ -256,7 +258,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertTrue(Conversation::count() >= 0);
     }
 
-    public function test_xss_prevention_in_attributes()
+    public function test_xss_prevention_in_attributes(): void
     {
         $xssInput = '<script>alert("XSS")</script>';
         
@@ -267,14 +269,14 @@ class AdvancedEdgeCasesTest extends UnitTestCase
     }
 
     // Null Handling Edge Cases
-    public function test_null_foreign_keys_are_handled()
+    public function test_null_foreign_keys_are_handled(): void
     {
         $thread = Thread::factory()->create(['user_id' => null]);
         
         $this->assertNull($thread->created_by_user);
     }
 
-    public function test_nullable_text_fields_accept_null()
+    public function test_nullable_text_fields_accept_null(): void
     {
         $conversation = Conversation::factory()->create(['preview' => null]);
         
@@ -282,14 +284,14 @@ class AdvancedEdgeCasesTest extends UnitTestCase
     }
 
     // Timezone Edge Cases
-    public function test_timestamps_are_stored_in_utc()
+    public function test_timestamps_are_stored_in_utc(): void
     {
         $conversation = Conversation::factory()->create();
         
         $this->assertEquals('UTC', $conversation->created_at->timezone->getName());
     }
 
-    public function test_date_comparison_handles_different_timezones()
+    public function test_date_comparison_handles_different_timezones(): void
     {
         $now = now();
         $conversation = Conversation::factory()->create(['created_at' => $now]);
@@ -298,7 +300,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
     }
 
     // String Handling Edge Cases
-    public function test_long_text_is_truncated_appropriately()
+    public function test_long_text_is_truncated_appropriately(): void
     {
         $longText = str_repeat('a', 10000);
         $conversation = Conversation::factory()->create(['subject' => $longText]);
@@ -306,7 +308,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertLessThanOrEqual(10000, strlen($conversation->subject));
     }
 
-    public function test_unicode_characters_are_stored_correctly()
+    public function test_unicode_characters_are_stored_correctly(): void
     {
         $unicodeText = '你好世界 🌍 Привет мир';
         $conversation = Conversation::factory()->create(['subject' => $unicodeText]);
@@ -314,7 +316,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertEquals($unicodeText, $conversation->fresh()->subject);
     }
 
-    public function test_empty_string_vs_null_handling()
+    public function test_empty_string_vs_null_handling(): void
     {
         $conversation1 = Conversation::factory()->create(['preview' => '']);
         $conversation2 = Conversation::factory()->create(['preview' => null]);
@@ -324,7 +326,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
     }
 
     // Model State Edge Cases
-    public function test_model_attribute_changes_are_tracked()
+    public function test_model_attribute_changes_are_tracked(): void
     {
         $conversation = Conversation::factory()->create(['status' => Conversation::STATUS_ACTIVE]);
         
@@ -334,7 +336,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertEquals(Conversation::STATUS_ACTIVE, $conversation->getOriginal('status'));
     }
 
-    public function test_fresh_method_reloads_model_from_database()
+    public function test_fresh_method_reloads_model_from_database(): void
     {
         $conversation = Conversation::factory()->create(['status' => Conversation::STATUS_ACTIVE]);
         
@@ -344,7 +346,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         $this->assertEquals(Conversation::STATUS_ACTIVE, $fresh->status);
     }
 
-    public function test_exists_property_indicates_persistence()
+    public function test_exists_property_indicates_persistence(): void
     {
         $conversation = new Conversation();
         $this->assertFalse($conversation->exists);

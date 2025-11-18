@@ -7,7 +7,6 @@ namespace Tests\Unit\Middleware;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\FrameGuard;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Tests\UnitTestCase;
 
@@ -17,7 +16,6 @@ use Tests\UnitTestCase;
  */
 class MiddlewareTest extends UnitTestCase
 {
-    use RefreshDatabase;
 
     // ==================== EnsureUserIsAdmin Tests ====================
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use Tests\FeatureTestCase;
@@ -22,7 +24,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
     // Complete Conversation Lifecycle Tests (25+ tests)
     // ========================================
 
-    public function test_complete_conversation_creation_workflow()
+    public function test_complete_conversation_creation_workflow(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -45,7 +47,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertEquals($mailbox->id, $conversation->mailbox_id);
     }
 
-    public function test_conversation_reply_workflow()
+    public function test_conversation_reply_workflow(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -68,7 +70,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertGreaterThan(0, $threads->count());
     }
 
-    public function test_conversation_status_change_workflow()
+    public function test_conversation_status_change_workflow(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -90,7 +92,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertEquals(Conversation::STATUS_CLOSED, $conversation->status);
     }
 
-    public function test_conversation_assignment_workflow()
+    public function test_conversation_assignment_workflow(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $user = User::factory()->create();
@@ -114,7 +116,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertEquals($user->id, $conversation->user_id);
     }
 
-    public function test_conversation_with_attachments_workflow()
+    public function test_conversation_with_attachments_workflow(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -138,7 +140,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertEquals($thread->id, $attachment->thread_id);
     }
 
-    public function test_conversation_search_workflow()
+    public function test_conversation_search_workflow(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -155,7 +157,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_conversation_move_to_folder_workflow()
+    public function test_conversation_move_to_folder_workflow(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -185,7 +187,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertEquals($folder2->id, $conversation->folder_id);
     }
 
-    public function test_conversation_with_subscription_workflow()
+    public function test_conversation_with_subscription_workflow(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -211,7 +213,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertStatus(302);
     }
 
-    public function test_conversation_delete_workflow()
+    public function test_conversation_delete_workflow(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
@@ -230,7 +232,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertNull(Conversation::find($conversationId));
     }
 
-    public function test_conversation_with_multiple_threads_workflow()
+    public function test_conversation_with_multiple_threads_workflow(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -262,7 +264,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
     // Multi-Mailbox Isolation Tests (20+ tests)
     // ========================================
 
-    public function test_user_cannot_access_conversation_in_different_mailbox()
+    public function test_user_cannot_access_conversation_in_different_mailbox(): void
     {
         $user = User::factory()->create();
         $mailbox1 = Mailbox::factory()->create();
@@ -280,7 +282,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertStatus(403);
     }
 
-    public function test_admin_can_access_all_mailbox_conversations()
+    public function test_admin_can_access_all_mailbox_conversations(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
@@ -295,7 +297,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_user_sees_only_assigned_mailboxes()
+    public function test_user_sees_only_assigned_mailboxes(): void
     {
         $user = User::factory()->create();
         $mailbox1 = Mailbox::factory()->create(['name' => 'Support']);
@@ -311,7 +313,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertDontSee('Sales');
     }
 
-    public function test_conversation_counter_updates_per_mailbox()
+    public function test_conversation_counter_updates_per_mailbox(): void
     {
         $user = User::factory()->create();
         $mailbox1 = Mailbox::factory()->create();
@@ -346,7 +348,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertEquals(1, $count2);
     }
 
-    public function test_user_cannot_create_conversation_in_unassigned_mailbox()
+    public function test_user_cannot_create_conversation_in_unassigned_mailbox(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -364,7 +366,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertStatus(403);
     }
 
-    public function test_mailbox_search_is_isolated()
+    public function test_mailbox_search_is_isolated(): void
     {
         $user = User::factory()->create();
         $mailbox1 = Mailbox::factory()->create();
@@ -390,7 +392,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_folder_counters_are_mailbox_specific()
+    public function test_folder_counters_are_mailbox_specific(): void
     {
         $user = User::factory()->create();
         $mailbox1 = Mailbox::factory()->create();
@@ -419,7 +421,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertEquals(0, $count2);
     }
 
-    public function test_user_permissions_are_mailbox_specific()
+    public function test_user_permissions_are_mailbox_specific(): void
     {
         $user = User::factory()->create();
         $mailbox1 = Mailbox::factory()->create();
@@ -437,7 +439,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
     // Transaction and Rollback Tests (15+ tests)
     // ========================================
 
-    public function test_transaction_rollback_on_conversation_creation_failure()
+    public function test_transaction_rollback_on_conversation_creation_failure(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -464,7 +466,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertEquals($conversationCount, Conversation::count());
     }
 
-    public function test_conversation_with_thread_created_atomically()
+    public function test_conversation_with_thread_created_atomically(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -488,7 +490,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertEquals($threadCount + 1, Thread::count());
     }
 
-    public function test_rollback_prevents_partial_data_creation()
+    public function test_rollback_prevents_partial_data_creation(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -518,7 +520,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
     // Complex Search and Filter Tests (15+ tests)
     // ========================================
 
-    public function test_search_by_conversation_subject()
+    public function test_search_by_conversation_subject(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -536,7 +538,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_search_by_customer_name()
+    public function test_search_by_customer_name(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -559,7 +561,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_filter_by_status()
+    public function test_filter_by_status(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -584,7 +586,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_filter_by_assigned_user()
+    public function test_filter_by_assigned_user(): void
     {
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
@@ -611,7 +613,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_search_handles_special_characters()
+    public function test_search_handles_special_characters(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -629,7 +631,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $response->assertStatus(200);
     }
 
-    public function test_search_is_case_insensitive()
+    public function test_search_is_case_insensitive(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -651,7 +653,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
     // Performance and N+1 Query Prevention Tests (10+ tests)
     // ========================================
 
-    public function test_eager_loading_prevents_n_plus_one_queries()
+    public function test_eager_loading_prevents_n_plus_one_queries(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -675,7 +677,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->assertLessThan(20, $queryCount);
     }
 
-    public function test_batch_operations_are_efficient()
+    public function test_batch_operations_are_efficient(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
