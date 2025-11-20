@@ -13,7 +13,7 @@ class UserInviteMailTest extends UnitTestCase
 {
     public function test_envelope_sets_correct_subject_with_company_name(): void
     {
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         Option::set('company_name', 'Acme Corp');
         
         $mailable = new UserInvite($user);
@@ -26,7 +26,7 @@ class UserInviteMailTest extends UnitTestCase
     public function test_envelope_uses_app_name_when_company_name_not_set(): void
     {
         config(['app.name' => 'FreeScout']);
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         
         $mailable = new UserInvite($user);
         $envelope = $mailable->envelope();
@@ -37,7 +37,7 @@ class UserInviteMailTest extends UnitTestCase
 
     public function test_content_uses_correct_view(): void
     {
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         
         $mailable = new UserInvite($user);
         $content = $mailable->content();
@@ -47,7 +47,7 @@ class UserInviteMailTest extends UnitTestCase
 
     public function test_content_uses_correct_text_view(): void
     {
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         
         $mailable = new UserInvite($user);
         $content = $mailable->content();
@@ -57,7 +57,7 @@ class UserInviteMailTest extends UnitTestCase
 
     public function test_mailable_stores_user_instance(): void
     {
-        $user = User::factory()->make([
+        $user = User::factory()->create([
             'id' => 1,
             'first_name' => 'Jane',
             'email' => 'jane@example.com',
@@ -72,7 +72,7 @@ class UserInviteMailTest extends UnitTestCase
 
     public function test_mailable_accepts_optional_password(): void
     {
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         $password = 'secure-password-123';
         
         $mailable = new UserInvite($user, $password);
@@ -82,7 +82,7 @@ class UserInviteMailTest extends UnitTestCase
 
     public function test_mailable_password_defaults_to_null(): void
     {
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         
         $mailable = new UserInvite($user);
 
@@ -91,7 +91,7 @@ class UserInviteMailTest extends UnitTestCase
 
     public function test_mailable_can_be_constructed_without_password(): void
     {
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         
         $mailable = new UserInvite($user);
 
@@ -101,7 +101,7 @@ class UserInviteMailTest extends UnitTestCase
 
     public function test_mailable_can_be_constructed_with_password(): void
     {
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         
         $mailable = new UserInvite($user, 'temp-password');
 

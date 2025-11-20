@@ -13,7 +13,7 @@ class PasswordChangedMailTest extends UnitTestCase
 {
     public function test_envelope_sets_correct_subject_with_company_name(): void
     {
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         Option::set('company_name', 'Acme Corp');
         
         $mailable = new PasswordChanged($user);
@@ -26,7 +26,7 @@ class PasswordChangedMailTest extends UnitTestCase
     public function test_envelope_uses_app_name_when_company_name_not_set(): void
     {
         config(['app.name' => 'FreeScout']);
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         
         $mailable = new PasswordChanged($user);
         $envelope = $mailable->envelope();
@@ -37,7 +37,7 @@ class PasswordChangedMailTest extends UnitTestCase
 
     public function test_content_uses_correct_view(): void
     {
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         
         $mailable = new PasswordChanged($user);
         $content = $mailable->content();
@@ -47,7 +47,7 @@ class PasswordChangedMailTest extends UnitTestCase
 
     public function test_content_uses_correct_text_view(): void
     {
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         
         $mailable = new PasswordChanged($user);
         $content = $mailable->content();
@@ -57,7 +57,7 @@ class PasswordChangedMailTest extends UnitTestCase
 
     public function test_mailable_stores_user_instance(): void
     {
-        $user = User::factory()->make([
+        $user = User::factory()->create([
             'id' => 1,
             'first_name' => 'John',
             'email' => 'john@example.com',
@@ -72,7 +72,7 @@ class PasswordChangedMailTest extends UnitTestCase
 
     public function test_mailable_can_be_constructed(): void
     {
-        $user = User::factory()->make(['id' => 1]);
+        $user = User::factory()->create(['id' => 1]);
         
         $mailable = new PasswordChanged($user);
 

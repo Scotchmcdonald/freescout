@@ -17,13 +17,13 @@ class UserNotificationMailTest extends UnitTestCase
 {
     public function test_envelope_sets_correct_subject_with_conversation_number(): void
     {
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 1]);
-        $conversation = Conversation::factory()->make([
+        $user = User::factory()->create(['id' => 1]);
+        $mailbox = Mailbox::factory()->create(['id' => 1]);
+        $conversation = Conversation::factory()->create([
             'number' => 123,
             'subject' => 'Test Subject',
         ]);
-        $threads = collect([Thread::factory()->make()]);
+        $threads = collect([Thread::factory()->create()]);
         
         $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         $envelope = $mailable->envelope();
@@ -34,10 +34,10 @@ class UserNotificationMailTest extends UnitTestCase
 
     public function test_envelope_uses_custom_from_address_when_provided(): void
     {
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 1]);
-        $conversation = Conversation::factory()->make(['number' => 123]);
-        $threads = collect([Thread::factory()->make()]);
+        $user = User::factory()->create(['id' => 1]);
+        $mailbox = Mailbox::factory()->create(['id' => 1]);
+        $conversation = Conversation::factory()->create(['number' => 123]);
+        $threads = collect([Thread::factory()->create()]);
         $fromAddress = ['address' => 'custom@example.com', 'name' => 'Custom Name'];
         
         $mailable = new UserNotification($user, $conversation, $threads, [], $fromAddress, $mailbox);
@@ -49,10 +49,10 @@ class UserNotificationMailTest extends UnitTestCase
     public function test_envelope_uses_config_from_address_when_not_provided(): void
     {
         config(['mail.from.address' => 'default@example.com']);
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 1]);
-        $conversation = Conversation::factory()->make(['number' => 123]);
-        $threads = collect([Thread::factory()->make()]);
+        $user = User::factory()->create(['id' => 1]);
+        $mailbox = Mailbox::factory()->create(['id' => 1]);
+        $conversation = Conversation::factory()->create(['number' => 123]);
+        $threads = collect([Thread::factory()->create()]);
         
         $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         $envelope = $mailable->envelope();
@@ -62,15 +62,15 @@ class UserNotificationMailTest extends UnitTestCase
 
     public function test_content_uses_correct_view(): void
     {
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 1]);
-        $customer = Customer::factory()->make(['id' => 1]);
-        $conversation = Conversation::factory()->make([
+        $user = User::factory()->create(['id' => 1]);
+        $mailbox = Mailbox::factory()->create(['id' => 1]);
+        $customer = Customer::factory()->create(['id' => 1]);
+        $conversation = Conversation::factory()->create([
             'number' => 123,
             'customer_id' => $customer->id,
         ]);
         $conversation->setRelation('customer', $customer);
-        $threads = collect([Thread::factory()->make()]);
+        $threads = collect([Thread::factory()->create()]);
         
         $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         $content = $mailable->content();
@@ -80,15 +80,15 @@ class UserNotificationMailTest extends UnitTestCase
 
     public function test_content_uses_correct_text_view(): void
     {
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 1]);
-        $customer = Customer::factory()->make(['id' => 1]);
-        $conversation = Conversation::factory()->make([
+        $user = User::factory()->create(['id' => 1]);
+        $mailbox = Mailbox::factory()->create(['id' => 1]);
+        $customer = Customer::factory()->create(['id' => 1]);
+        $conversation = Conversation::factory()->create([
             'number' => 123,
             'customer_id' => $customer->id,
         ]);
         $conversation->setRelation('customer', $customer);
-        $threads = collect([Thread::factory()->make()]);
+        $threads = collect([Thread::factory()->create()]);
         
         $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         $content = $mailable->content();
@@ -98,15 +98,15 @@ class UserNotificationMailTest extends UnitTestCase
 
     public function test_content_includes_customer_data(): void
     {
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 1]);
-        $customer = Customer::factory()->make(['id' => 1]);
-        $conversation = Conversation::factory()->make([
+        $user = User::factory()->create(['id' => 1]);
+        $mailbox = Mailbox::factory()->create(['id' => 1]);
+        $customer = Customer::factory()->create(['id' => 1]);
+        $conversation = Conversation::factory()->create([
             'number' => 123,
             'customer_id' => $customer->id,
         ]);
         $conversation->setRelation('customer', $customer);
-        $threads = collect([Thread::factory()->make()]);
+        $threads = collect([Thread::factory()->create()]);
         
         $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         $content = $mailable->content();
@@ -117,15 +117,15 @@ class UserNotificationMailTest extends UnitTestCase
 
     public function test_content_includes_thread_data(): void
     {
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 1]);
-        $customer = Customer::factory()->make(['id' => 1]);
-        $conversation = Conversation::factory()->make([
+        $user = User::factory()->create(['id' => 1]);
+        $mailbox = Mailbox::factory()->create(['id' => 1]);
+        $customer = Customer::factory()->create(['id' => 1]);
+        $conversation = Conversation::factory()->create([
             'number' => 123,
             'customer_id' => $customer->id,
         ]);
         $conversation->setRelation('customer', $customer);
-        $thread = Thread::factory()->make(['id' => 5]);
+        $thread = Thread::factory()->create(['id' => 5]);
         $threads = collect([$thread]);
         
         $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
@@ -138,15 +138,15 @@ class UserNotificationMailTest extends UnitTestCase
 
     public function test_content_includes_mailbox_data(): void
     {
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 1, 'name' => 'Support']);
-        $customer = Customer::factory()->make(['id' => 1]);
-        $conversation = Conversation::factory()->make([
+        $user = User::factory()->create(['id' => 1]);
+        $mailbox = Mailbox::factory()->create(['id' => 1, 'name' => 'Support']);
+        $customer = Customer::factory()->create(['id' => 1]);
+        $conversation = Conversation::factory()->create([
             'number' => 123,
             'customer_id' => $customer->id,
         ]);
         $conversation->setRelation('customer', $customer);
-        $threads = collect([Thread::factory()->make()]);
+        $threads = collect([Thread::factory()->create()]);
         
         $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         $content = $mailable->content();
@@ -158,10 +158,10 @@ class UserNotificationMailTest extends UnitTestCase
 
     public function test_mailable_stores_all_properties(): void
     {
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 2]);
-        $conversation = Conversation::factory()->make(['number' => 123]);
-        $threads = collect([Thread::factory()->make()]);
+        $user = User::factory()->create(['id' => 1]);
+        $mailbox = Mailbox::factory()->create(['id' => 2]);
+        $conversation = Conversation::factory()->create(['number' => 123]);
+        $threads = collect([Thread::factory()->create()]);
         $headers = ['X-Custom' => 'value'];
         $fromAddress = ['address' => 'from@example.com'];
         
@@ -177,15 +177,15 @@ class UserNotificationMailTest extends UnitTestCase
 
     public function test_build_method_returns_self(): void
     {
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 1]);
-        $customer = Customer::factory()->make(['id' => 1]);
-        $conversation = Conversation::factory()->make([
+        $user = User::factory()->create(['id' => 1]);
+        $mailbox = Mailbox::factory()->create(['id' => 1]);
+        $customer = Customer::factory()->create(['id' => 1]);
+        $conversation = Conversation::factory()->create([
             'number' => 123,
             'customer_id' => $customer->id,
         ]);
         $conversation->setRelation('customer', $customer);
-        $threads = collect([Thread::factory()->make()]);
+        $threads = collect([Thread::factory()->create()]);
         
         $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         $result = $mailable->build();
@@ -196,10 +196,10 @@ class UserNotificationMailTest extends UnitTestCase
 
     public function test_mailable_can_be_constructed(): void
     {
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 1]);
-        $conversation = Conversation::factory()->make(['number' => 123]);
-        $threads = collect([Thread::factory()->make()]);
+        $user = User::factory()->create(['id' => 1]);
+        $mailbox = Mailbox::factory()->create(['id' => 1]);
+        $conversation = Conversation::factory()->create(['number' => 123]);
+        $threads = collect([Thread::factory()->create()]);
         
         $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
 

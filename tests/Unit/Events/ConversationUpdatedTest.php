@@ -15,7 +15,7 @@ class ConversationUpdatedTest extends UnitTestCase
 {
     public function test_broadcast_as_returns_correct_event_name(): void
     {
-        $conversation = Conversation::factory()->make(['id' => 1]);
+        $conversation = Conversation::factory()->create(['id' => 1]);
         $event = new ConversationUpdated($conversation);
 
         $this->assertEquals('conversation.updated', $event->broadcastAs());
@@ -23,7 +23,7 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_broadcast_on_includes_mailbox_channel(): void
     {
-        $conversation = Conversation::factory()->make([
+        $conversation = Conversation::factory()->create([
             'id' => 1,
             'mailbox_id' => 5,
         ]);
@@ -45,7 +45,7 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_broadcast_on_includes_user_channel_when_conversation_assigned(): void
     {
-        $conversation = Conversation::factory()->make([
+        $conversation = Conversation::factory()->create([
             'id' => 1,
             'mailbox_id' => 5,
             'user_id' => 10,
@@ -67,7 +67,7 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_broadcast_on_excludes_user_channel_when_conversation_unassigned(): void
     {
-        $conversation = Conversation::factory()->make([
+        $conversation = Conversation::factory()->create([
             'id' => 1,
             'mailbox_id' => 5,
             'user_id' => null,
@@ -87,7 +87,7 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_broadcast_with_includes_conversation_data(): void
     {
-        $conversation = Conversation::factory()->make([
+        $conversation = Conversation::factory()->create([
             'id' => 1,
             'number' => 123,
             'subject' => 'Test Subject',
@@ -114,7 +114,7 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_broadcast_with_includes_updated_at_timestamp(): void
     {
-        $conversation = Conversation::factory()->make([
+        $conversation = Conversation::factory()->create([
             'id' => 1,
             'updated_at' => now(),
         ]);
@@ -129,7 +129,7 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_event_accepts_different_update_types(): void
     {
-        $conversation = Conversation::factory()->make(['id' => 1]);
+        $conversation = Conversation::factory()->create(['id' => 1]);
         
         $statusEvent = new ConversationUpdated($conversation, 'status_changed');
         $this->assertEquals('status_changed', $statusEvent->broadcastWith()['update_type']);
@@ -143,7 +143,7 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_event_accepts_optional_meta_data(): void
     {
-        $conversation = Conversation::factory()->make(['id' => 1]);
+        $conversation = Conversation::factory()->create(['id' => 1]);
         $meta = ['custom_field' => 'custom_value', 'count' => 5];
         
         $event = new ConversationUpdated($conversation, 'custom_update', $meta);
@@ -154,7 +154,7 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_event_has_default_update_type(): void
     {
-        $conversation = Conversation::factory()->make(['id' => 1]);
+        $conversation = Conversation::factory()->create(['id' => 1]);
         
         $event = new ConversationUpdated($conversation);
 
@@ -164,7 +164,7 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_event_meta_can_be_null(): void
     {
-        $conversation = Conversation::factory()->make(['id' => 1]);
+        $conversation = Conversation::factory()->create(['id' => 1]);
         
         $event = new ConversationUpdated($conversation, 'status_changed', null);
 
