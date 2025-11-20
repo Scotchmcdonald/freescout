@@ -271,4 +271,28 @@ class SystemController extends Controller
 
         return view($viewName, $data);
     }
+
+    /**
+     * Check for updates.
+     */
+    public function update(): View|Factory
+    {
+        // This is a placeholder for the update check functionality.
+        // In a real application, this would check for updates and return the result.
+        return view('system.update', ['update_available' => false]);
+    }
+
+    /**
+     * Download application logs.
+     */
+    public function downloadLogs(): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        $logFile = storage_path('logs/laravel.log');
+
+        if (! file_exists($logFile)) {
+            abort(404, 'Log file not found');
+        }
+
+        return response()->download($logFile, 'laravel-'.date('Y-m-d').'.log');
+    }
 }

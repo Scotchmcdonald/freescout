@@ -16,11 +16,11 @@ class SendConversationReplyComprehensiveTest extends UnitTestCase
 
     public function test_job_stores_conversation_correctly(): void
     {
-        $user = User::factory()->create();
+        $customer = \App\Models\Customer::factory()->create();
         $conversation = Conversation::factory()->create(['subject' => 'Test Subject']);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user->email);
+        $job = new SendConversationReply($conversation, [$thread], $customer);
 
         $this->assertEquals($conversation->id, $job->conversation->id);
         $this->assertEquals('Test Subject', $job->conversation->subject);
@@ -28,50 +28,50 @@ class SendConversationReplyComprehensiveTest extends UnitTestCase
 
     public function test_job_stores_thread_correctly(): void
     {
-        $user = User::factory()->create();
+        $customer = \App\Models\Customer::factory()->create();
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'body' => 'Test reply body',
         ]);
 
-        $job = new SendConversationReply($conversation, $thread, $user->email);
+        $job = new SendConversationReply($conversation, [$thread], $customer);
 
-        $this->assertEquals($thread->id, $job->thread->id);
-        $this->assertEquals('Test reply body', $job->thread->body);
+        $this->assertEquals($thread->id, $job->replies[0]->id);
+        $this->assertEquals('Test reply body', $job->replies[0]->body);
     }
 
     public function test_job_stores_user_correctly(): void
     {
-        $user = User::factory()->create(['email' => 'agent@example.com']);
+        $customer = \App\Models\Customer::factory()->create(['email' => 'agent@example.com']);
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user->email);
+        $job = new SendConversationReply($conversation, [$thread], $customer);
 
-        $this->assertEquals($user->email, $job->recipientEmail);
+        $this->assertEquals($customer->email, $job->customer->email);
     }
 
     public function test_job_can_be_dispatched_to_queue(): void
     {
         Queue::fake();
 
-        $user = User::factory()->create();
+        $customer = \App\Models\Customer::factory()->create();
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        SendConversationReply::dispatch($conversation, $thread, $user->email);
+        SendConversationReply::dispatch($conversation, [$thread], $customer);
 
         Queue::assertPushed(SendConversationReply::class);
     }
 
     public function test_job_has_public_conversation_property(): void
     {
-        $user = User::factory()->create();
+        $customer = \App\Models\Customer::factory()->create();
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user->email);
+        $job = new SendConversationReply($conversation, [$thread], $customer);
 
         $reflection = new \ReflectionClass($job);
         $property = $reflection->getProperty('conversation');
@@ -81,53 +81,53 @@ class SendConversationReplyComprehensiveTest extends UnitTestCase
 
     public function test_job_has_public_thread_property(): void
     {
-        $user = User::factory()->create();
+        $customer = \App\Models\Customer::factory()->create();
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user->email);
+        $job = new SendConversationReply($conversation, [$thread], $customer);
 
         $reflection = new \ReflectionClass($job);
-        $property = $reflection->getProperty('thread');
+        $property = $reflection->getProperty('replies');
 
         $this->assertTrue($property->isPublic());
     }
 
     public function test_job_has_public_user_property(): void
     {
-        $user = User::factory()->create();
+        $customer = \App\Models\Customer::factory()->create();
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user->email);
+        $job = new SendConversationReply($conversation, [$thread], $customer);
 
         $reflection = new \ReflectionClass($job);
-        $property = $reflection->getProperty('recipientEmail');
+        $property = $reflection->getProperty('customer');
 
         $this->assertTrue($property->isPublic());
     }
 
     public function test_job_requires_all_three_parameters(): void
     {
-        $user = User::factory()->create();
+        $customer = \App\Models\Customer::factory()->create();
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user->email);
+        $job = new SendConversationReply($conversation, [$thread], $customer);
 
         $this->assertNotNull($job->conversation);
-        $this->assertNotNull($job->thread);
-        $this->assertNotNull($job->recipientEmail);
+        $this->assertNotNull($job->replies);
+        $this->assertNotNull($job->customer);
     }
 
     public function test_job_thread_belongs_to_conversation(): void
     {
-        $user = User::factory()->create();
+        $customer = \App\Models\Customer::factory()->create();
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        $job = new SendConversationReply($conversation, $thread, $user->email);
+        $job = new SendConversationReply($conversation, [$thread], $customer);
 
-        $this->assertEquals($job->conversation->id, $job->thread->conversation_id);
+        $this->assertEquals($job->conversation->id, $job->replies[0]->conversation_id);
     }
 }

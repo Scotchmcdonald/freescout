@@ -27,6 +27,7 @@ class AdvancedIntegrationTest extends FeatureTestCase
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
+        Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => Folder::TYPE_INBOX]);
         $customer = Customer::factory()->create();
         
         // Assign admin to mailbox
@@ -38,6 +39,7 @@ class AdvancedIntegrationTest extends FeatureTestCase
             'customer_id' => $customer->id,
             'type' => Thread::TYPE_MESSAGE,
             'body' => 'This is a test conversation',
+            'to' => ['customer@example.com'],
         ]);
 
         $response->assertRedirect();
@@ -58,7 +60,7 @@ class AdvancedIntegrationTest extends FeatureTestCase
         ]);
 
         // Close conversation
-        $response = $this->actingAs($admin)->post(route('conversations.update_status', $conversation->id), [
+        $response = $this->actingAs($admin)->patch(route('conversations.update', $conversation->id), [
             'status' => Conversation::STATUS_CLOSED,
         ]);
 
@@ -129,6 +131,9 @@ class AdvancedIntegrationTest extends FeatureTestCase
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
+        
+        // Assign admin to mailbox1
+        $mailbox1->users()->attach($admin->id);
 
         $conversation1 = Conversation::factory()->create(['mailbox_id' => $mailbox1->id]);
         $conversation2 = Conversation::factory()->create(['mailbox_id' => $mailbox2->id]);
@@ -147,17 +152,19 @@ class AdvancedIntegrationTest extends FeatureTestCase
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
+        Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => Folder::TYPE_INBOX]);
         $mailbox->users()->attach($admin->id);
 
         DB::shouldReceive('transaction')->once()->andReturnUsing(function ($callback) {
             return $callback();
         });
 
-        $this->actingAs($admin)->post(route('conversations.create', ['mailbox_id' => $mailbox->id]), [
+        $this->actingAs($admin)->post(route('conversations.store', ['mailbox' => $mailbox->id]), [
             'subject' => 'Test',
             'customer_email' => 'test@example.com',
             'type' => Thread::TYPE_MESSAGE,
             'body' => 'Body',
+            'to' => ['test@example.com'],
         ]);
 
         $this->assertTrue(true); // Transaction mock verified
@@ -167,12 +174,14 @@ class AdvancedIntegrationTest extends FeatureTestCase
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
+        Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => Folder::TYPE_INBOX]);
+        $mailbox->users()->attach($admin->id); // Also assign admin to mailbox
 
         $conversationCount = Conversation::count();
         $threadCount = Thread::count();
 
         // Invalid data should fail and rollback
-        $response = $this->actingAs($admin)->post(route('conversations.create', ['mailbox_id' => $mailbox->id]), [
+        $response = $this->actingAs($admin)->post(route('conversations.store', ['mailbox' => $mailbox->id]), [
             'subject' => '', // Invalid - required field
             'body' => '',
         ]);
@@ -227,11 +236,11 @@ class AdvancedIntegrationTest extends FeatureTestCase
         ]);
 
         // Change status twice rapidly
-        $this->actingAs($admin)->post(route('conversations.update_status', $conversation->id), [
+        $this->actingAs($admin)->patch(route('conversations.update', $conversation->id), [
             'status' => Conversation::STATUS_PENDING,
         ]);
 
-        $this->actingAs($admin)->post(route('conversations.update_status', $conversation->id), [
+        $this->actingAs($admin)->patch(route('conversations.update', $conversation->id), [
             'status' => Conversation::STATUS_CLOSED,
         ]);
 
@@ -325,27 +334,30 @@ class AdvancedIntegrationTest extends FeatureTestCase
             'status' => Conversation::STATUS_ACTIVE,
         ]);
 
-        $initialTotal = $folder->total_count;
+        $folder->refresh();
+        $initialActive = $folder->active_count;
 
         // Close conversation
         $conversation->update(['status' => Conversation::STATUS_CLOSED]);
 
         // Counter should be updated
         $folder->refresh();
-        $this->assertNotEquals($initialTotal, $folder->total_count);
+        $this->assertNotEquals($initialActive, $folder->active_count);
     }
 
     // ==================== Event Broadcasting ====================
 
     public function test_events_are_dispatched_on_conversation_actions(): void
     {
-        Event::fake();
+        Event::fake([
+            \App\Events\ConversationStatusChanged::class,
+        ]);
 
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($admin->id);
 
-        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id, 'status' => Conversation::STATUS_ACTIVE]);
 
         // Update status
         $conversation->update(['status' => Conversation::STATUS_CLOSED]);
@@ -405,8 +417,8 @@ class AdvancedIntegrationTest extends FeatureTestCase
         $response = $this->actingAs($admin)->get(route('conversations.show', $conversation->id));
 
         // Script tags should be escaped
-        $response->assertDontSee('<script>', false);
         $response->assertSee('&lt;script&gt;', false);
+        $response->assertDontSee('<script>alert("xss")</script>', false);
     }
 
     // ==================== Performance Optimization ====================

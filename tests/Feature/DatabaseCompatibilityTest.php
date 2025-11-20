@@ -448,9 +448,9 @@ class DatabaseCompatibilityTest extends TestCase
         }
 
         // Verify values match modernized expectations
-        $this->assertEquals(1, $threadClass::TYPE_CUSTOMER);
-        $this->assertEquals(2, $threadClass::TYPE_MESSAGE);
-        $this->assertEquals(3, $threadClass::TYPE_NOTE);
+        $this->assertEquals(3, $threadClass::TYPE_CUSTOMER);
+        $this->assertEquals(1, $threadClass::TYPE_MESSAGE);
+        $this->assertEquals(2, $threadClass::TYPE_NOTE);
     }
 
     /**

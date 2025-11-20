@@ -28,8 +28,8 @@
                                         <p style="font-family:Arial, 'Helvetica Neue', Helvetica, Tahoma, sans-serif; font-size:14px; color:#B5B9BD; line-height:16px; margin:0; margin-bottom: 6px;">
                                         	[{{ $mailbox->name }}]
                                         </p>
-				                        <p style="display:inline; font-family:Arial, 'Helvetica Neue', Helvetica, Tahoma, sans-serif; color:#444; line-height:22px; font-size:16px; margin:0;">
-                                            {{ __('Replying to this notification will email :name', ['name' => ($customer ? $customer->getFirstName(true) : '')]) }} (<a href="mailto:{{ $conversation->customer_email }}" style="color:#3f8abf; text-decoration:none;">{{ $conversation->customer_email }}</a>)
+                                        <p style="display:inline; font-family:Arial, 'Helvetica Neue', Helvetica, Tahoma, sans-serif; color:#444; line-height:22px; font-size:16px; margin:0;">
+                                            {{ __('Replying to this notification will email :name', ['name' => ($customer ? $customer->getFirstName(true) : $conversation->customer_email)]) }} (<a href="mailto:{{ $conversation->customer_email }}" style="color:#3f8abf; text-decoration:none;">{{ $conversation->customer_email }}</a>)
                                             @if ($conversation->getCcArray())
                                             	<br/><small>CC: {{ implode(', ', $conversation->getCcArray()) }}</small>
                                             @endif
@@ -140,7 +140,11 @@
 									                        <h3 style="font-family:Arial, 'Helvetica Neue', Helvetica, Tahoma, sans-serif; font-size:17px; line-height:22px; margin:0 0 2px 0; font-weight:normal;">
 																@if ($thread->type == \App\Models\Thread::TYPE_NOTE)
 																	<span style="color:#e6b216">
-																		{!! __(':person added a note', ['person' => '<strong style="color:#000000;">'.$thread->getCreatedBy()->getFullName(true).'</strong>']) !!}
+																		@php
+																			$createdBy = $thread->getCreatedBy();
+																			$personName = $createdBy ? $createdBy->getFullName(true) : __('Unknown');
+																		@endphp
+																		{!! __(':person added a note', ['person' => '<strong style="color:#000000;">'.$personName.'</strong>']) !!}
 																	</span>
 																@else
 																	@if ($thread->type == \App\Models\Thread::TYPE_MESSAGE)
@@ -158,10 +162,12 @@
 																		@else
 																			@php $trans_text = __(':person replied') @endphp
 																		@endif
-																		@php
-																			$trans_params = ['person' => '<strong style="color:#000000;">'.$thread->getCreatedBy()->getFullName(true).'</strong>'];
-																		@endphp
-																		{!! __($trans_text, $trans_params) !!}
+																	@php
+																		$createdBy = $thread->getCreatedBy();
+																		$personName = $createdBy ? $createdBy->getFullName(true) : __('Unknown');
+																		$trans_params = ['person' => '<strong style="color:#000000;">'.$personName.'</strong>'];
+																	@endphp
+																	{!! __($trans_text, $trans_params) !!}
 																	</span>
 																@endif
 															</h3>
@@ -220,7 +226,7 @@
 					</tr>
 					<tr>
 						<td align="center">
-							<p style="display:inline; margin:0; padding:0; font-size:12px; font-family:Arial, 'Helvetica Neue', Helvetica, Tahoma, sans-serif; color:#B5B9BD; line-height: 22px;" align="center"><a href="{{ route('users.notifications', ['id' => $user->id]) }}" style="color:#B5B9BD;">{{ __('Notification Settings') }}</a> - <a href="{{ $mailbox->url() }}" style="color:#B5B9BD;">{{ $mailbox->name }}</a></p>
+							<p style="display:inline; margin:0; padding:0; font-size:12px; font-family:Arial, 'Helvetica Neue', Helvetica, Tahoma, sans-serif; color:#B5B9BD; line-height: 22px;" align="center"><a href="{{ route('users.notifications', ['user' => $user->id]) }}" style="color:#B5B9BD;">{{ __('Notification Settings') }}</a> - <a href="{{ $mailbox->url() }}" style="color:#B5B9BD;">{{ $mailbox->name }}</a></p>
 						</td>
 					</tr>
 					<tr>

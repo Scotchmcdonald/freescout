@@ -17,6 +17,7 @@ class FetchEmails extends Command
      */
     protected $signature = 'freescout:fetch-emails 
                             {mailbox_id? : Specific mailbox ID to fetch from}
+                            {--mailbox_id= : Specific mailbox ID to fetch from (option)}
                             {--test : Test connection without fetching}';
 
     /**
@@ -31,7 +32,7 @@ class FetchEmails extends Command
      */
     public function handle(ImapService $imapService): int
     {
-        $mailboxId = $this->argument('mailbox_id');
+        $mailboxId = $this->argument('mailbox_id') ?: $this->option('mailbox_id');
         $testMode = $this->option('test');
 
         // Get mailboxes to process

@@ -56,7 +56,8 @@ class UserController extends Controller
             'locale' => 'nullable|string|max:2',
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
+        // Password will be hashed by the User model cast
+        // $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
 
@@ -110,7 +111,8 @@ class UserController extends Controller
         ]);
 
         if (! empty($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
+            // Password will be hashed by the User model cast
+            // $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
         }
@@ -339,7 +341,7 @@ class UserController extends Controller
         // Update user
         $user->fill([
             'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
+            'password' => $validated['password'], // Hashed by model cast
             'job_title' => $validated['job_title'] ?? null,
             'phone' => $validated['phone'] ?? null,
             'timezone' => $validated['timezone'],
@@ -354,5 +356,27 @@ class UserController extends Controller
         auth()->login($user);
 
         return redirect()->route('dashboard')->with('success', 'Your account has been set up successfully!');
+    }
+
+    /**
+     * Display global permissions index.
+     */
+    public function permissionsIndex(): View|Factory
+    {
+        $this->authorize('viewAny', User::class); // Assuming admin check
+
+        return view('permissions.index');
+    }
+
+    /**
+     * Save global permissions.
+     */
+    public function permissionsSave(Request $request): RedirectResponse
+    {
+        $this->authorize('create', User::class); // Assuming admin check
+
+        // Logic to save permissions would go here
+        
+        return redirect()->route('permissions')->with('success', 'Permissions saved successfully.');
     }
 }

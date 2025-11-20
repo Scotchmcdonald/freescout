@@ -64,9 +64,10 @@ class AttachmentTest extends UnitTestCase
 
     public function test_attachment_can_have_conversation_id(): void
     {
-        $attachment = Attachment::factory()->create(['conversation_id' => 123]);
+        $conversation = \App\Models\Conversation::factory()->create();
+        $attachment = Attachment::factory()->create(['conversation_id' => $conversation->id]);
         
-        $this->assertEquals(123, $attachment->conversation_id);
+        $this->assertEquals($conversation->id, $attachment->conversation_id);
     }
 
     public function test_attachment_conversation_id_can_be_null(): void
@@ -80,7 +81,8 @@ class AttachmentTest extends UnitTestCase
 
     public function test_thread_id_is_cast_to_integer(): void
     {
-        $attachment = Attachment::factory()->create(['thread_id' => '123']);
+        $thread = Thread::factory()->create();
+        $attachment = Attachment::factory()->create(['thread_id' => (string) $thread->id]);
         
         $this->assertIsInt($attachment->thread_id);
     }

@@ -37,6 +37,7 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'company_name' => 'nullable|string|max:255',
+            'timezone' => 'nullable|timezone',
             'next_ticket' => 'nullable|integer|min:1',
             'user_permissions' => 'nullable|array',
             'email_branding' => 'nullable|boolean',
@@ -394,5 +395,27 @@ class SettingsController extends Controller
         }
 
         file_put_contents($envFile, $content);
+    }
+
+    /**
+     * Display general settings (alias for index).
+     */
+    public function general(): View|ViewFactory
+    {
+        return $this->index();
+    }
+
+    /**
+     * Display security settings.
+     */
+    public function security(): View|ViewFactory
+    {
+        // For now, just return the index view or a specific security view if it exists.
+        // Assuming it might be part of the general settings or a separate tab.
+        // Let's check if settings.security view exists, otherwise use index.
+        if (view()->exists('settings.security')) {
+            return view('settings.security');
+        }
+        return $this->index();
     }
 }

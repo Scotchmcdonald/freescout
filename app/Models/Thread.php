@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property int $id
@@ -49,19 +50,22 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Thread extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     // Thread type constants
-    public const TYPE_CUSTOMER = 1;
+    public const TYPE_MESSAGE = 1;
 
-    public const TYPE_MESSAGE = 2;
+    public const TYPE_NOTE = 2;
 
-    public const TYPE_NOTE = 3;
+    public const TYPE_CUSTOMER = 3;
 
     public const TYPE_LINEITEM = 4;
 
     public const TYPE_CHAT = 8;
 
     public const TYPE_BOUNCE = 9; // For bounce detection
+
+    public const TYPE_DRAFT = 5;
 
     // Thread state constants
     public const STATE_DRAFT = 1;
@@ -182,11 +186,21 @@ class Thread extends Model
     }
 
     /**
+     * Get the send logs for the thread.
+     *
+     * @return HasMany<SendLog, $this>
+     */
+    public function sendLogs(): HasMany
+    {
+        return $this->hasMany(SendLog::class);
+    }
+
+    /**
      * Check if this is a message from customer.
      */
     public function isCustomerMessage(): bool
     {
-        return $this->type === 4;
+        return $this->type === self::TYPE_CUSTOMER;
     }
 
     /**
@@ -194,7 +208,7 @@ class Thread extends Model
      */
     public function isUserMessage(): bool
     {
-        return $this->type === 1;
+        return $this->type === self::TYPE_MESSAGE;
     }
 
     /**
@@ -202,7 +216,7 @@ class Thread extends Model
      */
     public function isNote(): bool
     {
-        return $this->type === 2;
+        return $this->type === self::TYPE_NOTE;
     }
 
     /**
@@ -227,5 +241,50 @@ class Thread extends Model
         $sendStatus = $this->meta['send_status'] ?? [];
 
         return ! empty($sendStatus['is_bounce']);
+    }
+
+    /**
+     * Get the user who created the thread.
+     */
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdByUser;
+    }
+
+    /**
+     * Get status name.
+     */
+    public function getStatusName(): string
+    {
+        return match ($this->status) {
+            Conversation::STATUS_ACTIVE => __('Active'),
+            Conversation::STATUS_PENDING => __('Pending'),
+            Conversation::STATUS_CLOSED => __('Closed'),
+            Conversation::STATUS_SPAM => __('Spam'),
+            default => __('Unknown'),
+        };
+    }
+
+    /**
+     * Get action text.
+     */
+    public function getActionText($text = '', $html = true, $short = false, $user = null, $person_name = ''): string
+    {
+        return __('Action performed');
+    }
+
+    /**
+     * Get assignee name.
+     */
+    public function getAssigneeName($short = false, $user = null): string
+    {
+        // Assuming the assigned user ID is stored in meta or source_type?
+        // Or maybe it's the 'user_id' of the thread?
+        // For 'assigned to' events, the thread usually links to the assigned user.
+        // Let's assume 'user_id' points to the assigned user for this thread type.
+        if ($this->user) {
+            return $this->user->getFullName($short);
+        }
+        return __('Unknown');
     }
 }

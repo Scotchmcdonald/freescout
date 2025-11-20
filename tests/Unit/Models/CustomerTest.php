@@ -175,7 +175,7 @@ class CustomerTest extends TestCase
         $this->assertNull($customer->primary_email);
     }
 
-    public function create_finds_existing_customer_by_email(): void
+    public function test_create_finds_existing_customer_by_email(): void
     {
         $existingCustomer = Customer::factory()->create();
         Email::factory()->create([
@@ -191,7 +191,7 @@ class CustomerTest extends TestCase
         $this->assertEquals($existingCustomer->id, $customer->id);
     }
 
-    public function create_creates_new_customer_with_email(): void
+    public function test_create_creates_new_customer_with_email(): void
     {
         $customer = Customer::create('newcustomer@example.com', [
             'first_name' => 'New',
@@ -208,7 +208,7 @@ class CustomerTest extends TestCase
         ]);
     }
 
-    public function create_sanitizes_email_address(): void
+    public function test_create_sanitizes_email_address(): void
     {
         $customer = Customer::create('  TEST@EXAMPLE.COM  ', [
             'first_name' => 'Test',
@@ -221,14 +221,14 @@ class CustomerTest extends TestCase
         ]);
     }
 
-    public function create_returns_null_for_invalid_email(): void
+    public function test_create_returns_null_for_invalid_email(): void
     {
         $customer = Customer::create('', ['first_name' => 'Test']);
 
         $this->assertNull($customer);
     }
 
-    public function create_does_not_overwrite_existing_data_by_default(): void
+    public function test_create_does_not_overwrite_existing_data_by_default(): void
     {
         $existing = Customer::factory()->create([
             'first_name' => 'Original',
@@ -252,35 +252,35 @@ class CustomerTest extends TestCase
         $this->assertEquals('Original', $customer->first_name); // Should NOT be overwritten
     }
 
-    public function emails_relationship_returns_all_emails(): void
+    public function test_emails_relationship_returns_all_emails(): void
     {
         $customer = Customer::factory()->withMultipleEmails(3)->create();
 
         $this->assertCount(3, $customer->emails);
     }
 
-    public function conversations_relationship_loads(): void
+    public function test_conversations_relationship_loads(): void
     {
         $customer = Customer::factory()->create();
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $customer->conversations());
     }
 
-    public function threads_relationship_loads(): void
+    public function test_threads_relationship_loads(): void
     {
         $customer = Customer::factory()->create();
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $customer->threads());
     }
 
-    public function channels_relationship_loads(): void
+    public function test_channels_relationship_loads(): void
     {
         $customer = Customer::factory()->create();
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $customer->channels());
     }
 
-    public function customer_has_required_fillable_fields(): void
+    public function test_customer_has_required_fillable_fields(): void
     {
         $customer = new Customer();
         $fillable = $customer->getFillable();
@@ -290,7 +290,7 @@ class CustomerTest extends TestCase
         $this->assertContains('company', $fillable);
     }
 
-    public function customer_can_be_created_with_factory(): void
+    public function test_customer_can_be_created_with_factory(): void
     {
         $customer = Customer::factory()->create([
             'first_name' => 'Factory',
@@ -304,7 +304,7 @@ class CustomerTest extends TestCase
         ]);
     }
 
-    public function customer_with_emoji_name_saves_correctly(): void
+    public function test_customer_with_emoji_name_saves_correctly(): void
     {
         $customer = Customer::factory()->withEmoji()->create();
 

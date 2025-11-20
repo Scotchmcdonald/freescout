@@ -31,7 +31,7 @@ class CustomerAjaxTest extends TestCase
     public function ajax_search_returns_matching_customers_by_first_name(): void
     {
         // Arrange
-        $customer1 = Customer::factory()->create([
+        $customer1 = Customer::factory()->withoutEmail()->create([
             'first_name' => 'Alice',
             'last_name' => 'Johnson',
         ]);
@@ -262,7 +262,7 @@ class CustomerAjaxTest extends TestCase
     public function ajax_search_returns_customer_with_email(): void
     {
         // Arrange
-        $customer = Customer::factory()->create([
+        $customer = Customer::factory()->withoutEmail()->create([
             'first_name' => 'Jane',
             'last_name' => 'Smith',
         ]);

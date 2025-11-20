@@ -361,7 +361,7 @@ class AuthenticationControllersTest extends FeatureTestCase
             'password_confirmation' => 'new-password',
         ]);
 
-        $response->assertSessionHasErrors(['current_password']);
+        $response->assertSessionHasErrorsIn('updatePassword', ['current_password']);
     }
 
     public function test_password_update_requires_confirmation(): void
@@ -376,7 +376,7 @@ class AuthenticationControllersTest extends FeatureTestCase
             'password_confirmation' => 'different-password',
         ]);
 
-        $response->assertSessionHasErrors(['password']);
+        $response->assertSessionHasErrorsIn('updatePassword', ['password']);
     }
 
     // ==================== Edge Cases ====================

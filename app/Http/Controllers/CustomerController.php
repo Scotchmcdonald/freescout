@@ -49,7 +49,7 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|max:50',
             'last_name' => 'nullable|string|max:50',
-            'email' => 'required|email|unique:customer_emails,email',
+            'email' => 'required|email|unique:emails,email',
         ]);
 
         $customer = Customer::create($validated['email'], [
@@ -248,6 +248,10 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer): RedirectResponse
     {
+        if (auth()->user()->role !== \App\Models\User::ROLE_ADMIN) {
+            abort(403);
+        }
+
         if ($customer->conversations()->exists()) {
             return back()->withErrors([
                 'error' => 'Cannot delete customer with existing conversations.',
@@ -259,5 +263,28 @@ class CustomerController extends Controller
         return redirect()
             ->route('customers.index')
             ->with('success', 'Customer deleted successfully.');
+    }
+
+    /**
+     * Search customers.
+     */
+    public function search(Request $request): View|ViewFactory
+    {
+        $query = $request->input('q', '');
+        $searchQuery = is_string($query) ? $query : '';
+
+        $customers = Customer::query()
+            ->where(function ($q) use ($searchQuery) {
+                $q->where('first_name', 'like', "%{$searchQuery}%")
+                    ->orWhere('last_name', 'like', "%{$searchQuery}%")
+                    ->orWhereHas('emails', function ($q) use ($searchQuery) {
+                        // @phpstan-ignore-next-line
+                        $q->where('email', 'like', "%{$searchQuery}%");
+                    });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
+
+        return view('customers.index', compact('customers'));
     }
 }

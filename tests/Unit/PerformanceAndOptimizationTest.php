@@ -9,6 +9,7 @@ use App\Models\Conversation;
 use App\Models\Thread;
 use App\Models\User;
 use App\Models\Mailbox;
+use App\Models\Folder;
 use App\Models\Customer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -25,7 +26,9 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         $conversations = Conversation::select('id', 'subject', 'status')->get();
         
         $queries = DB::getQueryLog();
-        $this->assertStringContainsString('select `id`, `subject`, `status`', strtolower($queries[0]['query']));
+        // Normalize quotes for cross-database compatibility (MySQL uses backticks, SQLite/Postgres use double quotes)
+        $normalizedQuery = str_replace(['"', '`'], '', strtolower($queries[0]['query']));
+        $this->assertStringContainsString('select id, subject, status', $normalizedQuery);
         
         DB::disableQueryLog();
     }
@@ -113,14 +116,23 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     // Batch Operations
     public function test_bulk_insert_is_efficient(): void
     {
+        $mailbox = Mailbox::factory()->create();
+        $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
+
         $data = [];
         for ($i = 0; $i < 100; $i++) {
             $data[] = [
-                'mailbox_id' => 1,
+                'mailbox_id' => $mailbox->id,
                 'subject' => "Test Subject $i",
                 'status' => Conversation::STATUS_ACTIVE,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'number' => $i + 1000,
+                'type' => Conversation::TYPE_EMAIL,
+                'folder_id' => $folder->id,
+                'preview' => 'Test Preview',
+                'source_via' => Conversation::PERSON_CUSTOMER,
+                'source_type' => 1,
             ];
         }
         
@@ -161,7 +173,9 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         $found = Conversation::find($conversation->id);
         
         $queries = DB::getQueryLog();
-        $this->assertStringContainsString('where `id` =', strtolower($queries[0]['query']));
+        $normalizedQuery = str_replace(['"', '`'], '', strtolower($queries[0]['query']));
+        // Eloquent adds table name to the query
+        $this->assertStringContainsString('conversations.id =', $normalizedQuery);
         
         DB::disableQueryLog();
     }
@@ -280,7 +294,8 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         $ids = Conversation::pluck('id');
         
         $queries = DB::getQueryLog();
-        $this->assertStringContainsString('select `id`', strtolower($queries[0]['query']));
+        $normalizedQuery = str_replace(['"', '`'], '', strtolower($queries[0]['query']));
+        $this->assertStringContainsString('select id', $normalizedQuery);
         
         DB::disableQueryLog();
     }

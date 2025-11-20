@@ -316,7 +316,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
     // MergeController Tests
     public function test_merge_conversation_requires_authentication(): void
     {
-        $response = $this->post(route('conversations.merge', ['id' => 1]));
+        $response = $this->post(route('conversations.merge', ['conversation' => 1]));
         $response->assertRedirect(route('login'));
     }
 
@@ -328,7 +328,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         
         $user->mailboxes()->attach($mailbox->id);
 
-        $response = $this->actingAs($user)->post(route('conversations.merge', ['id' => $conversation->id]), [
+        $response = $this->actingAs($user)->post(route('conversations.merge', ['conversation' => $conversation->id]), [
             'target_conversation_id' => 'invalid',
         ]);
         $response->assertSessionHasErrors();
@@ -342,7 +342,7 @@ class RemainingControllersAndRoutesTest extends FeatureTestCase
         
         $user->mailboxes()->attach($mailbox->id);
 
-        $response = $this->actingAs($user)->post(route('conversations.merge', ['id' => $conversation->id]), [
+        $response = $this->actingAs($user)->post(route('conversations.merge', ['conversation' => $conversation->id]), [
             'target_conversation_id' => $conversation->id,
         ]);
         $response->assertSessionHasErrors();

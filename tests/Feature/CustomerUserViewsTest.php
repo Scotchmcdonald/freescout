@@ -152,7 +152,7 @@ class CustomerUserViewsTest extends TestCase
     {
         $customer = Customer::factory()->create();
 
-        $response = $this->actingAs($this->user)->delete(route('customers.destroy', $customer));
+        $response = $this->actingAs($this->adminUser)->delete(route('customers.destroy', $customer));
 
         $response->assertRedirect(route('customers.index'));
         $response->assertSessionHas('success');
@@ -164,7 +164,7 @@ class CustomerUserViewsTest extends TestCase
     {
         $customer = Customer::factory()->hasConversations(1)->create();
 
-        $response = $this->actingAs($this->user)->delete(route('customers.destroy', $customer));
+        $response = $this->actingAs($this->adminUser)->delete(route('customers.destroy', $customer));
 
         $response->assertRedirect();
         $response->assertSessionHasErrors();

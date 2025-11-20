@@ -150,7 +150,11 @@ class ConversationModelTest extends UnitTestCase
 
     public function test_update_folder_assigns_correct_folder_for_active_assigned_conversation(): void
     {
-        $mailbox = \App\Models\Mailbox::factory()->create();
+        // Use withoutEvents to prevent default folders creation
+        $mailbox = \App\Models\Mailbox::withoutEvents(function () {
+            return \App\Models\Mailbox::factory()->create();
+        });
+        
         $user = \App\Models\User::factory()->create();
         $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 2]);
         $targetFolder = Folder::factory()->create([
@@ -173,7 +177,10 @@ class ConversationModelTest extends UnitTestCase
 
     public function test_update_folder_assigns_correct_folder_for_active_unassigned_conversation(): void
     {
-        $mailbox = \App\Models\Mailbox::factory()->create();
+        $mailbox = \App\Models\Mailbox::withoutEvents(function () {
+            return \App\Models\Mailbox::factory()->create();
+        });
+        
         $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
         $targetFolder = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -194,19 +201,41 @@ class ConversationModelTest extends UnitTestCase
 
     public function test_update_folder_assigns_correct_folder_for_closed_conversation(): void
     {
-        $mailbox = \App\Models\Mailbox::factory()->create();
-        $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
+        $mailbox = \App\Models\Mailbox::withoutEvents(function () {
+            return \App\Models\Mailbox::factory()->create();
+        });
         
-        // Get the default spam folder (type 4) created by MailboxObserver
-        $targetFolder = Folder::where('mailbox_id', $mailbox->id)
-            ->where('type', 4)
-            ->first();
+        $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 2]);
+        
+        // Closed conversations should stay in Inbox/Assigned (Type 1) or similar
+        $targetFolder = Folder::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'type' => 1,
+        ]);
 
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'status' => Conversation::STATUS_CLOSED,
             'folder_id' => $tempFolder->id,
         ]);
+
+        // Ensure user_id is set if we expect it to go to type 1 (Assigned)
+        // Or if type 1 is just "Inbox" regardless of user assignment, then user_id might not matter.
+        // However, Conversation::updateFolder logic says:
+        // self::STATUS_CLOSED => 1, // Keep in Inbox/Assigned
+        // And then: ->when($folderType === 1 && $this->user_id, function ($query) { return $query->where('user_id', $this->user_id); })
+        // So if user_id is null, it looks for type 1 with ANY user_id? No, it just doesn't filter by user_id.
+        // But if multiple type 1 folders exist (e.g. one per user + one global?), first() might pick wrong one.
+        // Let's ensure targetFolder is the ONLY type 1 folder for this mailbox to be safe.
+        
+        // Also, if conversation has user_id, it will try to find folder with that user_id.
+        // If conversation has NO user_id, it won't filter by user_id.
+        
+        // Let's check if conversation factory creates a user_id by default. Yes it does: 'user_id' => User::factory(),
+        // So we should probably set user_id on the target folder too if we want it to match.
+        
+        $targetFolder->user_id = $conversation->user_id;
+        $targetFolder->save();
 
         $conversation->updateFolder();
 
@@ -215,11 +244,14 @@ class ConversationModelTest extends UnitTestCase
 
     public function test_update_folder_assigns_correct_folder_for_spam_conversation(): void
     {
-        $mailbox = \App\Models\Mailbox::factory()->create();
+        $mailbox = \App\Models\Mailbox::withoutEvents(function () {
+            return \App\Models\Mailbox::factory()->create();
+        });
+        
         $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
         $targetFolder = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
-            'type' => 30, // Spam folder
+            'type' => 4, // Spam folder
         ]);
 
         $conversation = Conversation::factory()->create([

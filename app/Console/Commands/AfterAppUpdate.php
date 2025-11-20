@@ -23,6 +23,13 @@ class AfterAppUpdate extends Command
     protected $description = 'Run commands after application has been updated';
 
     /**
+     * The aliases of the console command.
+     *
+     * @var array
+     */
+    protected $aliases = ['app:after-update'];
+
+    /**
      * Execute the console command.
      */
     public function handle(): int

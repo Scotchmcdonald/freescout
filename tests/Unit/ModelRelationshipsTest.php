@@ -331,8 +331,8 @@ class ModelRelationshipsTest extends UnitTestCase
         $conversation->delete();
 
         // Threads should be deleted (cascade delete)
-        $this->assertDatabaseMissing('threads', ['id' => $thread1->id]);
-        $this->assertDatabaseMissing('threads', ['id' => $thread2->id]);
+        $this->assertSoftDeleted('threads', ['id' => $thread1->id]);
+        $this->assertSoftDeleted('threads', ['id' => $thread2->id]);
     }
 
     /**
@@ -587,7 +587,7 @@ class ModelRelationshipsTest extends UnitTestCase
         $threadId = $thread->id;
         $conversation->delete();
 
-        $this->assertDatabaseMissing('threads', ['id' => $threadId]);
+        $this->assertSoftDeleted('threads', ['id' => $threadId]);
     }
 
     /**

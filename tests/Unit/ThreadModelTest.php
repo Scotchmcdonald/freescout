@@ -75,7 +75,7 @@ class ThreadModelTest extends UnitTestCase
 
     public function test_is_customer_message_returns_true_for_customer_type(): void
     {
-        $thread = Thread::factory()->make(['type' => 4]);
+        $thread = Thread::factory()->make(['type' => 3]);
 
         $this->assertTrue($thread->isCustomerMessage());
     }
@@ -101,7 +101,7 @@ class ThreadModelTest extends UnitTestCase
         $thread = Thread::factory()->make(['type' => 2]);
         $this->assertFalse($thread->isUserMessage());
 
-        $thread = Thread::factory()->make(['type' => 4]);
+        $thread = Thread::factory()->make(['type' => 3]);
         $this->assertFalse($thread->isUserMessage());
     }
 
@@ -117,7 +117,7 @@ class ThreadModelTest extends UnitTestCase
         $thread = Thread::factory()->make(['type' => 1]);
         $this->assertFalse($thread->isNote());
 
-        $thread = Thread::factory()->make(['type' => 4]);
+        $thread = Thread::factory()->make(['type' => 3]);
         $this->assertFalse($thread->isNote());
     }
 
@@ -247,8 +247,8 @@ class ThreadModelTest extends UnitTestCase
         $this->assertEquals(2, $thread2->type);
         $this->assertTrue($thread2->isNote());
 
-        $thread4 = Thread::factory()->make(['type' => 4]);
-        $this->assertEquals(4, $thread4->type);
+        $thread4 = Thread::factory()->make(['type' => 3]);
+        $this->assertEquals(3, $thread4->type);
         $this->assertTrue($thread4->isCustomerMessage());
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Mail\Alert;
 use App\Models\SendLog;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -70,9 +71,8 @@ class SendAlert implements ShouldQueue
                     'text' => substr($this->text, 0, 100),
                 ]);
 
-                // TODO: Uncomment when Alert mailable is implemented
-                // Mail::to([['name' => '', 'email' => $recipient]])
-                //     ->send(new Alert($this->text, $this->title));
+                Mail::to([['name' => '', 'email' => $recipient]])
+                    ->send(new Alert($this->text, $this->title));
             } catch (\Exception $e) {
                 Log::error('Error sending alert email', [
                     'recipient' => $recipient,

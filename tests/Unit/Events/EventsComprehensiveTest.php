@@ -267,11 +267,11 @@ class EventsComprehensiveTest extends UnitTestCase
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
         
-        $event = new UserViewingConversation($user, $conversation);
+        $event = new UserViewingConversation($conversation->id, $user);
         
         $this->assertInstanceOf(UserViewingConversation::class, $event);
         $this->assertEquals($user->id, $event->user->id);
-        $this->assertEquals($conversation->id, $event->conversation->id);
+        $this->assertEquals($conversation->id, $event->conversationId);
     }
 
     public function test_user_viewing_conversation_event_uses_dispatchable(): void
@@ -281,7 +281,7 @@ class EventsComprehensiveTest extends UnitTestCase
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
         
-        UserViewingConversation::dispatch($user, $conversation);
+        UserViewingConversation::dispatch($conversation->id, $user);
         
         Event::assertDispatched(UserViewingConversation::class);
     }
@@ -291,13 +291,14 @@ class EventsComprehensiveTest extends UnitTestCase
     public function test_new_message_received_event_can_be_created(): void
     {
         $mailbox = Mailbox::factory()->create();
-        $messageData = ['from' => 'test@example.com', 'subject' => 'Test'];
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
         
-        $event = new NewMessageReceived($mailbox, $messageData);
+        $event = new NewMessageReceived($thread, $conversation);
         
         $this->assertInstanceOf(NewMessageReceived::class, $event);
-        $this->assertEquals($mailbox->id, $event->mailbox->id);
-        $this->assertEquals($messageData, $event->message_data);
+        $this->assertEquals($thread->id, $event->thread->id);
+        $this->assertEquals($conversation->id, $event->conversation->id);
     }
 
     public function test_new_message_received_event_uses_dispatchable(): void
@@ -305,9 +306,10 @@ class EventsComprehensiveTest extends UnitTestCase
         Event::fake();
         
         $mailbox = Mailbox::factory()->create();
-        $messageData = ['from' => 'test@example.com'];
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
         
-        NewMessageReceived::dispatch($mailbox, $messageData);
+        NewMessageReceived::dispatch($thread, $conversation);
         
         Event::assertDispatched(NewMessageReceived::class);
     }
@@ -315,22 +317,30 @@ class EventsComprehensiveTest extends UnitTestCase
     public function test_new_message_received_event_has_mailbox_property(): void
     {
         $mailbox = Mailbox::factory()->create();
-        $messageData = ['from' => 'test@example.com'];
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
         
-        $event = new NewMessageReceived($mailbox, $messageData);
+        $event = new NewMessageReceived($thread, $conversation);
         
-        $this->assertInstanceOf(Mailbox::class, $event->mailbox);
+        $this->assertInstanceOf(Conversation::class, $event->conversation);
+        $this->assertEquals($mailbox->id, $event->conversation->mailbox_id);
     }
 
     public function test_new_message_received_event_has_message_data_property(): void
     {
         $mailbox = Mailbox::factory()->create();
-        $messageData = ['from' => 'test@example.com', 'subject' => 'Test Subject'];
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'body' => 'Test Body',
+            'from' => 'test@example.com'
+        ]);
         
-        $event = new NewMessageReceived($mailbox, $messageData);
+        $event = new NewMessageReceived($thread, $conversation);
         
-        $this->assertIsArray($event->message_data);
-        $this->assertEquals('test@example.com', $event->message_data['from']);
+        $data = $event->broadcastWith();
+        $this->assertIsArray($data);
+        $this->assertEquals('test@example.com', $data['from']);
     }
 
     // ===== CONVERSATION_UPDATED EVENT TESTS =====
@@ -340,11 +350,11 @@ class EventsComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $changes = ['status' => 'closed'];
         
-        $event = new ConversationUpdated($conversation, $changes);
+        $event = new ConversationUpdated($conversation, 'status_changed', $changes);
         
         $this->assertInstanceOf(ConversationUpdated::class, $event);
         $this->assertEquals($conversation->id, $event->conversation->id);
-        $this->assertEquals($changes, $event->changes);
+        $this->assertEquals($changes, $event->meta);
     }
 
     public function test_conversation_updated_event_uses_dispatchable(): void
@@ -354,7 +364,7 @@ class EventsComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $changes = ['status' => 'closed'];
         
-        ConversationUpdated::dispatch($conversation, $changes);
+        ConversationUpdated::dispatch($conversation, 'status_changed', $changes);
         
         Event::assertDispatched(ConversationUpdated::class);
     }
@@ -364,9 +374,9 @@ class EventsComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $changes = [];
         
-        $event = new ConversationUpdated($conversation, $changes);
+        $event = new ConversationUpdated($conversation, 'status_changed', $changes);
         
-        $this->assertEquals([], $event->changes);
+        $this->assertEquals([], $event->meta);
     }
 
     // ===== EDGE CASES AND INTEGRATION =====

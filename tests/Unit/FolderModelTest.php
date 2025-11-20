@@ -14,7 +14,8 @@ class FolderModelTest extends UnitTestCase
     public function test_folder_type_constants_are_defined(): void
     {
         $this->assertEquals(1, Folder::TYPE_INBOX);
-        $this->assertEquals(2, Folder::TYPE_SENT);
+        $this->assertEquals(2, Folder::TYPE_UNASSIGNED);
+        $this->assertEquals(6, Folder::TYPE_SENT);
         $this->assertEquals(3, Folder::TYPE_DRAFTS);
         $this->assertEquals(4, Folder::TYPE_SPAM);
         $this->assertEquals(5, Folder::TYPE_TRASH);

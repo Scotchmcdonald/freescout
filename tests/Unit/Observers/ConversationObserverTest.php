@@ -168,7 +168,7 @@ class ConversationObserverTest extends TestCase
 
         $folder->refresh();
         $this->assertEquals(2, $folder->total_count); // Both conversations still in folder
-        $this->assertEquals(2, $folder->active_count); // Counters recalculated, both show as active in count
+        $this->assertEquals(1, $folder->active_count); // Only one active conversation remains
     }
 
     public function test_it_deletes_related_threads_when_conversation_deleted()
@@ -178,7 +178,7 @@ class ConversationObserverTest extends TestCase
 
         $conversation->delete();
 
-        $this->assertDatabaseMissing('threads', ['id' => $thread->id]);
+        $this->assertSoftDeleted('threads', ['id' => $thread->id]);
     }
 
     public function test_it_detaches_followers_when_conversation_deleted()

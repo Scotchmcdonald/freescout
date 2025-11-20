@@ -86,7 +86,7 @@ class MailboxTest extends TestCase
         $this->assertArrayHasKey('name', $result);
     }
 
-    public function url_returns_correct_route(): void
+    public function test_url_returns_correct_route(): void
     {
         $mailbox = Mailbox::factory()->create();
         
@@ -98,7 +98,7 @@ class MailboxTest extends TestCase
         $this->assertStringContainsString((string) $mailbox->id, $url);
     }
 
-    public function users_relationship_loads(): void
+    public function test_users_relationship_loads(): void
     {
         $mailbox = Mailbox::factory()->create();
         $user = User::factory()->create();
@@ -109,7 +109,7 @@ class MailboxTest extends TestCase
         $this->assertEquals($user->id, $mailbox->users->first()->id);
     }
 
-    public function folders_relationship_loads(): void
+    public function test_folders_relationship_loads(): void
     {
         $mailbox = Mailbox::factory()->create();
         Folder::factory()->count(3)->create(['mailbox_id' => $mailbox->id]);
@@ -118,7 +118,7 @@ class MailboxTest extends TestCase
         $this->assertCount(8, $mailbox->folders); // 5 auto-created + 3 factory
     }
 
-    public function conversations_relationship_loads(): void
+    public function test_conversations_relationship_loads(): void
     {
         $mailbox = Mailbox::factory()->create();
         Conversation::factory()->count(5)->create(['mailbox_id' => $mailbox->id]);
@@ -127,7 +127,7 @@ class MailboxTest extends TestCase
         $this->assertCount(5, $mailbox->conversations);
     }
 
-    public function mailbox_has_required_fillable_fields(): void
+    public function test_mailbox_has_required_fillable_fields(): void
     {
         $mailbox = new Mailbox();
         $fillable = $mailbox->getFillable();
@@ -138,7 +138,7 @@ class MailboxTest extends TestCase
         $this->assertContains('signature', $fillable);
     }
 
-    public function mailbox_casts_boolean_fields(): void
+    public function test_mailbox_casts_boolean_fields(): void
     {
         $mailbox = Mailbox::factory()->create([
             'is_default' => true,
@@ -149,7 +149,7 @@ class MailboxTest extends TestCase
         $this->assertIsBool($mailbox->auto_reply_enabled);
     }
 
-    public function mailbox_casts_integer_fields(): void
+    public function test_mailbox_casts_integer_fields(): void
     {
         $mailbox = Mailbox::factory()->create([
             'status' => 1,
@@ -160,7 +160,7 @@ class MailboxTest extends TestCase
         $this->assertIsInt($mailbox->out_method);
     }
 
-    public function mailbox_can_be_created_with_factory(): void
+    public function test_mailbox_can_be_created_with_factory(): void
     {
         $mailbox = Mailbox::factory()->create([
             'name' => 'Test Mailbox',
@@ -174,7 +174,7 @@ class MailboxTest extends TestCase
         ]);
     }
 
-    public function mailbox_has_timestamps(): void
+    public function test_mailbox_has_timestamps(): void
     {
         $mailbox = Mailbox::factory()->create();
 
@@ -182,7 +182,7 @@ class MailboxTest extends TestCase
         $this->assertNotNull($mailbox->updated_at);
     }
 
-    public function mailbox_email_is_required(): void
+    public function test_mailbox_email_is_required(): void
     {
         $mailbox = Mailbox::factory()->make(['email' => null]);
 
@@ -191,7 +191,7 @@ class MailboxTest extends TestCase
         $mailbox->save();
     }
 
-    public function mailbox_name_is_required(): void
+    public function test_mailbox_name_is_required(): void
     {
         $mailbox = Mailbox::factory()->make(['name' => null]);
 
@@ -200,7 +200,7 @@ class MailboxTest extends TestCase
         $mailbox->save();
     }
 
-    public function mailbox_can_have_signature(): void
+    public function test_mailbox_can_have_signature(): void
     {
         $mailbox = Mailbox::factory()->create([
             'signature' => 'Best regards,<br>Support Team',
@@ -209,7 +209,7 @@ class MailboxTest extends TestCase
         $this->assertEquals('Best regards,<br>Support Team', $mailbox->signature);
     }
 
-    public function mailbox_can_have_auto_reply_settings(): void
+    public function test_mailbox_can_have_auto_reply_settings(): void
     {
         $mailbox = Mailbox::factory()->create([
             'auto_reply_enabled' => true,
@@ -222,7 +222,7 @@ class MailboxTest extends TestCase
         $this->assertEquals('I am currently out of office.', $mailbox->auto_reply_message);
     }
 
-    public function mailbox_can_have_imap_settings(): void
+    public function test_mailbox_can_have_imap_settings(): void
     {
         $mailbox = Mailbox::factory()->create([
             'in_server' => 'imap.example.com',
@@ -237,7 +237,7 @@ class MailboxTest extends TestCase
         $this->assertEquals('user@example.com', $mailbox->in_username);
     }
 
-    public function mailbox_can_have_smtp_settings(): void
+    public function test_mailbox_can_have_smtp_settings(): void
     {
         $mailbox = Mailbox::factory()->create([
             'out_server' => 'smtp.example.com',
@@ -251,7 +251,7 @@ class MailboxTest extends TestCase
         $this->assertEquals('user@example.com', $mailbox->out_username);
     }
 
-    public function mailbox_meta_field_casts_to_array(): void
+    public function test_mailbox_meta_field_casts_to_array(): void
     {
         $meta = ['key1' => 'value1', 'key2' => 'value2'];
         $mailbox = Mailbox::factory()->create(['meta' => $meta]);
@@ -260,7 +260,7 @@ class MailboxTest extends TestCase
         $this->assertEquals($meta, $mailbox->meta);
     }
 
-    public function multiple_users_can_access_mailbox(): void
+    public function test_multiple_users_can_access_mailbox(): void
     {
         $mailbox = Mailbox::factory()->create();
         $user1 = User::factory()->create();
@@ -271,7 +271,7 @@ class MailboxTest extends TestCase
         $this->assertCount(2, $mailbox->users);
     }
 
-    public function mailbox_with_unicode_name(): void
+    public function test_mailbox_with_unicode_name(): void
     {
         $mailbox = Mailbox::factory()->create([
             'name' => 'サポート Support 支持',

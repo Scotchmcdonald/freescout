@@ -41,7 +41,7 @@ class ConversationControllerTest extends TestCase
         $this->user->mailboxes()->attach($this->mailbox->id);
     }
 
-    public function index_returns_view_with_conversations(): void
+    public function test_index_returns_view_with_conversations(): void
     {
         Conversation::factory()->count(5)->create([
             'mailbox_id' => $this->mailbox->id,
@@ -57,7 +57,7 @@ class ConversationControllerTest extends TestCase
         $this->assertEquals('conversations.index', $response->name());
     }
 
-    public function index_only_shows_published_conversations(): void
+    public function test_index_only_shows_published_conversations(): void
     {
         // Create published and draft conversations
         Conversation::factory()->create([
@@ -79,7 +79,7 @@ class ConversationControllerTest extends TestCase
         $this->assertCount(1, $conversations);
     }
 
-    public function index_orders_by_last_reply_at_desc(): void
+    public function test_index_orders_by_last_reply_at_desc(): void
     {
         $older = Conversation::factory()->create([
             'mailbox_id' => $this->mailbox->id,
@@ -102,7 +102,7 @@ class ConversationControllerTest extends TestCase
         $this->assertEquals($newer->id, $conversations->first()->id);
     }
 
-    public function index_denies_access_to_unauthorized_user(): void
+    public function test_index_denies_access_to_unauthorized_user(): void
     {
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
 
@@ -119,7 +119,7 @@ class ConversationControllerTest extends TestCase
         }
     }
 
-    public function show_returns_view_with_conversation(): void
+    public function test_show_returns_view_with_conversation(): void
     {
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $this->mailbox->id,
@@ -135,7 +135,7 @@ class ConversationControllerTest extends TestCase
         $this->assertEquals('conversations.show', $response->name());
     }
 
-    public function show_loads_required_relationships(): void
+    public function test_show_loads_required_relationships(): void
     {
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $this->mailbox->id,
@@ -158,7 +158,7 @@ class ConversationControllerTest extends TestCase
         $this->assertTrue($data['conversation']->relationLoaded('threads'));
     }
 
-    public function show_only_loads_published_threads(): void
+    public function test_show_only_loads_published_threads(): void
     {
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $this->mailbox->id,
@@ -184,7 +184,7 @@ class ConversationControllerTest extends TestCase
         $this->assertCount(1, $conv->threads);
     }
 
-    public function show_denies_access_to_unauthorized_user(): void
+    public function test_show_denies_access_to_unauthorized_user(): void
     {
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
 
@@ -205,7 +205,7 @@ class ConversationControllerTest extends TestCase
         }
     }
 
-    public function show_marks_notifications_as_read(): void
+    public function test_show_marks_notifications_as_read(): void
     {
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $this->mailbox->id,
@@ -221,7 +221,7 @@ class ConversationControllerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function create_returns_view_for_authorized_user(): void
+    public function test_create_returns_view_for_authorized_user(): void
     {
         $request = Request::create('/mailbox/'.$this->mailbox->id.'/conversations/create');
         $request->setUserResolver(fn () => $this->user);
@@ -232,7 +232,7 @@ class ConversationControllerTest extends TestCase
         $this->assertEquals('conversations.create', $response->name());
     }
 
-    public function create_allows_admin_access_to_any_mailbox(): void
+    public function test_create_allows_admin_access_to_any_mailbox(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $otherMailbox = Mailbox::factory()->create();
@@ -245,7 +245,7 @@ class ConversationControllerTest extends TestCase
         $this->assertNotNull($response);
     }
 
-    public function create_denies_access_to_unauthorized_user(): void
+    public function test_create_denies_access_to_unauthorized_user(): void
     {
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
 
@@ -262,7 +262,7 @@ class ConversationControllerTest extends TestCase
         }
     }
 
-    public function create_loads_folders_for_mailbox(): void
+    public function test_create_loads_folders_for_mailbox(): void
     {
         Folder::factory()->count(3)->create([
             'mailbox_id' => $this->mailbox->id,
@@ -277,7 +277,7 @@ class ConversationControllerTest extends TestCase
         $this->assertGreaterThanOrEqual(3, $folders->count());
     }
 
-    public function store_requires_subject(): void
+    public function test_store_requires_subject(): void
     {
         $request = Request::create('/mailbox/'.$this->mailbox->id.'/conversations', 'POST', [
             'body' => 'Test body',
@@ -290,7 +290,7 @@ class ConversationControllerTest extends TestCase
         $this->controller->store($request, $this->mailbox);
     }
 
-    public function store_requires_body(): void
+    public function test_store_requires_body(): void
     {
         $request = Request::create('/mailbox/'.$this->mailbox->id.'/conversations', 'POST', [
             'subject' => 'Test subject',
@@ -303,7 +303,7 @@ class ConversationControllerTest extends TestCase
         $this->controller->store($request, $this->mailbox);
     }
 
-    public function store_requires_valid_email_addresses(): void
+    public function test_store_requires_valid_email_addresses(): void
     {
         $request = Request::create('/mailbox/'.$this->mailbox->id.'/conversations', 'POST', [
             'subject' => 'Test',
@@ -317,7 +317,7 @@ class ConversationControllerTest extends TestCase
         $this->controller->store($request, $this->mailbox);
     }
 
-    public function store_denies_access_to_unauthorized_user(): void
+    public function test_store_denies_access_to_unauthorized_user(): void
     {
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
 

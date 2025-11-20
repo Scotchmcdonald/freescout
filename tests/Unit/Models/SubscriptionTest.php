@@ -18,7 +18,7 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_subscription_can_be_created(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         
         $subscription = Subscription::factory()->create([
             'user_id' => $user->id,
@@ -126,7 +126,7 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_subscription_belongs_to_user(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         $subscription = Subscription::factory()->create(['user_id' => $user->id]);
         
         $this->assertInstanceOf(User::class, $subscription->user);
@@ -137,35 +137,40 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_user_id_is_cast_to_integer(): void
     {
-        $subscription = Subscription::factory()->create(['user_id' => '123']);
+        $user = User::withoutEvents(fn() => User::factory()->create());
+        $subscription = Subscription::factory()->create(['user_id' => (string) $user->id]);
         
         $this->assertIsInt($subscription->user_id);
     }
 
     public function test_medium_is_cast_to_integer(): void
     {
-        $subscription = Subscription::factory()->create(['medium' => '1']);
+        $user = User::withoutEvents(fn() => User::factory()->create());
+        $subscription = Subscription::factory()->create(['user_id' => $user->id, 'medium' => '1']);
         
         $this->assertIsInt($subscription->medium);
     }
 
     public function test_event_is_cast_to_integer(): void
     {
-        $subscription = Subscription::factory()->create(['event' => '1']);
+        $user = User::withoutEvents(fn() => User::factory()->create());
+        $subscription = Subscription::factory()->create(['user_id' => $user->id, 'event' => '1']);
         
         $this->assertIsInt($subscription->event);
     }
 
     public function test_created_at_is_cast_to_datetime(): void
     {
-        $subscription = Subscription::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
+        $subscription = Subscription::factory()->create(['user_id' => $user->id]);
         
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $subscription->created_at);
     }
 
     public function test_updated_at_is_cast_to_datetime(): void
     {
-        $subscription = Subscription::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
+        $subscription = Subscription::factory()->create(['user_id' => $user->id]);
         
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $subscription->updated_at);
     }
@@ -174,9 +179,18 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_can_query_subscriptions_by_user(): void
     {
-        $user = User::factory()->create();
-        Subscription::factory()->count(3)->create(['user_id' => $user->id]);
-        Subscription::factory()->create(); // Different user
+        // Clear any existing subscriptions first
+        Subscription::query()->delete();
+        
+        $user = User::withoutEvents(fn() => User::factory()->create());
+        // Create unique subscriptions
+        Subscription::factory()->create(['user_id' => $user->id, 'event' => 1]);
+        Subscription::factory()->create(['user_id' => $user->id, 'event' => 2]);
+        Subscription::factory()->create(['user_id' => $user->id, 'event' => 3]);
+        
+        // Create another subscription for a different user
+        $otherUser = User::withoutEvents(fn() => User::factory()->create());
+        Subscription::factory()->create(['user_id' => $otherUser->id]);
         
         $subscriptions = Subscription::where('user_id', $user->id)->get();
         
@@ -185,8 +199,16 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_can_query_subscriptions_by_medium(): void
     {
-        Subscription::factory()->count(2)->create(['medium' => Subscription::MEDIUM_EMAIL]);
-        Subscription::factory()->create(['medium' => Subscription::MEDIUM_BROWSER]);
+        // Clear any existing subscriptions first
+        Subscription::query()->delete();
+        
+        $user1 = User::withoutEvents(fn() => User::factory()->create());
+        $user2 = User::withoutEvents(fn() => User::factory()->create());
+        
+        Subscription::factory()->create(['medium' => Subscription::MEDIUM_EMAIL, 'user_id' => $user1->id, 'event' => 1]);
+        Subscription::factory()->create(['medium' => Subscription::MEDIUM_EMAIL, 'user_id' => $user1->id, 'event' => 2]);
+        
+        Subscription::factory()->create(['medium' => Subscription::MEDIUM_BROWSER, 'user_id' => $user2->id]);
         
         $emailSubscriptions = Subscription::where('medium', Subscription::MEDIUM_EMAIL)->get();
         
@@ -206,7 +228,7 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_can_query_subscriptions_by_user_and_medium(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         
         Subscription::factory()->create([
             'user_id' => $user->id,
@@ -229,7 +251,7 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_user_can_subscribe_to_new_conversations_via_email(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         
         $subscription = Subscription::create([
             'user_id' => $user->id,
@@ -243,7 +265,9 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_user_can_subscribe_to_assigned_conversations(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(function () {
+            return User::factory()->create();
+        });
         
         $subscription = Subscription::create([
             'user_id' => $user->id,
@@ -256,7 +280,7 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_user_can_subscribe_to_customer_replies(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         
         $subscription = Subscription::create([
             'user_id' => $user->id,
@@ -269,16 +293,24 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_user_can_have_multiple_subscriptions(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         
-        Subscription::factory()->count(5)->create(['user_id' => $user->id]);
+        // Create specific unique subscriptions to avoid collisions
+        $events = [1, 3, 4, 5, 7];
+        foreach ($events as $event) {
+            Subscription::factory()->create([
+                'user_id' => $user->id,
+                'event' => $event,
+                'medium' => Subscription::MEDIUM_EMAIL
+            ]);
+        }
         
         $this->assertCount(5, $user->subscriptions);
     }
 
     public function test_user_can_subscribe_via_multiple_mediums(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         
         Subscription::create([
             'user_id' => $user->id,
@@ -299,7 +331,9 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_subscription_can_be_updated(): void
     {
+        $user = User::withoutEvents(fn() => User::factory()->create());
         $subscription = Subscription::factory()->create([
+            'user_id' => $user->id,
             'medium' => Subscription::MEDIUM_EMAIL,
         ]);
         
@@ -310,7 +344,8 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_subscription_can_be_deleted(): void
     {
-        $subscription = Subscription::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
+        $subscription = Subscription::factory()->create(['user_id' => $user->id]);
         $id = $subscription->id;
         
         $subscription->delete();
@@ -320,7 +355,8 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_subscription_timestamps_are_automatically_set(): void
     {
-        $subscription = Subscription::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
+        $subscription = Subscription::factory()->create(['user_id' => $user->id]);
         
         $this->assertNotNull($subscription->created_at);
         $this->assertNotNull($subscription->updated_at);
@@ -328,8 +364,20 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_can_find_all_email_subscriptions(): void
     {
-        Subscription::factory()->count(3)->create(['medium' => Subscription::MEDIUM_EMAIL]);
-        Subscription::factory()->count(2)->create(['medium' => Subscription::MEDIUM_BROWSER]);
+        // Clear any existing subscriptions first
+        Subscription::query()->delete();
+
+        $user1 = User::withoutEvents(fn() => User::factory()->create());
+        $user2 = User::withoutEvents(fn() => User::factory()->create());
+
+        // Create unique subscriptions for user1
+        Subscription::factory()->create(['medium' => Subscription::MEDIUM_EMAIL, 'user_id' => $user1->id, 'event' => 1]);
+        Subscription::factory()->create(['medium' => Subscription::MEDIUM_EMAIL, 'user_id' => $user1->id, 'event' => 3]);
+        Subscription::factory()->create(['medium' => Subscription::MEDIUM_EMAIL, 'user_id' => $user1->id, 'event' => 4]);
+
+        // Create unique subscriptions for user2
+        Subscription::factory()->create(['medium' => Subscription::MEDIUM_BROWSER, 'user_id' => $user2->id, 'event' => 1]);
+        Subscription::factory()->create(['medium' => Subscription::MEDIUM_BROWSER, 'user_id' => $user2->id, 'event' => 3]);
         
         $emailSubs = Subscription::where('medium', Subscription::MEDIUM_EMAIL)->get();
         
@@ -338,8 +386,18 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_can_find_all_subscriptions_for_event(): void
     {
-        Subscription::factory()->count(4)->create(['event' => Subscription::EVENT_NEW_CONVERSATION]);
-        Subscription::factory()->count(2)->create(['event' => Subscription::EVENT_CUSTOMER_REPLIED_TO_MY]);
+        // We need unique users for each subscription to avoid unique constraint violations
+        // if the factory defaults to same user/medium/event combination
+        
+        $users = User::withoutEvents(fn() => User::factory()->count(6)->create());
+        
+        foreach($users->take(4) as $user) {
+            Subscription::factory()->create(['user_id' => $user->id, 'event' => Subscription::EVENT_NEW_CONVERSATION]);
+        }
+        
+        foreach($users->skip(4) as $user) {
+            Subscription::factory()->create(['user_id' => $user->id, 'event' => Subscription::EVENT_CUSTOMER_REPLIED_TO_MY]);
+        }
         
         $newConvSubs = Subscription::where('event', Subscription::EVENT_NEW_CONVERSATION)->get();
         
@@ -348,7 +406,7 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_subscription_with_all_customer_reply_events(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         
         $events = [
             Subscription::EVENT_CUSTOMER_REPLIED_TO_MY,
@@ -369,7 +427,7 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_subscription_with_all_user_reply_events(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         
         $events = [
             Subscription::EVENT_USER_REPLIED_TO_MY,
@@ -390,7 +448,7 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_subscription_can_be_created_with_mobile_medium(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(fn() => User::factory()->create());
         
         $subscription = Subscription::create([
             'user_id' => $user->id,
@@ -403,7 +461,9 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_subscription_for_followed_conversation_updated(): void
     {
-        $user = User::factory()->create();
+        $user = User::withoutEvents(function () {
+            return User::factory()->create();
+        });
         
         $subscription = Subscription::create([
             'user_id' => $user->id,
@@ -416,8 +476,8 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_multiple_users_can_have_same_subscription(): void
     {
-        $user1 = User::factory()->create();
-        $user2 = User::factory()->create();
+        $user1 = User::withoutEvents(fn() => User::factory()->create());
+        $user2 = User::withoutEvents(fn() => User::factory()->create());
         
         Subscription::create([
             'user_id' => $user1->id,
@@ -431,6 +491,12 @@ class SubscriptionTest extends UnitTestCase
             'event' => Subscription::EVENT_NEW_CONVERSATION,
         ]);
         
-        $this->assertCount(2, Subscription::all());
+        // We need to count only the subscriptions we just created, or clear before
+        // Since we can't easily clear all subscriptions without affecting other tests if parallel,
+        // but here we are in a single test method.
+        // Let's count subscriptions for these users.
+        
+        $count = Subscription::whereIn('user_id', [$user1->id, $user2->id])->count();
+        $this->assertEquals(2, $count);
     }
 }

@@ -58,6 +58,8 @@ class ModulesController extends Controller
         try {
             $module->enable();
 
+            \Illuminate\Support\Facades\Log::info("Module {$module->getName()} activated");
+
             // Run module migrations
             Artisan::call('module:migrate', ['module' => $module->getName()]);
 

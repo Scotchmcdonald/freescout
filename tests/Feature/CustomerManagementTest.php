@@ -31,7 +31,7 @@ class CustomerManagementTest extends TestCase
     public function user_can_view_list_of_customers(): void
     {
         // Arrange
-        $customer1 = Customer::factory()->create([
+        $customer1 = Customer::factory()->withoutEmail()->create([
             'first_name' => 'John',
             'last_name' => 'Doe',
         ]);
@@ -40,7 +40,7 @@ class CustomerManagementTest extends TestCase
             'email' => 'john@example.com',
         ]);
 
-        $customer2 = Customer::factory()->create([
+        $customer2 = Customer::factory()->withoutEmail()->create([
             'first_name' => 'Jane',
             'last_name' => 'Smith',
         ]);
@@ -315,7 +315,7 @@ class CustomerManagementTest extends TestCase
     public function user_can_search_customers(): void
     {
         // Arrange
-        $customer1 = Customer::factory()->create([
+        $customer1 = Customer::factory()->withoutEmail()->create([
             'first_name' => 'Alice',
             'last_name' => 'Johnson',
         ]);
@@ -324,7 +324,7 @@ class CustomerManagementTest extends TestCase
             'email' => 'alice@example.com',
         ]);
 
-        $customer2 = Customer::factory()->create([
+        $customer2 = Customer::factory()->withoutEmail()->create([
             'first_name' => 'Bob',
             'last_name' => 'Smith',
         ]);

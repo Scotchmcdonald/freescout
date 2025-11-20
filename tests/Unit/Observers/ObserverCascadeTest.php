@@ -27,8 +27,8 @@ class ObserverCascadeTest extends UnitTestCase
         // Delete conversation
         $conversation->delete();
         
-        // Thread should be deleted by cascade
-        $this->assertDatabaseMissing('threads', [
+        // Thread should be deleted by cascade (Soft Delete)
+        $this->assertSoftDeleted('threads', [
             'id' => $threadId,
         ]);
     }
@@ -95,8 +95,8 @@ class ObserverCascadeTest extends UnitTestCase
         // Delete customer
         $customer->delete();
         
-        // Conversation should be deleted
-        $this->assertDatabaseMissing('conversations', [
+        // Conversation should be deleted (Soft Delete)
+        $this->assertSoftDeleted('conversations', [
             'id' => $conversationId,
         ]);
     }
@@ -187,7 +187,7 @@ class ObserverCascadeTest extends UnitTestCase
         // Delete mailbox
         $mailbox->delete();
         
-        // All conversations should be deleted
+        // All conversations should be deleted (Hard Delete due to DB cascade)
         $this->assertDatabaseMissing('conversations', ['id' => $conv1Id]);
         $this->assertDatabaseMissing('conversations', ['id' => $conv2Id]);
     }

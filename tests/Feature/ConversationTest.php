@@ -201,7 +201,8 @@ class ConversationTest extends TestCase
 
     public function test_user_cannot_view_conversation_in_unauthorized_mailbox(): void
     {
-        $this->actingAs($this->user);
+        $regularUser = User::factory()->create(['role' => User::ROLE_USER]);
+        $this->actingAs($regularUser);
 
         $otherMailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()

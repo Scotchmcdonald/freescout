@@ -18,7 +18,7 @@ class EmailTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function email_belongs_to_customer(): void
+    public function test_email_belongs_to_customer(): void
     {
         $email = Email::factory()->create();
 
@@ -26,21 +26,21 @@ class EmailTest extends TestCase
         $this->assertInstanceOf(Customer::class, $email->customer);
     }
 
-    public function email_can_be_primary_type(): void
+    public function test_email_can_be_primary_type(): void
     {
         $email = Email::factory()->create(['type' => 1]);
 
         $this->assertEquals(1, $email->type);
     }
 
-    public function email_can_be_work_type(): void
+    public function test_email_can_be_work_type(): void
     {
         $email = Email::factory()->create(['type' => 2]);
 
         $this->assertEquals(2, $email->type);
     }
 
-    public function email_can_be_other_type(): void
+    public function test_email_can_be_other_type(): void
     {
         $email = Email::factory()->create(['type' => 3]);
 
@@ -104,7 +104,7 @@ class EmailTest extends TestCase
         $this->assertEquals('user@mail.example.com', $result);
     }
 
-    public function email_has_required_fillable_fields(): void
+    public function test_email_has_required_fillable_fields(): void
     {
         $email = new Email();
         $fillable = $email->getFillable();
@@ -114,7 +114,7 @@ class EmailTest extends TestCase
         $this->assertContains('customer_id', $fillable);
     }
 
-    public function email_can_be_created_with_factory(): void
+    public function test_email_can_be_created_with_factory(): void
     {
         $email = Email::factory()->create([
             'email' => 'factory@example.com',
@@ -126,7 +126,7 @@ class EmailTest extends TestCase
         ]);
     }
 
-    public function email_has_timestamps(): void
+    public function test_email_has_timestamps(): void
     {
         $email = Email::factory()->create();
 
@@ -134,7 +134,7 @@ class EmailTest extends TestCase
         $this->assertNotNull($email->updated_at);
     }
 
-    public function customer_can_have_multiple_emails(): void
+    public function test_customer_can_have_multiple_emails(): void
     {
         $customer = Customer::factory()->create();
         
@@ -153,7 +153,7 @@ class EmailTest extends TestCase
         $this->assertCount(3, $customer->emails); // 1 auto-created + 2 factory
     }
 
-    public function email_address_must_be_unique_per_customer(): void
+    public function test_email_address_must_be_unique_per_customer(): void
     {
         $customer = Customer::factory()->create();
         

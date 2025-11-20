@@ -11,11 +11,6 @@ abstract class FeatureTestCase extends TestCase
 
     protected function tearDown(): void
     {
-        // Force rollback of ALL pending transactions
-        while (DB::transactionLevel() > 0) {
-            DB::rollBack();
-        }
-        
         parent::tearDown();
     }
 }

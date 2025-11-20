@@ -280,7 +280,7 @@ class CustomerModelTest extends UnitTestCase
     public function customer_primary_email_attribute_returns_primary_email(): void
     {
         // Arrange
-        $customer = Customer::factory()->create();
+        $customer = Customer::factory()->withoutEmail()->create();
         Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'primary@example.com',
@@ -303,7 +303,7 @@ class CustomerModelTest extends UnitTestCase
     public function customer_primary_email_attribute_returns_null_when_no_primary(): void
     {
         // Arrange
-        $customer = Customer::factory()->create();
+        $customer = Customer::factory()->withoutEmail()->create();
         Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'secondary@example.com',

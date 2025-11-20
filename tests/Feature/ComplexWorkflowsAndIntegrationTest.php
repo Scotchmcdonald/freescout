@@ -33,11 +33,12 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         
         $this->actingAs($user);
         
-        $response = $this->post(route('conversations.create', ['mailbox_id' => $mailbox->id]), [
+        $response = $this->post(route('conversations.store', $mailbox), [
             'subject' => 'Test Conversation',
             'customer_id' => $customer->id,
             'body' => 'This is a test message',
-            'type' => Thread::TYPE_MESSAGE
+            'type' => Thread::TYPE_MESSAGE,
+            'to' => ['test@example.com'], // Required field
         ]);
         
         $response->assertStatus(302);
@@ -82,7 +83,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         
         $this->actingAs($user);
         
-        $response = $this->post(route('conversations.update', $conversation->id), [
+        $response = $this->patch(route('conversations.update', $conversation->id), [
             'status' => Conversation::STATUS_CLOSED
         ]);
         
@@ -106,7 +107,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         
         $this->actingAs($admin);
         
-        $response = $this->post(route('conversations.update', $conversation->id), [
+        $response = $this->patch(route('conversations.update', $conversation->id), [
             'user_id' => $user->id
         ]);
         
@@ -177,7 +178,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         
         $this->actingAs($user);
         
-        $response = $this->post(route('conversations.move', $conversation->id), [
+        $response = $this->patch(route('conversations.update', $conversation->id), [
             'folder_id' => $folder2->id
         ]);
         
@@ -579,7 +580,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->actingAs($user);
         
         $response = $this->get(route('conversations.index', [
-            'mailbox_id' => $mailbox->id,
+            'mailbox' => $mailbox->id,
             'status' => Conversation::STATUS_ACTIVE
         ]));
         
@@ -606,7 +607,7 @@ class ComplexWorkflowsAndIntegrationTest extends FeatureTestCase
         $this->actingAs($user1);
         
         $response = $this->get(route('conversations.index', [
-            'mailbox_id' => $mailbox->id,
+            'mailbox' => $mailbox->id,
             'user_id' => $user1->id
         ]));
         

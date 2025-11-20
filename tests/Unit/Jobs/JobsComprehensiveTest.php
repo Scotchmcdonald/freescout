@@ -209,9 +209,7 @@ class JobsComprehensiveTest extends UnitTestCase
     {
         Queue::fake();
 
-        $user = User::factory()->create();
-
-        SendAlert::dispatch('Test Subject', 'Test message', $user);
+        SendAlert::dispatch('Test message', 'Test Subject');
 
         Queue::assertPushed(SendAlert::class);
     }
@@ -220,9 +218,14 @@ class JobsComprehensiveTest extends UnitTestCase
     {
         Mail::fake();
 
-        $user = User::factory()->create(['email' => 'user@example.com']);
+        $user = User::factory()->create([
+            'email' => 'user@example.com',
+            'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
+            'invite_state' => User::INVITE_STATE_ACTIVATED
+        ]);
 
-        $job = new SendAlert('Test Subject', 'Test message', $user);
+        $job = new SendAlert('Test message', 'Test Subject');
         $job->handle();
 
         Mail::assertSent(\App\Mail\Alert::class, function ($mail) use ($user) {
@@ -234,15 +237,20 @@ class JobsComprehensiveTest extends UnitTestCase
     {
         Mail::fake();
 
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
+            'invite_state' => User::INVITE_STATE_ACTIVATED
+        ]);
         $subject = 'Important Alert';
         $message = 'This is an important message';
 
-        $job = new SendAlert($subject, $message, $user);
+        $job = new SendAlert($message, $subject);
         $job->handle();
 
+        // Subject check needs to account for prefix and domain
         Mail::assertSent(\App\Mail\Alert::class, function ($mail) use ($subject) {
-            return $mail->subject === $subject;
+            return str_contains($mail->envelope()->subject, $subject);
         });
     }
 
@@ -282,8 +290,9 @@ class JobsComprehensiveTest extends UnitTestCase
 
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $user = User::factory()->create();
 
-        SendNotificationToUsers::dispatch($conversation, $thread);
+        SendNotificationToUsers::dispatch(collect([$user]), $conversation, collect([$thread]));
 
         Queue::assertPushed(SendNotificationToUsers::class);
     }
@@ -299,7 +308,7 @@ class JobsComprehensiveTest extends UnitTestCase
         $user = User::factory()->create();
         $conversation->followers()->attach($user->id);
 
-        $job = new SendNotificationToUsers($conversation, $thread);
+        $job = new SendNotificationToUsers(collect([$user]), $conversation, collect([$thread]));
         $job->handle();
 
         Mail::assertSent(\App\Mail\UserNotification::class);

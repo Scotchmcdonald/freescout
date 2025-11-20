@@ -113,6 +113,7 @@ class SendNotificationToUsersTest extends UnitTestCase
             'conversation_id' => $conversation->id,
             'type' => Thread::TYPE_MESSAGE,
             'state' => Thread::STATE_PUBLISHED,
+            'created_by_user_id' => User::factory()->create()->id,
         ]);
 
         // Create users - one active, one deleted
@@ -153,6 +154,7 @@ class SendNotificationToUsersTest extends UnitTestCase
             'type' => Thread::TYPE_MESSAGE,
             'state' => Thread::STATE_PUBLISHED,
             'user_id' => $author->id,
+            'created_by_user_id' => $author->id,
         ]);
 
         // Include both author and other user
@@ -187,6 +189,7 @@ class SendNotificationToUsersTest extends UnitTestCase
             'conversation_id' => $conversation->id,
             'type' => Thread::TYPE_MESSAGE,
             'state' => Thread::STATE_PUBLISHED,
+            'created_by_user_id' => User::factory()->create()->id,
         ]);
 
         // Create multiple active users
@@ -467,14 +470,51 @@ class SendNotificationToUsersTest extends UnitTestCase
     #[Test]
     public function job_creates_send_log_on_failure(): void
     {
-        // Laravel 11: Mail::failures() removed - exceptions are thrown instead
-        $this->markTestIncomplete(
-            'REQUIRES REFACTORING: Laravel 11 removed Mail::failures() in favor of exception-based error handling. '.
-            'Test needs to be updated to mock Mail throwing an exception and verify send_log entry with STATUS_SEND_ERROR. '.
-            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        Mail::fake();
+        Log::spy();
+
+        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        $user = User::factory()->create(['email' => 'user@example.com', 'status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+        ]);
+
+        // Mock Log::info to throw exception to simulate failure in the try block
+        Log::shouldReceive('info')
+            ->with('Sending notification to user', \Mockery::type('array'))
+            ->once()
+            ->andThrow(new \Exception('Simulated mail failure'));
+
+        // We also expect the error log
+        Log::shouldReceive('error')
+            ->with('Error sending notification to user', \Mockery::type('array'))
+            ->once();
+
+        $job = new SendNotificationToUsers(
+            collect([$user]),
+            $conversation,
+            collect([$thread])
         );
-        
-        // TODO: Mock Mail to throw exception and verify send_log with STATUS_SEND_ERROR
+
+        // The job rethrows the exception for retry, so we expect it
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Simulated mail failure');
+
+        try {
+            $job->handle();
+        } finally {
+            // Verify log was created even if exception was thrown
+            $this->assertDatabaseHas('send_logs', [
+                'thread_id' => $thread->id,
+                'email' => $user->email,
+                'mail_type' => SendLog::MAIL_TYPE_USER_NOTIFICATION,
+                'status' => SendLog::STATUS_SEND_ERROR,
+                'user_id' => $user->id,
+                'status_message' => 'Simulated mail failure',
+            ]);
+        }
     }
 
     #[Test]
@@ -588,15 +628,26 @@ class SendNotificationToUsersTest extends UnitTestCase
     #[Test]
     public function job_logs_error_when_mailbox_missing(): void
     {
-        $this->markTestIncomplete(
-            'DESIGN ISSUE: Foreign key constraint prevents creating conversation with null mailbox_id. '.
-            'This test requires either: (1) temporarily disabling FK constraints, '.
-            '(2) using soft-deleted mailboxes, or (3) reconsidering if this scenario is realistic. '.
-            'See docs/INCOMPLETE_TESTS_REVIEW.md'
+        Log::spy();
+
+        $conversation = \Mockery::mock(Conversation::class)->makePartial();
+        $conversation->id = 1;
+        $conversation->shouldReceive('getAttribute')->with('mailbox')->andReturn(null);
+        $conversation->shouldReceive('getAttribute')->with('id')->andReturn(1);
+
+        $user = User::factory()->make();
+        $thread = Thread::factory()->make();
+
+        $job = new SendNotificationToUsers(
+            collect([$user]),
+            $conversation,
+            collect([$thread])
         );
-        
-        // Note: This test would require temporarily disabling FK constraints
-        // or modifying the job to handle deleted mailboxes
+        $job->handle();
+
+        Log::shouldHaveReceived('error')
+            ->with('Mailbox not found for conversation', ['conversation_id' => 1])
+            ->once();
     }
 
     #[Test]

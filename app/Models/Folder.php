@@ -30,10 +30,11 @@ class Folder extends Model
 
     // Folder types
     public const TYPE_INBOX = 1;
-    public const TYPE_SENT = 2;
+    public const TYPE_UNASSIGNED = 2;
     public const TYPE_DRAFTS = 3;
     public const TYPE_SPAM = 4;
     public const TYPE_TRASH = 5;
+    public const TYPE_SENT = 6;
     public const TYPE_ASSIGNED = 20;
     public const TYPE_MINE = 25;
     public const TYPE_STARRED = 30;

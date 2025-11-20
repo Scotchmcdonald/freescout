@@ -22,8 +22,8 @@ class CustomerObserverTest extends TestCase
 
         $customer->delete();
 
-        $this->assertDatabaseMissing('conversations', ['id' => $conversation1->id]);
-        $this->assertDatabaseMissing('conversations', ['id' => $conversation2->id]);
+        $this->assertSoftDeleted('conversations', ['id' => $conversation1->id]);
+        $this->assertSoftDeleted('conversations', ['id' => $conversation2->id]);
     }
 
     public function test_it_deletes_email_records_when_customer_deleted()
@@ -46,7 +46,7 @@ class CustomerObserverTest extends TestCase
 
         $customer->delete();
 
-        $this->assertDatabaseMissing('conversations', ['id' => $conversation->id]);
+        $this->assertSoftDeleted('conversations', ['id' => $conversation->id]);
         $this->assertDatabaseMissing('emails', ['id' => $email->id]);
     }
 
@@ -60,7 +60,7 @@ class CustomerObserverTest extends TestCase
 
         $customer1->delete();
 
-        $this->assertDatabaseMissing('conversations', ['id' => $conversation1->id]);
+        $this->assertSoftDeleted('conversations', ['id' => $conversation1->id]);
         $this->assertDatabaseHas('conversations', ['id' => $conversation2->id]);
     }
 

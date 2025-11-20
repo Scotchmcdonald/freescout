@@ -1026,7 +1026,7 @@ class ModelsListenersTest extends UnitTestCase
 
     public function test_customer_get_main_email_returns_primary_email(): void
     {
-        $customer = Customer::factory()->create();
+        $customer = Customer::factory()->withoutEmail()->create();
         
         $primaryEmail = Email::factory()->create([
             'customer_id' => $customer->id,
@@ -1040,7 +1040,7 @@ class ModelsListenersTest extends UnitTestCase
 
     public function test_customer_primary_email_attribute(): void
     {
-        $customer = Customer::factory()->create();
+        $customer = Customer::factory()->withoutEmail()->create();
         
         $primaryEmail = Email::factory()->create([
             'customer_id' => $customer->id,

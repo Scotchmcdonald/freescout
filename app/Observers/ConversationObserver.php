@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
+use App\Events\ConversationStatusChanged;
+use App\Events\ConversationUserChanged;
 use App\Models\Conversation;
+use App\Models\Folder;
 
 class ConversationObserver
 {
@@ -43,12 +46,41 @@ class ConversationObserver
      */
     public function updated(Conversation $conversation): void
     {
-        // Update folder counters if status changed
-        if ($conversation->wasChanged('status')) {
-            // Update old folder counters
+        $statusChanged = $conversation->wasChanged('status');
+        $folderChanged = $conversation->wasChanged('folder_id');
+
+        // Handle status changes
+        if ($statusChanged) {
+            // Auto-move to appropriate folder
+            $conversation->updateFolder();
+            
+            ConversationStatusChanged::dispatch($conversation);
+        }
+
+        // Handle folder changes
+        if ($folderChanged) {
+            // Update old folder
+            $originalFolderId = $conversation->getOriginal('folder_id');
+            if ($originalFolderId) {
+                $oldFolder = \App\Models\Folder::find($originalFolderId);
+                if ($oldFolder) {
+                    $this->updateFolderCounters($oldFolder);
+                }
+            }
+            
+            // Update new folder
             if ($conversation->folder) {
                 $this->updateFolderCounters($conversation->folder);
             }
+        } elseif ($statusChanged) {
+            // If status changed but folder didn't, we still need to update counters
+            if ($conversation->folder) {
+                $this->updateFolderCounters($conversation->folder);
+            }
+        }
+
+        if ($conversation->wasChanged('user_id') && $conversation->user) {
+            ConversationUserChanged::dispatch($conversation, $conversation->user);
         }
     }
 
@@ -58,7 +90,10 @@ class ConversationObserver
     public function deleting(Conversation $conversation): void
     {
         // Delete related records
-        $conversation->threads()->delete();
+        // Use each() to ensure model events are fired for threads (e.g. for attachments)
+        $conversation->threads->each(function ($thread) {
+            $thread->delete();
+        });
         $conversation->followers()->detach();
 
         // Update folder counters
@@ -73,16 +108,15 @@ class ConversationObserver
     /**
      * Update folder counters by recounting conversations.
      */
-    private function updateFolderCounters($folder): void
+    protected function updateFolderCounters(Folder $folder): void
     {
-        $total = $folder->conversations()->count();
-        $active = $folder->conversations()
-            ->where('status', Conversation::STATUS_ACTIVE)
-            ->count();
-
-        $folder->update([
-            'total_count' => $total,
-            'active_count' => $active,
-        ]);
+        // Refresh folder to ensure we have the latest state from DB before updating
+        // This prevents issues where the model instance has stale data (e.g. from increments)
+        // and Eloquent thinks no changes are needed.
+        $folder->refresh();
+        
+        $folder->total_count = $folder->conversations()->count();
+        $folder->active_count = $folder->conversations()->where('status', Conversation::STATUS_ACTIVE)->count();
+        $folder->save();
     }
 }

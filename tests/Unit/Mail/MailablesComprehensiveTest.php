@@ -151,7 +151,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $mailable = new Alert('Message', 'Test Alert');
         $envelope = $mailable->envelope();
         
-        $this->assertEquals('Test Alert', $envelope->subject);
+        $this->assertStringContainsString('Test Alert', $envelope->subject);
     }
 
     public function test_alert_can_be_sent(): void
@@ -219,7 +219,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $envelope = $mailable->envelope();
         
         $this->assertNotEmpty($envelope->subject);
-        $this->assertStringContainsString('Invite', $envelope->subject);
+        $this->assertStringContainsString('Welcome', $envelope->subject);
     }
 
     public function test_user_invite_can_be_sent(): void
@@ -237,14 +237,16 @@ class MailablesComprehensiveTest extends UnitTestCase
 
     public function test_test_mailable_can_be_created(): void
     {
-        $mailable = new TestMailable();
+        $mailbox = Mailbox::factory()->create();
+        $mailable = new TestMailable($mailbox);
         
         $this->assertInstanceOf(TestMailable::class, $mailable);
     }
 
     public function test_test_mailable_has_subject(): void
     {
-        $mailable = new TestMailable();
+        $mailbox = Mailbox::factory()->create();
+        $mailable = new TestMailable($mailbox);
         $envelope = $mailable->envelope();
         
         $this->assertNotEmpty($envelope->subject);
@@ -254,7 +256,8 @@ class MailablesComprehensiveTest extends UnitTestCase
     {
         Mail::fake();
         
-        Mail::to('test@example.com')->send(new TestMailable());
+        $mailbox = Mailbox::factory()->create();
+        Mail::to('test@example.com')->send(new TestMailable($mailbox));
         
         Mail::assertSent(TestMailable::class);
     }
@@ -264,24 +267,21 @@ class MailablesComprehensiveTest extends UnitTestCase
     public function test_user_email_reply_error_can_be_created(): void
     {
         $user = User::factory()->create();
-        $errorMessage = 'Email error occurred';
         
-        $mailable = new UserEmailReplyError($user, $errorMessage);
+        $mailable = new UserEmailReplyError($user);
         
         $this->assertInstanceOf(UserEmailReplyError::class, $mailable);
         $this->assertEquals($user->id, $mailable->user->id);
-        $this->assertEquals($errorMessage, $mailable->error_message);
     }
 
     public function test_user_email_reply_error_has_subject(): void
     {
         $user = User::factory()->create();
         
-        $mailable = new UserEmailReplyError($user, 'Error');
+        $mailable = new UserEmailReplyError($user);
         $envelope = $mailable->envelope();
         
         $this->assertNotEmpty($envelope->subject);
-        $this->assertStringContainsString('Error', $envelope->subject);
     }
 
     public function test_user_email_reply_error_can_be_sent(): void
@@ -290,7 +290,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         
         $user = User::factory()->create();
         
-        Mail::to($user->email)->send(new UserEmailReplyError($user, 'Error message'));
+        Mail::to($user->email)->send(new UserEmailReplyError($user));
         
         Mail::assertSent(UserEmailReplyError::class);
     }
@@ -302,8 +302,9 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $threads = Thread::factory()->count(2)->create();
         $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
         
-        $mailable = new UserNotification($conversation, $threads, $user);
+        $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         
         $this->assertInstanceOf(UserNotification::class, $mailable);
         $this->assertEquals($conversation->id, $mailable->conversation->id);
@@ -316,8 +317,9 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create(['subject' => 'Test Notification']);
         $threads = Thread::factory()->count(1)->create();
         $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
         
-        $mailable = new UserNotification($conversation, $threads, $user);
+        $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         $envelope = $mailable->envelope();
         
         $this->assertStringContainsString('Test Notification', $envelope->subject);
@@ -330,8 +332,9 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $threads = Thread::factory()->count(1)->create();
         $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
         
-        Mail::to($user->email)->send(new UserNotification($conversation, $threads, $user));
+        Mail::to($user->email)->send(new UserNotification($user, $conversation, $threads, [], [], $mailbox));
         
         Mail::assertSent(UserNotification::class);
     }
@@ -341,8 +344,9 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $threads = Thread::factory()->count(5)->create();
         $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
         
-        $mailable = new UserNotification($conversation, $threads, $user);
+        $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         
         $this->assertCount(5, $mailable->threads);
     }
@@ -437,8 +441,9 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $threads = collect([]);
         $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
         
-        $mailable = new UserNotification($conversation, $threads, $user);
+        $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         
         $this->assertCount(0, $mailable->threads);
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -17,9 +18,9 @@ class UserEmailReplyError extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
-    {
-    }
+    public function __construct(
+        public User $user
+    ) {}
 
     /**
      * Get the message envelope.

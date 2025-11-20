@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Conversation;
 use App\Models\Thread;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -19,7 +20,8 @@ class ConversationReplyNotification extends Mailable
      */
     public function __construct(
         public Conversation $conversation,
-        public Thread $thread
+        public Thread $thread,
+        public ?User $user = null
     ) {}
 
     /**

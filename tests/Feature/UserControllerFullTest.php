@@ -118,6 +118,7 @@ class UserControllerFullTest extends FeatureTestCase
             'email' => $email,
             'password' => 'password123',
             'role' => User::ROLE_USER,
+            'status' => User::STATUS_ACTIVE,
         ]);
         
         $response->assertRedirect();
@@ -199,14 +200,18 @@ class UserControllerFullTest extends FeatureTestCase
         
         $response = $this->actingAs($admin)->post(route('users.store'), [
             'first_name' => 'Test',
+            'last_name' => 'User',
             'email' => $email,
             'password' => $password,
             'role' => User::ROLE_USER,
+            'status' => User::STATUS_ACTIVE,
         ]);
         
+        $response->assertRedirect();
+        
         $user = User::where('email', $email)->first();
-        $this->assertNotNull($user);
-        $this->assertTrue(Hash::check($password, $user->password));
+        $this->assertNotNull($user, 'User was not created in the database.');
+        $this->assertTrue(Hash::check($password, $user->password), 'Password was not hashed correctly.');
     }
 
     // ===== SHOW TESTS =====
@@ -303,6 +308,8 @@ class UserControllerFullTest extends FeatureTestCase
             'first_name' => 'Updated',
             'last_name' => $user->last_name,
             'email' => $user->email,
+            'role' => $user->role,
+            'status' => $user->status,
         ]);
         
         $response->assertRedirect();
@@ -317,6 +324,8 @@ class UserControllerFullTest extends FeatureTestCase
             'first_name' => 'Updated',
             'last_name' => $user->last_name,
             'email' => $user->email,
+            'role' => $user->role,
+            'status' => $user->status,
         ]);
         
         $response->assertRedirect();
@@ -386,9 +395,11 @@ class UserControllerFullTest extends FeatureTestCase
         
         $response = $this->actingAs($admin)->post(route('users.store'), [
             'first_name' => 'Admin',
+            'last_name' => 'User',
             'email' => $email,
             'password' => 'password',
             'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
         ]);
         
         $response->assertRedirect();
@@ -430,6 +441,7 @@ class UserControllerFullTest extends FeatureTestCase
             'email' => $email,
             'password' => 'password',
             'role' => User::ROLE_USER,
+            'status' => User::STATUS_ACTIVE,
         ]);
         
         $response->assertRedirect();
@@ -445,6 +457,8 @@ class UserControllerFullTest extends FeatureTestCase
             'first_name' => $user->first_name,
             'email' => $user->email,
             'password' => 'newpassword123',
+            'role' => $user->role,
+            'status' => $user->status,
         ]);
         
         $response->assertRedirect();

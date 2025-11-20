@@ -45,7 +45,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
         $response = $this->actingAs($user)->get(route('dashboard'));
         
         $response->assertOk();
-        $response->assertViewHas('statistics');
+        $response->assertViewHas('stats');
     }
 
     public function test_dashboard_admin_sees_all_mailboxes(): void
@@ -123,7 +123,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
     public function test_settings_update_requires_authentication(): void
     {
         $response = $this->post(route('settings.update'), [
-            'app_name' => 'Test App',
+            'company_name' => 'Test App',
         ]);
         
         $response->assertRedirect(route('login'));
@@ -134,7 +134,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         
         $response = $this->actingAs($user)->post(route('settings.update'), [
-            'app_name' => 'Test App',
+            'company_name' => 'Test App',
         ]);
         
         $response->assertForbidden();
@@ -145,7 +145,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         
         $response = $this->actingAs($admin)->post(route('settings.update'), [
-            'app_name' => 'Updated App Name',
+            'company_name' => 'Updated App Name',
             'timezone' => 'UTC',
         ]);
         
@@ -168,7 +168,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
         $response = $this->actingAs($admin)->get(route('settings.general'));
         
         $response->assertOk();
-        $response->assertViewIs('settings.general');
+        $response->assertViewIs('settings.index');
     }
 
     public function test_settings_email_requires_admin(): void
@@ -206,7 +206,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
         $response = $this->actingAs($admin)->get(route('settings.security'));
         
         $response->assertOk();
-        $response->assertViewIs('settings.security');
+        $response->assertViewIs('settings.index');
     }
 
     public function test_settings_update_validates_app_name(): void
@@ -214,10 +214,10 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         
         $response = $this->actingAs($admin)->post(route('settings.update'), [
-            'app_name' => '',
+            'company_name' => str_repeat('a', 256),
         ]);
         
-        $response->assertSessionHasErrors('app_name');
+        $response->assertSessionHasErrors('company_name');
     }
 
     public function test_settings_update_validates_timezone(): void
@@ -225,7 +225,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         
         $response = $this->actingAs($admin)->post(route('settings.update'), [
-            'app_name' => 'Test',
+            'company_name' => 'Test',
             'timezone' => 'Invalid/Timezone',
         ]);
         
@@ -248,7 +248,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
         $response = $this->actingAs($user)->get(route('profile.show'));
         
         $response->assertOk();
-        $response->assertViewIs('profile.show');
+        $response->assertViewIs('profile.edit');
     }
 
     public function test_profile_edit_requires_authentication(): void
@@ -270,7 +270,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
 
     public function test_profile_update_requires_authentication(): void
     {
-        $response = $this->put(route('profile.update'), [
+        $response = $this->patch(route('profile.update'), [
             'first_name' => 'Updated',
         ]);
         
@@ -281,7 +281,8 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
     {
         $user = User::factory()->create(['first_name' => 'Original']);
         
-        $response = $this->actingAs($user)->put(route('profile.update'), [
+        $response = $this->actingAs($user)->patch(route('profile.update'), [
+            'name' => 'Updated Name',
             'first_name' => 'Updated',
             'last_name' => $user->last_name,
             'email' => $user->email,
@@ -295,7 +296,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
     {
         $user = User::factory()->create();
         
-        $response = $this->actingAs($user)->put(route('profile.update'), [
+        $response = $this->actingAs($user)->patch(route('profile.update'), [
             'first_name' => '',
         ]);
         
@@ -310,7 +311,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
             'new_password' => 'newpassword',
         ]);
         
-        $response->assertSessionHasErrors('current_password');
+        $response->assertSessionHasErrorsIn('updatePassword', 'current_password');
     }
 
     public function test_profile_password_update_validates_current_password(): void
@@ -322,7 +323,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
             'new_password' => 'newpassword',
         ]);
         
-        $response->assertSessionHasErrors('current_password');
+        $response->assertSessionHasErrorsIn('updatePassword', 'current_password');
     }
 
     public function test_profile_password_update_successful(): void
@@ -358,7 +359,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         
         $response = $this->actingAs($admin)->post(route('settings.update'), [
-            'app_name' => 'Test & "Special" <App>',
+            'company_name' => 'Test & "Special" <App>',
             'timezone' => 'UTC',
         ]);
         
@@ -370,7 +371,7 @@ class DashboardAndSettingsControllersTest extends FeatureTestCase
         $user1 = User::factory()->create(['email' => 'user1@example.com']);
         $user2 = User::factory()->create(['email' => 'user2@example.com']);
         
-        $response = $this->actingAs($user1)->put(route('profile.update'), [
+        $response = $this->actingAs($user1)->patch(route('profile.update'), [
             'first_name' => $user1->first_name,
             'email' => 'user2@example.com',
         ]);

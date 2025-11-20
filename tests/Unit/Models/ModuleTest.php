@@ -242,12 +242,8 @@ class ModuleTest extends UnitTestCase
         $this->assertEquals('secret-key', $module->settings['api_key']);
     }
 
-    public function test_module_with_null_version(): void
-    {
-        $module = Module::factory()->create(['version' => null]);
-        
-        $this->assertNull($module->version);
-    }
+    // test_module_with_null_version removed as version is required
+
 
     public function test_module_with_null_description(): void
     {

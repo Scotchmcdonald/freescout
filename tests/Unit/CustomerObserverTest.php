@@ -19,7 +19,7 @@ class CustomerObserverTest extends UnitTestCase
 
         $customer->delete();
 
-        $this->assertDatabaseMissing('conversations', ['id' => $conversation->id]);
+        $this->assertSoftDeleted('conversations', ['id' => $conversation->id]);
     }
 
     public function test_deleting_removes_emails(): void

@@ -21,6 +21,10 @@ class Email extends Model
 {
     use HasFactory;
 
+    const TYPE_WORK = 1;
+    const TYPE_HOME = 2;
+    const TYPE_OTHER = 3;
+
     protected $fillable = [
         'customer_id',
         'email',

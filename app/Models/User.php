@@ -262,4 +262,33 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return route('user_setup', ['hash' => $this->invite_hash]);
     }
+
+    /**
+     * Format date according to user's timezone.
+     *
+     * @param  \DateTime|string|null  $date
+     * @param  string  $format
+     * @param  User|null  $user
+     * @return string
+     */
+    public static function dateFormat($date, $format = 'M j, Y', $user = null): string
+    {
+        if (! $date) {
+            return '';
+        }
+
+        if (! $date instanceof \DateTimeInterface) {
+            try {
+                $date = \Carbon\Carbon::parse($date);
+            } catch (\Exception $e) {
+                return '';
+            }
+        }
+
+        if ($user && $user->timezone) {
+            $date->setTimezone($user->timezone);
+        }
+
+        return $date->format($format);
+    }
 }

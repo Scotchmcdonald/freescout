@@ -54,7 +54,7 @@ class SendEmailReplyError implements ShouldQueue
             ]);
 
             Mail::to([['name' => '', 'email' => $this->from]])
-                ->send(new \App\Mail\UserEmailReplyError());
+                ->send(new \App\Mail\UserEmailReplyError($this->user));
         } catch (\Exception $e) {
             Log::error('Error sending email reply error notification', [
                 'from' => $this->from,

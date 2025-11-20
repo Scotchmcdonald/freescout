@@ -23,7 +23,7 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $result);
     }
 
-    public function getMessageIdHash_is_deterministic(): void
+    public function test_getMessageIdHash_is_deterministic(): void
     {
         $hash1 = MailHelper::getMessageIdHash(123);
         $hash2 = MailHelper::getMessageIdHash(123);
@@ -31,7 +31,7 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertEquals($hash1, $hash2);
     }
 
-    public function getMessageIdHash_different_ids_produce_different_hashes(): void
+    public function test_getMessageIdHash_different_ids_produce_different_hashes(): void
     {
         $hash1 = MailHelper::getMessageIdHash(123);
         $hash2 = MailHelper::getMessageIdHash(456);
@@ -39,7 +39,7 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertNotEquals($hash1, $hash2);
     }
 
-    public function getMessageIdHash_with_zero_id(): void
+    public function test_getMessageIdHash_with_zero_id(): void
     {
         $result = MailHelper::getMessageIdHash(0);
         
@@ -47,7 +47,7 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertEquals(32, strlen($result));
     }
 
-    public function getMessageIdHash_with_large_id(): void
+    public function test_getMessageIdHash_with_large_id(): void
     {
         $result = MailHelper::getMessageIdHash(999999999);
         
@@ -55,7 +55,7 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertEquals(32, strlen($result));
     }
 
-    public function getMessageIdHash_uses_app_key_in_hash(): void
+    public function test_getMessageIdHash_uses_app_key_in_hash(): void
     {
         // If app key changes, hash should change for same ID
         // This test documents that behavior exists
@@ -69,7 +69,7 @@ class MailHelperGetMessageIdHashTest extends UnitTestCase
         $this->assertNotEmpty($hash1);
     }
 
-    public function getMessageIdHash_sequential_ids_have_different_hashes(): void
+    public function test_getMessageIdHash_sequential_ids_have_different_hashes(): void
     {
         $hashes = [];
         for ($i = 1; $i <= 10; $i++) {

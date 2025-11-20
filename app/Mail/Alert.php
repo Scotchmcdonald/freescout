@@ -14,13 +14,19 @@ class Alert extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $alert_message;
+    public $alert_subject;
+
     /**
      * Create a new message instance.
      */
     public function __construct(
         public string $text,
         public string $title = ''
-    ) {}
+    ) {
+        $this->alert_message = $text;
+        $this->alert_subject = $title;
+    }
 
     /**
      * Get the message envelope.

@@ -22,7 +22,7 @@ class ConversationControllerFullTest extends FeatureTestCase
 
     public function test_index_requires_authentication(): void
     {
-        $response = $this->get(route('conversations.index'));
+        $response = $this->get(route('conversations.index', ['mailbox' => 1]));
         
         $response->assertRedirect(route('login'));
     }
@@ -33,7 +33,7 @@ class ConversationControllerFullTest extends FeatureTestCase
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($user->id);
         
-        $response = $this->actingAs($user)->get(route('conversations.index'));
+        $response = $this->actingAs($user)->get(route('conversations.index', ['mailbox' => $mailbox->id]));
         
         $response->assertOk();
         $response->assertViewIs('conversations.index');
@@ -99,7 +99,7 @@ class ConversationControllerFullTest extends FeatureTestCase
 
     public function test_create_requires_authentication(): void
     {
-        $response = $this->get(route('conversations.create'));
+        $response = $this->get(route('conversations.create', ['mailbox_id' => 1]));
         
         $response->assertRedirect(route('login'));
     }
@@ -110,7 +110,7 @@ class ConversationControllerFullTest extends FeatureTestCase
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($user->id);
         
-        $response = $this->actingAs($user)->get(route('conversations.create'));
+        $response = $this->actingAs($user)->get(route('conversations.create', ['mailbox_id' => $mailbox->id]));
         
         $response->assertOk();
         $response->assertViewIs('conversations.create');
@@ -120,7 +120,7 @@ class ConversationControllerFullTest extends FeatureTestCase
 
     public function test_store_requires_authentication(): void
     {
-        $response = $this->post(route('conversations.store'), [
+        $response = $this->post(route('conversations.store', ['mailbox' => 1]), [
             'subject' => 'Test',
             'body' => 'Test body',
         ]);
@@ -135,11 +135,12 @@ class ConversationControllerFullTest extends FeatureTestCase
         $mailbox->users()->attach($user->id);
         $customer = Customer::factory()->create();
         
-        $response = $this->actingAs($user)->post(route('conversations.store'), [
+        $response = $this->actingAs($user)->post(route('conversations.store', ['mailbox' => $mailbox->id]), [
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
             'subject' => 'Test Subject',
             'body' => 'Test body content',
+            'to' => ['test@example.com'],
         ]);
         
         $response->assertRedirect();
@@ -152,9 +153,12 @@ class ConversationControllerFullTest extends FeatureTestCase
     public function test_store_validates_subject_required(): void
     {
         $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($user->id);
         
-        $response = $this->actingAs($user)->post(route('conversations.store'), [
+        $response = $this->actingAs($user)->post(route('conversations.store', ['mailbox' => $mailbox->id]), [
             'body' => 'Test',
+            'to' => ['test@example.com'],
         ]);
         
         $response->assertSessionHasErrors('subject');
@@ -163,9 +167,12 @@ class ConversationControllerFullTest extends FeatureTestCase
     public function test_store_validates_body_required(): void
     {
         $user = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($user->id);
         
-        $response = $this->actingAs($user)->post(route('conversations.store'), [
+        $response = $this->actingAs($user)->post(route('conversations.store', ['mailbox' => $mailbox->id]), [
             'subject' => 'Test',
+            'to' => ['test@example.com'],
         ]);
         
         $response->assertSessionHasErrors('body');
@@ -177,14 +184,14 @@ class ConversationControllerFullTest extends FeatureTestCase
     {
         $conversation = Conversation::factory()->create();
         
-        $response = $this->put(route('conversations.update', $conversation), [
+        $response = $this->patch(route('conversations.update', $conversation), [
             'subject' => 'Updated',
         ]);
         
         $response->assertRedirect(route('login'));
     }
 
-    public function test_update_updates_conversation_subject(): void
+    public function test_update_updates_conversation_status(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -192,15 +199,15 @@ class ConversationControllerFullTest extends FeatureTestCase
         
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
-            'subject' => 'Original',
+            'status' => 1,
         ]);
         
-        $response = $this->actingAs($user)->put(route('conversations.update', $conversation), [
-            'subject' => 'Updated Subject',
+        $response = $this->actingAs($user)->patch(route('conversations.update', $conversation), [
+            'status' => 2,
         ]);
         
         $response->assertRedirect();
-        $this->assertEquals('Updated Subject', $conversation->fresh()->subject);
+        $this->assertEquals(2, $conversation->fresh()->status);
     }
 
     public function test_update_forbids_unauthorized_user(): void
@@ -208,7 +215,7 @@ class ConversationControllerFullTest extends FeatureTestCase
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $conversation = Conversation::factory()->create();
         
-        $response = $this->actingAs($user)->put(route('conversations.update', $conversation), [
+        $response = $this->actingAs($user)->patch(route('conversations.update', $conversation), [
             'subject' => 'Updated',
         ]);
         
@@ -314,7 +321,7 @@ class ConversationControllerFullTest extends FeatureTestCase
         $response = $this->actingAs($admin)->delete(route('conversations.destroy', $conversation));
         
         $response->assertRedirect();
-        $this->assertDatabaseMissing('conversations', ['id' => $conversation->id]);
+        $this->assertSoftDeleted('conversations', ['id' => $conversation->id]);
     }
 
     // ===== AJAX TESTS =====
@@ -338,12 +345,14 @@ class ConversationControllerFullTest extends FeatureTestCase
         
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         
-        $response = $this->actingAs($user)->postJson(route('conversations.ajax', $conversation), [
-            'action' => 'status',
+        $response = $this->actingAs($user)->postJson(route('conversations.ajax'), [
+            'action' => 'change_status',
+            'status' => 2,
+            'conversation_id' => $conversation->id,
         ]);
         
         $response->assertOk();
-        $response->assertJson([]);
+        $response->assertJson(['success' => true]);
     }
 
     // ===== MOVE TESTS =====
@@ -353,33 +362,32 @@ class ConversationControllerFullTest extends FeatureTestCase
         $conversation = Conversation::factory()->create();
         $folder = Folder::factory()->create();
         
-        $response = $this->post(route('conversations.move', $conversation), [
+        $response = $this->patch(route('conversations.update', $conversation), [
             'folder_id' => $folder->id,
         ]);
         
         $response->assertRedirect(route('login'));
     }
 
-    public function test_move_changes_conversation_folder(): void
+    public function test_move_changes_conversation_mailbox(): void
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($user->id);
         
-        $oldFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
-        $newFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
+        $targetMailbox = Mailbox::factory()->create();
+        $targetMailbox->users()->attach($user->id);
         
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
-            'folder_id' => $oldFolder->id,
         ]);
         
         $response = $this->actingAs($user)->post(route('conversations.move', $conversation), [
-            'folder_id' => $newFolder->id,
+            'mailbox_id' => $targetMailbox->id,
         ]);
         
         $response->assertRedirect();
-        $this->assertEquals($newFolder->id, $conversation->fresh()->folder_id);
+        $this->assertEquals($targetMailbox->id, $conversation->fresh()->mailbox_id);
     }
 
     // ===== EDGE CASES =====
@@ -400,13 +408,14 @@ class ConversationControllerFullTest extends FeatureTestCase
         $mailbox->users()->attach($user->id);
         $customer = Customer::factory()->create();
         
-        $longSubject = str_repeat('a', 300);
+        $longSubject = str_repeat('a', 1000); // Increased to exceed 998
         
-        $response = $this->actingAs($user)->post(route('conversations.store'), [
+        $response = $this->actingAs($user)->post(route('conversations.store', ['mailbox' => $mailbox->id]), [
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
             'subject' => $longSubject,
             'body' => 'Test body',
+            'to' => ['test@example.com'],
         ]);
         
         $response->assertSessionHasErrors('subject');
@@ -426,8 +435,12 @@ class ConversationControllerFullTest extends FeatureTestCase
         
         $originalStatus = $conversation->status;
         
-        $response = $this->actingAs($user)->put(route('conversations.update', $conversation), [
-            'subject' => 'Updated',
+        // Update something else, e.g. folder_id, to check if status is preserved
+        // Since subject is not updatable via update(), we use folder_id
+        $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
+
+        $response = $this->actingAs($user)->patch(route('conversations.update', $conversation), [
+            'folder_id' => $folder->id,
         ]);
         
         $response->assertRedirect();
@@ -463,7 +476,7 @@ class ConversationControllerFullTest extends FeatureTestCase
         $conversation = Conversation::factory()->create();
         
         $showResponse = $this->actingAs($admin)->get(route('conversations.show', $conversation));
-        $updateResponse = $this->actingAs($admin)->put(route('conversations.update', $conversation), [
+        $updateResponse = $this->actingAs($admin)->patch(route('conversations.update', $conversation), [
             'subject' => 'Admin Update',
         ]);
         

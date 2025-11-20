@@ -113,7 +113,7 @@ class MailboxRegressionTest extends TestCase
 
         // Act & Assert - Folder types match L5 constants
         $this->assertEquals(1, Folder::TYPE_INBOX);
-        $this->assertEquals(2, Folder::TYPE_SENT);
+        $this->assertEquals(6, Folder::TYPE_SENT);
         $this->assertEquals(3, Folder::TYPE_DRAFTS);
         $this->assertEquals(4, Folder::TYPE_SPAM);
         $this->assertEquals(5, Folder::TYPE_TRASH);

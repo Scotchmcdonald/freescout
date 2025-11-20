@@ -61,6 +61,11 @@ class Mailbox extends Model
 {
     use HasFactory;
 
+    const FROM_NAME_CUSTOM = 2;
+    const TICKET_STATUS_ACTIVE = 1;
+    const TICKET_ASSIGNEE_ANYONE = 1;
+    const OUT_ENCRYPTION_TLS = 2;
+
     protected $fillable = [
         'name',
         'email',
@@ -190,5 +195,52 @@ class Mailbox extends Model
     public function url(): string
     {
         return route('mailboxes.view', ['mailbox' => $this->id]);
+    }
+
+    /**
+     * Check if user has access to this mailbox.
+     */
+    public function userHasAccess(int $userId): bool
+    {
+        return $this->users()->where('user_id', $userId)->exists();
+    }
+
+    /**
+     * Check if the mailbox has the given alias.
+     */
+    public function hasAlias(string $email): bool
+    {
+        $aliases = $this->getAliasesArray();
+        return in_array($email, $aliases);
+    }
+
+    /**
+     * Get aliases as an array.
+     */
+    public function getAliasesArray(): array
+    {
+        if (empty($this->aliases)) {
+            return [];
+        }
+        if (is_array($this->aliases)) {
+            return $this->aliases;
+        }
+        return explode(',', $this->aliases);
+    }
+
+    /**
+     * Check if fetching is enabled.
+     */
+    public function isFetchingEnabled(): bool
+    {
+        return !empty($this->in_server);
+    }
+
+    /**
+     * Check if sending is enabled.
+     */
+    public function isSendingEnabled(): bool
+    {
+        return !empty($this->out_server);
     }
 }

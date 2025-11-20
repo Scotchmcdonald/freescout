@@ -18,7 +18,7 @@ class ModuleFactory extends Factory
             'alias' => fake()->unique()->slug(2),
             'name' => fake()->words(2, true),
             'active' => true,
-            'version' => fake()->semver(),
+            'version' => fake()->numerify('#.#.#'),
             'description' => fake()->sentence(),
             'author' => fake()->name(),
             'settings' => [

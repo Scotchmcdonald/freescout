@@ -94,7 +94,7 @@ class ModelEdgeCasesTest extends UnitTestCase
         $conversation->delete();
 
         // Threads should still exist (soft delete or cascade depends on config)
-        $this->assertDatabaseMissing('conversations', ['id' => $conversationId]);
+        $this->assertSoftDeleted('conversations', ['id' => $conversationId]);
     }
 
     public function test_user_unique_email_constraint(): void

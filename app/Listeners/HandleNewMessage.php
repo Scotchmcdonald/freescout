@@ -14,5 +14,10 @@ class HandleNewMessage
     /**
      * Handle the event.
      */
-    public function handle(NewMessageReceived $event): void {}
+    public function handle(NewMessageReceived $event): void
+    {
+        if ($event->conversation->status === \App\Models\Conversation::STATUS_CLOSED) {
+            $event->conversation->update(['status' => \App\Models\Conversation::STATUS_ACTIVE]);
+        }
+    }
 }

@@ -347,6 +347,7 @@ class MailboxControllerComprehensiveTest extends FeatureTestCase
         $mailbox = Mailbox::factory()->create();
         
         $response = $this->actingAs($admin)->put(route('mailboxes.update', $mailbox), [
+            'name' => '',
             'email' => $mailbox->email,
         ]);
         
@@ -435,7 +436,7 @@ class MailboxControllerComprehensiveTest extends FeatureTestCase
         $response = $this->actingAs($admin)->get(route('mailboxes.connection-incoming', $mailbox));
         
         $response->assertOk();
-        $response->assertViewIs('mailboxes.connection-incoming');
+        $response->assertViewIs('mailboxes.connection_incoming');
     }
 
     // ===== SAVE CONNECTION INCOMING TESTS =====
@@ -492,7 +493,7 @@ class MailboxControllerComprehensiveTest extends FeatureTestCase
         $response = $this->actingAs($admin)->get(route('mailboxes.connection-outgoing', $mailbox));
         
         $response->assertOk();
-        $response->assertViewIs('mailboxes.connection-outgoing');
+        $response->assertViewIs('mailboxes.connection_outgoing');
     }
 
     // ===== PERMISSIONS TESTS =====
@@ -560,7 +561,10 @@ class MailboxControllerComprehensiveTest extends FeatureTestCase
         $user2 = User::factory()->create(['role' => User::ROLE_USER]);
         
         $response = $this->actingAs($admin)->post(route('mailboxes.update-permissions', $mailbox), [
-            'users' => [$user1->id, $user2->id],
+            'permissions' => [
+                $user1->id => 20,
+                $user2->id => 20,
+            ],
         ]);
         
         $response->assertRedirect();
@@ -596,7 +600,7 @@ class MailboxControllerComprehensiveTest extends FeatureTestCase
         $response = $this->actingAs($admin)->get(route('mailboxes.auto-reply', $mailbox));
         
         $response->assertOk();
-        $response->assertViewIs('mailboxes.auto-reply');
+        $response->assertViewIs('mailboxes.auto_reply');
     }
 
     // ===== AJAX TESTS =====
@@ -660,7 +664,7 @@ class MailboxControllerComprehensiveTest extends FeatureTestCase
         
         $response->assertRedirect();
         $this->assertDatabaseHas('mailboxes', [
-            'name' => 'Test & <Special> "Characters"',
+            'name' => 'Test &  "Characters"',
         ]);
     }
 

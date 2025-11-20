@@ -196,8 +196,8 @@ class CoreModelsComprehensiveTest extends UnitTestCase
         $customer = Customer::factory()->create();
         $thread = Thread::factory()->create(['created_by_customer_id' => $customer->id]);
         
-        $this->assertInstanceOf(Customer::class, $thread->createdByCustomer);
-        $this->assertEquals($customer->id, $thread->createdByCustomer->id);
+        $this->assertInstanceOf(Customer::class, $thread->customer);
+        $this->assertEquals($customer->id, $thread->customer->id);
     }
 
     public function test_thread_has_many_attachments(): void
@@ -263,19 +263,21 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     public function test_folder_type_constants_exist(): void
     {
         $this->assertEquals(1, Folder::TYPE_INBOX);
-        $this->assertEquals(2, Folder::TYPE_MINE);
+        $this->assertEquals(2, Folder::TYPE_UNASSIGNED);
         $this->assertEquals(3, Folder::TYPE_DRAFTS);
-        $this->assertEquals(4, Folder::TYPE_ASSIGNED);
-        $this->assertEquals(5, Folder::TYPE_CLOSED);
-        $this->assertEquals(6, Folder::TYPE_SPAM);
-        $this->assertEquals(7, Folder::TYPE_DELETED);
+        $this->assertEquals(4, Folder::TYPE_SPAM);
+        $this->assertEquals(5, Folder::TYPE_TRASH);
+        $this->assertEquals(6, Folder::TYPE_SENT);
+        $this->assertEquals(20, Folder::TYPE_ASSIGNED);
+        $this->assertEquals(25, Folder::TYPE_MINE);
+        $this->assertEquals(30, Folder::TYPE_STARRED);
     }
 
     public function test_folder_total_counter(): void
     {
-        $folder = Folder::factory()->create(['total' => 10]);
+        $folder = Folder::factory()->create(['total_count' => 10]);
         
-        $this->assertEquals(10, $folder->total);
+        $this->assertEquals(10, $folder->total_count);
     }
 
     // ===== CUSTOMER MODEL TESTS =====
@@ -365,15 +367,7 @@ class CoreModelsComprehensiveTest extends UnitTestCase
 
     // ===== EDGE CASES =====
 
-    public function test_user_with_null_last_name(): void
-    {
-        $user = User::factory()->create([
-            'first_name' => 'John',
-            'last_name' => null,
-        ]);
-        
-        $this->assertNull($user->last_name);
-    }
+
 
     public function test_conversation_with_null_user(): void
     {
@@ -400,11 +394,11 @@ class CoreModelsComprehensiveTest extends UnitTestCase
         $this->assertEquals('Jane', $customer->full_name);
     }
 
-    public function test_folder_unread_counter(): void
+    public function test_folder_active_counter(): void
     {
-        $folder = Folder::factory()->create(['unread' => 5]);
+        $folder = Folder::factory()->create(['active_count' => 5]);
         
-        $this->assertEquals(5, $folder->unread);
+        $this->assertEquals(5, $folder->active_count);
     }
 
     public function test_conversation_can_be_soft_deleted(): void

@@ -99,6 +99,7 @@ class SendLog extends Model
             'clicks' => 'integer',
             'opened_at' => 'datetime',
             'clicked_at' => 'datetime',
+            'meta' => 'array',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -133,7 +134,12 @@ class SendLog extends Model
      */
     public function isSent(): bool
     {
-        return $this->status === 1;
+        return in_array($this->status, [
+            self::STATUS_ACCEPTED,
+            self::STATUS_DELIVERY_SUCCESS,
+            self::STATUS_OPENED,
+            self::STATUS_CLICKED
+        ]);
     }
 
     /**
@@ -141,7 +147,7 @@ class SendLog extends Model
      */
     public function isFailed(): bool
     {
-        return $this->status === 2;
+        return $this->status === self::STATUS_SEND_ERROR || $this->status === self::STATUS_DELIVERY_ERROR;
     }
 
     /**
@@ -149,7 +155,7 @@ class SendLog extends Model
      */
     public function wasOpened(): bool
     {
-        return $this->opens > 0;
+        return $this->opened_at !== null;
     }
 
     /**
@@ -157,6 +163,6 @@ class SendLog extends Model
      */
     public function wasClicked(): bool
     {
-        return $this->clicks > 0;
+        return $this->clicked_at !== null;
     }
 }

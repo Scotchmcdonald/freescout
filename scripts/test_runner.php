@@ -13,20 +13,25 @@ $output = new ConsoleOutput();
 $io = new SymfonyStyle(new ArgvInput(), $output);
 $baseDir = realpath(__DIR__.'/..');
 
-// --- COVERAGE SETUP ---
-// Check for coverage flag and clean argv so it doesn't break suite selection
+// --- ARGUMENT PARSING ---
+// Check for coverage flag and filter flag, clean argv
 $withCoverage = false;
+$filterPattern = null;
 foreach ($_SERVER['argv'] as $key => $value) {
     if ($value === '--coverage') {
         $withCoverage = true;
+        unset($_SERVER['argv'][$key]);
+    } elseif (strpos($value, '--filter=') === 0) {
+        $filterPattern = substr($value, 9); // Extract after '--filter='
         unset($_SERVER['argv'][$key]);
     }
 }
 // Re-index argv so suite selection logic (checking index 1) still works
 $_SERVER['argv'] = array_values($_SERVER['argv']);
 
-$coveragePartialsDir = $baseDir . '/reports/coverage_partials';
-$finalCoverageDir = $baseDir . '/reports/coverage-report';
+// Coverage directories will be set later inside the test run directory
+$coveragePartialsDir = null;
+$finalCoverageDir = null;
 
 if ($withCoverage) {
     $io->note("Coverage mode enabled. This will slow down execution.");
@@ -35,17 +40,21 @@ if ($withCoverage) {
     if (!extension_loaded('xdebug') && !extension_loaded('pcov')) {
         $io->warning("Coverage requested but no driver (Xdebug or PCOV) detected. Tests may run slow or fail to generate reports.");
     }
-    
-    // Clean/Create partials directory
-    if (is_dir($coveragePartialsDir)) {
-        // Delete existing .cov files
-        array_map('unlink', glob("$coveragePartialsDir/*.cov"));
-    } else {
-        mkdir($coveragePartialsDir, 0777, true);
-    }
 }
 
+// --- CACHE CLEARING (Silent) ---
+$process = new Process(['php', 'artisan', 'optimize:clear'], $baseDir);
+$process->run();
+
 $io->title('Freescout Test Runner (File-by-File)');
+
+// --- CACHE CLEARING ---
+$io->section('Clearing Caches');
+if ($process->isSuccessful()) {
+    $io->success('Caches cleared.');
+} else {
+    $io->warning('Failed to clear caches: ' . $process->getErrorOutput());
+}
 
 // --- SUITE SELECTION ---
 $availableSuites = [];
@@ -116,7 +125,7 @@ if (empty($selectedSuitesInput)) {
 $suitesToRun = in_array('All', $selectedSuitesInput) ? $availableSuites : array_intersect_key($availableSuites, array_flip($selectedSuitesInput));
 
 // --- TEST DISCOVERY ---
-$io->section('Discovering test files...');
+$io->section('Discovering and Analyzing Test Files');
 $filesToRun = [];
 
 $finderProgressBar = $io->createProgressBar(count($suitesToRun));
@@ -140,11 +149,12 @@ foreach ($suitesToRun as $suiteName => $suiteDir) {
     }
     $finderProgressBar->advance();
 }
+$finderProgressBar->setFormat(' %current%/%max% [%bar%] %message%');
+$finderProgressBar->setMessage("Reviewed <info>" . count($suitesToRun) . "/" . count($suitesToRun) . "</info> folders for tests.");
 $finderProgressBar->finish();
-$io->newLine(2);
+$io->newLine();
 
 // --- TEST ANALYSIS ---
-$io->section('Analyzing test files...');
 $totalTestCount = 0;
 $fileTestCounts = [];
 
@@ -156,6 +166,30 @@ foreach ($filesToRun as $file) {
     $analysisProgressBar->setMessage(basename($file));
     $content = file_get_contents($file);
     
+    // Apply filter if specified
+    if ($filterPattern !== null) {
+        $patterns = array_map('trim', explode('|', $filterPattern));
+        $matchesFilter = false;
+        
+        foreach ($patterns as $pattern) {
+            // Check if pattern matches filename or any test method
+            if (stripos(basename($file), $pattern) !== false) {
+                $matchesFilter = true;
+                break;
+            }
+            if (preg_match('/public\s+function\s+(test[a-zA-Z0-9_]*' . preg_quote($pattern, '/') . '[a-zA-Z0-9_]*)/i', $content)) {
+                $matchesFilter = true;
+                break;
+            }
+        }
+        
+        if (!$matchesFilter) {
+            unset($filesToRun[array_search($file, $filesToRun)]);
+            $analysisProgressBar->advance();
+            continue;
+        }
+    }
+    
     // Heuristic to count tests: "public function test..." or "@test" annotation
     $count = preg_match_all('/public\s+function\s+test/', $content);
     $count += preg_match_all('/\*\s*@test/', $content);
@@ -164,10 +198,16 @@ foreach ($filesToRun as $file) {
     $totalTestCount += $count;
     $analysisProgressBar->advance();
 }
+$filesToRun = array_values($filesToRun); // Re-index after filtering
+$totalFilesAnalyzed = count($filesToRun);
+$analysisProgressBar->setFormat(' %current%/%max% [%bar%] %message%');
+$analysisProgressBar->setMessage("Analyzed <info>{$totalFilesAnalyzed}/{$totalFilesAnalyzed}</info> test files, found <info>{$totalTestCount}</info> tests.");
 $analysisProgressBar->finish();
-$io->newLine(2);
+$io->newLine();
 
-$io->text("Found <info>{$totalTestCount}</info> tests in <info>" . count($filesToRun) . "</info> files.");
+if ($filterPattern !== null) {
+    $io->text("Filter applied: <comment>{$filterPattern}</comment>");
+}
 
 // File listing suppressed
 $io->newLine();
@@ -175,6 +215,13 @@ $io->newLine();
 // --- EXECUTION ---
 $reportsDir = $baseDir.'/reports/test_runs_'.date('Y-m-d_His');
 mkdir($reportsDir, 0777, true);
+
+// Set coverage directories inside the test run directory
+if ($withCoverage) {
+    $coveragePartialsDir = $reportsDir . '/coverage_partials';
+    $finalCoverageDir = $reportsDir . '/coverage-report';
+    mkdir($coveragePartialsDir, 0777, true);
+}
 
 $io->section('Running Tests (Batched)');
 
@@ -186,8 +233,33 @@ $batchSize = max(5, min(25, (int)ceil($totalFiles * 0.05)));
 $chunks = array_chunk($filesToRun, $batchSize);
 
 $executionProgressBar = $io->createProgressBar($totalFiles);
-$executionProgressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | Elapsed: %elapsed:6s% | ETA: %estimated:-6s% | Mem: %memory:6s%\n %message%");
+
+// Add custom placeholder for remaining time
+$executionProgressBar->setPlaceholderFormatterDefinition('remaining', function ($bar) {
+    if (!$bar->getMaxSteps()) {
+        return '0 s';
+    }
+    if (!$bar->getProgress()) {
+        return '?';
+    }
+    
+    $elapsed = time() - $bar->getStartTime();
+    $rate = $bar->getProgress() / $elapsed;
+    $remaining = ($bar->getMaxSteps() - $bar->getProgress()) / $rate;
+    
+    // Format as "X min, Y s" or just "Y s" for under 60 seconds
+    $mins = floor($remaining / 60);
+    $secs = (int)($remaining % 60);
+    
+    if ($mins > 0) {
+        return sprintf('%d min, %d s', $mins, $secs);
+    }
+    return sprintf('%d s', $secs);
+});
+
+$executionProgressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | Elapsed: %elapsed:6s% | ETA: %remaining:-6s% | Mem: %memory:6s%\n %message%");
 $executionProgressBar->setMessage('', 'custom_bar');
+$executionProgressBar->setMessage('Initializing...'); // Set initial message
 $executionProgressBar->start();
 
 $allResultsOutput = '';
@@ -248,10 +320,10 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
         }
         
         $barStr .= "<fg=green>" . str_repeat("▓", max(0, (int)$roundedWidths['Pass'])) . "</>";
-        $barStr .= "<fg=magenta>" . str_repeat("▓", max(0, (int)$roundedWidths['Fail'])) . "</>";
+        $barStr .= "<fg=#FFA500>" . str_repeat("▓", max(0, (int)$roundedWidths['Fail'])) . "</>";
         $barStr .= "<fg=red>" . str_repeat("▓", max(0, (int)$roundedWidths['Err'])) . "</>";
-        $barStr .= "<fg=yellow>" . str_repeat("▓", max(0, (int)$roundedWidths['Skip'])) . "</>";
-        $barStr .= "<fg=cyan>" . str_repeat("▓", max(0, (int)$roundedWidths['Inc'])) . "</>";
+        $barStr .= "<fg=blue>" . str_repeat("▓", max(0, (int)$roundedWidths['Skip'])) . "</>";
+        $barStr .= "<fg=yellow>" . str_repeat("▓", max(0, (int)$roundedWidths['Inc'])) . "</>";
     } else {
         if ($filledChars > 0) {
              $barStr .= "<fg=gray>" . str_repeat("▓", $filledChars) . "</>";
@@ -262,11 +334,12 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
     $executionProgressBar->setMessage($barStr, 'custom_bar');
 
     $statsMsg = sprintf(
-        "<fg=green>Pass: %d</> | <fg=magenta>Fail: %d</> | <fg=red>Err: %d</> | <fg=yellow>Skip: %d</>",
-        $runningStats['Tests'] - $runningStats['Failures'] - $runningStats['Errors'] - $runningStats['Skipped'],
+        "<fg=green>Pass: %d</> | <fg=#FFA500>Fail: %d</> | <fg=red>Err: %d</> | <fg=blue>Skip: %d</> | <fg=yellow>Inc: %d</>",
+        $runningStats['Tests'] - $runningStats['Failures'] - $runningStats['Errors'] - $runningStats['Skipped'] - $runningStats['Incomplete'],
         $runningStats['Failures'],
         $runningStats['Errors'],
-        $runningStats['Skipped']
+        $runningStats['Skipped'],
+        $runningStats['Incomplete']
     );
     
     $executionProgressBar->setMessage("Batch " . ($chunkIndex + 1) . "/" . count($chunks) . " (starts with {$firstFile})\n " . $statsMsg);
@@ -278,6 +351,14 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
         // Tell PHPUnit to dump raw PHP coverage data for this specific batch
         $commandParts[] = '--coverage-php';
         $commandParts[] = $coveragePartialsDir . '/batch_' . ($chunkIndex + 1) . '.cov';
+    }
+    
+    // Add filter if specified (PHPUnit will filter by test name)
+    if ($filterPattern !== null) {
+        $commandParts[] = '--filter';
+        // Convert pipe-separated to PHPUnit regex: (pattern1|pattern2|pattern3)
+        $phpunitFilter = '(' . str_replace('|', '|', $filterPattern) . ')';
+        $commandParts[] = $phpunitFilter;
     }
 
     // Merge command parts with the files
@@ -294,19 +375,118 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
     // --- Log Errors and Failures separately ---
     $errorOutput = $process->getErrorOutput();
     if (!empty($errorOutput)) {
-        file_put_contents("{$reportsDir}/error.log", "Batch " . ($chunkIndex + 1) . " STDERR:\n" . $errorOutput . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+        // Check if it's purely warnings/notices/deprecations
+        // If the output contains "Fatal error" or "Parse error", it stays in error.log
+        // Otherwise if it contains "Warning", "Deprecated", "Notice", put in warnings.log
+        $isWarning = false;
+        if (preg_match('/(?:PHP )?(?:Warning|Deprecated|Notice):/i', $errorOutput) && !preg_match('/(?:PHP )?(?:Fatal|Parse) error:/i', $errorOutput)) {
+            $isWarning = true;
+        }
+
+        if ($isWarning) {
+            file_put_contents("{$reportsDir}/warnings.log", "Batch " . ($chunkIndex + 1) . " STDERR (Warnings):\n" . $errorOutput . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+        } else {
+            file_put_contents("{$reportsDir}/error.log", "Batch " . ($chunkIndex + 1) . " STDERR:\n" . $errorOutput . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+        }
     }
 
-    // Extract Failures from STDOUT
-    if (preg_match('/There (?:was|were) \d+ failure(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ error|FAILURES!|ERRORS!)|$)/s', $output, $matches)) {
+    // Strategy 1: Standard PHPUnit Summary Blocks
+    $foundSummary = false;
+    
+    // Extract Failures from STDOUT (Standard Format)
+    if (preg_match('/There (?:was|were) \d+ failure(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|risky|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
         $failureContent = "Batch " . ($chunkIndex + 1) . " Failures:\n" . trim($matches[1]) . "\n\n" . str_repeat('-', 40) . "\n\n";
         file_put_contents("{$reportsDir}/failure.log", $failureContent, FILE_APPEND);
+        $foundSummary = true;
     }
 
-    // Extract Errors from STDOUT
-    if (preg_match('/There (?:was|were) \d+ error(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ failure|FAILURES!|ERRORS!)|$)/s', $output, $matches)) {
+    // Extract Errors from STDOUT (Standard Format)
+    if (preg_match('/There (?:was|were) \d+ error(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:failure|risky|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
         $errorContent = "Batch " . ($chunkIndex + 1) . " Errors:\n" . trim($matches[1]) . "\n\n" . str_repeat('-', 40) . "\n\n";
         file_put_contents("{$reportsDir}/error.log", $errorContent, FILE_APPEND);
+        $foundSummary = true;
+    }
+
+    // Extract Skipped from STDOUT
+    if (preg_match('/There (?:was|were) \d+ skipped test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|risky|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        $skippedContent = "Batch " . ($chunkIndex + 1) . " Skipped:\n" . trim($matches[1]) . "\n\n" . str_repeat('-', 40) . "\n\n";
+        file_put_contents("{$reportsDir}/skipped.log", $skippedContent, FILE_APPEND);
+    }
+
+    // Extract Incomplete from STDOUT
+    if (preg_match('/There (?:was|were) \d+ incomplete test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|risky|skipped)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        $incompleteContent = "Batch " . ($chunkIndex + 1) . " Incomplete:\n" . trim($matches[1]) . "\n\n" . str_repeat('-', 40) . "\n\n";
+        file_put_contents("{$reportsDir}/incomplete.log", $incompleteContent, FILE_APPEND);
+    }
+
+    // Extract Risky from STDOUT
+    if (preg_match('/There (?:was|were) \d+ risky test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        $riskyContent = "Batch " . ($chunkIndex + 1) . " Risky:\n" . trim($matches[1]) . "\n\n" . str_repeat('-', 40) . "\n\n";
+        file_put_contents("{$reportsDir}/risky.log", $riskyContent, FILE_APPEND);
+    }
+
+    // Extract PHPUnit test runner warnings
+    if (preg_match('/There (?:was|were) (\d+) PHPUnit test runner warning(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were)|OK, but|FAILURES!|ERRORS!|Tests:)|$)/s', $output, $matches)) {
+        $warningContent = "Batch " . ($chunkIndex + 1) . " - PHPUnit Warnings (" . $matches[1] . "):\n" . trim($matches[2]) . "\n\n" . str_repeat('-', 40) . "\n\n";
+        file_put_contents("{$reportsDir}/warnings.log", $warningContent, FILE_APPEND);
+    }
+
+    // Extract Deprecations from STDOUT
+    if (preg_match_all('/Deprecation\s+Triggered[^\n]*\n.*?(?=\n\n|There (?:was|were)|$)/s', $output, $matches)) {
+        foreach ($matches[0] as $deprecation) {
+            $deprecationContent = "Batch " . ($chunkIndex + 1) . ":\n" . trim($deprecation) . "\n\n" . str_repeat('-', 40) . "\n\n";
+            file_put_contents("{$reportsDir}/deprecation.log", $deprecationContent, FILE_APPEND);
+        }
+    }
+
+    // Strategy 2: TestDox Inline Blocks (Fallback/Supplement)
+    // Match lines starting with specific symbols followed by test name
+    // Symbols: ✘ (Fail/Error), ⚠ (Risky), ↩ (Skipped), ∅ (Incomplete)
+    // IMPORTANT: Only capture tests that have actual error details (indicated by │ lines following)
+    
+    $testDoxPatterns = [
+        '✘' => ['file' => 'failure.log'],
+        '⚠' => ['file' => 'risky.log'],
+        '↩' => ['file' => 'skipped.log'],
+        '∅' => ['file' => 'incomplete.log'],
+    ];
+
+    foreach ($testDoxPatterns as $symbol => $config) {
+        // Regex to find the symbol, the test name, and REQUIRED details block
+        // We look for the symbol at the start of a line (after whitespace)
+        // Then the test name.
+        // Then a block of lines that start with whitespace and │ (REQUIRED)
+        // This prevents matching test names that just happen to match the symbol (like a test called "Warning")
+        
+        $pattern = '/^\s*' . $symbol . '\s+([^\n]+)\n((?:\s+│.*?\n)+)/ms';
+        
+        if (preg_match_all($pattern, $output, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $testName = trim($match[1]);
+                $details = trim($match[2]);
+                
+                $targetLog = $config['file'];
+                
+                // Refine target for ✘
+                if ($symbol === '✘') {
+                    // If details contain "Error" or "Exception", treat as error.log
+                    // Otherwise failure.log
+                    if (str_contains($details, 'Error') || str_contains($details, 'Exception')) {
+                        $targetLog = 'error.log';
+                    }
+                }
+                
+                $entry = "Batch " . ($chunkIndex + 1) . " - {$testName}\n";
+                if ($details) {
+                    $entry .= $details . "\n";
+                } else {
+                    $entry .= "(No details provided in output)\n";
+                }
+                $entry .= str_repeat('-', 40) . "\n\n";
+                
+                file_put_contents("{$reportsDir}/{$targetLog}", $entry, FILE_APPEND);
+            }
+        }
     }
 
     // Parse batch output to update stats
@@ -328,6 +508,8 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
 
     $executionProgressBar->advance(count($chunkFiles));
 }
+// Remove the message line from format before finishing
+$executionProgressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | Elapsed: %elapsed:6s% | ETA: %remaining:-6s% | Mem: %memory:6s%");
 $executionProgressBar->finish();
 $io->newLine(2);
 
@@ -335,7 +517,15 @@ $io->newLine(2);
 $io->section('Test Results Summary');
 $executionTime = microtime(true) - $startTime;
 $io->writeln("Total Time: " . number_format($executionTime, 2) . "s");
-$io->note("Detailed logs are available in: {$reportsDir}");
+
+$io->section('Log Files');
+$logFiles = ['error.log', 'failure.log', 'skipped.log', 'incomplete.log', 'risky.log', 'warnings.log', 'deprecation.log'];
+foreach ($logFiles as $file) {
+    if (file_exists("{$reportsDir}/{$file}")) {
+        $io->writeln(" - {$reportsDir}/{$file}");
+    }
+}
+$io->newLine();
 
 $summary = ['Tests' => 0, 'Assertions' => 0, 'Errors' => 0, 'Failures' => 0, 'Risky' => 0, 'Skipped' => 0, 'Incomplete' => 0, 'PHPUnit Warnings' => 0];
 $failureDetails = '';
@@ -366,12 +556,33 @@ if (!empty($failureBlocks[3])) {
     $failureDetails = implode("\n\n--\n\n", $uniqueFailures);
 }
 
-$summaryString = "Totals: ";
+$summaryString = "<options=bold>Totals:</> ";
 foreach ($summary as $key => $value) {
-    if ($value > 0) $summaryString .= "{$key}: {$value}, ";
+    if ($value > 0) {
+        $color = 'default';
+        switch ($key) {
+            case 'Errors':
+            case 'Failures':
+                $color = 'red';
+                break;
+            case 'Risky':
+            case 'Incomplete':
+            case 'PHPUnit Warnings':
+                $color = 'yellow';
+                break;
+            case 'Skipped':
+                $color = 'blue';
+                break;
+            case 'Tests':
+            case 'Assertions':
+                $color = 'green';
+                break;
+        }
+        $summaryString .= "<fg={$color}>{$key}: {$value}</>, ";
+    }
 }
 $io->writeln('');
-$io->writeln("<fg=white;options=bold>".rtrim($summaryString, ', ')."</>");
+$io->writeln(rtrim($summaryString, ', '));
 
 if ($summary['Failures'] > 0 || $summary['Errors'] > 0) {
     $io->section('Failure Details');
@@ -411,6 +622,7 @@ if ($withCoverage) {
         if ($process->isSuccessful()) {
             $io->success("Coverage report generated successfully!");
             $io->writeln("View report here: file://{$finalCoverageDir}/index.html");
+            $io->writeln("Coverage location: {$finalCoverageDir}");
             
             // Clean up partials
             array_map('unlink', glob("$coveragePartialsDir/*"));

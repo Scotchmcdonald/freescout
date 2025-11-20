@@ -81,7 +81,7 @@ class MailboxController extends Controller
 
         // Get all non-admin users to assign to mailbox
         $users = User::where('role', '!=', User::ROLE_ADMIN)
-            ->whereNull('deleted_at')
+            ->where('status', '!=', User::STATUS_DELETED)
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get();
@@ -134,6 +134,9 @@ class MailboxController extends Controller
         // Remove users from validated data before creating mailbox
         $users = $validated['users'] ?? [];
         unset($validated['users']);
+
+        // Sanitize name
+        $validated['name'] = strip_tags($validated['name']);
 
         $mailbox = Mailbox::create($validated);
 
@@ -189,6 +192,11 @@ class MailboxController extends Controller
         if (isset($validated['from_name'])) {
             $validated['from_name_custom'] = $validated['from_name'];
             $validated['from_name'] = 3; // custom
+        }
+
+        // Sanitize name if present
+        if (isset($validated['name'])) {
+            $validated['name'] = strip_tags($validated['name']);
         }
 
         $mailbox->update($validated);
@@ -370,7 +378,8 @@ class MailboxController extends Controller
         ]);
 
         $syncData = [];
-        foreach ($validated['permissions'] as $userId => $access) {
+        $permissions = $validated['permissions'] ?? [];
+        foreach ($permissions as $userId => $access) {
             if (! empty($access)) {
                 $syncData[$userId] = ['access' => $access];
             }

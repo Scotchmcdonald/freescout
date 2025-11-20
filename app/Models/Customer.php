@@ -146,10 +146,15 @@ class Customer extends Model
 
     /**
      * Get the customer's first name.
+     *
+     * @param  bool  $ucfirst  Whether to uppercase the first letter
+     * @return string
      */
-    public function getFirstName(): string
+    public function getFirstName(bool $ucfirst = false): string
     {
-        return $this->first_name ?? '';
+        $firstName = $this->first_name ?? '';
+        
+        return $ucfirst && $firstName ? ucfirst($firstName) : $firstName;
     }
 
     /**

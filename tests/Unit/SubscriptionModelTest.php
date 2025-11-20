@@ -93,14 +93,19 @@ class SubscriptionModelTest extends UnitTestCase
 
     public function test_medium_and_event_cast_to_integer()
     {
-        // Disable events to prevent UserObserver from creating default subscriptions.
-        Event::fake();
+        // Use withoutEvents to ensure UserObserver doesn't run
+        $user = User::withoutEvents(function () {
+            return User::factory()->create();
+        });
 
-        $user = User::factory()->create();
+        // Use random values to avoid conflict with any default subscriptions
+        $medium = rand(100, 200);
+        $event = rand(100, 200);
+
         $subscription = Subscription::factory()->create([
             'user_id' => $user->id,
-            'medium' => '1', // Stored as string
-            'event' => '2',  // Stored as string
+            'medium' => (string) $medium, // Stored as string
+            'event' => (string) $event,  // Stored as string
         ]);
 
         $subscription->refresh();
@@ -108,15 +113,17 @@ class SubscriptionModelTest extends UnitTestCase
         // Assert that the attributes are cast to integers when retrieved.
         $this->assertIsInt($subscription->medium);
         $this->assertIsInt($subscription->event);
+        $this->assertEquals($medium, $subscription->medium);
+        $this->assertEquals($event, $subscription->event);
     }
 
     #[Test]
     public function test_multiple_subscriptions_for_same_user()
     {
-        // Disable events to prevent UserObserver from creating default subscriptions.
-        Event::fake();
-
-        $user = User::factory()->create();
+        // Use withoutEvents to ensure UserObserver doesn't run
+        $user = User::withoutEvents(function () {
+            return User::factory()->create();
+        });
 
         Subscription::factory()->create([
             'user_id' => $user->id,
@@ -135,7 +142,14 @@ class SubscriptionModelTest extends UnitTestCase
 
     public function test_created_at_and_updated_at_timestamps(): void
     {
-        $subscription = Subscription::factory()->create();
+        // Use withoutEvents to avoid unique constraint violation from UserObserver
+        $user = User::withoutEvents(function () {
+            return User::factory()->create();
+        });
+
+        $subscription = Subscription::factory()->create([
+            'user_id' => $user->id,
+        ]);
 
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $subscription->created_at);
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $subscription->updated_at);

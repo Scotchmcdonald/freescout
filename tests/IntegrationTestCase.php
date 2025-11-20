@@ -12,20 +12,10 @@ abstract class IntegrationTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        // Ensure clean transaction state
-        while (DB::transactionLevel() > 0) {
-            DB::rollBack();
-        }
     }
 
     protected function tearDown(): void
     {
-        // Force rollback of ALL pending transactions
-        while (DB::transactionLevel() > 0) {
-            DB::rollBack();
-        }
-        
         parent::tearDown();
     }
 }

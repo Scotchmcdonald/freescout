@@ -260,7 +260,7 @@ class CustomerControllerComprehensiveTest extends FeatureTestCase
     {
         $customer = Customer::factory()->create();
         
-        $response = $this->put(route('customers.update', $customer), [
+        $response = $this->patch(route('customers.update', $customer), [
             'first_name' => 'Updated',
         ]);
         
@@ -272,12 +272,13 @@ class CustomerControllerComprehensiveTest extends FeatureTestCase
         $user = User::factory()->create();
         $customer = Customer::factory()->create(['first_name' => 'Original']);
         
-        $response = $this->actingAs($user)->put(route('customers.update', $customer), [
+        $response = $this->actingAs($user)->patchJson(route('customers.update', $customer), [
             'first_name' => 'Updated',
             'last_name' => 'Name',
         ]);
         
-        $response->assertRedirect();
+        $response->assertOk();
+        $response->assertJson(['success' => true]);
         $this->assertEquals('Updated', $customer->fresh()->first_name);
     }
 
@@ -286,11 +287,12 @@ class CustomerControllerComprehensiveTest extends FeatureTestCase
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
         
-        $response = $this->actingAs($user)->put(route('customers.update', $customer), [
+        $response = $this->actingAs($user)->patchJson(route('customers.update', $customer), [
             'first_name' => '',
         ]);
         
-        $response->assertSessionHasErrors('first_name');
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('first_name');
     }
 
     // ===== DESTROY TESTS =====
@@ -379,12 +381,12 @@ class CustomerControllerComprehensiveTest extends FeatureTestCase
         $user = User::factory()->create();
         $customer = Customer::factory()->create(['last_name' => 'Old']);
         
-        $response = $this->actingAs($user)->put(route('customers.update', $customer), [
+        $response = $this->actingAs($user)->patchJson(route('customers.update', $customer), [
             'first_name' => $customer->first_name,
             'last_name' => 'New',
         ]);
         
-        $response->assertRedirect();
+        $response->assertOk();
         $this->assertEquals('New', $customer->fresh()->last_name);
     }
 

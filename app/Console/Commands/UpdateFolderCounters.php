@@ -14,7 +14,7 @@ class UpdateFolderCounters extends Command
      *
      * @var string
      */
-    protected $signature = 'freescout:update-folder-counters';
+    protected $signature = 'freescout:update-folder-counters {--mailbox_id= : Filter by mailbox ID}';
 
     /**
      * The console command description.
@@ -28,7 +28,15 @@ class UpdateFolderCounters extends Command
      */
     public function handle(): int
     {
-        $folders = Folder::all();
+        $mailboxId = $this->option('mailbox_id');
+
+        $query = Folder::query();
+
+        if ($mailboxId) {
+            $query->where('mailbox_id', $mailboxId);
+        }
+
+        $folders = $query->get();
 
         if ($folders->isEmpty()) {
             $this->info('No folders found');

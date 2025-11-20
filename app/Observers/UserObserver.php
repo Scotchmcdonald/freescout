@@ -38,6 +38,11 @@ class UserObserver
 
         // Unassign from conversations (set user_id to null)
         $user->conversations()->update(['user_id' => null]);
+
+        // Dispatch UserDeleted event
+        // Note: We pass the user as both deleted_user and by_user (assuming self-delete or system delete)
+        // In a real controller, by_user would be the authenticated user
+        \App\Events\UserDeleted::dispatch($user, $user);
     }
 
     /**

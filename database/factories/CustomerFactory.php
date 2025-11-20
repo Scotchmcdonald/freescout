@@ -42,36 +42,70 @@ class CustomerFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (Customer $customer) {
-            // Create a primary email for the customer (if not already created)
+            // Create default email only if no emails exist
+            // Note: Tests using withoutEmail() will have emails added separately
             if ($customer->emails()->count() === 0) {
                 $customer->emails()->create([
                     'email' => fake()->unique()->safeEmail(),
-                    'type' => 'work',
+                    'type' => 1, // TYPE_WORK
                 ]);
             }
         });
     }
-
+    
+    /**
+     * Skip automatic email creation - for tests that will create emails manually.
+     * This returns a new factory that doesn't auto-create emails.
+     */
+    public function withoutEmail(): static
+    {
+        return $this->state([])->afterCreating(function (Customer $customer) {
+            // Delete any auto-generated emails (from parent configure)
+            $customer->emails()->delete();
+        });
+    }
+    
+    /**
+     * Override create to handle email attribute properly.
+     * This is called directly, so we can intercept the email attribute here.
+     */
     public function create($attributes = [], ?\Illuminate\Database\Eloquent\Model $parent = null): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
     {
-        // If email attribute is provided, extract it and create the email separately
-        $emailAttribute = null;
+        // Extract email if present
+        $email = null;
         if (is_array($attributes) && isset($attributes['email'])) {
-            $emailAttribute = $attributes['email'];
+            $email = $attributes['email'];
             unset($attributes['email']);
         }
-
+        
+        // Create the customer (this triggers afterCreating hook)
         $customer = parent::create($attributes, $parent);
-
-        // If email was provided, create it as a separate email record
-        if ($emailAttribute && $customer instanceof Customer) {
+        
+        // If email was explicitly provided, replace any auto-generated email
+        if ($email && $customer instanceof Customer) {
+            $customer->emails()->delete();
             $customer->emails()->create([
-                'email' => $emailAttribute,
-                'type' => 'work',
+                'email' => $email,
+                'type' => 1, // TYPE_WORK (primary)
             ]);
         }
-
+        
         return $customer;
+    }
+    
+    /**
+     * Create a customer with a specific email address (chainable method).
+     */
+    public function withEmail(string $email): static
+    {
+        return $this->afterCreating(function (Customer $customer) use ($email) {
+            // Replace auto-generated email with specified one
+            $customer->emails()->delete();
+            $customer->emails()->create([
+                'email' => $email,
+                'type' => 1, // TYPE_WORK (primary)
+            ]);
+        });
     }
 
     public function withCompany(): static
@@ -89,7 +123,7 @@ class CustomerFactory extends Factory
             for ($i = 1; $i < $count; $i++) {
                 $customer->emails()->create([
                     'email' => fake()->unique()->safeEmail(),
-                    'type' => fake()->randomElement(['work', 'home', 'other']),
+                    'type' => fake()->randomElement([1, 2, 3]), // TYPE_WORK, TYPE_HOME, TYPE_OTHER
                 ]);
             }
         });

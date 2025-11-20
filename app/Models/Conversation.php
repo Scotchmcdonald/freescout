@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property int $id
@@ -55,6 +56,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Conversation extends Model
 {
     use HasFactory;
+    use SoftDeletes;
+
+    // Type constants
+    public const TYPE_EMAIL = 1;
+    public const TYPE_PHONE = 2;
+    public const TYPE_CHAT = 3;
 
     // Status constants
     public const STATUS_ACTIVE = 1;
@@ -226,6 +233,22 @@ class Conversation extends Model
     }
 
     /**
+     * Get aliases as an array.
+     */
+    public function getCcArray(): array
+    {
+        return $this->cc ?? [];
+    }
+
+    /**
+     * Get conversation URL.
+     */
+    public function url(): string
+    {
+        return route('conversations.show', ['conversation' => $this->id]);
+    }
+
+    /**
      * Check if conversation is active.
      */
     public function isActive(): bool
@@ -242,6 +265,34 @@ class Conversation extends Model
     }
 
     /**
+     * Get status name.
+     */
+    public function getStatusName(): string
+    {
+        return match ($this->status) {
+            self::STATUS_ACTIVE => __('Active'),
+            self::STATUS_PENDING => __('Pending'),
+            self::STATUS_CLOSED => __('Closed'),
+            self::STATUS_SPAM => __('Spam'),
+            default => __('Unknown'),
+        };
+    }
+
+    /**
+     * Get status color.
+     */
+    public function getStatusColor(): string
+    {
+        return match ($this->status) {
+            self::STATUS_ACTIVE => '#3f8abf', // Blue
+            self::STATUS_PENDING => '#e6b216', // Yellow/Orange
+            self::STATUS_CLOSED => '#5cb85c', // Green
+            self::STATUS_SPAM => '#d9534f', // Red
+            default => '#777777', // Grey
+        };
+    }
+
+    /**
      * Update the conversation's folder based on status and assignee.
      */
     public function updateFolder(): void
@@ -250,8 +301,8 @@ class Conversation extends Model
         $folderType = match ($this->status) {
             self::STATUS_ACTIVE => $this->user_id ? 1 : 2, // Assigned or Unassigned
             self::STATUS_PENDING => 2, // Unassigned
-            self::STATUS_CLOSED => 4, // Deleted/Closed
-            self::STATUS_SPAM => 30, // Spam
+            self::STATUS_CLOSED => 1, // Keep in Inbox/Assigned (or handle differently)
+            self::STATUS_SPAM => 4, // Spam
             default => 2, // Unassigned as fallback
         };
 
@@ -263,7 +314,7 @@ class Conversation extends Model
             })
             ->first();
 
-        if ($folder) {
+        if ($folder && $this->folder_id !== $folder->id) {
             $this->folder_id = $folder->id;
             $this->save();
         }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Http;
 
 use Tests\UnitTestCase;
-use App\Http\Requests\LoginRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
@@ -329,8 +329,8 @@ class RequestsAndNotificationsTest extends UnitTestCase
         
         $validator = Validator::make($data, (new LoginRequest())->rules());
         
-        // Validation should pass, whitespace handling is application logic
-        $this->assertFalse($validator->fails());
+        // Validation should fail because unit tests don't run TrimStrings middleware
+        $this->assertTrue($validator->fails());
     }
 
     public function test_login_request_custom_error_messages(): void

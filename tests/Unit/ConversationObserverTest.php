@@ -60,7 +60,7 @@ class ConversationObserverTest extends UnitTestCase
 
         $conversation->delete();
 
-        $this->assertDatabaseMissing('threads', ['id' => $thread->id]);
+        $this->assertSoftDeleted('threads', ['id' => $thread->id]);
     }
 
     public function test_deleting_detaches_followers(): void

@@ -15,7 +15,7 @@ class ConversationPolicyTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function admin_can_view_any_conversation()
+    public function test_admin_can_view_any_conversation()
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $conversation = Conversation::factory()->create();
@@ -25,7 +25,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertTrue($policy->view($admin, $conversation));
     }
 
-    public function user_with_mailbox_access_can_view_conversation()
+    public function test_user_with_mailbox_access_can_view_conversation()
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -38,7 +38,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertTrue($policy->view($user, $conversation));
     }
 
-    public function user_without_mailbox_access_cannot_view_conversation()
+    public function test_user_without_mailbox_access_cannot_view_conversation()
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
@@ -48,7 +48,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertFalse($policy->view($user, $conversation));
     }
 
-    public function admin_can_update_any_conversation()
+    public function test_admin_can_update_any_conversation()
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $conversation = Conversation::factory()->create();
@@ -58,7 +58,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertTrue($policy->update($admin, $conversation));
     }
 
-    public function user_with_mailbox_access_can_update_conversation()
+    public function test_user_with_mailbox_access_can_update_conversation()
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -71,7 +71,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertTrue($policy->update($user, $conversation));
     }
 
-    public function user_without_mailbox_access_cannot_update_conversation()
+    public function test_user_without_mailbox_access_cannot_update_conversation()
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
@@ -81,7 +81,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertFalse($policy->update($user, $conversation));
     }
 
-    public function admin_can_delete_any_conversation()
+    public function test_admin_can_delete_any_conversation()
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $conversation = Conversation::factory()->create();
@@ -91,7 +91,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertTrue($policy->delete($admin, $conversation));
     }
 
-    public function user_with_mailbox_access_can_delete_conversation()
+    public function test_user_with_mailbox_access_can_delete_conversation()
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -104,7 +104,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertTrue($policy->delete($user, $conversation));
     }
 
-    public function user_without_mailbox_access_cannot_delete_conversation()
+    public function test_user_without_mailbox_access_cannot_delete_conversation()
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
@@ -114,7 +114,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertFalse($policy->delete($user, $conversation));
     }
 
-    public function user_can_move_conversations_if_they_have_multiple_mailbox_access()
+    public function test_user_can_move_conversations_if_they_have_multiple_mailbox_access()
     {
         $user = User::factory()->create();
         $mailbox1 = Mailbox::factory()->create();
@@ -128,7 +128,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertTrue($policy->move($user));
     }
 
-    public function user_can_move_conversations_if_multiple_mailboxes_exist()
+    public function test_user_can_move_conversations_if_multiple_mailboxes_exist()
     {
         $user = User::factory()->create();
         Mailbox::factory()->count(2)->create();
@@ -138,7 +138,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertTrue($policy->move($user));
     }
 
-    public function user_cannot_move_conversations_if_only_one_mailbox()
+    public function test_user_cannot_move_conversations_if_only_one_mailbox()
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -150,7 +150,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertFalse($policy->move($user));
     }
 
-    public function view_cached_works_with_admin()
+    public function test_view_cached_works_with_admin()
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $conversation = Conversation::factory()->create();
@@ -160,7 +160,7 @@ class ConversationPolicyTest extends TestCase
         $this->assertTrue($policy->viewCached($admin, $conversation));
     }
 
-    public function view_cached_works_with_loaded_mailbox_users()
+    public function test_view_cached_works_with_loaded_mailbox_users()
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();

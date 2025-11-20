@@ -16,21 +16,21 @@ use Tests\UnitTestCase;
  */
 class MailHelperIsAutoResponderTest extends UnitTestCase
 {
-    public function isAutoResponder_with_null_returns_false(): void
+    public function test_isAutoResponder_with_null_returns_false(): void
     {
         $result = MailHelper::isAutoResponder(null);
         
         $this->assertFalse($result);
     }
 
-    public function isAutoResponder_with_empty_string_returns_false(): void
+    public function test_isAutoResponder_with_empty_string_returns_false(): void
     {
         $result = MailHelper::isAutoResponder('');
         
         $this->assertFalse($result);
     }
 
-    public function isAutoResponder_with_no_headers_returns_false(): void
+    public function test_isAutoResponder_with_no_headers_returns_false(): void
     {
         $headers = "Content-Type: text/plain\nFrom: user@example.com";
         
@@ -39,7 +39,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    public function isAutoResponder_detects_x_autoreply_header(): void
+    public function test_isAutoResponder_detects_x_autoreply_header(): void
     {
         $headers = "From: user@example.com\nX-Autoreply: yes\nSubject: Out of Office";
         
@@ -48,7 +48,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_detects_x_autorespond_header(): void
+    public function test_isAutoResponder_detects_x_autorespond_header(): void
     {
         $headers = "From: user@example.com\nX-Autorespond: true\nSubject: Auto Reply";
         
@@ -57,7 +57,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_detects_x_autoresponder_header(): void
+    public function test_isAutoResponder_detects_x_autoresponder_header(): void
     {
         $headers = "From: user@example.com\nX-Autoresponder: enabled\nSubject: Vacation";
         
@@ -66,7 +66,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_detects_auto_submitted_header(): void
+    public function test_isAutoResponder_detects_auto_submitted_header(): void
     {
         $headers = "From: user@example.com\nAuto-Submitted: auto-replied\nSubject: Auto Response";
         
@@ -75,7 +75,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_detects_delivered_to_autoresponder(): void
+    public function test_isAutoResponder_detects_delivered_to_autoresponder(): void
     {
         $headers = "From: user@example.com\nDelivered-To: autoresponder\nSubject: Auto";
         
@@ -84,7 +84,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_detects_precedence_auto_reply(): void
+    public function test_isAutoResponder_detects_precedence_auto_reply(): void
     {
         $headers = "From: user@example.com\nPrecedence: auto_reply\nSubject: Out";
         
@@ -93,7 +93,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_detects_precedence_bulk(): void
+    public function test_isAutoResponder_detects_precedence_bulk(): void
     {
         $headers = "From: user@example.com\nPrecedence: bulk\nSubject: Newsletter";
         
@@ -102,7 +102,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_detects_precedence_junk(): void
+    public function test_isAutoResponder_detects_precedence_junk(): void
     {
         $headers = "From: user@example.com\nPrecedence: junk\nSubject: Spam";
         
@@ -111,7 +111,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_detects_precedence_list(): void
+    public function test_isAutoResponder_detects_precedence_list(): void
     {
         $headers = "From: user@example.com\nPrecedence: list\nSubject: Mailing List";
         
@@ -120,7 +120,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_detects_x_precedence_auto_reply(): void
+    public function test_isAutoResponder_detects_x_precedence_auto_reply(): void
     {
         $headers = "From: user@example.com\nX-Precedence: auto_reply\nSubject: Auto";
         
@@ -129,7 +129,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_detects_x_precedence_bulk(): void
+    public function test_isAutoResponder_detects_x_precedence_bulk(): void
     {
         $headers = "From: user@example.com\nX-Precedence: bulk\nSubject: Bulk";
         
@@ -138,7 +138,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_case_insensitive_header_names(): void
+    public function test_isAutoResponder_case_insensitive_header_names(): void
     {
         $headers = "From: user@example.com\nx-AuToRePlY: yes\nSubject: Test";
         
@@ -147,7 +147,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_with_whitespace_in_headers(): void
+    public function test_isAutoResponder_with_whitespace_in_headers(): void
     {
         $headers = "From: user@example.com\n  X-Autoreply:   yes  \nSubject: Test";
         
@@ -156,7 +156,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_ignores_wrong_precedence_value(): void
+    public function test_isAutoResponder_ignores_wrong_precedence_value(): void
     {
         $headers = "From: user@example.com\nPrecedence: normal\nSubject: Regular";
         
@@ -165,7 +165,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    public function isAutoResponder_ignores_wrong_delivered_to_value(): void
+    public function test_isAutoResponder_ignores_wrong_delivered_to_value(): void
     {
         $headers = "From: user@example.com\nDelivered-To: user@example.com\nSubject: Normal";
         
@@ -174,7 +174,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    public function isAutoResponder_with_multiple_headers_finds_auto_one(): void
+    public function test_isAutoResponder_with_multiple_headers_finds_auto_one(): void
     {
         $headers = "From: user@example.com\nContent-Type: text/plain\nTo: support@example.com\nX-Autoreply: yes\nDate: Mon, 1 Jan 2024";
         
@@ -183,7 +183,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_with_multiline_headers(): void
+    public function test_isAutoResponder_with_multiline_headers(): void
     {
         $headers = "From: user@example.com\nReceived: from mail.example.com\n by smtp.example.com\nX-Autorespond: true\nSubject: Test";
         
@@ -192,7 +192,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_handles_headers_without_colon(): void
+    public function test_isAutoResponder_handles_headers_without_colon(): void
     {
         // Malformed header lines without colons should be skipped
         $headers = "From: user@example.com\nInvalidHeaderLine\nX-Autoreply: yes";
@@ -202,7 +202,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_with_real_auto_responder_email_fixture(): void
+    public function test_isAutoResponder_with_real_auto_responder_email_fixture(): void
     {
         $emailContent = EmailFixtures::load('auto_responder_email');
         
@@ -215,7 +215,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_with_real_valid_email_fixture_returns_false(): void
+    public function test_isAutoResponder_with_real_valid_email_fixture_returns_false(): void
     {
         $emailContent = EmailFixtures::load('valid_email');
         
@@ -228,7 +228,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    public function isAutoResponder_detects_multiple_auto_headers(): void
+    public function test_isAutoResponder_detects_multiple_auto_headers(): void
     {
         $headers = "X-Autoreply: yes\nAuto-Submitted: auto-replied\nPrecedence: bulk";
         
@@ -238,7 +238,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_with_empty_header_value(): void
+    public function test_isAutoResponder_with_empty_header_value(): void
     {
         // X-Autoreply with any value (even empty) should trigger
         $headers = "From: user@example.com\nX-Autoreply:\nSubject: Test";
@@ -248,7 +248,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_with_unix_line_endings(): void
+    public function test_isAutoResponder_with_unix_line_endings(): void
     {
         $headers = "From: user@example.com\nX-Autoreply: yes\nSubject: Test";
         
@@ -257,7 +257,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_with_windows_line_endings(): void
+    public function test_isAutoResponder_with_windows_line_endings(): void
     {
         $headers = "From: user@example.com\r\nX-Autoreply: yes\r\nSubject: Test";
         
@@ -267,7 +267,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_performance_with_large_headers(): void
+    public function test_isAutoResponder_performance_with_large_headers(): void
     {
         // Create headers with 1000 lines
         $headerLines = ["From: user@example.com"];
@@ -283,7 +283,7 @@ class MailHelperIsAutoResponderTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    public function isAutoResponder_with_colon_in_header_value(): void
+    public function test_isAutoResponder_with_colon_in_header_value(): void
     {
         // Header value contains colon - only first colon is separator
         $headers = "From: user@example.com\nReceived: from mail.example.com by smtp.example.com:25\nX-Autoreply: yes";

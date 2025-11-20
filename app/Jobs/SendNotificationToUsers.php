@@ -151,8 +151,8 @@ class SendNotificationToUsers implements ShouldQueue
                 ]);
 
                 // TODO: Uncomment when UserNotification mailable is implemented
-                // Mail::to([['name' => $user->getFullNameAttribute(), 'email' => $user->email]])
-                //     ->send(new UserNotification($user, $this->conversation, $this->threads, $headers, $from, $mailbox));
+                Mail::to([['name' => $user->getFullNameAttribute(), 'email' => $user->email]])
+                    ->send(new \App\Mail\UserNotification($user, $this->conversation, $this->threads, $headers, $from, $mailbox));
             } catch (\Exception $e) {
                 Log::error('Error sending notification to user', [
                     'user_id' => $user->id,
