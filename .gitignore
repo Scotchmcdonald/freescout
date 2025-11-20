@@ -59,6 +59,9 @@ yarn-error.log
 # Temporary test files
 app/Console/Commands/Test*
 
+# Archive - DO NOT TEST
+/archive/
+
 # Well-known
 /public/.well-known
 .well-known
