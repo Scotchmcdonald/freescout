@@ -504,6 +504,121 @@ class ImapService
     }
 
     /**
+     * Create or find customer from email and name.
+     */
+    protected function createCustomerFromName(string $email, string $name): Customer
+    {
+        $name = trim($name);
+        $nameParts = explode(' ', $name, 2);
+        $firstName = trim($nameParts[0]);
+        $lastName = isset($nameParts[1]) ? trim($nameParts[1]) : '';
+
+        // Limit first name to 20 characters (database field size)
+        if (strlen($firstName) > 20) {
+            $firstName = mb_substr($firstName, 0, 20);
+        }
+        
+        // Limit last name to 30 characters (database field size)
+        if (strlen($lastName) > 30) {
+            $lastName = mb_substr($lastName, 0, 30);
+        }
+
+        $customer = Customer::create($email, [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+        ]);
+
+        if (! $customer) {
+            throw new \Exception('Failed to create/find customer for email: '.$email);
+        }
+
+        Log::debug('Customer identified', [
+            'customer_id' => $customer->id,
+            'email' => $email,
+        ]);
+
+        return $customer;
+    }
+
+    /**
+     * Find or create conversation for message.
+     * 
+     * @return array{conversation: Conversation, is_new: bool}
+     */
+    protected function findOrCreateConversation(
+        Mailbox $mailbox,
+        \Webklex\PHPIMAP\Message $message,
+        Customer $customer,
+        string $subject,
+        string $messageId,
+        bool $isExtraImport
+    ): array {
+        $header = $message->getHeader();
+        $inReplyTo = $header?->get('in_reply_to')?->first();
+        $references = $header?->get('references')?->first();
+
+        $conversation = null;
+
+        // Try to find existing conversation if this is a reply
+        if (($inReplyTo || $references) && ! $isExtraImport) {
+            Log::debug('Message appears to be a reply', [
+                'in_reply_to' => $inReplyTo,
+                'references' => $references,
+            ]);
+
+            $replyToMessageId = $inReplyTo ?: $references;
+            $parentThread = Thread::where('message_id', $replyToMessageId)->first();
+
+            if ($parentThread) {
+                $conversation = $parentThread->conversation;
+                Log::debug('Found existing conversation for reply', [
+                    'conversation_id' => $conversation->id,
+                ]);
+                
+                return ['conversation' => $conversation, 'is_new' => false];
+            } else {
+                Log::debug('Could not find parent thread, will create new conversation');
+            }
+        }
+
+        // Create new conversation
+        $folder = $mailbox->folders()->where('type', 1)->first(); // Inbox
+
+        if (! $folder) {
+            throw new \Exception("No inbox folder found for mailbox {$mailbox->id}");
+        }
+
+        // Lock to prevent race condition with conversation number
+        $maxNumber = $mailbox->conversations()->lockForUpdate()->max('number');
+        $number = (is_int($maxNumber) ? $maxNumber : 0) + 1;
+
+        $conversation = Conversation::create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+            'folder_id' => $folder->id,
+            'number' => $number,
+            'subject' => $subject,
+            'type' => 1, // Email
+            'status' => 1, // Active
+            'state' => 2, // Published
+            'source_via' => 2, // Customer
+            'source_type' => 1, // Email
+            'customer_email' => $customer->email,
+            'preview' => mb_substr(strip_tags($message->getTextBody()), 0, 255),
+            'last_reply_at' => now(),
+            'threads_count' => 0,
+        ]);
+
+        Log::info('Created new conversation', [
+            'conversation_id' => $conversation->id,
+            'number' => $number,
+            'subject' => $subject,
+        ]);
+
+        return ['conversation' => $conversation, 'is_new' => true];
+    }
+
+    /**
      * Process an email message.
      */
     protected function processMessage(Mailbox $mailbox, \Webklex\PHPIMAP\Message $message): void
@@ -524,36 +639,8 @@ class ImapService
                 ]);
             }
 
-            // Parse name and limit length (first_name is VARCHAR(20) in database)
-            // Trim whitespace from name before parsing
-            $fromName = trim($fromName);
-            $nameParts = explode(' ', $fromName, 2);
-            $firstName = trim($nameParts[0]);
-            $lastName = isset($nameParts[1]) ? trim($nameParts[1]) : '';
-
-            // Limit first name to 20 characters
-            if (strlen($firstName) > 20) {
-                $firstName = mb_substr($firstName, 0, 20);
-            }
-            // Limit last name to 30 characters (database field size)
-            if (strlen($lastName) > 30) {
-                $lastName = mb_substr($lastName, 0, 30);
-            }
-
-            // Use the original FreeScout Customer::create() method
-            $customer = Customer::create($fromEmail, [
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-            ]);
-
-            if (! $customer) {
-                throw new \Exception('Failed to create/find customer for email: '.$fromEmail);
-            }
-
-            Log::debug('Customer identified', [
-                'customer_id' => $customer->id,
-                'email' => $fromEmail,
-            ]);
+            // Create or find customer
+            $customer = $this->createCustomerFromName($fromEmail, $fromName);
 
             // Check if conversation already exists by Message-ID
             $messageIdRaw = $message->getMessageId();
@@ -601,80 +688,30 @@ class ImapService
                 }
             }
 
-            // Get subject (IMAP library returns Attribute objects)
+            // Get subject
             $subjectRaw = $message->getSubject();
             $subject = (string) $subjectRaw;
             if (! $subject || trim($subject) === '') {
                 $subject = '(No Subject)';
             }
 
-            // Check if this is a reply (has In-Reply-To or References header)
+            // Check if this is a reply
             $header = $message->getHeader();
             $inReplyTo = $header?->get('in_reply_to')?->first();
             $references = $header?->get('references')?->first();
 
-            $conversation = null;
-
-            if (($inReplyTo || $references) && ! $isExtraImport) {
-                Log::debug('Message appears to be a reply', [
-                    'in_reply_to' => $inReplyTo,
-                    'references' => $references,
-                ]);
-
-                // Try to find existing conversation
-                $replyToMessageId = $inReplyTo ?: $references;
-                /** @var \App\Models\Thread|null $parentThread */
-                $parentThread = Thread::where('message_id', $replyToMessageId)->first();
-
-                if ($parentThread) {
-                    /** @var \App\Models\Conversation $conversation */
-                    $conversation = $parentThread->conversation;
-                    Log::debug('Found existing conversation for reply', [
-                        'conversation_id' => $conversation->id,
-                    ]);
-                } else {
-                    Log::debug('Could not find parent thread, will create new conversation');
-                }
-            }
-
-            // Create new conversation if not found
-            if (! $conversation) {
-                // Validate folder exists BEFORE any database operations
-                /** @var \App\Models\Folder|null $folder */
-                $folder = $mailbox->folders()->where('type', 1)->first(); // Inbox
-
-                if (! $folder) {
-                    throw new \Exception("No inbox folder found for mailbox {$mailbox->id}");
-                }
-
-                // Lock to prevent race condition with conversation number
-                $maxNumber = $mailbox->conversations()->lockForUpdate()->max('number');
-                $number = (is_int($maxNumber) ? $maxNumber : 0) + 1;
-
-                /** @var \App\Models\Conversation $conversation */
-                $conversation = Conversation::create([
-                    'mailbox_id' => $mailbox->id,
-                    'customer_id' => $customer->id,
-                    'folder_id' => $folder->id,
-                    'number' => $number,
-                    'subject' => $subject,
-                    'type' => 1, // Email
-                    'status' => 1, // Active
-                    'state' => 2, // Published
-                    'source_via' => 2, // Customer
-                    'source_type' => 1, // Email
-                    'customer_email' => $fromEmail,
-                    'preview' => mb_substr(strip_tags($message->getTextBody()), 0, 255),
-                    'last_reply_at' => now(),
-                    'threads_count' => 0, // Explicitly set to 0
-                ]);
-
-                Log::info('Created new conversation', [
-                    'conversation_id' => $conversation->id,
-                    'number' => $number,
-                    'subject' => $subject,
-                ]);
-            }
+            // Find or create conversation
+            $conversationData = $this->findOrCreateConversation(
+                $mailbox,
+                $message,
+                $customer,
+                $subject,
+                $messageId,
+                $isExtraImport
+            );
+            
+            $conversation = $conversationData['conversation'];
+            $isNewConversation = $conversationData['is_new'];
 
             // Get email body
             $isHtml = $message->hasHTMLBody();
@@ -797,9 +834,6 @@ class ImapService
                 'thread_id' => $thread->id,
                 'conversation_id' => $conversation->id,
             ]);
-
-            // Track if this is a new conversation or reply
-            $isNewConversation = $thread->first;
 
             // Process attachments
             $this->processAttachments($message, $thread, $conversation, $body);
