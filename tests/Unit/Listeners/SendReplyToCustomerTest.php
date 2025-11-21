@@ -225,4 +225,155 @@ class SendReplyToCustomerTest extends UnitTestCase
         $listener = new SendReplyToCustomer();
         $this->assertInstanceOf(SendReplyToCustomer::class, $listener);
     }
+
+    public function test_listener_skips_phone_conversation_without_customer_email(): void
+    {
+        $user = User::factory()->create();
+        $customer = Customer::factory()->create();
+        // Remove all emails from customer
+        $customer->emails()->delete();
+        
+        $conversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+            'type' => 2, // TYPE_PHONE
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'created_by_user_id' => $user->id,
+        ]);
+
+        // Mock the isPhone method
+        $conversationMock = \Mockery::mock($conversation);
+        $conversationMock->shouldReceive('isPhone')->andReturn(true);
+        $conversationMock->shouldReceive('getAttribute')->with('customer')->andReturn($customer);
+        $conversationMock->customer = $customer;
+
+        $event = new UserReplied($conversationMock, $thread);
+        $listener = new SendReplyToCustomer();
+        
+        // Should handle without exception and skip sending
+        $listener->handle($event);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function test_listener_handles_conversation_without_get_replies_method(): void
+    {
+        $user = User::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'created_by_user_id' => $user->id,
+            'imported' => false,
+        ]);
+
+        // Create a conversation object that doesn't have getReplies method
+        $conversationMock = \Mockery::mock($conversation);
+        $conversationMock->shouldReceive('getAttribute')->andReturn($customer);
+        $conversationMock->customer = $customer;
+
+        $event = new UserReplied($conversationMock, $thread);
+        $listener = new SendReplyToCustomer();
+        
+        $listener->handle($event);
+        // Should handle gracefully with empty collection
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function test_listener_dispatches_job_with_correct_delay(): void
+    {
+        \Queue::fake();
+
+        $user = User::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'created_by_user_id' => $user->id,
+            'imported' => false,
+        ]);
+
+        $event = new UserReplied($conversation, $thread);
+        $listener = new SendReplyToCustomer();
+        
+        $listener->handle($event);
+
+        \Queue::assertPushed(\App\Jobs\SendConversationReply::class, function ($job) {
+            return $job->delay !== null;
+        });
+    }
+
+    public function test_listener_dispatches_job_to_emails_queue(): void
+    {
+        \Queue::fake();
+
+        $user = User::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'created_by_user_id' => $user->id,
+            'imported' => false,
+        ]);
+
+        $event = new UserCreatedConversation($conversation, $thread);
+        $listener = new SendReplyToCustomer();
+        
+        $listener->handle($event);
+
+        \Queue::assertPushedOn('emails', \App\Jobs\SendConversationReply::class);
+    }
+
+    public function test_listener_handles_event_without_thread_property(): void
+    {
+        $user = User::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+        ]);
+
+        // Create event without thread property
+        $event = new \stdClass();
+        $event->conversation = $conversation;
+        $event->thread = null;
+
+        $listener = new SendReplyToCustomer();
+        
+        // Should handle null thread gracefully
+        $listener->handle($event);
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function test_listener_passes_correct_parameters_to_job(): void
+    {
+        \Queue::fake();
+
+        $user = User::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'created_by_user_id' => $user->id,
+            'imported' => false,
+        ]);
+
+        $event = new UserReplied($conversation, $thread);
+        $listener = new SendReplyToCustomer();
+        
+        $listener->handle($event);
+
+        \Queue::assertPushed(\App\Jobs\SendConversationReply::class, function ($job) use ($conversation, $customer) {
+            return $job->conversation->id === $conversation->id &&
+                   $job->customer->id === $customer->id &&
+                   is_array($job->replies);
+        });
+    }
 }

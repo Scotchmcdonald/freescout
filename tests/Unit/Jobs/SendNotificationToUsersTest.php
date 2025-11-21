@@ -841,12 +841,13 @@ class SendNotificationToUsersTest extends UnitTestCase
             'message_id' => 'previous-notification@example.com',
         ]);
 
-        $job = new SendNotificationToUsers(collect([$user]), $conversation, collect([$thread]));
-        // Simulate retry by manually setting attempts
-        $reflection = new \ReflectionClass($job);
-        $property = $reflection->getProperty('attempts');
-        $property->setAccessible(true);
-        $property->setValue($job, 2);
+        // Create a partial mock to simulate retry attempts
+        $job = \Mockery::mock(SendNotificationToUsers::class, [collect([$user]), $conversation, collect([$thread])])
+            ->makePartial()
+            ->shouldAllowMockingProtectedMethods();
+        
+        // Mock the attempts method to return 2 (simulating retry)
+        $job->shouldReceive('attempts')->andReturn(2);
 
         $job->handle();
 
