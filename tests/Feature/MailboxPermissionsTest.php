@@ -6,7 +6,6 @@ use App\Models\Mailbox;
 use App\Models\User;
 use App\Policies\MailboxPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class MailboxPermissionsTest extends TestCase

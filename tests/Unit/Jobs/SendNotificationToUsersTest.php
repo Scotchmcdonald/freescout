@@ -15,7 +15,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class SendNotificationToUsersTest extends UnitTestCase

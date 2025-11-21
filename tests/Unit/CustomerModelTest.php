@@ -7,7 +7,6 @@ namespace Tests\Unit;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Email;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class CustomerModelTest extends UnitTestCase

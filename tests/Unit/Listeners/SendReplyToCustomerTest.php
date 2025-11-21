@@ -13,7 +13,6 @@ use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class SendReplyToCustomerTest extends UnitTestCase

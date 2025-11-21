@@ -153,4 +153,92 @@ class UserPolicyTest extends TestCase
         // Admin can update their own profile
         $this->assertTrue($policy->update($admin, $admin));
     }
+
+    public function test_null_user_cannot_view_any_users(): void
+    {
+        $policy = new UserPolicy;
+
+        $this->assertFalse($policy->viewAny(null));
+    }
+
+    public function test_null_user_cannot_create_user(): void
+    {
+        $policy = new UserPolicy;
+
+        $this->assertFalse($policy->create(null));
+    }
+
+    public function test_null_user_cannot_view_user(): void
+    {
+        $targetUser = new User;
+        $targetUser->id = 1;
+        $targetUser->role = User::ROLE_USER;
+
+        $policy = new UserPolicy;
+
+        $this->assertFalse($policy->view(null, $targetUser));
+    }
+
+    public function test_null_user_cannot_update_user(): void
+    {
+        $targetUser = new User;
+        $targetUser->id = 1;
+        $targetUser->role = User::ROLE_USER;
+
+        $policy = new UserPolicy;
+
+        $this->assertFalse($policy->update(null, $targetUser));
+    }
+
+    public function test_null_user_cannot_delete_user(): void
+    {
+        $targetUser = new User;
+        $targetUser->id = 1;
+        $targetUser->role = User::ROLE_USER;
+
+        $policy = new UserPolicy;
+
+        $this->assertFalse($policy->delete(null, $targetUser));
+    }
+
+    public function test_admin_can_view_user(): void
+    {
+        $admin = new User;
+        $admin->id = 1;
+        $admin->role = User::ROLE_ADMIN;
+
+        $targetUser = new User;
+        $targetUser->id = 2;
+        $targetUser->role = User::ROLE_USER;
+
+        $policy = new UserPolicy;
+
+        $this->assertTrue($policy->view($admin, $targetUser));
+    }
+
+    public function test_user_can_view_themselves(): void
+    {
+        $user = new User;
+        $user->id = 1;
+        $user->role = User::ROLE_USER;
+
+        $policy = new UserPolicy;
+
+        $this->assertTrue($policy->view($user, $user));
+    }
+
+    public function test_user_cannot_view_other_users(): void
+    {
+        $user = new User;
+        $user->id = 1;
+        $user->role = User::ROLE_USER;
+
+        $otherUser = new User;
+        $otherUser->id = 2;
+        $otherUser->role = User::ROLE_USER;
+
+        $policy = new UserPolicy;
+
+        $this->assertFalse($policy->view($user, $otherUser));
+    }
 }
