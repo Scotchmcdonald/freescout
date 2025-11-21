@@ -261,6 +261,8 @@ $io->text(sprintf(
 $io->newLine();
 
 // --- EXECUTION ---
+$io->section('Running Tests');
+
 $reportsDir = $baseDir.'/reports/test_runs_'.date('Y-m-d_His');
 mkdir($reportsDir, 0777, true);
 
@@ -578,8 +580,6 @@ $executionProgressBar->start();
 
 // --- PHASE 1: PARALLEL TESTS ---
 if (!empty($parallelFiles)) {
-    $io->section('Running Parallel Tests');
-    
     // Dynamic batch size: ~5% of total files, min 5, max 25 to balance speed vs memory
     $batchSize = max(5, min(25, (int)ceil(count($parallelFiles) * 0.033)));
     $parallelChunks = array_chunk($parallelFiles, $batchSize);
@@ -600,8 +600,6 @@ if (!empty($parallelFiles)) {
 
 // --- PHASE 2: SEQUENTIAL TESTS ---
 if (!empty($sequentialFiles)) {
-    $io->section('Running Sequential Tests');
-    
     // Dynamic batch size for sequential tests
     $batchSize = max(5, min(25, (int)ceil(count($sequentialFiles) * 0.033)));
     $sequentialChunks = array_chunk($sequentialFiles, $batchSize);
