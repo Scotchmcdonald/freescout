@@ -24,8 +24,7 @@ class EventsTest extends UnitTestCase
 
     // ConversationUserChanged Tests
 
-    #[Test]
-    public function conversation_user_changed_can_be_instantiated(): void
+    public function test_conversation_user_changed_can_be_instantiated(): void
     {
         $conversation = Conversation::factory()->create();
         $user = User::factory()->create();
@@ -37,8 +36,7 @@ class EventsTest extends UnitTestCase
         $this->assertEquals($user->id, $event->user->id);
     }
 
-    #[Test]
-    public function conversation_user_changed_can_be_dispatched(): void
+    public function test_conversation_user_changed_can_be_dispatched(): void
     {
         Event::fake();
 
@@ -50,8 +48,7 @@ class EventsTest extends UnitTestCase
         Event::assertDispatched(ConversationUserChanged::class);
     }
 
-    #[Test]
-    public function conversation_user_changed_has_dispatchable_trait(): void
+    public function test_conversation_user_changed_has_dispatchable_trait(): void
     {
         $event = new ConversationUserChanged(
             Conversation::factory()->make(),
@@ -63,8 +60,7 @@ class EventsTest extends UnitTestCase
 
     // UserAddedNote Tests
 
-    #[Test]
-    public function user_added_note_can_be_instantiated(): void
+    public function test_user_added_note_can_be_instantiated(): void
     {
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
@@ -76,8 +72,7 @@ class EventsTest extends UnitTestCase
         $this->assertEquals($thread->id, $event->thread->id);
     }
 
-    #[Test]
-    public function user_added_note_can_be_dispatched(): void
+    public function test_user_added_note_can_be_dispatched(): void
     {
         Event::fake();
 
@@ -89,8 +84,7 @@ class EventsTest extends UnitTestCase
         Event::assertDispatched(UserAddedNote::class);
     }
 
-    #[Test]
-    public function user_added_note_has_correct_properties(): void
+    public function test_user_added_note_has_correct_properties(): void
     {
         $conversation = Conversation::factory()->create(['subject' => 'Test Subject']);
         $thread = Thread::factory()->create([
@@ -106,8 +100,7 @@ class EventsTest extends UnitTestCase
 
     // UserCreatedConversation Tests
 
-    #[Test]
-    public function user_created_conversation_can_be_instantiated(): void
+    public function test_user_created_conversation_can_be_instantiated(): void
     {
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
@@ -119,8 +112,7 @@ class EventsTest extends UnitTestCase
         $this->assertEquals($thread->id, $event->thread->id);
     }
 
-    #[Test]
-    public function user_created_conversation_can_be_dispatched(): void
+    public function test_user_created_conversation_can_be_dispatched(): void
     {
         Event::fake();
 
@@ -132,8 +124,7 @@ class EventsTest extends UnitTestCase
         Event::assertDispatched(UserCreatedConversation::class);
     }
 
-    #[Test]
-    public function user_created_conversation_stores_models(): void
+    public function test_user_created_conversation_stores_models(): void
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create(['created_by_user_id' => $user->id]);
@@ -147,8 +138,7 @@ class EventsTest extends UnitTestCase
 
     // UserDeleted Tests
 
-    #[Test]
-    public function user_deleted_can_be_instantiated(): void
+    public function test_user_deleted_can_be_instantiated(): void
     {
         $deletedUser = User::factory()->create();
         $byUser = User::factory()->create();
@@ -160,8 +150,7 @@ class EventsTest extends UnitTestCase
         $this->assertEquals($byUser->id, $event->by_user->id);
     }
 
-    #[Test]
-    public function user_deleted_can_be_dispatched(): void
+    public function test_user_deleted_can_be_dispatched(): void
     {
         Event::fake();
 
@@ -173,8 +162,7 @@ class EventsTest extends UnitTestCase
         Event::assertDispatched(UserDeleted::class);
     }
 
-    #[Test]
-    public function user_deleted_tracks_both_users(): void
+    public function test_user_deleted_tracks_both_users(): void
     {
         $deletedUser = User::factory()->create(['email' => 'deleted@example.com']);
         $byUser = User::factory()->create(['email' => 'admin@example.com']);
@@ -187,8 +175,7 @@ class EventsTest extends UnitTestCase
 
     // UserReplied Tests
 
-    #[Test]
-    public function user_replied_can_be_instantiated(): void
+    public function test_user_replied_can_be_instantiated(): void
     {
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
@@ -200,8 +187,7 @@ class EventsTest extends UnitTestCase
         $this->assertEquals($thread->id, $event->thread->id);
     }
 
-    #[Test]
-    public function user_replied_can_be_dispatched(): void
+    public function test_user_replied_can_be_dispatched(): void
     {
         Event::fake();
 
@@ -213,8 +199,7 @@ class EventsTest extends UnitTestCase
         Event::assertDispatched(UserReplied::class);
     }
 
-    #[Test]
-    public function user_replied_has_dispatchable_trait(): void
+    public function test_user_replied_has_dispatchable_trait(): void
     {
         $event = new UserReplied(
             Conversation::factory()->make(),
@@ -226,8 +211,7 @@ class EventsTest extends UnitTestCase
 
     // CustomerCreatedConversation Tests
 
-    #[Test]
-    public function customer_created_conversation_can_be_instantiated(): void
+    public function test_customer_created_conversation_can_be_instantiated(): void
     {
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
@@ -241,8 +225,7 @@ class EventsTest extends UnitTestCase
         $this->assertEquals($customer->id, $event->customer->id);
     }
 
-    #[Test]
-    public function customer_created_conversation_can_be_dispatched(): void
+    public function test_customer_created_conversation_can_be_dispatched(): void
     {
         Event::fake();
 
@@ -257,8 +240,7 @@ class EventsTest extends UnitTestCase
 
     // CustomerReplied Tests
 
-    #[Test]
-    public function customer_replied_can_be_instantiated(): void
+    public function test_customer_replied_can_be_instantiated(): void
     {
         $conversation = Conversation::factory()->create();
         $customer = Customer::factory()->create();
@@ -272,8 +254,7 @@ class EventsTest extends UnitTestCase
         $this->assertEquals($customer->id, $event->customer->id);
     }
 
-    #[Test]
-    public function customer_replied_can_be_dispatched(): void
+    public function test_customer_replied_can_be_dispatched(): void
     {
         Event::fake();
 
@@ -286,8 +267,7 @@ class EventsTest extends UnitTestCase
         Event::assertDispatched(CustomerReplied::class);
     }
 
-    #[Test]
-    public function all_events_use_dispatchable_trait(): void
+    public function test_all_events_use_dispatchable_trait(): void
     {
         $conversation = Conversation::factory()->make();
         $thread = Thread::factory()->make();
@@ -309,8 +289,7 @@ class EventsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function events_can_be_listened_to(): void
+    public function test_events_can_be_listened_to(): void
     {
         Event::fake();
 

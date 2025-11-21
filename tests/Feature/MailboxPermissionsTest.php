@@ -28,8 +28,7 @@ class MailboxPermissionsTest extends TestCase
         $this->mailbox = Mailbox::factory()->create();
     }
 
-    #[Test]
-    public function admin_can_view_permissions_page()
+    public function test_admin_can_view_permissions_page()
     {
         $this->actingAs($this->adminUser);
 
@@ -40,8 +39,7 @@ class MailboxPermissionsTest extends TestCase
             ->assertSee($this->user2->getFullName());
     }
 
-    #[Test]
-    public function non_admin_cannot_view_permissions_page()
+    public function test_non_admin_cannot_view_permissions_page()
     {
         $this->actingAs($this->user1);
 
@@ -49,8 +47,7 @@ class MailboxPermissionsTest extends TestCase
             ->assertStatus(403);
     }
 
-    #[Test]
-    public function admin_can_update_permissions()
+    public function test_admin_can_update_permissions()
     {
         $this->actingAs($this->adminUser);
 
@@ -76,8 +73,7 @@ class MailboxPermissionsTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function user_with_view_access_can_view_mailbox()
+    public function test_user_with_view_access_can_view_mailbox()
     {
         $this->mailbox->users()->attach($this->user1, ['access' => MailboxPolicy::ACCESS_VIEW]);
 
@@ -86,39 +82,34 @@ class MailboxPermissionsTest extends TestCase
         $this->get(route('mailboxes.view', $this->mailbox))->assertStatus(200);
     }
 
-    #[Test]
-    public function user_without_view_access_cannot_view_mailbox()
+    public function test_user_without_view_access_cannot_view_mailbox()
     {
         $this->actingAs($this->user1);
 
         $this->get(route('mailboxes.view', $this->mailbox))->assertStatus(403);
     }
 
-    #[Test]
-    public function user_with_reply_access_can_reply()
+    public function test_user_with_reply_access_can_reply()
     {
         $this->mailbox->users()->attach($this->user1, ['access' => MailboxPolicy::ACCESS_REPLY]);
         $this->user1->refresh();
         $this->assertTrue($this->user1->can('reply', $this->mailbox));
     }
 
-    #[Test]
-    public function user_with_view_access_cannot_reply()
+    public function test_user_with_view_access_cannot_reply()
     {
         $this->mailbox->users()->attach($this->user1, ['access' => MailboxPolicy::ACCESS_VIEW]);
         $this->user1->refresh();
         $this->assertFalse($this->user1->can('reply', $this->mailbox));
     }
 
-    #[Test]
-    public function user_with_admin_access_can_update_mailbox_settings()
+    public function test_user_with_admin_access_can_update_mailbox_settings()
     {
         $this->mailbox->users()->attach($this->user1, ['access' => MailboxPolicy::ACCESS_ADMIN]);
         $this->assertTrue($this->user1->can('update', $this->mailbox));
     }
 
-    #[Test]
-    public function user_with_reply_access_cannot_update_mailbox_settings()
+    public function test_user_with_reply_access_cannot_update_mailbox_settings()
     {
         $this->mailbox->users()->attach($this->user1, ['access' => MailboxPolicy::ACCESS_REPLY]);
         $this->assertFalse($this->user1->can('update', $this->mailbox));

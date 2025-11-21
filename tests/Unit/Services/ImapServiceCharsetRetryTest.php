@@ -111,14 +111,16 @@ class ImapServiceCharsetRetryTest extends TestCase
         $mockMessage->shouldReceive('getMessageId')->andReturn('<test@example.com>');
         $mockMessage->shouldReceive('setFlag')->with('Seen');
 
-        // First query succeeds but client has charset error
+        // First query throws exception with charset in message (since method_exists fails on mocks)
         $mockQuery1 = Mockery::mock(WhereQuery::class);
         $mockQuery1->shouldReceive('since')->once()->andReturnSelf();
         $mockQuery1->shouldReceive('unseen')->once()->andReturnSelf();
         $mockQuery1->shouldReceive('leaveUnread')->once()->andReturnSelf();
-        $mockQuery1->shouldReceive('get')->once()->andReturn(new MessageCollection([]));
+        $mockQuery1->shouldReceive('get')->once()->andThrow(
+            new \Exception('IMAP Error: The specified charset is not supported')
+        );
 
-        // Second query with setCharset(null)
+        // Second query with setCharset(null) succeeds
         $mockQuery2 = Mockery::mock(WhereQuery::class);
         $mockQuery2->shouldReceive('since')->once()->andReturnSelf();
         $mockQuery2->shouldReceive('unseen')->once()->andReturnSelf();
@@ -132,8 +134,6 @@ class ImapServiceCharsetRetryTest extends TestCase
         $mockClient = Mockery::mock(Client::class);
         $mockClient->shouldReceive('connect')->once();
         $mockClient->shouldReceive('getFolder')->with('INBOX')->once()->andReturn($mockFolder);
-        // getLastError returns charset error
-        $mockClient->shouldReceive('getLastError')->andReturn('IMAP Error: The specified charset is not supported');
         $mockClient->shouldReceive('disconnect')->once();
 
         $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
@@ -142,6 +142,7 @@ class ImapServiceCharsetRetryTest extends TestCase
 
         $result = $service->fetchEmails($mailbox);
 
+        // After retry, should have fetched 1 message
         $this->assertEquals(1, $result['fetched']);
     }
 
@@ -298,7 +299,7 @@ class ImapServiceCharsetRetryTest extends TestCase
         $mockMessage->shouldReceive('getMessageId')->andReturn('<test@example.com>');
         $mockMessage->shouldReceive('setFlag')->with('Seen');
 
-        // First query fails
+        // First query fails with charset in exception message
         $mockQuery1 = Mockery::mock(WhereQuery::class);
         $mockQuery1->shouldReceive('since')->once()->andReturnSelf();
         $mockQuery1->shouldReceive('unseen')->once()->andReturnSelf();
@@ -318,7 +319,7 @@ class ImapServiceCharsetRetryTest extends TestCase
         $mockFolder = Mockery::mock(Folder::class);
         $mockFolder->shouldReceive('query')->twice()->andReturn($mockQuery1, $mockQuery2);
 
-        // Client without getLastError method
+        // Client without getLastError method - exception message has 'charset' so retry happens
         $mockClient = Mockery::mock(Client::class);
         $mockClient->shouldReceive('connect')->once();
         $mockClient->shouldReceive('getFolder')->with('INBOX')->once()->andReturn($mockFolder);
@@ -331,6 +332,7 @@ class ImapServiceCharsetRetryTest extends TestCase
 
         $result = $service->fetchEmails($mailbox);
 
+        // Message fetched after retry
         $this->assertEquals(1, $result['fetched']);
         $this->assertEquals(1, $result['created']);
     }

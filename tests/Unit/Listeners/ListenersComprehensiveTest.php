@@ -92,7 +92,7 @@ class ListenersComprehensiveTest extends UnitTestCase
 
     public function test_conversation_user_changed_listener_notifies_new_user(): void
     {
-        Notification::fake();
+        \Illuminate\Support\Facades\Queue::fake();
 
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
@@ -103,9 +103,7 @@ class ListenersComprehensiveTest extends UnitTestCase
 
         $listener->handle($event);
 
-        // TODO: Update this test when SendNotificationToUsers is fully implemented
-        // Currently it returns early or does not send notifications
-        Notification::assertNothingSent();
+        \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\SendNotificationToUsers::class);
     }
 
     // public function test_conversation_user_changed_listener_handles_null_previous_user(): void
@@ -264,7 +262,7 @@ class ListenersComprehensiveTest extends UnitTestCase
 
     public function test_user_replied_listener_sends_notification_to_customer(): void
     {
-        Mail::fake();
+        \Illuminate\Support\Facades\Queue::fake();
 
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
@@ -278,8 +276,7 @@ class ListenersComprehensiveTest extends UnitTestCase
 
         $listener->handle($event);
 
-        // TODO: Update this test when SendReplyToCustomer is fully implemented
-        Mail::assertNothingQueued();
+        \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\SendConversationReply::class);
     }
 
     public function test_user_replied_listener_does_not_send_for_notes(): void
@@ -317,7 +314,7 @@ class ListenersComprehensiveTest extends UnitTestCase
 
     public function test_new_message_received_listener_notifies_assigned_users(): void
     {
-        Notification::fake();
+        \Illuminate\Support\Facades\Queue::fake();
 
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -333,8 +330,7 @@ class ListenersComprehensiveTest extends UnitTestCase
 
         $listener->handle($event);
 
-        // TODO: Update this test when HandleNewMessage sends notifications
-        Notification::assertNothingSent();
+        \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\SendNotificationToUsers::class);
     }
 
     public function test_new_message_received_listener_updates_conversation_status(): void

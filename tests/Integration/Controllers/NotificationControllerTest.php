@@ -42,14 +42,14 @@ class NotificationControllerTest extends IntegrationTestCase
 
         $response = $this->actingAs($user)
             ->from('/notifications')
-            ->post('/notifications/1/mark-as-read');
+            ->post('/notifications/1/read');
 
         $response->assertRedirect('/notifications');
     }
 
     public function test_mark_as_read_requires_authentication(): void
     {
-        $response = $this->post('/notifications/1/mark-as-read');
+        $response = $this->post('/notifications/1/read');
 
         $response->assertStatus(302);
         $response->assertRedirect('/login');
@@ -59,7 +59,7 @@ class NotificationControllerTest extends IntegrationTestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->post('/notifications/123/mark-as-read');
+        $response = $this->actingAs($user)->post('/notifications/123/read');
 
         $response->assertStatus(302);
     }

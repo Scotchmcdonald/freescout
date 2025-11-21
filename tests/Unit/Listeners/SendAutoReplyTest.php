@@ -20,8 +20,7 @@ use Tests\UnitTestCase;
 class SendAutoReplyTest extends UnitTestCase
 {
 
-    #[Test]
-    public function listener_dispatches_job_for_valid_conversation(): void
+    public function test_listener_dispatches_job_for_valid_conversation(): void
     {
         Queue::fake();
         Log::spy();
@@ -50,8 +49,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function listener_skips_imported_conversations(): void
+    public function test_listener_skips_imported_conversations(): void
     {
         Queue::fake();
         Log::spy();
@@ -74,8 +72,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function listener_skips_when_auto_reply_disabled(): void
+    public function test_listener_skips_when_auto_reply_disabled(): void
     {
         Queue::fake();
         Log::spy();
@@ -98,8 +95,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function listener_skips_spam_conversations(): void
+    public function test_listener_skips_spam_conversations(): void
     {
         Queue::fake();
         Log::spy();
@@ -123,8 +119,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function listener_enforces_rate_limit(): void
+    public function test_listener_enforces_rate_limit(): void
     {
         Queue::fake();
         Log::spy();
@@ -157,8 +152,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function listener_skips_duplicate_subjects(): void
+    public function test_listener_skips_duplicate_subjects(): void
     {
         Queue::fake();
         Log::spy();
@@ -204,8 +198,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function listener_skips_internal_mailbox_emails(): void
+    public function test_listener_skips_internal_mailbox_emails(): void
     {
         Queue::fake();
         Log::spy();
@@ -234,8 +227,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function listener_logs_job_dispatch(): void
+    public function test_listener_logs_job_dispatch(): void
     {
         Queue::fake();
         Log::spy();
@@ -259,8 +251,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function listener_dispatches_job_to_emails_queue(): void
+    public function test_listener_dispatches_job_to_emails_queue(): void
     {
         Queue::fake();
 
@@ -282,8 +273,7 @@ class SendAutoReplyTest extends UnitTestCase
         });
     }
 
-    #[Test]
-    public function check_period_constant_is_180_minutes(): void
+    public function test_check_period_constant_is_180_minutes(): void
     {
         $this->assertEquals(180, SendAutoReply::CHECK_PERIOD);
     }

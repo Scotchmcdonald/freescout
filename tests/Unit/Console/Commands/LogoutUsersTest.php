@@ -10,23 +10,20 @@ use Tests\TestCase;
 
 class LogoutUsersTest extends TestCase
 {
-    #[Test]
-    public function command_has_correct_signature(): void
+    public function test_command_has_correct_signature(): void
     {
         $this->artisan('freescout:logout-users')
             ->assertExitCode(0);
     }
 
-    #[Test]
-    public function command_has_correct_description(): void
+    public function test_command_has_correct_description(): void
     {
         $this->artisan('list')
             ->expectsOutputToContain('freescout:logout-users')
             ->run();
     }
 
-    #[Test]
-    public function command_deletes_session_files(): void
+    public function test_command_deletes_session_files(): void
     {
         $sessionsPath = storage_path('framework/sessions');
         
@@ -49,8 +46,7 @@ class LogoutUsersTest extends TestCase
         $this->assertFileDoesNotExist($testFile2);
     }
 
-    #[Test]
-    public function command_reports_deleted_sessions_count(): void
+    public function test_command_reports_deleted_sessions_count(): void
     {
         $sessionsPath = storage_path('framework/sessions');
         
@@ -67,8 +63,7 @@ class LogoutUsersTest extends TestCase
             ->assertExitCode(0);
     }
 
-    #[Test]
-    public function command_handles_empty_sessions_directory(): void
+    public function test_command_handles_empty_sessions_directory(): void
     {
         $sessionsPath = storage_path('framework/sessions');
         
@@ -88,8 +83,7 @@ class LogoutUsersTest extends TestCase
             ->assertExitCode(0);
     }
 
-    #[Test]
-    public function command_handles_missing_sessions_directory(): void
+    public function test_command_handles_missing_sessions_directory(): void
     {
         $sessionsPath = storage_path('framework/sessions');
         
@@ -112,8 +106,7 @@ class LogoutUsersTest extends TestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function command_continues_on_individual_file_errors(): void
+    public function test_command_continues_on_individual_file_errors(): void
     {
         $sessionsPath = storage_path('framework/sessions');
         
@@ -131,8 +124,7 @@ class LogoutUsersTest extends TestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function command_deletes_multiple_session_files(): void
+    public function test_command_deletes_multiple_session_files(): void
     {
         $sessionsPath = storage_path('framework/sessions');
         
@@ -156,8 +148,7 @@ class LogoutUsersTest extends TestCase
         }
     }
 
-    #[Test]
-    public function command_only_deletes_files_not_directories(): void
+    public function test_command_only_deletes_files_not_directories(): void
     {
         $sessionsPath = storage_path('framework/sessions');
         
@@ -181,8 +172,7 @@ class LogoutUsersTest extends TestCase
         @rmdir($subDir);
     }
 
-    #[Test]
-    public function command_provides_feedback_on_completion(): void
+    public function test_command_provides_feedback_on_completion(): void
     {
         $this->artisan('freescout:logout-users')
             ->expectsOutputToContain('Deleted sessions:')

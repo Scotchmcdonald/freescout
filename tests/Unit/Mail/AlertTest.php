@@ -21,8 +21,7 @@ use Tests\UnitTestCase;
 class AlertTest extends UnitTestCase
 {
 
-    #[Test]
-    public function mailable_can_be_instantiated_with_text(): void
+    public function test_mailable_can_be_instantiated_with_text(): void
     {
         $mailable = new Alert('Test alert message');
 
@@ -31,8 +30,7 @@ class AlertTest extends UnitTestCase
         $this->assertEquals('', $mailable->title);
     }
 
-    #[Test]
-    public function mailable_can_be_instantiated_with_title(): void
+    public function test_mailable_can_be_instantiated_with_title(): void
     {
         $mailable = new Alert('Test message', 'Important Alert');
 
@@ -40,8 +38,7 @@ class AlertTest extends UnitTestCase
         $this->assertEquals('Important Alert', $mailable->title);
     }
 
-    #[Test]
-    public function envelope_contains_correct_subject_with_title(): void
+    public function test_envelope_contains_correct_subject_with_title(): void
     {
         config(['app.name' => 'FreeScout', 'app.url' => 'https://example.com']);
         
@@ -53,8 +50,7 @@ class AlertTest extends UnitTestCase
         $this->assertStringContainsString('example.com', $envelope->subject);
     }
 
-    #[Test]
-    public function envelope_uses_default_title_when_empty(): void
+    public function test_envelope_uses_default_title_when_empty(): void
     {
         config(['app.name' => 'FreeScout', 'app.url' => 'https://example.com']);
         
@@ -65,8 +61,7 @@ class AlertTest extends UnitTestCase
         $this->assertStringContainsString('[FreeScout]', $envelope->subject);
     }
 
-    #[Test]
-    public function content_uses_alert_view(): void
+    public function test_content_uses_alert_view(): void
     {
         $mailable = new Alert('Test message');
         $content = $mailable->content();
@@ -74,8 +69,7 @@ class AlertTest extends UnitTestCase
         $this->assertEquals('emails.user.alert', $content->view);
     }
 
-    #[Test]
-    public function mailable_can_be_sent(): void
+    public function test_mailable_can_be_sent(): void
     {
         Mail::fake();
 
@@ -89,8 +83,7 @@ class AlertTest extends UnitTestCase
         });
     }
 
-    #[Test]
-    public function envelope_includes_domain_from_url(): void
+    public function test_envelope_includes_domain_from_url(): void
     {
         config(['app.url' => 'https://helpdesk.example.org']);
         
@@ -100,8 +93,7 @@ class AlertTest extends UnitTestCase
         $this->assertStringContainsString('helpdesk.example.org', $envelope->subject);
     }
 
-    #[Test]
-    public function mailable_is_queueable(): void
+    public function test_mailable_is_queueable(): void
     {
         $mailable = new Alert('Test');
         

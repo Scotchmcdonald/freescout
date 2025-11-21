@@ -13,8 +13,7 @@ use Tests\UnitTestCase;
 class UserModelBatch1Test extends UnitTestCase
 {
 
-    #[Test]
-    public function user_has_is_admin_method(): void
+    public function test_user_has_is_admin_method(): void
     {
         // Arrange
         $adminUser = new User(['role' => User::ROLE_ADMIN]);
@@ -25,8 +24,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertFalse($regularUser->isAdmin());
     }
 
-    #[Test]
-    public function user_has_is_active_method(): void
+    public function test_user_has_is_active_method(): void
     {
         // Arrange
         $activeUser = new User(['status' => User::STATUS_ACTIVE]);
@@ -37,8 +35,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertFalse($inactiveUser->isActive());
     }
 
-    #[Test]
-    public function user_has_get_full_name_method(): void
+    public function test_user_has_get_full_name_method(): void
     {
         // Arrange
         $user = new User([
@@ -54,8 +51,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertEquals('John Doe', $fullName);
     }
 
-    #[Test]
-    public function user_get_full_name_returns_email_when_name_empty(): void
+    public function test_user_get_full_name_returns_email_when_name_empty(): void
     {
         // Arrange
         $user = new User([
@@ -71,8 +67,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertEquals('john@example.com', $fullName);
     }
 
-    #[Test]
-    public function user_has_full_name_accessor(): void
+    public function test_user_has_full_name_accessor(): void
     {
         // Arrange
         $user = new User([
@@ -84,8 +79,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertEquals('Jane Smith', $user->full_name);
     }
 
-    #[Test]
-    public function user_has_name_attribute_accessor(): void
+    public function test_user_has_name_attribute_accessor(): void
     {
         // Arrange
         $user = new User([
@@ -98,8 +92,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertEquals('Jane Smith', $user->name);
     }
 
-    #[Test]
-    public function user_has_mailboxes_relationship(): void
+    public function test_user_has_mailboxes_relationship(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -114,8 +107,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertTrue($user->mailboxes->contains($mailbox));
     }
 
-    #[Test]
-    public function user_has_conversations_relationship(): void
+    public function test_user_has_conversations_relationship(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -131,8 +123,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertTrue($user->conversations->contains($conversation));
     }
 
-    #[Test]
-    public function user_has_folders_relationship(): void
+    public function test_user_has_folders_relationship(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -144,8 +135,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $relationship);
     }
 
-    #[Test]
-    public function user_has_followed_conversations_relationship(): void
+    public function test_user_has_followed_conversations_relationship(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -157,8 +147,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $relationship);
     }
 
-    #[Test]
-    public function user_has_threads_relationship(): void
+    public function test_user_has_threads_relationship(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -170,8 +159,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $relationship);
     }
 
-    #[Test]
-    public function user_has_subscriptions_relationship(): void
+    public function test_user_has_subscriptions_relationship(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -183,8 +171,7 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $relationship);
     }
 
-    #[Test]
-    public function user_password_is_automatically_hashed(): void
+    public function test_user_password_is_automatically_hashed(): void
     {
         // Arrange & Act
         $user = User::factory()->create([
@@ -196,16 +183,14 @@ class UserModelBatch1Test extends UnitTestCase
         $this->assertTrue(\Illuminate\Support\Facades\Hash::check('plaintext-password', $user->password));
     }
 
-    #[Test]
-    public function user_role_constants_are_defined(): void
+    public function test_user_role_constants_are_defined(): void
     {
         // Assert
         $this->assertEquals(1, User::ROLE_USER);
         $this->assertEquals(2, User::ROLE_ADMIN);
     }
 
-    #[Test]
-    public function user_status_constants_are_defined(): void
+    public function test_user_status_constants_are_defined(): void
     {
         // Assert
         $this->assertEquals(1, User::STATUS_ACTIVE);

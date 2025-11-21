@@ -14,24 +14,21 @@ use Tests\UnitTestCase;
 class CreateUserTest extends UnitTestCase
 {
 
-    #[Test]
-    public function command_can_be_instantiated(): void
+    public function test_command_can_be_instantiated(): void
     {
         $command = new CreateUser();
         
         $this->assertInstanceOf(CreateUser::class, $command);
     }
 
-    #[Test]
-    public function command_has_correct_signature(): void
+    public function test_command_has_correct_signature(): void
     {
         $command = new CreateUser();
         
         $this->assertEquals('freescout:create-user', $command->getName());
     }
 
-    #[Test]
-    public function command_has_description(): void
+    public function test_command_has_description(): void
     {
         $command = new CreateUser();
         
@@ -39,56 +36,49 @@ class CreateUserTest extends UnitTestCase
         $this->assertStringContainsString('user', $command->getDescription());
     }
 
-    #[Test]
-    public function command_accepts_role_option(): void
+    public function test_command_accepts_role_option(): void
     {
         $command = new CreateUser();
         
         $this->assertTrue($command->getDefinition()->hasOption('role'));
     }
 
-    #[Test]
-    public function command_accepts_first_name_option(): void
+    public function test_command_accepts_first_name_option(): void
     {
         $command = new CreateUser();
         
         $this->assertTrue($command->getDefinition()->hasOption('firstName'));
     }
 
-    #[Test]
-    public function command_accepts_last_name_option(): void
+    public function test_command_accepts_last_name_option(): void
     {
         $command = new CreateUser();
         
         $this->assertTrue($command->getDefinition()->hasOption('lastName'));
     }
 
-    #[Test]
-    public function command_accepts_email_option(): void
+    public function test_command_accepts_email_option(): void
     {
         $command = new CreateUser();
         
         $this->assertTrue($command->getDefinition()->hasOption('email'));
     }
 
-    #[Test]
-    public function command_accepts_password_option(): void
+    public function test_command_accepts_password_option(): void
     {
         $command = new CreateUser();
         
         $this->assertTrue($command->getDefinition()->hasOption('password'));
     }
 
-    #[Test]
-    public function command_accepts_no_verification_option(): void
+    public function test_command_accepts_no_verification_option(): void
     {
         $command = new CreateUser();
         
         $this->assertTrue($command->getDefinition()->hasOption('no-verification'));
     }
 
-    #[Test]
-    public function command_creates_admin_user(): void
+    public function test_command_creates_admin_user(): void
     {
         $exitCode = Artisan::call('freescout:create-user', [
             '--role' => 'admin',
@@ -108,8 +98,7 @@ class CreateUserTest extends UnitTestCase
         ]);
     }
 
-    #[Test]
-    public function command_creates_regular_user(): void
+    public function test_command_creates_regular_user(): void
     {
         $exitCode = Artisan::call('freescout:create-user', [
             '--role' => 'user',
@@ -127,8 +116,7 @@ class CreateUserTest extends UnitTestCase
         ]);
     }
 
-    #[Test]
-    public function command_hashes_password(): void
+    public function test_command_hashes_password(): void
     {
         Artisan::call('freescout:create-user', [
             '--role' => 'admin',
@@ -144,8 +132,7 @@ class CreateUserTest extends UnitTestCase
         $this->assertTrue(Hash::check('mypassword', $user->password));
     }
 
-    #[Test]
-    public function command_sets_user_status_to_active(): void
+    public function test_command_sets_user_status_to_active(): void
     {
         Artisan::call('freescout:create-user', [
             '--role' => 'user',
@@ -160,8 +147,7 @@ class CreateUserTest extends UnitTestCase
         $this->assertEquals(User::STATUS_ACTIVE, $user->status);
     }
 
-    #[Test]
-    public function command_verifies_email_by_default(): void
+    public function test_command_verifies_email_by_default(): void
     {
         Artisan::call('freescout:create-user', [
             '--role' => 'user',
@@ -176,8 +162,7 @@ class CreateUserTest extends UnitTestCase
         $this->assertNotNull($user->email_verified_at);
     }
 
-    #[Test]
-    public function command_skips_verification_with_flag(): void
+    public function test_command_skips_verification_with_flag(): void
     {
         Artisan::call('freescout:create-user', [
             '--role' => 'user',
@@ -193,8 +178,7 @@ class CreateUserTest extends UnitTestCase
         $this->assertNull($user->email_verified_at);
     }
 
-    #[Test]
-    public function command_validates_email_format(): void
+    public function test_command_validates_email_format(): void
     {
         $exitCode = Artisan::call('freescout:create-user', [
             '--role' => 'user',
@@ -211,8 +195,7 @@ class CreateUserTest extends UnitTestCase
         ]);
     }
 
-    #[Test]
-    public function command_validates_password_minimum_length(): void
+    public function test_command_validates_password_minimum_length(): void
     {
         $exitCode = Artisan::call('freescout:create-user', [
             '--role' => 'user',
@@ -226,8 +209,7 @@ class CreateUserTest extends UnitTestCase
         $this->assertEquals(1, $exitCode);
     }
 
-    #[Test]
-    public function command_validates_unique_email(): void
+    public function test_command_validates_unique_email(): void
     {
         User::factory()->create(['email' => 'existing@example.com']);
 
@@ -243,8 +225,7 @@ class CreateUserTest extends UnitTestCase
         $this->assertEquals(1, $exitCode);
     }
 
-    #[Test]
-    public function command_validates_role_values(): void
+    public function test_command_validates_role_values(): void
     {
         $exitCode = Artisan::call('freescout:create-user', [
             '--role' => 'invalid_role',
@@ -258,8 +239,7 @@ class CreateUserTest extends UnitTestCase
         $this->assertEquals(1, $exitCode);
     }
 
-    #[Test]
-    public function command_outputs_success_message(): void
+    public function test_command_outputs_success_message(): void
     {
         Artisan::call('freescout:create-user', [
             '--role' => 'user',

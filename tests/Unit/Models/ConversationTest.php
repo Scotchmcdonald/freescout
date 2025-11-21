@@ -22,14 +22,14 @@ class ConversationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function isActive_returns_true_for_status_1(): void
+    public function test_isActive_returns_true_for_status_1(): void
     {
         $conversation = Conversation::factory()->active()->create();
 
         $this->assertTrue($conversation->isActive());
     }
 
-    public function isActive_returns_false_for_other_statuses(): void
+    public function test_isActive_returns_false_for_other_statuses(): void
     {
         $pending = Conversation::factory()->create(['status' => 2]);
         $closed = Conversation::factory()->create(['status' => 3]);
@@ -40,14 +40,14 @@ class ConversationTest extends TestCase
         $this->assertFalse($spam->isActive());
     }
 
-    public function isClosed_returns_true_for_status_3(): void
+    public function test_isClosed_returns_true_for_status_3(): void
     {
         $conversation = Conversation::factory()->create(['status' => 3]);
 
         $this->assertTrue($conversation->isClosed());
     }
 
-    public function isClosed_returns_false_for_other_statuses(): void
+    public function test_isClosed_returns_false_for_other_statuses(): void
     {
         $active = Conversation::factory()->active()->create();
         $pending = Conversation::factory()->create(['status' => 2]);

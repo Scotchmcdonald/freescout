@@ -29,8 +29,7 @@ class SystemTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function admin_can_view_system_status_page(): void
+    public function test_admin_can_view_system_status_page(): void
     {
         // Act
         $response = $this->actingAs($this->admin)->get(route('system'));
@@ -47,8 +46,7 @@ class SystemTest extends TestCase
         $response->assertViewHas('systemInfo');
     }
 
-    #[Test]
-    public function system_status_page_displays_php_version(): void
+    public function test_system_status_page_displays_php_version(): void
     {
         // Act
         $response = $this->actingAs($this->admin)->get(route('system'));
@@ -58,8 +56,7 @@ class SystemTest extends TestCase
         $response->assertSee(PHP_VERSION);
     }
 
-    #[Test]
-    public function system_status_page_displays_laravel_version(): void
+    public function test_system_status_page_displays_laravel_version(): void
     {
         // Act
         $response = $this->actingAs($this->admin)->get(route('system'));
@@ -69,8 +66,7 @@ class SystemTest extends TestCase
         $response->assertSee(app()->version());
     }
 
-    #[Test]
-    public function admin_can_run_system_diagnostics(): void
+    public function test_admin_can_run_system_diagnostics(): void
     {
         // Act
         $response = $this->actingAs($this->admin)->get(route('system.diagnostics'));
@@ -89,8 +85,7 @@ class SystemTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function non_admin_cannot_view_system_status(): void
+    public function test_non_admin_cannot_view_system_status(): void
     {
         // Act
         $response = $this->actingAs($this->user)->get(route('system'));
@@ -99,8 +94,7 @@ class SystemTest extends TestCase
         $response->assertForbidden();
     }
 
-    #[Test]
-    public function admin_can_view_system_logs(): void
+    public function test_admin_can_view_system_logs(): void
     {
         // Act
         $response = $this->actingAs($this->admin)->get(route('system.logs'));
@@ -109,8 +103,7 @@ class SystemTest extends TestCase
         $response->assertOk();
     }
 
-    #[Test]
-    public function non_admin_cannot_access_system_logs(): void
+    public function test_non_admin_cannot_access_system_logs(): void
     {
         // Act
         $response = $this->actingAs($this->user)->get(route('system.logs'));
@@ -119,8 +112,7 @@ class SystemTest extends TestCase
         $response->assertForbidden();
     }
 
-    #[Test]
-    public function admin_can_clear_cache_via_ajax(): void
+    public function test_admin_can_clear_cache_via_ajax(): void
     {
         // Arrange
         $this->actingAs($this->admin);
@@ -135,8 +127,7 @@ class SystemTest extends TestCase
         $response->assertJson(['success' => true]);
     }
 
-    #[Test]
-    public function admin_can_optimize_application_via_ajax(): void
+    public function test_admin_can_optimize_application_via_ajax(): void
     {
         // Arrange
         $this->actingAs($this->admin);
@@ -151,8 +142,7 @@ class SystemTest extends TestCase
         $response->assertJson(['success' => true]);
     }
 
-    #[Test]
-    public function admin_can_get_system_info_via_ajax(): void
+    public function test_admin_can_get_system_info_via_ajax(): void
     {
         // Arrange
         $this->actingAs($this->admin);
@@ -176,8 +166,7 @@ class SystemTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function non_admin_cannot_execute_system_ajax_commands(): void
+    public function test_non_admin_cannot_execute_system_ajax_commands(): void
     {
         // Arrange
         $this->actingAs($this->user);
@@ -191,8 +180,7 @@ class SystemTest extends TestCase
         $response->assertForbidden();
     }
 
-    #[Test]
-    public function invalid_ajax_action_returns_error(): void
+    public function test_invalid_ajax_action_returns_error(): void
     {
         // Arrange
         $this->actingAs($this->admin);

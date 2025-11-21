@@ -13,8 +13,7 @@ use Tests\UnitTestCase;
 class PasswordChangedTest extends UnitTestCase
 {
 
-    #[Test]
-    public function mailable_can_be_instantiated(): void
+    public function test_mailable_can_be_instantiated(): void
     {
         $user = User::factory()->create();
         $mailable = new PasswordChanged($user);
@@ -23,8 +22,7 @@ class PasswordChangedTest extends UnitTestCase
         $this->assertEquals($user->id, $mailable->user->id);
     }
 
-    #[Test]
-    public function envelope_contains_password_updated_message(): void
+    public function test_envelope_contains_password_updated_message(): void
     {
         config(['app.name' => 'FreeScout']);
         
@@ -36,8 +34,7 @@ class PasswordChangedTest extends UnitTestCase
         $this->assertStringContainsString('FreeScout', $envelope->subject);
     }
 
-    #[Test]
-    public function envelope_uses_company_name_from_options(): void
+    public function test_envelope_uses_company_name_from_options(): void
     {
         config(['app.name' => 'Support Desk']);
         
@@ -48,8 +45,7 @@ class PasswordChangedTest extends UnitTestCase
         $this->assertStringContainsString('Support Desk', $envelope->subject);
     }
 
-    #[Test]
-    public function content_uses_password_changed_views(): void
+    public function test_content_uses_password_changed_views(): void
     {
         $user = User::factory()->create();
         $mailable = new PasswordChanged($user);
@@ -59,8 +55,7 @@ class PasswordChangedTest extends UnitTestCase
         $this->assertEquals('emails.user.password_changed_text', $content->text);
     }
 
-    #[Test]
-    public function mailable_can_be_sent(): void
+    public function test_mailable_can_be_sent(): void
     {
         Mail::fake();
 
@@ -72,8 +67,7 @@ class PasswordChangedTest extends UnitTestCase
         });
     }
 
-    #[Test]
-    public function mailable_is_queueable(): void
+    public function test_mailable_is_queueable(): void
     {
         $user = User::factory()->create();
         $mailable = new PasswordChanged($user);
@@ -82,8 +76,7 @@ class PasswordChangedTest extends UnitTestCase
         $this->assertTrue(method_exists($mailable, 'onConnection'));
     }
 
-    #[Test]
-    public function user_property_is_accessible(): void
+    public function test_user_property_is_accessible(): void
     {
         $user = User::factory()->create([
             'email' => 'testuser@example.com',
@@ -95,8 +88,7 @@ class PasswordChangedTest extends UnitTestCase
         $this->assertEquals('Jane', $mailable->user->first_name);
     }
 
-    #[Test]
-    public function mailable_sends_to_correct_recipient(): void
+    public function test_mailable_sends_to_correct_recipient(): void
     {
         Mail::fake();
 

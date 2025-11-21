@@ -13,7 +13,7 @@ class TagControllerTest extends IntegrationTestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get('/tags/ajax-search');
+        $response = $this->actingAs($user)->get('/tags/search');
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'application/json');
@@ -23,7 +23,7 @@ class TagControllerTest extends IntegrationTestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get('/tags/ajax-search');
+        $response = $this->actingAs($user)->get('/tags/search');
 
         $response->assertJson([]);
     }
@@ -32,7 +32,7 @@ class TagControllerTest extends IntegrationTestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get('/tags/ajax-search?q=test');
+        $response = $this->actingAs($user)->get('/tags/search?q=test');
 
         $response->assertStatus(200);
         $response->assertJson([]);
@@ -40,7 +40,7 @@ class TagControllerTest extends IntegrationTestCase
 
     public function test_ajax_search_requires_authentication(): void
     {
-        $response = $this->get('/tags/ajax-search');
+        $response = $this->get('/tags/search');
 
         $response->assertStatus(302);
         $response->assertRedirect('/login');

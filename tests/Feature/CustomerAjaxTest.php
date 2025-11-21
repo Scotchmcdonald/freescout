@@ -27,8 +27,7 @@ class CustomerAjaxTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function ajax_search_returns_matching_customers_by_first_name(): void
+    public function test_ajax_search_returns_matching_customers_by_first_name(): void
     {
         // Arrange
         $customer1 = Customer::factory()->withoutEmail()->create([
@@ -65,8 +64,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertEquals('Alice Johnson (alice@example.com)', $customers[0]['text']);
     }
 
-    #[Test]
-    public function ajax_search_returns_matching_customers_by_last_name(): void
+    public function test_ajax_search_returns_matching_customers_by_last_name(): void
     {
         // Arrange
         Customer::factory()->create([
@@ -93,8 +91,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertStringContainsString('Doe', $customers[0]['text']);
     }
 
-    #[Test]
-    public function ajax_search_limits_results_to_25(): void
+    public function test_ajax_search_limits_results_to_25(): void
     {
         // Arrange
         Customer::factory()->count(30)->create([
@@ -113,8 +110,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertLessThanOrEqual(25, count($customers));
     }
 
-    #[Test]
-    public function ajax_conversations_returns_customer_conversations(): void
+    public function test_ajax_conversations_returns_customer_conversations(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -151,8 +147,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertEquals(2, count($conversations));
     }
 
-    #[Test]
-    public function ajax_conversations_orders_by_last_reply_at_desc(): void
+    public function test_ajax_conversations_orders_by_last_reply_at_desc(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -184,8 +179,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertEquals('Old Conversation', $conversations[1]['subject']);
     }
 
-    #[Test]
-    public function ajax_conversations_limits_to_50_results(): void
+    public function test_ajax_conversations_limits_to_50_results(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -206,8 +200,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertLessThanOrEqual(50, count($conversations));
     }
 
-    #[Test]
-    public function ajax_returns_error_for_invalid_action(): void
+    public function test_ajax_returns_error_for_invalid_action(): void
     {
         // Act
         $response = $this->actingAs($this->user)->post(route('customers.ajax'), [
@@ -222,8 +215,7 @@ class CustomerAjaxTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function ajax_requires_authentication(): void
+    public function test_ajax_requires_authentication(): void
     {
         // Act
         $response = $this->post(route('customers.ajax'), [
@@ -236,8 +228,7 @@ class CustomerAjaxTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    #[Test]
-    public function ajax_search_returns_empty_array_when_no_matches(): void
+    public function test_ajax_search_returns_empty_array_when_no_matches(): void
     {
         // Arrange
         Customer::factory()->create([
@@ -258,8 +249,7 @@ class CustomerAjaxTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function ajax_search_returns_customer_with_email(): void
+    public function test_ajax_search_returns_customer_with_email(): void
     {
         // Arrange
         $customer = Customer::factory()->withoutEmail()->create([
@@ -284,8 +274,7 @@ class CustomerAjaxTest extends TestCase
         $this->assertEquals('Jane Smith (jane@example.com)', $customers[0]['text']);
     }
 
-    #[Test]
-    public function ajax_conversations_returns_empty_array_for_customer_with_no_conversations(): void
+    public function test_ajax_conversations_returns_empty_array_for_customer_with_no_conversations(): void
     {
         // Arrange
         $customer = Customer::factory()->create();

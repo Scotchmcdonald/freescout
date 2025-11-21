@@ -15,24 +15,21 @@ use Tests\UnitTestCase;
 class UpdateFolderCountersTest extends UnitTestCase
 {
 
-    #[Test]
-    public function command_can_be_instantiated(): void
+    public function test_command_can_be_instantiated(): void
     {
         $command = new UpdateFolderCounters();
         
         $this->assertInstanceOf(UpdateFolderCounters::class, $command);
     }
 
-    #[Test]
-    public function command_has_correct_signature(): void
+    public function test_command_has_correct_signature(): void
     {
         $command = new UpdateFolderCounters();
         
         $this->assertEquals('freescout:update-folder-counters', $command->getName());
     }
 
-    #[Test]
-    public function command_has_description(): void
+    public function test_command_has_description(): void
     {
         $command = new UpdateFolderCounters();
         
@@ -40,16 +37,14 @@ class UpdateFolderCountersTest extends UnitTestCase
         $this->assertStringContainsString('folder', $command->getDescription());
     }
 
-    #[Test]
-    public function command_returns_zero_when_no_folders(): void
+    public function test_command_returns_zero_when_no_folders(): void
     {
         $exitCode = Artisan::call('freescout:update-folder-counters');
         
         $this->assertEquals(0, $exitCode);
     }
 
-    #[Test]
-    public function command_outputs_no_folders_message(): void
+    public function test_command_outputs_no_folders_message(): void
     {
         Artisan::call('freescout:update-folder-counters');
         $output = Artisan::output();
@@ -57,8 +52,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         $this->assertStringContainsString('No folders found', $output);
     }
 
-    #[Test]
-    public function command_updates_single_folder(): void
+    public function test_command_updates_single_folder(): void
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -68,8 +62,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         $this->assertEquals(0, $exitCode);
     }
 
-    #[Test]
-    public function command_updates_multiple_folders(): void
+    public function test_command_updates_multiple_folders(): void
     {
         $mailbox = Mailbox::factory()->create();
         Folder::factory()->count(3)->create(['mailbox_id' => $mailbox->id]);
@@ -79,8 +72,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         $this->assertEquals(0, $exitCode);
     }
 
-    #[Test]
-    public function command_outputs_updating_message(): void
+    public function test_command_outputs_updating_message(): void
     {
         $mailbox = Mailbox::factory()->create();
         Folder::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -91,8 +83,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         $this->assertStringContainsString('Updating counters', $output);
     }
 
-    #[Test]
-    public function command_outputs_success_message(): void
+    public function test_command_outputs_success_message(): void
     {
         $mailbox = Mailbox::factory()->create();
         Folder::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -103,8 +94,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         $this->assertStringContainsString('finished successfully', $output);
     }
 
-    #[Test]
-    public function command_shows_progress_bar(): void
+    public function test_command_shows_progress_bar(): void
     {
         $mailbox = Mailbox::factory()->create();
         Folder::factory()->count(5)->create(['mailbox_id' => $mailbox->id]);
@@ -116,8 +106,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         $this->assertNotEmpty($output);
     }
 
-    #[Test]
-    public function command_displays_folder_count(): void
+    public function test_command_displays_folder_count(): void
     {
         $mailbox = Mailbox::factory()->create();
         Folder::factory()->count(3)->create(['mailbox_id' => $mailbox->id]);
@@ -131,8 +120,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         $this->assertStringContainsString('Updating counters', $output);
     }
 
-    #[Test]
-    public function command_handles_errors_gracefully(): void
+    public function test_command_handles_errors_gracefully(): void
     {
         $mailbox = Mailbox::factory()->create();
         Folder::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -143,8 +131,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         $this->assertEquals(0, $exitCode);
     }
 
-    #[Test]
-    public function command_processes_all_folders(): void
+    public function test_command_processes_all_folders(): void
     {
         $mailbox = Mailbox::factory()->create();
         $folder1 = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -156,8 +143,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         // All folders should have been processed
     }
 
-    #[Test]
-    public function command_updates_counters_for_folders_with_conversations(): void
+    public function test_command_updates_counters_for_folders_with_conversations(): void
     {
         $mailbox = Mailbox::factory()->create();
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -171,8 +157,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         $this->assertEquals(0, $exitCode);
     }
 
-    #[Test]
-    public function command_returns_zero_on_completion(): void
+    public function test_command_returns_zero_on_completion(): void
     {
         $mailbox = Mailbox::factory()->create();
         Folder::factory()->create(['mailbox_id' => $mailbox->id]);

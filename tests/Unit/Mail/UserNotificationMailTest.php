@@ -43,7 +43,7 @@ class UserNotificationMailTest extends UnitTestCase
         $mailable = new UserNotification($user, $conversation, $threads, [], $fromAddress, $mailbox);
         $envelope = $mailable->envelope();
 
-        $this->assertEquals('custom@example.com', $envelope->from[0]->address);
+        $this->assertEquals('custom@example.com', $envelope->from->address);
     }
 
     public function test_envelope_uses_config_from_address_when_not_provided(): void
@@ -57,7 +57,7 @@ class UserNotificationMailTest extends UnitTestCase
         $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
         $envelope = $mailable->envelope();
 
-        $this->assertEquals('default@example.com', $envelope->from[0]->address);
+        $this->assertEquals('default@example.com', $envelope->from->address);
     }
 
     public function test_content_uses_correct_view(): void

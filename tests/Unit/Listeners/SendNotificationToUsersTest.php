@@ -21,8 +21,7 @@ use Tests\UnitTestCase;
 class SendNotificationToUsersTest extends UnitTestCase
 {
 
-    #[Test]
-    public function listener_handles_user_replied_event(): void
+    public function test_listener_handles_user_replied_event(): void
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create(['status' => 1]);
@@ -40,8 +39,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_handles_user_added_note_event(): void
+    public function test_listener_handles_user_added_note_event(): void
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create(['status' => 1]);
@@ -59,8 +57,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_handles_user_created_conversation_event(): void
+    public function test_listener_handles_user_created_conversation_event(): void
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -76,8 +73,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_handles_customer_created_conversation_event(): void
+    public function test_listener_handles_customer_created_conversation_event(): void
     {
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -96,8 +92,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_handles_conversation_user_changed_event(): void
+    public function test_listener_handles_conversation_user_changed_event(): void
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -112,8 +107,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_handles_customer_replied_event(): void
+    public function test_listener_handles_customer_replied_event(): void
     {
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -133,8 +127,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_skips_spam_conversations_for_customer_events(): void
+    public function test_listener_skips_spam_conversations_for_customer_events(): void
     {
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -154,8 +147,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_skips_imported_threads(): void
+    public function test_listener_skips_imported_threads(): void
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create(['status' => 1]);
@@ -173,8 +165,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_detects_user_replied_event_type(): void
+    public function test_listener_detects_user_replied_event_type(): void
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
@@ -192,8 +183,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertInstanceOf(UserReplied::class, $event);
     }
 
-    #[Test]
-    public function listener_detects_customer_replied_event_type(): void
+    public function test_listener_detects_customer_replied_event_type(): void
     {
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['status' => 1]);
@@ -210,8 +200,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertInstanceOf(CustomerReplied::class, $event);
     }
 
-    #[Test]
-    public function listener_detects_assigned_event_type(): void
+    public function test_listener_detects_assigned_event_type(): void
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -227,8 +216,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertInstanceOf(ConversationUserChanged::class, $event);
     }
 
-    #[Test]
-    public function listener_detects_note_added_event_type(): void
+    public function test_listener_detects_note_added_event_type(): void
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
@@ -246,8 +234,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertInstanceOf(UserAddedNote::class, $event);
     }
 
-    #[Test]
-    public function listener_handles_multiple_event_types(): void
+    public function test_listener_handles_multiple_event_types(): void
     {
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -269,8 +256,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_handles_events_without_thread(): void
+    public function test_listener_handles_events_without_thread(): void
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create([

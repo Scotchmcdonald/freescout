@@ -14,7 +14,7 @@ class UserInviteMailTest extends UnitTestCase
     public function test_envelope_sets_correct_subject_with_company_name(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        Option::set('company_name', 'Acme Corp');
+        Option::setValue('company_name', 'Acme Corp');
         
         $mailable = new UserInvite($user);
         $envelope = $mailable->envelope();

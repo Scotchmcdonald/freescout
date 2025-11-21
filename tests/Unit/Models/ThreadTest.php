@@ -59,14 +59,14 @@ class ThreadTest extends TestCase
         $this->assertCount(3, $thread->attachments);
     }
 
-    public function customer_message_factory_creates_type_4(): void
+    public function test_customer_message_factory_creates_type_4(): void
     {
         $thread = Thread::factory()->customerMessage()->create();
 
         $this->assertEquals(4, $thread->type);
     }
 
-    public function user_reply_factory_creates_type_1(): void
+    public function test_user_reply_factory_creates_type_1(): void
     {
         $thread = Thread::factory()->userReply()->create();
 

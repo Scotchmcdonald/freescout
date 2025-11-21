@@ -30,8 +30,7 @@ class SettingsTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function admin_can_view_main_settings_page(): void
+    public function test_admin_can_view_main_settings_page(): void
     {
         // Arrange
         Option::create(['name' => 'company_name', 'value' => 'Test Company']);
@@ -49,8 +48,7 @@ class SettingsTest extends TestCase
         $response->assertViewHas('settings');
     }
 
-    #[Test]
-    public function admin_can_update_general_setting(): void
+    public function test_admin_can_update_general_setting(): void
     {
         // Arrange
         $this->actingAs($this->admin);
@@ -70,8 +68,7 @@ class SettingsTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function admin_can_view_email_settings_page(): void
+    public function test_admin_can_view_email_settings_page(): void
     {
         // Arrange
         Option::create(['name' => 'mail_from_address', 'value' => 'test@example.com']);
@@ -88,8 +85,7 @@ class SettingsTest extends TestCase
         $response->assertSee('SMTP');
     }
 
-    #[Test]
-    public function admin_can_update_email_settings(): void
+    public function test_admin_can_update_email_settings(): void
     {
         // Arrange
         $this->actingAs($this->admin);
@@ -121,8 +117,7 @@ class SettingsTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function admin_can_view_system_settings_page(): void
+    public function test_admin_can_view_system_settings_page(): void
     {
         // Act
         $response = $this->actingAs($this->admin)->get(route('settings.system'));
@@ -133,8 +128,7 @@ class SettingsTest extends TestCase
         $response->assertSee('Laravel');
     }
 
-    #[Test]
-    public function non_admin_user_cannot_access_settings_routes(): void
+    public function test_non_admin_user_cannot_access_settings_routes(): void
     {
         // Act
         $response = $this->actingAs($this->user)->get(route('settings'));
@@ -143,8 +137,7 @@ class SettingsTest extends TestCase
         $response->assertForbidden();
     }
 
-    #[Test]
-    public function submitting_invalid_data_to_setting_fails_validation(): void
+    public function test_submitting_invalid_data_to_setting_fails_validation(): void
     {
         // Arrange
         $this->actingAs($this->admin);
@@ -160,8 +153,7 @@ class SettingsTest extends TestCase
         $response->assertSessionHasErrors('mail_from_address');
     }
 
-    #[Test]
-    public function submitting_invalid_driver_fails_validation(): void
+    public function test_submitting_invalid_driver_fails_validation(): void
     {
         // Arrange
         $this->actingAs($this->admin);
@@ -177,8 +169,7 @@ class SettingsTest extends TestCase
         $response->assertSessionHasErrors('mail_driver');
     }
 
-    #[Test]
-    public function admin_can_clear_cache(): void
+    public function test_admin_can_clear_cache(): void
     {
         // Arrange
         $this->actingAs($this->admin);
@@ -191,8 +182,7 @@ class SettingsTest extends TestCase
         $response->assertSessionHas('success');
     }
 
-    #[Test]
-    public function settings_update_clears_cache(): void
+    public function test_settings_update_clears_cache(): void
     {
         // Arrange
         $this->actingAs($this->admin);

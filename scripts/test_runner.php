@@ -229,7 +229,7 @@ $startTime = microtime(true);
 
 $totalFiles = count($filesToRun);
 // Dynamic batch size: ~5% of total files, min 5, max 25 to balance speed vs memory
-$batchSize = max(5, min(25, (int)ceil($totalFiles * 0.05)));
+$batchSize = max(5, min(25, (int)ceil($totalFiles * 0.033)));
 $chunks = array_chunk($filesToRun, $batchSize);
 
 $executionProgressBar = $io->createProgressBar($totalFiles);

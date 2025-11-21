@@ -14,8 +14,7 @@ class CustomerRegressionTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[Test]
-    public function customer_identification_from_incoming_email_creates_new_customer(): void
+    public function test_customer_identification_from_incoming_email_creates_new_customer(): void
     {
         // Arrange
         $emailAddress = 'newcustomer@example.com';
@@ -46,8 +45,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function customer_identification_from_incoming_email_finds_existing_customer(): void
+    public function test_customer_identification_from_incoming_email_finds_existing_customer(): void
     {
         // Arrange - Create an existing customer with email
         $existingCustomer = Customer::factory()->create([
@@ -74,8 +72,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('Existing', $foundCustomer->first_name);
     }
 
-    #[Test]
-    public function customer_create_sanitizes_email_address(): void
+    public function test_customer_create_sanitizes_email_address(): void
     {
         // Arrange
         $rawEmail = 'Test.User@EXAMPLE.COM';
@@ -95,8 +92,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function customer_create_returns_null_for_invalid_email(): void
+    public function test_customer_create_returns_null_for_invalid_email(): void
     {
         // Arrange
         $invalidEmail = 'not-an-email';
@@ -114,8 +110,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function customer_create_handles_email_with_trailing_dots(): void
+    public function test_customer_create_handles_email_with_trailing_dots(): void
     {
         // Arrange
         $emailWithDots = 'user@example.com....';
@@ -135,8 +130,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function customer_set_data_fills_empty_fields_only(): void
+    public function test_customer_set_data_fills_empty_fields_only(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -163,8 +157,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('New Notes', $customer->notes);
     }
 
-    #[Test]
-    public function customer_set_data_replaces_all_fields_when_replace_data_is_true(): void
+    public function test_customer_set_data_replaces_all_fields_when_replace_data_is_true(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -188,8 +181,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('New Company', $customer->company);
     }
 
-    #[Test]
-    public function customer_set_data_uses_background_as_notes_if_notes_empty(): void
+    public function test_customer_set_data_uses_background_as_notes_if_notes_empty(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -206,8 +198,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('Important background information', $customer->notes);
     }
 
-    #[Test]
-    public function customer_set_data_does_not_set_last_name_if_first_name_exists(): void
+    public function test_customer_set_data_does_not_set_last_name_if_first_name_exists(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -226,8 +217,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('', $customer->last_name);
     }
 
-    #[Test]
-    public function customer_set_data_does_not_set_first_name_if_last_name_exists(): void
+    public function test_customer_set_data_does_not_set_first_name_if_last_name_exists(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -246,8 +236,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('Doe', $customer->last_name);
     }
 
-    #[Test]
-    public function email_sanitize_removes_dot_before_at_symbol(): void
+    public function test_email_sanitize_removes_dot_before_at_symbol(): void
     {
         // Arrange
         $email = 'user..name.@example.com';
@@ -259,8 +248,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('user..name@example.com', $sanitized);
     }
 
-    #[Test]
-    public function email_sanitize_converts_to_lowercase(): void
+    public function test_email_sanitize_converts_to_lowercase(): void
     {
         // Arrange
         $email = 'User@EXAMPLE.COM';
@@ -272,8 +260,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('user@example.com', $sanitized);
     }
 
-    #[Test]
-    public function email_sanitize_returns_false_for_invalid_format(): void
+    public function test_email_sanitize_returns_false_for_invalid_format(): void
     {
         // Arrange
         $invalidEmails = [
@@ -290,8 +277,7 @@ class CustomerRegressionTest extends TestCase
         }
     }
 
-    #[Test]
-    public function customer_create_handles_multiple_emails_in_data(): void
+    public function test_customer_create_handles_multiple_emails_in_data(): void
     {
         // Arrange
         $emailAddress = 'primary@example.com';
@@ -314,8 +300,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function customer_set_data_does_not_set_photo_url(): void
+    public function test_customer_set_data_does_not_set_photo_url(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -333,8 +318,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertNull($customer->photo_url);
     }
 
-    #[Test]
-    public function customer_set_data_returns_false_when_no_changes(): void
+    public function test_customer_set_data_returns_false_when_no_changes(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -353,8 +337,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
-    public function customer_create_associates_email_with_customer(): void
+    public function test_customer_create_associates_email_with_customer(): void
     {
         // Arrange
         $emailAddress = 'test@example.com';
@@ -371,8 +354,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals($customer->id, $email->customer_id);
     }
 
-    #[Test]
-    public function customer_create_reuses_existing_email_object(): void
+    public function test_customer_create_reuses_existing_email_object(): void
     {
         // Arrange
         $emailAddress = 'existing@example.com';
@@ -396,8 +378,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertDatabaseCount('emails', 1);
     }
 
-    #[Test]
-    public function email_sanitize_handles_null_input(): void
+    public function test_email_sanitize_handles_null_input(): void
     {
         // Act
         $result = Email::sanitizeEmail(null);
@@ -406,8 +387,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
-    public function customer_set_data_with_array_values_are_ignored_when_replace_true(): void
+    public function test_customer_set_data_with_array_values_are_ignored_when_replace_true(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -427,8 +407,7 @@ class CustomerRegressionTest extends TestCase
         // Array fields should not be set when replace_data is true
     }
 
-    #[Test]
-    public function customer_create_handles_empty_data_array(): void
+    public function test_customer_create_handles_empty_data_array(): void
     {
         // Arrange
         $emailAddress = 'minimal@example.com';
@@ -447,8 +426,7 @@ class CustomerRegressionTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function email_sanitize_removes_multiple_trailing_dots(): void
+    public function test_email_sanitize_removes_multiple_trailing_dots(): void
     {
         // Arrange
         $email = 'user@example.com.....';
@@ -460,8 +438,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertEquals('user@example.com', $sanitized);
     }
 
-    #[Test]
-    public function customer_set_data_saves_when_save_parameter_is_true(): void
+    public function test_customer_set_data_saves_when_save_parameter_is_true(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -483,8 +460,7 @@ class CustomerRegressionTest extends TestCase
         $this->assertNotEquals($originalUpdatedAt, $customer->updated_at);
     }
 
-    #[Test]
-    public function customer_set_data_does_not_save_when_save_parameter_is_false(): void
+    public function test_customer_set_data_does_not_save_when_save_parameter_is_false(): void
     {
         // Arrange
         $customer = Customer::factory()->create([

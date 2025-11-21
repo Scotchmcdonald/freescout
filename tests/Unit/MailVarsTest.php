@@ -145,9 +145,8 @@ class MailVarsTest extends TestCase
      * @param  bool  $escape  Whether to escape the result.
      * @param  bool  $removeNonReplaced  Whether to remove non-replaced variables.
      */
-    #[Test]
     #[DataProvider('providerReplaceMailVars')]
-    public function replace_mail_vars(
+    public function test_replace_mail_vars(
         $expectedText,
         string $inputText,
         array $data = [],
@@ -162,7 +161,7 @@ class MailVarsTest extends TestCase
     }
 
     /**
-     * Data provider for {@see self::replace_mail_vars()}.
+     * Data provider for {@see self::test_replace_mail_vars()}.
      */
     public static function providerReplaceMailVars(): Generator
     {
@@ -384,8 +383,7 @@ class MailVarsTest extends TestCase
     /**
      * Test hasVars method.
      */
-    #[Test]
-    public function has_vars(): void
+    public function test_has_vars(): void
     {
         $this->assertTrue(MailHelper::hasVars('{%customer.fullName%}'));
         $this->assertTrue(MailHelper::hasVars('Hello {%user.firstName%}'));
@@ -397,8 +395,7 @@ class MailVarsTest extends TestCase
     /**
      * Test variable replacement with simple string.
      */
-    #[Test]
-    public function simple_variable_replacement(): void
+    public function test_simple_variable_replacement(): void
     {
         $data = self::fakeMailData();
         $text = 'Hello {%customer.fullName%}!';
@@ -411,8 +408,7 @@ class MailVarsTest extends TestCase
     /**
      * Test fallback values.
      */
-    #[Test]
-    public function fallback_values(): void
+    public function test_fallback_values(): void
     {
         // No data, use fallback
         $text = 'Hello {%customer.fullName,fallback=friend%}!';
@@ -432,8 +428,7 @@ class MailVarsTest extends TestCase
     /**
      * Test empty fallback values.
      */
-    #[Test]
-    public function empty_fallback_removes_variable(): void
+    public function test_empty_fallback_removes_variable(): void
     {
         $text = 'Email: {%customer.email,fallback=%}';
         $expected = 'Email: ';
@@ -445,8 +440,7 @@ class MailVarsTest extends TestCase
     /**
      * Test HTML escaping.
      */
-    #[Test]
-    public function html_escaping(): void
+    public function test_html_escaping(): void
     {
         $data = [
             'user' => new class
@@ -473,8 +467,7 @@ class MailVarsTest extends TestCase
     /**
      * Test removal of non-replaced variables.
      */
-    #[Test]
-    public function remove_non_replaced_variables(): void
+    public function test_remove_non_replaced_variables(): void
     {
         $text = 'Hello {%customer.fullName%}, your email is {%customer.email%}';
 

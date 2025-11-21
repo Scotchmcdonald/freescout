@@ -12,8 +12,7 @@ use Tests\UnitTestCase;
 class EmailModelEnhancedTest extends UnitTestCase
 {
 
-    #[Test]
-    public function email_has_customer_relationship(): void
+    public function test_email_has_customer_relationship(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -29,8 +28,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals($customer->id, $result->id);
     }
 
-    #[Test]
-    public function email_is_primary_returns_true_for_type_1(): void
+    public function test_email_is_primary_returns_true_for_type_1(): void
     {
         // Arrange
         $email = new Email(['type' => 1]);
@@ -42,8 +40,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    #[Test]
-    public function email_is_primary_returns_false_for_type_2(): void
+    public function test_email_is_primary_returns_false_for_type_2(): void
     {
         // Arrange
         $email = new Email(['type' => 2]);
@@ -55,8 +52,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
-    public function email_is_secondary_returns_true_for_type_2(): void
+    public function test_email_is_secondary_returns_true_for_type_2(): void
     {
         // Arrange
         $email = new Email(['type' => 2]);
@@ -68,8 +64,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertTrue($result);
     }
 
-    #[Test]
-    public function email_is_secondary_returns_false_for_type_1(): void
+    public function test_email_is_secondary_returns_false_for_type_1(): void
     {
         // Arrange
         $email = new Email(['type' => 1]);
@@ -81,8 +76,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
-    public function email_sanitize_converts_mixed_case_to_lowercase(): void
+    public function test_email_sanitize_converts_mixed_case_to_lowercase(): void
     {
         // Arrange
         $email = 'Test.User@EXAMPLE.COM';
@@ -94,8 +88,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals('test.user@example.com', $result);
     }
 
-    #[Test]
-    public function email_sanitize_removes_trailing_dots(): void
+    public function test_email_sanitize_removes_trailing_dots(): void
     {
         // Arrange
         $email = 'user@example.com...';
@@ -107,8 +100,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals('user@example.com', $result);
     }
 
-    #[Test]
-    public function email_sanitize_removes_dots_before_at_symbol(): void
+    public function test_email_sanitize_removes_dots_before_at_symbol(): void
     {
         // Arrange
         $email = 'user...@example.com';
@@ -120,8 +112,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals('user@example.com', $result);
     }
 
-    #[Test]
-    public function email_sanitize_preserves_dots_in_local_part(): void
+    public function test_email_sanitize_preserves_dots_in_local_part(): void
     {
         // Arrange
         $email = 'first.last@example.com';
@@ -133,8 +124,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals('first.last@example.com', $result);
     }
 
-    #[Test]
-    public function email_sanitize_returns_false_for_missing_at_symbol(): void
+    public function test_email_sanitize_returns_false_for_missing_at_symbol(): void
     {
         // Arrange
         $email = 'userexample.com';
@@ -146,8 +136,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
-    public function email_sanitize_returns_false_for_empty_string(): void
+    public function test_email_sanitize_returns_false_for_empty_string(): void
     {
         // Act
         $result = Email::sanitizeEmail('');
@@ -156,8 +145,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
-    public function email_sanitize_returns_false_for_null(): void
+    public function test_email_sanitize_returns_false_for_null(): void
     {
         // Act
         $result = Email::sanitizeEmail(null);
@@ -166,8 +154,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
-    public function email_sanitize_accepts_valid_simple_email(): void
+    public function test_email_sanitize_accepts_valid_simple_email(): void
     {
         // Arrange
         $email = 'user@example.com';
@@ -179,8 +166,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals('user@example.com', $result);
     }
 
-    #[Test]
-    public function email_sanitize_accepts_email_with_subdomain(): void
+    public function test_email_sanitize_accepts_email_with_subdomain(): void
     {
         // Arrange
         $email = 'user@mail.example.com';
@@ -192,8 +178,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals('user@mail.example.com', $result);
     }
 
-    #[Test]
-    public function email_sanitize_accepts_email_with_plus_sign(): void
+    public function test_email_sanitize_accepts_email_with_plus_sign(): void
     {
         // Arrange
         $email = 'user+tag@example.com';
@@ -205,8 +190,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals('user+tag@example.com', $result);
     }
 
-    #[Test]
-    public function email_sanitize_accepts_email_with_numbers(): void
+    public function test_email_sanitize_accepts_email_with_numbers(): void
     {
         // Arrange
         $email = 'user123@example456.com';
@@ -218,8 +202,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals('user123@example456.com', $result);
     }
 
-    #[Test]
-    public function email_sanitize_accepts_email_with_hyphen(): void
+    public function test_email_sanitize_accepts_email_with_hyphen(): void
     {
         // Arrange
         $email = 'user-name@ex-ample.com';
@@ -231,8 +214,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals('user-name@ex-ample.com', $result);
     }
 
-    #[Test]
-    public function email_sanitize_accepts_email_with_underscore(): void
+    public function test_email_sanitize_accepts_email_with_underscore(): void
     {
         // Arrange
         $email = 'user_name@example.com';
@@ -244,8 +226,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals('user_name@example.com', $result);
     }
 
-    #[Test]
-    public function email_sanitize_returns_false_for_only_at_symbol(): void
+    public function test_email_sanitize_returns_false_for_only_at_symbol(): void
     {
         // Act
         $result = Email::sanitizeEmail('@');
@@ -254,8 +235,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
-    public function email_sanitize_returns_false_for_at_at_start(): void
+    public function test_email_sanitize_returns_false_for_at_at_start(): void
     {
         // Arrange
         $email = '@example.com';
@@ -267,8 +247,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
-    public function email_sanitize_returns_false_for_at_at_end(): void
+    public function test_email_sanitize_returns_false_for_at_at_end(): void
     {
         // Arrange
         $email = 'user@';
@@ -280,8 +259,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertFalse($result);
     }
 
-    #[Test]
-    public function email_casts_attributes_correctly(): void
+    public function test_email_casts_attributes_correctly(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -297,8 +275,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $email->updated_at);
     }
 
-    #[Test]
-    public function email_fillable_includes_expected_fields(): void
+    public function test_email_fillable_includes_expected_fields(): void
     {
         // Arrange
         $expectedFields = ['customer_id', 'email', 'type'];
@@ -313,8 +290,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function email_can_be_created_with_factory(): void
+    public function test_email_can_be_created_with_factory(): void
     {
         // Act
         $email = Email::factory()->create();
@@ -326,8 +302,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertNotNull($email->customer_id);
     }
 
-    #[Test]
-    public function email_factory_creates_primary_email_by_default(): void
+    public function test_email_factory_creates_primary_email_by_default(): void
     {
         // Act
         $email = Email::factory()->create();
@@ -337,8 +312,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertTrue($email->isPrimary());
     }
 
-    #[Test]
-    public function email_factory_can_create_secondary_email(): void
+    public function test_email_factory_can_create_secondary_email(): void
     {
         // Act
         $email = Email::factory()->secondary()->create();
@@ -348,8 +322,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertTrue($email->isSecondary());
     }
 
-    #[Test]
-    public function email_sanitize_handles_unicode_characters(): void
+    public function test_email_sanitize_handles_unicode_characters(): void
     {
         // Arrange
         $email = 'Üser@example.com';
@@ -362,8 +335,7 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertStringContainsString('@example.com', $result);
     }
 
-    #[Test]
-    public function multiple_emails_can_belong_to_same_customer(): void
+    public function test_multiple_emails_can_belong_to_same_customer(): void
     {
         // Arrange
         $customer = Customer::factory()->create();

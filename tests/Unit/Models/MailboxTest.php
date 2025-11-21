@@ -20,7 +20,7 @@ class MailboxTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function getMailFrom_returns_email_and_name(): void
+    public function test_getMailFrom_returns_email_and_name(): void
     {
         $mailbox = Mailbox::factory()->create([
             'email' => 'support@example.com',
@@ -33,7 +33,7 @@ class MailboxTest extends TestCase
         $this->assertArrayHasKey('name', $result);
     }
 
-    public function getMailFrom_uses_from_name_when_set(): void
+    public function test_getMailFrom_uses_from_name_when_set(): void
     {
         $mailbox = Mailbox::factory()->create([
             'email' => 'support@example.com',
@@ -46,7 +46,7 @@ class MailboxTest extends TestCase
         $this->assertEquals('Custom Support', $result['name']);
     }
 
-    public function getMailFrom_prioritizes_from_name_custom(): void
+    public function test_getMailFrom_prioritizes_from_name_custom(): void
     {
         $mailbox = Mailbox::factory()->create([
             'email' => 'support@example.com',
@@ -60,7 +60,7 @@ class MailboxTest extends TestCase
         $this->assertEquals('Highest Priority Name', $result['name']);
     }
 
-    public function getMailFrom_falls_back_to_name_when_no_from_name(): void
+    public function test_getMailFrom_falls_back_to_name_when_no_from_name(): void
     {
         $mailbox = Mailbox::factory()->create([
             'email' => 'support@example.com',
@@ -74,7 +74,7 @@ class MailboxTest extends TestCase
         $this->assertArrayHasKey('name', $result);
     }
 
-    public function getMailFrom_accepts_user_parameter(): void
+    public function test_getMailFrom_accepts_user_parameter(): void
     {
         $mailbox = Mailbox::factory()->create();
         $user = User::factory()->create();

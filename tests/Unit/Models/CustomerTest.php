@@ -18,7 +18,7 @@ class CustomerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function getFullName_returns_first_and_last_name(): void
+    public function test_getFullName_returns_first_and_last_name(): void
     {
         $customer = Customer::factory()->create([
             'first_name' => 'John',
@@ -28,7 +28,7 @@ class CustomerTest extends TestCase
         $this->assertEquals('John Doe', $customer->getFullName());
     }
 
-    public function getFullName_trims_whitespace(): void
+    public function test_getFullName_trims_whitespace(): void
     {
         $customer = Customer::factory()->create([
             'first_name' => '  John  ',
@@ -38,7 +38,7 @@ class CustomerTest extends TestCase
         $this->assertEquals('John     Doe', $customer->getFullName());
     }
 
-    public function getFullName_with_only_first_name(): void
+    public function test_getFullName_with_only_first_name(): void
     {
         $customer = Customer::factory()->create([
             'first_name' => 'John',
@@ -48,7 +48,7 @@ class CustomerTest extends TestCase
         $this->assertEquals('John', $customer->getFullName());
     }
 
-    public function getFullName_with_only_last_name(): void
+    public function test_getFullName_with_only_last_name(): void
     {
         $customer = Customer::factory()->create([
             'first_name' => '',
@@ -58,7 +58,7 @@ class CustomerTest extends TestCase
         $this->assertEquals('Doe', $customer->getFullName());
     }
 
-    public function getFullName_with_empty_names(): void
+    public function test_getFullName_with_empty_names(): void
     {
         $customer = Customer::factory()->create([
             'first_name' => '',
@@ -68,7 +68,7 @@ class CustomerTest extends TestCase
         $this->assertEquals('', $customer->getFullName());
     }
 
-    public function getFullName_with_unicode_characters(): void
+    public function test_getFullName_with_unicode_characters(): void
     {
         $customer = Customer::factory()->withUnicodeName()->create();
 
@@ -76,7 +76,7 @@ class CustomerTest extends TestCase
         $this->assertStringContainsString('太郎', $customer->getFullName());
     }
 
-    public function getFullNameAttribute_returns_same_as_method(): void
+    public function test_getFullNameAttribute_returns_same_as_method(): void
     {
         $customer = Customer::factory()->create([
             'first_name' => 'Jane',
@@ -86,23 +86,24 @@ class CustomerTest extends TestCase
         $this->assertEquals($customer->getFullName(), $customer->full_name);
     }
 
-    public function getFirstName_returns_first_name(): void
+    public function test_getFirstName_returns_first_name(): void
     {
         $customer = Customer::factory()->create(['first_name' => 'Alice']);
 
         $this->assertEquals('Alice', $customer->getFirstName());
     }
 
-    public function getFirstName_returns_empty_string_when_null(): void
+    public function test_getFirstName_returns_empty_string_when_null(): void
     {
         $customer = Customer::factory()->create(['first_name' => null]);
 
         $this->assertEquals('', $customer->getFirstName());
     }
 
-    public function getMainEmail_returns_primary_email(): void
+    public function test_getMainEmail_returns_primary_email(): void
     {
         $customer = Customer::factory()->create();
+        $customer->emails()->delete();
         
         Email::factory()->create([
             'customer_id' => $customer->id,
@@ -119,7 +120,7 @@ class CustomerTest extends TestCase
         $this->assertEquals('primary@example.com', $customer->getMainEmail());
     }
 
-    public function getMainEmail_returns_first_email_if_no_primary(): void
+    public function test_getMainEmail_returns_first_email_if_no_primary(): void
     {
         $customer = Customer::factory()->create();
         
@@ -141,7 +142,7 @@ class CustomerTest extends TestCase
         $this->assertEquals('first@example.com', $customer->getMainEmail());
     }
 
-    public function getMainEmail_returns_null_when_no_emails(): void
+    public function test_getMainEmail_returns_null_when_no_emails(): void
     {
         $customer = Customer::factory()->create();
         $customer->emails()->delete(); // Remove auto-created email
@@ -149,9 +150,10 @@ class CustomerTest extends TestCase
         $this->assertNull($customer->getMainEmail());
     }
 
-    public function getPrimaryEmailAttribute_returns_primary_email(): void
+    public function test_getPrimaryEmailAttribute_returns_primary_email(): void
     {
         $customer = Customer::factory()->create();
+        $customer->emails()->delete();
         
         Email::factory()->create([
             'customer_id' => $customer->id,
@@ -162,9 +164,10 @@ class CustomerTest extends TestCase
         $this->assertEquals('primary@example.com', $customer->primary_email);
     }
 
-    public function getPrimaryEmailAttribute_returns_null_when_no_primary(): void
+    public function test_getPrimaryEmailAttribute_returns_null_when_no_primary(): void
     {
         $customer = Customer::factory()->create();
+        $customer->emails()->delete();
         
         Email::factory()->create([
             'customer_id' => $customer->id,

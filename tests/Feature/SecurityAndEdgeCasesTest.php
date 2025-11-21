@@ -34,8 +34,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function guest_cannot_access_settings_routes(): void
+    public function test_guest_cannot_access_settings_routes(): void
     {
         $response = $this->get(route('settings'));
         $response->assertRedirect(route('login'));
@@ -45,15 +44,13 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertStringNotContainsString('option', $response->getContent());
     }
 
-    #[Test]
-    public function guest_cannot_access_system_routes(): void
+    public function test_guest_cannot_access_system_routes(): void
     {
         $response = $this->get(route('system'));
         $response->assertRedirect(route('login'));
     }
 
-    #[Test]
-    public function non_admin_cannot_update_settings(): void
+    public function test_non_admin_cannot_update_settings(): void
     {
         $response = $this->actingAs($this->user)->post(route('settings.update'), [
             'company_name' => 'Hacked Company',
@@ -72,15 +69,13 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertStringNotContainsString('Hacked Company', $content);
     }
 
-    #[Test]
-    public function non_admin_cannot_access_email_settings(): void
+    public function test_non_admin_cannot_access_email_settings(): void
     {
         $response = $this->actingAs($this->user)->get(route('settings.email'));
         $response->assertForbidden();
     }
 
-    #[Test]
-    public function non_admin_cannot_update_email_settings(): void
+    public function test_non_admin_cannot_update_email_settings(): void
     {
         $response = $this->actingAs($this->user)->post(route('settings.email.update'), [
             'mail_driver' => 'smtp',
@@ -91,29 +86,25 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertForbidden();
     }
 
-    #[Test]
-    public function non_admin_cannot_clear_cache(): void
+    public function test_non_admin_cannot_clear_cache(): void
     {
         $response = $this->actingAs($this->user)->post(route('settings.cache.clear'));
         $response->assertForbidden();
     }
 
-    #[Test]
-    public function non_admin_cannot_run_migrations(): void
+    public function test_non_admin_cannot_run_migrations(): void
     {
         $response = $this->actingAs($this->user)->post(route('settings.migrate'));
         $response->assertForbidden();
     }
 
-    #[Test]
-    public function non_admin_cannot_access_system_diagnostics(): void
+    public function test_non_admin_cannot_access_system_diagnostics(): void
     {
         $response = $this->actingAs($this->user)->get(route('system.diagnostics'));
         $response->assertForbidden();
     }
 
-    #[Test]
-    public function option_handles_null_values_correctly(): void
+    public function test_option_handles_null_values_correctly(): void
     {
         Option::setValue('nullable_option', null);
 
@@ -121,8 +112,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertNull($value);
     }
 
-    #[Test]
-    public function option_handles_empty_string_values(): void
+    public function test_option_handles_empty_string_values(): void
     {
         Option::setValue('empty_option', '');
 
@@ -130,8 +120,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertEquals('', $value);
     }
 
-    #[Test]
-    public function option_handles_numeric_values(): void
+    public function test_option_handles_numeric_values(): void
     {
         Option::setValue('numeric_option', 12345);
 
@@ -139,8 +128,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertEquals(12345, $value);
     }
 
-    #[Test]
-    public function option_handles_array_values(): void
+    public function test_option_handles_array_values(): void
     {
         $arrayValue = ['key1' => 'value1', 'key2' => 'value2'];
         Option::setValue('array_option', json_encode($arrayValue));
@@ -150,8 +138,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertEquals($arrayValue, json_decode($value, true));
     }
 
-    #[Test]
-    public function settings_validation_prevents_sql_injection(): void
+    public function test_settings_validation_prevents_sql_injection(): void
     {
         $this->actingAs($this->admin);
 
@@ -175,8 +162,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertDatabaseHas('options', ['name' => 'company_name']);
     }
 
-    #[Test]
-    public function settings_validation_prevents_xss(): void
+    public function test_settings_validation_prevents_xss(): void
     {
         $this->actingAs($this->admin);
 
@@ -194,8 +180,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function email_settings_require_valid_email_format(): void
+    public function test_email_settings_require_valid_email_format(): void
     {
         $this->actingAs($this->admin);
 
@@ -220,8 +205,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function email_settings_require_supported_driver(): void
+    public function test_email_settings_require_supported_driver(): void
     {
         $this->actingAs($this->admin);
 
@@ -234,8 +218,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertSessionHasErrors('mail_driver');
     }
 
-    #[Test]
-    public function system_diagnostics_checks_database_connection(): void
+    public function test_system_diagnostics_checks_database_connection(): void
     {
         $response = $this->actingAs($this->admin)->get(route('system.diagnostics'));
 
@@ -249,8 +232,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertJsonPath('checks.database.status', 'ok');
     }
 
-    #[Test]
-    public function system_diagnostics_checks_storage_writable(): void
+    public function test_system_diagnostics_checks_storage_writable(): void
     {
         $response = $this->actingAs($this->admin)->get(route('system.diagnostics'));
 
@@ -258,8 +240,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertJsonPath('checks.storage.status', 'ok');
     }
 
-    #[Test]
-    public function system_diagnostics_checks_cache_working(): void
+    public function test_system_diagnostics_checks_cache_working(): void
     {
         $response = $this->actingAs($this->admin)->get(route('system.diagnostics'));
 
@@ -267,8 +248,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertJsonPath('checks.cache.status', 'ok');
     }
 
-    #[Test]
-    public function option_set_value_creates_new_record_when_not_exists(): void
+    public function test_option_set_value_creates_new_record_when_not_exists(): void
     {
         $this->assertDatabaseMissing('options', ['name' => 'new_test_option']);
 
@@ -280,8 +260,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function option_set_value_updates_existing_record(): void
+    public function test_option_set_value_updates_existing_record(): void
     {
         Option::create(['name' => 'existing_option', 'value' => 'old_value']);
 
@@ -296,16 +275,14 @@ class SecurityAndEdgeCasesTest extends TestCase
         $this->assertEquals(1, Option::where('name', 'existing_option')->count());
     }
 
-    #[Test]
-    public function option_delete_option_handles_non_existent_keys_gracefully(): void
+    public function test_option_delete_option_handles_non_existent_keys_gracefully(): void
     {
         $result = Option::deleteOption('non_existent_key');
 
         $this->assertFalse($result);
     }
 
-    #[Test]
-    public function multiple_options_can_be_stored_and_retrieved(): void
+    public function test_multiple_options_can_be_stored_and_retrieved(): void
     {
         $options = [
             'option1' => 'value1',
@@ -322,8 +299,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         }
     }
 
-    #[Test]
-    public function settings_page_displays_existing_options(): void
+    public function test_settings_page_displays_existing_options(): void
     {
         Option::create(['name' => 'company_name', 'value' => 'Test Corp']);
         Option::create(['name' => 'next_ticket', 'value' => '100']);
@@ -334,8 +310,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertSee('Test Corp');
     }
 
-    #[Test]
-    public function system_ajax_requires_admin(): void
+    public function test_system_ajax_requires_admin(): void
     {
         $response = $this->actingAs($this->user)->post(route('system.ajax'), [
             'action' => 'system_info',
@@ -344,8 +319,7 @@ class SecurityAndEdgeCasesTest extends TestCase
         $response->assertForbidden();
     }
 
-    #[Test]
-    public function admin_can_get_system_info_with_correct_structure(): void
+    public function test_admin_can_get_system_info_with_correct_structure(): void
     {
         $response = $this->actingAs($this->admin)->post(route('system.ajax'), [
             'action' => 'system_info',

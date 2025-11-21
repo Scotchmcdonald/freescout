@@ -291,4 +291,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return $date->format($format);
     }
+
+    /**
+     * Send the password changed notification.
+     */
+    public function sendPasswordChanged(): void
+    {
+        \Illuminate\Support\Facades\Mail::to($this)->send(new \App\Mail\PasswordChanged($this));
+    }
 }

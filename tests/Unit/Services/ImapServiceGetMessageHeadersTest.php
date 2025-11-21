@@ -80,9 +80,13 @@ class ImapServiceGetMessageHeadersTest extends TestCase
     {
         $headerString = "From: test@example.com\nSubject: Test";
 
+        // getHeader() must return ?Header per type signature, not string
+        $header = Mockery::mock(Header::class);
+        $header->shouldReceive('__toString')->once()->andReturn($headerString);
+
         $message = Mockery::mock(Message::class);
         $message->shouldReceive('getRawHeader')->once()->andThrow(new \BadMethodCallException());
-        $message->shouldReceive('getHeader')->once()->andReturn($headerString);
+        $message->shouldReceive('getHeader')->once()->andReturn($header);
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -239,7 +243,8 @@ class ImapServiceGetMessageHeadersTest extends TestCase
         $result = $this->invokeGetMessageHeaders($message);
 
         $this->assertEquals($rawHeader, $result);
-        $this->assertStringContainsString('\"John Doe\"', $result);
+        // The string contains literal quote characters (not escaped in the result)
+        $this->assertStringContainsString('"John Doe"', $result);
     }
 
     public function test_returns_empty_for_all_failures(): void

@@ -92,8 +92,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertEquals('Springfield', $customer->city);
     }
 
-    #[Test]
-    public function customer_has_conversations_relationship(): void
+    public function test_customer_has_conversations_relationship(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -110,8 +109,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertEquals(1, $result->count());
     }
 
-    #[Test]
-    public function customer_full_name_accessor_works(): void
+    public function test_customer_full_name_accessor_works(): void
     {
         // Arrange
         $customer = new Customer([
@@ -126,8 +124,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertEquals('Jane Smith', $fullName);
     }
 
-    #[Test]
-    public function customer_full_name_accessor_trims_whitespace(): void
+    public function test_customer_full_name_accessor_trims_whitespace(): void
     {
         // Arrange
         $customer = new Customer([
@@ -143,8 +140,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertStringNotContainsString('  ', $fullName);
     }
 
-    #[Test]
-    public function customer_has_emails_relationship(): void
+    public function test_customer_has_emails_relationship(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -164,8 +160,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertEquals('test@example.com', $result->first()->email);
     }
 
-    #[Test]
-    public function customer_get_main_email_returns_primary_email(): void
+    public function test_customer_get_main_email_returns_primary_email(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -189,8 +184,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertEquals('primary@example.com', $mainEmail);
     }
 
-    #[Test]
-    public function customer_get_main_email_returns_first_email_if_no_primary(): void
+    public function test_customer_get_main_email_returns_first_email_if_no_primary(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -209,8 +203,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertEquals('only@example.com', $mainEmail);
     }
 
-    #[Test]
-    public function customer_get_main_email_returns_null_when_no_emails(): void
+    public function test_customer_get_main_email_returns_null_when_no_emails(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -224,8 +217,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertNull($mainEmail);
     }
 
-    #[Test]
-    public function customer_has_threads_relationship(): void
+    public function test_customer_has_threads_relationship(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -237,8 +229,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $result);
     }
 
-    #[Test]
-    public function customer_has_channels_relationship(): void
+    public function test_customer_has_channels_relationship(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -250,8 +241,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $result);
     }
 
-    #[Test]
-    public function customer_get_first_name_returns_empty_string_when_null(): void
+    public function test_customer_get_first_name_returns_empty_string_when_null(): void
     {
         // Arrange
         $customer = new Customer(['first_name' => null]);
@@ -263,8 +253,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertEquals('', $firstName);
     }
 
-    #[Test]
-    public function customer_get_first_name_returns_actual_value(): void
+    public function test_customer_get_first_name_returns_actual_value(): void
     {
         // Arrange
         $customer = new Customer(['first_name' => 'John']);
@@ -276,8 +265,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertEquals('John', $firstName);
     }
 
-    #[Test]
-    public function customer_primary_email_attribute_returns_primary_email(): void
+    public function test_customer_primary_email_attribute_returns_primary_email(): void
     {
         // Arrange
         $customer = Customer::factory()->withoutEmail()->create();
@@ -299,8 +287,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertEquals('primary@example.com', $primaryEmail);
     }
 
-    #[Test]
-    public function customer_primary_email_attribute_returns_null_when_no_primary(): void
+    public function test_customer_primary_email_attribute_returns_null_when_no_primary(): void
     {
         // Arrange
         $customer = Customer::factory()->withoutEmail()->create();
@@ -317,8 +304,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertNull($primaryEmail);
     }
 
-    #[Test]
-    public function customer_casts_attributes_correctly(): void
+    public function test_customer_casts_attributes_correctly(): void
     {
         // Arrange
         $customer = new Customer([
@@ -333,8 +319,7 @@ class CustomerModelTest extends UnitTestCase
         $this->assertIsArray($customer->social_profiles);
     }
 
-    #[Test]
-    public function customer_fillable_includes_all_expected_fields(): void
+    public function test_customer_fillable_includes_all_expected_fields(): void
     {
         // Arrange
         $expectedFields = [

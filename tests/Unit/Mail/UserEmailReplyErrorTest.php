@@ -13,8 +13,7 @@ use Tests\UnitTestCase;
 class UserEmailReplyErrorTest extends UnitTestCase
 {
 
-    #[Test]
-    public function mailable_can_be_instantiated(): void
+    public function test_mailable_can_be_instantiated(): void
     {
         $user = \App\Models\User::factory()->create();
         $mailable = new UserEmailReplyError($user);
@@ -22,8 +21,7 @@ class UserEmailReplyErrorTest extends UnitTestCase
         $this->assertInstanceOf(UserEmailReplyError::class, $mailable);
     }
 
-    #[Test]
-    public function envelope_contains_error_message(): void
+    public function test_envelope_contains_error_message(): void
     {
         $user = \App\Models\User::factory()->create();
         $mailable = new UserEmailReplyError($user);
@@ -32,8 +30,7 @@ class UserEmailReplyErrorTest extends UnitTestCase
         $this->assertStringContainsString('Unable to process', $envelope->subject);
     }
 
-    #[Test]
-    public function envelope_subject_is_translated(): void
+    public function test_envelope_subject_is_translated(): void
     {
         $user = \App\Models\User::factory()->create();
         $mailable = new UserEmailReplyError($user);
@@ -44,7 +41,6 @@ class UserEmailReplyErrorTest extends UnitTestCase
         $this->assertIsString($envelope->subject);
     }
 
-    #[Test]
     public function test_user_email_reply_error_content(): void
     {
         $user = User::factory()->create();
@@ -67,8 +63,7 @@ class UserEmailReplyErrorTest extends UnitTestCase
         });
     }
 
-    #[Test]
-    public function mailable_is_queueable(): void
+    public function test_mailable_is_queueable(): void
     {
         $user = \App\Models\User::factory()->create();
         $mailable = new UserEmailReplyError($user);
@@ -77,8 +72,7 @@ class UserEmailReplyErrorTest extends UnitTestCase
         $this->assertTrue(method_exists($mailable, 'onConnection'));
     }
 
-    #[Test]
-    public function mailable_requires_user_parameter(): void
+    public function test_mailable_requires_user_parameter(): void
     {
         $user = \App\Models\User::factory()->create();
         $mailable = new UserEmailReplyError($user);
@@ -87,7 +81,6 @@ class UserEmailReplyErrorTest extends UnitTestCase
         $this->assertEquals($user->id, $mailable->user->id);
     }
 
-    #[Test]
     public function test_user_email_reply_error_can_be_queued(): void
     {
         Mail::fake();
@@ -99,8 +92,7 @@ class UserEmailReplyErrorTest extends UnitTestCase
         Mail::assertQueued(UserEmailReplyError::class);
     }
 
-    #[Test]
-    public function content_has_view_defined(): void
+    public function test_content_has_view_defined(): void
     {
         $user = \App\Models\User::factory()->create();
         $mailable = new UserEmailReplyError($user);

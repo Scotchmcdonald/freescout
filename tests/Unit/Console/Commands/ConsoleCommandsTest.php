@@ -83,8 +83,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- Basic Structure Tests ---
 
-    #[Test]
-    public function module_build_command_class_exists(): void
+    public function test_module_build_command_class_exists(): void
     {
         $this->assertTrue(
             class_exists(ModuleBuild::class),
@@ -92,8 +91,7 @@ class ConsoleCommandsTest extends UnitTestCase
         );
     }
 
-    #[Test]
-    public function module_build_command_can_be_instantiated(): void
+    public function test_module_build_command_can_be_instantiated(): void
     {
         $command = new ModuleBuild();
         
@@ -101,16 +99,14 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
     }
 
-    #[Test]
-    public function module_build_has_correct_signature(): void
+    public function test_module_build_has_correct_signature(): void
     {
         $command = new ModuleBuild();
         
         $this->assertEquals('freescout:module-build', $command->getName());
     }
 
-    #[Test]
-    public function module_build_signature_contains_optional_argument(): void
+    public function test_module_build_signature_contains_optional_argument(): void
     {
         $command = new ModuleBuild();
         $definition = $command->getDefinition();
@@ -119,8 +115,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertFalse($definition->getArgument('module_alias')->isRequired());
     }
 
-    #[Test]
-    public function module_build_has_description(): void
+    public function test_module_build_has_description(): void
     {
         $command = new ModuleBuild();
         
@@ -129,8 +124,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('build', strtolower($command->getDescription()));
     }
 
-    #[Test]
-    public function module_build_has_build_module_method(): void
+    public function test_module_build_has_build_module_method(): void
     {
         $command = new ModuleBuild();
         
@@ -140,8 +134,7 @@ class ConsoleCommandsTest extends UnitTestCase
         );
     }
 
-    #[Test]
-    public function module_build_has_build_vars_method(): void
+    public function test_module_build_has_build_vars_method(): void
     {
         $command = new ModuleBuild();
         
@@ -151,8 +144,7 @@ class ConsoleCommandsTest extends UnitTestCase
         );
     }
 
-    #[Test]
-    public function module_build_has_handle_method(): void
+    public function test_module_build_has_handle_method(): void
     {
         $command = new ModuleBuild();
         
@@ -164,8 +156,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- Execution Tests ---
 
-    #[Test]
-    public function module_build_executes_without_fatal_error(): void
+    public function test_module_build_executes_without_fatal_error(): void
     {
         try {
             $exitCode = Artisan::call('freescout:module-build');
@@ -178,8 +169,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_with_no_modules_shows_error(): void
+    public function test_module_build_with_no_modules_shows_error(): void
     {
         $exitCode = Artisan::call('freescout:module-build');
         $output = Artisan::output();
@@ -189,8 +179,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertIsInt($exitCode);
     }
 
-    #[Test]
-    public function module_build_with_non_existent_module_returns_error_code(): void
+    public function test_module_build_with_non_existent_module_returns_error_code(): void
     {
         $exitCode = Artisan::call('freescout:module-build', [
             'module_alias' => 'CompletelyNonExistentModule12345'
@@ -199,8 +188,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertEquals(1, $exitCode, 'Should return error code 1 for non-existent module');
     }
 
-    #[Test]
-    public function module_build_with_non_existent_module_shows_error_message(): void
+    public function test_module_build_with_non_existent_module_shows_error_message(): void
     {
         Artisan::call('freescout:module-build', [
             'module_alias' => 'NonExistentModule'
@@ -211,8 +199,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('not found', strtolower($output));
     }
 
-    #[Test]
-    public function module_build_output_contains_module_name(): void
+    public function test_module_build_output_contains_module_name(): void
     {
         Artisan::call('freescout:module-build', [
             'module_alias' => 'TestModule'
@@ -224,8 +211,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertNotEmpty($output);
     }
 
-    #[Test]
-    public function module_build_checks_for_public_symlink(): void
+    public function test_module_build_checks_for_public_symlink(): void
     {
         // When building a module, it should check for public symlink
         Artisan::call('freescout:module-build', [
@@ -238,8 +224,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertIsString($output);
     }
 
-    #[Test]
-    public function module_build_shows_completion_message_on_success(): void
+    public function test_module_build_shows_completion_message_on_success(): void
     {
         $exitCode = Artisan::call('freescout:module-build');
         
@@ -252,8 +237,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_handles_empty_module_alias(): void
+    public function test_module_build_handles_empty_module_alias(): void
     {
         // Test with empty string as module alias
         try {
@@ -267,8 +251,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_handles_null_module_alias(): void
+    public function test_module_build_handles_null_module_alias(): void
     {
         // No module_alias provided (null)
         $exitCode = Artisan::call('freescout:module-build');
@@ -276,8 +259,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertIsInt($exitCode);
     }
 
-    #[Test]
-    public function module_build_handles_special_characters_in_alias(): void
+    public function test_module_build_handles_special_characters_in_alias(): void
     {
         $exitCode = Artisan::call('freescout:module-build', [
             'module_alias' => 'Test@Module#123'
@@ -287,8 +269,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertEquals(1, $exitCode); // Should fail for invalid alias
     }
 
-    #[Test]
-    public function module_build_handles_very_long_module_name(): void
+    public function test_module_build_handles_very_long_module_name(): void
     {
         $longName = str_repeat('A', 255);
         
@@ -299,8 +280,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertIsInt($exitCode);
     }
 
-    #[Test]
-    public function module_build_uses_correct_filesystem(): void
+    public function test_module_build_uses_correct_filesystem(): void
     {
         $command = new ModuleBuild();
         
@@ -308,8 +288,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(class_exists(\Illuminate\Filesystem\Filesystem::class));
     }
 
-    #[Test]
-    public function module_build_respects_app_locales_config(): void
+    public function test_module_build_respects_app_locales_config(): void
     {
         // buildVars uses config('app.locales')
         $originalLocales = config('app.locales', []);
@@ -329,8 +308,7 @@ class ConsoleCommandsTest extends UnitTestCase
         Config::set('app.locales', $originalLocales);
     }
 
-    #[Test]
-    public function module_build_handles_view_not_found(): void
+    public function test_module_build_handles_view_not_found(): void
     {
         // When view doesn't exist, should skip vars.js generation
         try {
@@ -346,8 +324,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_creates_vars_directory_if_needed(): void
+    public function test_module_build_creates_vars_directory_if_needed(): void
     {
         // Command should create directory for vars.js if it doesn't exist
         $command = new ModuleBuild();
@@ -356,8 +333,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(method_exists($command, 'buildVars'));
     }
 
-    #[Test]
-    public function module_build_handles_write_permission_errors(): void
+    public function test_module_build_handles_write_permission_errors(): void
     {
         // Should handle gracefully if can't write files
         try {
@@ -372,8 +348,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_shows_info_messages_during_build(): void
+    public function test_module_build_shows_info_messages_during_build(): void
     {
         Artisan::call('freescout:module-build');
         $output = Artisan::output();
@@ -382,8 +357,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertNotEmpty($output);
     }
 
-    #[Test]
-    public function module_build_lists_building_modules(): void
+    public function test_module_build_lists_building_modules(): void
     {
         $exitCode = Artisan::call('freescout:module-build');
         
@@ -397,8 +371,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_handles_all_modules_iteration(): void
+    public function test_module_build_handles_all_modules_iteration(): void
     {
         // When no alias provided, should iterate all modules
         $exitCode = Artisan::call('freescout:module-build');
@@ -406,8 +379,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertIsInt($exitCode);
     }
 
-    #[Test]
-    public function module_build_returns_zero_on_successful_build(): void
+    public function test_module_build_returns_zero_on_successful_build(): void
     {
         // If modules exist and build succeeds, should return 0
         $exitCode = Artisan::call('freescout:module-build');
@@ -422,8 +394,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- Basic Structure Tests ---
 
-    #[Test]
-    public function module_install_command_class_exists(): void
+    public function test_module_install_command_class_exists(): void
     {
         $this->assertTrue(
             class_exists(ModuleInstall::class),
@@ -431,8 +402,7 @@ class ConsoleCommandsTest extends UnitTestCase
         );
     }
 
-    #[Test]
-    public function module_install_command_can_be_instantiated(): void
+    public function test_module_install_command_can_be_instantiated(): void
     {
         $command = new ModuleInstall();
         
@@ -440,16 +410,14 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
     }
 
-    #[Test]
-    public function module_install_has_correct_signature(): void
+    public function test_module_install_has_correct_signature(): void
     {
         $command = new ModuleInstall();
         
         $this->assertEquals('freescout:module-install', $command->getName());
     }
 
-    #[Test]
-    public function module_install_signature_has_optional_module_alias(): void
+    public function test_module_install_signature_has_optional_module_alias(): void
     {
         $command = new ModuleInstall();
         $definition = $command->getDefinition();
@@ -458,8 +426,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertFalse($definition->getArgument('module_alias')->isRequired());
     }
 
-    #[Test]
-    public function module_install_has_description(): void
+    public function test_module_install_has_description(): void
     {
         $command = new ModuleInstall();
         
@@ -467,16 +434,14 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('install', strtolower($command->getDescription()));
     }
 
-    #[Test]
-    public function module_install_has_handle_method(): void
+    public function test_module_install_has_handle_method(): void
     {
         $command = new ModuleInstall();
         
         $this->assertTrue(method_exists($command, 'handle'));
     }
 
-    #[Test]
-    public function module_install_has_create_module_public_symlink_method(): void
+    public function test_module_install_has_create_module_public_symlink_method(): void
     {
         $command = new ModuleInstall();
         
@@ -486,8 +451,7 @@ class ConsoleCommandsTest extends UnitTestCase
         );
     }
 
-    #[Test]
-    public function module_install_method_is_public(): void
+    public function test_module_install_method_is_public(): void
     {
         $reflection = new \ReflectionClass(ModuleInstall::class);
         $method = $reflection->getMethod('createModulePublicSymlink');
@@ -497,8 +461,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- Execution Tests ---
 
-    #[Test]
-    public function module_install_executes_without_fatal_error(): void
+    public function test_module_install_executes_without_fatal_error(): void
     {
         try {
             $exitCode = Artisan::call('freescout:module-install', [
@@ -512,8 +475,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_clears_cache_before_operation(): void
+    public function test_module_install_clears_cache_before_operation(): void
     {
         // Command should call cache:clear at the beginning
         Cache::put('test_key', 'test_value', 60);
@@ -530,8 +492,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function module_install_shows_error_for_non_existent_module(): void
+    public function test_module_install_shows_error_for_non_existent_module(): void
     {
         Artisan::call('freescout:module-install', [
             'module_alias' => 'CompletelyNonExistentModule12345'
@@ -542,8 +503,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('not found', strtolower($output));
     }
 
-    #[Test]
-    public function module_install_calls_module_migrate(): void
+    public function test_module_install_calls_module_migrate(): void
     {
         // Command should call module:migrate
         try {
@@ -558,8 +518,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_creates_public_symlink(): void
+    public function test_module_install_creates_public_symlink(): void
     {
         // Method should attempt to create symlink
         $command = new ModuleInstall();
@@ -567,8 +526,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(method_exists($command, 'createModulePublicSymlink'));
     }
 
-    #[Test]
-    public function module_install_handles_existing_symlink(): void
+    public function test_module_install_handles_existing_symlink(): void
     {
         // Should handle case where symlink already exists
         try {
@@ -582,8 +540,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_handles_broken_symlink(): void
+    public function test_module_install_handles_broken_symlink(): void
     {
         // Should handle broken symlinks gracefully
         try {
@@ -597,8 +554,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_creates_public_directory_if_missing(): void
+    public function test_module_install_creates_public_directory_if_missing(): void
     {
         // Should attempt to create Public directory if it doesn't exist
         $command = new ModuleInstall();
@@ -607,8 +563,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(method_exists($command, 'createModulePublicSymlink'));
     }
 
-    #[Test]
-    public function module_install_renames_existing_directory(): void
+    public function test_module_install_renames_existing_directory(): void
     {
         // If a directory exists at symlink location, should rename it
         try {
@@ -622,8 +577,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_uses_force_flag_for_migrations(): void
+    public function test_module_install_uses_force_flag_for_migrations(): void
     {
         // Single module installation should use --force flag
         try {
@@ -637,8 +591,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_clears_cache_after_installation(): void
+    public function test_module_install_clears_cache_after_installation(): void
     {
         // Should call freescout:clear-cache at the end
         try {
@@ -652,8 +605,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_shows_module_name_during_installation(): void
+    public function test_module_install_shows_module_name_during_installation(): void
     {
         try {
             Artisan::call('freescout:module-install', [
@@ -667,8 +619,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_handles_symlink_creation_errors(): void
+    public function test_module_install_handles_symlink_creation_errors(): void
     {
         // Should catch and display symlink creation errors
         try {
@@ -682,8 +633,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_handles_open_basedir_restriction(): void
+    public function test_module_install_handles_open_basedir_restriction(): void
     {
         // Should handle open_basedir restrictions gracefully
         try {
@@ -697,8 +647,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_checks_if_symlink_exists(): void
+    public function test_module_install_checks_if_symlink_exists(): void
     {
         // Should check if symlink already exists
         try {
@@ -712,8 +661,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_uses_correct_directory_separator(): void
+    public function test_module_install_uses_correct_directory_separator(): void
     {
         // Should use DIRECTORY_SEPARATOR for cross-platform compatibility
         $command = new ModuleInstall();
@@ -721,8 +669,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(defined('DIRECTORY_SEPARATOR'));
     }
 
-    #[Test]
-    public function module_install_shows_symlink_creation_message(): void
+    public function test_module_install_shows_symlink_creation_message(): void
     {
         try {
             Artisan::call('freescout:module-install', [
@@ -736,8 +683,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_handles_case_sensitive_aliases(): void
+    public function test_module_install_handles_case_sensitive_aliases(): void
     {
         // Module aliases might be case-sensitive
         try {
@@ -751,8 +697,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_prompts_for_confirmation_when_no_alias(): void
+    public function test_module_install_prompts_for_confirmation_when_no_alias(): void
     {
         // When no module_alias, should ask for confirmation
         // This is interactive, so we just verify structure
@@ -761,8 +706,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(method_exists($command, 'handle'));
     }
 
-    #[Test]
-    public function module_install_can_install_all_modules(): void
+    public function test_module_install_can_install_all_modules(): void
     {
         // Should be able to install all modules at once
         try {
@@ -775,8 +719,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_lists_available_modules(): void
+    public function test_module_install_lists_available_modules(): void
     {
         try {
             Artisan::call('freescout:module-install');
@@ -794,8 +737,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- Basic Structure Tests ---
 
-    #[Test]
-    public function module_update_command_class_exists(): void
+    public function test_module_update_command_class_exists(): void
     {
         $this->assertTrue(
             class_exists(ModuleUpdate::class),
@@ -803,8 +745,7 @@ class ConsoleCommandsTest extends UnitTestCase
         );
     }
 
-    #[Test]
-    public function module_update_command_can_be_instantiated(): void
+    public function test_module_update_command_can_be_instantiated(): void
     {
         $command = new ModuleUpdate();
         
@@ -812,16 +753,14 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
     }
 
-    #[Test]
-    public function module_update_has_correct_signature(): void
+    public function test_module_update_has_correct_signature(): void
     {
         $command = new ModuleUpdate();
         
         $this->assertEquals('freescout:module-update', $command->getName());
     }
 
-    #[Test]
-    public function module_update_signature_has_optional_module_alias(): void
+    public function test_module_update_signature_has_optional_module_alias(): void
     {
         $command = new ModuleUpdate();
         $definition = $command->getDefinition();
@@ -830,8 +769,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertFalse($definition->getArgument('module_alias')->isRequired());
     }
 
-    #[Test]
-    public function module_update_has_description(): void
+    public function test_module_update_has_description(): void
     {
         $command = new ModuleUpdate();
         
@@ -839,8 +777,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('update', strtolower($command->getDescription()));
     }
 
-    #[Test]
-    public function module_update_has_handle_method(): void
+    public function test_module_update_has_handle_method(): void
     {
         $command = new ModuleUpdate();
         
@@ -849,8 +786,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- Execution Tests ---
 
-    #[Test]
-    public function module_update_executes_without_fatal_error(): void
+    public function test_module_update_executes_without_fatal_error(): void
     {
         try {
             $exitCode = Artisan::call('freescout:module-update');
@@ -862,8 +798,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_clears_cache_before_operation(): void
+    public function test_module_update_clears_cache_before_operation(): void
     {
         try {
             Artisan::call('freescout:module-update');
@@ -874,8 +809,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_checks_module_directory(): void
+    public function test_module_update_checks_module_directory(): void
     {
         // Should check modules directory via WpApi
         try {
@@ -887,8 +821,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_handles_api_errors(): void
+    public function test_module_update_handles_api_errors(): void
     {
         // Should handle WpApi errors gracefully
         try {
@@ -901,8 +834,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_compares_versions(): void
+    public function test_module_update_compares_versions(): void
     {
         // Should compare current vs available versions
         try {
@@ -914,8 +846,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_update_result(): void
+    public function test_module_update_shows_update_result(): void
     {
         try {
             Artisan::call('freescout:module-update');
@@ -927,8 +858,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_success_message(): void
+    public function test_module_update_shows_success_message(): void
     {
         try {
             Artisan::call('freescout:module-update');
@@ -941,8 +871,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_error_message_on_failure(): void
+    public function test_module_update_shows_error_message_on_failure(): void
     {
         try {
             Artisan::call('freescout:module-update', [
@@ -956,8 +885,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_download_message(): void
+    public function test_module_update_shows_download_message(): void
     {
         try {
             Artisan::call('freescout:module-update');
@@ -969,8 +897,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_displays_update_output(): void
+    public function test_module_update_displays_update_output(): void
     {
         try {
             Artisan::call('freescout:module-update');
@@ -982,8 +909,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_clears_cache_after_update(): void
+    public function test_module_update_clears_cache_after_update(): void
     {
         try {
             Artisan::call('freescout:module-update');
@@ -995,8 +921,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_handles_no_updates_available(): void
+    public function test_module_update_handles_no_updates_available(): void
     {
         try {
             Artisan::call('freescout:module-update');
@@ -1009,8 +934,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_handles_custom_modules(): void
+    public function test_module_update_handles_custom_modules(): void
     {
         // Should update custom (non-official) modules
         try {
@@ -1022,15 +946,13 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_uses_guzzle_http_client(): void
+    public function test_module_update_uses_guzzle_http_client(): void
     {
         // Should use GuzzleHttp\Client for HTTP requests
         $this->assertTrue(class_exists(\GuzzleHttp\Client::class));
     }
 
-    #[Test]
-    public function module_update_handles_http_exceptions(): void
+    public function test_module_update_handles_http_exceptions(): void
     {
         // Should catch HTTP exceptions
         try {
@@ -1042,8 +964,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_checks_latest_version_url(): void
+    public function test_module_update_checks_latest_version_url(): void
     {
         // Should fetch latest version from URL
         try {
@@ -1055,8 +976,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_skips_official_modules_for_custom_check(): void
+    public function test_module_update_skips_official_modules_for_custom_check(): void
     {
         // Should skip official modules when checking custom updates
         try {
@@ -1068,8 +988,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_handles_empty_latest_version(): void
+    public function test_module_update_handles_empty_latest_version(): void
     {
         // Should handle empty latest version response
         try {
@@ -1081,8 +1000,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_counts_updated_modules(): void
+    public function test_module_update_counts_updated_modules(): void
     {
         // Should track how many modules were updated
         try {
@@ -1095,8 +1013,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_can_update_single_module(): void
+    public function test_module_update_can_update_single_module(): void
     {
         // Should be able to update just one module
         try {
@@ -1110,8 +1027,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_module_not_found_for_single_update(): void
+    public function test_module_update_shows_module_not_found_for_single_update(): void
     {
         try {
             Artisan::call('freescout:module-update', [
@@ -1125,8 +1041,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_uses_version_compare(): void
+    public function test_module_update_uses_version_compare(): void
     {
         // Should use version_compare for checking versions
         try {
@@ -1144,8 +1059,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- Basic Structure Tests ---
 
-    #[Test]
-    public function update_command_class_exists(): void
+    public function test_update_command_class_exists(): void
     {
         $this->assertTrue(
             class_exists(Update::class),
@@ -1153,8 +1067,7 @@ class ConsoleCommandsTest extends UnitTestCase
         );
     }
 
-    #[Test]
-    public function update_command_can_be_instantiated(): void
+    public function test_update_command_can_be_instantiated(): void
     {
         $command = new Update();
         
@@ -1162,16 +1075,14 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
     }
 
-    #[Test]
-    public function update_has_correct_signature(): void
+    public function test_update_has_correct_signature(): void
     {
         $command = new Update();
         
         $this->assertEquals('freescout:update', $command->getName());
     }
 
-    #[Test]
-    public function update_has_force_option(): void
+    public function test_update_has_force_option(): void
     {
         $command = new Update();
         $definition = $command->getDefinition();
@@ -1179,8 +1090,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue($definition->hasOption('force'));
     }
 
-    #[Test]
-    public function update_force_option_is_not_required(): void
+    public function test_update_force_option_is_not_required(): void
     {
         $command = new Update();
         $definition = $command->getDefinition();
@@ -1189,8 +1099,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertFalse($option->isValueRequired());
     }
 
-    #[Test]
-    public function update_has_description(): void
+    public function test_update_has_description(): void
     {
         $command = new Update();
         
@@ -1198,8 +1107,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('update', strtolower($command->getDescription()));
     }
 
-    #[Test]
-    public function update_uses_confirmable_trait(): void
+    public function test_update_uses_confirmable_trait(): void
     {
         $reflection = new \ReflectionClass(Update::class);
         
@@ -1207,8 +1115,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertContains(\Illuminate\Console\ConfirmableTrait::class, $traits);
     }
 
-    #[Test]
-    public function update_has_handle_method(): void
+    public function test_update_has_handle_method(): void
     {
         $command = new Update();
         
@@ -1217,8 +1124,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- Execution Tests ---
 
-    #[Test]
-    public function update_executes_with_force_flag(): void
+    public function test_update_executes_with_force_flag(): void
     {
         try {
             $exitCode = Artisan::call('freescout:update', [
@@ -1232,8 +1138,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_runs_database_migrations(): void
+    public function test_update_runs_database_migrations(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1248,8 +1153,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_clears_application_cache(): void
+    public function test_update_clears_application_cache(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1263,8 +1167,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_clears_config_cache(): void
+    public function test_update_clears_config_cache(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1278,8 +1181,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_clears_route_cache(): void
+    public function test_update_clears_route_cache(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1293,8 +1195,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_clears_view_cache(): void
+    public function test_update_clears_view_cache(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1308,8 +1209,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_runs_optimize_command(): void
+    public function test_update_runs_optimize_command(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1323,8 +1223,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_runs_after_app_update_command(): void
+    public function test_update_runs_after_app_update_command(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1338,8 +1237,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_shows_starting_message(): void
+    public function test_update_shows_starting_message(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1353,8 +1251,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_shows_completion_message(): void
+    public function test_update_shows_completion_message(): void
     {
         try {
             $exitCode = Artisan::call('freescout:update', [
@@ -1372,8 +1269,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_increases_memory_limit(): void
+    public function test_update_increases_memory_limit(): void
     {
         // Should set memory_limit to 256M
         try {
@@ -1387,8 +1283,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_handles_exceptions_gracefully(): void
+    public function test_update_handles_exceptions_gracefully(): void
     {
         try {
             $exitCode = Artisan::call('freescout:update', [
@@ -1402,8 +1297,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_returns_error_code_on_failure(): void
+    public function test_update_returns_error_code_on_failure(): void
     {
         try {
             $exitCode = Artisan::call('freescout:update', [
@@ -1417,8 +1311,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_shows_error_message_on_exception(): void
+    public function test_update_shows_error_message_on_exception(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1432,8 +1325,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_calls_migrate_with_force(): void
+    public function test_update_calls_migrate_with_force(): void
     {
         // Should call migrate with --force flag
         try {
@@ -1447,8 +1339,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_shows_migration_output(): void
+    public function test_update_shows_migration_output(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1462,8 +1353,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_shows_cache_clearing_message(): void
+    public function test_update_shows_cache_clearing_message(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1477,8 +1367,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_shows_optimization_message(): void
+    public function test_update_shows_optimization_message(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1492,8 +1381,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_shows_post_update_message(): void
+    public function test_update_shows_post_update_message(): void
     {
         try {
             Artisan::call('freescout:update', [
@@ -1513,8 +1401,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- Basic Structure Tests ---
 
-    #[Test]
-    public function kernel_class_exists(): void
+    public function test_kernel_class_exists(): void
     {
         $this->assertTrue(
             class_exists(Kernel::class),
@@ -1522,40 +1409,35 @@ class ConsoleCommandsTest extends UnitTestCase
         );
     }
 
-    #[Test]
-    public function kernel_can_be_resolved_from_container(): void
+    public function test_kernel_can_be_resolved_from_container(): void
     {
         $kernel = app(Kernel::class);
         
         $this->assertInstanceOf(Kernel::class, $kernel);
     }
 
-    #[Test]
-    public function kernel_extends_console_kernel(): void
+    public function test_kernel_extends_console_kernel(): void
     {
         $kernel = app(Kernel::class);
         
         $this->assertInstanceOf(\Illuminate\Foundation\Console\Kernel::class, $kernel);
     }
 
-    #[Test]
-    public function kernel_implements_kernel_contract(): void
+    public function test_kernel_implements_kernel_contract(): void
     {
         $kernel = app(Kernel::class);
         
         $this->assertInstanceOf(\Illuminate\Contracts\Console\Kernel::class, $kernel);
     }
 
-    #[Test]
-    public function kernel_is_bound_in_container(): void
+    public function test_kernel_is_bound_in_container(): void
     {
         $this->assertTrue(
             $this->app->bound(\Illuminate\Contracts\Console\Kernel::class)
         );
     }
 
-    #[Test]
-    public function kernel_is_singleton_in_container(): void
+    public function test_kernel_is_singleton_in_container(): void
     {
         // The Kernel is registered as a singleton via the Kernel contract interface
         $kernel1 = $this->app->make(KernelContract::class);
@@ -1567,8 +1449,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue($this->app->isShared(KernelContract::class), 'Kernel contract should be registered as shared/singleton');
     }
 
-    #[Test]
-    public function kernel_has_schedule_method(): void
+    public function test_kernel_has_schedule_method(): void
     {
         $kernel = app(Kernel::class);
         
@@ -1578,8 +1459,7 @@ class ConsoleCommandsTest extends UnitTestCase
         );
     }
 
-    #[Test]
-    public function kernel_schedule_method_accepts_schedule_parameter(): void
+    public function test_kernel_schedule_method_accepts_schedule_parameter(): void
     {
         $reflection = new \ReflectionClass(Kernel::class);
         $method = $reflection->getMethod('schedule');
@@ -1589,8 +1469,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertEquals('schedule', $parameters[0]->getName());
     }
 
-    #[Test]
-    public function kernel_schedule_method_returns_void(): void
+    public function test_kernel_schedule_method_returns_void(): void
     {
         $reflection = new \ReflectionClass(Kernel::class);
         $method = $reflection->getMethod('schedule');
@@ -1600,8 +1479,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertEquals('void', $returnType->getName());
     }
 
-    #[Test]
-    public function kernel_has_commands_method(): void
+    public function test_kernel_has_commands_method(): void
     {
         $kernel = app(Kernel::class);
         
@@ -1611,8 +1489,7 @@ class ConsoleCommandsTest extends UnitTestCase
         );
     }
 
-    #[Test]
-    public function kernel_commands_method_returns_void(): void
+    public function test_kernel_commands_method_returns_void(): void
     {
         $reflection = new \ReflectionClass(Kernel::class);
         $method = $reflection->getMethod('commands');
@@ -1622,8 +1499,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertEquals('void', $returnType->getName());
     }
 
-    #[Test]
-    public function kernel_loads_commands_from_commands_directory(): void
+    public function test_kernel_loads_commands_from_commands_directory(): void
     {
         // Kernel should load commands from app/Console/Commands
         $kernel = app(Kernel::class);
@@ -1631,8 +1507,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertInstanceOf(Kernel::class, $kernel);
     }
 
-    #[Test]
-    public function kernel_loads_routes_console_file(): void
+    public function test_kernel_loads_routes_console_file(): void
     {
         // Kernel should require routes/console.php
         $kernel = app(Kernel::class);
@@ -1640,16 +1515,14 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(File::exists(base_path('routes/console.php')));
     }
 
-    #[Test]
-    public function schedule_can_be_resolved(): void
+    public function test_schedule_can_be_resolved(): void
     {
         $schedule = $this->app->make(Schedule::class);
         
         $this->assertInstanceOf(Schedule::class, $schedule);
     }
 
-    #[Test]
-    public function schedule_is_singleton(): void
+    public function test_schedule_is_singleton(): void
     {
         $schedule1 = $this->app->make(Schedule::class);
         $schedule2 = $this->app->make(Schedule::class);
@@ -1657,8 +1530,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertSame($schedule1, $schedule2);
     }
 
-    #[Test]
-    public function freescout_commands_are_registered(): void
+    public function test_freescout_commands_are_registered(): void
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
@@ -1666,8 +1538,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('freescout', $output);
     }
 
-    #[Test]
-    public function module_build_command_is_registered(): void
+    public function test_module_build_command_is_registered(): void
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
@@ -1675,8 +1546,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('freescout:module-build', $output);
     }
 
-    #[Test]
-    public function module_install_command_is_registered(): void
+    public function test_module_install_command_is_registered(): void
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
@@ -1684,8 +1554,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('freescout:module-install', $output);
     }
 
-    #[Test]
-    public function module_update_command_is_registered(): void
+    public function test_module_update_command_is_registered(): void
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
@@ -1693,8 +1562,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('freescout:module-update', $output);
     }
 
-    #[Test]
-    public function update_command_is_registered(): void
+    public function test_update_command_is_registered(): void
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
@@ -1702,8 +1570,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('freescout:update', $output);
     }
 
-    #[Test]
-    public function kernel_can_run_artisan_commands(): void
+    public function test_kernel_can_run_artisan_commands(): void
     {
         $kernel = $this->app->make(\Illuminate\Contracts\Console\Kernel::class);
         
@@ -1717,8 +1584,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- ModuleBuild Edge Cases ---
 
-    #[Test]
-    public function module_build_handles_filesystem_exceptions(): void
+    public function test_module_build_handles_filesystem_exceptions(): void
     {
         // Should catch exceptions when creating directories
         try {
@@ -1732,8 +1598,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_handles_view_rendering_exceptions(): void
+    public function test_module_build_handles_view_rendering_exceptions(): void
     {
         // Should catch exceptions during view rendering
         try {
@@ -1747,8 +1612,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_creates_directory_with_correct_permissions(): void
+    public function test_module_build_creates_directory_with_correct_permissions(): void
     {
         // Should create directories with 0755 permissions
         $command = new ModuleBuild();
@@ -1756,8 +1620,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(method_exists($command, 'buildVars'));
     }
 
-    #[Test]
-    public function module_build_checks_if_directory_exists_before_creating(): void
+    public function test_module_build_checks_if_directory_exists_before_creating(): void
     {
         // Should check is_dir before creating
         try {
@@ -1771,8 +1634,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_uses_filesystem_put_to_write_file(): void
+    public function test_module_build_uses_filesystem_put_to_write_file(): void
     {
         // Should use Filesystem::put() to write files
         $command = new ModuleBuild();
@@ -1780,8 +1642,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(class_exists(\Illuminate\Filesystem\Filesystem::class));
     }
 
-    #[Test]
-    public function module_build_shows_created_file_path(): void
+    public function test_module_build_shows_created_file_path(): void
     {
         // Should show info message with file path
         try {
@@ -1796,8 +1657,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_skips_vars_generation_if_view_missing(): void
+    public function test_module_build_skips_vars_generation_if_view_missing(): void
     {
         // Should show comment and skip if view doesn't exist
         try {
@@ -1811,8 +1671,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_only_writes_if_compiled_content_exists(): void
+    public function test_module_build_only_writes_if_compiled_content_exists(): void
     {
         // Should check if $compiled is truthy before writing
         try {
@@ -1826,8 +1685,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_uses_dirname_to_get_directory_path(): void
+    public function test_module_build_uses_dirname_to_get_directory_path(): void
     {
         // Should use dirname() to get parent directory
         $command = new ModuleBuild();
@@ -1835,8 +1693,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(function_exists('dirname'));
     }
 
-    #[Test]
-    public function module_build_shows_error_with_exception_message(): void
+    public function test_module_build_shows_error_with_exception_message(): void
     {
         // Should show error message with exception details
         try {
@@ -1851,8 +1708,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_passes_locales_to_view(): void
+    public function test_module_build_passes_locales_to_view(): void
     {
         // Should pass locales config to view params
         Config::set('app.locales', ['en', 'fr', 'de']);
@@ -1868,8 +1724,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_handles_empty_locales_config(): void
+    public function test_module_build_handles_empty_locales_config(): void
     {
         // Should handle empty locales array
         Config::set('app.locales', []);
@@ -1885,8 +1740,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_handles_missing_locales_config(): void
+    public function test_module_build_handles_missing_locales_config(): void
     {
         // Should use default empty array if config missing
         Config::set('app.locales', null);
@@ -1902,8 +1756,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_constructs_correct_view_path(): void
+    public function test_module_build_constructs_correct_view_path(): void
     {
         // Should construct view path as {alias}::js/vars
         try {
@@ -1917,8 +1770,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_build_constructs_correct_file_path(): void
+    public function test_module_build_constructs_correct_file_path(): void
     {
         // Should construct file path as public/modules/{alias}/js/vars.js
         try {
@@ -1934,8 +1786,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- ModuleInstall Edge Cases ---
 
-    #[Test]
-    public function module_install_uses_directory_separator_constant(): void
+    public function test_module_install_uses_directory_separator_constant(): void
     {
         // Should use DIRECTORY_SEPARATOR for cross-platform compatibility
         $command = new ModuleInstall();
@@ -1943,8 +1794,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertTrue(defined('DIRECTORY_SEPARATOR'));
     }
 
-    #[Test]
-    public function module_install_checks_if_from_path_is_link(): void
+    public function test_module_install_checks_if_from_path_is_link(): void
     {
         // Should check is_link($from) before operations
         try {
@@ -1958,8 +1808,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_checks_if_from_path_is_directory(): void
+    public function test_module_install_checks_if_from_path_is_directory(): void
     {
         // Should check is_dir($from) before renaming
         try {
@@ -1973,8 +1822,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_renames_directory_with_timestamp(): void
+    public function test_module_install_renames_directory_with_timestamp(): void
     {
         // Should rename to {name}_{timestamp}
         try {
@@ -1988,8 +1836,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_uses_ymd_his_format_for_timestamp(): void
+    public function test_module_install_uses_ymd_his_format_for_timestamp(): void
     {
         // Should use YmdHis format
         try {
@@ -2003,8 +1850,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_unlinks_broken_symlinks_at_from(): void
+    public function test_module_install_unlinks_broken_symlinks_at_from(): void
     {
         // Should unlink if not a directory
         try {
@@ -2018,8 +1864,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_checks_if_to_path_is_link(): void
+    public function test_module_install_checks_if_to_path_is_link(): void
     {
         // Should check is_link($to) for broken symlink
         try {
@@ -2033,8 +1878,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_creates_public_directory_with_helper_permissions(): void
+    public function test_module_install_creates_public_directory_with_helper_permissions(): void
     {
         // Should use Helper::DIR_PERMISSIONS
         try {
@@ -2048,8 +1892,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_unlinks_broken_symlinks_at_to(): void
+    public function test_module_install_unlinks_broken_symlinks_at_to(): void
     {
         // Should unlink broken symlink at target
         try {
@@ -2063,8 +1906,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_creates_symlink_using_native_function(): void
+    public function test_module_install_creates_symlink_using_native_function(): void
     {
         // Should use symlink() function
         try {
@@ -2078,8 +1920,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_catches_symlink_exceptions(): void
+    public function test_module_install_catches_symlink_exceptions(): void
     {
         // Should catch exceptions from symlink()
         try {
@@ -2093,8 +1934,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_shows_error_with_from_and_to_paths(): void
+    public function test_module_install_shows_error_with_from_and_to_paths(): void
     {
         // Should show both paths in error message
         try {
@@ -2109,8 +1949,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_shows_symlink_created_message(): void
+    public function test_module_install_shows_symlink_created_message(): void
     {
         // Should show success message with path
         try {
@@ -2125,8 +1964,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_handles_file_exists_exceptions(): void
+    public function test_module_install_handles_file_exists_exceptions(): void
     {
         // Should catch open_basedir exceptions
         try {
@@ -2140,8 +1978,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_returns_early_if_symlink_exists(): void
+    public function test_module_install_returns_early_if_symlink_exists(): void
     {
         // Should return early with info message
         try {
@@ -2155,8 +1992,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_gets_extra_path_from_module(): void
+    public function test_module_install_gets_extra_path_from_module(): void
     {
         // Should call getExtraPath('Public')
         try {
@@ -2170,8 +2006,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_install_uses_public_path_helper(): void
+    public function test_module_install_uses_public_path_helper(): void
     {
         // Should use public_path() helper
         try {
@@ -2187,8 +2022,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- ModuleUpdate Edge Cases ---
 
-    #[Test]
-    public function module_update_uses_wp_api_get_modules(): void
+    public function test_module_update_uses_wp_api_get_modules(): void
     {
         // Should call WpApi::getModules()
         try {
@@ -2200,8 +2034,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_checks_wp_api_last_error(): void
+    public function test_module_update_checks_wp_api_last_error(): void
     {
         // Should check WpApi::$lastError
         try {
@@ -2213,8 +2046,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_api_error_message_and_code(): void
+    public function test_module_update_shows_api_error_message_and_code(): void
     {
         // Should show error message and code
         try {
@@ -2227,8 +2059,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_returns_early_on_api_error(): void
+    public function test_module_update_returns_early_on_api_error(): void
     {
         // Should return without proceeding
         try {
@@ -2240,8 +2071,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_iterates_modules_directory(): void
+    public function test_module_update_iterates_modules_directory(): void
     {
         // Should loop through dir_module
         try {
@@ -2253,8 +2083,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_filters_by_module_alias(): void
+    public function test_module_update_filters_by_module_alias(): void
     {
         // Should skip if alias doesn't match
         try {
@@ -2268,8 +2097,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_sets_found_flag(): void
+    public function test_module_update_sets_found_flag(): void
     {
         // Should set $found = true when module matched
         try {
@@ -2283,8 +2111,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_compares_alias_for_installed_modules(): void
+    public function test_module_update_compares_alias_for_installed_modules(): void
     {
         // Should compare aliases between dir and installed
         try {
@@ -2296,8 +2123,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_checks_if_version_is_empty(): void
+    public function test_module_update_checks_if_version_is_empty(): void
     {
         // Should check !empty($dir_module['version'])
         try {
@@ -2309,8 +2135,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_uses_version_compare_with_greater_than(): void
+    public function test_module_update_uses_version_compare_with_greater_than(): void
     {
         // Should use version_compare(..., '>')
         try {
@@ -2322,8 +2147,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_calls_module_update_module(): void
+    public function test_module_update_calls_module_update_module(): void
     {
         // Should call Module::updateModule()
         try {
@@ -2335,8 +2159,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_module_name_in_brackets(): void
+    public function test_module_update_shows_module_name_in_brackets(): void
     {
         // Should show [ModuleName Module]
         try {
@@ -2349,8 +2172,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_checks_update_result_status(): void
+    public function test_module_update_checks_update_result_status(): void
     {
         // Should check if status == 'success'
         try {
@@ -2362,8 +2184,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_success_message_from_result(): void
+    public function test_module_update_shows_success_message_from_result(): void
     {
         // Should show msg_success
         try {
@@ -2376,8 +2197,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_error_message_from_result(): void
+    public function test_module_update_shows_error_message_from_result(): void
     {
         // Should show msg on failure
         try {
@@ -2390,8 +2210,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_appends_download_message_to_error(): void
+    public function test_module_update_appends_download_message_to_error(): void
     {
         // Should append download_msg if present
         try {
@@ -2403,8 +2222,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_output_with_line_prefixes(): void
+    public function test_module_update_shows_output_with_line_prefixes(): void
     {
         // Should prefix output lines with "> "
         try {
@@ -2417,8 +2235,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_trims_output_before_displaying(): void
+    public function test_module_update_trims_output_before_displaying(): void
     {
         // Should trim output
         try {
@@ -2430,8 +2247,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_increments_counter_after_update(): void
+    public function test_module_update_increments_counter_after_update(): void
     {
         // Should increment $counter
         try {
@@ -2443,8 +2259,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_checks_if_module_is_official(): void
+    public function test_module_update_checks_if_module_is_official(): void
     {
         // Should use Module::isOfficial()
         try {
@@ -2456,8 +2271,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_skips_official_modules_for_custom_updates(): void
+    public function test_module_update_skips_official_modules_for_custom_updates(): void
     {
         // Should continue if official
         try {
@@ -2469,8 +2283,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_gets_latest_version_url_from_module(): void
+    public function test_module_update_gets_latest_version_url_from_module(): void
     {
         // Should get latestVersionUrl
         try {
@@ -2482,8 +2295,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_skips_if_no_latest_version_url(): void
+    public function test_module_update_skips_if_no_latest_version_url(): void
     {
         // Should continue if no URL
         try {
@@ -2495,8 +2307,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_creates_guzzle_client(): void
+    public function test_module_update_creates_guzzle_client(): void
     {
         // Should instantiate GuzzleHttp\Client
         try {
@@ -2508,8 +2319,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_sends_get_request(): void
+    public function test_module_update_sends_get_request(): void
     {
         // Should call client->request('GET', ...)
         try {
@@ -2521,8 +2331,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_uses_helper_set_guzzle_default_options(): void
+    public function test_module_update_uses_helper_set_guzzle_default_options(): void
     {
         // Should use Helper::setGuzzleDefaultOptions()
         try {
@@ -2534,8 +2343,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_trims_response_body(): void
+    public function test_module_update_trims_response_body(): void
     {
         // Should trim latest version
         try {
@@ -2547,8 +2355,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_skips_if_latest_version_empty(): void
+    public function test_module_update_skips_if_latest_version_empty(): void
     {
         // Should continue if empty
         try {
@@ -2560,8 +2367,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_gets_current_version_from_module(): void
+    public function test_module_update_gets_current_version_from_module(): void
     {
         // Should get module->get('version')
         try {
@@ -2573,8 +2379,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_catches_http_exceptions(): void
+    public function test_module_update_catches_http_exceptions(): void
     {
         // Should catch \Exception
         try {
@@ -2586,8 +2391,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_continues_on_exception(): void
+    public function test_module_update_continues_on_exception(): void
     {
         // Should continue to next module
         try {
@@ -2599,8 +2403,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_not_found_for_missing_single_module(): void
+    public function test_module_update_shows_not_found_for_missing_single_module(): void
     {
         // Should show alias not found
         try {
@@ -2615,8 +2418,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_shows_all_up_to_date_if_no_updates(): void
+    public function test_module_update_shows_all_up_to_date_if_no_updates(): void
     {
         // Should show "All modules are up-to-date"
         try {
@@ -2629,8 +2431,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function module_update_calls_freescout_clear_cache_at_end(): void
+    public function test_module_update_calls_freescout_clear_cache_at_end(): void
     {
         // Should call Artisan::call('freescout:clear-cache')
         try {
@@ -2644,8 +2445,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- Update Command Edge Cases ---
 
-    #[Test]
-    public function update_sets_memory_limit_to_256m(): void
+    public function test_update_sets_memory_limit_to_256m(): void
     {
         // Should call ini_set('memory_limit', '256M')
         try {
@@ -2659,8 +2459,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_wraps_execution_in_try_catch(): void
+    public function test_update_wraps_execution_in_try_catch(): void
     {
         // Should catch exceptions
         try {
@@ -2674,8 +2473,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_returns_1_on_exception(): void
+    public function test_update_returns_1_on_exception(): void
     {
         // Should return 1 on error
         try {
@@ -2689,8 +2487,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_returns_0_on_success(): void
+    public function test_update_returns_0_on_success(): void
     {
         // Should return 0 on success
         try {
@@ -2708,8 +2505,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_uses_confirm_to_proceed(): void
+    public function test_update_uses_confirm_to_proceed(): void
     {
         // Should call confirmToProceed()
         try {
@@ -2723,8 +2519,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function update_returns_1_if_not_confirmed(): void
+    public function test_update_returns_1_if_not_confirmed(): void
     {
         // Should return 1 without force in production
         try {
@@ -2740,8 +2535,7 @@ class ConsoleCommandsTest extends UnitTestCase
 
     // --- Integration Tests ---
 
-    #[Test]
-    public function all_freescout_commands_are_registered_in_kernel(): void
+    public function test_all_freescout_commands_are_registered_in_kernel(): void
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
@@ -2752,8 +2546,7 @@ class ConsoleCommandsTest extends UnitTestCase
         $this->assertStringContainsString('freescout:update', $output);
     }
 
-    #[Test]
-    public function commands_can_be_called_via_artisan_call(): void
+    public function test_commands_can_be_called_via_artisan_call(): void
     {
         $commands = [
             'freescout:module-build',
@@ -2777,8 +2570,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function all_commands_extend_base_command_class(): void
+    public function test_all_commands_extend_base_command_class(): void
     {
         $commands = [
             ModuleBuild::class,
@@ -2793,8 +2585,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function all_commands_have_handle_method(): void
+    public function test_all_commands_have_handle_method(): void
     {
         $commands = [
             ModuleBuild::class,
@@ -2811,8 +2602,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function all_commands_have_non_empty_descriptions(): void
+    public function test_all_commands_have_non_empty_descriptions(): void
     {
         $commands = [
             new ModuleBuild(),
@@ -2827,8 +2617,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function all_commands_have_unique_signatures(): void
+    public function test_all_commands_have_unique_signatures(): void
     {
         $commands = [
             new ModuleBuild(),
@@ -2845,8 +2634,7 @@ class ConsoleCommandsTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function kernel_is_properly_configured(): void
+    public function test_kernel_is_properly_configured(): void
     {
         $kernel = app(Kernel::class);
         

@@ -36,7 +36,7 @@ class FrameGuard
         } else {
             // Append to existing CSP if present
             if (!str_contains($csp, 'frame-ancestors')) {
-                $response->headers->set('Content-Security-Policy', $csp . "; frame-ancestors 'self'", false);
+                $response->headers->set('Content-Security-Policy', $csp . "; frame-ancestors 'self'", true);
             }
         }
         

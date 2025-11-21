@@ -23,9 +23,10 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_broadcast_on_includes_mailbox_channel(): void
     {
+        $mailbox = Mailbox::factory()->create(['id' => 5]);
         $conversation = Conversation::factory()->create([
             'id' => 1,
-            'mailbox_id' => 5,
+            'mailbox_id' => $mailbox->id,
         ]);
         $event = new ConversationUpdated($conversation);
 
@@ -45,10 +46,12 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_broadcast_on_includes_user_channel_when_conversation_assigned(): void
     {
+        $mailbox = Mailbox::factory()->create(['id' => 5]);
+        $user = User::factory()->create(['id' => 10]);
         $conversation = Conversation::factory()->create([
             'id' => 1,
-            'mailbox_id' => 5,
-            'user_id' => 10,
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $user->id,
         ]);
         $event = new ConversationUpdated($conversation);
 
@@ -67,9 +70,10 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_broadcast_on_excludes_user_channel_when_conversation_unassigned(): void
     {
+        $mailbox = Mailbox::factory()->create(['id' => 5]);
         $conversation = Conversation::factory()->create([
             'id' => 1,
-            'mailbox_id' => 5,
+            'mailbox_id' => $mailbox->id,
             'user_id' => null,
         ]);
         $event = new ConversationUpdated($conversation);
@@ -87,14 +91,20 @@ class ConversationUpdatedTest extends UnitTestCase
 
     public function test_broadcast_with_includes_conversation_data(): void
     {
+        $mailbox = Mailbox::factory()->create(['id' => 3]);
+        $user = User::factory()->create(['id' => 5]);
+        // Customer factory usually creates a customer, but we need specific ID 10.
+        // Assuming Customer model exists and has factory.
+        $customer = \App\Models\Customer::factory()->create(['id' => 10]);
+
         $conversation = Conversation::factory()->create([
             'id' => 1,
             'number' => 123,
             'subject' => 'Test Subject',
             'status' => 1,
-            'user_id' => 5,
-            'customer_id' => 10,
-            'mailbox_id' => 3,
+            'user_id' => $user->id,
+            'customer_id' => $customer->id,
+            'mailbox_id' => $mailbox->id,
         ]);
         $event = new ConversationUpdated($conversation, 'status_changed', ['old_status' => 2]);
 

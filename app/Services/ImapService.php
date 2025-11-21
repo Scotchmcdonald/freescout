@@ -59,6 +59,9 @@ class ImapService
             $folderPathsRaw = $mailbox->in_imap_folders;
             if (is_array($folderPathsRaw)) {
                 $folderPaths = $folderPathsRaw;
+                if (empty($folderPaths)) {
+                    $folderPaths = ['INBOX'];
+                }
                 // @phpstan-ignore-next-line - in_imap_folders can be null from DB despite PHPDoc
             } elseif ($folderPathsRaw && trim((string) $folderPathsRaw) !== '') {
                 $folderPaths = explode(',', (string) $folderPathsRaw);
@@ -103,7 +106,7 @@ class ImapService
                 }
 
                 // Solution for MS mailboxes that don't support charset
-                if ($last_error && stristr($last_error, 'The specified charset is not supported')) {
+                if ($last_error && stristr($last_error, 'charset')) {
                     Log::warning('Retrying without charset', [
                         'mailbox_id' => $mailbox->id,
                     ]);
@@ -965,13 +968,13 @@ class ImapService
         // Fallback to getHeader() if available
         try {
             $header = $message->getHeader();
-            if ($header && is_string($header)) {
+            if (is_string($header) && $header !== '') {
                 return $header;
             }
-            if ($header && method_exists($header, '__toString')) {
+            if (is_object($header) && method_exists($header, '__toString')) {
                 $headerString = (string) $header;
                 // Check if it's actually a string representation, not a mock object
-                if (! str_contains($headerString, 'Mockery_')) {
+                if ($headerString !== '' && ! str_contains($headerString, 'Mockery_')) {
                     return $headerString;
                 }
             }

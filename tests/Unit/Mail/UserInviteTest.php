@@ -13,8 +13,7 @@ use Tests\UnitTestCase;
 class UserInviteTest extends UnitTestCase
 {
 
-    #[Test]
-    public function mailable_can_be_instantiated(): void
+    public function test_mailable_can_be_instantiated(): void
     {
         $user = User::factory()->create();
         $mailable = new UserInvite($user);
@@ -23,8 +22,7 @@ class UserInviteTest extends UnitTestCase
         $this->assertEquals($user->id, $mailable->user->id);
     }
 
-    #[Test]
-    public function envelope_contains_welcome_message(): void
+    public function test_envelope_contains_welcome_message(): void
     {
         config(['app.name' => 'FreeScout']);
         
@@ -35,8 +33,7 @@ class UserInviteTest extends UnitTestCase
         $this->assertStringContainsString('Welcome', $envelope->subject);
     }
 
-    #[Test]
-    public function envelope_uses_company_name_from_options(): void
+    public function test_envelope_uses_company_name_from_options(): void
     {
         // This would test Option::get('company_name') if available
         config(['app.name' => 'Test Company']);
@@ -48,8 +45,7 @@ class UserInviteTest extends UnitTestCase
         $this->assertStringContainsString('Test Company', $envelope->subject);
     }
 
-    #[Test]
-    public function content_uses_user_invite_views(): void
+    public function test_content_uses_user_invite_views(): void
     {
         $user = User::factory()->create();
         $mailable = new UserInvite($user);
@@ -59,8 +55,7 @@ class UserInviteTest extends UnitTestCase
         $this->assertEquals('emails.user.user_invite_text', $content->text);
     }
 
-    #[Test]
-    public function mailable_can_be_sent(): void
+    public function test_mailable_can_be_sent(): void
     {
         Mail::fake();
 
@@ -72,8 +67,7 @@ class UserInviteTest extends UnitTestCase
         });
     }
 
-    #[Test]
-    public function mailable_is_queueable(): void
+    public function test_mailable_is_queueable(): void
     {
         $user = User::factory()->create();
         $mailable = new UserInvite($user);
@@ -82,8 +76,7 @@ class UserInviteTest extends UnitTestCase
         $this->assertTrue(method_exists($mailable, 'onConnection'));
     }
 
-    #[Test]
-    public function user_property_is_accessible(): void
+    public function test_user_property_is_accessible(): void
     {
         $user = User::factory()->create([
             'first_name' => 'John',

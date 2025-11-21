@@ -14,7 +14,7 @@ use Tests\UnitTestCase;
  */
 class MailHelperGetMessageIdHashTest extends UnitTestCase
 {
-    public function getMessageIdHash_returns_md5_hash(): void
+    public function test_getMessageIdHash_returns_md5_hash(): void
     {
         $result = MailHelper::getMessageIdHash(123);
         

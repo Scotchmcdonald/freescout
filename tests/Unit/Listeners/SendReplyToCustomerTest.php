@@ -19,8 +19,7 @@ use Tests\UnitTestCase;
 class SendReplyToCustomerTest extends UnitTestCase
 {
 
-    #[Test]
-    public function listener_handles_user_replied_event(): void
+    public function test_listener_handles_user_replied_event(): void
     {
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -43,8 +42,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_handles_user_created_conversation_event(): void
+    public function test_listener_handles_user_created_conversation_event(): void
     {
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -66,8 +64,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_skips_imported_threads(): void
+    public function test_listener_skips_imported_threads(): void
     {
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -90,8 +87,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_handles_phone_conversation_with_email(): void
+    public function test_listener_handles_phone_conversation_with_email(): void
     {
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -114,8 +110,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_processes_multiple_threads(): void
+    public function test_listener_processes_multiple_threads(): void
     {
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -136,8 +131,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_handles_event_with_thread_property(): void
+    public function test_listener_handles_event_with_thread_property(): void
     {
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
@@ -154,8 +148,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $this->assertInstanceOf(Thread::class, $event->thread);
     }
 
-    #[Test]
-    public function listener_handles_conversation_with_thread(): void
+    public function test_listener_handles_conversation_with_thread(): void
     {
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -177,8 +170,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listener_filters_threads_after_event_thread(): void
+    public function test_listener_filters_threads_after_event_thread(): void
     {
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -208,8 +200,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $this->assertEquals(2, $event->thread->id);
     }
 
-    #[Test]
-    public function listener_handles_user_replied_with_customer(): void
+    public function test_listener_handles_user_replied_with_customer(): void
     {
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -230,8 +221,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $this->assertNotNull($conversation->customer_id);
     }
 
-    #[Test]
-    public function listener_can_be_instantiated(): void
+    public function test_listener_can_be_instantiated(): void
     {
         $listener = new SendReplyToCustomer();
         $this->assertInstanceOf(SendReplyToCustomer::class, $listener);

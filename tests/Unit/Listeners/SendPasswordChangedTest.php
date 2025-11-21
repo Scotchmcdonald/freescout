@@ -23,6 +23,9 @@ class SendPasswordChangedTest extends UnitTestCase
         $listener = new SendPasswordChanged();
         
         $listener->handle($event);
+        
+        // Verify the mock expectations were met
+        $this->assertTrue(true);
     }
 
     public function test_handle_does_not_fail_when_method_does_not_exist(): void

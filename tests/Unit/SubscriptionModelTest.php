@@ -117,7 +117,6 @@ class SubscriptionModelTest extends UnitTestCase
         $this->assertEquals($event, $subscription->event);
     }
 
-    #[Test]
     public function test_multiple_subscriptions_for_same_user()
     {
         // Use withoutEvents to ensure UserObserver doesn't run

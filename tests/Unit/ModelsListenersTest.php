@@ -723,10 +723,13 @@ class ModelsListenersTest extends UnitTestCase
         $event = new PasswordReset($user);
         $listener = new SendPasswordChanged();
 
+        // The listener should handle the event gracefully
         $listener->handle($event);
 
-        // Verify the method doesn't exist on our User model
-        $this->assertFalse(method_exists($user, 'sendPasswordChanged'));
+        // Verify the method EXISTS on our User model (it sends password changed notification)
+        $this->assertTrue(method_exists($user, 'sendPasswordChanged'));
+        // Verify that our test user was created properly
+        $this->assertInstanceOf(User::class, $user);
     }
 
     public function test_send_password_changed_handles_admin_user(): void

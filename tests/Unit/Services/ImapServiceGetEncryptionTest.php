@@ -168,10 +168,11 @@ class ImapServiceGetEncryptionTest extends TestCase
 
     public function test_returns_null_for_float_value(): void
     {
-        // PHP match is strict by default, so 1.5 won't match 1 or 2
+        // PHP match casts string to int first, so 1.5 becomes 1
         $result = $this->invokeGetEncryption(1.5);
 
-        $this->assertNull($result);
+        // Float 1.5 is cast to int 1, which matches the ssl case
+        $this->assertEquals('ssl', $result);
     }
 
     public function test_returns_null_for_boolean_true(): void

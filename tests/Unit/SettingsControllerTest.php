@@ -40,8 +40,7 @@ class SettingsControllerTest extends UnitTestCase
         $this->assertTrue(method_exists($controller, 'email'));
     }
 
-    #[Test]
-    public function settings_controller_validates_company_name(): void
+    public function test_settings_controller_validates_company_name(): void
     {
         $rules = [
             'company_name' => 'nullable|string|max:255',
@@ -58,8 +57,7 @@ class SettingsControllerTest extends UnitTestCase
         $this->assertTrue($validator->fails());
     }
 
-    #[Test]
-    public function settings_controller_validates_next_ticket_number(): void
+    public function test_settings_controller_validates_next_ticket_number(): void
     {
         $rules = [
             'next_ticket' => 'nullable|integer|min:1',
@@ -81,8 +79,7 @@ class SettingsControllerTest extends UnitTestCase
         $this->assertTrue($validator->fails());
     }
 
-    #[Test]
-    public function settings_controller_validates_email_driver(): void
+    public function test_settings_controller_validates_email_driver(): void
     {
         $rules = [
             'mail_driver' => 'required|string|in:smtp,sendmail,mailgun,ses,postmark',
@@ -99,8 +96,7 @@ class SettingsControllerTest extends UnitTestCase
         $this->assertTrue($validator->fails());
     }
 
-    #[Test]
-    public function settings_controller_validates_email_address_format(): void
+    public function test_settings_controller_validates_email_address_format(): void
     {
         $rules = [
             'mail_from_address' => 'required|email',
@@ -117,8 +113,7 @@ class SettingsControllerTest extends UnitTestCase
         $this->assertTrue($validator->fails());
     }
 
-    #[Test]
-    public function settings_controller_validates_mail_port_is_integer(): void
+    public function test_settings_controller_validates_mail_port_is_integer(): void
     {
         $rules = [
             'mail_port' => 'nullable|integer',
@@ -135,8 +130,7 @@ class SettingsControllerTest extends UnitTestCase
         $this->assertTrue($validator->fails());
     }
 
-    #[Test]
-    public function settings_controller_validates_encryption_type(): void
+    public function test_settings_controller_validates_encryption_type(): void
     {
         $rules = [
             'mail_encryption' => 'nullable|string|in:tls,ssl',

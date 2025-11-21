@@ -18,24 +18,21 @@ class LogListenersTest extends UnitTestCase
 
     // LogLockout Tests
 
-    #[Test]
-    public function log_lockout_can_be_instantiated(): void
+    public function test_log_lockout_can_be_instantiated(): void
     {
         $listener = new LogLockout();
 
         $this->assertInstanceOf(LogLockout::class, $listener);
     }
 
-    #[Test]
-    public function log_lockout_has_handle_method(): void
+    public function test_log_lockout_has_handle_method(): void
     {
         $listener = new LogLockout();
 
         $this->assertTrue(method_exists($listener, 'handle'));
     }
 
-    #[Test]
-    public function log_lockout_handles_lockout_event(): void
+    public function test_log_lockout_handles_lockout_event(): void
     {
         $request = Request::create('/login', 'POST', ['email' => 'test@example.com']);
         $request->server->set('REMOTE_ADDR', '127.0.0.1');
@@ -48,8 +45,7 @@ class LogListenersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function log_lockout_extracts_email_from_request(): void
+    public function test_log_lockout_extracts_email_from_request(): void
     {
         $request = Request::create('/login', 'POST', ['email' => 'locked@example.com']);
         $event = new Lockout($request);
@@ -61,8 +57,7 @@ class LogListenersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function log_lockout_captures_ip_address(): void
+    public function test_log_lockout_captures_ip_address(): void
     {
         $request = Request::create('/login', 'POST', ['email' => 'test@example.com']);
         $request->server->set('REMOTE_ADDR', '192.168.1.1');
@@ -78,24 +73,21 @@ class LogListenersTest extends UnitTestCase
 
     // LogUserDeletion Tests
 
-    #[Test]
-    public function log_user_deletion_can_be_instantiated(): void
+    public function test_log_user_deletion_can_be_instantiated(): void
     {
         $listener = new LogUserDeletion();
 
         $this->assertInstanceOf(LogUserDeletion::class, $listener);
     }
 
-    #[Test]
-    public function log_user_deletion_has_handle_method(): void
+    public function test_log_user_deletion_has_handle_method(): void
     {
         $listener = new LogUserDeletion();
 
         $this->assertTrue(method_exists($listener, 'handle'));
     }
 
-    #[Test]
-    public function log_user_deletion_handles_user_deleted_event(): void
+    public function test_log_user_deletion_handles_user_deleted_event(): void
     {
         $deletedUser = User::factory()->create(['first_name' => 'Deleted', 'last_name' => 'User']);
         $byUser = User::factory()->create(['first_name' => 'Admin', 'last_name' => 'User']);
@@ -108,8 +100,7 @@ class LogListenersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function log_user_deletion_logs_deleted_user_name(): void
+    public function test_log_user_deletion_logs_deleted_user_name(): void
     {
         $deletedUser = User::factory()->create([
             'first_name' => 'John',
@@ -126,8 +117,7 @@ class LogListenersTest extends UnitTestCase
         $this->assertEquals('John Doe', $deletedUser->getFullName());
     }
 
-    #[Test]
-    public function log_user_deletion_logs_deleted_user_id(): void
+    public function test_log_user_deletion_logs_deleted_user_id(): void
     {
         $deletedUser = User::factory()->create();
         $byUser = User::factory()->create();
@@ -141,8 +131,7 @@ class LogListenersTest extends UnitTestCase
         $this->assertNotNull($deletedUser->id);
     }
 
-    #[Test]
-    public function log_user_deletion_logs_caused_by_user(): void
+    public function test_log_user_deletion_logs_caused_by_user(): void
     {
         $deletedUser = User::factory()->create();
         $byUser = User::factory()->create(['email' => 'admin@example.com']);
@@ -156,8 +145,7 @@ class LogListenersTest extends UnitTestCase
         $this->assertEquals('admin@example.com', $byUser->email);
     }
 
-    #[Test]
-    public function log_lockout_works_with_different_emails(): void
+    public function test_log_lockout_works_with_different_emails(): void
     {
         $emails = ['test1@example.com', 'test2@example.com', 'admin@example.com'];
         $listener = new LogLockout();
@@ -172,8 +160,7 @@ class LogListenersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function log_user_deletion_works_with_multiple_deletions(): void
+    public function test_log_user_deletion_works_with_multiple_deletions(): void
     {
         $byUser = User::factory()->create();
         $listener = new LogUserDeletion();
@@ -188,8 +175,7 @@ class LogListenersTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function listeners_can_handle_events_without_errors(): void
+    public function test_listeners_can_handle_events_without_errors(): void
     {
         $lockoutListener = new LogLockout();
         $deletionListener = new LogUserDeletion();

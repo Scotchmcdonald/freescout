@@ -220,10 +220,12 @@ class AdditionalControllersTest extends FeatureTestCase
         $customer1 = \App\Models\Customer::factory()->create([
             'first_name' => 'John',
             'last_name' => 'Doe',
+            'email' => 'john.doe@example.com'
         ]);
         $customer2 = \App\Models\Customer::factory()->create([
             'first_name' => 'Jane',
             'last_name' => 'Smith',
+            'email' => 'jane.smith@example.com'
         ]);
 
         $response = $this->actingAs($user)->post(route('customers.ajax'), [

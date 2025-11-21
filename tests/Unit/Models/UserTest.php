@@ -19,35 +19,35 @@ class UserTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function isAdmin_returns_true_for_admin_role(): void
+    public function test_isAdmin_returns_true_for_admin_role(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
         $this->assertTrue($admin->isAdmin());
     }
 
-    public function isAdmin_returns_false_for_regular_user(): void
+    public function test_isAdmin_returns_false_for_regular_user(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
         $this->assertFalse($user->isAdmin());
     }
 
-    public function isActive_returns_true_for_status_1(): void
+    public function test_isActive_returns_true_for_status_1(): void
     {
         $user = User::factory()->create(['status' => 1]);
 
         $this->assertTrue($user->isActive());
     }
 
-    public function isActive_returns_false_for_inactive_status(): void
+    public function test_isActive_returns_false_for_inactive_status(): void
     {
         $user = User::factory()->create(['status' => User::STATUS_INACTIVE]);
 
         $this->assertFalse($user->isActive());
     }
 
-    public function getFullName_returns_first_and_last_name(): void
+    public function test_getFullName_returns_first_and_last_name(): void
     {
         $user = User::factory()->create([
             'first_name' => 'John',
@@ -57,7 +57,7 @@ class UserTest extends TestCase
         $this->assertEquals('John Doe', $user->getFullName());
     }
 
-    public function getFullName_returns_email_when_no_name(): void
+    public function test_getFullName_returns_email_when_no_name(): void
     {
         $user = User::factory()->create([
             'first_name' => '',
@@ -68,7 +68,7 @@ class UserTest extends TestCase
         $this->assertEquals('user@example.com', $user->getFullName());
     }
 
-    public function getFullName_handles_only_first_name(): void
+    public function test_getFullName_handles_only_first_name(): void
     {
         $user = User::factory()->create([
             'first_name' => 'Jane',
@@ -78,7 +78,7 @@ class UserTest extends TestCase
         $this->assertEquals('Jane', $user->getFullName());
     }
 
-    public function getFullName_handles_only_last_name(): void
+    public function test_getFullName_handles_only_last_name(): void
     {
         $user = User::factory()->create([
             'first_name' => '',
@@ -88,14 +88,14 @@ class UserTest extends TestCase
         $this->assertEquals('Smith', $user->getFullName());
     }
 
-    public function getFirstName_returns_first_name(): void
+    public function test_getFirstName_returns_first_name(): void
     {
         $user = User::factory()->create(['first_name' => 'Alice']);
 
         $this->assertEquals('Alice', $user->getFirstName());
     }
 
-    public function getFullNameAttribute_returns_trimmed_name(): void
+    public function test_getFullNameAttribute_returns_trimmed_name(): void
     {
         $user = User::factory()->create([
             'first_name' => '  John  ',
@@ -105,7 +105,7 @@ class UserTest extends TestCase
         $this->assertEquals('John     Doe', $user->full_name);
     }
 
-    public function name_attribute_aliases_getFullName(): void
+    public function test_name_attribute_aliases_getFullName(): void
     {
         $user = User::factory()->create([
             'first_name' => 'Bob',
@@ -115,7 +115,7 @@ class UserTest extends TestCase
         $this->assertEquals($user->getFullName(), $user->name);
     }
 
-    public function getPhotoUrl_returns_gravatar_url(): void
+    public function test_getPhotoUrl_returns_gravatar_url(): void
     {
         $user = User::factory()->create(['email' => 'test@example.com']);
 
@@ -125,7 +125,7 @@ class UserTest extends TestCase
         $this->assertStringContainsString('d=mp', $url);
     }
 
-    public function getPhotoUrl_generates_consistent_hash(): void
+    public function test_getPhotoUrl_generates_consistent_hash(): void
     {
         $user = User::factory()->create(['email' => 'test@example.com']);
 
@@ -135,7 +135,7 @@ class UserTest extends TestCase
         $this->assertEquals($url1, $url2);
     }
 
-    public function hasAccessToMailbox_returns_true_for_admin(): void
+    public function test_hasAccessToMailbox_returns_true_for_admin(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
@@ -143,7 +143,7 @@ class UserTest extends TestCase
         $this->assertTrue($admin->hasAccessToMailbox($mailbox->id));
     }
 
-    public function hasAccessToMailbox_returns_true_when_attached(): void
+    public function test_hasAccessToMailbox_returns_true_when_attached(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $mailbox = Mailbox::factory()->create();
@@ -155,7 +155,7 @@ class UserTest extends TestCase
         $this->assertTrue($user->hasAccessToMailbox($mailbox->id));
     }
 
-    public function hasAccessToMailbox_returns_false_when_not_attached(): void
+    public function test_hasAccessToMailbox_returns_false_when_not_attached(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $mailbox = Mailbox::factory()->create();
@@ -163,7 +163,7 @@ class UserTest extends TestCase
         $this->assertFalse($user->hasAccessToMailbox($mailbox->id));
     }
 
-    public function hasAccessToMailbox_checks_minimum_access_level(): void
+    public function test_hasAccessToMailbox_checks_minimum_access_level(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $mailbox = Mailbox::factory()->create();

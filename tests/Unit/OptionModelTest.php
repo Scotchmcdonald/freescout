@@ -28,8 +28,7 @@ class OptionModelTest extends UnitTestCase
         $this->assertEquals('Freescout', $option->value);
     }
 
-    #[Test]
-    public function option_can_store_key_value_pairs(): void
+    public function test_option_can_store_key_value_pairs(): void
     {
         $option = Option::create([
             'name' => 'test_key',
@@ -40,8 +39,7 @@ class OptionModelTest extends UnitTestCase
         $this->assertEquals('test_value', $option->value);
     }
 
-    #[Test]
-    public function option_can_retrieve_value_by_name(): void
+    public function test_option_can_retrieve_value_by_name(): void
     {
         Option::create([
             'name' => 'company_name',
@@ -53,16 +51,14 @@ class OptionModelTest extends UnitTestCase
         $this->assertEquals('Acme Corp', $value);
     }
 
-    #[Test]
-    public function option_returns_default_when_key_not_found(): void
+    public function test_option_returns_default_when_key_not_found(): void
     {
         $value = Option::getValue('non_existent_key', 'default_value');
 
         $this->assertEquals('default_value', $value);
     }
 
-    #[Test]
-    public function option_can_set_value_by_name(): void
+    public function test_option_can_set_value_by_name(): void
     {
         Option::setValue('app_name', 'FreeScout');
 
@@ -72,8 +68,7 @@ class OptionModelTest extends UnitTestCase
         ]);
     }
 
-    #[Test]
-    public function option_can_update_existing_value(): void
+    public function test_option_can_update_existing_value(): void
     {
         Option::create([
             'name' => 'company_name',
@@ -91,8 +86,7 @@ class OptionModelTest extends UnitTestCase
         $this->assertEquals(1, Option::where('name', 'company_name')->count());
     }
 
-    #[Test]
-    public function option_can_delete_by_name(): void
+    public function test_option_can_delete_by_name(): void
     {
         Option::create([
             'name' => 'temp_option',
@@ -107,8 +101,7 @@ class OptionModelTest extends UnitTestCase
         ]);
     }
 
-    #[Test]
-    public function option_delete_returns_false_when_key_not_found(): void
+    public function test_option_delete_returns_false_when_key_not_found(): void
     {
         $deleted = Option::deleteOption('non_existent_key');
 

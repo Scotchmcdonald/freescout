@@ -27,8 +27,7 @@ class CustomerUserViewsTest extends TestCase
         $this->adminUser = User::factory()->create(['role' => User::ROLE_ADMIN, 'status' => 1]);
     }
 
-    #[Test]
-    public function it_displays_customer_conversations_page(): void
+    public function test_it_displays_customer_conversations_page(): void
     {
         $customer = Customer::factory()->create();
 
@@ -40,8 +39,7 @@ class CustomerUserViewsTest extends TestCase
         $response->assertViewHas('conversations');
     }
 
-    #[Test]
-    public function it_displays_customer_merge_form(): void
+    public function test_it_displays_customer_merge_form(): void
     {
         $customer = Customer::factory()->create();
 
@@ -53,8 +51,7 @@ class CustomerUserViewsTest extends TestCase
         $response->assertSee('Merge Customer');
     }
 
-    #[Test]
-    public function it_displays_user_notifications_page(): void
+    public function test_it_displays_user_notifications_page(): void
     {
         $response = $this->actingAs($this->user)->get(route('users.notifications', $this->user));
 
@@ -65,8 +62,7 @@ class CustomerUserViewsTest extends TestCase
         $response->assertSee('Notification Preferences');
     }
 
-    #[Test]
-    public function it_displays_user_permissions_page(): void
+    public function test_it_displays_user_permissions_page(): void
     {
         Mailbox::factory()->create(['name' => 'Support']);
 
@@ -79,8 +75,7 @@ class CustomerUserViewsTest extends TestCase
         $response->assertSee('User Permissions');
     }
 
-    #[Test]
-    public function it_updates_user_notifications(): void
+    public function test_it_updates_user_notifications(): void
     {
         $response = $this->actingAs($this->user)->post(
             route('users.notifications.update', $this->user),
@@ -109,8 +104,7 @@ class CustomerUserViewsTest extends TestCase
         );
     }
 
-    #[Test]
-    public function it_updates_user_mailbox_permissions(): void
+    public function test_it_updates_user_mailbox_permissions(): void
     {
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
@@ -129,8 +123,7 @@ class CustomerUserViewsTest extends TestCase
         $this->assertTrue($this->user->mailboxes()->where('mailboxes.id', $mailbox2->id)->exists());
     }
 
-    #[Test]
-    public function it_prevents_non_admin_from_viewing_other_users_permissions(): void
+    public function test_it_prevents_non_admin_from_viewing_other_users_permissions(): void
     {
         $otherUser = User::factory()->create(['role' => 2, 'status' => 1]);
 
@@ -139,16 +132,14 @@ class CustomerUserViewsTest extends TestCase
         $response->assertForbidden();
     }
 
-    #[Test]
-    public function it_allows_users_to_view_their_own_notifications(): void
+    public function test_it_allows_users_to_view_their_own_notifications(): void
     {
         $response = $this->actingAs($this->user)->get(route('users.notifications', $this->user));
 
         $response->assertOk();
     }
 
-    #[Test]
-    public function it_deletes_customer_without_conversations(): void
+    public function test_it_deletes_customer_without_conversations(): void
     {
         $customer = Customer::factory()->create();
 
@@ -159,8 +150,7 @@ class CustomerUserViewsTest extends TestCase
         $this->assertDatabaseMissing('customers', ['id' => $customer->id]);
     }
 
-    #[Test]
-    public function it_prevents_deleting_customer_with_conversations(): void
+    public function test_it_prevents_deleting_customer_with_conversations(): void
     {
         $customer = Customer::factory()->hasConversations(1)->create();
 
@@ -171,8 +161,7 @@ class CustomerUserViewsTest extends TestCase
         $this->assertDatabaseHas('customers', ['id' => $customer->id]);
     }
 
-    #[Test]
-    public function subscriptions_table_displays_all_notification_events(): void
+    public function test_subscriptions_table_displays_all_notification_events(): void
     {
         $response = $this->actingAs($this->user)->get(route('users.notifications', $this->user));
 
@@ -184,8 +173,7 @@ class CustomerUserViewsTest extends TestCase
         $response->assertSee('Mobile');
     }
 
-    #[Test]
-    public function customers_table_partial_displays_customers(): void
+    public function test_customers_table_partial_displays_customers(): void
     {
         $customers = Customer::factory()->count(3)->create();
 

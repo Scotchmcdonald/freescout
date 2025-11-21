@@ -57,6 +57,8 @@ class RemainingCommandsTest extends UnitTestCase
 
     public function test_check_requirements_handle_executes_successfully(): void
     {
+        config(['installer.permissions' => []]);
+        
         $this->artisan('freescout:check-requirements')
             ->assertExitCode(0);
     }

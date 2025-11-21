@@ -438,8 +438,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertCount(3, $job->threads);
     }
 
-    #[Test]
-    public function job_creates_send_log_on_success(): void
+    public function test_job_creates_send_log_on_success(): void
     {
         Mail::fake();
         Log::spy();
@@ -467,8 +466,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         ]);
     }
 
-    #[Test]
-    public function job_creates_send_log_on_failure(): void
+    public function test_job_creates_send_log_on_failure(): void
     {
         Mail::fake();
         Log::spy();
@@ -517,8 +515,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         }
     }
 
-    #[Test]
-    public function job_sets_correct_headers(): void
+    public function test_job_sets_correct_headers(): void
     {
         Mail::fake();
 
@@ -547,8 +544,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertStringContainsString('@support@example.com', $sendLog->message_id);
     }
 
-    #[Test]
-    public function job_can_be_queued(): void
+    public function test_job_can_be_queued(): void
     {
         Queue::fake();
 
@@ -561,8 +557,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         Queue::assertPushed(SendNotificationToUsers::class);
     }
 
-    #[Test]
-    public function job_skips_already_notified_users_on_retry(): void
+    public function test_job_skips_already_notified_users_on_retry(): void
     {
         Mail::fake();
 
@@ -599,8 +594,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertEquals(2, SendLog::where('thread_id', $thread->id)->count());
     }
 
-    #[Test]
-    public function job_logs_info_when_sending_notification(): void
+    public function test_job_logs_info_when_sending_notification(): void
     {
         Mail::fake();
         Log::spy();
@@ -625,8 +619,7 @@ class SendNotificationToUsersTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function job_logs_error_when_mailbox_missing(): void
+    public function test_job_logs_error_when_mailbox_missing(): void
     {
         Log::spy();
 
@@ -650,8 +643,7 @@ class SendNotificationToUsersTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function job_processes_multiple_users(): void
+    public function test_job_processes_multiple_users(): void
     {
         Mail::fake();
         Log::spy();
@@ -677,8 +669,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertDatabaseHas('send_logs', ['user_id' => $user2->id]);
     }
 
-    #[Test]
-    public function job_uses_customer_name_in_from_field(): void
+    public function test_job_uses_customer_name_in_from_field(): void
     {
         Mail::fake();
 
@@ -713,8 +704,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         ]);
     }
 
-    #[Test]
-    public function job_handles_empty_threads_collection(): void
+    public function test_job_handles_empty_threads_collection(): void
     {
         Log::spy();
 
@@ -733,8 +723,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $this->assertEquals(0, SendLog::count());
     }
 
-    #[Test]
-    public function failed_method_logs_error(): void
+    public function test_failed_method_logs_error(): void
     {
         Log::spy();
 

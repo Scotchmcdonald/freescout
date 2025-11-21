@@ -51,32 +51,28 @@ class SendEmailReplyErrorTest extends UnitTestCase
         $this->assertTrue(method_exists($job, 'handle'));
     }
 
-    #[Test]
-    public function job_uses_should_queue_interface(): void
+    public function test_job_uses_should_queue_interface(): void
     {
         $job = new SendEmailReplyError('test@example.com', User::factory()->create(), Mailbox::factory()->create());
 
         $this->assertInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class, $job);
     }
 
-    #[Test]
-    public function job_has_dispatchable_trait(): void
+    public function test_job_has_dispatchable_trait(): void
     {
         $traits = class_uses(SendEmailReplyError::class);
 
         $this->assertContains('Illuminate\Foundation\Bus\Dispatchable', $traits);
     }
 
-    #[Test]
-    public function job_has_queueable_trait(): void
+    public function test_job_has_queueable_trait(): void
     {
         $traits = class_uses(SendEmailReplyError::class);
 
         $this->assertContains('Illuminate\Bus\Queueable', $traits);
     }
 
-    #[Test]
-    public function job_logs_notification_attempt(): void
+    public function test_job_logs_notification_attempt(): void
     {
         Log::shouldReceive('info')
             ->once()
@@ -93,8 +89,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
         $job->handle();
     }
 
-    #[Test]
-    public function job_creates_send_log_on_success(): void
+    public function test_job_creates_send_log_on_success(): void
     {
         Log::shouldReceive('info')->once();
         Mail::fake();
@@ -113,8 +108,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
         ]);
     }
 
-    #[Test]
-    public function job_creates_send_log_with_null_thread_and_message(): void
+    public function test_job_creates_send_log_with_null_thread_and_message(): void
     {
         Log::shouldReceive('info')->once();
         Mail::fake();
@@ -131,8 +125,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
         $this->assertNull($sendLog->message_id);
     }
 
-    #[Test]
-    public function job_logs_error_on_exception(): void
+    public function test_job_logs_error_on_exception(): void
     {
         Log::shouldReceive('info')->once();
         Log::shouldReceive('error')
@@ -156,8 +149,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function job_creates_send_log_with_error_status_on_exception(): void
+    public function test_job_creates_send_log_with_error_status_on_exception(): void
     {
         Log::shouldReceive('info')->once();
         Log::shouldReceive('error')->once();
@@ -182,8 +174,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
         ]);
     }
 
-    #[Test]
-    public function job_rethrows_exception_after_logging(): void
+    public function test_job_rethrows_exception_after_logging(): void
     {
         $this->expectException(\Exception::class);
 
@@ -199,8 +190,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
         $job->handle();
     }
 
-    #[Test]
-    public function job_uses_correct_mail_type_constant(): void
+    public function test_job_uses_correct_mail_type_constant(): void
     {
         Log::shouldReceive('info')->once();
         Mail::fake();
@@ -216,8 +206,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
         $this->assertEquals(SendLog::MAIL_TYPE_WRONG_USER_EMAIL_MESSAGE, $sendLog->mail_type);
     }
 
-    #[Test]
-    public function job_can_be_dispatched(): void
+    public function test_job_can_be_dispatched(): void
     {
         Mail::fake();
 

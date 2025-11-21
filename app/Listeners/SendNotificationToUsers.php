@@ -78,6 +78,6 @@ class SendNotificationToUsers
         }
 
         // TODO: Implement Subscription::registerEvent when Subscription model is fully implemented
-        // \App\Models\Subscription::registerEvent($event_type, $event->conversation, $caused_by_user_id);
+        \App\Models\Subscription::registerEvent($event_type, $event->conversation, $caused_by_user_id);
     }
 }

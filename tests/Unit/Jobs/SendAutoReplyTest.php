@@ -21,8 +21,7 @@ use Tests\UnitTestCase;
 class SendAutoReplyTest extends UnitTestCase
 {
 
-    #[Test]
-    public function job_can_be_instantiated(): void
+    public function test_job_can_be_instantiated(): void
     {
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
@@ -38,8 +37,7 @@ class SendAutoReplyTest extends UnitTestCase
         $this->assertEquals($customer->id, $job->customer->id);
     }
 
-    #[Test]
-    public function job_aborts_when_auto_reply_disabled_via_meta(): void
+    public function test_job_aborts_when_auto_reply_disabled_via_meta(): void
     {
         Mail::fake();
         Log::spy();
@@ -64,8 +62,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function job_aborts_when_no_customer_email(): void
+    public function test_job_aborts_when_no_customer_email(): void
     {
         Mail::fake();
         Log::spy();
@@ -89,8 +86,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function job_sends_auto_reply_email(): void
+    public function test_job_sends_auto_reply_email(): void
     {
         Mail::fake();
         Log::spy();
@@ -127,8 +123,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function job_creates_send_log_on_success(): void
+    public function test_job_creates_send_log_on_success(): void
     {
         Mail::fake();
 
@@ -155,8 +150,7 @@ class SendAutoReplyTest extends UnitTestCase
         ]);
     }
 
-    #[Test]
-    public function job_generates_correct_message_id(): void
+    public function test_job_generates_correct_message_id(): void
     {
         Mail::fake();
 
@@ -181,8 +175,7 @@ class SendAutoReplyTest extends UnitTestCase
         $this->assertStringContainsString('@example.com', $sendLog->message_id);
     }
 
-    #[Test]
-    public function job_configures_smtp_for_mailbox(): void
+    public function test_job_configures_smtp_for_mailbox(): void
     {
         Mail::fake();
 
@@ -205,8 +198,7 @@ class SendAutoReplyTest extends UnitTestCase
         $job->handle($smtpService);
     }
 
-    #[Test]
-    public function job_can_be_queued(): void
+    public function test_job_can_be_queued(): void
     {
         Queue::fake();
 
@@ -220,8 +212,7 @@ class SendAutoReplyTest extends UnitTestCase
         Queue::assertPushed(SendAutoReply::class);
     }
 
-    #[Test]
-    public function job_has_timeout_configured(): void
+    public function test_job_has_timeout_configured(): void
     {
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
@@ -233,8 +224,7 @@ class SendAutoReplyTest extends UnitTestCase
         $this->assertEquals(120, $job->timeout);
     }
 
-    #[Test]
-    public function job_respects_ar_off_meta_flag(): void
+    public function test_job_respects_ar_off_meta_flag(): void
     {
         Mail::fake();
 

@@ -56,8 +56,7 @@ class SendAlertTest extends UnitTestCase
         $this->assertEquals('', $job->title);
     }
 
-    #[Test]
-    public function job_sends_to_all_active_admins(): void
+    public function test_job_sends_to_all_active_admins(): void
     {
         Mail::fake();
         Log::spy();
@@ -79,8 +78,7 @@ class SendAlertTest extends UnitTestCase
         $this->assertEquals(2, SendLog::where('mail_type', SendLog::MAIL_TYPE_ALERT)->count());
     }
 
-    #[Test]
-    public function job_skips_inactive_admins(): void
+    public function test_job_skips_inactive_admins(): void
     {
         Mail::fake();
         Log::spy();
@@ -104,8 +102,7 @@ class SendAlertTest extends UnitTestCase
         $this->assertDatabaseMissing('send_logs', ['email' => 'inactive@example.com']);
     }
 
-    #[Test]
-    public function job_skips_non_admin_users(): void
+    public function test_job_skips_non_admin_users(): void
     {
         Mail::fake();
         Log::spy();
@@ -129,8 +126,7 @@ class SendAlertTest extends UnitTestCase
         $this->assertDatabaseMissing('send_logs', ['email' => 'user@example.com']);
     }
 
-    #[Test]
-    public function job_creates_send_log_on_success(): void
+    public function test_job_creates_send_log_on_success(): void
     {
         Mail::fake();
         Log::spy();
@@ -151,8 +147,7 @@ class SendAlertTest extends UnitTestCase
         ]);
     }
 
-    #[Test]
-    public function job_logs_info_when_sending(): void
+    public function test_job_logs_info_when_sending(): void
     {
         Mail::fake();
         Log::spy();
@@ -171,8 +166,7 @@ class SendAlertTest extends UnitTestCase
             ->once();
     }
 
-    #[Test]
-    public function job_can_be_queued(): void
+    public function test_job_can_be_queued(): void
     {
         Queue::fake();
 
@@ -181,8 +175,7 @@ class SendAlertTest extends UnitTestCase
         Queue::assertPushed(SendAlert::class);
     }
 
-    #[Test]
-    public function job_handles_no_admins_gracefully(): void
+    public function test_job_handles_no_admins_gracefully(): void
     {
         Mail::fake();
         Log::spy();
@@ -193,8 +186,7 @@ class SendAlertTest extends UnitTestCase
         $this->assertEquals(0, SendLog::where('mail_type', SendLog::MAIL_TYPE_ALERT)->count());
     }
 
-    #[Test]
-    public function job_processes_multiple_recipients(): void
+    public function test_job_processes_multiple_recipients(): void
     {
         Mail::fake();
         Log::spy();
@@ -210,8 +202,7 @@ class SendAlertTest extends UnitTestCase
         $this->assertEquals(3, SendLog::where('mail_type', SendLog::MAIL_TYPE_ALERT)->count());
     }
 
-    #[Test]
-    public function job_stores_null_for_thread_and_user_ids(): void
+    public function test_job_stores_null_for_thread_and_user_ids(): void
     {
         Mail::fake();
         Log::spy();

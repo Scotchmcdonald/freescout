@@ -51,9 +51,9 @@ class SendReplyToCustomer
             return;
         }
 
-        // TODO: Dispatch SendReplyToCustomer job when it's implemented in batch 4
-        // \App\Jobs\SendReplyToCustomer::dispatch($conversation, $replies, $conversation->customer)
-        //     ->delay(now()->addSeconds(Conversation::UNDO_TIMOUT))
-        //     ->onQueue('emails');
+        // Dispatch SendConversationReply job
+        \App\Jobs\SendConversationReply::dispatch($conversation, $replies->toArray(), $conversation->customer)
+            ->delay(now()->addSeconds(10))
+            ->onQueue('emails');
     }
 }

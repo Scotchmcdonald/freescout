@@ -26,8 +26,7 @@ class MailboxConnectionTest extends TestCase
         $this->mailbox = Mailbox::factory()->create();
     }
 
-    #[Test]
-    public function non_admins_cannot_view_connection_settings_pages()
+    public function test_non_admins_cannot_view_connection_settings_pages()
     {
         $this->actingAs($this->regularUser);
 
@@ -38,8 +37,7 @@ class MailboxConnectionTest extends TestCase
             ->assertStatus(403);
     }
 
-    #[Test]
-    public function non_admins_cannot_update_connection_settings()
+    public function test_non_admins_cannot_update_connection_settings()
     {
         $this->actingAs($this->regularUser);
 
@@ -50,8 +48,7 @@ class MailboxConnectionTest extends TestCase
             ->assertStatus(403);
     }
 
-    #[Test]
-    public function admin_can_view_incoming_connection_settings_page()
+    public function test_admin_can_view_incoming_connection_settings_page()
     {
         $this->actingAs($this->adminUser);
 
@@ -66,8 +63,7 @@ class MailboxConnectionTest extends TestCase
         $response->assertViewHas('mailbox', $this->mailbox);
     }
 
-    #[Test]
-    public function admin_can_update_incoming_connection_settings()
+    public function test_admin_can_update_incoming_connection_settings()
     {
         $this->actingAs($this->adminUser);
 
@@ -92,8 +88,7 @@ class MailboxConnectionTest extends TestCase
         $this->assertEquals($data['in_password'], Crypt::decrypt($this->mailbox->in_password));
     }
 
-    #[Test]
-    public function incoming_connection_validation_fails_with_invalid_data()
+    public function test_incoming_connection_validation_fails_with_invalid_data()
     {
         $this->actingAs($this->adminUser);
 
@@ -107,8 +102,7 @@ class MailboxConnectionTest extends TestCase
             ->assertSessionHasErrors(['in_protocol', 'in_server', 'in_port']);
     }
 
-    #[Test]
-    public function admin_can_view_outgoing_connection_settings_page()
+    public function test_admin_can_view_outgoing_connection_settings_page()
     {
         $this->actingAs($this->adminUser);
 
@@ -123,8 +117,7 @@ class MailboxConnectionTest extends TestCase
         $response->assertViewHas('mailbox', $this->mailbox);
     }
 
-    #[Test]
-    public function admin_can_update_outgoing_connection_settings()
+    public function test_admin_can_update_outgoing_connection_settings()
     {
         $this->actingAs($this->adminUser);
 
@@ -152,8 +145,7 @@ class MailboxConnectionTest extends TestCase
         $this->assertEquals($data['from_name'], $this->mailbox->from_name_custom);
     }
 
-    #[Test]
-    public function outgoing_connection_validation_fails_with_invalid_data()
+    public function test_outgoing_connection_validation_fails_with_invalid_data()
     {
         $this->actingAs($this->adminUser);
 

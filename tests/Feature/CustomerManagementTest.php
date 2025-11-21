@@ -27,8 +27,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function user_can_view_list_of_customers(): void
+    public function test_user_can_view_list_of_customers(): void
     {
         // Arrange
         $customer1 = Customer::factory()->withoutEmail()->create([
@@ -61,8 +60,7 @@ class CustomerManagementTest extends TestCase
         $response->assertSee('jane@example.com');
     }
 
-    #[Test]
-    public function user_can_view_single_customer_and_conversation_history(): void
+    public function test_user_can_view_single_customer_and_conversation_history(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -98,8 +96,7 @@ class CustomerManagementTest extends TestCase
         });
     }
 
-    #[Test]
-    public function user_can_update_customer_details(): void
+    public function test_user_can_update_customer_details(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -131,8 +128,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function cannot_create_customer_with_duplicate_email_if_meant_to_be_unique(): void
+    public function test_cannot_create_customer_with_duplicate_email_if_meant_to_be_unique(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -155,8 +151,7 @@ class CustomerManagementTest extends TestCase
         $this->assertDatabaseCount('customers', 1);
     }
 
-    #[Test]
-    public function merging_two_customers_reassigns_all_conversations(): void
+    public function test_merging_two_customers_reassigns_all_conversations(): void
     {
         // Arrange
         $sourceCustomer = Customer::factory()->create([
@@ -215,8 +210,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function unauthenticated_user_cannot_access_customers_list(): void
+    public function test_unauthenticated_user_cannot_access_customers_list(): void
     {
         // Act
         $response = $this->get('/customers');
@@ -226,8 +220,7 @@ class CustomerManagementTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    #[Test]
-    public function unauthenticated_user_cannot_view_customer_details(): void
+    public function test_unauthenticated_user_cannot_view_customer_details(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -240,8 +233,7 @@ class CustomerManagementTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    #[Test]
-    public function unauthenticated_user_cannot_update_customer(): void
+    public function test_unauthenticated_user_cannot_update_customer(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -257,8 +249,7 @@ class CustomerManagementTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    #[Test]
-    public function cannot_update_customer_with_invalid_email_format(): void
+    public function test_cannot_update_customer_with_invalid_email_format(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -277,8 +268,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('emails.0.email');
     }
 
-    #[Test]
-    public function cannot_merge_customer_with_same_id(): void
+    public function test_cannot_merge_customer_with_same_id(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -294,8 +284,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('target_id');
     }
 
-    #[Test]
-    public function cannot_merge_with_non_existent_customer(): void
+    public function test_cannot_merge_with_non_existent_customer(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -311,8 +300,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('target_id');
     }
 
-    #[Test]
-    public function user_can_search_customers(): void
+    public function test_user_can_search_customers(): void
     {
         // Arrange
         $customer1 = Customer::factory()->withoutEmail()->create([
@@ -347,8 +335,7 @@ class CustomerManagementTest extends TestCase
         });
     }
 
-    #[Test]
-    public function user_can_access_customer_edit_page(): void
+    public function test_user_can_access_customer_edit_page(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -376,8 +363,7 @@ class CustomerManagementTest extends TestCase
         $response->assertSee('Last Name');
     }
 
-    #[Test]
-    public function unauthenticated_user_cannot_access_customer_edit_page(): void
+    public function test_unauthenticated_user_cannot_access_customer_edit_page(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -390,8 +376,7 @@ class CustomerManagementTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    #[Test]
-    public function updating_customer_with_empty_optional_fields_works(): void
+    public function test_updating_customer_with_empty_optional_fields_works(): void
     {
         // Arrange
         $customer = Customer::factory()->create([
@@ -418,8 +403,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function cannot_update_customer_without_first_name(): void
+    public function test_cannot_update_customer_without_first_name(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -435,8 +419,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('first_name');
     }
 
-    #[Test]
-    public function can_update_customer_with_valid_country_code(): void
+    public function test_can_update_customer_with_valid_country_code(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -456,8 +439,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function merge_fails_with_missing_source_id(): void
+    public function test_merge_fails_with_missing_source_id(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -472,8 +454,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('source_id');
     }
 
-    #[Test]
-    public function merge_fails_with_missing_target_id(): void
+    public function test_merge_fails_with_missing_target_id(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -488,8 +469,7 @@ class CustomerManagementTest extends TestCase
         $response->assertJsonValidationErrors('target_id');
     }
 
-    #[Test]
-    public function customer_list_is_paginated(): void
+    public function test_customer_list_is_paginated(): void
     {
         // Arrange
         Customer::factory()->count(60)->create();
@@ -503,8 +483,7 @@ class CustomerManagementTest extends TestCase
         $response->assertSee('50'); // Should see pagination info
     }
 
-    #[Test]
-    public function customer_show_page_loads_conversations(): void
+    public function test_customer_show_page_loads_conversations(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -521,8 +500,7 @@ class CustomerManagementTest extends TestCase
         $response->assertSee('Loaded Conversation');
     }
 
-    #[Test]
-    public function updating_customer_with_social_profiles_works(): void
+    public function test_updating_customer_with_social_profiles_works(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
@@ -544,8 +522,7 @@ class CustomerManagementTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function updating_customer_with_websites_works(): void
+    public function test_updating_customer_with_websites_works(): void
     {
         // Arrange
         $customer = Customer::factory()->create();
