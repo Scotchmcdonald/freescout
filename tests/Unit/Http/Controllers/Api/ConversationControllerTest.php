@@ -116,7 +116,7 @@ class ConversationControllerTest extends UnitTestCase
         
         try {
             $response = $controller->index();
-            $this->assertTrue(true); // If we get here, no exception was thrown
+            $this->expectNotToPerformAssertions(); // If we get here, no exception was thrown
         } catch (\Exception $e) {
             $this->fail('index() method should not throw exceptions: ' . $e->getMessage());
         }

@@ -102,8 +102,6 @@ class LogoutUsersTest extends TestCase
                 rename($backupPath, $sessionsPath);
             }
         }
-
-        $this->assertTrue(true);
     }
 
     public function test_command_continues_on_individual_file_errors(): void
@@ -120,8 +118,6 @@ class LogoutUsersTest extends TestCase
 
         $this->artisan('freescout:logout-users')
             ->assertExitCode(0);
-
-        $this->assertTrue(true);
     }
 
     public function test_command_deletes_multiple_session_files(): void

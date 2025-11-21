@@ -70,21 +70,21 @@ class CommandErrorHandlingTest extends UnitTestCase
     {
         // This would test filesystem permissions
         // Mock or skip if running as root
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_command_handles_memory_limit_gracefully(): void
     {
         // Commands should handle memory constraints
         // This is more of an integration test
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_command_handles_signal_interruption(): void
     {
         // Test SIGINT/SIGTERM handling
         // Requires process control
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_module_install_command_validates_module_name(): void
@@ -103,19 +103,19 @@ class CommandErrorHandlingTest extends UnitTestCase
     public function test_command_handles_timeout_configuration(): void
     {
         // Commands have timeout handling
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_command_handles_invalid_option_values(): void
     {
         // Commands validate options
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_command_handles_concurrent_execution(): void
     {
         // Test command locking/mutex
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_command_provides_exit_code(): void

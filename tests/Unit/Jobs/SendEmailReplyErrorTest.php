@@ -146,7 +146,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
             // Expected
         }
 
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_job_creates_send_log_with_error_status_on_exception(): void
@@ -215,6 +215,6 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
         SendEmailReplyError::dispatch('dispatch@example.com', $user, $mailbox);
 
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 }

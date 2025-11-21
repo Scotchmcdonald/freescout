@@ -128,7 +128,7 @@ class SendConversationReplyJobTest extends UnitTestCase
         SendConversationReply::dispatch($conversation, [$thread], $customer);
 
         // Job was dispatched successfully
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     /** Test job handles different email formats */
@@ -178,7 +178,7 @@ class SendConversationReplyJobTest extends UnitTestCase
             $job->handle();
         }
 
-        $this->assertTrue(true); // All processed without error
+        $this->expectNotToPerformAssertions(); // All processed without error
     }
 
     /** Test job uses Queueable trait */
@@ -206,7 +206,7 @@ class SendConversationReplyJobTest extends UnitTestCase
 
         try {
             $job->handle();
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             // Job may fail validation but should not crash
             $this->assertInstanceOf(\Exception::class, $e);
@@ -245,6 +245,6 @@ class SendConversationReplyJobTest extends UnitTestCase
         }
 
         // All jobs dispatched successfully
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 }

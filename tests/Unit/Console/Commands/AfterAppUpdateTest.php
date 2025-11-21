@@ -46,7 +46,7 @@ class AfterAppUpdateTest extends UnitTestCase
         Artisan::call('freescout:after-app-update');
         
         // Should call freescout:clear-cache command
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_command_runs_migrations(): void

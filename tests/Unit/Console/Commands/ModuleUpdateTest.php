@@ -22,7 +22,7 @@ class ModuleUpdateTest extends TestCase
         $output = Artisan::output();
         
         // Command should exist
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_command_accepts_module_alias_argument(): void
@@ -34,7 +34,7 @@ class ModuleUpdateTest extends TestCase
             // Expected - module doesn't exist
         }
         
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_command_clears_cache_before_update(): void
@@ -77,7 +77,7 @@ class ModuleUpdateTest extends TestCase
             $this->assertStringContainsString('not found', $output);
         } catch (\Exception $e) {
             // Some exception is expected
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -88,10 +88,10 @@ class ModuleUpdateTest extends TestCase
             $output = Artisan::output();
             
             // Should report status
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             // Expected
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 

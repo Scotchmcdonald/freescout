@@ -645,10 +645,10 @@ class SmtpServiceComprehensiveTest extends UnitTestCase
 
         try {
             $service->configureSmtp($mailbox);
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             // Method might fail due to missing config, but it should exist
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 

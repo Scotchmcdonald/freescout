@@ -31,7 +31,7 @@ class RememberUserLocaleListenerTest extends UnitTestCase
 
         // Should not throw an exception
         $listener->handle($event);
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     // Additional tests for 90-95% coverage
@@ -79,7 +79,7 @@ class RememberUserLocaleListenerTest extends UnitTestCase
         $listener->handle($event);
         
         // Should complete without error
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_handle_with_user_without_get_locale_method(): void
@@ -93,7 +93,7 @@ class RememberUserLocaleListenerTest extends UnitTestCase
         
         // Should not throw exception
         $listener->handle($event);
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_handle_checks_method_exists_before_calling(): void
@@ -289,6 +289,6 @@ class RememberUserLocaleListenerTest extends UnitTestCase
         // Should not throw exception with real User model
         $listener->handle($event);
         
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 }

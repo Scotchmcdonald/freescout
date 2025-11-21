@@ -191,8 +191,35 @@ foreach ($filesToRun as $file) {
     }
     
     // Heuristic to count tests: "public function test..." or "@test" annotation
-    $count = preg_match_all('/public\s+function\s+test/', $content);
-    $count += preg_match_all('/\*\s*@test/', $content);
+    // More accurate counting by filtering out false positives
+    $lines = explode("\n", $content);
+    $count = 0;
+    $inAnonymousClass = false;
+    
+    foreach ($lines as $line) {
+        // Track anonymous class context
+        if (preg_match('/new\s+(?:class|#?\[.*?\]\s*class)\s*[(\{]/', $line)) {
+            $inAnonymousClass = true;
+        }
+        
+        // Skip methods in anonymous classes
+        if ($inAnonymousClass) {
+            if (preg_match('/^\s*}[;,)]/', $line)) {
+                $inAnonymousClass = false;
+            }
+            continue;
+        }
+        
+        // Count actual test methods (not in anonymous classes)
+        if (preg_match('/^\s*public\s+function\s+test[a-zA-Z0-9_]*\s*\(/', $line)) {
+            $count++;
+        }
+        
+        // Count @test annotations in docblocks
+        if (preg_match('/^\s*\*\s*@test\s*$/', $line)) {
+            $count++;
+        }
+    }
     
     $fileTestCounts[$file] = $count;
     $totalTestCount += $count;
@@ -201,7 +228,7 @@ foreach ($filesToRun as $file) {
 $filesToRun = array_values($filesToRun); // Re-index after filtering
 $totalFilesAnalyzed = count($filesToRun);
 $analysisProgressBar->setFormat(' %current%/%max% [%bar%] %message%');
-$analysisProgressBar->setMessage("Analyzed <info>{$totalFilesAnalyzed}/{$totalFilesAnalyzed}</info> test files, found <info>{$totalTestCount}</info> tests.");
+$analysisProgressBar->setMessage("Analyzed <info>{$totalFilesAnalyzed}/{$totalFilesAnalyzed}</info> test files, estimated ~<info>{$totalTestCount}</info> test methods.");
 $analysisProgressBar->finish();
 $io->newLine();
 
@@ -508,10 +535,10 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
 
     $executionProgressBar->advance(count($chunkFiles));
 }
-// Remove the message line from format before finishing
-$executionProgressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | Elapsed: %elapsed:6s% | ETA: %remaining:-6s% | Mem: %memory:6s%");
+// Finish the progress bar and clear it to prevent duplicate display
+$executionProgressBar->clear();
 $executionProgressBar->finish();
-$io->newLine(2);
+$io->newLine(1);
 
 // --- SUMMARY ---
 $io->section('Test Results Summary');

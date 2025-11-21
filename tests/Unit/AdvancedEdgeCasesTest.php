@@ -237,7 +237,7 @@ class AdvancedEdgeCasesTest extends UnitTestCase
         // If the event is not automatically dispatched by the model, we might need to dispatch it manually
         // or check for standard Eloquent events if that was the intention.
         // For now, let's assume we just want to ensure no exception was thrown during update.
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_observer_events_fire_in_correct_order(): void

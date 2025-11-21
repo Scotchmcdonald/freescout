@@ -46,6 +46,6 @@ class EmailVerificationReminderControllerTest extends UnitTestCase
         $response = $this->actingAs($user)->post(route('verification.send'));
 
         // Should be rate limited
-        $this->assertTrue(true); // Rate limiting test placeholder
+        $this->expectNotToPerformAssertions(); // Rate limiting test placeholder
     }
 }

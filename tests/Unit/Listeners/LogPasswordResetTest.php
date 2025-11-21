@@ -93,7 +93,7 @@ class LogPasswordResetTest extends UnitTestCase
         // Should not throw exception
         try {
             $listener->handle($event);
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->fail('Listener should not throw exception: ' . $e->getMessage());
         }

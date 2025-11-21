@@ -905,4 +905,3 @@ class JobsComprehensiveTest extends UnitTestCase
         ]);
     }
 }
-}

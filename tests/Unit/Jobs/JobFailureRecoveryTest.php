@@ -51,7 +51,7 @@ class JobFailureRecoveryTest extends UnitTestCase
             // Should have increasing delays
             $this->assertGreaterThan(0, count($job->backoff));
         } else {
-            $this->assertTrue(true); // Optional property
+            $this->expectNotToPerformAssertions(); // Optional property
         }
     }
 
@@ -207,7 +207,7 @@ class JobFailureRecoveryTest extends UnitTestCase
             $middleware = $job->middleware();
             $this->assertIsArray($middleware);
         } else {
-            $this->assertTrue(true); // Not all jobs have middleware
+            $this->expectNotToPerformAssertions(); // Not all jobs have middleware
         }
     }
 
@@ -235,7 +235,7 @@ class JobFailureRecoveryTest extends UnitTestCase
             $displayName = $job->displayName();
             $this->assertIsString($displayName);
         } else {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -251,7 +251,7 @@ class JobFailureRecoveryTest extends UnitTestCase
             $tags = $job->tags();
             $this->assertIsArray($tags);
         } else {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -308,7 +308,7 @@ class JobFailureRecoveryTest extends UnitTestCase
             $uniqueId = $job->uniqueId();
             $this->assertNotEmpty($uniqueId);
         } else {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -324,7 +324,7 @@ class JobFailureRecoveryTest extends UnitTestCase
             $retryUntil = $job->retryUntil();
             $this->assertInstanceOf(\DateTimeInterface::class, $retryUntil);
         } else {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -340,7 +340,7 @@ class JobFailureRecoveryTest extends UnitTestCase
             $shouldFail = $job->shouldFailOnTimeout();
             $this->assertIsBool($shouldFail);
         } else {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -390,9 +390,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $job = new SendNotificationToUsers($users, $conversation, $threads);
         
         if (property_exists($job, 'batchId')) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         } else {
-            $this->assertTrue(true); // Optional property
+            $this->expectNotToPerformAssertions(); // Optional property
         }
     }
 

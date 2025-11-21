@@ -197,9 +197,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -211,9 +211,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -234,9 +234,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -262,9 +262,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -276,9 +276,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -331,9 +331,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -345,9 +345,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -377,9 +377,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'testmodule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -424,9 +424,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => null
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -437,9 +437,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => ''
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -450,9 +450,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'test@#$%'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -463,9 +463,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => str_repeat('a', 256)
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -476,9 +476,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'モジュール'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -489,9 +489,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => '../../../etc/passwd'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -503,9 +503,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -517,9 +517,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -531,9 +531,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -545,9 +545,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -562,9 +562,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -575,9 +575,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -588,9 +588,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -601,9 +601,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -614,9 +614,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -627,9 +627,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -640,9 +640,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -653,9 +653,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -666,9 +666,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -679,9 +679,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -692,9 +692,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'FailModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -747,9 +747,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 }

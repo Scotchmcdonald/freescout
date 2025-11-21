@@ -132,6 +132,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/system/ajax', [SystemController::class, 'ajax'])->name('system.ajax');
         Route::get('/system/diagnostics', [SystemController::class, 'diagnostics'])->name('system.diagnostics');
         Route::get('/system/logs', [SystemController::class, 'logs'])->name('system.logs');
+        Route::get('/system/logs/download', [SystemController::class, 'downloadLogs'])->name('system.logs.download');
         
         // Added for tests
         Route::get('/logs', [SystemController::class, 'logs'])->name('logs');

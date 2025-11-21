@@ -35,7 +35,7 @@ class ObserversComprehensiveTest extends UnitTestCase
     // {
     //     // Removed as ConversationObserver does not dispatch this event.
     //     // It is likely dispatched by the controller.
-    //     $this->assertTrue(true);
+    //     $this->expectNotToPerformAssertions();
     // }
 
     public function test_conversation_observer_fires_status_changed_event(): void
@@ -297,7 +297,7 @@ class ObserversComprehensiveTest extends UnitTestCase
     // public function test_observers_preserve_original_attributes(): void
     // {
     //     // Skipped: Flaky due to model syncing behavior with Event::fake
-    //     $this->assertTrue(true);
+    //     $this->expectNotToPerformAssertions();
     // }
 
     public function test_observers_do_not_interfere_with_mass_operations(): void

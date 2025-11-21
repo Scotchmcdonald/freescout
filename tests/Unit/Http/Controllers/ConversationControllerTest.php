@@ -218,7 +218,7 @@ class ConversationControllerTest extends TestCase
         $this->controller->show($request, $conversation);
 
         // Verify notification handling works (simplified test)
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_create_returns_view_for_authorized_user(): void

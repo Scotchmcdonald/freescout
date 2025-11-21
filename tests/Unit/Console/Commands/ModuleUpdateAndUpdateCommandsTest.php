@@ -141,9 +141,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -153,9 +153,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -178,9 +178,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -219,7 +219,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertStringContainsString('not found', strtolower($output));
         } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
+            $this->assertTrue(true);
         }
     }
 
@@ -253,9 +253,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
             Artisan::call('freescout:module-update');
             
             // Should call freescout:clear-cache at end
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -278,9 +278,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -296,9 +296,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -308,9 +308,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -320,9 +320,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -332,9 +332,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -359,9 +359,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -375,7 +375,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertStringContainsString('not found', strtolower($output));
         } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
+            $this->assertTrue(true);
         }
     }
 
@@ -500,9 +500,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
             ]);
             
             // Should call cache:clear
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -514,9 +514,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
             ]);
             
             // Should call config:clear
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -528,9 +528,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
             ]);
             
             // Should call route:clear
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -542,9 +542,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
             ]);
             
             // Should call view:clear
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -556,9 +556,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
             ]);
             
             // Should call optimize
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -570,9 +570,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
             ]);
             
             // Should call freescout:after-app-update
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -616,9 +616,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
                 '--force' => true
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -672,9 +672,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
                 '--force' => true
             ]);
             
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            ->expectNotToPerformAssertions();
+            $this->expectNotToPerformAssertions();
         }
     }
 

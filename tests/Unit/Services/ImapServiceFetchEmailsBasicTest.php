@@ -236,7 +236,7 @@ class ImapServiceFetchEmailsBasicTest extends TestCase
         $service->fetchEmails($mailbox);
 
         // setFlag('Seen') expectation verified by Mockery
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_handles_general_exception_during_fetch(): void

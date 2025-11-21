@@ -50,7 +50,7 @@ class HandleNewMessageListenerTest extends UnitTestCase
         // Should not throw exception
         $listener->handle($event);
 
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     /** Test listener can be constructed without parameters */
@@ -98,7 +98,7 @@ class HandleNewMessageListenerTest extends UnitTestCase
         }
 
         // Should handle multiple events without error
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     /** Test listener does not throw on empty event */
@@ -119,7 +119,7 @@ class HandleNewMessageListenerTest extends UnitTestCase
 
         try {
             $listener->handle($event);
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->fail('Listener should not throw exception: '.$e->getMessage());
         }
@@ -149,7 +149,7 @@ class HandleNewMessageListenerTest extends UnitTestCase
 
             try {
                 $listener->handle($event);
-                $this->assertTrue(true);
+                $this->expectNotToPerformAssertions();
             } catch (\Exception $e) {
                 $this->fail('Listener should handle all thread types');
             }
@@ -178,7 +178,7 @@ class HandleNewMessageListenerTest extends UnitTestCase
         }
 
         // Should handle all without memory or performance issues
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     /** Test listener is stateless between calls */
@@ -207,7 +207,7 @@ class HandleNewMessageListenerTest extends UnitTestCase
         $listener->handle($event2);
 
         // No state should be retained
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     /** Test listener constructor is idempotent */
@@ -243,6 +243,6 @@ class HandleNewMessageListenerTest extends UnitTestCase
         }
 
         // Should handle events from different mailboxes
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 }

@@ -17,7 +17,7 @@ class UpdateMailboxCounters
     public function handle(ConversationStatusChanged|ConversationUserChanged $event): void
     {
         // Update mailbox folder counters
-        if (method_exists($event->conversation->mailbox, 'updateFoldersCounters')) {
+        if ($event->conversation->mailbox && method_exists($event->conversation->mailbox, 'updateFoldersCounters')) {
             $event->conversation->mailbox->updateFoldersCounters();
         }
     }
