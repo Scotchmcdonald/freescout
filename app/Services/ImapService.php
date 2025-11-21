@@ -241,6 +241,269 @@ class ImapService
     }
 
     /**
+     * Extract sender information from message.
+     * 
+     * @return array{email: string, name: string, user: \App\Models\User|null}
+     */
+    protected function extractSenderInfo(\Webklex\PHPIMAP\Message $message): array
+    {
+        $from = $message->getFrom();
+
+        // Convert to array if it's an Attribute object
+        if (is_object($from)) {
+            try {
+                if (method_exists($from, 'toArray')) {
+                    $from = $from->toArray();
+                } elseif (method_exists($from, 'get')) {
+                    $from = $from->get();
+                } else {
+                    $from = $from->get();
+                }
+            } catch (\Throwable $e) {
+                if (! is_array($from) && ! ($from instanceof \Traversable)) {
+                    $from = [];
+                }
+            }
+        }
+
+        if (! is_array($from) || empty($from)) {
+            throw new \Exception('No sender found in message');
+        }
+
+        // Get first sender
+        $fromAddress = reset($from);
+        
+        // Extract email and name from address
+        [$fromEmail, $fromName] = $this->parseFromAddress($fromAddress);
+
+        if (! $fromEmail) {
+            throw new \Exception('No sender email found in message');
+        }
+
+        Log::debug('Processing message from', [
+            'from_email' => $fromEmail,
+            'from_name' => $fromName,
+        ]);
+
+        // Check if sender is an internal user
+        $senderUser = \App\Models\User::where('email', $fromEmail)->first();
+
+        if ($senderUser) {
+            Log::debug('Sender is an internal user', [
+                'user_id' => $senderUser->id,
+                'user_name' => $senderUser->getFullName(),
+            ]);
+        }
+
+        return [
+            'email' => $fromEmail,
+            'name' => $fromName,
+            'user' => $senderUser,
+        ];
+    }
+
+    /**
+     * Parse email and name from address object/array/string.
+     * 
+     * @return array{0: string|null, 1: string}
+     */
+    protected function parseFromAddress(mixed $fromAddress): array
+    {
+        $fromEmail = null;
+        $fromName = '';
+
+        if (is_object($fromAddress)) {
+            // Try to access object properties
+            try {
+                $fromEmail = $fromAddress->mail;
+                if (! is_string($fromEmail) || $fromEmail === '') {
+                    $fromEmail = null;
+                }
+            } catch (\Throwable $e) {
+                $fromEmail = null;
+            }
+            
+            try {
+                $fromName = $fromAddress->personal ?? '';
+                if (is_object($fromName)) {
+                    $fromName = '';
+                }
+            } catch (\Throwable $e) {
+                $fromName = '';
+            }
+
+            // Try string conversion if needed
+            if (! $fromEmail && method_exists($fromAddress, '__toString')) {
+                $addressString = (string) $fromAddress;
+                if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
+                    $fromEmail = $matches[1];
+                    $fromName = trim(str_replace('<'.$fromEmail.'>', '', $addressString));
+                } else {
+                    $fromEmail = $addressString;
+                }
+            }
+        } elseif (is_array($fromAddress)) {
+            $fromEmail = $fromAddress['mail'] ?? $fromAddress['email'] ?? null;
+            $fromName = $fromAddress['personal'] ?? $fromAddress['name'] ?? '';
+        } else {
+            $fromEmail = $fromAddress;
+            $fromName = '';
+        }
+
+        return [$fromEmail, $fromName];
+    }
+
+    /**
+     * Process message attachments and update body with embedded images.
+     */
+    protected function processAttachments(
+        \Webklex\PHPIMAP\Message $message,
+        Thread $thread,
+        Conversation $conversation,
+        string &$body
+    ): void {
+        if (! $message->hasAttachments()) {
+            return;
+        }
+
+        $attachments = $message->getAttachments();
+        $savedAttachments = [];
+        $hasNonEmbeddedAttachments = false;
+
+        Log::debug('Processing attachments', [
+            'count' => count($attachments),
+        ]);
+
+        foreach ($attachments as $attachment) {
+            try {
+                $filename = $attachment->getName();
+                $content = $attachment->getContent();
+                $contentId = $attachment->getId();
+
+                if (empty($filename)) {
+                    Log::warning('Attachment has no filename, skipping');
+                    continue;
+                }
+
+                // Store attachment
+                $path = storage_path('app/attachments/'.$conversation->id);
+                if (! file_exists($path)) {
+                    mkdir($path, 0755, true);
+                }
+
+                $uniqueFilename = uniqid().'_'.$filename;
+                $filepath = $path.'/'.$uniqueFilename;
+                file_put_contents($filepath, $content);
+
+                // Check if this is an embedded/inline image
+                $isEmbedded = $this->isEmbeddedAttachment($attachment, $contentId, $body);
+
+                $attachmentModel = \App\Models\Attachment::create([
+                    'thread_id' => $thread->id,
+                    'conversation_id' => $conversation->id,
+                    'file_name' => $uniqueFilename,
+                    'file_dir' => 'attachments/'.$conversation->id,
+                    'file_size' => strlen($content),
+                    'mime_type' => $attachment->getContentType(),
+                    'embedded' => $isEmbedded,
+                ]);
+
+                $savedAttachments[] = [
+                    'model' => $attachmentModel,
+                    'content_id' => $contentId,
+                    'is_embedded' => $isEmbedded,
+                ];
+
+                if (! $isEmbedded) {
+                    $hasNonEmbeddedAttachments = true;
+                }
+
+                Log::debug('Saved attachment', [
+                    'filename' => $filename,
+                    'size' => strlen($content),
+                    'embedded' => $isEmbedded,
+                    'content_id' => $contentId,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to save attachment', [
+                    'error' => $e->getMessage(),
+                    'filename' => $filename ?? 'unknown',
+                ]);
+            }
+        }
+
+        // Replace CID references in body
+        $this->replaceCidReferences($savedAttachments, $conversation, $thread, $body);
+
+        // Update conversation has_attachments flag
+        if ($hasNonEmbeddedAttachments) {
+            $conversation->has_attachments = true;
+            $conversation->save();
+        }
+
+        Log::info('Processed attachments', [
+            'total' => count($attachments),
+            'saved' => count($savedAttachments),
+            'embedded' => count(array_filter($savedAttachments, fn ($a) => $a['is_embedded'])),
+            'regular' => count(array_filter($savedAttachments, fn ($a) => ! $a['is_embedded'])),
+        ]);
+    }
+
+    /**
+     * Check if attachment is embedded/inline.
+     */
+    protected function isEmbeddedAttachment(
+        \Webklex\PHPIMAP\Attachment $attachment,
+        ?string $contentId,
+        string $body
+    ): bool {
+        $disposition = '';
+        if (property_exists($attachment, 'disposition') && is_string($attachment->disposition)) {
+            $disposition = strtolower($attachment->disposition);
+        }
+
+        if ($contentId && strpos($body, 'cid:'.$contentId) !== false) {
+            return true;
+        }
+
+        return $disposition === 'inline';
+    }
+
+    /**
+     * Replace CID references in body with attachment URLs.
+     */
+    protected function replaceCidReferences(
+        array $savedAttachments,
+        Conversation $conversation,
+        Thread $thread,
+        string &$body
+    ): void {
+        $bodyUpdated = false;
+
+        foreach ($savedAttachments as $attachmentData) {
+            if ($attachmentData['content_id'] && $attachmentData['is_embedded']) {
+                $cid = 'cid:'.$attachmentData['content_id'];
+                $url = url('storage/attachments/'.$conversation->id.'/'.basename($attachmentData['model']->file_name));
+
+                if (strpos($body, $cid) !== false) {
+                    $body = str_replace($cid, $url, $body);
+                    $bodyUpdated = true;
+
+                    Log::debug('Replaced CID reference', [
+                        'cid' => $cid,
+                        'url' => $url,
+                    ]);
+                }
+            }
+        }
+
+        if ($bodyUpdated) {
+            $thread->body = $body;
+            $thread->save();
+        }
+    }
+
+    /**
      * Process an email message.
      */
     protected function processMessage(Mailbox $mailbox, \Webklex\PHPIMAP\Message $message): void
@@ -248,95 +511,11 @@ class ImapService
         DB::beginTransaction();
 
         try {
-            // Get or create customer
-            $from = $message->getFrom();
-
-            // Convert to array if it's an Attribute object
-            // Note: The IMAP library returns Attribute objects that can be converted to arrays
-            if (is_object($from)) {
-                // Try toArray first, then get, catching any exceptions
-                try {
-                    if (method_exists($from, 'toArray')) {
-                        $from = $from->toArray();
-                    } elseif (method_exists($from, 'get')) {
-                        $from = $from->get();
-                    } else {
-                        // Try calling get() anyway for mocked objects that don't report method_exists
-                        $from = $from->get();
-                    }
-                } catch (\Throwable $e) {
-                    // If conversion fails, try to use as-is if it's traversable
-                    if (! is_array($from) && ! ($from instanceof \Traversable)) {
-                        $from = [];
-                    }
-                }
-            }
-
-            if (! is_array($from) || empty($from)) {
-                throw new \Exception('No sender found in message');
-            }
-
-            // Get first sender - it's an Address object
-            $fromAddress = reset($from);
-
-            // The Address object can be accessed as a string or has properties
-            if (is_object($fromAddress)) {
-                // Try to access object properties (IMAP extension Address objects)
-                // @phpstan-ignore-next-line - IMAP extension Address object properties
-                try {
-                    $fromEmail = $fromAddress->mail;
-                    // Check if it's actually a string value (not a mock object or null)
-                    if (! is_string($fromEmail) || $fromEmail === '') {
-                        $fromEmail = null;
-                    }
-                } catch (\Throwable $e) {
-                    $fromEmail = null;
-                }
-                
-                // @phpstan-ignore-next-line - IMAP extension Address object properties
-                try {
-                    $fromName = $fromAddress->personal ?? '';
-                    if (is_object($fromName)) {
-                        $fromName = '';
-                    }
-                } catch (\Throwable $e) {
-                    $fromName = '';
-                }
-
-                // If mail is not a property, try as array access or string parsing
-                // Only attempt string conversion if the object has a __toString method
-                if (! $fromEmail && method_exists($fromAddress, '__toString')) {
-                    // @phpstan-ignore-next-line - IMAP extension Address object cast
-                    $addressString = (string) $fromAddress;
-                    // Parse "Name <email@example.com>" format
-                    if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
-                        $fromEmail = $matches[1];
-                        $fromName = trim(str_replace('<'.$fromEmail.'>', '', $addressString));
-                    } else {
-                        $fromEmail = $addressString;
-                    }
-                }
-            } elseif (is_array($fromAddress)) {
-                $fromEmail = $fromAddress['mail'] ?? $fromAddress['email'] ?? null;
-                $fromName = $fromAddress['personal'] ?? $fromAddress['name'] ?? '';
-            } else {
-                // It's a string
-                $fromEmail = $fromAddress;
-                $fromName = '';
-            }
-
-            if (! $fromEmail) {
-                throw new \Exception('No sender email found in message');
-            }
-
-            Log::debug('Processing message from', [
-                'from_email' => $fromEmail,
-                'from_name' => $fromName,
-            ]);
-
-            // Check if sender is an internal user
-            /** @var \App\Models\User|null $senderUser */
-            $senderUser = \App\Models\User::where('email', $fromEmail)->first();
+            // Extract sender information from message
+            $senderInfo = $this->extractSenderInfo($message);
+            $fromEmail = $senderInfo['email'];
+            $fromName = $senderInfo['name'];
+            $senderUser = $senderInfo['user'];
 
             if ($senderUser) {
                 Log::debug('Sender is an internal user', [
@@ -622,127 +801,8 @@ class ImapService
             // Track if this is a new conversation or reply
             $isNewConversation = $thread->first;
 
-            // Handle attachments with inline image support
-            $savedAttachments = [];
-            $hasNonEmbeddedAttachments = false;
-
-            if ($message->hasAttachments()) {
-                $attachments = $message->getAttachments();
-
-                Log::debug('Processing attachments', [
-                    'count' => count($attachments),
-                ]);
-
-                foreach ($attachments as $attachment) {
-                    try {
-                        /** @var \Webklex\PHPIMAP\Attachment $attachment */
-                        $filename = $attachment->getName();
-                        $content = $attachment->getContent();
-                        $contentId = $attachment->getId();
-
-                        if (empty($filename)) {
-                            Log::warning('Attachment has no filename, skipping');
-                            continue;
-                        }
-
-                        // Store attachment
-                        $path = storage_path('app/attachments/'.$conversation->id);
-                        if (! file_exists($path)) {
-                            mkdir($path, 0755, true);
-                        }
-
-                        $uniqueFilename = uniqid().'_'.$filename;
-                        $filepath = $path.'/'.$uniqueFilename;
-                        file_put_contents($filepath, $content);
-
-                        // Check if this is an embedded/inline image
-                        $isEmbedded = false;
-                        $disposition = '';
-
-                        if (property_exists($attachment, 'disposition') && is_string($attachment->disposition)) {
-                            $disposition = strtolower($attachment->disposition);
-                        }
-
-                        // Check if attachment has CID and appears in body
-                        if ($contentId && strpos($body, 'cid:'.$contentId) !== false) {
-                            $isEmbedded = true;
-                        } elseif ($disposition === 'inline') {
-                            $isEmbedded = true;
-                        }
-
-                        $attachmentModel = \App\Models\Attachment::create([
-                            'thread_id' => $thread->id,
-                            'conversation_id' => $conversation->id,
-                            'file_name' => $uniqueFilename,
-                            'file_dir' => 'attachments/'.$conversation->id,
-                            'file_size' => strlen($content),
-                            'mime_type' => $attachment->getContentType(),
-                            'embedded' => $isEmbedded,
-                        ]);
-
-                        $savedAttachments[] = [
-                            'model' => $attachmentModel,
-                            'content_id' => $contentId,
-                            'is_embedded' => $isEmbedded,
-                        ];
-
-                        if (! $isEmbedded) {
-                            $hasNonEmbeddedAttachments = true;
-                        }
-
-                        Log::debug('Saved attachment', [
-                            'filename' => $filename,
-                            'size' => strlen($content),
-                            'embedded' => $isEmbedded,
-                            'content_id' => $contentId,
-                        ]);
-                    } catch (\Exception $e) {
-                        Log::error('Failed to save attachment', [
-                            'error' => $e->getMessage(),
-                            'filename' => $filename ?? 'unknown',
-                        ]);
-                        // Continue processing other attachments
-                    }
-                }
-
-                // Replace CID references in body with attachment URLs
-                $bodyUpdated = false;
-                foreach ($savedAttachments as $attachmentData) {
-                    if ($attachmentData['content_id'] && $attachmentData['is_embedded']) {
-                        $cid = 'cid:'.$attachmentData['content_id'];
-                        $url = url('storage/attachments/'.$conversation->id.'/'.basename($attachmentData['model']->file_name));
-
-                        if (strpos($body, $cid) !== false) {
-                            $body = str_replace($cid, $url, $body);
-                            $bodyUpdated = true;
-
-                            Log::debug('Replaced CID reference', [
-                                'cid' => $cid,
-                                'url' => $url,
-                            ]);
-                        }
-                    }
-                }
-
-                // Update thread body if CID references were replaced
-                if ($bodyUpdated) {
-                    $thread->body = $body;
-                    $thread->save();
-                }
-
-                // Update conversation has_attachments flag
-                if ($hasNonEmbeddedAttachments) {
-                    $conversation->has_attachments = true;
-                    $conversation->save();
-                }
-
-                Log::info('Processed attachments', [
-                    'total' => count($attachments),
-                    'saved' => count($savedAttachments),
-                    'embedded' => count(array_filter($savedAttachments, fn ($a) => $a['is_embedded'])),
-                    'regular' => count(array_filter($savedAttachments, fn ($a) => ! $a['is_embedded'])),
-                ]);
-            }
+            // Process attachments
+            $this->processAttachments($message, $thread, $conversation, $body);
 
             // Update conversation
             $conversation->update([
