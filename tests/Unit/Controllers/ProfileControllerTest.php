@@ -109,4 +109,133 @@ class ProfileControllerTest extends UnitTestCase
         $this->assertGuest();
         $this->assertDatabaseMissing('users', ['id' => $user->id]);
     }
+
+    // updatePassword() tests - 50% coverage
+
+    public function test_update_password_changes_user_password(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('oldpassword123'),
+        ]);
+        $this->actingAs($user);
+
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'oldpassword123',
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertSessionHas('status', 'password-updated');
+        $user->refresh();
+        
+        // Verify password was changed
+        $this->assertTrue(
+            \Illuminate\Support\Facades\Hash::check('newpassword123', $user->password)
+        );
+    }
+
+    public function test_update_password_requires_current_password(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $response = $this->put(route('password.update'), [
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertSessionHasErrors('current_password');
+    }
+
+    public function test_update_password_validates_current_password_correct(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('correctpassword'),
+        ]);
+        $this->actingAs($user);
+
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'wrongpassword',
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertSessionHasErrors('current_password');
+    }
+
+    public function test_update_password_requires_password_confirmation(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('oldpassword123'),
+        ]);
+        $this->actingAs($user);
+
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'oldpassword123',
+            'password' => 'newpassword123',
+            // Missing password_confirmation
+        ]);
+
+        $response->assertSessionHasErrors('password');
+    }
+
+    public function test_update_password_validates_password_matches_confirmation(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('oldpassword123'),
+        ]);
+        $this->actingAs($user);
+
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'oldpassword123',
+            'password' => 'newpassword123',
+            'password_confirmation' => 'differentpassword',
+        ]);
+
+        $response->assertSessionHasErrors('password');
+    }
+
+    public function test_update_password_validates_minimum_length(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('oldpassword123'),
+        ]);
+        $this->actingAs($user);
+
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'oldpassword123',
+            'password' => 'short',
+            'password_confirmation' => 'short',
+        ]);
+
+        $response->assertSessionHasErrors('password');
+    }
+
+    public function test_update_password_requires_authentication(): void
+    {
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'oldpassword123',
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertRedirect(route('login'));
+    }
+
+    public function test_update_password_redirects_back_with_status(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('oldpassword123'),
+        ]);
+        $this->actingAs($user);
+
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'oldpassword123',
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('status', 'password-updated');
+    }
 }
