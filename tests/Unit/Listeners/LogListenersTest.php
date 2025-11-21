@@ -17,13 +17,11 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Http\Request;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class LogListenersTest extends UnitTestCase
 {
-
-    // LogLockout Tests
+    // ===== LogLockout Tests =====
 
     public function test_log_lockout_can_be_instantiated(): void
     {
@@ -41,31 +39,40 @@ class LogListenersTest extends UnitTestCase
 
     public function test_log_lockout_handles_lockout_event(): void
     {
+        ActivityLog::truncate();
+        
         $request = Request::create('/login', 'POST', ['email' => 'test@example.com']);
         $request->server->set('REMOTE_ADDR', '127.0.0.1');
         
         $event = new Lockout($request);
         $listener = new LogLockout();
 
-        // Should not throw exception
         $listener->handle($event);
-        $this->assertTrue(true);
+        
+        $this->assertDatabaseHas('activity_log', [
+            'log_name' => ActivityLog::NAME_USER,
+            'description' => ActivityLog::DESCRIPTION_USER_LOCKED,
+        ]);
     }
 
     public function test_log_lockout_extracts_email_from_request(): void
     {
+        ActivityLog::truncate();
+        
         $request = Request::create('/login', 'POST', ['email' => 'locked@example.com']);
         $event = new Lockout($request);
         $listener = new LogLockout();
 
         $listener->handle($event);
         
-        // Activity log should be created with email
-        $this->assertTrue(true);
+        $log = ActivityLog::where('log_name', ActivityLog::NAME_USER)->first();
+        $this->assertEquals('locked@example.com', $log->properties['email']);
     }
 
     public function test_log_lockout_captures_ip_address(): void
     {
+        ActivityLog::truncate();
+        
         $request = Request::create('/login', 'POST', ['email' => 'test@example.com']);
         $request->server->set('REMOTE_ADDR', '192.168.1.1');
         
@@ -74,11 +81,12 @@ class LogListenersTest extends UnitTestCase
 
         $listener->handle($event);
         
-        // Should capture IP address
-        $this->assertTrue(true);
+        $log = ActivityLog::where('log_name', ActivityLog::NAME_USER)->first();
+        // The listener uses request()->ip() which defaults to 127.0.0.1 in tests
+        $this->assertNotEmpty($log->properties['ip']);
     }
 
-    // LogUserDeletion Tests
+    // ===== LogUserDeletion Tests =====
 
     public function test_log_user_deletion_can_be_instantiated(): void
     {
@@ -96,19 +104,27 @@ class LogListenersTest extends UnitTestCase
 
     public function test_log_user_deletion_handles_user_deleted_event(): void
     {
+        ActivityLog::truncate();
+        
         $deletedUser = User::factory()->create(['first_name' => 'Deleted', 'last_name' => 'User']);
         $byUser = User::factory()->create(['first_name' => 'Admin', 'last_name' => 'User']);
 
         $event = new UserDeleted($deletedUser, $byUser);
         $listener = new LogUserDeletion();
 
-        // Should not throw exception
         $listener->handle($event);
-        $this->assertTrue(true);
+        
+        $this->assertDatabaseHas('activity_log', [
+            'log_name' => ActivityLog::NAME_USER,
+            'description' => ActivityLog::DESCRIPTION_USER_DELETED,
+            'causer_id' => $byUser->id,
+        ]);
     }
 
     public function test_log_user_deletion_logs_deleted_user_name(): void
     {
+        ActivityLog::truncate();
+        
         $deletedUser = User::factory()->create([
             'first_name' => 'John',
             'last_name' => 'Doe',
@@ -120,12 +136,14 @@ class LogListenersTest extends UnitTestCase
 
         $listener->handle($event);
         
-        // Should log full name of deleted user
-        $this->assertEquals('John Doe', $deletedUser->getFullName());
+        $log = ActivityLog::where('log_name', ActivityLog::NAME_USER)->first();
+        $this->assertStringContainsString('John Doe', $log->properties['deleted_user']);
     }
 
     public function test_log_user_deletion_logs_deleted_user_id(): void
     {
+        ActivityLog::truncate();
+        
         $deletedUser = User::factory()->create();
         $byUser = User::factory()->create();
 
@@ -134,12 +152,14 @@ class LogListenersTest extends UnitTestCase
 
         $listener->handle($event);
         
-        // Should include user ID
-        $this->assertNotNull($deletedUser->id);
+        $log = ActivityLog::where('log_name', ActivityLog::NAME_USER)->first();
+        $this->assertStringContainsString('[' . $deletedUser->id . ']', $log->properties['deleted_user']);
     }
 
     public function test_log_user_deletion_logs_caused_by_user(): void
     {
+        ActivityLog::truncate();
+        
         $deletedUser = User::factory()->create();
         $byUser = User::factory()->create(['email' => 'admin@example.com']);
 
@@ -148,12 +168,14 @@ class LogListenersTest extends UnitTestCase
 
         $listener->handle($event);
         
-        // Should log the user who performed deletion
-        $this->assertEquals('admin@example.com', $byUser->email);
+        $log = ActivityLog::where('log_name', ActivityLog::NAME_USER)->first();
+        $this->assertEquals($byUser->id, $log->causer_id);
     }
 
     public function test_log_lockout_works_with_different_emails(): void
     {
+        ActivityLog::truncate();
+        
         $emails = ['test1@example.com', 'test2@example.com', 'admin@example.com'];
         $listener = new LogLockout();
 
@@ -164,11 +186,13 @@ class LogListenersTest extends UnitTestCase
             $listener->handle($event);
         }
 
-        $this->assertTrue(true);
+        $this->assertCount(3, ActivityLog::where('log_name', ActivityLog::NAME_USER)->get());
     }
 
     public function test_log_user_deletion_works_with_multiple_deletions(): void
     {
+        ActivityLog::truncate();
+        
         $byUser = User::factory()->create();
         $listener = new LogUserDeletion();
 
@@ -179,41 +203,20 @@ class LogListenersTest extends UnitTestCase
             $listener->handle($event);
         }
 
-        $this->assertTrue(true);
+        $this->assertCount(3, ActivityLog::where('log_name', ActivityLog::NAME_USER)->get());
     }
 
-    public function test_listeners_can_handle_events_without_errors(): void
-    {
-        $lockoutListener = new LogLockout();
-        $deletionListener = new LogUserDeletion();
-
-        $request = Request::create('/login', 'POST', ['email' => 'test@example.com']);
-        $lockoutEvent = new Lockout($request);
-
-        $deletedUser = User::factory()->create();
-        $byUser = User::factory()->create();
-        $deletionEvent = new UserDeleted($deletedUser, $byUser);
-
-        // Both should handle without errors
-        $lockoutListener->handle($lockoutEvent);
-        $deletionListener->handle($deletionEvent);
-
-        $this->assertTrue(true);
-    }
-
-    // ===== LOGFAILEDLOGIN TESTS (Merged from LogFailedLoginListenerTest.php) =====
+    // ===== LogFailedLogin Tests =====
 
     public function test_log_failed_login_listener_logs_failed_login(): void
     {
+        ActivityLog::truncate();
+        
         $request = Request::create('/login', 'POST', ['email' => 'test@example.com']);
         $event = new Failed('web', null, ['email' => 'test@example.com']);
-        $listener = new LogFailedLogin;
+        $listener = new LogFailedLogin();
 
-        // Set the request
         app()->instance('request', $request);
-
-        // Clear any existing activity logs
-        ActivityLog::truncate();
 
         $listener->handle($event);
 
@@ -225,20 +228,19 @@ class LogListenersTest extends UnitTestCase
 
     public function test_log_failed_login_listener_has_handle_method(): void
     {
-        $listener = new LogFailedLogin;
+        $listener = new LogFailedLogin();
         $this->assertTrue(method_exists($listener, 'handle'));
     }
 
-    // ===== LOGSUCCESSFULLOGIN TESTS (Merged from LogSuccessfulLoginListenerTest.php) =====
+    // ===== LogSuccessfulLogin Tests =====
 
     public function test_log_successful_login_listener_logs_successful_login(): void
     {
+        ActivityLog::truncate();
+        
         $user = User::factory()->create();
         $event = new Login('web', $user, false);
-        $listener = new LogSuccessfulLogin;
-
-        // Clear any existing activity logs
-        ActivityLog::truncate();
+        $listener = new LogSuccessfulLogin();
 
         $listener->handle($event);
 
@@ -252,20 +254,19 @@ class LogListenersTest extends UnitTestCase
 
     public function test_log_successful_login_listener_has_handle_method(): void
     {
-        $listener = new LogSuccessfulLogin;
+        $listener = new LogSuccessfulLogin();
         $this->assertTrue(method_exists($listener, 'handle'));
     }
 
-    // ===== LOGSUCCESSFULLOGOUT TESTS (Merged from LogSuccessfulLogoutListenerTest.php) =====
+    // ===== LogSuccessfulLogout Tests =====
 
     public function test_log_successful_logout_listener_logs_successful_logout(): void
     {
+        ActivityLog::truncate();
+        
         $user = User::factory()->create();
         $event = new Logout('web', $user);
-        $listener = new LogSuccessfulLogout;
-
-        // Clear any existing activity logs
-        ActivityLog::truncate();
+        $listener = new LogSuccessfulLogout();
 
         $listener->handle($event);
 
@@ -279,30 +280,7 @@ class LogListenersTest extends UnitTestCase
 
     public function test_log_successful_logout_listener_has_handle_method(): void
     {
-        $listener = new LogSuccessfulLogout;
+        $listener = new LogSuccessfulLogout();
         $this->assertTrue(method_exists($listener, 'handle'));
-    }
-
-    // ===== LOG GENERATION EDGE CASE TESTS (Merged from LogGenerationTest.php) =====
-
-    public function test_log_generation_risky_test(): void
-    {
-        $this->assertTrue(true);
-    }
-
-    public function test_log_generation_skipped_test(): void
-    {
-        $this->assertTrue(true);
-    }
-
-    public function test_log_generation_incomplete_test(): void
-    {
-        $this->assertTrue(true);
-    }
-
-    public function test_log_generation_warning_test(): void
-    {
-        trigger_error('This is a warning.', E_USER_WARNING);
-        $this->assertTrue(true);
     }
 }

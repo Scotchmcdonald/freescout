@@ -133,12 +133,13 @@ class ObserverCascadeTest extends UnitTestCase
         // Create fake file
         Storage::disk('public')->put('attachments/test.pdf', 'content');
         
+        $attachmentId = $attachment->id;
+        
         // Delete attachment
         $attachment->delete();
         
-        // File might or might not be deleted by observer
-        // This depends on observer implementation
-        $this->assertTrue(true);
+        // Verify attachment is removed from database
+        $this->assertDatabaseMissing('attachments', ['id' => $attachmentId]);
     }
 
     public function test_folder_type_update_does_not_trigger_loops(): void
@@ -172,7 +173,8 @@ class ObserverCascadeTest extends UnitTestCase
         }
         
         // Should complete without infinite recursion
-        $this->assertTrue(true);
+        $conversation->refresh();
+        $this->assertEquals(Conversation::STATUS_ACTIVE, $conversation->status);
     }
 
     public function test_mailbox_deletion_removes_all_conversations(): void

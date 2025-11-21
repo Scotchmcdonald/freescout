@@ -163,7 +163,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
         }
         
         // Cache should have been cleared (or attempted)
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_module_install_shows_error_for_non_existent_module(): void
@@ -197,9 +197,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -211,9 +211,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -234,9 +234,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -248,7 +248,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->assertInstanceOf(\Exception::class, $e);
         }
@@ -262,9 +262,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -276,9 +276,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -300,7 +300,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -316,10 +316,10 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             // Expected
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -331,9 +331,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -345,9 +345,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -365,7 +365,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -377,9 +377,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'testmodule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -401,7 +401,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
             
             $this->assertIsInt($exitCode);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -413,7 +413,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -424,9 +424,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => null
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -437,9 +437,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => ''
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -450,9 +450,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'test@#$%'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -463,9 +463,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => str_repeat('a', 256)
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -476,9 +476,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'モジュール'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -489,9 +489,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => '../../../etc/passwd'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -503,9 +503,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -517,9 +517,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -531,9 +531,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -545,9 +545,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -562,9 +562,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -575,9 +575,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -588,9 +588,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -601,9 +601,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -614,9 +614,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -627,9 +627,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -640,9 +640,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -653,9 +653,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -666,9 +666,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -679,9 +679,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -692,9 +692,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'FailModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -708,7 +708,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -722,7 +722,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -736,7 +736,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertStringContainsString('not found', strtolower($output));
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -747,9 +747,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 }

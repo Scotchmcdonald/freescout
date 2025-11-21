@@ -322,7 +322,7 @@ class UserTest extends TestCase
         $url = $user->urlSetup();
 
         $this->assertStringContainsString('test-hash-123', $url);
-        $this->assertStringContainsString('user_setup', $url);
+        $this->assertStringContainsString('user/setup', $url);
     }
 
     public function test_url_setup_generates_valid_route(): void

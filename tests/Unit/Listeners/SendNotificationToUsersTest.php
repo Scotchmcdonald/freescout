@@ -10,11 +10,14 @@ use App\Events\CustomerReplied;
 use App\Events\UserAddedNote;
 use App\Events\UserCreatedConversation;
 use App\Events\UserReplied;
+use App\Jobs\SendNotificationToUsers as SendNotificationToUsersJob;
 use App\Listeners\SendNotificationToUsers;
 use App\Models\Conversation;
 use App\Models\Customer;
+use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
+use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
@@ -23,29 +26,50 @@ class SendNotificationToUsersTest extends UnitTestCase
 
     public function test_listener_handles_user_replied_event(): void
     {
-        $user = User::factory()->create();
-        $conversation = Conversation::factory()->create(['status' => 1]);
+        Queue::fake();
+        
+        $assignedUser = User::factory()->create();
+        $replyingUser = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($assignedUser->id);
+        
+        $conversation = Conversation::factory()->create([
+            'status' => 1,
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $assignedUser->id,
+        ]);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
-            'created_by_user_id' => $user->id,
+            'created_by_user_id' => $replyingUser->id,
             'imported' => false,
         ]);
 
         $event = new UserReplied($conversation, $thread);
         $listener = new SendNotificationToUsers();
         
-        // Should not throw exception
         $listener->handle($event);
-        $this->assertTrue(true);
+        
+        // Verify job was dispatched when users should be notified
+        Queue::assertPushed(SendNotificationToUsersJob::class);
     }
 
     public function test_listener_handles_user_added_note_event(): void
     {
-        $user = User::factory()->create();
-        $conversation = Conversation::factory()->create(['status' => 1]);
+        Queue::fake();
+        
+        $assignedUser = User::factory()->create();
+        $noteUser = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($assignedUser->id);
+        
+        $conversation = Conversation::factory()->create([
+            'status' => 1,
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $assignedUser->id,
+        ]);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
-            'created_by_user_id' => $user->id,
+            'created_by_user_id' => $noteUser->id,
             'type' => Thread::TYPE_NOTE,
             'imported' => false,
         ]);
@@ -54,15 +78,24 @@ class SendNotificationToUsersTest extends UnitTestCase
         $listener = new SendNotificationToUsers();
         
         $listener->handle($event);
-        $this->assertTrue(true);
+        
+        Queue::assertPushed(SendNotificationToUsersJob::class);
     }
 
     public function test_listener_handles_user_created_conversation_event(): void
     {
-        $user = User::factory()->create();
+        Queue::fake();
+        
+        $assignedUser = User::factory()->create();
+        $creatorUser = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($assignedUser->id);
+        
         $conversation = Conversation::factory()->create([
             'status' => 1,
-            'created_by_user_id' => $user->id,
+            'created_by_user_id' => $creatorUser->id,
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $assignedUser->id,
         ]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
@@ -70,15 +103,24 @@ class SendNotificationToUsersTest extends UnitTestCase
         $listener = new SendNotificationToUsers();
         
         $listener->handle($event);
-        $this->assertTrue(true);
+        
+        Queue::assertPushed(SendNotificationToUsersJob::class);
     }
 
     public function test_listener_handles_customer_created_conversation_event(): void
     {
+        Queue::fake();
+        
+        $assignedUser = User::factory()->create();
         $customer = Customer::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($assignedUser->id);
+        
         $conversation = Conversation::factory()->create([
             'status' => 1, // Not spam
             'customer_id' => $customer->id,
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $assignedUser->id,
         ]);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
@@ -89,30 +131,49 @@ class SendNotificationToUsersTest extends UnitTestCase
         $listener = new SendNotificationToUsers();
         
         $listener->handle($event);
-        $this->assertTrue(true);
+        
+        Queue::assertPushed(SendNotificationToUsersJob::class);
     }
 
     public function test_listener_handles_conversation_user_changed_event(): void
     {
-        $user = User::factory()->create();
+        Queue::fake();
+        
+        $assignedUser = User::factory()->create();
+        $assigningUser = User::factory()->create(); // Different user who causes the assignment
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($assignedUser->id);
+        
         $conversation = Conversation::factory()->create([
             'status' => 1,
-            'user_id' => $user->id,
+            'user_id' => $assignedUser->id,
+            'mailbox_id' => $mailbox->id,
         ]);
 
-        $event = new ConversationUserChanged($conversation, $user);
+        // The assigningUser causes the change, assignedUser receives notification
+        $event = new ConversationUserChanged($conversation, $assigningUser);
         $listener = new SendNotificationToUsers();
         
         $listener->handle($event);
-        $this->assertTrue(true);
+        
+        // Assigned user should be notified when someone else assigns the conversation
+        Queue::assertPushed(SendNotificationToUsersJob::class);
     }
 
     public function test_listener_handles_customer_replied_event(): void
     {
+        Queue::fake();
+        
+        $assignedUser = User::factory()->create();
         $customer = Customer::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($assignedUser->id);
+        
         $conversation = Conversation::factory()->create([
             'status' => 1,
             'customer_id' => $customer->id,
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $assignedUser->id,
         ]);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
@@ -124,11 +185,14 @@ class SendNotificationToUsersTest extends UnitTestCase
         $listener = new SendNotificationToUsers();
         
         $listener->handle($event);
-        $this->assertTrue(true);
+        
+        Queue::assertPushed(SendNotificationToUsersJob::class);
     }
 
     public function test_listener_skips_spam_conversations_for_customer_events(): void
     {
+        Queue::fake();
+        
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
             'status' => 3, // STATUS_SPAM
@@ -142,13 +206,16 @@ class SendNotificationToUsersTest extends UnitTestCase
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
         $listener = new SendNotificationToUsers();
         
-        // Should handle gracefully without processing
         $listener->handle($event);
-        $this->assertTrue(true);
+        
+        // Should NOT dispatch job for spam conversations
+        Queue::assertNothingPushed();
     }
 
     public function test_listener_skips_imported_threads(): void
     {
+        Queue::fake();
+        
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create(['status' => 1]);
         $thread = Thread::factory()->create([
@@ -160,116 +227,62 @@ class SendNotificationToUsersTest extends UnitTestCase
         $event = new UserReplied($conversation, $thread);
         $listener = new SendNotificationToUsers();
         
-        // Should skip processing for imported threads
         $listener->handle($event);
-        $this->assertTrue(true);
+        
+        // Should NOT dispatch job for imported threads
+        Queue::assertNothingPushed();
     }
 
-    public function test_listener_detects_user_replied_event_type(): void
+    public function test_listener_handles_events_without_causing_exceptions(): void
     {
         $user = User::factory()->create();
-        $conversation = Conversation::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create(['status' => 1]);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'created_by_user_id' => $user->id,
-            'type' => Thread::TYPE_MESSAGE,
+            'imported' => false,
+        ]);
+
+        $listener = new SendNotificationToUsers();
+        
+        // All event types should execute without throwing exceptions
+        $listener->handle(new UserReplied($conversation, $thread));
+        $listener->handle(new UserAddedNote($conversation, $thread));
+        $listener->handle(new UserCreatedConversation($conversation, $thread));
+        $listener->handle(new CustomerCreatedConversation($conversation, $thread, $customer));
+        $listener->handle(new ConversationUserChanged($conversation, $user));
+        $listener->handle(new CustomerReplied($conversation, $thread, $customer));
+        
+        // If we got here, no exceptions were thrown
+        $this->expectNotToPerformAssertions();
+    }
+
+    public function test_listener_excludes_caused_by_user_from_notifications(): void
+    {
+        Queue::fake();
+        
+        $replyingUser = User::factory()->create();
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($replyingUser->id);
+        
+        $conversation = Conversation::factory()->create([
+            'status' => 1,
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $replyingUser->id, // Assigned to the same user who replies
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'created_by_user_id' => $replyingUser->id,
+            'imported' => false,
         ]);
 
         $event = new UserReplied($conversation, $thread);
         $listener = new SendNotificationToUsers();
         
-        // Should detect event type 5 (EVENT_TYPE_USER_REPLIED)
         $listener->handle($event);
-        $this->assertInstanceOf(UserReplied::class, $event);
-    }
-
-    public function test_listener_detects_customer_replied_event_type(): void
-    {
-        $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create(['status' => 1]);
-        $thread = Thread::factory()->create([
-            'conversation_id' => $conversation->id,
-            'type' => Thread::TYPE_CUSTOMER,
-        ]);
-
-        $event = new CustomerReplied($conversation, $thread, $customer);
-        $listener = new SendNotificationToUsers();
         
-        // Should detect event type 4 (EVENT_TYPE_CUSTOMER_REPLIED)
-        $listener->handle($event);
-        $this->assertInstanceOf(CustomerReplied::class, $event);
-    }
-
-    public function test_listener_detects_assigned_event_type(): void
-    {
-        $user = User::factory()->create();
-        $conversation = Conversation::factory()->create([
-            'status' => 1,
-            'user_id' => $user->id,
-        ]);
-
-        $event = new ConversationUserChanged($conversation, $user);
-        $listener = new SendNotificationToUsers();
-        
-        // Should detect event type 2 (EVENT_TYPE_ASSIGNED)
-        $listener->handle($event);
-        $this->assertInstanceOf(ConversationUserChanged::class, $event);
-    }
-
-    public function test_listener_detects_note_added_event_type(): void
-    {
-        $user = User::factory()->create();
-        $conversation = Conversation::factory()->create();
-        $thread = Thread::factory()->create([
-            'conversation_id' => $conversation->id,
-            'created_by_user_id' => $user->id,
-            'type' => Thread::TYPE_NOTE,
-        ]);
-
-        $event = new UserAddedNote($conversation, $thread);
-        $listener = new SendNotificationToUsers();
-        
-        // Should detect event type 6 (EVENT_TYPE_USER_ADDED_NOTE)
-        $listener->handle($event);
-        $this->assertInstanceOf(UserAddedNote::class, $event);
-    }
-
-    public function test_listener_handles_multiple_event_types(): void
-    {
-        $user = User::factory()->create();
-        $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create(['status' => 1]);
-        $thread = Thread::factory()->create([
-            'conversation_id' => $conversation->id,
-            'created_by_user_id' => $user->id,
-        ]);
-
-        $listener = new SendNotificationToUsers();
-        $customer = Customer::factory()->create();
-        
-        // Test multiple event types
-        $listener->handle(new UserReplied($conversation, $thread));
-        $listener->handle(new UserAddedNote($conversation, $thread));
-        $listener->handle(new CustomerReplied($conversation, $thread, $customer));
-        $listener->handle(new ConversationUserChanged($conversation, $user));
-        
-        $this->assertTrue(true);
-    }
-
-    public function test_listener_handles_events_without_thread(): void
-    {
-        $user = User::factory()->create();
-        $conversation = Conversation::factory()->create([
-            'status' => 1,
-            'created_by_user_id' => $user->id,
-        ]);
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
-
-        $event = new UserCreatedConversation($conversation, $thread);
-        $listener = new SendNotificationToUsers();
-        
-        // Should handle events with thread
-        $listener->handle($event);
-        $this->assertTrue(true);
+        // Should not notify user when they caused the event
+        Queue::assertNothingPushed();
     }
 }

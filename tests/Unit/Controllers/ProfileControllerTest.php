@@ -139,12 +139,12 @@ class ProfileControllerTest extends UnitTestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        $response = $this->put(route('password.update'), [
+        $response = $this->put(route('profile.password'), [
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
         ]);
 
-        $response->assertSessionHasErrors('current_password');
+        $response->assertSessionHasErrorsIn('updatePassword', 'current_password');
     }
 
     public function test_update_password_validates_current_password_correct(): void
@@ -154,13 +154,13 @@ class ProfileControllerTest extends UnitTestCase
         ]);
         $this->actingAs($user);
 
-        $response = $this->put(route('password.update'), [
+        $response = $this->put(route('profile.password'), [
             'current_password' => 'wrongpassword',
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
         ]);
 
-        $response->assertSessionHasErrors('current_password');
+        $response->assertSessionHasErrorsIn('updatePassword', 'current_password');
     }
 
     public function test_update_password_requires_password_confirmation(): void
@@ -170,13 +170,13 @@ class ProfileControllerTest extends UnitTestCase
         ]);
         $this->actingAs($user);
 
-        $response = $this->put(route('password.update'), [
+        $response = $this->put(route('profile.password'), [
             'current_password' => 'oldpassword123',
             'password' => 'newpassword123',
             // Missing password_confirmation
         ]);
 
-        $response->assertSessionHasErrors('password');
+        $response->assertSessionHasErrorsIn('updatePassword', 'password');
     }
 
     public function test_update_password_validates_password_matches_confirmation(): void
@@ -186,13 +186,13 @@ class ProfileControllerTest extends UnitTestCase
         ]);
         $this->actingAs($user);
 
-        $response = $this->put(route('password.update'), [
+        $response = $this->put(route('profile.password'), [
             'current_password' => 'oldpassword123',
             'password' => 'newpassword123',
             'password_confirmation' => 'differentpassword',
         ]);
 
-        $response->assertSessionHasErrors('password');
+        $response->assertSessionHasErrorsIn('updatePassword', 'password');
     }
 
     public function test_update_password_validates_minimum_length(): void
@@ -202,18 +202,18 @@ class ProfileControllerTest extends UnitTestCase
         ]);
         $this->actingAs($user);
 
-        $response = $this->put(route('password.update'), [
+        $response = $this->put(route('profile.password'), [
             'current_password' => 'oldpassword123',
             'password' => 'short',
             'password_confirmation' => 'short',
         ]);
 
-        $response->assertSessionHasErrors('password');
+        $response->assertSessionHasErrorsIn('updatePassword', 'password');
     }
 
     public function test_update_password_requires_authentication(): void
     {
-        $response = $this->put(route('password.update'), [
+        $response = $this->put(route('profile.password'), [
             'current_password' => 'oldpassword123',
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
@@ -248,13 +248,13 @@ class ProfileControllerTest extends UnitTestCase
         ]);
         $this->actingAs($user);
 
-        $response = $this->put(route('password.update'), [
+        $response = $this->put(route('profile.password'), [
             'current_password' => 'oldpassword123',
             'password' => '',
             'password_confirmation' => '',
         ]);
 
-        $response->assertSessionHasErrors('password');
+        $response->assertSessionHasErrorsIn('updatePassword', 'password');
     }
 
     public function test_update_password_handles_special_characters(): void
@@ -328,13 +328,13 @@ class ProfileControllerTest extends UnitTestCase
         $this->actingAs($user);
 
         // Try with wrong case
-        $response = $this->put(route('password.update'), [
+        $response = $this->put(route('profile.password'), [
             'current_password' => 'password123', // lowercase
             'password' => 'newpassword123',
             'password_confirmation' => 'newpassword123',
         ]);
 
-        $response->assertSessionHasErrors('current_password');
+        $response->assertSessionHasErrorsIn('updatePassword', 'current_password');
     }
 
     public function test_update_password_with_whitespace(): void

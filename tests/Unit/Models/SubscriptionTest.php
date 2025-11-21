@@ -44,7 +44,12 @@ class SubscriptionTest extends UnitTestCase
 
     public function test_subscription_uses_has_factory_trait(): void
     {
-        $subscription = Subscription::factory()->create();
+        // Use withoutEvents to prevent UserObserver from creating default subscriptions
+        $user = User::withoutEvents(function () {
+            return User::factory()->create();
+        });
+        
+        $subscription = Subscription::factory()->create(['user_id' => $user->id]);
         
         $this->assertInstanceOf(Subscription::class, $subscription);
     }

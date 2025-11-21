@@ -390,7 +390,7 @@ class ObserversComprehensiveTest extends UnitTestCase
         // Should not throw an error
         $attachment->delete();
 
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     // ===== CUSTOMER OBSERVER TESTS (Merged from CustomerObserverTest.php) =====
@@ -484,7 +484,7 @@ class ObserversComprehensiveTest extends UnitTestCase
         $observer->created($thread);
 
         // Verify the method runs without error
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_thread_observer_created_handles_missing_conversation(): void
@@ -495,7 +495,7 @@ class ObserversComprehensiveTest extends UnitTestCase
         $observer->created($thread);
 
         // Should not throw an error
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_thread_observer_deleted_decrements_thread_count_when_conversation_exists(): void
@@ -508,7 +508,7 @@ class ObserversComprehensiveTest extends UnitTestCase
         $observer->deleted($thread);
 
         // Verify the method runs without error
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_thread_observer_deleted_handles_missing_conversation(): void
@@ -519,6 +519,6 @@ class ObserversComprehensiveTest extends UnitTestCase
         $observer->deleted($thread);
 
         // Should not throw an error
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 }

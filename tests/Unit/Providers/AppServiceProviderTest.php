@@ -25,7 +25,7 @@ class AppServiceProviderTest extends TestCase
         // Should not throw an exception
         $provider->register();
 
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_boot_method_executes_without_error(): void
@@ -36,7 +36,7 @@ class AppServiceProviderTest extends TestCase
         // Should not throw an exception
         $provider->boot();
 
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_service_provider_is_loaded_or_deferred(): void

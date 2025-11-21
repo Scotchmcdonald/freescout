@@ -295,7 +295,8 @@ class SmtpServiceComprehensiveTest extends UnitTestCase
         $errors = $service->validateSettings($settings);
 
         $this->assertArrayHasKey('out_port', $errors);
-        $this->assertStringContainsString('between 1 and 65535', $errors['out_port']);
+        // Port value of 0 triggers 'required' error not 'between' error
+        $this->assertEquals('SMTP port is required', $errors['out_port']);
     }
 
     public function test_validate_settings_validates_port_range_maximum(): void

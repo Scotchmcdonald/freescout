@@ -390,9 +390,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -415,7 +415,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -429,9 +429,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -445,9 +445,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -461,9 +461,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -475,9 +475,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -489,9 +489,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -513,9 +513,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -527,9 +527,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -543,7 +543,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             
             $this->assertTrue(function_exists('date'));
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -555,9 +555,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -571,7 +571,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             
             $this->assertTrue(function_exists('unlink'));
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -583,9 +583,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -599,7 +599,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             
             $this->assertTrue(class_exists(\Illuminate\Support\Facades\File::class));
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -611,9 +611,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -627,7 +627,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             
             $this->assertTrue(function_exists('symlink'));
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -639,9 +639,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -656,7 +656,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -671,7 +671,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -683,9 +683,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -697,9 +697,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -711,9 +711,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -727,7 +727,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             
             $this->assertTrue(function_exists('public_path'));
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -739,9 +739,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -751,9 +751,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -766,7 +766,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -776,9 +776,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -788,9 +788,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -802,9 +802,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -816,9 +816,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 'module_alias' => 'TestModule'
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -828,9 +828,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -840,9 +840,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -854,7 +854,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             
             $this->assertTrue(function_exists('version_compare'));
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -864,9 +864,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -879,7 +879,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -889,9 +889,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -904,7 +904,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -917,7 +917,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -927,9 +927,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -942,7 +942,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -954,7 +954,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             
             $this->assertTrue(function_exists('trim'));
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -964,9 +964,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -976,9 +976,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -988,9 +988,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1000,9 +1000,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1012,9 +1012,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1026,7 +1026,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             
             $this->assertTrue(class_exists(\GuzzleHttp\Client::class));
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -1036,9 +1036,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1048,9 +1048,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1060,9 +1060,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1072,9 +1072,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1084,9 +1084,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1096,9 +1096,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1108,9 +1108,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1125,7 +1125,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertStringContainsString('not found', strtolower($output));
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -1138,7 +1138,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -1148,9 +1148,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-update');
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1166,7 +1166,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             
             $this->assertTrue(function_exists('ini_set'));
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -1178,9 +1178,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 '--force' => true
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1194,7 +1194,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             
             $this->assertContains($exitCode, [0, 1]);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -1209,10 +1209,10 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             if ($exitCode === 0) {
                 $this->assertEquals(0, $exitCode);
             } else {
-                $this->assertTrue(true);
+                $this->expectNotToPerformAssertions();
             }
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -1224,9 +1224,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 '--force' => true
             ]);
             
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            ->expectNotToPerformAssertions();
         }
     }
 
@@ -1240,7 +1240,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             
             $this->assertIsInt($exitCode);
         } catch (\Exception $e) {
-            $this->assertTrue(true);
+            $this->expectNotToPerformAssertions();
         }
     }
 
@@ -1276,7 +1276,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 $this->assertIsInt($exitCode);
             } catch (\Exception $e) {
                 // Expected for some commands
-                $this->assertTrue(true);
+                $this->expectNotToPerformAssertions();
             }
         }
     }
