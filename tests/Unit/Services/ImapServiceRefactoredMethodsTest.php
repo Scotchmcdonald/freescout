@@ -356,6 +356,252 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     }
 
     // ========================================================================
+    // Tests for 0% Coverage Methods
+    // ========================================================================
+
+    public function test_get_folders_returns_success_with_folders(): void
+    {
+        $mockFolder = Mockery::mock();
+        $mockFolder->full_name = 'INBOX';
+
+        $mockClient = Mockery::mock();
+        $mockClient->shouldReceive('connect')->once();
+        $mockClient->shouldReceive('getFolders')->andReturn([$mockFolder]);
+        $mockClient->shouldReceive('disconnect')->once();
+
+        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service->shouldReceive('createClient')->andReturn($mockClient);
+
+        $mailbox = Mailbox::factory()->make([
+            'in_server' => 'imap.test.com',
+            'in_port' => 993,
+        ]);
+
+        $result = $service->getFolders($mailbox);
+
+        $this->assertTrue($result['success']);
+        $this->assertCount(1, $result['folders']);
+        $this->assertEquals('INBOX', $result['folders'][0]);
+    }
+
+    public function test_get_folders_returns_success_with_no_folders(): void
+    {
+        $mockClient = Mockery::mock();
+        $mockClient->shouldReceive('connect')->once();
+        $mockClient->shouldReceive('getFolders')->andReturn([]);
+        $mockClient->shouldReceive('disconnect')->once();
+
+        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service->shouldReceive('createClient')->andReturn($mockClient);
+
+        $mailbox = Mailbox::factory()->make([
+            'in_server' => 'imap.test.com',
+            'in_port' => 993,
+        ]);
+
+        $result = $service->getFolders($mailbox);
+
+        $this->assertTrue($result['success']);
+        $this->assertEquals('Connected, but no folders found', $result['message']);
+        $this->assertEmpty($result['folders']);
+    }
+
+    public function test_get_folders_handles_connection_failure(): void
+    {
+        $mockClient = Mockery::mock();
+        $mockClient->shouldReceive('connect')
+            ->andThrow(new \Webklex\PHPIMAP\Exceptions\ConnectionFailedException('Connection failed'));
+
+        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service->shouldReceive('createClient')->andReturn($mockClient);
+
+        $mailbox = Mailbox::factory()->make([
+            'in_server' => 'imap.test.com',
+            'in_port' => 993,
+        ]);
+
+        $result = $service->getFolders($mailbox);
+
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('Connection failed', $result['message']);
+    }
+
+    public function test_get_folders_handles_general_exception(): void
+    {
+        $mockClient = Mockery::mock();
+        $mockClient->shouldReceive('connect')
+            ->andThrow(new \Exception('General error'));
+
+        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service->shouldReceive('createClient')->andReturn($mockClient);
+
+        $mailbox = Mailbox::factory()->make([
+            'in_server' => 'imap.test.com',
+            'in_port' => 993,
+        ]);
+
+        $result = $service->getFolders($mailbox);
+
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('Error', $result['message']);
+    }
+
+    public function test_separate_reply_returns_unchanged_when_not_reply(): void
+    {
+        $body = 'This is the email body';
+        $result = $this->invokeMethod($this->service, 'separateReply', [$body, false, false]);
+
+        $this->assertEquals($body, $result);
+    }
+
+    public function test_separate_reply_extracts_body_tag_from_html(): void
+    {
+        $body = '<html><body>Email content</body></html>';
+        $result = $this->invokeMethod($this->service, 'separateReply', [$body, true, true]);
+
+        $this->assertStringContainsString('Email content', $result);
+    }
+
+    public function test_separate_reply_separates_protonmail_quote(): void
+    {
+        $body = 'New reply<div class="protonmail_quote">Previous message</div>';
+        $result = $this->invokeMethod($this->service, 'separateReply', [$body, true, true]);
+
+        $this->assertEquals('New reply', $result);
+    }
+
+    public function test_separate_reply_separates_replied_above(): void
+    {
+        $body = 'New reply---- Replied Above ----Previous message';
+        $result = $this->invokeMethod($this->service, 'separateReply', [$body, false, true]);
+
+        $this->assertStringContainsString('New reply', $result);
+    }
+
+    public function test_separate_reply_separates_on_wrote_pattern(): void
+    {
+        $body = 'New replyOn Tuesday, John wrote:Previous message';
+        $result = $this->invokeMethod($this->service, 'separateReply', [$body, false, true]);
+
+        $this->assertStringContainsString('New reply', $result);
+    }
+
+    public function test_separate_reply_separates_from_header(): void
+    {
+        $body = 'New replyFrom: sender@example.comPrevious message';
+        $result = $this->invokeMethod($this->service, 'separateReply', [$body, false, true]);
+
+        $this->assertStringContainsString('New reply', $result);
+    }
+
+    public function test_separate_reply_separates_underscore_separator(): void
+    {
+        $body = 'New reply________Previous message';
+        $result = $this->invokeMethod($this->service, 'separateReply', [$body, false, true]);
+
+        $this->assertStringContainsString('New reply', $result);
+    }
+
+    public function test_separate_reply_returns_full_body_when_no_separator_found(): void
+    {
+        $body = 'This is just a regular email with no reply separator';
+        $result = $this->invokeMethod($this->service, 'separateReply', [$body, false, true]);
+
+        $this->assertEquals($body, $result);
+    }
+
+    public function test_separate_reply_converts_plain_text_to_html(): void
+    {
+        $body = "Line 1\nLine 2";
+        $result = $this->invokeMethod($this->service, 'separateReply', [$body, false, true]);
+
+        $this->assertStringContainsString('<br />', $result);
+    }
+
+    public function test_get_message_headers_returns_raw_header(): void
+    {
+        $mockMessage = Mockery::mock();
+        $mockMessage->shouldReceive('getRawHeader')->andReturn('Header: Value');
+
+        $result = $this->invokeMethod($this->service, 'getMessageHeaders', [$mockMessage]);
+
+        $this->assertEquals('Header: Value', $result);
+    }
+
+    public function test_get_message_headers_falls_back_to_get_header(): void
+    {
+        $mockMessage = Mockery::mock();
+        $mockMessage->shouldReceive('getRawHeader')->andReturn('');
+        $mockMessage->shouldReceive('getHeader')->andReturn('Fallback Header');
+
+        $result = $this->invokeMethod($this->service, 'getMessageHeaders', [$mockMessage]);
+
+        $this->assertEquals('Fallback Header', $result);
+    }
+
+    public function test_get_message_headers_returns_empty_on_failure(): void
+    {
+        $mockMessage = Mockery::mock();
+        $mockMessage->shouldReceive('getRawHeader')->andThrow(new \Exception('Failed'));
+        $mockMessage->shouldReceive('getHeader')->andThrow(new \Exception('Failed'));
+
+        $result = $this->invokeMethod($this->service, 'getMessageHeaders', [$mockMessage]);
+
+        $this->assertEquals('', $result);
+    }
+
+    public function test_get_original_sender_from_fwd_parses_from_with_name_and_email(): void
+    {
+        $body = 'Some text From: John Doe <john@example.com> more text';
+        
+        $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
+
+        $this->assertNotNull($result);
+        $this->assertEquals('John Doe', $result['name']);
+        $this->assertEquals('john@example.com', $result['email']);
+    }
+
+    public function test_get_original_sender_from_fwd_parses_from_with_email_only(): void
+    {
+        $body = 'Some text From: john@example.com more text';
+        
+        $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
+
+        $this->assertNotNull($result);
+        $this->assertEquals('', $result['name']);
+        $this->assertEquals('john@example.com', $result['email']);
+    }
+
+    public function test_get_original_sender_from_fwd_finds_email_in_body(): void
+    {
+        $body = 'Check this email: test@example.com for info';
+        
+        $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
+
+        $this->assertNotNull($result);
+        $this->assertEquals('test@example.com', $result['email']);
+    }
+
+    public function test_get_original_sender_from_fwd_returns_null_when_no_email_found(): void
+    {
+        $body = 'This body has no email address';
+        
+        $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
+
+        $this->assertNull($result);
+    }
+
+    public function test_get_original_sender_from_fwd_handles_cid_and_fwd_cleanup(): void
+    {
+        $body = 'Text with "cid:image123" and @fwd<link>';
+        
+        $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
+
+        // Should handle cleanup and still try to find email
+        $this->assertIsArray($result);
+    }
+
+    // ========================================================================
     // Helper method to invoke protected/private methods
     // ========================================================================
 
