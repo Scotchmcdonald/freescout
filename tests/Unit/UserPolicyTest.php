@@ -31,7 +31,6 @@ class UserPolicyTest extends TestCase
         $user = new User;
         $user->role = User::ROLE_USER; // 1
 
-
         $this->assertFalse($this->policy->viewAny($user));
     }
 
@@ -40,7 +39,6 @@ class UserPolicyTest extends TestCase
         $admin = new User;
         $admin->role = User::ROLE_ADMIN; // 2
 
-
         $this->assertTrue($this->policy->create($admin));
     }
 
@@ -48,7 +46,6 @@ class UserPolicyTest extends TestCase
     {
         $user = new User;
         $user->role = User::ROLE_USER; // 1
-
 
         $this->assertFalse($this->policy->create($user));
     }
@@ -63,8 +60,6 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 2;
         $targetUser->role = User::ROLE_USER; // 1
 
-
-
         $this->assertTrue($this->policy->update($admin, $targetUser));
     }
 
@@ -78,8 +73,6 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 2;
         $targetUser->role = User::ROLE_USER; // 1
 
-
-
         $this->assertTrue($this->policy->delete($admin, $targetUser));
     }
 
@@ -88,8 +81,6 @@ class UserPolicyTest extends TestCase
         $admin = new User;
         $admin->id = 1;
         $admin->role = User::ROLE_ADMIN; // 2
-
-
 
         $this->assertFalse($this->policy->delete($admin, $admin));
     }
@@ -104,8 +95,6 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 2;
         $targetUser->role = User::ROLE_USER; // 1
 
-
-
         $this->assertFalse($this->policy->delete($user, $targetUser));
     }
 
@@ -114,8 +103,6 @@ class UserPolicyTest extends TestCase
         $user = new User;
         $user->id = 1;
         $user->role = User::ROLE_USER;
-
-
 
         // User can update their own profile
         $this->assertTrue($this->policy->update($user, $user));
@@ -131,8 +118,6 @@ class UserPolicyTest extends TestCase
         $otherUser->id = 2;
         $otherUser->role = User::ROLE_USER;
 
-
-
         // Regular user cannot update other users
         $this->assertFalse($this->policy->update($user, $otherUser));
     }
@@ -142,8 +127,6 @@ class UserPolicyTest extends TestCase
         $user = new User;
         $user->id = 1;
         $user->role = User::ROLE_USER;
-
-
 
         // User cannot delete their own account
         $this->assertFalse($this->policy->delete($user, $user));
@@ -155,8 +138,6 @@ class UserPolicyTest extends TestCase
         $admin->id = 1;
         $admin->role = User::ROLE_ADMIN;
 
-
-
         // Admin can update their own profile
         $this->assertTrue($this->policy->update($admin, $admin));
     }
@@ -164,13 +145,11 @@ class UserPolicyTest extends TestCase
     public function test_null_user_cannot_view_any_users(): void
     {
 
-
         $this->assertFalse($this->policy->viewAny(null));
     }
 
     public function test_null_user_cannot_create_user(): void
     {
-
 
         $this->assertFalse($this->policy->create(null));
     }
@@ -181,8 +160,6 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 1;
         $targetUser->role = User::ROLE_USER;
 
-
-
         $this->assertFalse($this->policy->view(null, $targetUser));
     }
 
@@ -192,8 +169,6 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 1;
         $targetUser->role = User::ROLE_USER;
 
-
-
         $this->assertFalse($this->policy->update(null, $targetUser));
     }
 
@@ -202,8 +177,6 @@ class UserPolicyTest extends TestCase
         $targetUser = new User;
         $targetUser->id = 1;
         $targetUser->role = User::ROLE_USER;
-
-
 
         $this->assertFalse($this->policy->delete(null, $targetUser));
     }
@@ -218,8 +191,6 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 2;
         $targetUser->role = User::ROLE_USER;
 
-
-
         $this->assertTrue($this->policy->view($admin, $targetUser));
     }
 
@@ -228,8 +199,6 @@ class UserPolicyTest extends TestCase
         $user = new User;
         $user->id = 1;
         $user->role = User::ROLE_USER;
-
-
 
         $this->assertTrue($this->policy->view($user, $user));
     }
@@ -243,8 +212,6 @@ class UserPolicyTest extends TestCase
         $otherUser = new User;
         $otherUser->id = 2;
         $otherUser->role = User::ROLE_USER;
-
-
 
         $this->assertFalse($this->policy->view($user, $otherUser));
     }
