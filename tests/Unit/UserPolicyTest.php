@@ -10,40 +10,47 @@ use Tests\TestCase;
 
 class UserPolicyTest extends TestCase
 {
+    protected UserPolicy $policy;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->policy = new UserPolicy();
+    }
+
     public function test_admin_can_view_any_users(): void
     {
         $admin = new User;
         $admin->role = User::ROLE_ADMIN; // 2
-        $policy = new UserPolicy;
 
-        $this->assertTrue($policy->viewAny($admin));
+        $this->assertTrue($this->policy->viewAny($admin));
     }
 
     public function test_non_admin_cannot_view_any_users(): void
     {
         $user = new User;
         $user->role = User::ROLE_USER; // 1
-        $policy = new UserPolicy;
+        
 
-        $this->assertFalse($policy->viewAny($user));
+        $this->assertFalse($this->policy->viewAny($user));
     }
 
     public function test_admin_can_create_user(): void
     {
         $admin = new User;
         $admin->role = User::ROLE_ADMIN; // 2
-        $policy = new UserPolicy;
+        
 
-        $this->assertTrue($policy->create($admin));
+        $this->assertTrue($this->policy->create($admin));
     }
 
     public function test_non_admin_cannot_create_user(): void
     {
         $user = new User;
         $user->role = User::ROLE_USER; // 1
-        $policy = new UserPolicy;
+        
 
-        $this->assertFalse($policy->create($user));
+        $this->assertFalse($this->policy->create($user));
     }
 
     public function test_admin_can_update_user(): void
@@ -56,9 +63,9 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 2;
         $targetUser->role = User::ROLE_USER; // 1
 
-        $policy = new UserPolicy;
+        
 
-        $this->assertTrue($policy->update($admin, $targetUser));
+        $this->assertTrue($this->policy->update($admin, $targetUser));
     }
 
     public function test_admin_can_delete_other_user(): void
@@ -71,9 +78,9 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 2;
         $targetUser->role = User::ROLE_USER; // 1
 
-        $policy = new UserPolicy;
+        
 
-        $this->assertTrue($policy->delete($admin, $targetUser));
+        $this->assertTrue($this->policy->delete($admin, $targetUser));
     }
 
     public function test_admin_cannot_delete_themselves(): void
@@ -82,9 +89,9 @@ class UserPolicyTest extends TestCase
         $admin->id = 1;
         $admin->role = User::ROLE_ADMIN; // 2
 
-        $policy = new UserPolicy;
+        
 
-        $this->assertFalse($policy->delete($admin, $admin));
+        $this->assertFalse($this->policy->delete($admin, $admin));
     }
 
     public function test_non_admin_cannot_delete_user(): void
@@ -97,9 +104,9 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 2;
         $targetUser->role = User::ROLE_USER; // 1
 
-        $policy = new UserPolicy;
+        
 
-        $this->assertFalse($policy->delete($user, $targetUser));
+        $this->assertFalse($this->policy->delete($user, $targetUser));
     }
 
     public function test_user_can_update_themselves(): void
@@ -108,10 +115,10 @@ class UserPolicyTest extends TestCase
         $user->id = 1;
         $user->role = User::ROLE_USER;
 
-        $policy = new UserPolicy;
+        
 
         // User can update their own profile
-        $this->assertTrue($policy->update($user, $user));
+        $this->assertTrue($this->policy->update($user, $user));
     }
 
     public function test_user_cannot_update_other_users(): void
@@ -124,10 +131,10 @@ class UserPolicyTest extends TestCase
         $otherUser->id = 2;
         $otherUser->role = User::ROLE_USER;
 
-        $policy = new UserPolicy;
+        
 
         // Regular user cannot update other users
-        $this->assertFalse($policy->update($user, $otherUser));
+        $this->assertFalse($this->policy->update($user, $otherUser));
     }
 
     public function test_user_cannot_delete_themselves(): void
@@ -136,10 +143,10 @@ class UserPolicyTest extends TestCase
         $user->id = 1;
         $user->role = User::ROLE_USER;
 
-        $policy = new UserPolicy;
+        
 
         // User cannot delete their own account
-        $this->assertFalse($policy->delete($user, $user));
+        $this->assertFalse($this->policy->delete($user, $user));
     }
 
     public function test_admin_can_update_themselves(): void
@@ -148,24 +155,24 @@ class UserPolicyTest extends TestCase
         $admin->id = 1;
         $admin->role = User::ROLE_ADMIN;
 
-        $policy = new UserPolicy;
+        
 
         // Admin can update their own profile
-        $this->assertTrue($policy->update($admin, $admin));
+        $this->assertTrue($this->policy->update($admin, $admin));
     }
 
     public function test_null_user_cannot_view_any_users(): void
     {
-        $policy = new UserPolicy;
+        
 
-        $this->assertFalse($policy->viewAny(null));
+        $this->assertFalse($this->policy->viewAny(null));
     }
 
     public function test_null_user_cannot_create_user(): void
     {
-        $policy = new UserPolicy;
+        
 
-        $this->assertFalse($policy->create(null));
+        $this->assertFalse($this->policy->create(null));
     }
 
     public function test_null_user_cannot_view_user(): void
@@ -174,9 +181,9 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 1;
         $targetUser->role = User::ROLE_USER;
 
-        $policy = new UserPolicy;
+        
 
-        $this->assertFalse($policy->view(null, $targetUser));
+        $this->assertFalse($this->policy->view(null, $targetUser));
     }
 
     public function test_null_user_cannot_update_user(): void
@@ -185,9 +192,9 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 1;
         $targetUser->role = User::ROLE_USER;
 
-        $policy = new UserPolicy;
+        
 
-        $this->assertFalse($policy->update(null, $targetUser));
+        $this->assertFalse($this->policy->update(null, $targetUser));
     }
 
     public function test_null_user_cannot_delete_user(): void
@@ -196,9 +203,9 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 1;
         $targetUser->role = User::ROLE_USER;
 
-        $policy = new UserPolicy;
+        
 
-        $this->assertFalse($policy->delete(null, $targetUser));
+        $this->assertFalse($this->policy->delete(null, $targetUser));
     }
 
     public function test_admin_can_view_user(): void
@@ -211,9 +218,9 @@ class UserPolicyTest extends TestCase
         $targetUser->id = 2;
         $targetUser->role = User::ROLE_USER;
 
-        $policy = new UserPolicy;
+        
 
-        $this->assertTrue($policy->view($admin, $targetUser));
+        $this->assertTrue($this->policy->view($admin, $targetUser));
     }
 
     public function test_user_can_view_themselves(): void
@@ -222,9 +229,9 @@ class UserPolicyTest extends TestCase
         $user->id = 1;
         $user->role = User::ROLE_USER;
 
-        $policy = new UserPolicy;
+        
 
-        $this->assertTrue($policy->view($user, $user));
+        $this->assertTrue($this->policy->view($user, $user));
     }
 
     public function test_user_cannot_view_other_users(): void
@@ -237,8 +244,8 @@ class UserPolicyTest extends TestCase
         $otherUser->id = 2;
         $otherUser->role = User::ROLE_USER;
 
-        $policy = new UserPolicy;
+        
 
-        $this->assertFalse($policy->view($user, $otherUser));
+        $this->assertFalse($this->policy->view($user, $otherUser));
     }
 }
