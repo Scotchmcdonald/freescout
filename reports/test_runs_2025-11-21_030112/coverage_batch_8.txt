@@ -1,0 +1,100 @@
+
+
+Code Coverage Report:
+  2025-11-21 03:01:58
+
+ Summary:
+  Classes: 10.74% (13/121)
+  Methods: 17.59% (79/449)
+  Lines:   16.26% (720/4427)
+
+App\Console\Commands\ClearCache
+  Methods:  50.00% ( 1/ 2)   Lines:   6.25% (  1/ 16)
+App\Console\Commands\LogoutUsers
+  Methods:  50.00% ( 1/ 2)   Lines:   8.33% (  1/ 12)
+App\Console\Commands\ModuleInstall
+  Methods:  25.00% ( 1/ 4)   Lines:   2.38% (  1/ 42)
+App\Console\Commands\ModuleUpdate
+  Methods:  50.00% ( 1/ 2)   Lines:   1.61% (  1/ 62)
+App\Events\UserDeleted
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  1/  1)
+App\Http\Controllers\AttachmentController
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  6/  6)
+App\Http\Controllers\Auth\AuthenticatedSessionController
+  Methods:  33.33% ( 1/ 3)   Lines:  66.67% (  6/  9)
+App\Http\Controllers\Auth\EmailVerificationNotificationController
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  5/  5)
+App\Http\Controllers\ConversationController
+  Methods:   9.09% ( 2/22)   Lines:  27.46% (134/488)
+App\Http\Controllers\LocaleController
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  8/  8)
+App\Http\Controllers\ModulesController
+  Methods:  80.00% ( 4/ 5)   Lines:  80.82% ( 59/ 73)
+App\Http\Controllers\NotificationController
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  2/  2)
+App\Http\Controllers\ProfileController
+  Methods:   0.00% ( 0/ 4)   Lines:  22.22% (  6/ 27)
+App\Http\Controllers\SettingsController
+  Methods:  12.50% ( 2/16)   Lines:  30.58% ( 63/206)
+App\Http\Controllers\UserController
+  Methods:  50.00% ( 8/16)   Lines:  79.17% (133/168)
+App\Http\Middleware\FrameGuard
+  Methods:   0.00% ( 0/ 1)   Lines:  75.00% (  6/  8)
+App\Http\Requests\Auth\LoginRequest
+  Methods:  60.00% ( 3/ 5)   Lines:  60.87% ( 14/ 23)
+App\Http\Requests\ProfileUpdateRequest
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 21/ 21)
+App\Listeners\LogFailedLogin
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  7/  7)
+App\Listeners\LogSuccessfulLogin
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  5/  5)
+App\Listeners\LogSuccessfulLogout
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  5/  5)
+App\Listeners\LogUserDeletion
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  7/  7)
+App\Listeners\RememberUserLocale
+  Methods:   0.00% ( 0/ 1)   Lines:  50.00% (  1/  2)
+App\Models\Attachment
+  Methods:  40.00% ( 2/ 5)   Lines:  53.33% (  8/ 15)
+App\Models\Conversation
+  Methods:  35.29% ( 6/17)   Lines:  41.79% ( 28/ 67)
+App\Models\Customer
+  Methods:  15.38% ( 2/13)   Lines:  12.66% ( 10/ 79)
+App\Models\Email
+  Methods:  20.00% ( 1/ 5)   Lines:  35.29% (  6/ 17)
+App\Models\Folder
+  Methods:   9.09% ( 1/11)   Lines:  31.82% (  7/ 22)
+App\Models\Mailbox
+  Methods:  36.36% ( 4/11)   Lines:  60.87% ( 28/ 46)
+App\Models\MailboxUser
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  8/  8)
+App\Models\Option
+  Methods:  20.00% ( 1/ 5)   Lines:  30.77% (  4/ 13)
+App\Models\Subscription
+  Methods:  16.67% ( 1/ 6)   Lines:  29.17% (  7/ 24)
+App\Models\Thread
+  Methods:  11.76% ( 2/17)   Lines:  38.10% ( 16/ 42)
+App\Models\User
+  Methods:  44.44% ( 8/18)   Lines:  51.11% ( 23/ 45)
+App\Observers\ConversationObserver
+  Methods:  20.00% ( 1/ 5)   Lines:  50.00% ( 19/ 38)
+App\Observers\CustomerObserver
+  Methods:  50.00% ( 1/ 2)   Lines:  33.33% (  1/  3)
+App\Observers\MailboxObserver
+  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 16/ 16)
+App\Observers\ThreadObserver
+  Methods:  50.00% ( 1/ 2)   Lines:  62.50% (  5/  8)
+App\Observers\UserObserver
+  Methods:  75.00% ( 3/ 4)   Lines:  73.08% ( 19/ 26)
+App\Policies\ConversationPolicy
+  Methods:   0.00% ( 0/ 6)   Lines:   6.45% (  2/ 31)
+App\Policies\MailboxPolicy
+  Methods:   0.00% ( 0/ 9)   Lines:  12.12% (  4/ 33)
+App\Policies\UserPolicy
+  Methods:  40.00% ( 2/ 5)   Lines:  72.73% (  8/ 11)
+App\Providers\EventServiceProvider
+  Methods:  50.00% ( 1/ 2)   Lines:  50.00% (  1/  2)
+App\Providers\ModuleCompatibilityServiceProvider
+  Methods:  50.00% ( 1/ 2)   Lines:  45.45% (  5/ 11)
+App\View\Components\AppLayout
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  2/  2)

@@ -84,7 +84,10 @@ class SubscriptionModelTest extends UnitTestCase
 
     public function test_belongs_to_user(): void
     {
-        $user = User::factory()->create();
+        // Use withoutEvents to ensure UserObserver doesn't run
+        $user = User::withoutEvents(function () {
+            return User::factory()->create();
+        });
         $subscription = Subscription::factory()->for($user)->create();
 
         $this->assertInstanceOf(User::class, $subscription->user);

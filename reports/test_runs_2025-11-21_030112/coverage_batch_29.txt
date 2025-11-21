@@ -1,0 +1,28 @@
+
+
+Code Coverage Report:
+  2025-11-21 03:07:05
+
+ Summary:
+  Classes:  0.83% (1/121)
+  Methods:  2.00% (9/449)
+  Lines:    2.12% (94/4427)
+
+App\Models\Attachment
+  Methods:  20.00% ( 1/ 5)   Lines:  46.67% (  7/ 15)
+App\Models\Conversation
+  Methods:   5.88% ( 1/17)   Lines:  32.84% ( 22/ 67)
+App\Models\Customer
+  Methods:   7.69% ( 1/13)   Lines:  11.39% (  9/ 79)
+App\Models\Mailbox
+  Methods:   9.09% ( 1/11)   Lines:  47.83% ( 22/ 46)
+App\Models\Thread
+  Methods:   5.88% ( 1/17)   Lines:  35.71% ( 15/ 42)
+App\Models\User
+  Methods:   5.56% ( 1/18)   Lines:  24.44% ( 11/ 45)
+App\Providers\EventServiceProvider
+  Methods:  50.00% ( 1/ 2)   Lines:  50.00% (  1/  2)
+App\Providers\ModuleCompatibilityServiceProvider
+  Methods:  50.00% ( 1/ 2)   Lines:  45.45% (  5/ 11)
+App\View\Components\GuestLayout
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  2/  2)

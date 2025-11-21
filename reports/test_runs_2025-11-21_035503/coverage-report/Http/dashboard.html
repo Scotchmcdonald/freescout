@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/html/app/Http</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../_css/bootstrap.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/nv.d3.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/style.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../index.html">/var/www/html/app</a></li>
+         <li class="breadcrumb-item"><a href="index.html">Http</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Controllers/SystemController.php.html#19">App\Http\Controllers\SystemController</a></td><td class="text-right">69%</td></tr>
+       <tr><td><a href="Controllers/ProfileController.php.html#13">App\Http\Controllers\ProfileController</a></td><td class="text-right">85%</td></tr>
+       <tr><td><a href="Controllers/SettingsController.php.html#21">App\Http\Controllers\SettingsController</a></td><td class="text-right">89%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Controllers/SystemController.php.html#19">App\Http\Controllers\SystemController</a></td><td class="text-right">76</td></tr>
+       <tr><td><a href="Controllers/SettingsController.php.html#21">App\Http\Controllers\SettingsController</a></td><td class="text-right">45</td></tr>
+       <tr><td><a href="Controllers/ProfileController.php.html#13">App\Http\Controllers\ProfileController</a></td><td class="text-right">5</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Controllers/SettingsController.php.html#331"><abbr title="App\Http\Controllers\SettingsController::sendTestAlert">sendTestAlert</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/SystemController.php.html#288"><abbr title="App\Http\Controllers\SystemController::downloadLogs">downloadLogs</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/ProfileController.php.html#70"><abbr title="App\Http\Controllers\ProfileController::updatePassword">updatePassword</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="Controllers/SettingsController.php.html#150"><abbr title="App\Http\Controllers\SettingsController::migrate">migrate</abbr></a></td><td class="text-right">50%</td></tr>
+       <tr><td><a href="Controllers/SystemController.php.html#126"><abbr title="App\Http\Controllers\SystemController::ajax">ajax</abbr></a></td><td class="text-right">55%</td></tr>
+       <tr><td><a href="Controllers/SettingsController.php.html#411"><abbr title="App\Http\Controllers\SettingsController::security">security</abbr></a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="Controllers/UserController.php.html#139"><abbr title="App\Http\Controllers\UserController::destroy">destroy</abbr></a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#642"><abbr title="App\Http\Controllers\ConversationController::merge">merge</abbr></a></td><td class="text-right">69%</td></tr>
+       <tr><td><a href="Controllers/SettingsController.php.html#133"><abbr title="App\Http\Controllers\SettingsController::clearCache">clearCache</abbr></a></td><td class="text-right">71%</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#903"><abbr title="App\Http\Controllers\ConversationController::import">import</abbr></a></td><td class="text-right">75%</td></tr>
+       <tr><td><a href="Controllers/CustomerController.php.html#122"><abbr title="App\Http\Controllers\CustomerController::merge">merge</abbr></a></td><td class="text-right">76%</td></tr>
+       <tr><td><a href="Controllers/SystemController.php.html#229"><abbr title="App\Http\Controllers\SystemController::logs">logs</abbr></a></td><td class="text-right">76%</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#261"><abbr title="App\Http\Controllers\ConversationController::reply">reply</abbr></a></td><td class="text-right">82%</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#578"><abbr title="App\Http\Controllers\ConversationController::changeCustomer">changeCustomer</abbr></a></td><td class="text-right">82%</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#878"><abbr title="App\Http\Controllers\ConversationController::export">export</abbr></a></td><td class="text-right">83%</td></tr>
+       <tr><td><a href="Controllers/SystemController.php.html#69"><abbr title="App\Http\Controllers\SystemController::diagnostics">diagnostics</abbr></a></td><td class="text-right">84%</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#918"><abbr title="App\Http\Controllers\ConversationController::batchUpdate">batchUpdate</abbr></a></td><td class="text-right">85%</td></tr>
+       <tr><td><a href="Controllers/SystemController.php.html#24"><abbr title="App\Http\Controllers\SystemController::index">index</abbr></a></td><td class="text-right">86%</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#856"><abbr title="App\Http\Controllers\ConversationController::print">print</abbr></a></td><td class="text-right">87%</td></tr>
+       <tr><td><a href="Controllers/MailboxController.php.html#429"><abbr title="App\Http\Controllers\MailboxController::ajax">ajax</abbr></a></td><td class="text-right">88%</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#556"><abbr title="App\Http\Controllers\ConversationController::ajaxHtml">ajaxHtml</abbr></a></td><td class="text-right">88%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Controllers/SettingsController.php.html#331"><abbr title="App\Http\Controllers\SettingsController::sendTestAlert">sendTestAlert</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="Controllers/SystemController.php.html#126"><abbr title="App\Http\Controllers\SystemController::ajax">ajax</abbr></a></td><td class="text-right">25</td></tr>
+       <tr><td><a href="Controllers/MailboxController.php.html#429"><abbr title="App\Http\Controllers\MailboxController::ajax">ajax</abbr></a></td><td class="text-right">15</td></tr>
+       <tr><td><a href="Controllers/SystemController.php.html#69"><abbr title="App\Http\Controllers\SystemController::diagnostics">diagnostics</abbr></a></td><td class="text-right">11</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#642"><abbr title="App\Http\Controllers\ConversationController::merge">merge</abbr></a></td><td class="text-right">11</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#578"><abbr title="App\Http\Controllers\ConversationController::changeCustomer">changeCustomer</abbr></a></td><td class="text-right">9</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#261"><abbr title="App\Http\Controllers\ConversationController::reply">reply</abbr></a></td><td class="text-right">8</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#918"><abbr title="App\Http\Controllers\ConversationController::batchUpdate">batchUpdate</abbr></a></td><td class="text-right">8</td></tr>
+       <tr><td><a href="Controllers/SystemController.php.html#229"><abbr title="App\Http\Controllers\SystemController::logs">logs</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Controllers/SystemController.php.html#288"><abbr title="App\Http\Controllers\SystemController::downloadLogs">downloadLogs</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Controllers/SystemController.php.html#24"><abbr title="App\Http\Controllers\SystemController::index">index</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="Controllers/CustomerController.php.html#122"><abbr title="App\Http\Controllers\CustomerController::merge">merge</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#556"><abbr title="App\Http\Controllers\ConversationController::ajaxHtml">ajaxHtml</abbr></a></td><td class="text-right">4</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#856"><abbr title="App\Http\Controllers\ConversationController::print">print</abbr></a></td><td class="text-right">3</td></tr>
+       <tr><td><a href="Controllers/SettingsController.php.html#150"><abbr title="App\Http\Controllers\SettingsController::migrate">migrate</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="Controllers/SettingsController.php.html#411"><abbr title="App\Http\Controllers\SettingsController::security">security</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="Controllers/UserController.php.html#139"><abbr title="App\Http\Controllers\UserController::destroy">destroy</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="Controllers/SettingsController.php.html#133"><abbr title="App\Http\Controllers\SettingsController::clearCache">clearCache</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#903"><abbr title="App\Http\Controllers\ConversationController::import">import</abbr></a></td><td class="text-right">2</td></tr>
+       <tr><td><a href="Controllers/ConversationController.php.html#878"><abbr title="App\Http\Controllers\ConversationController::export">export</abbr></a></td><td class="text-right">2</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 11.0.11</a> using <a href="https://www.php.net/" target="_top">PHP 8.3.6</a> at Fri Nov 21 4:00:59 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../_js/jquery.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../_js/d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../_js/nv.d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([0,0,0,0,0,0,0,1,0,2,4,22], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([2,0,0,0,0,0,3,3,4,9,15,95], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[100,1,"<a href=\"Controllers\/Api\/ConversationController.php.html#8\">App\\Http\\Controllers\\Api\\ConversationController<\/a>"],[100,3,"<a href=\"Controllers\/AttachmentController.php.html#8\">App\\Http\\Controllers\\AttachmentController<\/a>"],[100,3,"<a href=\"Controllers\/Auth\/AuthenticatedSessionController.php.html#12\">App\\Http\\Controllers\\Auth\\AuthenticatedSessionController<\/a>"],[100,3,"<a href=\"Controllers\/Auth\/ConfirmablePasswordController.php.html#12\">App\\Http\\Controllers\\Auth\\ConfirmablePasswordController<\/a>"],[100,2,"<a href=\"Controllers\/Auth\/EmailVerificationNotificationController.php.html#9\">App\\Http\\Controllers\\Auth\\EmailVerificationNotificationController<\/a>"],[100,2,"<a href=\"Controllers\/Auth\/EmailVerificationPromptController.php.html#10\">App\\Http\\Controllers\\Auth\\EmailVerificationPromptController<\/a>"],[100,7,"<a href=\"Controllers\/Auth\/NewPasswordController.php.html#16\">App\\Http\\Controllers\\Auth\\NewPasswordController<\/a>"],[100,1,"<a href=\"Controllers\/Auth\/PasswordController.php.html#11\">App\\Http\\Controllers\\Auth\\PasswordController<\/a>"],[100,3,"<a href=\"Controllers\/Auth\/PasswordResetLinkController.php.html#11\">App\\Http\\Controllers\\Auth\\PasswordResetLinkController<\/a>"],[100,8,"<a href=\"Controllers\/Auth\/RegisteredUserController.php.html#15\">App\\Http\\Controllers\\Auth\\RegisteredUserController<\/a>"],[100,3,"<a href=\"Controllers\/Auth\/VerifyEmailController.php.html#10\">App\\Http\\Controllers\\Auth\\VerifyEmailController<\/a>"],[100,0,"<a href=\"Controllers\/Controller.php.html#8\">App\\Http\\Controllers\\Controller<\/a>"],[90.3688524590164,105,"<a href=\"Controllers\/ConversationController.php.html#19\">App\\Http\\Controllers\\ConversationController<\/a>"],[95.13888888888889,24,"<a href=\"Controllers\/CustomerController.php.html#16\">App\\Http\\Controllers\\CustomerController<\/a>"],[100,3,"<a href=\"Controllers\/DashboardController.php.html#14\">App\\Http\\Controllers\\DashboardController<\/a>"],[100,2,"<a href=\"Controllers\/LocaleController.php.html#7\">App\\Http\\Controllers\\LocaleController<\/a>"],[95.39748953974896,52,"<a href=\"Controllers\/MailboxController.php.html#16\">App\\Http\\Controllers\\MailboxController<\/a>"],[100,13,"<a href=\"Controllers\/ModulesController.php.html#12\">App\\Http\\Controllers\\ModulesController<\/a>"],[100,2,"<a href=\"Controllers\/NotificationController.php.html#7\">App\\Http\\Controllers\\NotificationController<\/a>"],[85.18518518518519,5,"<a href=\"Controllers\/ProfileController.php.html#13\">App\\Http\\Controllers\\ProfileController<\/a>"],[89.32038834951457,43,"<a href=\"Controllers\/SettingsController.php.html#21\">App\\Http\\Controllers\\SettingsController<\/a>"],[69.32515337423312,37,"<a href=\"Controllers\/SystemController.php.html#19\">App\\Http\\Controllers\\SystemController<\/a>"],[100,1,"<a href=\"Controllers\/TagController.php.html#7\">App\\Http\\Controllers\\TagController<\/a>"],[96.42857142857143,33,"<a href=\"Controllers\/UserController.php.html#15\">App\\Http\\Controllers\\UserController<\/a>"],[100,3,"<a href=\"Controllers\/WebhookController.php.html#7\">App\\Http\\Controllers\\WebhookController<\/a>"],[100,3,"<a href=\"Middleware\/EnsureUserIsAdmin.php.html#11\">App\\Http\\Middleware\\EnsureUserIsAdmin<\/a>"],[100,3,"<a href=\"Middleware\/FrameGuard.php.html#17\">App\\Http\\Middleware\\FrameGuard<\/a>"],[100,7,"<a href=\"Requests\/Auth\/LoginRequest.php.html#12\">App\\Http\\Requests\\Auth\\LoginRequest<\/a>"],[100,5,"<a href=\"Requests\/ProfileUpdateRequest.php.html#9\">App\\Http\\Requests\\ProfileUpdateRequest<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[100,1,"<a href=\"Controllers\/Api\/ConversationController.php.html#10\">App\\Http\\Controllers\\Api\\ConversationController::index<\/a>"],[100,3,"<a href=\"Controllers\/AttachmentController.php.html#10\">App\\Http\\Controllers\\AttachmentController::download<\/a>"],[100,1,"<a href=\"Controllers\/Auth\/AuthenticatedSessionController.php.html#17\">App\\Http\\Controllers\\Auth\\AuthenticatedSessionController::create<\/a>"],[100,1,"<a href=\"Controllers\/Auth\/AuthenticatedSessionController.php.html#26\">App\\Http\\Controllers\\Auth\\AuthenticatedSessionController::store<\/a>"],[100,1,"<a href=\"Controllers\/Auth\/AuthenticatedSessionController.php.html#38\">App\\Http\\Controllers\\Auth\\AuthenticatedSessionController::destroy<\/a>"],[100,1,"<a href=\"Controllers\/Auth\/ConfirmablePasswordController.php.html#17\">App\\Http\\Controllers\\Auth\\ConfirmablePasswordController::show<\/a>"],[100,2,"<a href=\"Controllers\/Auth\/ConfirmablePasswordController.php.html#26\">App\\Http\\Controllers\\Auth\\ConfirmablePasswordController::store<\/a>"],[100,2,"<a href=\"Controllers\/Auth\/EmailVerificationNotificationController.php.html#14\">App\\Http\\Controllers\\Auth\\EmailVerificationNotificationController::store<\/a>"],[100,2,"<a href=\"Controllers\/Auth\/EmailVerificationPromptController.php.html#15\">App\\Http\\Controllers\\Auth\\EmailVerificationPromptController::__invoke<\/a>"],[100,1,"<a href=\"Controllers\/Auth\/NewPasswordController.php.html#21\">App\\Http\\Controllers\\Auth\\NewPasswordController::create<\/a>"],[100,6,"<a href=\"Controllers\/Auth\/NewPasswordController.php.html#32\">App\\Http\\Controllers\\Auth\\NewPasswordController::store<\/a>"],[100,1,"<a href=\"Controllers\/Auth\/PasswordController.php.html#16\">App\\Http\\Controllers\\Auth\\PasswordController::update<\/a>"],[100,1,"<a href=\"Controllers\/Auth\/PasswordResetLinkController.php.html#16\">App\\Http\\Controllers\\Auth\\PasswordResetLinkController::create<\/a>"],[100,2,"<a href=\"Controllers\/Auth\/PasswordResetLinkController.php.html#27\">App\\Http\\Controllers\\Auth\\PasswordResetLinkController::store<\/a>"],[100,1,"<a href=\"Controllers\/Auth\/RegisteredUserController.php.html#20\">App\\Http\\Controllers\\Auth\\RegisteredUserController::create<\/a>"],[100,7,"<a href=\"Controllers\/Auth\/RegisteredUserController.php.html#31\">App\\Http\\Controllers\\Auth\\RegisteredUserController::store<\/a>"],[100,3,"<a href=\"Controllers\/Auth\/VerifyEmailController.php.html#15\">App\\Http\\Controllers\\Auth\\VerifyEmailController::__invoke<\/a>"],[100,2,"<a href=\"Controllers\/ConversationController.php.html#24\">App\\Http\\Controllers\\ConversationController::index<\/a>"],[100,3,"<a href=\"Controllers\/ConversationController.php.html#46\">App\\Http\\Controllers\\ConversationController::show<\/a>"],[100,4,"<a href=\"Controllers\/ConversationController.php.html#90\">App\\Http\\Controllers\\ConversationController::create<\/a>"],[91.66666666666666,9,"<a href=\"Controllers\/ConversationController.php.html#118\">App\\Http\\Controllers\\ConversationController::store<\/a>"],[100,4,"<a href=\"Controllers\/ConversationController.php.html#228\">App\\Http\\Controllers\\ConversationController::update<\/a>"],[82,8,"<a href=\"Controllers\/ConversationController.php.html#261\">App\\Http\\Controllers\\ConversationController::reply<\/a>"],[100,2,"<a href=\"Controllers\/ConversationController.php.html#347\">App\\Http\\Controllers\\ConversationController::search<\/a>"],[100,9,"<a href=\"Controllers\/ConversationController.php.html#382\">App\\Http\\Controllers\\ConversationController::ajax<\/a>"],[92.3076923076923,2,"<a href=\"Controllers\/ConversationController.php.html#430\">App\\Http\\Controllers\\ConversationController::upload<\/a>"],[90,5,"<a href=\"Controllers\/ConversationController.php.html#456\">App\\Http\\Controllers\\ConversationController::clone<\/a>"],[100,3,"<a href=\"Controllers\/ConversationController.php.html#533\">App\\Http\\Controllers\\ConversationController::destroy<\/a>"],[88.88888888888889,4,"<a href=\"Controllers\/ConversationController.php.html#556\">App\\Http\\Controllers\\ConversationController::ajaxHtml<\/a>"],[82.35294117647058,9,"<a href=\"Controllers\/ConversationController.php.html#578\">App\\Http\\Controllers\\ConversationController::changeCustomer<\/a>"],[69.6969696969697,9,"<a href=\"Controllers\/ConversationController.php.html#642\">App\\Http\\Controllers\\ConversationController::merge<\/a>"],[92.85714285714286,5,"<a href=\"Controllers\/ConversationController.php.html#711\">App\\Http\\Controllers\\ConversationController::move<\/a>"],[94.44444444444444,5,"<a href=\"Controllers\/ConversationController.php.html#744\">App\\Http\\Controllers\\ConversationController::updateThread<\/a>"],[96,5,"<a href=\"Controllers\/ConversationController.php.html#781\">App\\Http\\Controllers\\ConversationController::updateSettings<\/a>"],[100,2,"<a href=\"Controllers\/ConversationController.php.html#827\">App\\Http\\Controllers\\ConversationController::chats<\/a>"],[87.5,3,"<a href=\"Controllers\/ConversationController.php.html#856\">App\\Http\\Controllers\\ConversationController::print<\/a>"],[83.33333333333334,2,"<a href=\"Controllers\/ConversationController.php.html#878\">App\\Http\\Controllers\\ConversationController::export<\/a>"],[75,2,"<a href=\"Controllers\/ConversationController.php.html#903\">App\\Http\\Controllers\\ConversationController::import<\/a>"],[85.71428571428571,8,"<a href=\"Controllers\/ConversationController.php.html#918\">App\\Http\\Controllers\\ConversationController::batchUpdate<\/a>"],[100,3,"<a href=\"Controllers\/CustomerController.php.html#21\">App\\Http\\Controllers\\CustomerController::index<\/a>"],[91.66666666666666,2,"<a href=\"Controllers\/CustomerController.php.html#47\">App\\Http\\Controllers\\CustomerController::store<\/a>"],[100,1,"<a href=\"Controllers\/CustomerController.php.html#70\">App\\Http\\Controllers\\CustomerController::show<\/a>"],[100,1,"<a href=\"Controllers\/CustomerController.php.html#80\">App\\Http\\Controllers\\CustomerController::edit<\/a>"],[100,1,"<a href=\"Controllers\/CustomerController.php.html#88\">App\\Http\\Controllers\\CustomerController::update<\/a>"],[76,4,"<a href=\"Controllers\/CustomerController.php.html#122\">App\\Http\\Controllers\\CustomerController::merge<\/a>"],[100,5,"<a href=\"Controllers\/CustomerController.php.html#172\">App\\Http\\Controllers\\CustomerController::ajax<\/a>"],[100,1,"<a href=\"Controllers\/CustomerController.php.html#228\">App\\Http\\Controllers\\CustomerController::conversations<\/a>"],[100,1,"<a href=\"Controllers\/CustomerController.php.html#241\">App\\Http\\Controllers\\CustomerController::mergeForm<\/a>"],[100,3,"<a href=\"Controllers\/CustomerController.php.html#249\">App\\Http\\Controllers\\CustomerController::destroy<\/a>"],[100,2,"<a href=\"Controllers\/CustomerController.php.html#271\">App\\Http\\Controllers\\CustomerController::search<\/a>"],[100,3,"<a href=\"Controllers\/DashboardController.php.html#19\">App\\Http\\Controllers\\DashboardController::index<\/a>"],[100,2,"<a href=\"Controllers\/LocaleController.php.html#9\">App\\Http\\Controllers\\LocaleController::update<\/a>"],[100,2,"<a href=\"Controllers\/MailboxController.php.html#21\">App\\Http\\Controllers\\MailboxController::index<\/a>"],[100,3,"<a href=\"Controllers\/MailboxController.php.html#36\">App\\Http\\Controllers\\MailboxController::show<\/a>"],[100,2,"<a href=\"Controllers\/MailboxController.php.html#62\">App\\Http\\Controllers\\MailboxController::settings<\/a>"],[100,1,"<a href=\"Controllers\/MailboxController.php.html#78\">App\\Http\\Controllers\\MailboxController::create<\/a>"],[97.22222222222221,5,"<a href=\"Controllers\/MailboxController.php.html#95\">App\\Http\\Controllers\\MailboxController::store<\/a>"],[94.28571428571428,5,"<a href=\"Controllers\/MailboxController.php.html#155\">App\\Http\\Controllers\\MailboxController::update<\/a>"],[100,1,"<a href=\"Controllers\/MailboxController.php.html#211\">App\\Http\\Controllers\\MailboxController::destroy<\/a>"],[100,3,"<a href=\"Controllers\/MailboxController.php.html#224\">App\\Http\\Controllers\\MailboxController::fetchEmails<\/a>"],[100,1,"<a href=\"Controllers\/MailboxController.php.html#256\">App\\Http\\Controllers\\MailboxController::connectionIncoming<\/a>"],[94.44444444444444,3,"<a href=\"Controllers\/MailboxController.php.html#266\">App\\Http\\Controllers\\MailboxController::saveConnectionIncoming<\/a>"],[100,1,"<a href=\"Controllers\/MailboxController.php.html#301\">App\\Http\\Controllers\\MailboxController::connectionOutgoing<\/a>"],[91.30434782608695,4,"<a href=\"Controllers\/MailboxController.php.html#311\">App\\Http\\Controllers\\MailboxController::saveConnectionOutgoing<\/a>"],[100,1,"<a href=\"Controllers\/MailboxController.php.html#355\">App\\Http\\Controllers\\MailboxController::permissions<\/a>"],[100,3,"<a href=\"Controllers\/MailboxController.php.html#371\">App\\Http\\Controllers\\MailboxController::updatePermissions<\/a>"],[100,1,"<a href=\"Controllers\/MailboxController.php.html#397\">App\\Http\\Controllers\\MailboxController::autoReply<\/a>"],[100,1,"<a href=\"Controllers\/MailboxController.php.html#407\">App\\Http\\Controllers\\MailboxController::saveAutoReply<\/a>"],[88.37209302325581,15,"<a href=\"Controllers\/MailboxController.php.html#429\">App\\Http\\Controllers\\MailboxController::ajax<\/a>"],[100,1,"<a href=\"Controllers\/ModulesController.php.html#14\">App\\Http\\Controllers\\ModulesController::__construct<\/a>"],[100,2,"<a href=\"Controllers\/ModulesController.php.html#22\">App\\Http\\Controllers\\ModulesController::index<\/a>"],[100,3,"<a href=\"Controllers\/ModulesController.php.html#46\">App\\Http\\Controllers\\ModulesController::enable<\/a>"],[100,3,"<a href=\"Controllers\/ModulesController.php.html#85\">App\\Http\\Controllers\\ModulesController::disable<\/a>"],[100,4,"<a href=\"Controllers\/ModulesController.php.html#119\">App\\Http\\Controllers\\ModulesController::delete<\/a>"],[100,1,"<a href=\"Controllers\/NotificationController.php.html#9\">App\\Http\\Controllers\\NotificationController::index<\/a>"],[100,1,"<a href=\"Controllers\/NotificationController.php.html#15\">App\\Http\\Controllers\\NotificationController::markAsRead<\/a>"],[100,1,"<a href=\"Controllers\/ProfileController.php.html#18\">App\\Http\\Controllers\\ProfileController::edit<\/a>"],[100,2,"<a href=\"Controllers\/ProfileController.php.html#28\">App\\Http\\Controllers\\ProfileController::update<\/a>"],[100,1,"<a href=\"Controllers\/ProfileController.php.html#48\">App\\Http\\Controllers\\ProfileController::destroy<\/a>"],[50,1,"<a href=\"Controllers\/ProfileController.php.html#70\">App\\Http\\Controllers\\ProfileController::updatePassword<\/a>"],[100,1,"<a href=\"Controllers\/SettingsController.php.html#26\">App\\Http\\Controllers\\SettingsController::index<\/a>"],[100,3,"<a href=\"Controllers\/SettingsController.php.html#36\">App\\Http\\Controllers\\SettingsController::update<\/a>"],[100,1,"<a href=\"Controllers\/SettingsController.php.html#64\">App\\Http\\Controllers\\SettingsController::email<\/a>"],[94.73684210526315,4,"<a href=\"Controllers\/SettingsController.php.html#83\">App\\Http\\Controllers\\SettingsController::updateEmail<\/a>"],[100,1,"<a href=\"Controllers\/SettingsController.php.html#116\">App\\Http\\Controllers\\SettingsController::system<\/a>"],[71.42857142857143,2,"<a href=\"Controllers\/SettingsController.php.html#133\">App\\Http\\Controllers\\SettingsController::clearCache<\/a>"],[50,2,"<a href=\"Controllers\/SettingsController.php.html#150\">App\\Http\\Controllers\\SettingsController::migrate<\/a>"],[100,3,"<a href=\"Controllers\/SettingsController.php.html#164\">App\\Http\\Controllers\\SettingsController::testSmtp<\/a>"],[100,3,"<a href=\"Controllers\/SettingsController.php.html#196\">App\\Http\\Controllers\\SettingsController::testImap<\/a>"],[100,2,"<a href=\"Controllers\/SettingsController.php.html#227\">App\\Http\\Controllers\\SettingsController::validateSmtp<\/a>"],[100,1,"<a href=\"Controllers\/SettingsController.php.html#247\">App\\Http\\Controllers\\SettingsController::alerts<\/a>"],[97.72727272727273,4,"<a href=\"Controllers\/SettingsController.php.html#265\">App\\Http\\Controllers\\SettingsController::updateAlerts<\/a>"],[0,5,"<a href=\"Controllers\/SettingsController.php.html#331\">App\\Http\\Controllers\\SettingsController::sendTestAlert<\/a>"],[91.66666666666666,8,"<a href=\"Controllers\/SettingsController.php.html#361\">App\\Http\\Controllers\\SettingsController::updateEnvFile<\/a>"],[100,1,"<a href=\"Controllers\/SettingsController.php.html#403\">App\\Http\\Controllers\\SettingsController::general<\/a>"],[66.66666666666666,2,"<a href=\"Controllers\/SettingsController.php.html#411\">App\\Http\\Controllers\\SettingsController::security<\/a>"],[86.66666666666667,5,"<a href=\"Controllers\/SystemController.php.html#24\">App\\Http\\Controllers\\SystemController::index<\/a>"],[84.84848484848484,11,"<a href=\"Controllers\/SystemController.php.html#69\">App\\Http\\Controllers\\SystemController::diagnostics<\/a>"],[55.072463768115945,12,"<a href=\"Controllers\/SystemController.php.html#126\">App\\Http\\Controllers\\SystemController::ajax<\/a>"],[76.92307692307693,6,"<a href=\"Controllers\/SystemController.php.html#229\">App\\Http\\Controllers\\SystemController::logs<\/a>"],[100,1,"<a href=\"Controllers\/SystemController.php.html#278\">App\\Http\\Controllers\\SystemController::update<\/a>"],[0,2,"<a href=\"Controllers\/SystemController.php.html#288\">App\\Http\\Controllers\\SystemController::downloadLogs<\/a>"],[100,1,"<a href=\"Controllers\/TagController.php.html#9\">App\\Http\\Controllers\\TagController::ajaxSearch<\/a>"],[100,1,"<a href=\"Controllers\/UserController.php.html#20\">App\\Http\\Controllers\\UserController::index<\/a>"],[100,1,"<a href=\"Controllers\/UserController.php.html#32\">App\\Http\\Controllers\\UserController::create<\/a>"],[100,1,"<a href=\"Controllers\/UserController.php.html#42\">App\\Http\\Controllers\\UserController::store<\/a>"],[100,1,"<a href=\"Controllers\/UserController.php.html#72\">App\\Http\\Controllers\\UserController::show<\/a>"],[100,1,"<a href=\"Controllers\/UserController.php.html#84\">App\\Http\\Controllers\\UserController::edit<\/a>"],[100,3,"<a href=\"Controllers\/UserController.php.html#94\">App\\Http\\Controllers\\UserController::update<\/a>"],[66.66666666666666,2,"<a href=\"Controllers\/UserController.php.html#139\">App\\Http\\Controllers\\UserController::destroy<\/a>"],[100,1,"<a href=\"Controllers\/UserController.php.html#159\">App\\Http\\Controllers\\UserController::permissions<\/a>"],[100,7,"<a href=\"Controllers\/UserController.php.html#176\">App\\Http\\Controllers\\UserController::ajax<\/a>"],[100,1,"<a href=\"Controllers\/UserController.php.html#234\">App\\Http\\Controllers\\UserController::notifications<\/a>"],[100,4,"<a href=\"Controllers\/UserController.php.html#247\">App\\Http\\Controllers\\UserController::updateNotifications<\/a>"],[100,1,"<a href=\"Controllers\/UserController.php.html#278\">App\\Http\\Controllers\\UserController::permissionsForm<\/a>"],[100,3,"<a href=\"Controllers\/UserController.php.html#293\">App\\Http\\Controllers\\UserController::userSetup<\/a>"],[90,4,"<a href=\"Controllers\/UserController.php.html#312\">App\\Http\\Controllers\\UserController::userSetupSave<\/a>"],[100,1,"<a href=\"Controllers\/UserController.php.html#364\">App\\Http\\Controllers\\UserController::permissionsIndex<\/a>"],[100,1,"<a href=\"Controllers\/UserController.php.html#374\">App\\Http\\Controllers\\UserController::permissionsSave<\/a>"],[100,1,"<a href=\"Controllers\/WebhookController.php.html#9\">App\\Http\\Controllers\\WebhookController::index<\/a>"],[100,1,"<a href=\"Controllers\/WebhookController.php.html#14\">App\\Http\\Controllers\\WebhookController::create<\/a>"],[100,1,"<a href=\"Controllers\/WebhookController.php.html#19\">App\\Http\\Controllers\\WebhookController::store<\/a>"],[100,3,"<a href=\"Middleware\/EnsureUserIsAdmin.php.html#18\">App\\Http\\Middleware\\EnsureUserIsAdmin::handle<\/a>"],[100,3,"<a href=\"Middleware\/FrameGuard.php.html#24\">App\\Http\\Middleware\\FrameGuard::handle<\/a>"],[100,1,"<a href=\"Requests\/Auth\/LoginRequest.php.html#17\">App\\Http\\Requests\\Auth\\LoginRequest::authorize<\/a>"],[100,1,"<a href=\"Requests\/Auth\/LoginRequest.php.html#27\">App\\Http\\Requests\\Auth\\LoginRequest::rules<\/a>"],[100,2,"<a href=\"Requests\/Auth\/LoginRequest.php.html#40\">App\\Http\\Requests\\Auth\\LoginRequest::authenticate<\/a>"],[100,2,"<a href=\"Requests\/Auth\/LoginRequest.php.html#60\">App\\Http\\Requests\\Auth\\LoginRequest::ensureIsNotRateLimited<\/a>"],[100,1,"<a href=\"Requests\/Auth\/LoginRequest.php.html#81\">App\\Http\\Requests\\Auth\\LoginRequest::throttleKey<\/a>"],[100,1,"<a href=\"Requests\/ProfileUpdateRequest.php.html#16\">App\\Http\\Requests\\ProfileUpdateRequest::rules<\/a>"],[100,4,"<a href=\"Requests\/ProfileUpdateRequest.php.html#39\">App\\Http\\Requests\\ProfileUpdateRequest::prepareForValidation<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

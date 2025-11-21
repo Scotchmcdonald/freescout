@@ -606,29 +606,47 @@ if ($withCoverage) {
     if (file_exists($phpcovBin)) {
         $io->text('Merging partial coverage files...');
         
-        // phpcov merge --html <output_directory> <directory>
-        $mergeCommand = [
-            'php',
+        // Generate Clover XML report
+        $mergeCloverCommand = [
             $phpcovBin, 
             'merge', 
-            '--html', 
-            $finalCoverageDir,
-            $coveragePartialsDir
+            $coveragePartialsDir,
+            '--clover',
+            $reportsDir . '/coverage.xml',
         ];
 
-        $process = new Process($mergeCommand, $baseDir, null, null, 300);
+        $process = new Process($mergeCloverCommand, $baseDir, null, null, 300);
         $process->run();
 
         if ($process->isSuccessful()) {
-            $io->success("Coverage report generated successfully!");
-            $io->writeln("View report here: file://{$finalCoverageDir}/index.html");
-            $io->writeln("Coverage location: {$finalCoverageDir}");
+            $io->writeln("Clover XML: {$reportsDir}/coverage.xml");
+        } else {
+            $io->warning("Failed to generate Clover XML report.");
+            $io->writeln("Error: " . $process->getErrorOutput());
+        }
+        
+        // Generate HTML report
+        $io->text('Generating HTML coverage report...');
+        $mergeHtmlCommand = [
+            $phpcovBin, 
+            'merge', 
+            $coveragePartialsDir,
+            '--html', 
+            $finalCoverageDir,
+        ];
+
+        $process = new Process($mergeHtmlCommand, $baseDir, null, null, 300);
+        $process->run();
+
+        if ($process->isSuccessful()) {
+            $io->success("Coverage reports generated successfully!");
+            $io->writeln("HTML report: file://{$finalCoverageDir}/index.html");
             
             // Clean up partials
             array_map('unlink', glob("$coveragePartialsDir/*"));
             rmdir($coveragePartialsDir);
         } else {
-            $io->error("Failed to merge coverage reports.");
+            $io->error("Failed to merge HTML coverage reports.");
             $io->writeln("Command output: " . $process->getErrorOutput());
             $io->writeln($process->getOutput());
         }

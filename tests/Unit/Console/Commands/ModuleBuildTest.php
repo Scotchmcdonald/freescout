@@ -32,8 +32,11 @@ class ModuleBuildTest extends UnitTestCase
     public function test_command_has_correct_signature(): void
     {
         $command = new ModuleBuild();
+        $reflection = new \ReflectionClass($command);
+        $property = $reflection->getProperty('signature');
+        $signature = $property->getValue($command);
         
-        $this->assertEquals('freescout:module-build {module_alias?}', $command->getName());
+        $this->assertEquals('freescout:module-build {module_alias?}', $signature);
     }
 
     public function test_command_has_description(): void
@@ -171,7 +174,9 @@ class ModuleBuildTest extends UnitTestCase
     public function test_command_signature_includes_module_alias_argument(): void
     {
         $command = new ModuleBuild();
-        $signature = $command->getName();
+        $reflection = new \ReflectionClass($command);
+        $property = $reflection->getProperty('signature');
+        $signature = $property->getValue($command);
         
         $this->assertStringContainsString('module_alias', $signature);
         $this->assertStringContainsString('?', $signature); // Optional argument
