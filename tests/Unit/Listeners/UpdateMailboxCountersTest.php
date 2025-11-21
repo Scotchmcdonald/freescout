@@ -242,4 +242,24 @@ class UpdateMailboxCountersTest extends UnitTestCase
             $this->fail('Should handle missing mailbox gracefully');
         }
     }
+
+    // ===== BASIC TESTS (Merged from UpdateMailboxCountersListenerTest.php) =====
+
+    public function test_update_mailbox_counters_listener_has_handle_method(): void
+    {
+        $listener = new UpdateMailboxCounters;
+        $this->assertTrue(method_exists($listener, 'handle'));
+    }
+
+    public function test_update_mailbox_counters_listener_handles_status_changed_event(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $event = new ConversationStatusChanged($conversation);
+        $listener = new UpdateMailboxCounters;
+
+        // Should not throw an exception
+        $listener->handle($event);
+        $this->assertTrue(true);
+    }
 }

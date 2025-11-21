@@ -277,4 +277,23 @@ class SendAutoReplyTest extends UnitTestCase
     {
         $this->assertEquals(180, SendAutoReply::CHECK_PERIOD);
     }
+
+    // ===== BASIC TESTS (Merged from SendAutoReplyListenerTest.php) =====
+
+    public function test_send_auto_reply_listener_handle_method_exists(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'imported' => true]);
+        $thread = new Thread(['id' => 2]);
+        $customer = new Customer(['id' => 3]);
+
+        $event = new CustomerCreatedConversation($conversation, $thread, $customer);
+        $listener = new SendAutoReply;
+
+        $this->assertTrue(method_exists($listener, 'handle'));
+    }
+
+    public function test_send_auto_reply_listener_has_correct_check_period_constant(): void
+    {
+        $this->assertEquals(180, SendAutoReply::CHECK_PERIOD);
+    }
 }
