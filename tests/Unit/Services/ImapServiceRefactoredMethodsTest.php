@@ -602,6 +602,157 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     }
 
     // ========================================================================
+    // Tests for testConnection method (85% → 95%+)
+    // ========================================================================
+
+    public function test_test_connection_success_with_messages(): void
+    {
+        $mailbox = Mailbox::factory()->make([
+            'in_server' => 'imap.example.com',
+            'in_port' => 993,
+            'in_username' => 'test@example.com',
+            'in_password' => 'password',
+            'in_protocol' => 1, // IMAP
+        ]);
+
+        $message1 = Mockery::mock();
+        $message1->shouldReceive('hasFlag')->with('Seen')->andReturn(false);
+        $message2 = Mockery::mock();
+        $message2->shouldReceive('hasFlag')->with('Seen')->andReturn(true);
+
+        $messages = collect([$message1, $message2]);
+
+        $query = Mockery::mock();
+        $query->shouldReceive('since')->andReturnSelf();
+        $query->shouldReceive('leaveUnread')->andReturnSelf();
+        $query->shouldReceive('get')->andReturn($messages);
+
+        $folder = Mockery::mock();
+        $folder->shouldReceive('query')->andReturn($query);
+
+        $client = Mockery::mock();
+        $client->shouldReceive('connect')->andReturnSelf();
+        $client->shouldReceive('getFolder')->with('INBOX')->andReturn($folder);
+        $client->shouldReceive('disconnect')->andReturnNull();
+
+        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service->shouldReceive('createClient')->with($mailbox)->andReturn($client);
+
+        $result = $service->testConnection($mailbox);
+
+        $this->assertTrue($result['success']);
+        $this->assertStringContainsString('Connected successfully', $result['message']);
+        $this->assertStringContainsString('2 messages', $result['message']);
+        $this->assertStringContainsString('1 unread', $result['message']);
+    }
+
+    public function test_test_connection_handles_charset_exception(): void
+    {
+        $mailbox = Mailbox::factory()->make([
+            'in_server' => 'imap.example.com',
+            'in_port' => 993,
+            'in_username' => 'test@example.com',
+            'in_password' => 'password',
+        ]);
+
+        $messages = collect([]);
+
+        $query = Mockery::mock();
+        $query->shouldReceive('since')->andReturnSelf();
+        $query->shouldReceive('leaveUnread')->andReturnSelf();
+        $query->shouldReceive('get')
+            ->once()
+            ->andThrow(new \Exception('Charset UTF-8 not supported'));
+        $query->shouldReceive('setCharset')->with(null)->andReturnSelf();
+        $query->shouldReceive('get')
+            ->once()
+            ->andReturn($messages);
+
+        $folder = Mockery::mock();
+        $folder->shouldReceive('query')->andReturn($query);
+
+        $client = Mockery::mock();
+        $client->shouldReceive('connect')->andReturnSelf();
+        $client->shouldReceive('getFolder')->with('INBOX')->andReturn($folder);
+        $client->shouldReceive('disconnect')->andReturnNull();
+
+        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service->shouldReceive('createClient')->with($mailbox)->andReturn($client);
+
+        $result = $service->testConnection($mailbox);
+
+        $this->assertTrue($result['success']);
+        $this->assertStringContainsString('Connected successfully', $result['message']);
+    }
+
+    public function test_test_connection_handles_connection_failed_exception(): void
+    {
+        $mailbox = Mailbox::factory()->make([
+            'in_server' => 'imap.example.com',
+            'in_port' => 993,
+            'in_username' => 'test@example.com',
+            'in_password' => 'wrong_password',
+        ]);
+
+        $client = Mockery::mock();
+        $client->shouldReceive('connect')
+            ->andThrow(new \Webklex\PHPIMAP\Exceptions\ConnectionFailedException('Authentication failed'));
+
+        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service->shouldReceive('createClient')->with($mailbox)->andReturn($client);
+
+        $result = $service->testConnection($mailbox);
+
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('Connection failed', $result['message']);
+    }
+
+    public function test_test_connection_handles_inbox_not_found(): void
+    {
+        $mailbox = Mailbox::factory()->make([
+            'in_server' => 'imap.example.com',
+            'in_port' => 993,
+            'in_username' => 'test@example.com',
+            'in_password' => 'password',
+        ]);
+
+        $client = Mockery::mock();
+        $client->shouldReceive('connect')->andReturnSelf();
+        $client->shouldReceive('getFolder')->with('INBOX')->andReturn(null);
+
+        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service->shouldReceive('createClient')->with($mailbox)->andReturn($client);
+
+        $result = $service->testConnection($mailbox);
+
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('Could not access INBOX folder', $result['message']);
+    }
+
+    public function test_test_connection_handles_general_exception(): void
+    {
+        $mailbox = Mailbox::factory()->make([
+            'in_server' => 'imap.example.com',
+            'in_port' => 993,
+            'in_username' => 'test@example.com',
+            'in_password' => 'password',
+        ]);
+
+        $client = Mockery::mock();
+        $client->shouldReceive('connect')
+            ->andThrow(new \Exception('Unknown error occurred'));
+
+        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service->shouldReceive('createClient')->with($mailbox)->andReturn($client);
+
+        $result = $service->testConnection($mailbox);
+
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('Error:', $result['message']);
+        $this->assertStringContainsString('Unknown error', $result['message']);
+    }
+
+    // ========================================================================
     // Helper method to invoke protected/private methods
     // ========================================================================
 
