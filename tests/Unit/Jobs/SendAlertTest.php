@@ -223,4 +223,107 @@ class SendAlertTest extends UnitTestCase
             'message_id' => null,
         ]);
     }
+
+    public function test_job_handles_mail_exception_gracefully(): void
+    {
+        Log::spy();
+        Mail::shouldReceive('to')->andThrow(new \Exception('Mail server error'));
+
+        User::factory()->create([
+            'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
+            'email' => 'admin@example.com',
+        ]);
+
+        $job = new SendAlert('Test alert');
+
+        try {
+            $job->handle();
+        } catch (\Exception $e) {
+            $this->assertEquals('Mail server error', $e->getMessage());
+        }
+
+        // Should log error even on exception
+        Log::shouldHaveReceived('error')
+            ->with('Error sending alert email', \Mockery::type('array'))
+            ->once();
+
+        // Should create error send log
+        $this->assertDatabaseHas('send_logs', [
+            'email' => 'admin@example.com',
+            'status' => SendLog::STATUS_SEND_ERROR,
+        ]);
+    }
+
+    public function test_job_includes_title_in_log(): void
+    {
+        Mail::fake();
+        Log::spy();
+
+        User::factory()->create([
+            'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
+            'email' => 'admin@example.com',
+        ]);
+
+        $job = new SendAlert('Alert text', 'Important Title');
+        $job->handle();
+
+        Log::shouldHaveReceived('info')
+            ->with('Sending alert email', \Mockery::on(function ($context) {
+                return $context['title'] === 'Important Title';
+            }))
+            ->once();
+    }
+
+    public function test_job_truncates_long_text_in_log(): void
+    {
+        Mail::fake();
+        Log::spy();
+
+        User::factory()->create([
+            'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
+            'email' => 'admin@example.com',
+        ]);
+
+        $longText = str_repeat('x', 200);
+        $job = new SendAlert($longText, 'Title');
+        $job->handle();
+
+        Log::shouldHaveReceived('info')
+            ->with('Sending alert email', \Mockery::on(function ($context) {
+                return strlen($context['text']) === 100;
+            }))
+            ->once();
+    }
+
+    public function test_job_sends_to_activated_admins_only(): void
+    {
+        Mail::fake();
+        Log::spy();
+
+        // Activated admin - should receive
+        User::factory()->create([
+            'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
+            'invite_state' => User::INVITE_STATE_ACTIVATED,
+            'email' => 'activated@example.com',
+        ]);
+
+        // Not activated admin - should not receive
+        User::factory()->create([
+            'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
+            'invite_state' => User::INVITE_STATE_SENT,
+            'email' => 'pending@example.com',
+        ]);
+
+        $job = new SendAlert('Test alert');
+        $job->handle();
+
+        $this->assertEquals(1, SendLog::where('mail_type', SendLog::MAIL_TYPE_ALERT)->count());
+        $this->assertDatabaseHas('send_logs', ['email' => 'activated@example.com']);
+        $this->assertDatabaseMissing('send_logs', ['email' => 'pending@example.com']);
+    }
 }

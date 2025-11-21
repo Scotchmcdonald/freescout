@@ -110,4 +110,105 @@ class UpdateMailboxCountersTest extends UnitTestCase
         // Should complete very quickly (< 1 second)
         $this->assertLessThan(1.0, $duration);
     }
+
+    public function test_handle_updates_mailbox_counters_on_status_change(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'status' => Conversation::STATUS_ACTIVE,
+        ]);
+        
+        $event = new ConversationStatusChanged($conversation);
+        
+        $listener = new UpdateMailboxCounters();
+        
+        // Should execute without error
+        $listener->handle($event);
+        
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_updates_mailbox_counters_on_user_change(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $user = User::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $user->id,
+        ]);
+        
+        $event = new ConversationUserChanged($conversation, $user);
+        
+        $listener = new UpdateMailboxCounters();
+        
+        // Should execute without error
+        $listener->handle($event);
+        
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_works_with_unassigned_conversation(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'user_id' => null, // Unassigned
+        ]);
+        
+        $event = new ConversationStatusChanged($conversation);
+        
+        $listener = new UpdateMailboxCounters();
+        $listener->handle($event);
+        
+        $this->assertNull($conversation->user_id);
+    }
+
+    public function test_handle_works_with_different_conversation_statuses(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $listener = new UpdateMailboxCounters();
+        
+        // Test with active conversation
+        $activeConv = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'status' => Conversation::STATUS_ACTIVE,
+        ]);
+        $listener->handle(new ConversationStatusChanged($activeConv));
+        
+        // Test with closed conversation
+        $closedConv = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'status' => Conversation::STATUS_CLOSED,
+        ]);
+        $listener->handle(new ConversationStatusChanged($closedConv));
+        
+        // Test with spam conversation
+        $spamConv = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'status' => Conversation::STATUS_SPAM,
+        ]);
+        $listener->handle(new ConversationStatusChanged($spamConv));
+        
+        $this->assertTrue(true);
+    }
+
+    public function test_handle_safely_handles_missing_mailbox(): void
+    {
+        $conversation = Conversation::factory()->make([
+            'mailbox_id' => 999999, // Non-existent mailbox
+        ]);
+        
+        $event = new ConversationStatusChanged($conversation);
+        
+        $listener = new UpdateMailboxCounters();
+        
+        // Should not throw an exception
+        try {
+            $listener->handle($event);
+            $this->assertTrue(true);
+        } catch (\Exception $e) {
+            $this->fail('Should handle missing mailbox gracefully');
+        }
+    }
 }

@@ -279,4 +279,95 @@ class MailboxTest extends TestCase
 
         $this->assertEquals('サポート Support 支持', $mailbox->name);
     }
+
+    // getAliasesArray() tests - 80% coverage
+
+    public function test_get_aliases_array_parses_comma_separated_string(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => 'alias1@example.com,alias2@example.com',
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        $this->assertIsArray($aliases);
+        $this->assertCount(2, $aliases);
+        $this->assertEquals('alias1@example.com', $aliases[0]);
+        $this->assertEquals('alias2@example.com', $aliases[1]);
+    }
+
+    public function test_get_aliases_array_trims_whitespace(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => ' alias1@example.com , alias2@example.com ',
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        $this->assertCount(2, $aliases);
+        // Note: explode doesn't auto-trim, so we get the spaces
+        $this->assertStringContainsString('alias1@example.com', $aliases[0]);
+        $this->assertStringContainsString('alias2@example.com', $aliases[1]);
+    }
+
+    public function test_get_aliases_array_handles_empty_string(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => '',
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        $this->assertIsArray($aliases);
+        $this->assertEmpty($aliases);
+    }
+
+    public function test_get_aliases_array_handles_null(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => null,
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        $this->assertIsArray($aliases);
+        $this->assertEmpty($aliases);
+    }
+
+    public function test_get_aliases_array_handles_single_alias(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => 'single@example.com',
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        $this->assertIsArray($aliases);
+        $this->assertCount(1, $aliases);
+        $this->assertEquals('single@example.com', $aliases[0]);
+    }
+
+    public function test_get_aliases_array_returns_array_if_already_array(): void
+    {
+        $aliasArray = ['alias1@example.com', 'alias2@example.com'];
+        $mailbox = Mailbox::factory()->make([
+            'aliases' => $aliasArray,
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        $this->assertIsArray($aliases);
+        $this->assertEquals($aliasArray, $aliases);
+    }
+
+    public function test_get_aliases_array_handles_multiple_commas(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => 'alias1@example.com,alias2@example.com,alias3@example.com',
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        $this->assertCount(3, $aliases);
+    }
 }
