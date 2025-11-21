@@ -272,4 +272,130 @@ class SettingsControllerTest extends UnitTestCase
             return $mail->hasTo('test@example.com') || $mail->hasTo('another@example.com');
         });
     }
+
+    // ===== Tests for clearCache method (71% coverage → 95%+) =====
+
+    public function test_clear_cache_method_exists(): void
+    {
+        $controller = new SettingsController();
+        $this->assertTrue(method_exists($controller, 'clearCache'));
+    }
+
+    public function test_clear_cache_calls_artisan_commands(): void
+    {
+        \Artisan::shouldReceive('call')
+            ->with('cache:clear')
+            ->once()
+            ->andReturn(0);
+        \Artisan::shouldReceive('call')
+            ->with('config:clear')
+            ->once()
+            ->andReturn(0);
+        \Artisan::shouldReceive('call')
+            ->with('route:clear')
+            ->once()
+            ->andReturn(0);
+        \Artisan::shouldReceive('call')
+            ->with('view:clear')
+            ->once()
+            ->andReturn(0);
+
+        $controller = new SettingsController();
+        $response = $controller->clearCache();
+
+        $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
+        $this->assertEquals('Cache cleared successfully.', session('success'));
+    }
+
+    public function test_clear_cache_handles_exception_gracefully(): void
+    {
+        \Artisan::shouldReceive('call')
+            ->with('cache:clear')
+            ->once()
+            ->andThrow(new \Exception('Cache clear failed'));
+
+        $controller = new SettingsController();
+        $response = $controller->clearCache();
+
+        $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
+        $this->assertStringContainsString('Failed to clear cache', session('error'));
+    }
+
+    // ===== Tests for migrate method (50% coverage → 95%+) =====
+
+    public function test_migrate_method_exists(): void
+    {
+        $controller = new SettingsController();
+        $this->assertTrue(method_exists($controller, 'migrate'));
+    }
+
+    public function test_migrate_calls_artisan_with_force_flag(): void
+    {
+        \Artisan::shouldReceive('call')
+            ->with('migrate', ['--force' => true])
+            ->once()
+            ->andReturn(0);
+
+        $controller = new SettingsController();
+        $response = $controller->migrate();
+
+        $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
+        $this->assertEquals('Migrations completed successfully.', session('success'));
+    }
+
+    public function test_migrate_handles_migration_exception(): void
+    {
+        \Artisan::shouldReceive('call')
+            ->with('migrate', ['--force' => true])
+            ->once()
+            ->andThrow(new \Exception('Migration failed: table already exists'));
+
+        $controller = new SettingsController();
+        $response = $controller->migrate();
+
+        $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
+        $this->assertStringContainsString('Migration failed', session('error'));
+    }
+
+    // ===== Tests for security method (66% coverage → 95%+) =====
+
+    public function test_security_method_exists(): void
+    {
+        $controller = new SettingsController();
+        $this->assertTrue(method_exists($controller, 'security'));
+    }
+
+    public function test_security_returns_security_view_if_exists(): void
+    {
+        \View::shouldReceive('exists')
+            ->with('settings.security')
+            ->once()
+            ->andReturn(true);
+        \View::shouldReceive('make')
+            ->with('settings.security', [], [])
+            ->once()
+            ->andReturn(\Mockery::mock(\Illuminate\Contracts\View\View::class));
+
+        $controller = new SettingsController();
+        $response = $controller->security();
+
+        $this->assertInstanceOf(\Illuminate\Contracts\View\View::class, $response);
+    }
+
+    public function test_security_falls_back_to_index_if_view_not_exists(): void
+    {
+        \View::shouldReceive('exists')
+            ->with('settings.security')
+            ->once()
+            ->andReturn(false);
+        
+        $controller = \Mockery::mock(SettingsController::class)->makePartial();
+        $controller->shouldReceive('index')
+            ->once()
+            ->andReturn(\Mockery::mock(\Illuminate\Contracts\View\View::class));
+
+        $response = $controller->security();
+
+        $this->assertInstanceOf(\Illuminate\Contracts\View\View::class, $response);
+    }
 }
