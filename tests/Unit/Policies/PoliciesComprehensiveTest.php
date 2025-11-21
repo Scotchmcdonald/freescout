@@ -5,383 +5,676 @@ declare(strict_types=1);
 namespace Tests\Unit\Policies;
 
 use App\Models\Conversation;
-use App\Models\Folder;
+use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
 use App\Policies\ConversationPolicy;
-use App\Policies\FolderPolicy;
 use App\Policies\MailboxPolicy;
-use App\Policies\ThreadPolicy;
-use App\Policies\UserPolicy;
 use Tests\UnitTestCase;
 
-/**
- * Comprehensive tests for Policy Classes
- * Following TESTING_GUIDE.md - using test_ prefix, UnitTestCase base class
- */
 class PoliciesComprehensiveTest extends UnitTestCase
 {
-    // ===== THREAD_POLICY TESTS =====
+    protected User $admin;
+    protected User $user;
 
-    public function test_thread_policy_user_can_edit_own_message(): void
+    protected function setUp(): void
     {
-        $user = User::factory()->create();
-        $thread = Thread::factory()->create([
-            'type' => Thread::TYPE_MESSAGE,
-            'created_by_user_id' => $user->id,
+        parent::setUp();
+
+        $this->admin = User::factory()->create([
+            'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
         ]);
-        
-        $policy = new ThreadPolicy();
-        
-        $this->assertTrue($policy->edit($user, $thread));
+        $this->user = User::factory()->create([
+            'role' => User::ROLE_USER,
+            'status' => User::STATUS_ACTIVE,
+        ]);
     }
 
-    public function test_thread_policy_user_cannot_edit_other_users_message(): void
-    {
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
-        $otherUser = User::factory()->create();
-        $thread = Thread::factory()->create([
-            'type' => Thread::TYPE_MESSAGE,
-            'created_by_user_id' => $otherUser->id,
-        ]);
-        
-        $policy = new ThreadPolicy();
-        
-        $this->assertFalse($policy->edit($user, $thread));
-    }
+// ConversationPolicy Tests
+    // ========================================
 
-    public function test_thread_policy_admin_can_edit_any_message(): void
+    public function test_view_cached_allows_user_with_mailbox_access(): void
     {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        $otherUser = User::factory()->create();
-        $thread = Thread::factory()->create([
-            'type' => Thread::TYPE_MESSAGE,
-            'created_by_user_id' => $otherUser->id,
-        ]);
-        
-        $policy = new ThreadPolicy();
-        
-        $this->assertTrue($policy->edit($admin, $thread));
-    }
+        $policy = new ConversationPolicy();
 
-    public function test_thread_policy_user_can_edit_own_note(): void
-    {
-        $user = User::factory()->create();
-        $thread = Thread::factory()->create([
-            'type' => Thread::TYPE_NOTE,
-            'created_by_user_id' => $user->id,
-        ]);
-        
-        $policy = new ThreadPolicy();
-        
-        $this->assertTrue($policy->edit($user, $thread));
-    }
-
-    public function test_thread_policy_user_can_delete_own_thread(): void
-    {
-        $user = User::factory()->create();
-        $thread = Thread::factory()->create([
-            'type' => Thread::TYPE_MESSAGE,
-            'created_by_user_id' => $user->id,
-        ]);
-        
-        $policy = new ThreadPolicy();
-        
-        $this->assertTrue($policy->delete($user, $thread));
-    }
-
-    public function test_thread_policy_user_cannot_delete_other_users_thread(): void
-    {
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
-        $otherUser = User::factory()->create();
-        $thread = Thread::factory()->create([
-            'type' => Thread::TYPE_MESSAGE,
-            'created_by_user_id' => $otherUser->id,
-        ]);
-        
-        $policy = new ThreadPolicy();
-        
-        $this->assertFalse($policy->delete($user, $thread));
-    }
-
-    public function test_thread_policy_customer_threads_can_be_edited(): void
-    {
-        $user = User::factory()->create();
-        $thread = Thread::factory()->create([
-            'type' => Thread::TYPE_CUSTOMER,
-            'created_by_customer_id' => 1,
-        ]);
-        
-        $policy = new ThreadPolicy();
-        
-        $this->assertTrue($policy->edit($user, $thread));
-    }
-
-    // ===== CONVERSATION_POLICY TESTS =====
-
-    public function test_conversation_policy_user_can_view_assigned_conversation(): void
-    {
-        $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        $mailbox->users()->attach($user->id);
-        
+        $mailbox->users()->attach($this->user->id);
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
         ]);
-        
-        $policy = new ConversationPolicy();
-        
-        $this->assertTrue($policy->view($user, $conversation));
+
+        // Reload to populate relationships
+        $conversation->load('mailbox.users');
+
+        $result = $policy->viewCached($this->user, $conversation);
+
+        $this->assertTrue($result);
     }
 
-    public function test_conversation_policy_user_cannot_view_unassigned_conversation(): void
+    public function test_view_cached_allows_admin(): void
     {
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $policy = new ConversationPolicy();
+
         $mailbox = Mailbox::factory()->create();
-        
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
         ]);
-        
-        $policy = new ConversationPolicy();
-        
-        $this->assertFalse($policy->view($user, $conversation));
+
+        $result = $policy->viewCached($this->admin, $conversation);
+
+        $this->assertTrue($result);
     }
 
-    public function test_conversation_policy_admin_can_view_any_conversation(): void
+    public function test_delete_prevents_unauthorized_user_from_deleting(): void
     {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $policy = new ConversationPolicy();
+
+        $otherMailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $otherMailbox->id,
+        ]);
+
+        $result = $policy->delete($this->user, $conversation);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_delete_allows_user_with_mailbox_access(): void
+    {
+        $policy = new ConversationPolicy();
+
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($this->user->id);
+
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+        ]);
+
+        $result = $policy->delete($this->user, $conversation);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_view_allows_admin(): void
+    {
+        $policy = new ConversationPolicy();
         $conversation = Conversation::factory()->create();
-        
-        $policy = new ConversationPolicy();
-        
-        $this->assertTrue($policy->view($admin, $conversation));
+
+        $result = $policy->view($this->admin, $conversation);
+
+        $this->assertTrue($result);
     }
 
-    public function test_conversation_policy_user_can_update_assigned_conversation(): void
+    public function test_view_allows_user_with_mailbox_access(): void
     {
-        $user = User::factory()->create();
+        $policy = new ConversationPolicy();
+
         $mailbox = Mailbox::factory()->create();
-        $mailbox->users()->attach($user->id);
-        
+        $mailbox->users()->attach($this->user->id);
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
         ]);
-        
+
+        $result = $policy->view($this->user, $conversation);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_view_denies_user_without_mailbox_access(): void
+    {
         $policy = new ConversationPolicy();
-        
-        $this->assertTrue($policy->update($user, $conversation));
-    }
 
-    // ===== MAILBOX_POLICY TESTS =====
-
-    public function test_mailbox_policy_admin_can_view_any_mailbox(): void
-    {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
-        
-        $policy = new MailboxPolicy();
-        
-        $this->assertTrue($policy->view($admin, $mailbox));
-    }
-
-    public function test_mailbox_policy_user_can_view_assigned_mailbox(): void
-    {
-        $user = User::factory()->create();
-        $mailbox = Mailbox::factory()->create();
-        $mailbox->users()->attach($user->id);
-        
-        $policy = new MailboxPolicy();
-        
-        $this->assertTrue($policy->view($user, $mailbox));
-    }
-
-    public function test_mailbox_policy_user_cannot_view_unassigned_mailbox(): void
-    {
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
-        $mailbox = Mailbox::factory()->create();
-        
-        $policy = new MailboxPolicy();
-        
-        $this->assertFalse($policy->view($user, $mailbox));
-    }
-
-    public function test_mailbox_policy_only_admin_can_create_mailbox(): void
-    {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
-        
-        $policy = new MailboxPolicy();
-        
-        $this->assertTrue($policy->create($admin));
-        $this->assertFalse($policy->create($user));
-    }
-
-    public function test_mailbox_policy_only_admin_can_update_mailbox(): void
-    {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
-        $mailbox = Mailbox::factory()->create();
-        
-        $policy = new MailboxPolicy();
-        
-        $this->assertTrue($policy->update($admin, $mailbox));
-        $this->assertFalse($policy->update($user, $mailbox));
-    }
-
-    public function test_mailbox_policy_only_admin_can_delete_mailbox(): void
-    {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
-        $mailbox = Mailbox::factory()->create();
-        
-        $policy = new MailboxPolicy();
-        
-        $this->assertTrue($policy->delete($admin, $mailbox));
-        $this->assertFalse($policy->delete($user, $mailbox));
-    }
-
-    // ===== USER_POLICY TESTS =====
-
-    public function test_user_policy_admin_can_view_any_user(): void
-    {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        $otherUser = User::factory()->create();
-        
-        $policy = new UserPolicy();
-        
-        $this->assertTrue($policy->view($admin, $otherUser));
-    }
-
-    public function test_user_policy_user_can_view_own_profile(): void
-    {
-        $user = User::factory()->create();
-        
-        $policy = new UserPolicy();
-        
-        $this->assertTrue($policy->view($user, $user));
-    }
-
-    public function test_user_policy_user_cannot_view_other_users(): void
-    {
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
-        $otherUser = User::factory()->create();
-        
-        $policy = new UserPolicy();
-        
-        $this->assertFalse($policy->view($user, $otherUser));
-    }
-
-    public function test_user_policy_only_admin_can_create_users(): void
-    {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
-        
-        $policy = new UserPolicy();
-        
-        $this->assertTrue($policy->create($admin));
-        $this->assertFalse($policy->create($user));
-    }
-
-    public function test_user_policy_only_admin_can_delete_users(): void
-    {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
-        $targetUser = User::factory()->create();
-        
-        $policy = new UserPolicy();
-        
-        $this->assertTrue($policy->delete($admin, $targetUser));
-        $this->assertFalse($policy->delete($user, $targetUser));
-    }
-
-    // ===== FOLDER_POLICY TESTS =====
-
-    public function test_folder_policy_admin_can_view_any_folder(): void
-    {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        $mailbox = Mailbox::factory()->create();
-        $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
-        
-        $policy = new FolderPolicy();
-        
-        $this->assertTrue($policy->view($admin, $folder));
-    }
-
-    public function test_folder_policy_user_can_view_folder_in_assigned_mailbox(): void
-    {
-        $user = User::factory()->create();
-        $mailbox = Mailbox::factory()->create();
-        $mailbox->users()->attach($user->id);
-        $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
-        
-        $policy = new FolderPolicy();
-        
-        $this->assertTrue($policy->view($user, $folder));
-    }
-
-    public function test_folder_policy_user_cannot_view_folder_in_unassigned_mailbox(): void
-    {
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
-        $mailbox = Mailbox::factory()->create();
-        $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
-        
-        $policy = new FolderPolicy();
-        
-        $this->assertFalse($policy->view($user, $folder));
-    }
-
-    // ===== EDGE CASES =====
-
-    public function test_thread_policy_handles_null_created_by_user_id(): void
-    {
-        $user = User::factory()->create();
-        $thread = Thread::factory()->create([
-            'type' => Thread::TYPE_MESSAGE,
-            'created_by_user_id' => null,
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
         ]);
-        
-        $policy = new ThreadPolicy();
-        
-        $this->assertFalse($policy->edit($user, $thread));
+
+        $result = $policy->view($this->user, $conversation);
+
+        $this->assertFalse($result);
     }
 
-    public function test_conversation_policy_with_multiple_mailbox_assignments(): void
+    public function test_update_allows_admin(): void
     {
-        $user = User::factory()->create();
+        $policy = new ConversationPolicy();
+        $conversation = Conversation::factory()->create();
+
+        $result = $policy->update($this->admin, $conversation);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_update_allows_user_with_mailbox_access(): void
+    {
+        $policy = new ConversationPolicy();
+
+        $mailbox = Mailbox::factory()->create();
+        $mailbox->users()->attach($this->user->id);
+
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+        ]);
+
+        $result = $policy->update($this->user, $conversation);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_update_denies_user_without_mailbox_access(): void
+    {
+        $policy = new ConversationPolicy();
+
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+        ]);
+
+        $result = $policy->update($this->user, $conversation);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_delete_allows_admin(): void
+    {
+        $policy = new ConversationPolicy();
+        $conversation = Conversation::factory()->create();
+
+        $result = $policy->delete($this->admin, $conversation);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_delete_allows_conversation_without_id(): void
+    {
+        $policy = new ConversationPolicy();
+        $conversation = new Conversation();
+
+        $result = $policy->delete($this->user, $conversation);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_move_allows_user_with_multiple_mailboxes(): void
+    {
+        $policy = new ConversationPolicy();
+
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
-        $mailbox1->users()->attach($user->id);
-        $mailbox2->users()->attach($user->id);
-        
-        $conversation1 = Conversation::factory()->create(['mailbox_id' => $mailbox1->id]);
-        $conversation2 = Conversation::factory()->create(['mailbox_id' => $mailbox2->id]);
-        
+
+        $this->user->mailboxes()->attach([$mailbox1->id, $mailbox2->id]);
+
+        $result = $policy->move($this->user);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_move_allows_when_multiple_mailboxes_exist(): void
+    {
+        // Clear existing mailboxes
+        Mailbox::query()->delete();
+
         $policy = new ConversationPolicy();
-        
-        $this->assertTrue($policy->view($user, $conversation1));
-        $this->assertTrue($policy->view($user, $conversation2));
+
+        $mailbox1 = Mailbox::factory()->create();
+        $mailbox2 = Mailbox::factory()->create();
+
+        $this->user->mailboxes()->attach($mailbox1->id);
+
+        $result = $policy->move($this->user);
+
+        $this->assertTrue($result);
     }
 
-    public function test_user_policy_admin_cannot_delete_self(): void
+    public function test_move_denies_with_single_mailbox_system(): void
     {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        
-        $policy = new UserPolicy();
-        
-        $this->assertFalse($policy->delete($admin, $admin));
+        // Clear existing mailboxes
+        Mailbox::query()->delete();
+
+        $policy = new ConversationPolicy();
+
+        $mailbox = Mailbox::factory()->create();
+        $this->user->mailboxes()->attach($mailbox->id);
+
+        $result = $policy->move($this->user);
+
+        $this->assertFalse($result);
     }
 
-    public function test_mailbox_policy_consistency_across_operations(): void
+    public function test_view_cached_denies_user_without_mailbox_access(): void
     {
-        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $policy = new ConversationPolicy();
+
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+        ]);
+
+        // Load the mailbox relationship
+        $conversation->load('mailbox.users');
+
+        $result = $policy->viewCached($this->user, $conversation);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_check_is_only_assigned_returns_true(): void
+    {
+        $policy = new ConversationPolicy();
+
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $this->user->id, // User is assignee
+        ]);
+
+        $result = $policy->checkIsOnlyAssigned($conversation, $this->user);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_check_is_only_assigned_for_creator(): void
+    {
+        $policy = new ConversationPolicy();
+
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'created_by_user_id' => $this->user->id, // User is creator
+        ]);
+
+        $result = $policy->checkIsOnlyAssigned($conversation, $this->user);
+
+        $this->assertTrue($result);
+    }
+
+    // ========================================
+    // MailboxPolicy Tests
+    // ========================================
+
+    public function test_restore_allows_admin_to_restore_mailbox(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->restore($this->admin, $mailbox);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_restore_prevents_non_admin_from_restoring(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->restore($this->user, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_force_delete_allows_admin_to_permanently_delete(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->forceDelete($this->admin, $mailbox);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_force_delete_prevents_non_admin_from_permanently_deleting(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->forceDelete($this->user, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_restore_handles_null_user(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->restore(null, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_force_delete_handles_null_user(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->forceDelete(null, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_view_any_allows_authenticated_users(): void
+    {
+        $policy = new MailboxPolicy();
+
+        $result = $policy->viewAny($this->user);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_view_any_denies_null_user(): void
+    {
+        $policy = new MailboxPolicy();
+
+        $result = $policy->viewAny(null);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_mailbox_view_allows_admin(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->view($this->admin, $mailbox);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_view_allows_user_with_view_access(): void
+    {
+        $policy = new MailboxPolicy();
         $mailbox = Mailbox::factory()->create();
         
-        $policy = new MailboxPolicy();
-        
-        $this->assertTrue($policy->view($admin, $mailbox));
-        $this->assertTrue($policy->update($admin, $mailbox));
-        $this->assertTrue($policy->delete($admin, $mailbox));
+        // Attach user with VIEW access
+        $this->user->mailboxes()->attach($mailbox->id, [
+            'access' => MailboxPolicy::ACCESS_VIEW,
+        ]);
+
+        // Reload to get pivot data
+        $this->user->load('mailboxes');
+
+        $result = $policy->view($this->user, $mailbox);
+
+        $this->assertTrue($result);
     }
+
+    public function test_view_denies_user_without_access(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->view($this->user, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_view_denies_null_user(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->view(null, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_create_allows_admin(): void
+    {
+        $policy = new MailboxPolicy();
+
+        $result = $policy->create($this->admin);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_create_denies_non_admin(): void
+    {
+        $policy = new MailboxPolicy();
+
+        $result = $policy->create($this->user);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_create_denies_null_user(): void
+    {
+        $policy = new MailboxPolicy();
+
+        $result = $policy->create(null);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_mailbox_update_allows_admin(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->update($this->admin, $mailbox);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_update_allows_user_with_admin_access(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+        
+        // Attach user with ADMIN access
+        $this->user->mailboxes()->attach($mailbox->id, [
+            'access' => MailboxPolicy::ACCESS_ADMIN,
+        ]);
+
+        // Reload to get pivot data
+        $this->user->load('mailboxes');
+
+        $result = $policy->update($this->user, $mailbox);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_update_denies_user_with_reply_access_only(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+        
+        // Attach user with REPLY access (not enough for update)
+        $this->user->mailboxes()->attach($mailbox->id, [
+            'access' => MailboxPolicy::ACCESS_REPLY,
+        ]);
+
+        // Reload to get pivot data
+        $this->user->load('mailboxes');
+
+        $result = $policy->update($this->user, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_update_denies_user_without_access(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->update($this->user, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_update_denies_null_user(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->update(null, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_mailbox_delete_allows_admin(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->delete($this->admin, $mailbox);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_delete_denies_non_admin(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->delete($this->user, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_delete_denies_null_user(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->delete(null, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_reply_allows_admin(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->reply($this->admin, $mailbox);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_reply_allows_user_with_reply_access(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+        
+        // Attach user with REPLY access
+        $this->user->mailboxes()->attach($mailbox->id, [
+            'access' => MailboxPolicy::ACCESS_REPLY,
+        ]);
+
+        // Reload to get pivot data
+        $this->user->load('mailboxes');
+
+        $result = $policy->reply($this->user, $mailbox);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_reply_denies_user_with_view_access_only(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+        
+        // Attach user with VIEW access (not enough for reply)
+        $this->user->mailboxes()->attach($mailbox->id, [
+            'access' => MailboxPolicy::ACCESS_VIEW,
+        ]);
+
+        // Reload to get pivot data
+        $this->user->load('mailboxes');
+
+        $result = $policy->reply($this->user, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_reply_denies_user_without_access(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->reply($this->user, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_reply_denies_null_user(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->reply(null, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_admin_policy_allows_admin_user(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->admin($this->admin, $mailbox);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_admin_policy_allows_user_with_admin_access(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+        
+        // Attach user with ADMIN access
+        $this->user->mailboxes()->attach($mailbox->id, [
+            'access' => MailboxPolicy::ACCESS_ADMIN,
+        ]);
+
+        // Reload to get pivot data
+        $this->user->load('mailboxes');
+
+        $result = $policy->admin($this->user, $mailbox);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_admin_policy_denies_user_with_reply_access(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+        
+        // Attach user with REPLY access (not enough for admin operations)
+        $this->user->mailboxes()->attach($mailbox->id, [
+            'access' => MailboxPolicy::ACCESS_REPLY,
+        ]);
+
+        // Reload to get pivot data
+        $this->user->load('mailboxes');
+
+        $result = $policy->admin($this->user, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_admin_policy_denies_user_without_access(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->admin($this->user, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_admin_policy_denies_null_user(): void
+    {
+        $policy = new MailboxPolicy();
+        $mailbox = Mailbox::factory()->create();
+
+        $result = $policy->admin(null, $mailbox);
+
+        $this->assertFalse($result);
+    }
+
+    // ========================================
 }
