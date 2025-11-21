@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/html/app/Models</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../_css/bootstrap.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/nv.d3.min.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/style.css?v=11.0.11" rel="stylesheet" type="text/css">
+  <link href="../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../index.html">/var/www/html/app</a></li>
+         <li class="breadcrumb-item"><a href="index.html">Models</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="User.php.html#44">App\Models\User</a></td><td class="text-right">88%</td></tr>
+       <tr><td><a href="Conversation.php.html#56">App\Models\Conversation</a></td><td class="text-right">89%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Conversation.php.html#56">App\Models\Conversation</a></td><td class="text-right">37</td></tr>
+       <tr><td><a href="User.php.html#44">App\Models\User</a></td><td class="text-right">26</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="User.php.html#261"><abbr title="App\Models\User::urlSetup">urlSetup</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#274"><abbr title="App\Models\User::dateFormat">dateFormat</abbr></a></td><td class="text-right">55%</td></tr>
+       <tr><td><a href="Conversation.php.html#270"><abbr title="App\Models\Conversation::getStatusName">getStatusName</abbr></a></td><td class="text-right">57%</td></tr>
+       <tr><td><a href="Conversation.php.html#284"><abbr title="App\Models\Conversation::getStatusColor">getStatusColor</abbr></a></td><td class="text-right">57%</td></tr>
+       <tr><td><a href="Mailbox.php.html#220"><abbr title="App\Models\Mailbox::getAliasesArray">getAliasesArray</abbr></a></td><td class="text-right">80%</td></tr>
+       <tr><td><a href="Customer.php.html#193"><abbr title="App\Models\Customer::create">create</abbr></a></td><td class="text-right">83%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Customer.php.html#193"><abbr title="App\Models\Customer::create">create</abbr></a></td><td class="text-right">19</td></tr>
+       <tr><td><a href="User.php.html#274"><abbr title="App\Models\User::dateFormat">dateFormat</abbr></a></td><td class="text-right">9</td></tr>
+       <tr><td><a href="Conversation.php.html#270"><abbr title="App\Models\Conversation::getStatusName">getStatusName</abbr></a></td><td class="text-right">8</td></tr>
+       <tr><td><a href="Conversation.php.html#284"><abbr title="App\Models\Conversation::getStatusColor">getStatusColor</abbr></a></td><td class="text-right">8</td></tr>
+       <tr><td><a href="Mailbox.php.html#220"><abbr title="App\Models\Mailbox::getAliasesArray">getAliasesArray</abbr></a></td><td class="text-right">3</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 11.0.11</a> using <a href="https://www.php.net/" target="_top">PHP 8.3.6</a> at Fri Nov 21 4:11:30 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../_js/jquery.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../_js/d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script src="../_js/nv.d3.min.js?v=11.0.11" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([0,0,0,0,0,0,0,0,0,2,2,14], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([1,0,0,0,0,0,3,0,0,2,1,130], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[100,9,"<a href=\"ActivityLog.php.html#11\">App\\Models\\ActivityLog<\/a>"],[100,7,"<a href=\"Attachment.php.html#24\">App\\Models\\Attachment<\/a>"],[100,3,"<a href=\"Channel.php.html#21\">App\\Models\\Channel<\/a>"],[89.55223880597015,36,"<a href=\"Conversation.php.html#56\">App\\Models\\Conversation<\/a>"],[100,1,"<a href=\"ConversationFolder.php.html#16\">App\\Models\\ConversationFolder<\/a>"],[93.67088607594937,49,"<a href=\"Customer.php.html#40\">App\\Models\\Customer<\/a>"],[100,2,"<a href=\"CustomerChannel.php.html#19\">App\\Models\\CustomerChannel<\/a>"],[100,8,"<a href=\"Email.php.html#20\">App\\Models\\Email<\/a>"],[100,11,"<a href=\"Folder.php.html#27\">App\\Models\\Folder<\/a>"],[100,3,"<a href=\"Follower.php.html#20\">App\\Models\\Follower<\/a>"],[97.82608695652173,14,"<a href=\"Mailbox.php.html#60\">App\\Models\\Mailbox<\/a>"],[100,1,"<a href=\"MailboxUser.php.html#18\">App\\Models\\MailboxUser<\/a>"],[100,4,"<a href=\"Module.php.html#10\">App\\Models\\Module<\/a>"],[100,6,"<a href=\"Option.php.html#14\">App\\Models\\Option<\/a>"],[100,9,"<a href=\"SendLog.php.html#33\">App\\Models\\SendLog<\/a>"],[100,14,"<a href=\"Subscription.php.html#11\">App\\Models\\Subscription<\/a>"],[100,25,"<a href=\"Thread.php.html#50\">App\\Models\\Thread<\/a>"],[88.88888888888889,26,"<a href=\"User.php.html#44\">App\\Models\\User<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[100,1,"<a href=\"ActivityLog.php.html#48\">App\\Models\\ActivityLog::casts<\/a>"],[100,1,"<a href=\"ActivityLog.php.html#60\">App\\Models\\ActivityLog::subject<\/a>"],[100,1,"<a href=\"ActivityLog.php.html#68\">App\\Models\\ActivityLog::causer<\/a>"],[100,3,"<a href=\"ActivityLog.php.html#76\">App\\Models\\ActivityLog::user<\/a>"],[100,1,"<a href=\"ActivityLog.php.html#91\">App\\Models\\ActivityLog::scopeInLog<\/a>"],[100,1,"<a href=\"ActivityLog.php.html#102\">App\\Models\\ActivityLog::scopeCausedBy<\/a>"],[100,1,"<a href=\"ActivityLog.php.html#111\">App\\Models\\ActivityLog::scopeForSubject<\/a>"],[100,1,"<a href=\"Attachment.php.html#41\">App\\Models\\Attachment::casts<\/a>"],[100,1,"<a href=\"Attachment.php.html#57\">App\\Models\\Attachment::thread<\/a>"],[100,1,"<a href=\"Attachment.php.html#65\">App\\Models\\Attachment::getFullPathAttribute<\/a>"],[100,3,"<a href=\"Attachment.php.html#73\">App\\Models\\Attachment::getHumanFileSizeAttribute<\/a>"],[100,1,"<a href=\"Attachment.php.html#88\">App\\Models\\Attachment::isImage<\/a>"],[100,1,"<a href=\"Channel.php.html#35\">App\\Models\\Channel::casts<\/a>"],[100,1,"<a href=\"Channel.php.html#51\">App\\Models\\Channel::customers<\/a>"],[100,1,"<a href=\"Channel.php.html#60\">App\\Models\\Channel::isActive<\/a>"],[100,1,"<a href=\"Conversation.php.html#117\">App\\Models\\Conversation::casts<\/a>"],[100,1,"<a href=\"Conversation.php.html#148\">App\\Models\\Conversation::folder<\/a>"],[100,1,"<a href=\"Conversation.php.html#158\">App\\Models\\Conversation::mailbox<\/a>"],[100,1,"<a href=\"Conversation.php.html#168\">App\\Models\\Conversation::user<\/a>"],[100,1,"<a href=\"Conversation.php.html#178\">App\\Models\\Conversation::customer<\/a>"],[100,1,"<a href=\"Conversation.php.html#188\">App\\Models\\Conversation::createdByUser<\/a>"],[100,1,"<a href=\"Conversation.php.html#198\">App\\Models\\Conversation::closedByUser<\/a>"],[100,1,"<a href=\"Conversation.php.html#208\">App\\Models\\Conversation::threads<\/a>"],[100,1,"<a href=\"Conversation.php.html#218\">App\\Models\\Conversation::followers<\/a>"],[100,1,"<a href=\"Conversation.php.html#229\">App\\Models\\Conversation::folders<\/a>"],[100,1,"<a href=\"Conversation.php.html#238\">App\\Models\\Conversation::getCcArray<\/a>"],[100,1,"<a href=\"Conversation.php.html#246\">App\\Models\\Conversation::url<\/a>"],[100,1,"<a href=\"Conversation.php.html#254\">App\\Models\\Conversation::isActive<\/a>"],[100,1,"<a href=\"Conversation.php.html#262\">App\\Models\\Conversation::isClosed<\/a>"],[57.14285714285714,6,"<a href=\"Conversation.php.html#270\">App\\Models\\Conversation::getStatusName<\/a>"],[57.14285714285714,6,"<a href=\"Conversation.php.html#284\">App\\Models\\Conversation::getStatusColor<\/a>"],[93.75,10,"<a href=\"Conversation.php.html#298\">App\\Models\\Conversation::updateFolder<\/a>"],[100,1,"<a href=\"ConversationFolder.php.html#30\">App\\Models\\ConversationFolder::casts<\/a>"],[100,1,"<a href=\"Customer.php.html#67\">App\\Models\\Customer::casts<\/a>"],[100,1,"<a href=\"Customer.php.html#85\">App\\Models\\Customer::emails<\/a>"],[100,1,"<a href=\"Customer.php.html#95\">App\\Models\\Customer::conversations<\/a>"],[100,1,"<a href=\"Customer.php.html#105\">App\\Models\\Customer::threads<\/a>"],[100,1,"<a href=\"Customer.php.html#115\">App\\Models\\Customer::channels<\/a>"],[100,1,"<a href=\"Customer.php.html#126\">App\\Models\\Customer::customerChannels<\/a>"],[100,1,"<a href=\"Customer.php.html#134\">App\\Models\\Customer::getFullNameAttribute<\/a>"],[100,1,"<a href=\"Customer.php.html#142\">App\\Models\\Customer::getFullName<\/a>"],[100,3,"<a href=\"Customer.php.html#153\">App\\Models\\Customer::getFirstName<\/a>"],[100,1,"<a href=\"Customer.php.html#163\">App\\Models\\Customer::getPrimaryEmailAttribute<\/a>"],[100,3,"<a href=\"Customer.php.html#174\">App\\Models\\Customer::getMainEmail<\/a>"],[83.33333333333334,18,"<a href=\"Customer.php.html#193\">App\\Models\\Customer::create<\/a>"],[100,16,"<a href=\"Customer.php.html#254\">App\\Models\\Customer::setData<\/a>"],[100,1,"<a href=\"CustomerChannel.php.html#39\">App\\Models\\CustomerChannel::casts<\/a>"],[100,1,"<a href=\"CustomerChannel.php.html#54\">App\\Models\\CustomerChannel::customer<\/a>"],[100,1,"<a href=\"Email.php.html#37\">App\\Models\\Email::casts<\/a>"],[100,1,"<a href=\"Email.php.html#52\">App\\Models\\Email::customer<\/a>"],[100,1,"<a href=\"Email.php.html#60\">App\\Models\\Email::isPrimary<\/a>"],[100,1,"<a href=\"Email.php.html#68\">App\\Models\\Email::isSecondary<\/a>"],[100,4,"<a href=\"Email.php.html#76\">App\\Models\\Email::sanitizeEmail<\/a>"],[100,1,"<a href=\"Folder.php.html#55\">App\\Models\\Folder::casts<\/a>"],[100,1,"<a href=\"Folder.php.html#71\">App\\Models\\Folder::mailbox<\/a>"],[100,1,"<a href=\"Folder.php.html#81\">App\\Models\\Folder::user<\/a>"],[100,1,"<a href=\"Folder.php.html#91\">App\\Models\\Folder::conversations<\/a>"],[100,1,"<a href=\"Folder.php.html#101\">App\\Models\\Folder::conversationsViaFolder<\/a>"],[100,1,"<a href=\"Folder.php.html#110\">App\\Models\\Folder::isInbox<\/a>"],[100,1,"<a href=\"Folder.php.html#118\">App\\Models\\Folder::isSent<\/a>"],[100,1,"<a href=\"Folder.php.html#126\">App\\Models\\Folder::isDrafts<\/a>"],[100,1,"<a href=\"Folder.php.html#134\">App\\Models\\Folder::isSpam<\/a>"],[100,1,"<a href=\"Folder.php.html#142\">App\\Models\\Folder::isTrash<\/a>"],[100,1,"<a href=\"Folder.php.html#150\">App\\Models\\Folder::updateCounters<\/a>"],[100,1,"<a href=\"Follower.php.html#32\">App\\Models\\Follower::casts<\/a>"],[100,1,"<a href=\"Follower.php.html#47\">App\\Models\\Follower::conversation<\/a>"],[100,1,"<a href=\"Follower.php.html#57\">App\\Models\\Follower::user<\/a>"],[100,1,"<a href=\"Mailbox.php.html#112\">App\\Models\\Mailbox::casts<\/a>"],[100,1,"<a href=\"Mailbox.php.html#143\">App\\Models\\Mailbox::users<\/a>"],[100,1,"<a href=\"Mailbox.php.html#156\">App\\Models\\Mailbox::folders<\/a>"],[100,1,"<a href=\"Mailbox.php.html#166\">App\\Models\\Mailbox::conversations<\/a>"],[100,2,"<a href=\"Mailbox.php.html#177\">App\\Models\\Mailbox::getMailFrom<\/a>"],[100,1,"<a href=\"Mailbox.php.html#195\">App\\Models\\Mailbox::url<\/a>"],[100,1,"<a href=\"Mailbox.php.html#203\">App\\Models\\Mailbox::userHasAccess<\/a>"],[100,1,"<a href=\"Mailbox.php.html#211\">App\\Models\\Mailbox::hasAlias<\/a>"],[80,3,"<a href=\"Mailbox.php.html#220\">App\\Models\\Mailbox::getAliasesArray<\/a>"],[100,1,"<a href=\"Mailbox.php.html#234\">App\\Models\\Mailbox::isFetchingEnabled<\/a>"],[100,1,"<a href=\"Mailbox.php.html#242\">App\\Models\\Mailbox::isSendingEnabled<\/a>"],[100,1,"<a href=\"MailboxUser.php.html#41\">App\\Models\\MailboxUser::casts<\/a>"],[100,1,"<a href=\"Module.php.html#24\">App\\Models\\Module::casts<\/a>"],[100,1,"<a href=\"Module.php.html#37\">App\\Models\\Module::isActive<\/a>"],[100,1,"<a href=\"Module.php.html#45\">App\\Models\\Module::activate<\/a>"],[100,1,"<a href=\"Module.php.html#55\">App\\Models\\Module::deactivate<\/a>"],[100,1,"<a href=\"Option.php.html#47\">App\\Models\\Option::casts<\/a>"],[100,2,"<a href=\"Option.php.html#58\">App\\Models\\Option::getValue<\/a>"],[100,1,"<a href=\"Option.php.html#68\">App\\Models\\Option::setValue<\/a>"],[100,1,"<a href=\"Option.php.html#81\">App\\Models\\Option::deleteOption<\/a>"],[100,1,"<a href=\"Option.php.html#89\">App\\Models\\Option::get<\/a>"],[100,1,"<a href=\"SendLog.php.html#91\">App\\Models\\SendLog::casts<\/a>"],[100,1,"<a href=\"SendLog.php.html#111\">App\\Models\\SendLog::thread<\/a>"],[100,1,"<a href=\"SendLog.php.html#119\">App\\Models\\SendLog::customer<\/a>"],[100,1,"<a href=\"SendLog.php.html#127\">App\\Models\\SendLog::user<\/a>"],[100,1,"<a href=\"SendLog.php.html#135\">App\\Models\\SendLog::isSent<\/a>"],[100,2,"<a href=\"SendLog.php.html#148\">App\\Models\\SendLog::isFailed<\/a>"],[100,1,"<a href=\"SendLog.php.html#156\">App\\Models\\SendLog::wasOpened<\/a>"],[100,1,"<a href=\"SendLog.php.html#164\">App\\Models\\SendLog::wasClicked<\/a>"],[100,1,"<a href=\"Subscription.php.html#45\">App\\Models\\Subscription::casts<\/a>"],[100,1,"<a href=\"Subscription.php.html#61\">App\\Models\\Subscription::user<\/a>"],[100,1,"<a href=\"Subscription.php.html#69\">App\\Models\\Subscription::isEmail<\/a>"],[100,1,"<a href=\"Subscription.php.html#77\">App\\Models\\Subscription::isBrowser<\/a>"],[100,1,"<a href=\"Subscription.php.html#85\">App\\Models\\Subscription::isMobile<\/a>"],[100,9,"<a href=\"Subscription.php.html#97\">App\\Models\\Subscription::registerEvent<\/a>"],[100,1,"<a href=\"Thread.php.html#109\">App\\Models\\Thread::casts<\/a>"],[100,1,"<a href=\"Thread.php.html#133\">App\\Models\\Thread::conversation<\/a>"],[100,1,"<a href=\"Thread.php.html#143\">App\\Models\\Thread::user<\/a>"],[100,1,"<a href=\"Thread.php.html#153\">App\\Models\\Thread::customer<\/a>"],[100,1,"<a href=\"Thread.php.html#163\">App\\Models\\Thread::createdByUser<\/a>"],[100,1,"<a href=\"Thread.php.html#173\">App\\Models\\Thread::editedByUser<\/a>"],[100,1,"<a href=\"Thread.php.html#183\">App\\Models\\Thread::attachments<\/a>"],[100,1,"<a href=\"Thread.php.html#193\">App\\Models\\Thread::sendLogs<\/a>"],[100,1,"<a href=\"Thread.php.html#201\">App\\Models\\Thread::isCustomerMessage<\/a>"],[100,1,"<a href=\"Thread.php.html#209\">App\\Models\\Thread::isUserMessage<\/a>"],[100,1,"<a href=\"Thread.php.html#217\">App\\Models\\Thread::isNote<\/a>"],[100,3,"<a href=\"Thread.php.html#226\">App\\Models\\Thread::isAutoResponder<\/a>"],[100,1,"<a href=\"Thread.php.html#238\">App\\Models\\Thread::isBounce<\/a>"],[100,1,"<a href=\"Thread.php.html#249\">App\\Models\\Thread::getCreatedBy<\/a>"],[100,6,"<a href=\"Thread.php.html#257\">App\\Models\\Thread::getStatusName<\/a>"],[100,1,"<a href=\"Thread.php.html#271\">App\\Models\\Thread::getActionText<\/a>"],[100,2,"<a href=\"Thread.php.html#279\">App\\Models\\Thread::getAssigneeName<\/a>"],[100,1,"<a href=\"User.php.html#105\">App\\Models\\User::casts<\/a>"],[100,1,"<a href=\"User.php.html#125\">App\\Models\\User::mailboxes<\/a>"],[100,1,"<a href=\"User.php.html#138\">App\\Models\\User::folders<\/a>"],[100,1,"<a href=\"User.php.html#148\">App\\Models\\User::conversations<\/a>"],[100,1,"<a href=\"User.php.html#158\">App\\Models\\User::followedConversations<\/a>"],[100,1,"<a href=\"User.php.html#169\">App\\Models\\User::threads<\/a>"],[100,1,"<a href=\"User.php.html#179\">App\\Models\\User::subscriptions<\/a>"],[100,1,"<a href=\"User.php.html#187\">App\\Models\\User::getFullNameAttribute<\/a>"],[100,1,"<a href=\"User.php.html#195\">App\\Models\\User::isAdmin<\/a>"],[100,1,"<a href=\"User.php.html#203\">App\\Models\\User::isActive<\/a>"],[100,2,"<a href=\"User.php.html#211\">App\\Models\\User::getFullName<\/a>"],[100,1,"<a href=\"User.php.html#221\">App\\Models\\User::getFirstName<\/a>"],[100,1,"<a href=\"User.php.html#229\">App\\Models\\User::getNameAttribute<\/a>"],[100,1,"<a href=\"User.php.html#237\">App\\Models\\User::getPhotoUrl<\/a>"],[100,3,"<a href=\"User.php.html#247\">App\\Models\\User::hasAccessToMailbox<\/a>"],[0,1,"<a href=\"User.php.html#261\">App\\Models\\User::urlSetup<\/a>"],[55.55555555555556,6,"<a href=\"User.php.html#274\">App\\Models\\User::dateFormat<\/a>"],[100,1,"<a href=\"User.php.html#298\">App\\Models\\User::sendPasswordChanged<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>
