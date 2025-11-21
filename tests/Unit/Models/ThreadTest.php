@@ -230,4 +230,328 @@ class ThreadTest extends TestCase
 
         $this->assertEquals($time->timestamp, $thread->opened_at->timestamp);
     }
+
+    // Additional tests for uncovered methods (73.81% → 90-95%)
+
+    public function test_is_customer_message_returns_true_for_customer_type(): void
+    {
+        $thread = Thread::factory()->create([
+            'type' => Thread::TYPE_CUSTOMER,
+        ]);
+
+        $this->assertTrue($thread->isCustomerMessage());
+    }
+
+    public function test_is_customer_message_returns_false_for_other_types(): void
+    {
+        $thread = Thread::factory()->create([
+            'type' => Thread::TYPE_MESSAGE,
+        ]);
+
+        $this->assertFalse($thread->isCustomerMessage());
+    }
+
+    public function test_is_user_message_returns_true_for_message_type(): void
+    {
+        $thread = Thread::factory()->create([
+            'type' => Thread::TYPE_MESSAGE,
+        ]);
+
+        $this->assertTrue($thread->isUserMessage());
+    }
+
+    public function test_is_user_message_returns_false_for_other_types(): void
+    {
+        $thread = Thread::factory()->create([
+            'type' => Thread::TYPE_NOTE,
+        ]);
+
+        $this->assertFalse($thread->isUserMessage());
+    }
+
+    public function test_is_note_returns_true_for_note_type(): void
+    {
+        $thread = Thread::factory()->create([
+            'type' => Thread::TYPE_NOTE,
+        ]);
+
+        $this->assertTrue($thread->isNote());
+    }
+
+    public function test_is_note_returns_false_for_other_types(): void
+    {
+        $thread = Thread::factory()->create([
+            'type' => Thread::TYPE_MESSAGE,
+        ]);
+
+        $this->assertFalse($thread->isNote());
+    }
+
+    public function test_is_bounce_returns_true_when_bounce_in_meta(): void
+    {
+        $thread = Thread::factory()->create([
+            'meta' => ['send_status' => ['is_bounce' => true]],
+        ]);
+
+        $this->assertTrue($thread->isBounce());
+    }
+
+    public function test_is_bounce_returns_false_when_no_bounce_in_meta(): void
+    {
+        $thread = Thread::factory()->create([
+            'meta' => ['send_status' => []],
+        ]);
+
+        $this->assertFalse($thread->isBounce());
+    }
+
+    public function test_is_bounce_returns_false_when_meta_is_null(): void
+    {
+        $thread = Thread::factory()->create([
+            'meta' => null,
+        ]);
+
+        $this->assertFalse($thread->isBounce());
+    }
+
+    public function test_is_bounce_returns_false_when_send_status_missing(): void
+    {
+        $thread = Thread::factory()->create([
+            'meta' => ['other_key' => 'value'],
+        ]);
+
+        $this->assertFalse($thread->isBounce());
+    }
+
+    public function test_get_created_by_returns_user(): void
+    {
+        $user = User::factory()->create();
+        $thread = Thread::factory()->create([
+            'created_by_user_id' => $user->id,
+        ]);
+        $thread = $thread->fresh(['createdByUser']);
+
+        $createdBy = $thread->getCreatedBy();
+
+        $this->assertInstanceOf(User::class, $createdBy);
+        $this->assertEquals($user->id, $createdBy->id);
+    }
+
+    public function test_get_created_by_returns_null_when_no_user(): void
+    {
+        $thread = Thread::factory()->create([
+            'created_by_user_id' => null,
+        ]);
+
+        $createdBy = $thread->getCreatedBy();
+
+        $this->assertNull($createdBy);
+    }
+
+    public function test_get_status_name_returns_active(): void
+    {
+        $thread = Thread::factory()->create([
+            'status' => \App\Models\Conversation::STATUS_ACTIVE,
+        ]);
+
+        $statusName = $thread->getStatusName();
+
+        $this->assertIsString($statusName);
+        $this->assertNotEmpty($statusName);
+    }
+
+    public function test_get_status_name_returns_pending(): void
+    {
+        $thread = Thread::factory()->create([
+            'status' => \App\Models\Conversation::STATUS_PENDING,
+        ]);
+
+        $statusName = $thread->getStatusName();
+
+        $this->assertIsString($statusName);
+        $this->assertNotEmpty($statusName);
+    }
+
+    public function test_get_status_name_returns_closed(): void
+    {
+        $thread = Thread::factory()->create([
+            'status' => \App\Models\Conversation::STATUS_CLOSED,
+        ]);
+
+        $statusName = $thread->getStatusName();
+
+        $this->assertIsString($statusName);
+        $this->assertNotEmpty($statusName);
+    }
+
+    public function test_get_status_name_returns_spam(): void
+    {
+        $thread = Thread::factory()->create([
+            'status' => \App\Models\Conversation::STATUS_SPAM,
+        ]);
+
+        $statusName = $thread->getStatusName();
+
+        $this->assertIsString($statusName);
+        $this->assertNotEmpty($statusName);
+    }
+
+    public function test_get_status_name_returns_unknown_for_invalid_status(): void
+    {
+        $thread = Thread::factory()->create([
+            'status' => 999,
+        ]);
+
+        $statusName = $thread->getStatusName();
+
+        $this->assertIsString($statusName);
+    }
+
+    public function test_get_action_text_returns_string(): void
+    {
+        $thread = Thread::factory()->create();
+
+        $actionText = $thread->getActionText();
+
+        $this->assertIsString($actionText);
+        $this->assertNotEmpty($actionText);
+    }
+
+    public function test_get_action_text_with_parameters(): void
+    {
+        $thread = Thread::factory()->create();
+
+        $actionText = $thread->getActionText('custom text', true, false, null, 'John Doe');
+
+        $this->assertIsString($actionText);
+    }
+
+    public function test_get_assignee_name_returns_user_name(): void
+    {
+        $user = User::factory()->create([
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+        ]);
+        $thread = Thread::factory()->create([
+            'user_id' => $user->id,
+        ]);
+        $thread = $thread->fresh(['user']);
+
+        $assigneeName = $thread->getAssigneeName();
+
+        $this->assertIsString($assigneeName);
+        $this->assertStringContainsString('John', $assigneeName);
+    }
+
+    public function test_get_assignee_name_returns_unknown_when_no_user(): void
+    {
+        $thread = Thread::factory()->create([
+            'user_id' => null,
+        ]);
+
+        $assigneeName = $thread->getAssigneeName();
+
+        $this->assertIsString($assigneeName);
+    }
+
+    public function test_get_assignee_name_with_short_parameter(): void
+    {
+        $user = User::factory()->create([
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+        ]);
+        $thread = Thread::factory()->create([
+            'user_id' => $user->id,
+        ]);
+        $thread = $thread->fresh(['user']);
+
+        $assigneeName = $thread->getAssigneeName(true);
+
+        $this->assertIsString($assigneeName);
+    }
+
+    public function test_created_by_user_relationship(): void
+    {
+        $user = User::factory()->create();
+        $thread = Thread::factory()->create([
+            'created_by_user_id' => $user->id,
+        ]);
+
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $thread->createdByUser());
+        $thread = $thread->fresh(['createdByUser']);
+        $this->assertEquals($user->id, $thread->createdByUser->id);
+    }
+
+    public function test_edited_by_user_relationship(): void
+    {
+        $user = User::factory()->create();
+        $thread = Thread::factory()->create([
+            'edited_by_user_id' => $user->id,
+        ]);
+
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $thread->editedByUser());
+        $thread = $thread->fresh(['editedByUser']);
+        $this->assertEquals($user->id, $thread->editedByUser->id);
+    }
+
+    public function test_send_logs_relationship_exists(): void
+    {
+        $thread = Thread::factory()->create();
+
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $thread->sendLogs());
+    }
+
+    public function test_thread_type_constants_are_defined(): void
+    {
+        $this->assertEquals(1, Thread::TYPE_MESSAGE);
+        $this->assertEquals(2, Thread::TYPE_NOTE);
+        $this->assertEquals(3, Thread::TYPE_CUSTOMER);
+        $this->assertEquals(4, Thread::TYPE_LINEITEM);
+        $this->assertEquals(8, Thread::TYPE_CHAT);
+        $this->assertEquals(9, Thread::TYPE_BOUNCE);
+        $this->assertEquals(5, Thread::TYPE_DRAFT);
+    }
+
+    public function test_thread_state_constants_are_defined(): void
+    {
+        $this->assertEquals(1, Thread::STATE_DRAFT);
+        $this->assertEquals(2, Thread::STATE_PUBLISHED);
+        $this->assertEquals(3, Thread::STATE_HIDDEN);
+        $this->assertEquals(4, Thread::STATE_REVIEW);
+    }
+
+    public function test_thread_casts_method_returns_array(): void
+    {
+        $thread = new Thread();
+        $casts = $thread->casts();
+
+        $this->assertIsArray($casts);
+        $this->assertArrayHasKey('type', $casts);
+        $this->assertArrayHasKey('status', $casts);
+        $this->assertArrayHasKey('state', $casts);
+        $this->assertArrayHasKey('opened_at', $casts);
+    }
+
+    public function test_thread_meta_is_cast_to_array(): void
+    {
+        $meta = ['key' => 'value', 'number' => 123];
+        $thread = Thread::factory()->create([
+            'meta' => $meta,
+        ]);
+
+        $this->assertIsArray($thread->meta);
+        $this->assertEquals($meta, $thread->meta);
+    }
+
+    public function test_thread_cc_and_bcc_are_cast_to_json(): void
+    {
+        $thread = Thread::factory()->create([
+            'cc' => ['cc1@example.com', 'cc2@example.com'],
+            'bcc' => ['bcc@example.com'],
+        ]);
+
+        $thread = $thread->fresh();
+        $this->assertIsArray($thread->cc);
+        $this->assertIsArray($thread->bcc);
+    }
 }
