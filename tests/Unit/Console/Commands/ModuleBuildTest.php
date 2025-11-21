@@ -223,8 +223,15 @@ class ModuleBuildTest extends UnitTestCase
 
         // Create temp public/modules directory for test
         $publicModulesPath = public_path('modules/test-module');
-        @mkdir(dirname($publicModulesPath), 0755, true);
-        @symlink(__DIR__, $publicModulesPath);
+        $publicModulesDir = dirname($publicModulesPath);
+        
+        if (!is_dir($publicModulesDir)) {
+            mkdir($publicModulesDir, 0755, true);
+        }
+        
+        if (!is_link($publicModulesPath) && !file_exists($publicModulesPath)) {
+            symlink(__DIR__, $publicModulesPath);
+        }
 
         try {
             $this->artisan('freescout:module-build')
@@ -271,8 +278,15 @@ class ModuleBuildTest extends UnitTestCase
 
         // Create temp symlink
         $publicModulesPath = public_path('modules/no-view-module');
-        @mkdir(dirname($publicModulesPath), 0755, true);
-        @symlink(__DIR__, $publicModulesPath);
+        $publicModulesDir = dirname($publicModulesPath);
+        
+        if (!is_dir($publicModulesDir)) {
+            mkdir($publicModulesDir, 0755, true);
+        }
+        
+        if (!is_link($publicModulesPath) && !file_exists($publicModulesPath)) {
+            symlink(__DIR__, $publicModulesPath);
+        }
 
         try {
             $this->artisan('freescout:module-build no-view-module')
@@ -299,8 +313,15 @@ class ModuleBuildTest extends UnitTestCase
         });
 
         $publicModulesPath = public_path('modules/locale-module');
-        @mkdir(dirname($publicModulesPath), 0755, true);
-        @symlink(__DIR__, $publicModulesPath);
+        $publicModulesDir = dirname($publicModulesPath);
+        
+        if (!is_dir($publicModulesDir)) {
+            mkdir($publicModulesDir, 0755, true);
+        }
+        
+        if (!is_link($publicModulesPath) && !file_exists($publicModulesPath)) {
+            symlink(__DIR__, $publicModulesPath);
+        }
 
         try {
             $this->artisan('freescout:module-build locale-module')
