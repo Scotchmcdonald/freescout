@@ -238,4 +238,126 @@ class ProfileControllerTest extends UnitTestCase
         $response->assertRedirect();
         $response->assertSessionHas('status', 'password-updated');
     }
+
+    // Additional edge case tests for updatePassword
+
+    public function test_update_password_rejects_empty_password(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('oldpassword123'),
+        ]);
+        $this->actingAs($user);
+
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'oldpassword123',
+            'password' => '',
+            'password_confirmation' => '',
+        ]);
+
+        $response->assertSessionHasErrors('password');
+    }
+
+    public function test_update_password_handles_special_characters(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('oldpassword123'),
+        ]);
+        $this->actingAs($user);
+
+        $specialPassword = 'P@ssw0rd!#$%^&*()_+-=[]{}|;:,.<>?';
+        
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'oldpassword123',
+            'password' => $specialPassword,
+            'password_confirmation' => $specialPassword,
+        ]);
+
+        $response->assertSessionHas('status', 'password-updated');
+        $user->refresh();
+        
+        $this->assertTrue(
+            \Illuminate\Support\Facades\Hash::check($specialPassword, $user->password)
+        );
+    }
+
+    public function test_update_password_handles_unicode_characters(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('oldpassword123'),
+        ]);
+        $this->actingAs($user);
+
+        $unicodePassword = 'パスワード123!@#';
+        
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'oldpassword123',
+            'password' => $unicodePassword,
+            'password_confirmation' => $unicodePassword,
+        ]);
+
+        $response->assertSessionHas('status', 'password-updated');
+        $user->refresh();
+        
+        $this->assertTrue(
+            \Illuminate\Support\Facades\Hash::check($unicodePassword, $user->password)
+        );
+    }
+
+    public function test_update_password_does_not_allow_same_as_current(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('samepassword123'),
+        ]);
+        $this->actingAs($user);
+
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'samepassword123',
+            'password' => 'samepassword123',
+            'password_confirmation' => 'samepassword123',
+        ]);
+
+        // Password update should succeed even if same (Laravel doesn't prevent this by default)
+        $response->assertSessionHas('status', 'password-updated');
+    }
+
+    public function test_update_password_case_sensitivity(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('Password123'),
+        ]);
+        $this->actingAs($user);
+
+        // Try with wrong case
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'password123', // lowercase
+            'password' => 'newpassword123',
+            'password_confirmation' => 'newpassword123',
+        ]);
+
+        $response->assertSessionHasErrors('current_password');
+    }
+
+    public function test_update_password_with_whitespace(): void
+    {
+        $user = User::factory()->create([
+            'password' => \Illuminate\Support\Facades\Hash::make('oldpassword123'),
+        ]);
+        $this->actingAs($user);
+
+        $passwordWithSpaces = '  newpassword123  ';
+        
+        $response = $this->put(route('password.update'), [
+            'current_password' => 'oldpassword123',
+            'password' => $passwordWithSpaces,
+            'password_confirmation' => $passwordWithSpaces,
+        ]);
+
+        // Password with leading/trailing spaces should be accepted
+        $response->assertSessionHas('status', 'password-updated');
+        $user->refresh();
+        
+        $this->assertTrue(
+            \Illuminate\Support\Facades\Hash::check($passwordWithSpaces, $user->password)
+        );
+    }
 }

@@ -451,4 +451,154 @@ class SmtpServiceComprehensiveTest extends UnitTestCase
 
         $this->assertArrayNotHasKey('out_encryption', $errors);
     }
+
+    // Additional edge case tests for validateSettings
+
+    public function test_validate_settings_handles_port_as_string(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => '587', // String instead of int
+            'email' => 'test@example.com',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        // Should not have port error if valid numeric string
+        $this->assertArrayNotHasKey('out_port', $errors);
+    }
+
+    public function test_validate_settings_rejects_negative_port(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => -1,
+            'email' => 'test@example.com',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_port', $errors);
+    }
+
+    public function test_validate_settings_handles_email_with_special_characters(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'user+tag@example.com', // Valid email with +
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayNotHasKey('email', $errors);
+    }
+
+    public function test_validate_settings_rejects_email_without_domain(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'userwithnodomain',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('email', $errors);
+    }
+
+    public function test_validate_settings_rejects_email_with_spaces(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'user @example.com', // Space in email
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('email', $errors);
+    }
+
+    public function test_validate_settings_handles_common_smtp_ports(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        
+        // Test port 25 (standard SMTP)
+        $settings25 = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 25,
+            'email' => 'test@example.com',
+        ];
+        $errors25 = $service->validateSettings($settings25);
+        $this->assertArrayNotHasKey('out_port', $errors25);
+        
+        // Test port 2525 (alternative SMTP)
+        $settings2525 = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 2525,
+            'email' => 'test@example.com',
+        ];
+        $errors2525 = $service->validateSettings($settings2525);
+        $this->assertArrayNotHasKey('out_port', $errors2525);
+    }
+
+    public function test_validate_settings_handles_server_with_whitespace(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => '  smtp.example.com  ', // With whitespace
+            'out_port' => 587,
+            'email' => 'test@example.com',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        // Should not have server error (whitespace is trimmed or handled)
+        $this->assertArrayNotHasKey('out_server', $errors);
+    }
+
+    public function test_validate_settings_boundary_port_values(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        
+        // Test port 1 (minimum valid)
+        $settingsMin = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 1,
+            'email' => 'test@example.com',
+        ];
+        $errorsMin = $service->validateSettings($settingsMin);
+        $this->assertArrayNotHasKey('out_port', $errorsMin);
+        
+        // Test port 65535 (maximum valid)
+        $settingsMax = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 65535,
+            'email' => 'test@example.com',
+        ];
+        $errorsMax = $service->validateSettings($settingsMax);
+        $this->assertArrayNotHasKey('out_port', $errorsMax);
+    }
 }

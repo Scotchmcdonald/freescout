@@ -370,4 +370,111 @@ class MailboxTest extends TestCase
 
         $this->assertCount(3, $aliases);
     }
+
+    // Additional edge case tests for getAliasesArray
+
+    public function test_get_aliases_array_handles_trailing_comma(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => 'alias1@example.com,alias2@example.com,',
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        // Should have 3 elements (including empty string from trailing comma)
+        $this->assertIsArray($aliases);
+        // Filter out empty strings if implementation does that
+        $nonEmpty = array_filter($aliases, fn($a) => !empty($a));
+        $this->assertGreaterThanOrEqual(2, count($nonEmpty));
+    }
+
+    public function test_get_aliases_array_handles_semicolon_separator(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => 'alias1@example.com;alias2@example.com',
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        // Since it splits on comma, semicolon won't split
+        $this->assertIsArray($aliases);
+        // Should be treated as single alias with semicolon in it
+        $this->assertCount(1, $aliases);
+    }
+
+    public function test_get_aliases_array_handles_unicode_email_addresses(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => 'user@例え.jp,admin@テスト.com',
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        $this->assertIsArray($aliases);
+        $this->assertCount(2, $aliases);
+        $this->assertStringContainsString('例え', $aliases[0]);
+        $this->assertStringContainsString('テスト', $aliases[1]);
+    }
+
+    public function test_get_aliases_array_handles_mixed_case_emails(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => 'Alias1@Example.COM,ALIAS2@EXAMPLE.com',
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        $this->assertIsArray($aliases);
+        $this->assertCount(2, $aliases);
+        // Should preserve original case
+        $this->assertEquals('Alias1@Example.COM', $aliases[0]);
+        $this->assertEquals('ALIAS2@EXAMPLE.com', $aliases[1]);
+    }
+
+    public function test_get_aliases_array_handles_very_long_alias_list(): void
+    {
+        $longAliasList = [];
+        for ($i = 0; $i < 50; $i++) {
+            $longAliasList[] = "alias{$i}@example.com";
+        }
+        
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => implode(',', $longAliasList),
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        $this->assertIsArray($aliases);
+        $this->assertCount(50, $aliases);
+        $this->assertEquals('alias0@example.com', $aliases[0]);
+        $this->assertEquals('alias49@example.com', $aliases[49]);
+    }
+
+    public function test_get_aliases_array_handles_special_characters_in_local_part(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => 'user+tag@example.com,user.name@example.com,user_name@example.com',
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        $this->assertIsArray($aliases);
+        $this->assertCount(3, $aliases);
+        $this->assertEquals('user+tag@example.com', $aliases[0]);
+        $this->assertEquals('user.name@example.com', $aliases[1]);
+        $this->assertEquals('user_name@example.com', $aliases[2]);
+    }
+
+    public function test_get_aliases_array_with_double_commas(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'aliases' => 'alias1@example.com,,alias2@example.com',
+        ]);
+
+        $aliases = $mailbox->getAliasesArray();
+
+        // Should have empty string between double commas
+        $this->assertIsArray($aliases);
+        $this->assertGreaterThanOrEqual(2, count($aliases));
+    }
 }

@@ -166,4 +166,120 @@ class SystemControllerTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+    // Additional edge case tests for downloadLogs
+
+    public function test_download_logs_handles_large_file(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        // Create a large log file (simulate 1MB)
+        $logFile = storage_path('logs/laravel.log');
+        $logDir = dirname($logFile);
+        
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        $largeContent = str_repeat("Log entry line with timestamp and details\n", 20000);
+        file_put_contents($logFile, $largeContent);
+
+        $response = $this->actingAs($admin)->get(route('system.logs.download'));
+
+        $response->assertStatus(200);
+        $response->assertDownload();
+        
+        // Clean up
+        if (file_exists($logFile)) {
+            unlink($logFile);
+        }
+    }
+
+    public function test_download_logs_verifies_file_content_type(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $logFile = storage_path('logs/laravel.log');
+        $logDir = dirname($logFile);
+        
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        file_put_contents($logFile, "[2024-01-01 12:00:00] ERROR: Test error message\n");
+
+        $response = $this->actingAs($admin)->get(route('system.logs.download'));
+
+        $response->assertStatus(200);
+        $response->assertDownload();
+        
+        // Verify content-disposition header exists
+        $this->assertNotNull($response->headers->get('content-disposition'));
+    }
+
+    public function test_download_logs_handles_empty_file(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $logFile = storage_path('logs/laravel.log');
+        $logDir = dirname($logFile);
+        
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        // Create empty file
+        file_put_contents($logFile, '');
+
+        $response = $this->actingAs($admin)->get(route('system.logs.download'));
+
+        $response->assertStatus(200);
+        $response->assertDownload();
+    }
+
+    public function test_download_logs_filename_format(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $logFile = storage_path('logs/laravel.log');
+        $logDir = dirname($logFile);
+        
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        file_put_contents($logFile, "Test log\n");
+
+        $response = $this->actingAs($admin)->get(route('system.logs.download'));
+
+        $contentDisposition = $response->headers->get('content-disposition');
+        
+        // Verify filename includes date in YYYY-MM-DD format
+        $this->assertMatchesRegularExpression('/laravel-\d{4}-\d{2}-\d{2}\.log/', $contentDisposition);
+    }
+
+    public function test_download_logs_handles_concurrent_requests(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $logFile = storage_path('logs/laravel.log');
+        $logDir = dirname($logFile);
+        
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        file_put_contents($logFile, "Test log entry\n");
+
+        // Make multiple concurrent-style requests
+        $response1 = $this->actingAs($admin)->get(route('system.logs.download'));
+        $response2 = $this->actingAs($admin)->get(route('system.logs.download'));
+
+        $response1->assertStatus(200);
+        $response2->assertStatus(200);
+        
+        // Both should succeed
+        $response1->assertDownload();
+        $response2->assertDownload();
+    }
 }

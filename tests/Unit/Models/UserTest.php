@@ -427,4 +427,81 @@ class UserTest extends TestCase
         $formatted3 = User::dateFormat($date, 'l');
         $this->assertEquals('Monday', $formatted3);
     }
+
+    // Additional edge case tests for dateFormat
+
+    public function test_date_format_handles_edge_case_dates(): void
+    {
+        // Test leap year date
+        $leapYear = '2024-02-29 12:00:00';
+        $formatted = User::dateFormat($leapYear, 'Y-m-d');
+        $this->assertEquals('2024-02-29', $formatted);
+        
+        // Test end of year
+        $endOfYear = '2024-12-31 23:59:59';
+        $formatted2 = User::dateFormat($endOfYear, 'Y-m-d H:i:s');
+        $this->assertStringContainsString('2024-12-31', $formatted2);
+    }
+
+    public function test_date_format_handles_unix_timestamp(): void
+    {
+        $timestamp = 1705329600; // 2024-01-15 12:00:00 UTC
+        
+        // Carbon can parse timestamps
+        $formatted = User::dateFormat($timestamp, 'Y-m-d');
+        
+        // Should either format it or return empty
+        $this->assertIsString($formatted);
+    }
+
+    public function test_date_format_handles_false_value(): void
+    {
+        $formatted = User::dateFormat(false);
+        
+        $this->assertEquals('', $formatted);
+    }
+
+    public function test_date_format_handles_empty_string(): void
+    {
+        $formatted = User::dateFormat('');
+        
+        $this->assertEquals('', $formatted);
+    }
+
+    public function test_date_format_preserves_timezone_offset(): void
+    {
+        $user = User::factory()->create([
+            'timezone' => 'Asia/Tokyo', // UTC+9
+        ]);
+
+        $date = '2024-01-15 00:00:00 UTC';
+        
+        $formatted = User::dateFormat($date, 'Y-m-d H:i', $user);
+
+        // Should be 09:00 in Tokyo time
+        $this->assertStringContainsString('09:00', $formatted);
+    }
+
+    public function test_url_setup_with_special_characters_in_hash(): void
+    {
+        $user = User::factory()->create([
+            'invite_hash' => 'hash-with-special_chars.123',
+        ]);
+
+        $url = $user->urlSetup();
+
+        $this->assertStringContainsString('hash-with-special_chars.123', $url);
+    }
+
+    public function test_url_setup_with_very_long_hash(): void
+    {
+        $longHash = str_repeat('abcd1234', 20); // 160 characters
+        $user = User::factory()->create([
+            'invite_hash' => $longHash,
+        ]);
+
+        $url = $user->urlSetup();
+
+        $this->assertStringContainsString($longHash, $url);
+    }
 }

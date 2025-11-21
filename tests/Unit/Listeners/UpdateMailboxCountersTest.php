@@ -42,31 +42,62 @@ class UpdateMailboxCountersTest extends UnitTestCase
         $this->assertTrue($method->isPublic());
     }
 
-    public function test_handle_with_conversation_status_changed_event(): void
+    public function test_handle_calls_update_folders_counters_on_mailbox(): void
     {
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         
+        // Mock the mailbox to verify updateFoldersCounters is called
+        $mailboxMock = \Mockery::mock($mailbox)->makePartial();
+        $mailboxMock->shouldReceive('updateFoldersCounters')
+            ->once()
+            ->andReturnNull();
+        
+        $conversation->mailbox = $mailboxMock;
+        
+        $event = new ConversationStatusChanged($conversation);
+        $listener = new UpdateMailboxCounters();
+        
+        $listener->handle($event);
+    }
+
+    public function test_handle_with_conversation_status_changed_event(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'status' => Conversation::STATUS_ACTIVE,
+        ]);
+        
         $event = new ConversationStatusChanged($conversation);
         
         $listener = new UpdateMailboxCounters();
+        
+        // Should not throw exception
         $listener->handle($event);
         
-        $this->assertTrue(true);
+        // Verify the conversation is still accessible
+        $this->assertEquals(Conversation::STATUS_ACTIVE, $conversation->status);
     }
 
     public function test_handle_with_conversation_user_changed_event(): void
     {
         $mailbox = Mailbox::factory()->create();
-        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         $user = User::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'user_id' => $user->id,
+        ]);
         
         $event = new ConversationUserChanged($conversation, $user);
         
         $listener = new UpdateMailboxCounters();
+        
+        // Should not throw exception
         $listener->handle($event);
         
-        $this->assertTrue(true);
+        // Verify the conversation user assignment is correct
+        $this->assertEquals($user->id, $conversation->user_id);
     }
 
     public function test_handle_returns_void(): void

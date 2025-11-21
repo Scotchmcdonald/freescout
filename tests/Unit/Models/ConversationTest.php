@@ -370,4 +370,94 @@ class ConversationTest extends TestCase
         // Verify it's a valid hex color code
         $this->assertMatchesRegularExpression('/^#[0-9a-f]{6}$/i', $color);
     }
+
+    // Additional edge case tests for getStatusName and getStatusColor
+
+    public function test_get_status_name_handles_negative_status(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => -1, // Negative status
+        ]);
+
+        $statusName = $conversation->getStatusName();
+
+        // Should return Unknown for invalid status
+        $this->assertTrue(in_array($statusName, ['Unknown', __('Unknown')]));
+    }
+
+    public function test_get_status_name_handles_very_large_status_number(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => PHP_INT_MAX, // Maximum integer
+        ]);
+
+        $statusName = $conversation->getStatusName();
+
+        // Should return Unknown for invalid status
+        $this->assertTrue(in_array($statusName, ['Unknown', __('Unknown')]));
+    }
+
+    public function test_get_status_color_handles_negative_status(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => -1,
+        ]);
+
+        $color = $conversation->getStatusColor();
+
+        // Should return default grey color
+        $this->assertEquals('#777777', $color);
+        $this->assertMatchesRegularExpression('/^#[0-9a-f]{6}$/i', $color);
+    }
+
+    public function test_get_status_name_all_defined_statuses_return_translation(): void
+    {
+        $statuses = [
+            Conversation::STATUS_ACTIVE,
+            Conversation::STATUS_PENDING,
+            Conversation::STATUS_CLOSED,
+            Conversation::STATUS_SPAM,
+        ];
+
+        foreach ($statuses as $status) {
+            $conversation = Conversation::factory()->create(['status' => $status]);
+            $statusName = $conversation->getStatusName();
+            
+            // Should return a non-empty string
+            $this->assertNotEmpty($statusName);
+            $this->assertIsString($statusName);
+        }
+    }
+
+    public function test_get_status_color_all_defined_statuses_return_valid_hex(): void
+    {
+        $statuses = [
+            Conversation::STATUS_ACTIVE,
+            Conversation::STATUS_PENDING,
+            Conversation::STATUS_CLOSED,
+            Conversation::STATUS_SPAM,
+        ];
+
+        foreach ($statuses as $status) {
+            $conversation = Conversation::factory()->create(['status' => $status]);
+            $color = $conversation->getStatusColor();
+            
+            // Should return valid hex color
+            $this->assertMatchesRegularExpression('/^#[0-9a-f]{6}$/i', $color);
+        }
+    }
+
+    public function test_get_status_color_returns_unique_colors_for_different_statuses(): void
+    {
+        $activeColor = Conversation::factory()->create(['status' => Conversation::STATUS_ACTIVE])->getStatusColor();
+        $pendingColor = Conversation::factory()->create(['status' => Conversation::STATUS_PENDING])->getStatusColor();
+        $closedColor = Conversation::factory()->create(['status' => Conversation::STATUS_CLOSED])->getStatusColor();
+        $spamColor = Conversation::factory()->create(['status' => Conversation::STATUS_SPAM])->getStatusColor();
+
+        // All colors should be different
+        $colors = [$activeColor, $pendingColor, $closedColor, $spamColor];
+        $uniqueColors = array_unique($colors);
+        
+        $this->assertCount(4, $uniqueColors, 'Each status should have a unique color');
+    }
 }

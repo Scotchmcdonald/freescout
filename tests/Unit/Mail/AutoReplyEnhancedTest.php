@@ -227,4 +227,122 @@ class AutoReplyEnhancedTest extends TestCase
         // The text() method should be called with 'emails.auto-reply'
         $this->assertInstanceOf(AutoReply::class, $result);
     }
+
+    // Additional edge case tests for AutoReply
+
+    public function test_build_handles_empty_subject(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => '']);
+        $mailbox = new Mailbox(['id' => 1, 'auto_reply_subject' => null]);
+        $customer = new Customer(['id' => 1]);
+
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $result = $mail->build();
+
+        // Should handle empty subject gracefully
+        $this->assertInstanceOf(AutoReply::class, $result);
+    }
+
+    public function test_build_handles_very_long_subject(): void
+    {
+        $longSubject = str_repeat('This is a very long subject line ', 20);
+        $conversation = new Conversation(['id' => 1, 'subject' => $longSubject]);
+        $mailbox = new Mailbox(['id' => 1]);
+        $customer = new Customer(['id' => 1]);
+
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $result = $mail->build();
+
+        $this->assertInstanceOf(AutoReply::class, $result);
+    }
+
+    public function test_build_handles_unicode_in_subject(): void
+    {
+        $unicodeSubject = '件名: テストメール 🎉';
+        $conversation = new Conversation(['id' => 1, 'subject' => $unicodeSubject]);
+        $mailbox = new Mailbox(['id' => 1]);
+        $customer = new Customer(['id' => 1]);
+
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $result = $mail->build();
+
+        $this->assertInstanceOf(AutoReply::class, $result);
+    }
+
+    public function test_build_handles_special_characters_in_message(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
+        $specialMessage = 'Message with <html> & "quotes" and \'apostrophes\'';
+        $mailbox = new Mailbox([
+            'id' => 1,
+            'auto_reply_message' => $specialMessage,
+        ]);
+        $customer = new Customer(['id' => 1]);
+
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $result = $mail->build();
+
+        $this->assertInstanceOf(AutoReply::class, $result);
+    }
+
+    public function test_build_handles_null_customer(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
+        $mailbox = new Mailbox(['id' => 1]);
+        $customer = new Customer(['id' => null]);
+
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $result = $mail->build();
+
+        // Should handle null customer ID gracefully
+        $this->assertInstanceOf(AutoReply::class, $result);
+    }
+
+    public function test_envelope_with_very_long_custom_subject(): void
+    {
+        $longCustomSubject = str_repeat('Custom Subject ', 30);
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Original']);
+        $mailbox = new Mailbox([
+            'id' => 1,
+            'auto_reply_subject' => $longCustomSubject,
+        ]);
+        $customer = new Customer(['id' => 1]);
+
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $envelope = $mail->envelope();
+
+        $this->assertEquals($longCustomSubject, $envelope->subject);
+    }
+
+    public function test_content_with_multiline_message(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
+        $multilineMessage = "Line 1\nLine 2\nLine 3\n\nLine 5 after blank";
+        $mailbox = new Mailbox([
+            'id' => 1,
+            'auto_reply_message' => $multilineMessage,
+        ]);
+        $customer = new Customer(['id' => 1]);
+
+        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $content = $mail->content();
+
+        $this->assertEquals($multilineMessage, $content->with['message']);
+    }
+
+    public function test_build_with_header_containing_colon(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
+        $mailbox = new Mailbox(['id' => 1]);
+        $customer = new Customer(['id' => 1]);
+        $headers = [
+            'X-Custom-Header' => 'value:with:colons',
+        ];
+
+        $mail = new AutoReply($conversation, $mailbox, $customer, $headers);
+        $result = $mail->build();
+
+        // Should handle header values with colons
+        $this->assertInstanceOf(AutoReply::class, $result);
+    }
 }
