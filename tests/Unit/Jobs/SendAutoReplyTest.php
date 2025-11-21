@@ -15,7 +15,6 @@ use App\Services\SmtpService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class SendAutoReplyTest extends UnitTestCase
@@ -245,5 +244,142 @@ class SendAutoReplyTest extends UnitTestCase
         $this->assertDatabaseMissing('send_logs', [
             'thread_id' => $thread->id,
         ]);
+    }
+
+    public function test_job_skips_if_already_sent_for_thread(): void
+    {
+        Mail::fake();
+        Log::spy();
+
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_email' => 'customer@example.com',
+        ]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+
+        // Create existing send log
+        SendLog::create([
+            'thread_id' => $thread->id,
+            'message_id' => 'previous-auto-reply@example.com',
+            'email' => 'customer@example.com',
+            'mail_type' => 3, // SendLog::MAIL_TYPE_AUTO_REPLY
+            'status' => 1,
+        ]);
+
+        $smtpService = $this->createMock(SmtpService::class);
+        $smtpService->expects($this->never())->method('configureSmtp');
+
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle($smtpService);
+
+        Mail::assertNothingSent();
+        Log::shouldHaveReceived('debug')
+            ->with('Auto-reply already sent for this thread', \Mockery::type('array'))
+            ->once();
+    }
+
+    public function test_job_handles_email_sending_exception(): void
+    {
+        Mail::fake();
+        Mail::shouldReceive('to')->andThrow(new \Exception('SMTP connection failed'));
+        Log::spy();
+
+        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_email' => 'customer@example.com',
+        ]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+
+        $smtpService = $this->createMock(SmtpService::class);
+
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle($smtpService);
+
+        // Should log error
+        Log::shouldHaveReceived('error')
+            ->with('SendAutoReply job failed', \Mockery::type('array'))
+            ->once();
+
+        // Should create send log with error status
+        $this->assertDatabaseHas('send_logs', [
+            'thread_id' => $thread->id,
+            'mail_type' => 3,
+            'status' => 2, // SendLog::STATUS_SEND_ERROR
+        ]);
+    }
+
+    public function test_job_handles_empty_string_customer_email(): void
+    {
+        Mail::fake();
+        Log::spy();
+
+        $conversation = Conversation::factory()->create([
+            'customer_email' => '',
+        ]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $mailbox = Mailbox::factory()->create();
+        $customer = Customer::factory()->create();
+
+        $smtpService = $this->createMock(SmtpService::class);
+        $smtpService->expects($this->never())->method('configureSmtp');
+
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle($smtpService);
+
+        Mail::assertNothingSent();
+        Log::shouldHaveReceived('warning')
+            ->with('SendAutoReply job aborted: no customer email', \Mockery::type('array'))
+            ->once();
+    }
+
+    public function test_job_generates_message_id_with_localhost_fallback(): void
+    {
+        Mail::fake();
+
+        $mailbox = Mailbox::factory()->create(['email' => 'no-at-symbol']);
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_email' => 'customer@example.com',
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'id' => 999,
+        ]);
+
+        $smtpService = $this->createMock(SmtpService::class);
+
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle($smtpService);
+
+        $sendLog = SendLog::where('thread_id', $thread->id)->first();
+        $this->assertNotNull($sendLog);
+        $this->assertStringContainsString('@localhost', $sendLog->message_id);
+    }
+
+    public function test_job_includes_headers_in_auto_reply(): void
+    {
+        Mail::fake();
+
+        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'customer_email' => 'customer@example.com',
+        ]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'message_id' => 'original-msg-123@example.com',
+        ]);
+
+        $smtpService = $this->createMock(SmtpService::class);
+
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job->handle($smtpService);
+
+        Mail::assertSent(AutoReply::class, function ($mail) {
+            return isset($mail->headers['In-Reply-To']) && 
+                   isset($mail->headers['References']);
+        });
     }
 }

@@ -15,7 +15,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class SendNotificationToUsersTest extends UnitTestCase
@@ -738,5 +737,121 @@ class SendNotificationToUsersTest extends UnitTestCase
         Log::shouldHaveReceived('error')
             ->with('SendNotificationToUsers job failed', \Mockery::type('array'))
             ->once();
+    }
+
+    public function test_job_skips_bounce_messages_with_limit_exceeded(): void
+    {
+        Mail::fake();
+
+        $mailbox = Mailbox::factory()->create();
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'type' => Thread::TYPE_BOUNCE,
+            'body' => 'Error: message limit exceeded for today',
+            'state' => Thread::STATE_PUBLISHED,
+        ]);
+
+        $job = new SendNotificationToUsers(collect([$user]), $conversation, collect([$thread]));
+        $job->handle();
+
+        Mail::assertNothingSent();
+        $this->assertEquals(0, SendLog::count());
+    }
+
+    public function test_job_handles_conversation_without_mailbox(): void
+    {
+        Log::spy();
+
+        $user = User::factory()->create();
+        $conversation = Conversation::factory()->create(['mailbox_id' => null]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+
+        $job = new SendNotificationToUsers(collect([$user]), $conversation, collect([$thread]));
+        $job->handle();
+
+        Log::shouldHaveReceived('error')
+            ->with('Mailbox not found for conversation', \Mockery::type('array'))
+            ->once();
+    }
+
+    public function test_job_respects_email_history_config_last(): void
+    {
+        config(['app.email_user_history' => 'last']);
+        Mail::fake();
+
+        $mailbox = Mailbox::factory()->create();
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        
+        // Create 5 threads
+        $threads = collect([
+            Thread::factory()->create(['conversation_id' => $conversation->id, 'created_at' => now()->subHours(5)]),
+            Thread::factory()->create(['conversation_id' => $conversation->id, 'created_at' => now()->subHours(4)]),
+            Thread::factory()->create(['conversation_id' => $conversation->id, 'created_at' => now()->subHours(3)]),
+            Thread::factory()->create(['conversation_id' => $conversation->id, 'created_at' => now()->subHours(2)]),
+            Thread::factory()->create(['conversation_id' => $conversation->id, 'created_at' => now()->subHours(1)]),
+        ]);
+
+        $job = new SendNotificationToUsers(collect([$user]), $conversation, $threads);
+        $job->handle();
+
+        // Should only include last 2 threads
+        Mail::assertSent(\App\Mail\UserNotification::class);
+    }
+
+    public function test_job_respects_email_history_config_none(): void
+    {
+        config(['app.email_user_history' => 'none']);
+        Mail::fake();
+
+        $mailbox = Mailbox::factory()->create();
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        
+        $threads = collect([
+            Thread::factory()->create(['conversation_id' => $conversation->id, 'created_at' => now()->subHours(2)]),
+            Thread::factory()->create(['conversation_id' => $conversation->id, 'created_at' => now()->subHours(1)]),
+        ]);
+
+        $job = new SendNotificationToUsers(collect([$user]), $conversation, $threads);
+        $job->handle();
+
+        // Should only include the most recent thread
+        Mail::assertSent(\App\Mail\UserNotification::class);
+    }
+
+    public function test_job_skips_notification_if_already_sent_on_retry(): void
+    {
+        Mail::fake();
+
+        $mailbox = Mailbox::factory()->create();
+        $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+
+        // Create existing successful send log
+        SendLog::create([
+            'thread_id' => $thread->id,
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'mail_type' => 2, // SendLog::MAIL_TYPE_USER_NOTIFICATION
+            'status' => 1, // SendLog::STATUS_ACCEPTED
+            'message_id' => 'previous-notification@example.com',
+        ]);
+
+        // Create a partial mock to simulate retry attempts
+        $job = \Mockery::mock(SendNotificationToUsers::class, [collect([$user]), $conversation, collect([$thread])])
+            ->makePartial()
+            ->shouldAllowMockingProtectedMethods();
+        
+        // Mock the attempts method to return 2 (simulating retry)
+        $job->shouldReceive('attempts')->andReturn(2);
+
+        $job->handle();
+
+        // Should not send again
+        Mail::assertNothingSent();
     }
 }

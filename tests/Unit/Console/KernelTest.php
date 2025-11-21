@@ -70,4 +70,78 @@ class KernelTest extends TestCase
         // Kernel can run commands
         $this->assertInstanceOf(\Illuminate\Contracts\Console\Kernel::class, $kernel);
     }
+
+    // ===== Tests for 0% Coverage Methods =====
+
+    public function test_schedule_method_executes_without_error(): void
+    {
+        $kernel = new Kernel($this->app, $this->app->make(\Illuminate\Contracts\Events\Dispatcher::class));
+        $schedule = $this->app->make(Schedule::class);
+
+        $reflection = new \ReflectionClass($kernel);
+        $method = $reflection->getMethod('schedule');
+        $method->setAccessible(true);
+
+        // Execute the schedule method - should not throw exception
+        $method->invoke($kernel, $schedule);
+
+        // If we get here, schedule() executed successfully
+        $this->assertTrue(true);
+    }
+
+    public function test_commands_method_loads_commands_directory(): void
+    {
+        $kernel = new Kernel($this->app, $this->app->make(\Illuminate\Contracts\Events\Dispatcher::class));
+
+        $reflection = new \ReflectionClass($kernel);
+        $method = $reflection->getMethod('commands');
+        $method->setAccessible(true);
+
+        // Execute the commands method - should load commands
+        $method->invoke($kernel);
+
+        // Verify that commands are loaded by checking if our custom commands exist
+        $allCommands = \Artisan::all();
+        $commandNames = array_keys($allCommands);
+        
+        // Should have freescout commands loaded
+        $hasFreescoutCommands = false;
+        foreach ($commandNames as $name) {
+            if (str_contains($name, 'freescout')) {
+                $hasFreescoutCommands = true;
+                break;
+            }
+        }
+
+        $this->assertTrue($hasFreescoutCommands, 'FreeScout commands should be loaded');
+    }
+
+    public function test_schedule_method_accepts_schedule_parameter(): void
+    {
+        $kernel = new Kernel($this->app, $this->app->make(\Illuminate\Contracts\Events\Dispatcher::class));
+        $schedule = $this->app->make(Schedule::class);
+
+        $reflection = new \ReflectionClass($kernel);
+        $method = $reflection->getMethod('schedule');
+        
+        // Verify method signature
+        $parameters = $method->getParameters();
+        $this->assertCount(1, $parameters);
+        $this->assertEquals('schedule', $parameters[0]->getName());
+    }
+
+    public function test_commands_method_requires_console_routes(): void
+    {
+        $kernel = new Kernel($this->app, $this->app->make(\Illuminate\Contracts\Events\Dispatcher::class));
+
+        $reflection = new \ReflectionClass($kernel);
+        $method = $reflection->getMethod('commands');
+        $method->setAccessible(true);
+
+        // Execute commands() - it should require routes/console.php
+        $method->invoke($kernel);
+
+        // Verify console routes file exists
+        $this->assertFileExists(base_path('routes/console.php'));
+    }
 }

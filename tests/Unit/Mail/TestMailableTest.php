@@ -9,13 +9,10 @@ use App\Models\Mailbox;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Support\Facades\Mail;
-use PHPUnit\Framework\Attributes\Test as TestAttribute;
 use Tests\UnitTestCase;
 
 class TestMailableTest extends UnitTestCase
 {
-
-    #[TestAttribute]
     public function test_mailable_can_be_instantiated(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -24,7 +21,6 @@ class TestMailableTest extends UnitTestCase
         $this->assertInstanceOf(Test::class, $mailable);
     }
 
-    #[TestAttribute]
     public function test_mailable_stores_mailbox(): void
     {
         $mailbox = Mailbox::factory()->create(['name' => 'Test Mailbox']);
@@ -34,7 +30,6 @@ class TestMailableTest extends UnitTestCase
         $this->assertEquals('Test Mailbox', $mailable->mailbox->name);
     }
 
-    #[TestAttribute]
     public function test_envelope_returns_correct_instance(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -45,7 +40,6 @@ class TestMailableTest extends UnitTestCase
         $this->assertInstanceOf(Envelope::class, $envelope);
     }
 
-    #[TestAttribute]
     public function test_envelope_subject_includes_app_name(): void
     {
         config(['app.name' => 'TestApp']);
@@ -57,7 +51,6 @@ class TestMailableTest extends UnitTestCase
         $this->assertStringContainsString('TestApp', $envelope->subject);
     }
 
-    #[TestAttribute]
     public function test_content_returns_correct_instance(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -68,7 +61,6 @@ class TestMailableTest extends UnitTestCase
         $this->assertInstanceOf(Content::class, $content);
     }
 
-    #[TestAttribute]
     public function test_content_uses_correct_view(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -79,7 +71,6 @@ class TestMailableTest extends UnitTestCase
         $this->assertEquals('emails.user.test', $content->view);
     }
 
-    #[TestAttribute]
     public function test_mailable_can_be_sent(): void
     {
         Mail::fake();
@@ -92,7 +83,6 @@ class TestMailableTest extends UnitTestCase
         Mail::assertSent(Test::class);
     }
 
-    #[TestAttribute]
     public function test_mailable_has_queueable_trait(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -103,7 +93,6 @@ class TestMailableTest extends UnitTestCase
         $this->assertContains('Illuminate\Bus\Queueable', $traits);
     }
 
-    #[TestAttribute]
     public function test_mailable_has_serializes_models_trait(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -114,7 +103,6 @@ class TestMailableTest extends UnitTestCase
         $this->assertContains('Illuminate\Queue\SerializesModels', $traits);
     }
 
-    #[TestAttribute]
     public function test_mailable_can_be_queued(): void
     {
         Mail::fake();
@@ -127,7 +115,6 @@ class TestMailableTest extends UnitTestCase
         Mail::assertQueued(Test::class);
     }
 
-    #[TestAttribute]
     public function test_mailable_works_with_different_mailboxes(): void
     {
         Mail::fake();
