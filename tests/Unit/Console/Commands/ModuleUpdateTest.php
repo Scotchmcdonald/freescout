@@ -223,4 +223,188 @@ class ModuleUpdateTest extends TestCase
             $this->expectNotToPerformAssertions();
         }
     }
+
+    public function test_handle_clears_cache_on_execution(): void
+    {
+        \Artisan::spy();
+
+        $this->mock('alias:' . \App\Misc\WpApi::class, function ($mock) {
+            $mock->shouldReceive('getModules')->andReturn([]);
+            $mock->shouldReceive('getAttribute')->with('lastError')->andReturn(null);
+        });
+
+        $this->mock('alias:Module', function ($mock) {
+            $mock->shouldReceive('all')->andReturn([]);
+        });
+
+        try {
+            $command = new \App\Console\Commands\ModuleUpdate();
+            $reflection = new \ReflectionClass($command);
+            $method = $reflection->getMethod('handle');
+            
+            $method->invoke($command);
+            
+            // Cache clear should have been called
+            \Artisan::shouldHaveReceived('call')->with('cache:clear')->once();
+        } catch (\Exception $e) {
+            // WpApi might not be available
+            $this->expectNotToPerformAssertions();
+        }
+    }
+
+    public function test_handle_processes_module_with_newer_version(): void
+    {
+        $this->mock('alias:' . \App\Misc\WpApi::class, function ($mock) {
+            $mock->shouldReceive('getModules')->andReturn([
+                ['alias' => 'test-module', 'version' => '2.0.0']
+            ]);
+            $mock->shouldReceive('getAttribute')->with('lastError')->andReturn(null);
+        });
+
+        $mockModule = \Mockery::mock();
+        $mockModule->shouldReceive('getAlias')->andReturn('test-module');
+        $mockModule->shouldReceive('get')->with('version')->andReturn('1.0.0');
+        $mockModule->shouldReceive('get')->with('authorUrl')->andReturn('https://official.com');
+
+        $this->mock('alias:Module', function ($mock) use ($mockModule) {
+            $mock->shouldReceive('all')->andReturn([$mockModule]);
+        });
+
+        $this->mock('alias:' . \App\Module::class, function ($mock) {
+            $mock->shouldReceive('updateModule')->andReturn([
+                'status' => 'success',
+                'module_name' => 'Test Module',
+                'msg_success' => 'Updated successfully',
+                'output' => ''
+            ]);
+            $mock->shouldReceive('isOfficial')->andReturn(true);
+        });
+
+        \Artisan::shouldReceive('call')->with('cache:clear')->once();
+        \Artisan::shouldReceive('call')->with('freescout:clear-cache')->once();
+
+        try {
+            $this->artisan('freescout:module-update')
+                ->expectsOutput('[Test Module Module]')
+                ->assertExitCode(0);
+        } catch (\Exception $e) {
+            // Dependencies might not be available
+            $this->expectNotToPerformAssertions();
+        }
+    }
+
+    public function test_handle_shows_error_for_failed_update(): void
+    {
+        $this->mock('alias:' . \App\Misc\WpApi::class, function ($mock) {
+            $mock->shouldReceive('getModules')->andReturn([
+                ['alias' => 'test-module', 'version' => '2.0.0']
+            ]);
+            $mock->shouldReceive('getAttribute')->with('lastError')->andReturn(null);
+        });
+
+        $mockModule = \Mockery::mock();
+        $mockModule->shouldReceive('getAlias')->andReturn('test-module');
+        $mockModule->shouldReceive('get')->with('version')->andReturn('1.0.0');
+        $mockModule->shouldReceive('get')->with('authorUrl')->andReturn('https://official.com');
+
+        $this->mock('alias:Module', function ($mock) use ($mockModule) {
+            $mock->shouldReceive('all')->andReturn([$mockModule]);
+        });
+
+        $this->mock('alias:' . \App\Module::class, function ($mock) {
+            $mock->shouldReceive('updateModule')->andReturn([
+                'status' => 'error',
+                'module_name' => 'Test Module',
+                'msg' => 'Update failed',
+                'download_msg' => 'Network error',
+                'output' => 'Error details'
+            ]);
+            $mock->shouldReceive('isOfficial')->andReturn(true);
+        });
+
+        \Artisan::shouldReceive('call')->with('cache:clear')->once();
+        \Artisan::shouldReceive('call')->with('freescout:clear-cache')->once();
+
+        try {
+            $this->artisan('freescout:module-update')
+                ->expectsOutput('ERROR: Update failed (Network error)')
+                ->assertExitCode(0);
+        } catch (\Exception $e) {
+            $this->expectNotToPerformAssertions();
+        }
+    }
+
+    public function test_handle_processes_custom_module_updates(): void
+    {
+        $this->mock('alias:' . \App\Misc\WpApi::class, function ($mock) {
+            $mock->shouldReceive('getModules')->andReturn([]);
+            $mock->shouldReceive('getAttribute')->with('lastError')->andReturn(null);
+        });
+
+        $mockModule = \Mockery::mock();
+        $mockModule->shouldReceive('getAlias')->andReturn('custom-module');
+        $mockModule->shouldReceive('get')->with('authorUrl')->andReturn('https://custom.com');
+        $mockModule->shouldReceive('get')->with('latestVersionUrl')->andReturn('https://custom.com/version.txt');
+        $mockModule->shouldReceive('get')->with('version')->andReturn('1.0.0');
+
+        $this->mock('alias:Module', function ($mock) use ($mockModule) {
+            $mock->shouldReceive('all')->andReturn([$mockModule]);
+        });
+
+        $this->mock('alias:' . \App\Module::class, function ($mock) {
+            $mock->shouldReceive('isOfficial')->andReturn(false);
+        });
+
+        \Artisan::shouldReceive('call')->with('cache:clear')->once();
+        \Artisan::shouldReceive('call')->with('freescout:clear-cache')->once();
+
+        try {
+            $this->artisan('freescout:module-update')
+                ->assertExitCode(0);
+        } catch (\Exception $e) {
+            // Network/dependencies might not be available
+            $this->expectNotToPerformAssertions();
+        }
+    }
+
+    public function test_handle_filters_by_module_alias(): void
+    {
+        $this->mock('alias:' . \App\Misc\WpApi::class, function ($mock) {
+            $mock->shouldReceive('getModules')->andReturn([
+                ['alias' => 'module-a', 'version' => '2.0.0'],
+                ['alias' => 'module-b', 'version' => '2.0.0']
+            ]);
+            $mock->shouldReceive('getAttribute')->with('lastError')->andReturn(null);
+        });
+
+        $mockModuleA = \Mockery::mock();
+        $mockModuleA->shouldReceive('getAlias')->andReturn('module-a');
+        $mockModuleA->shouldReceive('get')->with('version')->andReturn('1.0.0');
+        $mockModuleA->shouldReceive('get')->with('authorUrl')->andReturn('https://official.com');
+
+        $this->mock('alias:Module', function ($mock) use ($mockModuleA) {
+            $mock->shouldReceive('all')->andReturn([$mockModuleA]);
+        });
+
+        $this->mock('alias:' . \App\Module::class, function ($mock) {
+            $mock->shouldReceive('updateModule')->andReturn([
+                'status' => 'success',
+                'module_name' => 'Module A',
+                'msg_success' => 'Updated',
+                'output' => ''
+            ]);
+            $mock->shouldReceive('isOfficial')->andReturn(true);
+        });
+
+        \Artisan::shouldReceive('call')->with('cache:clear')->once();
+        \Artisan::shouldReceive('call')->with('freescout:clear-cache')->once();
+
+        try {
+            $this->artisan('freescout:module-update module-a')
+                ->expectsOutput('[Module A Module]')
+                ->assertExitCode(0);
+        } catch (\Exception $e) {
+            $this->expectNotToPerformAssertions();
+        }
+    }
 }

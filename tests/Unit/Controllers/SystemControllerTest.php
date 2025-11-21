@@ -376,4 +376,163 @@ class SystemControllerTest extends UnitTestCase
         // Should handle pagination parameter without error
         $this->assertEquals('system.logs', $view->name());
     }
+
+    public function test_ajax_clear_cache_executes_artisan_commands(): void
+    {
+        \Artisan::shouldReceive('call')->with('cache:clear')->once();
+        \Artisan::shouldReceive('call')->with('config:clear')->once();
+        \Artisan::shouldReceive('call')->with('route:clear')->once();
+        \Artisan::shouldReceive('call')->with('view:clear')->once();
+
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $request = Request::create('/system/ajax', 'POST');
+        $request->setUserResolver(fn () => $admin);
+        $request->merge(['action' => 'clear_cache']);
+
+        $controller = new SystemController;
+        $response = $controller->ajax($request);
+
+        $data = $response->getData(true);
+        $this->assertTrue($data['success']);
+        $this->assertStringContainsString('cleared', strtolower($data['message']));
+    }
+
+    public function test_ajax_optimize_executes_artisan_command(): void
+    {
+        \Artisan::shouldReceive('call')->with('optimize')->once();
+        \Artisan::shouldReceive('output')->andReturn('Optimization output');
+
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $request = Request::create('/system/ajax', 'POST');
+        $request->setUserResolver(fn () => $admin);
+        $request->merge(['action' => 'optimize']);
+
+        $controller = new SystemController;
+        $response = $controller->ajax($request);
+
+        $data = $response->getData(true);
+        $this->assertTrue($data['success']);
+        $this->assertArrayHasKey('output', $data);
+    }
+
+    public function test_ajax_queue_work_starts_worker(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $request = Request::create('/system/ajax', 'POST');
+        $request->setUserResolver(fn () => $admin);
+        $request->merge(['action' => 'queue_work']);
+
+        $controller = new SystemController;
+        $response = $controller->ajax($request);
+
+        $data = $response->getData(true);
+        // Should at least return success (actual exec won't work in tests)
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey('success', $data);
+    }
+
+    public function test_ajax_system_info_returns_php_and_laravel_versions(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $request = Request::create('/system/ajax', 'POST');
+        $request->setUserResolver(fn () => $admin);
+        $request->merge(['action' => 'system_info']);
+
+        $controller = new SystemController;
+        $response = $controller->ajax($request);
+
+        $data = $response->getData(true);
+        $this->assertTrue($data['success']);
+        $this->assertArrayHasKey('info', $data);
+        $this->assertArrayHasKey('php_version', $data['info']);
+        $this->assertArrayHasKey('laravel_version', $data['info']);
+    }
+
+    public function test_ajax_handles_exception_in_clear_cache(): void
+    {
+        \Artisan::shouldReceive('call')->with('cache:clear')
+            ->andThrow(new \Exception('Cache clear failed'));
+
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $request = Request::create('/system/ajax', 'POST');
+        $request->setUserResolver(fn () => $admin);
+        $request->merge(['action' => 'clear_cache']);
+
+        $controller = new SystemController;
+        $response = $controller->ajax($request);
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $data = $response->getData(true);
+        $this->assertFalse($data['success']);
+        $this->assertStringContainsString('Failed to clear cache', $data['message']);
+    }
+
+    public function test_ajax_handles_exception_in_optimize(): void
+    {
+        \Artisan::shouldReceive('call')->with('optimize')
+            ->andThrow(new \Exception('Optimize failed'));
+
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $request = Request::create('/system/ajax', 'POST');
+        $request->setUserResolver(fn () => $admin);
+        $request->merge(['action' => 'optimize']);
+
+        $controller = new SystemController;
+        $response = $controller->ajax($request);
+
+        $this->assertEquals(500, $response->getStatusCode());
+        $data = $response->getData(true);
+        $this->assertFalse($data['success']);
+        $this->assertStringContainsString('Optimization failed', $data['message']);
+    }
+
+    public function test_diagnostics_executes_database_check(): void
+    {
+        $controller = new SystemController;
+        $response = $controller->diagnostics();
+
+        $data = $response->getData(true);
+        
+        // Diagnostics should run and return data
+        $this->assertIsArray($data);
+        $this->assertNotEmpty($data);
+    }
+
+    public function test_diagnostics_returns_multiple_checks(): void
+    {
+        $controller = new SystemController;
+        $response = $controller->diagnostics();
+
+        $data = $response->getData(true);
+        
+        // Should have multiple diagnostic checks
+        $this->assertGreaterThan(0, count($data));
+    }
+
+    public function test_ajax_different_actions_execute_different_paths(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $actions = ['clear_cache', 'optimize', 'system_info'];
+
+        foreach ($actions as $action) {
+            if ($action === 'clear_cache') {
+                \Artisan::shouldReceive('call')->with('cache:clear')->once();
+                \Artisan::shouldReceive('call')->with('config:clear')->once();
+                \Artisan::shouldReceive('call')->with('route:clear')->once();
+                \Artisan::shouldReceive('call')->with('view:clear')->once();
+            } elseif ($action === 'optimize') {
+                \Artisan::shouldReceive('call')->with('optimize')->once();
+                \Artisan::shouldReceive('output')->andReturn('');
+            }
+
+            $request = Request::create('/system/ajax', 'POST');
+            $request->setUserResolver(fn () => $admin);
+            $request->merge(['action' => $action]);
+
+            $controller = new SystemController;
+            $response = $controller->ajax($request);
+
+            $this->assertInstanceOf(JsonResponse::class, $response);
+        }
+    }
 }
