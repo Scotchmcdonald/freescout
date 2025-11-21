@@ -291,9 +291,9 @@ function executeBatches($chunks, $executionProgressBar, &$runningStats, $reports
         
         // Calculate Results Bar
         $barWidth = 30;
-        $currentStep = $executionProgressBar->getProgress() + count($chunkFiles);
+        $currentProgress = $executionProgressBar->getProgress();
         $maxSteps = $executionProgressBar->getMaxSteps();
-        $progressRatio = $maxSteps > 0 ? min(1, $currentStep / $maxSteps) : 0;
+        $progressRatio = $maxSteps > 0 ? min(1.0, $currentProgress / $maxSteps) : 0;
         $filledChars = (int)round($barWidth * $progressRatio);
         $emptyChars = $barWidth - $filledChars;
         
@@ -383,8 +383,8 @@ function executeBatches($chunks, $executionProgressBar, &$runningStats, $reports
         // Add filter if specified (PHPUnit will filter by test name)
         if ($filterPattern !== null) {
             $commandParts[] = '--filter';
-            // Convert pipe-separated to PHPUnit regex: (pattern1|pattern2|pattern3)
-            $phpunitFilter = '(' . str_replace('|', '|', $filterPattern) . ')';
+            // Wrap filter pattern in parentheses for PHPUnit regex: (pattern1|pattern2|pattern3)
+            $phpunitFilter = '(' . $filterPattern . ')';
             $commandParts[] = $phpunitFilter;
         }
 
