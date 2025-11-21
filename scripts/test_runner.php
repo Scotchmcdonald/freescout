@@ -193,9 +193,7 @@ foreach ($filesToRun as $file) {
     }
     
     // Check if file is marked as sequential
-    // Look for @sequential annotation in class docblock (must be in a docblock comment)
-    // Pattern: Match /** ... * @sequential ... */ before class declaration
-    $isSequential = preg_match('/\/\*\*[\s\S]*?\*\s*@sequential[\s\S]*?\*\/\s*(?:final\s+)?(?:abstract\s+)?class\s+/i', $content);
+    $isSequential = isSequentialTest($content);
     
     // Heuristic to count tests: "public function test..." or "@test" annotation
     // More accurate counting by filtering out false positives
@@ -277,7 +275,38 @@ if ($withCoverage) {
 // --- HELPER FUNCTIONS ---
 
 /**
+ * Check if a test file is marked for sequential execution
+ * 
+ * Looks for @sequential annotation in docblock before class declaration.
+ * The annotation must be in a docblock comment (/** ... *\/) immediately
+ * before the class declaration.
+ * 
+ * @param string $content The file content to check
+ * @return bool True if the file should run sequentially, false otherwise
+ */
+function isSequentialTest($content) {
+    // Pattern matches: /** ... * @sequential ... *\/ followed by optional modifiers and class keyword
+    // This ensures @sequential is only detected in proper docblocks, not in comments or strings
+    return preg_match('/\/\*\*[\s\S]*?\*\s*@sequential[\s\S]*?\*\/\s*(?:final\s+)?(?:abstract\s+)?class\s+/i', $content) === 1;
+}
+
+/**
  * Execute test batches and update progress
+ * 
+ * Runs PHPUnit for each batch of test files and updates the progress bar with results.
+ * Handles output parsing, log file creation, and statistics accumulation.
+ * 
+ * @param array $chunks Array of file path arrays (each chunk is an array of file paths)
+ * @param \Symfony\Component\Console\Helper\ProgressBar $executionProgressBar Progress bar to update
+ * @param array &$runningStats Running statistics array (passed by reference, updated with test results)
+ * @param string $reportsDir Directory path for test reports
+ * @param string $baseDir Base directory of the project
+ * @param bool $withCoverage Whether to generate coverage reports
+ * @param string|null $coveragePartialsDir Directory for partial coverage files
+ * @param string|null $filterPattern Optional filter pattern for test names
+ * @param bool $showBatchInfo Whether to display batch information in progress bar
+ * @param int $batchOffset Batch number offset (for sequential batches after parallel)
+ * @return string Accumulated output from all batches
  */
 function executeBatches($chunks, $executionProgressBar, &$runningStats, $reportsDir, $baseDir, $withCoverage, $coveragePartialsDir, $filterPattern, $showBatchInfo, $batchOffset = 0) {
     $allResultsOutput = '';
@@ -385,6 +414,7 @@ function executeBatches($chunks, $executionProgressBar, &$runningStats, $reports
         if ($filterPattern !== null) {
             $commandParts[] = '--filter';
             // Wrap filter pattern in parentheses for PHPUnit regex: (pattern1|pattern2|pattern3)
+            // Note: Pattern is passed as-is to support regex (user-provided, pipe-separated patterns)
             $phpunitFilter = '(' . $filterPattern . ')';
             $commandParts[] = $phpunitFilter;
         }

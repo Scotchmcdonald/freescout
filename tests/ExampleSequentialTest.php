@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use TestCase;
+use Tests\TestCase;
 
 /**
  * Example test demonstrating the @sequential annotation.
