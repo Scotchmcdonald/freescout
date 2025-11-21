@@ -101,4 +101,56 @@ class UserPolicyTest extends TestCase
 
         $this->assertFalse($policy->delete($user, $targetUser));
     }
+
+    public function test_user_can_update_themselves(): void
+    {
+        $user = new User;
+        $user->id = 1;
+        $user->role = User::ROLE_USER;
+
+        $policy = new UserPolicy;
+
+        // User can update their own profile
+        $this->assertTrue($policy->update($user, $user));
+    }
+
+    public function test_user_cannot_update_other_users(): void
+    {
+        $user = new User;
+        $user->id = 1;
+        $user->role = User::ROLE_USER;
+
+        $otherUser = new User;
+        $otherUser->id = 2;
+        $otherUser->role = User::ROLE_USER;
+
+        $policy = new UserPolicy;
+
+        // Regular user cannot update other users
+        $this->assertFalse($policy->update($user, $otherUser));
+    }
+
+    public function test_user_cannot_delete_themselves(): void
+    {
+        $user = new User;
+        $user->id = 1;
+        $user->role = User::ROLE_USER;
+
+        $policy = new UserPolicy;
+
+        // User cannot delete their own account
+        $this->assertFalse($policy->delete($user, $user));
+    }
+
+    public function test_admin_can_update_themselves(): void
+    {
+        $admin = new User;
+        $admin->id = 1;
+        $admin->role = User::ROLE_ADMIN;
+
+        $policy = new UserPolicy;
+
+        // Admin can update their own profile
+        $this->assertTrue($policy->update($admin, $admin));
+    }
 }

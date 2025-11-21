@@ -238,4 +238,136 @@ class ConversationTest extends TestCase
 
         $this->assertEquals($time->timestamp, $conversation->last_reply_at->timestamp);
     }
+
+    // getStatusName() tests - 57% coverage
+
+    public function test_get_status_name_returns_active_for_status_1(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => Conversation::STATUS_ACTIVE,
+        ]);
+
+        $statusName = $conversation->getStatusName();
+
+        $this->assertIsString($statusName);
+        // Laravel's __ function returns the key if no translation exists
+        $this->assertTrue(in_array($statusName, ['Active', __('Active')]));
+    }
+
+    public function test_get_status_name_returns_pending_for_status_2(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => Conversation::STATUS_PENDING,
+        ]);
+
+        $statusName = $conversation->getStatusName();
+
+        $this->assertIsString($statusName);
+        $this->assertTrue(in_array($statusName, ['Pending', __('Pending')]));
+    }
+
+    public function test_get_status_name_returns_closed_for_status_3(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => Conversation::STATUS_CLOSED,
+        ]);
+
+        $statusName = $conversation->getStatusName();
+
+        $this->assertIsString($statusName);
+        $this->assertTrue(in_array($statusName, ['Closed', __('Closed')]));
+    }
+
+    public function test_get_status_name_returns_spam_for_status_4(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => Conversation::STATUS_SPAM,
+        ]);
+
+        $statusName = $conversation->getStatusName();
+
+        $this->assertIsString($statusName);
+        $this->assertTrue(in_array($statusName, ['Spam', __('Spam')]));
+    }
+
+    public function test_get_status_name_returns_unknown_for_invalid_status(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => 999, // Invalid status
+        ]);
+
+        $statusName = $conversation->getStatusName();
+
+        $this->assertIsString($statusName);
+        $this->assertTrue(in_array($statusName, ['Unknown', __('Unknown')]));
+    }
+
+    // getStatusColor() tests - 57% coverage
+
+    public function test_get_status_color_returns_blue_for_active(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => Conversation::STATUS_ACTIVE,
+        ]);
+
+        $color = $conversation->getStatusColor();
+
+        $this->assertEquals('#3f8abf', $color);
+    }
+
+    public function test_get_status_color_returns_yellow_for_pending(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => Conversation::STATUS_PENDING,
+        ]);
+
+        $color = $conversation->getStatusColor();
+
+        $this->assertEquals('#e6b216', $color);
+    }
+
+    public function test_get_status_color_returns_green_for_closed(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => Conversation::STATUS_CLOSED,
+        ]);
+
+        $color = $conversation->getStatusColor();
+
+        $this->assertEquals('#5cb85c', $color);
+    }
+
+    public function test_get_status_color_returns_red_for_spam(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => Conversation::STATUS_SPAM,
+        ]);
+
+        $color = $conversation->getStatusColor();
+
+        $this->assertEquals('#d9534f', $color);
+    }
+
+    public function test_get_status_color_returns_grey_for_unknown_status(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => 999, // Invalid status
+        ]);
+
+        $color = $conversation->getStatusColor();
+
+        $this->assertEquals('#777777', $color);
+    }
+
+    public function test_get_status_color_returns_valid_hex_code(): void
+    {
+        $conversation = Conversation::factory()->create([
+            'status' => Conversation::STATUS_ACTIVE,
+        ]);
+
+        $color = $conversation->getStatusColor();
+
+        // Verify it's a valid hex color code
+        $this->assertMatchesRegularExpression('/^#[0-9a-f]{6}$/i', $color);
+    }
 }

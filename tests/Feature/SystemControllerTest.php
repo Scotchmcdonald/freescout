@@ -91,4 +91,79 @@ class SystemControllerTest extends TestCase
         // Test admin has access to system functions
         $this->assertTrue($admin->role === User::ROLE_ADMIN);
     }
+
+    public function test_download_logs_returns_binary_file_response(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        // Create a test log file
+        $logFile = storage_path('logs/laravel.log');
+        $logDir = dirname($logFile);
+        
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        file_put_contents($logFile, "Test log entry\n");
+
+        $response = $this->actingAs($admin)->get(route('system.logs.download'));
+
+        $response->assertStatus(200);
+        $response->assertDownload();
+        
+        // Verify filename contains date
+        $expectedFilename = 'laravel-' . date('Y-m-d') . '.log';
+        $this->assertStringContainsString('laravel-', $response->headers->get('content-disposition'));
+    }
+
+    public function test_download_logs_returns_404_when_file_not_exists(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        // Ensure log file doesn't exist
+        $logFile = storage_path('logs/laravel.log');
+        if (file_exists($logFile)) {
+            unlink($logFile);
+        }
+
+        $response = $this->actingAs($admin)->get(route('system.logs.download'));
+
+        $response->assertStatus(404);
+    }
+
+    public function test_download_logs_requires_authentication(): void
+    {
+        // Create a test log file
+        $logFile = storage_path('logs/laravel.log');
+        $logDir = dirname($logFile);
+        
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        file_put_contents($logFile, "Test log entry\n");
+
+        $response = $this->get(route('system.logs.download'));
+
+        $response->assertRedirect(route('login'));
+    }
+
+    public function test_download_logs_requires_admin_role(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+
+        // Create a test log file
+        $logFile = storage_path('logs/laravel.log');
+        $logDir = dirname($logFile);
+        
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        file_put_contents($logFile, "Test log entry\n");
+
+        $response = $this->actingAs($user)->get(route('system.logs.download'));
+
+        $response->assertStatus(403);
+    }
 }

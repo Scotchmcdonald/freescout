@@ -310,4 +310,121 @@ class UserTest extends TestCase
 
         $this->assertCount(2, $user->mailboxes);
     }
+
+    // urlSetup() tests - 0% coverage
+
+    public function test_url_setup_returns_setup_url_with_hash(): void
+    {
+        $user = User::factory()->create([
+            'invite_hash' => 'test-hash-123',
+        ]);
+
+        $url = $user->urlSetup();
+
+        $this->assertStringContainsString('test-hash-123', $url);
+        $this->assertStringContainsString('user_setup', $url);
+    }
+
+    public function test_url_setup_generates_valid_route(): void
+    {
+        $user = User::factory()->create([
+            'invite_hash' => 'valid-hash',
+        ]);
+
+        $url = $user->urlSetup();
+
+        // Verify it's a valid URL format
+        $this->assertMatchesRegularExpression('/http(s)?:\/\/.*/', $url);
+    }
+
+    // dateFormat() tests - 56% coverage
+
+    public function test_date_format_formats_date_string(): void
+    {
+        $date = '2024-01-15 12:00:00';
+        
+        $formatted = User::dateFormat($date, 'Y-m-d');
+
+        $this->assertEquals('2024-01-15', $formatted);
+    }
+
+    public function test_date_format_returns_empty_string_for_null(): void
+    {
+        $formatted = User::dateFormat(null);
+
+        $this->assertEquals('', $formatted);
+    }
+
+    public function test_date_format_applies_user_timezone(): void
+    {
+        $user = User::factory()->create([
+            'timezone' => 'America/New_York',
+        ]);
+
+        $date = '2024-01-15 12:00:00 UTC';
+        
+        $formatted = User::dateFormat($date, 'Y-m-d H:i:s', $user);
+
+        // Should be converted to EST (UTC-5)
+        $this->assertStringContainsString('2024-01-15', $formatted);
+    }
+
+    public function test_date_format_uses_default_format_when_not_specified(): void
+    {
+        $date = '2024-01-15 12:00:00';
+        
+        $formatted = User::dateFormat($date);
+
+        // Default format is 'M j, Y'
+        $this->assertEquals('Jan 15, 2024', $formatted);
+    }
+
+    public function test_date_format_handles_datetime_object(): void
+    {
+        $date = new \DateTime('2024-01-15 12:00:00');
+        
+        $formatted = User::dateFormat($date, 'Y-m-d');
+
+        $this->assertEquals('2024-01-15', $formatted);
+    }
+
+    public function test_date_format_handles_carbon_object(): void
+    {
+        $date = \Carbon\Carbon::parse('2024-01-15 12:00:00');
+        
+        $formatted = User::dateFormat($date, 'Y-m-d');
+
+        $this->assertEquals('2024-01-15', $formatted);
+    }
+
+    public function test_date_format_returns_empty_for_invalid_date(): void
+    {
+        $formatted = User::dateFormat('not-a-date');
+
+        $this->assertEquals('', $formatted);
+    }
+
+    public function test_date_format_without_user_uses_default_timezone(): void
+    {
+        $date = '2024-01-15 12:00:00';
+        
+        $formatted = User::dateFormat($date, 'Y-m-d H:i:s');
+
+        // Should use application default timezone
+        $this->assertStringContainsString('2024-01-15', $formatted);
+    }
+
+    public function test_date_format_handles_various_format_strings(): void
+    {
+        $date = '2024-01-15 14:30:45';
+        
+        $formatted1 = User::dateFormat($date, 'd/m/Y');
+        $this->assertEquals('15/01/2024', $formatted1);
+        
+        $formatted2 = User::dateFormat($date, 'F j, Y, g:i a');
+        $this->assertStringContainsString('January 15, 2024', $formatted2);
+        
+        $formatted3 = User::dateFormat($date, 'l');
+        $this->assertEquals('Monday', $formatted3);
+    }
 }

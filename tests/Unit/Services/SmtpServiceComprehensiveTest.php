@@ -228,4 +228,227 @@ class SmtpServiceComprehensiveTest extends UnitTestCase
         $this->assertFalse($result['success']);
         $this->assertArrayHasKey('message', $result);
     }
+
+    // validateSettings() tests - 0% coverage currently
+
+    public function test_validate_settings_with_valid_settings(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'test@example.com',
+            'out_encryption' => 2, // TLS
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertIsArray($errors);
+        $this->assertEmpty($errors, 'Valid settings should return no errors');
+    }
+
+    public function test_validate_settings_requires_out_server(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_port' => 587,
+            'email' => 'test@example.com',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_server', $errors);
+        $this->assertEquals('SMTP server is required', $errors['out_server']);
+    }
+
+    public function test_validate_settings_requires_out_port(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'email' => 'test@example.com',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_port', $errors);
+        $this->assertEquals('SMTP port is required', $errors['out_port']);
+    }
+
+    public function test_validate_settings_validates_port_range_minimum(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 0, // Below minimum
+            'email' => 'test@example.com',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_port', $errors);
+        $this->assertStringContainsString('between 1 and 65535', $errors['out_port']);
+    }
+
+    public function test_validate_settings_validates_port_range_maximum(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 65536, // Above maximum
+            'email' => 'test@example.com',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_port', $errors);
+        $this->assertStringContainsString('between 1 and 65535', $errors['out_port']);
+    }
+
+    public function test_validate_settings_validates_port_is_numeric(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 'not-a-number',
+            'email' => 'test@example.com',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_port', $errors);
+        $this->assertStringContainsString('between 1 and 65535', $errors['out_port']);
+    }
+
+    public function test_validate_settings_requires_email(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertEquals('Email address is required', $errors['email']);
+    }
+
+    public function test_validate_settings_validates_email_format(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'invalid-email-format',
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertEquals('Invalid email address', $errors['email']);
+    }
+
+    public function test_validate_settings_returns_all_errors_at_once(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            // Missing all required fields
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_server', $errors);
+        $this->assertArrayHasKey('out_port', $errors);
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertCount(3, $errors);
+    }
+
+    public function test_validate_settings_warns_about_port_465_without_ssl(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 465,
+            'email' => 'test@example.com',
+            'out_encryption' => 0, // No encryption
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_encryption', $errors);
+        $this->assertStringContainsString('Port 465 typically requires SSL', $errors['out_encryption']);
+    }
+
+    public function test_validate_settings_warns_about_port_587_without_tls(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'test@example.com',
+            'out_encryption' => 0, // No encryption
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayHasKey('out_encryption', $errors);
+        $this->assertStringContainsString('Port 587 typically requires TLS', $errors['out_encryption']);
+    }
+
+    public function test_validate_settings_accepts_port_465_with_ssl(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 465,
+            'email' => 'test@example.com',
+            'out_encryption' => 1, // SSL
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayNotHasKey('out_encryption', $errors);
+    }
+
+    public function test_validate_settings_accepts_port_587_with_tls(): void
+    {
+        Log::shouldReceive('debug')->zeroOrMoreTimes();
+
+        $service = new SmtpService;
+        $settings = [
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'test@example.com',
+            'out_encryption' => 2, // TLS
+        ];
+
+        $errors = $service->validateSettings($settings);
+
+        $this->assertArrayNotHasKey('out_encryption', $errors);
+    }
 }
