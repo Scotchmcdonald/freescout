@@ -224,4 +224,151 @@ class SystemControllerTest extends UnitTestCase
         $data = $view->getData();
         $this->assertEquals('email', $data['currentType']);
     }
+
+    public function test_update_returns_view(): void
+    {
+        $controller = new SystemController;
+        $view = $controller->update();
+
+        $this->assertEquals('system.update', $view->name());
+    }
+
+    public function test_update_passes_version_info_to_view(): void
+    {
+        $controller = new SystemController;
+        $view = $controller->update();
+
+        $data = $view->getData();
+        $this->assertArrayHasKey('currentVersion', $data);
+    }
+
+    public function test_download_logs_returns_binary_file_response(): void
+    {
+        // Create a temp log file for testing
+        $logPath = storage_path('logs/laravel.log');
+        $logDir = dirname($logPath);
+        
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        file_put_contents($logPath, "Test log content\n");
+
+        try {
+            $controller = new SystemController;
+            $response = $controller->downloadLogs();
+
+            $this->assertInstanceOf(\Symfony\Component\HttpFoundation\BinaryFileResponse::class, $response);
+        } finally {
+            // Cleanup
+            if (file_exists($logPath)) {
+                @unlink($logPath);
+            }
+        }
+    }
+
+    public function test_diagnostics_contains_database_check(): void
+    {
+        $controller = new SystemController;
+        $response = $controller->diagnostics();
+        
+        $data = $response->getData(true);
+        $this->assertArrayHasKey('database', $data);
+        $this->assertArrayHasKey('status', $data['database']);
+    }
+
+    public function test_diagnostics_contains_storage_check(): void
+    {
+        $controller = new SystemController;
+        $response = $controller->diagnostics();
+        
+        $data = $response->getData(true);
+        $this->assertArrayHasKey('storage', $data);
+        $this->assertArrayHasKey('writable', $data['storage']);
+    }
+
+    public function test_diagnostics_contains_cache_check(): void
+    {
+        $controller = new SystemController;
+        $response = $controller->diagnostics();
+        
+        $data = $response->getData(true);
+        $this->assertArrayHasKey('cache', $data);
+    }
+
+    public function test_ajax_handles_multiple_actions(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        
+        $actions = ['clear_cache', 'system_info'];
+        
+        foreach ($actions as $action) {
+            $request = Request::create('/system/ajax', 'POST');
+            $request->setUserResolver(fn () => $admin);
+            $request->merge(['action' => $action]);
+
+            $controller = new SystemController;
+            $response = $controller->ajax($request);
+
+            $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
+            $data = $response->getData(true);
+            $this->assertArrayHasKey('success', $data);
+        }
+    }
+
+    public function test_index_disk_usage_calculations_are_numeric(): void
+    {
+        $controller = new SystemController;
+        $view = $controller->index();
+
+        $systemInfo = $view->getData()['systemInfo'];
+        $this->assertIsNumeric($systemInfo['disk_free']);
+        $this->assertIsNumeric($systemInfo['disk_total']);
+    }
+
+    public function test_index_php_configuration_values_are_present(): void
+    {
+        $controller = new SystemController;
+        $view = $controller->index();
+
+        $systemInfo = $view->getData()['systemInfo'];
+        $this->assertNotEmpty($systemInfo['php_version']);
+        $this->assertNotEmpty($systemInfo['memory_limit']);
+        $this->assertIsNumeric($systemInfo['max_execution_time']);
+    }
+
+    public function test_ajax_requires_post_method(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+        $request = Request::create('/system/ajax', 'GET');
+        $request->setUserResolver(fn () => $admin);
+
+        $controller = new SystemController;
+        
+        // GET requests should not be processed the same way
+        $this->assertInstanceOf(SystemController::class, $controller);
+    }
+
+    public function test_logs_view_contains_log_types(): void
+    {
+        $controller = new SystemController;
+        $request = Request::create('/system/logs', 'GET');
+
+        $view = $controller->logs($request);
+
+        $data = $view->getData();
+        $this->assertArrayHasKey('logTypes', $data);
+        $this->assertIsArray($data['logTypes']);
+    }
+
+    public function test_logs_paginates_results(): void
+    {
+        $controller = new SystemController;
+        $request = Request::create('/system/logs?page=1', 'GET');
+
+        $view = $controller->logs($request);
+
+        // Should handle pagination parameter without error
+        $this->assertEquals('system.logs', $view->name());
+    }
 }

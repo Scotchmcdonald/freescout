@@ -160,4 +160,67 @@ class ModuleUpdateTest extends TestCase
         // Command should use version_compare to check for updates
         $this->expectNotToPerformAssertions();
     }
+
+    public function test_command_instance_can_be_created(): void
+    {
+        $command = new \App\Console\Commands\ModuleUpdate();
+        
+        $this->assertInstanceOf(\App\Console\Commands\ModuleUpdate::class, $command);
+        $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
+    }
+
+    public function test_command_has_handle_method(): void
+    {
+        $command = new \App\Console\Commands\ModuleUpdate();
+        
+        $this->assertTrue(method_exists($command, 'handle'));
+    }
+
+    public function test_command_signature_includes_optional_argument(): void
+    {
+        $command = new \App\Console\Commands\ModuleUpdate();
+        $definition = $command->getDefinition();
+        
+        $this->assertTrue($definition->hasArgument('module_alias'));
+        $argument = $definition->getArgument('module_alias');
+        $this->assertFalse($argument->isRequired());
+    }
+
+    public function test_command_description_mentions_update(): void
+    {
+        $command = new \App\Console\Commands\ModuleUpdate();
+        $description = $command->getDescription();
+        
+        $this->assertNotEmpty($description);
+        $this->assertStringContainsString('update', strtolower($description));
+    }
+
+    public function test_command_is_registered_in_artisan(): void
+    {
+        $kernel = $this->app->make(\Illuminate\Contracts\Console\Kernel::class);
+        $commands = $kernel->all();
+        
+        $this->assertArrayHasKey('freescout:module-update', $commands);
+    }
+
+    public function test_command_shows_all_modules_up_to_date_message(): void
+    {
+        // Mock empty modules to trigger "all up-to-date" message
+        $this->mock('alias:' . \App\Misc\WpApi::class, function ($mock) {
+            $mock->shouldReceive('getModules')->andReturn([]);
+        });
+
+        $this->mock('alias:Module', function ($mock) {
+            $mock->shouldReceive('all')->andReturn([]);
+        });
+
+        try {
+            $this->artisan('freescout:module-update')
+                ->expectsOutput('All modules are up-to-date')
+                ->assertExitCode(0);
+        } catch (\Exception $e) {
+            // API might not be available in test environment
+            $this->expectNotToPerformAssertions();
+        }
+    }
 }

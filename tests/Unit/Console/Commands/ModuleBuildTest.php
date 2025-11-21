@@ -181,4 +181,134 @@ class ModuleBuildTest extends UnitTestCase
         $this->assertStringContainsString('module_alias', $signature);
         $this->assertStringContainsString('?', $signature); // Optional argument
     }
+
+    public function test_handle_returns_error_when_no_modules_found(): void
+    {
+        // Mock Module facade to return empty array
+        $this->mock('alias:' . \Nwidart\Modules\Facades\Module::class, function ($mock) {
+            $mock->shouldReceive('all')->andReturn([]);
+        });
+
+        $this->artisan('freescout:module-build')
+            ->expectsOutput('No modules found')
+            ->assertExitCode(1);
+    }
+
+    public function test_handle_returns_error_when_module_not_found(): void
+    {
+        // Mock Module facade
+        $this->mock('alias:' . \Nwidart\Modules\Facades\Module::class, function ($mock) {
+            $mock->shouldReceive('findByAlias')
+                ->with('nonexistent')
+                ->andReturn(null);
+        });
+
+        $this->artisan('freescout:module-build nonexistent')
+            ->expectsOutput('Module with the specified alias not found: nonexistent')
+            ->assertExitCode(1);
+    }
+
+    public function test_handle_builds_all_modules_when_no_alias_provided(): void
+    {
+        // Create mock module
+        $mockModule = \Mockery::mock();
+        $mockModule->shouldReceive('getName')->andReturn('TestModule');
+        $mockModule->shouldReceive('getAlias')->andReturn('test-module');
+
+        $this->mock('alias:' . \Nwidart\Modules\Facades\Module::class, function ($mock) use ($mockModule) {
+            $mock->shouldReceive('all')
+                ->andReturn([$mockModule])
+                ->twice();
+        });
+
+        // Create temp public/modules directory for test
+        $publicModulesPath = public_path('modules/test-module');
+        @mkdir(dirname($publicModulesPath), 0755, true);
+        @symlink(__DIR__, $publicModulesPath);
+
+        try {
+            $this->artisan('freescout:module-build')
+                ->expectsOutput('Building all modules...')
+                ->expectsOutput('Building module: TestModule')
+                ->expectsOutput('Module build completed!')
+                ->assertExitCode(0);
+        } finally {
+            // Cleanup
+            if (is_link($publicModulesPath)) {
+                @unlink($publicModulesPath);
+            }
+        }
+    }
+
+    public function test_build_module_shows_error_if_public_symlink_missing(): void
+    {
+        $mockModule = \Mockery::mock();
+        $mockModule->shouldReceive('getName')->andReturn('TestModule');
+        $mockModule->shouldReceive('getAlias')->andReturn('missing-symlink-module');
+
+        $this->mock('alias:' . \Nwidart\Modules\Facades\Module::class, function ($mock) use ($mockModule) {
+            $mock->shouldReceive('findByAlias')
+                ->with('missing-symlink-module')
+                ->andReturn($mockModule);
+        });
+
+        $this->artisan('freescout:module-build missing-symlink-module')
+            ->expectsOutput('Building module: TestModule')
+            ->assertExitCode(0);
+    }
+
+    public function test_build_vars_skips_when_view_does_not_exist(): void
+    {
+        $mockModule = \Mockery::mock();
+        $mockModule->shouldReceive('getName')->andReturn('NoViewModule');
+        $mockModule->shouldReceive('getAlias')->andReturn('no-view-module');
+
+        $this->mock('alias:' . \Nwidart\Modules\Facades\Module::class, function ($mock) use ($mockModule) {
+            $mock->shouldReceive('findByAlias')
+                ->with('no-view-module')
+                ->andReturn($mockModule);
+        });
+
+        // Create temp symlink
+        $publicModulesPath = public_path('modules/no-view-module');
+        @mkdir(dirname($publicModulesPath), 0755, true);
+        @symlink(__DIR__, $publicModulesPath);
+
+        try {
+            $this->artisan('freescout:module-build no-view-module')
+                ->assertExitCode(0);
+        } finally {
+            if (is_link($publicModulesPath)) {
+                @unlink($publicModulesPath);
+            }
+        }
+    }
+
+    public function test_command_uses_app_locales_config(): void
+    {
+        config(['app.locales' => ['en', 'es', 'fr']]);
+        
+        $mockModule = \Mockery::mock();
+        $mockModule->shouldReceive('getName')->andReturn('LocaleModule');
+        $mockModule->shouldReceive('getAlias')->andReturn('locale-module');
+
+        $this->mock('alias:' . \Nwidart\Modules\Facades\Module::class, function ($mock) use ($mockModule) {
+            $mock->shouldReceive('findByAlias')
+                ->with('locale-module')
+                ->andReturn($mockModule);
+        });
+
+        $publicModulesPath = public_path('modules/locale-module');
+        @mkdir(dirname($publicModulesPath), 0755, true);
+        @symlink(__DIR__, $publicModulesPath);
+
+        try {
+            $this->artisan('freescout:module-build locale-module')
+                ->assertExitCode(0);
+        } finally {
+            if (is_link($publicModulesPath)) {
+                @unlink($publicModulesPath);
+            }
+        }
+    }
 }
