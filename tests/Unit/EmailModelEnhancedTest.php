@@ -357,4 +357,31 @@ class EmailModelEnhancedTest extends UnitTestCase
         $this->assertEquals($customer->id, $email2->customer_id);
         $this->assertCount(3, $customer->emails); // Factory creates 1, we added 2 more
     }
+
+    // ===== BASIC EMAIL MODEL TESTS (Merged from EmailModelTest.php) =====
+
+    public function test_email_model_has_email_attribute(): void
+    {
+        $email = new Email(['email' => 'test@example.com']);
+
+        $this->assertEquals('test@example.com', $email->email);
+    }
+
+    public function test_email_model_has_customer_id_attribute(): void
+    {
+        $email = new Email(['customer_id' => 123]);
+
+        $this->assertEquals(123, $email->customer_id);
+    }
+
+    public function test_email_model_can_set_all_attributes(): void
+    {
+        $email = new Email([
+            'email' => 'work@example.com',
+            'customer_id' => 456,
+        ]);
+
+        $this->assertEquals('work@example.com', $email->email);
+        $this->assertEquals(456, $email->customer_id);
+    }
 }
