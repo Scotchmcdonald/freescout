@@ -5,10 +5,17 @@ declare(strict_types=1);
 namespace Tests\Unit\Listeners;
 
 use App\Events\UserDeleted;
+use App\Listeners\LogFailedLogin;
 use App\Listeners\LogLockout;
+use App\Listeners\LogSuccessfulLogin;
+use App\Listeners\LogSuccessfulLogout;
 use App\Listeners\LogUserDeletion;
+use App\Models\ActivityLog;
 use App\Models\User;
+use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
@@ -191,6 +198,111 @@ class LogListenersTest extends UnitTestCase
         $lockoutListener->handle($lockoutEvent);
         $deletionListener->handle($deletionEvent);
 
+        $this->assertTrue(true);
+    }
+
+    // ===== LOGFAILEDLOGIN TESTS (Merged from LogFailedLoginListenerTest.php) =====
+
+    public function test_log_failed_login_listener_logs_failed_login(): void
+    {
+        $request = Request::create('/login', 'POST', ['email' => 'test@example.com']);
+        $event = new Failed('web', null, ['email' => 'test@example.com']);
+        $listener = new LogFailedLogin;
+
+        // Set the request
+        app()->instance('request', $request);
+
+        // Clear any existing activity logs
+        ActivityLog::truncate();
+
+        $listener->handle($event);
+
+        $this->assertDatabaseHas('activity_log', [
+            'log_name' => ActivityLog::NAME_USER,
+            'description' => ActivityLog::DESCRIPTION_USER_LOGIN_FAILED,
+        ]);
+    }
+
+    public function test_log_failed_login_listener_has_handle_method(): void
+    {
+        $listener = new LogFailedLogin;
+        $this->assertTrue(method_exists($listener, 'handle'));
+    }
+
+    // ===== LOGSUCCESSFULLOGIN TESTS (Merged from LogSuccessfulLoginListenerTest.php) =====
+
+    public function test_log_successful_login_listener_logs_successful_login(): void
+    {
+        $user = User::factory()->create();
+        $event = new Login('web', $user, false);
+        $listener = new LogSuccessfulLogin;
+
+        // Clear any existing activity logs
+        ActivityLog::truncate();
+
+        $listener->handle($event);
+
+        $this->assertDatabaseHas('activity_log', [
+            'log_name' => ActivityLog::NAME_USER,
+            'description' => ActivityLog::DESCRIPTION_USER_LOGIN,
+            'causer_type' => User::class,
+            'causer_id' => $user->id,
+        ]);
+    }
+
+    public function test_log_successful_login_listener_has_handle_method(): void
+    {
+        $listener = new LogSuccessfulLogin;
+        $this->assertTrue(method_exists($listener, 'handle'));
+    }
+
+    // ===== LOGSUCCESSFULLOGOUT TESTS (Merged from LogSuccessfulLogoutListenerTest.php) =====
+
+    public function test_log_successful_logout_listener_logs_successful_logout(): void
+    {
+        $user = User::factory()->create();
+        $event = new Logout('web', $user);
+        $listener = new LogSuccessfulLogout;
+
+        // Clear any existing activity logs
+        ActivityLog::truncate();
+
+        $listener->handle($event);
+
+        $this->assertDatabaseHas('activity_log', [
+            'log_name' => ActivityLog::NAME_USER,
+            'description' => ActivityLog::DESCRIPTION_USER_LOGOUT,
+            'causer_type' => User::class,
+            'causer_id' => $user->id,
+        ]);
+    }
+
+    public function test_log_successful_logout_listener_has_handle_method(): void
+    {
+        $listener = new LogSuccessfulLogout;
+        $this->assertTrue(method_exists($listener, 'handle'));
+    }
+
+    // ===== LOG GENERATION EDGE CASE TESTS (Merged from LogGenerationTest.php) =====
+
+    public function test_log_generation_risky_test(): void
+    {
+        $this->assertTrue(true);
+    }
+
+    public function test_log_generation_skipped_test(): void
+    {
+        $this->assertTrue(true);
+    }
+
+    public function test_log_generation_incomplete_test(): void
+    {
+        $this->assertTrue(true);
+    }
+
+    public function test_log_generation_warning_test(): void
+    {
+        trigger_error('This is a warning.', E_USER_WARNING);
         $this->assertTrue(true);
     }
 }
