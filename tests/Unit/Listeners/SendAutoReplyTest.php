@@ -296,4 +296,173 @@ class SendAutoReplyTest extends UnitTestCase
     {
         $this->assertEquals(180, SendAutoReply::CHECK_PERIOD);
     }
+
+    public function test_listener_skips_when_rate_limit_exceeded_10_replies(): void
+    {
+        Queue::fake();
+        Log::spy();
+
+        $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+            'imported' => false,
+        ]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+
+        // Create 10 auto-reply send logs within the check period
+        for ($i = 0; $i < 10; $i++) {
+            SendLog::create([
+                'customer_id' => $customer->id,
+                'mail_type' => 3, // MAIL_TYPE_AUTO_REPLY
+                'email' => 'test@example.com',
+                'status' => 1,
+                'created_at' => now()->subMinutes(30),
+            ]);
+        }
+
+        $event = new CustomerCreatedConversation($conversation, $thread, $customer);
+        $listener = new SendAutoReply();
+        $listener->handle($event);
+
+        Queue::assertNotPushed(SendAutoReplyJob::class);
+        Log::shouldHaveReceived('warning')
+            ->with('Auto-reply rate limit exceeded (10)', \Mockery::type('array'))
+            ->once();
+    }
+
+    public function test_listener_skips_duplicate_subject_with_2_plus_replies(): void
+    {
+        Queue::fake();
+        Log::spy();
+
+        $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
+        $customer = Customer::factory()->create();
+        
+        // Create previous conversation with same subject
+        $prevConversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+            'subject' => 'Test Subject',
+            'created_at' => now()->subMinutes(30),
+        ]);
+        
+        // Create 2 auto-reply logs to trigger duplicate check
+        for ($i = 0; $i < 2; $i++) {
+            SendLog::create([
+                'customer_id' => $customer->id,
+                'mail_type' => 3,
+                'email' => 'test@example.com',
+                'status' => 1,
+                'created_at' => now()->subMinutes(60),
+            ]);
+        }
+
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+            'subject' => 'Test Subject', // Same subject
+            'imported' => false,
+            'created_at' => now(),
+        ]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+
+        $event = new CustomerCreatedConversation($conversation, $thread, $customer);
+        $listener = new SendAutoReply();
+        $listener->handle($event);
+
+        Queue::assertNotPushed(SendAutoReplyJob::class);
+        Log::shouldHaveReceived('debug')
+            ->with('Skipping auto-reply - duplicate subject detected', \Mockery::type('array'))
+            ->once();
+    }
+
+    public function test_listener_allows_different_subject_with_2_plus_replies(): void
+    {
+        Queue::fake();
+
+        $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
+        $customer = Customer::factory()->create();
+        
+        // Create previous conversation with different subject
+        $prevConversation = Conversation::factory()->create([
+            'customer_id' => $customer->id,
+            'subject' => 'Different Subject',
+            'created_at' => now()->subMinutes(30),
+        ]);
+        
+        // Create 2 auto-reply logs
+        for ($i = 0; $i < 2; $i++) {
+            SendLog::create([
+                'customer_id' => $customer->id,
+                'mail_type' => 3,
+                'email' => 'test@example.com',
+                'status' => 1,
+                'created_at' => now()->subMinutes(60),
+            ]);
+        }
+
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+            'subject' => 'Test Subject', // Different subject
+            'imported' => false,
+        ]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+
+        $event = new CustomerCreatedConversation($conversation, $thread, $customer);
+        $listener = new SendAutoReply();
+        $listener->handle($event);
+
+        // Should dispatch since subject is different
+        Queue::assertPushed(SendAutoReplyJob::class);
+    }
+
+    public function test_listener_handles_null_customer_email(): void
+    {
+        Queue::fake();
+
+        $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+            'customer_email' => null, // No email
+            'imported' => false,
+        ]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+
+        $event = new CustomerCreatedConversation($conversation, $thread, $customer);
+        $listener = new SendAutoReply();
+        $listener->handle($event);
+
+        // Should still dispatch - internal mailbox check is skipped
+        Queue::assertPushed(SendAutoReplyJob::class);
+    }
+
+    public function test_listener_allows_non_internal_customer_email(): void
+    {
+        Queue::fake();
+
+        $internalMailbox = Mailbox::factory()->create(['email' => 'internal@example.com']);
+        $customerMailbox = Mailbox::factory()->create([
+            'email' => 'support@example.com',
+            'auto_reply_enabled' => true,
+        ]);
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $customerMailbox->id,
+            'customer_id' => $customer->id,
+            'customer_email' => 'external@customer.com', // Not internal
+            'imported' => false,
+        ]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+
+        $event = new CustomerCreatedConversation($conversation, $thread, $customer);
+        $listener = new SendAutoReply();
+        $listener->handle($event);
+
+        // Should dispatch since email is not internal
+        Queue::assertPushed(SendAutoReplyJob::class);
+    }
 }
