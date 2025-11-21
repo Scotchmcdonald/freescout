@@ -151,4 +151,125 @@ class SettingsControllerTest extends UnitTestCase
         $validator = Validator::make($invalidData, $rules);
         $this->assertTrue($validator->fails());
     }
+
+    // ===== Tests for 0% Coverage Method: sendTestAlert =====
+
+    public function test_send_test_alert_method_exists(): void
+    {
+        $controller = new SettingsController();
+        
+        $this->assertTrue(method_exists($controller, 'sendTestAlert'));
+    }
+
+    public function test_send_test_alert_returns_error_with_no_recipients(): void
+    {
+        \Mail::fake();
+        
+        $controller = new SettingsController();
+        $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
+        $request->merge(['alert_recipients' => '']);
+
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod('sendTestAlert');
+        $method->setAccessible(true);
+
+        $response = $method->invoke($controller, $request);
+
+        $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
+        $this->assertEquals('No recipients configured for alerts.', session('error'));
+    }
+
+    public function test_send_test_alert_sends_email_to_valid_recipient(): void
+    {
+        \Mail::fake();
+        
+        $controller = new SettingsController();
+        $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
+        $request->merge(['alert_recipients' => 'test@example.com']);
+
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod('sendTestAlert');
+        $method->setAccessible(true);
+
+        $response = $method->invoke($controller, $request);
+
+        \Mail::assertSent(\App\Mail\Alert::class, function ($mail) {
+            return $mail->hasTo('test@example.com');
+        });
+
+        $this->assertStringContainsString('Test alert sent successfully', session('success'));
+    }
+
+    public function test_send_test_alert_sends_to_multiple_recipients(): void
+    {
+        \Mail::fake();
+        
+        $controller = new SettingsController();
+        $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
+        $request->merge(['alert_recipients' => "test1@example.com\ntest2@example.com"]);
+
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod('sendTestAlert');
+        $method->setAccessible(true);
+
+        $response = $method->invoke($controller, $request);
+
+        \Mail::assertSent(\App\Mail\Alert::class, 2);
+        $this->assertStringContainsString('2 recipient(s)', session('success'));
+    }
+
+    public function test_send_test_alert_skips_invalid_email_addresses(): void
+    {
+        \Mail::fake();
+        
+        $controller = new SettingsController();
+        $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
+        $request->merge(['alert_recipients' => "valid@example.com\ninvalid-email\ntest@example.com"]);
+
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod('sendTestAlert');
+        $method->setAccessible(true);
+
+        $response = $method->invoke($controller, $request);
+
+        // Should only send to 2 valid emails
+        \Mail::assertSent(\App\Mail\Alert::class, 2);
+    }
+
+    public function test_send_test_alert_handles_mail_exception(): void
+    {
+        \Mail::shouldReceive('to')->andThrow(new \Exception('Mail server error'));
+        
+        $controller = new SettingsController();
+        $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
+        $request->merge(['alert_recipients' => 'test@example.com']);
+
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod('sendTestAlert');
+        $method->setAccessible(true);
+
+        $response = $method->invoke($controller, $request);
+
+        $this->assertStringContainsString('Failed to send test alert', session('error'));
+    }
+
+    public function test_send_test_alert_trims_whitespace_from_recipients(): void
+    {
+        \Mail::fake();
+        
+        $controller = new SettingsController();
+        $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
+        $request->merge(['alert_recipients' => "  test@example.com  \n  another@example.com  "]);
+
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod('sendTestAlert');
+        $method->setAccessible(true);
+
+        $response = $method->invoke($controller, $request);
+
+        \Mail::assertSent(\App\Mail\Alert::class, 2);
+        \Mail::assertSent(\App\Mail\Alert::class, function ($mail) {
+            return $mail->hasTo('test@example.com') || $mail->hasTo('another@example.com');
+        });
+    }
 }
