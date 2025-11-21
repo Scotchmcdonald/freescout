@@ -254,9 +254,9 @@ class ImapService
             try {
                 if (method_exists($from, 'toArray')) {
                     $from = $from->toArray();
-                } elseif (method_exists($from, 'get')) {
-                    $from = $from->get();
                 } else {
+                    // Try get() for both cases - when method_exists returns true or false
+                    // (method_exists may return false for mocked objects)
                     $from = $from->get();
                 }
             } catch (\Throwable $e) {
@@ -835,7 +835,7 @@ class ImapService
                 'conversation_id' => $conversation->id,
             ]);
 
-            // Process attachments
+            // Process attachments (body is updated if CID references are replaced)
             $this->processAttachments($message, $thread, $conversation, $body);
 
             // Update conversation
