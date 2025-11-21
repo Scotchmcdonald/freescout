@@ -193,8 +193,9 @@ foreach ($filesToRun as $file) {
     }
     
     // Check if file is marked as sequential
-    // Look for @sequential annotation in class docblock or file header
-    $isSequential = preg_match('/\*\s*@sequential/i', $content);
+    // Look for @sequential annotation in class docblock (must be in a docblock comment)
+    // Pattern: Match /** ... * @sequential ... */ before class declaration
+    $isSequential = preg_match('/\/\*\*[\s\S]*?\*\s*@sequential[\s\S]*?\*\/\s*(?:final\s+)?(?:abstract\s+)?class\s+/i', $content);
     
     // Heuristic to count tests: "public function test..." or "@test" annotation
     // More accurate counting by filtering out false positives
@@ -579,6 +580,7 @@ $executionProgressBar->setMessage('Initializing...'); // Set initial message
 $executionProgressBar->start();
 
 // --- PHASE 1: PARALLEL TESTS ---
+$parallelChunks = [];
 if (!empty($parallelFiles)) {
     // Dynamic batch size: ~5% of total files, min 5, max 25 to balance speed vs memory
     $batchSize = max(5, min(25, (int)ceil(count($parallelFiles) * 0.033)));
@@ -605,7 +607,7 @@ if (!empty($sequentialFiles)) {
     $sequentialChunks = array_chunk($sequentialFiles, $batchSize);
     
     // Calculate batch offset (number of batches from parallel phase)
-    $batchOffset = !empty($parallelFiles) ? count($parallelChunks) : 0;
+    $batchOffset = count($parallelChunks);
     
     $allResultsOutput .= executeBatches(
         $sequentialChunks,
