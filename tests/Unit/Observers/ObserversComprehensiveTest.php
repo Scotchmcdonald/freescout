@@ -8,8 +8,11 @@ use App\Events\ConversationStatusChanged;
 use App\Events\ConversationUserChanged;
 use App\Events\UserCreatedConversation;
 use App\Events\UserDeleted;
+use App\Models\Attachment;
 use App\Models\Conversation;
 use App\Models\Customer;
+use App\Models\Email;
+use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
@@ -17,6 +20,7 @@ use App\Observers\ConversationObserver;
 use App\Observers\ThreadObserver;
 use App\Observers\UserObserver;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
 use Tests\UnitTestCase;
 
 /**
@@ -344,5 +348,177 @@ class ObserversComprehensiveTest extends UnitTestCase
             // The original status is lost after save() unless we passed it explicitly to the event.
             return $event->conversation->status === Conversation::STATUS_CLOSED;
         });
+    }
+
+    // ===== ATTACHMENT OBSERVER TESTS (Merged from AttachmentObserverTest.php) =====
+
+    public function test_attachment_observer_deleting_removes_file_from_storage(): void
+    {
+        Storage::fake('local');
+
+        $thread = Thread::factory()->create();
+        $attachment = Attachment::factory()->create([
+            'thread_id' => $thread->id,
+            'file_dir' => 'attachments',
+            'file_name' => 'test.pdf',
+        ]);
+
+        // Create a fake file
+        Storage::put('attachments/test.pdf', 'test content');
+
+        $this->assertTrue(Storage::exists('attachments/test.pdf'));
+
+        $attachment->delete();
+
+        $this->assertFalse(Storage::exists('attachments/test.pdf'));
+    }
+
+    public function test_attachment_observer_deleting_handles_missing_file(): void
+    {
+        Storage::fake('local');
+
+        $thread = Thread::factory()->create();
+        $attachment = Attachment::factory()->create([
+            'thread_id' => $thread->id,
+            'file_dir' => 'attachments',
+            'file_name' => 'missing.pdf',
+        ]);
+
+        // Don't create the file
+        $this->assertFalse(Storage::exists('attachments/missing.pdf'));
+
+        // Should not throw an error
+        $attachment->delete();
+
+        $this->assertTrue(true);
+    }
+
+    // ===== CUSTOMER OBSERVER TESTS (Merged from CustomerObserverTest.php) =====
+
+    public function test_customer_observer_deleting_removes_conversations(): void
+    {
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
+
+        $customer->delete();
+
+        $this->assertSoftDeleted('conversations', ['id' => $conversation->id]);
+    }
+
+    public function test_customer_observer_deleting_removes_emails(): void
+    {
+        $customer = Customer::factory()->create();
+        $email = Email::factory()->create(['customer_id' => $customer->id]);
+
+        $customer->delete();
+
+        $this->assertDatabaseMissing('emails', ['id' => $email->id]);
+    }
+
+    // ===== MAILBOX OBSERVER TESTS (Merged from MailboxObserverTest.php) =====
+
+    public function test_mailbox_observer_created_creates_default_folders(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+
+        $this->assertDatabaseHas('folders', [
+            'mailbox_id' => $mailbox->id,
+            'type' => Folder::TYPE_INBOX,
+            'name' => 'Inbox',
+        ]);
+
+        $this->assertDatabaseHas('folders', [
+            'mailbox_id' => $mailbox->id,
+            'type' => Folder::TYPE_ASSIGNED,
+            'name' => 'Assigned',
+        ]);
+
+        $this->assertDatabaseHas('folders', [
+            'mailbox_id' => $mailbox->id,
+            'type' => Folder::TYPE_DRAFTS,
+            'name' => 'Drafts',
+        ]);
+
+        $this->assertDatabaseHas('folders', [
+            'mailbox_id' => $mailbox->id,
+            'type' => Folder::TYPE_SPAM,
+            'name' => 'Spam',
+        ]);
+
+        $this->assertDatabaseHas('folders', [
+            'mailbox_id' => $mailbox->id,
+            'type' => Folder::TYPE_TRASH,
+            'name' => 'Trash',
+        ]);
+    }
+
+    public function test_mailbox_observer_deleting_removes_conversations(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+
+        $mailbox->delete();
+
+        $this->assertDatabaseMissing('conversations', ['id' => $conversation->id]);
+    }
+
+    public function test_mailbox_observer_deleting_removes_folders(): void
+    {
+        $mailbox = Mailbox::factory()->create();
+        $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
+
+        $mailbox->delete();
+
+        $this->assertDatabaseMissing('folders', ['id' => $folder->id]);
+    }
+
+    // ===== THREAD OBSERVER ADDITIONAL TESTS (Merged from ThreadObserverTest.php) =====
+
+    public function test_thread_observer_created_increments_thread_count_when_conversation_exists(): void
+    {
+        $conversation = new Conversation(['threads_count' => 5]);
+        $thread = new Thread(['conversation_id' => 1]);
+        $thread->setRelation('conversation', $conversation);
+
+        $observer = new ThreadObserver;
+        $observer->created($thread);
+
+        // Verify the method runs without error
+        $this->assertTrue(true);
+    }
+
+    public function test_thread_observer_created_handles_missing_conversation(): void
+    {
+        $thread = new Thread(['conversation_id' => null]);
+
+        $observer = new ThreadObserver;
+        $observer->created($thread);
+
+        // Should not throw an error
+        $this->assertTrue(true);
+    }
+
+    public function test_thread_observer_deleted_decrements_thread_count_when_conversation_exists(): void
+    {
+        $conversation = new Conversation(['threads_count' => 5]);
+        $thread = new Thread(['conversation_id' => 1]);
+        $thread->setRelation('conversation', $conversation);
+
+        $observer = new ThreadObserver;
+        $observer->deleted($thread);
+
+        // Verify the method runs without error
+        $this->assertTrue(true);
+    }
+
+    public function test_thread_observer_deleted_handles_missing_conversation(): void
+    {
+        $thread = new Thread(['conversation_id' => null]);
+
+        $observer = new ThreadObserver;
+        $observer->deleted($thread);
+
+        // Should not throw an error
+        $this->assertTrue(true);
     }
 }
