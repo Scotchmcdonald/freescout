@@ -43,13 +43,13 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     public function test_extract_sender_info_returns_correct_structure(): void
     {
         $message = Mockery::mock(Message::class);
-        $from = Mockery::mock();
+        $from = Mockery::mock(\Webklex\PHPIMAP\Attribute::class);
         $from->shouldReceive('toArray')->andReturn([
             (object) ['mail' => 'test@example.com', 'personal' => 'Test User'],
         ]);
         $message->shouldReceive('getFrom')->andReturn($from);
 
-        Log::shouldReceive('debug')->twice();
+        Log::shouldReceive('debug')->atLeast()->once();
 
         $result = $this->invokeMethod($this->service, 'extractSenderInfo', [$message]);
 
@@ -82,7 +82,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
         $from->shouldReceive('get')->andReturn([$addressObj]);
         $message->shouldReceive('getFrom')->andReturn($from);
 
-        Log::shouldReceive('debug')->twice();
+        Log::shouldReceive('debug')->once(); // Only "Processing message from" is logged, user not found
 
         $result = $this->invokeMethod($this->service, 'extractSenderInfo', [$message]);
 
@@ -165,7 +165,8 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
         ]);
 
         $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('newuser@example.com', $customer->emails[0]);
+        // Customer->emails is a HasMany relation, so we access the first item
+        $this->assertEquals('newuser@example.com', $customer->emails[0]->email);
     }
 
     public function test_create_customer_from_name_limits_first_name_length(): void
@@ -265,11 +266,16 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
         ]);
 
         $message = Mockery::mock(Message::class);
-        $header = Mockery::mock();
-        $inReplyTo = Mockery::mock();
+        $header = Mockery::mock(\Webklex\PHPIMAP\Header::class);
+        
+        $inReplyTo = Mockery::mock(\Webklex\PHPIMAP\Attribute::class);
         $inReplyTo->shouldReceive('first')->andReturn('<parent@example.com>');
+        
+        $references = Mockery::mock(\Webklex\PHPIMAP\Attribute::class);
+        $references->shouldReceive('first')->andReturn(null);
+
         $header->shouldReceive('get')->with('in_reply_to')->andReturn($inReplyTo);
-        $header->shouldReceive('get')->with('references')->andReturn(null);
+        $header->shouldReceive('get')->with('references')->andReturn($references);
         $message->shouldReceive('getHeader')->andReturn($header);
 
         Log::shouldReceive('debug')->atLeast()->once();
@@ -293,6 +299,9 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
         $this->expectExceptionMessage('No inbox folder found');
 
         $mailbox = Mailbox::factory()->create();
+        // Ensure no folders exist for this mailbox
+        Folder::where('mailbox_id', $mailbox->id)->delete();
+        
         $customer = Customer::factory()->create();
         
         $message = Mockery::mock(Message::class);
@@ -329,8 +338,10 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_is_embedded_attachment_returns_true_for_inline_disposition(): void
     {
-        $attachment = Mockery::mock(Attachment::class);
-        $attachment->disposition = 'inline';
+        $attachment = new class extends \Webklex\PHPIMAP\Attachment {
+            public $disposition = 'inline';
+            public function __construct() {}
+        };
         
         $result = $this->invokeMethod($this->service, 'isEmbeddedAttachment', [
             $attachment,
@@ -361,15 +372,15 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_get_folders_returns_success_with_folders(): void
     {
-        $mockFolder = Mockery::mock();
+        $mockFolder = Mockery::mock(\Webklex\PHPIMAP\Folder::class);
         $mockFolder->full_name = 'INBOX';
 
-        $mockClient = Mockery::mock();
+        $mockClient = Mockery::mock(\Webklex\PHPIMAP\Client::class);
         $mockClient->shouldReceive('connect')->once();
-        $mockClient->shouldReceive('getFolders')->andReturn([$mockFolder]);
+        $mockClient->shouldReceive('getFolders')->andReturn(new \Webklex\PHPIMAP\Support\FolderCollection([$mockFolder]));
         $mockClient->shouldReceive('disconnect')->once();
 
-        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service->shouldReceive('createClient')->andReturn($mockClient);
 
         $mailbox = Mailbox::factory()->make([
@@ -386,12 +397,12 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_get_folders_returns_success_with_no_folders(): void
     {
-        $mockClient = Mockery::mock();
+        $mockClient = Mockery::mock(\Webklex\PHPIMAP\Client::class);
         $mockClient->shouldReceive('connect')->once();
-        $mockClient->shouldReceive('getFolders')->andReturn([]);
+        $mockClient->shouldReceive('getFolders')->andReturn(new \Webklex\PHPIMAP\Support\FolderCollection([]));
         $mockClient->shouldReceive('disconnect')->once();
 
-        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service->shouldReceive('createClient')->andReturn($mockClient);
 
         $mailbox = Mailbox::factory()->make([
@@ -408,11 +419,11 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_get_folders_handles_connection_failure(): void
     {
-        $mockClient = Mockery::mock();
+        $mockClient = Mockery::mock(\Webklex\PHPIMAP\Client::class);
         $mockClient->shouldReceive('connect')
             ->andThrow(new \Webklex\PHPIMAP\Exceptions\ConnectionFailedException('Connection failed'));
 
-        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service->shouldReceive('createClient')->andReturn($mockClient);
 
         $mailbox = Mailbox::factory()->make([
@@ -428,11 +439,11 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_get_folders_handles_general_exception(): void
     {
-        $mockClient = Mockery::mock();
+        $mockClient = Mockery::mock(\Webklex\PHPIMAP\Client::class);
         $mockClient->shouldReceive('connect')
             ->andThrow(new \Exception('General error'));
 
-        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service->shouldReceive('createClient')->andReturn($mockClient);
 
         $mailbox = Mailbox::factory()->make([
@@ -593,12 +604,13 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_handles_cid_and_fwd_cleanup(): void
     {
-        $body = 'Text with "cid:image123" and @fwd<link>';
+        $body = 'Text with "cid:image123" and @fwd<link> From: sender@example.com';
         
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
         // Should handle cleanup and still try to find email
         $this->assertIsArray($result);
+        $this->assertEquals('sender@example.com', $result['email']);
     }
 
     // ========================================================================
@@ -620,22 +632,22 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
         $message2 = Mockery::mock();
         $message2->shouldReceive('hasFlag')->with('Seen')->andReturn(true);
 
-        $messages = collect([$message1, $message2]);
+        $messages = new \Webklex\PHPIMAP\Support\MessageCollection([$message1, $message2]);
 
-        $query = Mockery::mock();
+        $query = Mockery::mock(\Webklex\PHPIMAP\Query\WhereQuery::class);
         $query->shouldReceive('since')->andReturnSelf();
         $query->shouldReceive('leaveUnread')->andReturnSelf();
         $query->shouldReceive('get')->andReturn($messages);
 
-        $folder = Mockery::mock();
+        $folder = Mockery::mock(\Webklex\PHPIMAP\Folder::class);
         $folder->shouldReceive('query')->andReturn($query);
 
-        $client = Mockery::mock();
+        $client = Mockery::mock(\Webklex\PHPIMAP\Client::class);
         $client->shouldReceive('connect')->andReturnSelf();
         $client->shouldReceive('getFolder')->with('INBOX')->andReturn($folder);
-        $client->shouldReceive('disconnect')->andReturnNull();
+        $client->shouldReceive('disconnect')->andReturnSelf();
 
-        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service->shouldReceive('createClient')->with($mailbox)->andReturn($client);
 
         $result = $service->testConnection($mailbox);
@@ -655,9 +667,9 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
             'in_password' => 'password',
         ]);
 
-        $messages = collect([]);
+        $messages = new \Webklex\PHPIMAP\Support\MessageCollection([]);
 
-        $query = Mockery::mock();
+        $query = Mockery::mock(\Webklex\PHPIMAP\Query\WhereQuery::class);
         $query->shouldReceive('since')->andReturnSelf();
         $query->shouldReceive('leaveUnread')->andReturnSelf();
         $query->shouldReceive('get')
@@ -668,15 +680,15 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
             ->once()
             ->andReturn($messages);
 
-        $folder = Mockery::mock();
+        $folder = Mockery::mock(\Webklex\PHPIMAP\Folder::class);
         $folder->shouldReceive('query')->andReturn($query);
 
-        $client = Mockery::mock();
+        $client = Mockery::mock(\Webklex\PHPIMAP\Client::class);
         $client->shouldReceive('connect')->andReturnSelf();
         $client->shouldReceive('getFolder')->with('INBOX')->andReturn($folder);
-        $client->shouldReceive('disconnect')->andReturnNull();
+        $client->shouldReceive('disconnect')->andReturnSelf();
 
-        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service->shouldReceive('createClient')->with($mailbox)->andReturn($client);
 
         $result = $service->testConnection($mailbox);
@@ -694,11 +706,11 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
             'in_password' => 'wrong_password',
         ]);
 
-        $client = Mockery::mock();
+        $client = Mockery::mock(\Webklex\PHPIMAP\Client::class);
         $client->shouldReceive('connect')
             ->andThrow(new \Webklex\PHPIMAP\Exceptions\ConnectionFailedException('Authentication failed'));
 
-        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service->shouldReceive('createClient')->with($mailbox)->andReturn($client);
 
         $result = $service->testConnection($mailbox);
@@ -716,11 +728,11 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
             'in_password' => 'password',
         ]);
 
-        $client = Mockery::mock();
+        $client = Mockery::mock(\Webklex\PHPIMAP\Client::class);
         $client->shouldReceive('connect')->andReturnSelf();
         $client->shouldReceive('getFolder')->with('INBOX')->andReturn(null);
 
-        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service->shouldReceive('createClient')->with($mailbox)->andReturn($client);
 
         $result = $service->testConnection($mailbox);
@@ -738,11 +750,11 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
             'in_password' => 'password',
         ]);
 
-        $client = Mockery::mock();
+        $client = Mockery::mock(\Webklex\PHPIMAP\Client::class);
         $client->shouldReceive('connect')
             ->andThrow(new \Exception('Unknown error occurred'));
 
-        $service = Mockery::mock(ImapService::class)->makePartial();
+        $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service->shouldReceive('createClient')->with($mailbox)->andReturn($client);
 
         $result = $service->testConnection($mailbox);

@@ -246,7 +246,7 @@ class CustomerComprehensiveTest extends UnitTestCase
             Customer::create('invalid-email', ['first_name' => 'Test']);
             $this->fail('Should have thrown exception for invalid email');
         } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
+            // Expected exception
         }
     }
 

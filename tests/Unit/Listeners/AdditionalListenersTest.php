@@ -298,9 +298,10 @@ class AdditionalListenersTest extends UnitTestCase
             'customer_id' => $customer->id,
         ]);
 
-        // Verify methods that listener checks don't exist
-        $this->assertFalse(method_exists($conversation, 'isPhone'));
-        $this->assertFalse(method_exists($conversation, 'isChat'));
+        // Verify methods that listener checks exist on the model
+        $this->assertTrue(method_exists($conversation, 'isPhone'));
+        $this->assertTrue(method_exists($conversation, 'isChat'));
+        // getReplies does not exist on Conversation model
         $this->assertFalse(method_exists($conversation, 'getReplies'));
     }
 

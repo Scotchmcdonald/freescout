@@ -21,7 +21,8 @@ class SendReplyToCustomer
 
         // Do not send email if this is a Phone conversation and customer has no email.
         if (method_exists($conversation, 'isPhone') && $conversation->isPhone()) {
-            if (! $conversation->customer->getMainEmail()) {
+            $customer = $conversation->customer;
+            if (!$customer || !$customer->getMainEmail()) {
                 return;
             }
         }

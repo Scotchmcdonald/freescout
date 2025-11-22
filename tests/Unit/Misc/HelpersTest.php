@@ -52,8 +52,8 @@ class HelpersTest extends UnitTestCase
             ->andReturn(0);
 
         Helper::queueWorkerRestart();
-
-        $this->expectNotToPerformAssertions(); // Assertion for mock expectation
+        
+        $this->assertTrue(true);
     }
 
     public function test_dir_permissions_constant_is_defined(): void

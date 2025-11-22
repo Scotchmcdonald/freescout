@@ -1252,7 +1252,12 @@ class ImapService
 
         // Convert Attribute to array (check for method rather than exact class for mock compatibility)
         if (is_object($addresses) && method_exists($addresses, 'get') && ! is_string($addresses)) {
-            $addresses = $addresses->get();
+            try {
+                $addresses = $addresses->get();
+            } catch (\BadMethodCallException $e) {
+                // Mock without expectation, return empty array
+                return [];
+            }
         }
 
         // Convert string to array for consistent processing

@@ -1624,4 +1624,60 @@ This is the forwarded message content';
     }
 
     public function test_process_message_sets_has_attachments_flag_only_for_non_embedded(): void
+    {
+        // Arrange
+        $mailbox = Mailbox::factory()->create();
+
+        // Case 1: Message with only embedded attachments
+        $embeddedAttachment = Mockery::mock(ImapAttachment::class);
+        $embeddedAttachment->shouldReceive('getName')->andReturn('image1.png');
+        $embeddedAttachment->shouldReceive('getContent')->andReturn('image1data');
+        $embeddedAttachment->shouldReceive('getId')->andReturn('img1');
+        $embeddedAttachment->shouldReceive('getContentType')->andReturn('image/png');
+        $embeddedAttachment->disposition = 'inline';
+
+        $messageEmbedded = $this->createMockMessage([
+            'from' => [(object)['mail' => 'customer1@example.com', 'personal' => 'John Doe']],
+            'html_body' => '<p>Image: <img src="cid:img1"></p>',
+            'has_html' => true,
+            'has_attachments' => true,
+            'attachments' => new AttachmentCollection([$embeddedAttachment]),
+            'message_id' => '<msg1@example.com>',
+            'subject' => 'Embedded Only'
+        ]);
+
+        // Act
+        $this->invokeProcessMessage($mailbox, $messageEmbedded);
+
+        // Assert
+        $conversation1 = Conversation::where('subject', 'Embedded Only')->first();
+        $this->assertNotNull($conversation1);
+        $this->assertFalse((bool)$conversation1->has_attachments, 'Conversation should not have attachments flag if only embedded images are present');
+
+        // Case 2: Message with regular attachment
+        $regularAttachment = Mockery::mock(ImapAttachment::class);
+        $regularAttachment->shouldReceive('getName')->andReturn('doc.pdf');
+        $regularAttachment->shouldReceive('getContent')->andReturn('pdfdata');
+        $regularAttachment->shouldReceive('getId')->andReturn(null);
+        $regularAttachment->shouldReceive('getContentType')->andReturn('application/pdf');
+        $regularAttachment->disposition = 'attachment';
+
+        $messageRegular = $this->createMockMessage([
+            'from' => [(object)['mail' => 'customer2@example.com', 'personal' => 'Jane Doe']],
+            'html_body' => '<p>Here is the doc</p>',
+            'has_html' => true,
+            'has_attachments' => true,
+            'attachments' => new AttachmentCollection([$regularAttachment]),
+            'message_id' => '<msg2@example.com>',
+            'subject' => 'Regular Attachment'
+        ]);
+
+        // Act
+        $this->invokeProcessMessage($mailbox, $messageRegular);
+
+        // Assert
+        $conversation2 = Conversation::where('subject', 'Regular Attachment')->first();
+        $this->assertNotNull($conversation2);
+        $this->assertTrue((bool)$conversation2->has_attachments, 'Conversation should have attachments flag if regular attachment is present');
+    }
 }

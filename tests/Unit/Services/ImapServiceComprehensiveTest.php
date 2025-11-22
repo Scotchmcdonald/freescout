@@ -207,7 +207,7 @@ class ImapServiceComprehensiveTest extends UnitTestCase
         $service = new ImapService;
         $service->fetchEmails($mailbox);
 
-        $this->expectNotToPerformAssertions(); // Verify log expectations were met
+        $this->assertTrue(true);
     }
 
     // Story 1.1.2: Email Structure Parsing

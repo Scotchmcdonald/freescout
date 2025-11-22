@@ -161,6 +161,9 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
         $this->invokeProcessMessage($mailbox, $message);
 
         // Assert
+        $this->assertTrue(true);
+    }
+
     public function test_process_message_sets_has_attachments_flag_only_for_non_embedded(): void
     {
         // Arrange

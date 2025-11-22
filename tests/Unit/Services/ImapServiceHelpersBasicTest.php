@@ -8,6 +8,10 @@ use App\Services\ImapService;
 use Tests\UnitTestCase;
 use Mockery;
 
+interface MockAttribute {
+    public function get();
+}
+
 /**
  * Test Suite for IMAP Service Helper Methods - Basic
  *
@@ -263,10 +267,11 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_converts_attribute_object(): void
     {
-        $attribute = Mockery::mock(Attribute::class);
-        $attribute->shouldReceive('get')
-            ->once()
-            ->andReturn([(object)['mail' => 'attr@example.com', 'personal' => 'Attr User']]);
+        $attribute = new class {
+            public function get() {
+                return [(object)['mail' => 'attr@example.com', 'personal' => 'Attr User']];
+            }
+        };
 
         $result = $this->invokeMethod($this->service, 'getAddressesWithNames', [$attribute]);
 
@@ -493,10 +498,11 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_parse_addresses_converts_attribute_object(): void
     {
-        $attribute = Mockery::mock(Attribute::class);
-        $attribute->shouldReceive('get')
-            ->once()
-            ->andReturn([(object)['mail' => 'attr@example.com']]);
+        $attribute = new class {
+            public function get() {
+                return [(object)['mail' => 'attr@example.com']];
+            }
+        };
 
         $result = $this->invokeMethod($this->service, 'parseAddresses', [$attribute]);
 
@@ -506,19 +512,20 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_parse_addresses_converts_attribute_object_with_multiple_addresses(): void
     {
-        $attribute = Mockery::mock(Attribute::class);
-        $attribute->shouldReceive('get')
-            ->once()
-            ->andReturn([
-                (object)['mail' => 'first@example.com'],
-                (object)['mail' => 'second@example.com'],
-            ]);
+        $attribute = new class {
+            public function get() {
+                return [
+                    (object)['mail' => 'attr1@example.com'],
+                    (object)['mail' => 'attr2@example.com'],
+                ];
+            }
+        };
 
         $result = $this->invokeMethod($this->service, 'parseAddresses', [$attribute]);
 
         $this->assertCount(2, $result);
-        $this->assertEquals('first@example.com', $result[0]);
-        $this->assertEquals('second@example.com', $result[1]);
+        $this->assertEquals('attr1@example.com', $result[0]);
+        $this->assertEquals('attr2@example.com', $result[1]);
     }
 
     public function test_parse_addresses_handles_object_without_mail_property_plain_string(): void

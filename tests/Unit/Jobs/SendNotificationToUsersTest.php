@@ -765,8 +765,12 @@ class SendNotificationToUsersTest extends UnitTestCase
         Log::spy();
 
         $user = User::factory()->create();
-        $conversation = Conversation::factory()->create(['mailbox_id' => null]);
+        $mailbox = Mailbox::factory()->create();
+        $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        
+        // Delete the mailbox to simulate missing mailbox scenario
+        $mailbox->delete();
 
         $job = new SendNotificationToUsers(collect([$user]), $conversation, collect([$thread]));
         $job->handle();

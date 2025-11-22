@@ -265,6 +265,22 @@ class Conversation extends Model
     }
 
     /**
+     * Check if conversation is phone type.
+     */
+    public function isPhone(): bool
+    {
+        return $this->type === self::TYPE_PHONE;
+    }
+
+    /**
+     * Check if conversation is chat type.
+     */
+    public function isChat(): bool
+    {
+        return $this->type === self::TYPE_CHAT;
+    }
+
+    /**
      * Get status name.
      */
     public function getStatusName(): string

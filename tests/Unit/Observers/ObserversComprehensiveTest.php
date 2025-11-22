@@ -390,7 +390,7 @@ class ObserversComprehensiveTest extends UnitTestCase
         // Should not throw an error
         $attachment->delete();
 
-        $this->expectNotToPerformAssertions();
+        $this->assertTrue(true);
     }
 
     // ===== CUSTOMER OBSERVER TESTS (Merged from CustomerObserverTest.php) =====

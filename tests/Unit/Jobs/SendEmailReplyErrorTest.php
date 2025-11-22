@@ -127,6 +127,8 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
     public function test_job_logs_error_on_exception(): void
     {
+        $this->expectException(\Exception::class);
+
         Log::shouldReceive('info')->once();
         Log::shouldReceive('error')
             ->once()
@@ -140,13 +142,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
         
         $job = new SendEmailReplyError('error@example.com', $user, $mailbox);
 
-        try {
-            $job->handle();
-        } catch (\Exception $e) {
-            // Expected
-        }
-
-        $this->expectNotToPerformAssertions();
+        $job->handle();
     }
 
     public function test_job_creates_send_log_with_error_status_on_exception(): void
