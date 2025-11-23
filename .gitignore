@@ -70,6 +70,9 @@ app/Console/Commands/Test*
 /Modules
 /resources/lang/module.*
 
+# Reports
+/reports/
+
 # Optional: Uncomment if you want to track these
 #composer.lock
 #/.htaccess/reports/
