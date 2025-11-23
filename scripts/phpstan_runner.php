@@ -30,6 +30,22 @@ $debug = isset($options['debug']);
 echo "PHPStan Runner\n";
 echo "==============\n";
 
+// Fix permissions
+$baseDir = realpath(__DIR__.'/..');
+$commands = [
+    "sudo chown -R www-data:www-data $baseDir",
+    "sudo chmod -R 755 $baseDir",
+    "sudo setfacl -R -m u:dev:rwx $baseDir"
+];
+
+foreach ($commands as $cmd) {
+    passthru($cmd, $returnVar);
+    if ($returnVar !== 0) {
+        echo "Warning: Command failed: $cmd\n";
+    }
+}
+echo "\n";
+
 switch ($command) {
     case 'bodyscan':
         runBodyscan($memoryLimit);

@@ -48,6 +48,23 @@ $process->run();
 
 $io->title('Freescout Test Runner (File-by-File)');
 
+// --- PERMISSIONS FIX ---
+$io->section('Fixing Permissions');
+$commands = [
+    "sudo chown -R www-data:www-data $baseDir",
+    "sudo chmod -R 755 $baseDir",
+    "sudo setfacl -R -m u:dev:rwx $baseDir"
+];
+
+foreach ($commands as $cmd) {
+    $io->writeln("Running: <info>$cmd</info>");
+    passthru($cmd, $returnVar);
+    if ($returnVar !== 0) {
+        $io->warning("Command failed with exit code $returnVar");
+    }
+}
+$io->success('Permissions fixed.');
+
 // --- CACHE CLEARING ---
 $io->section('Clearing Caches');
 if ($process->isSuccessful()) {
