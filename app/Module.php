@@ -27,11 +27,22 @@ class Module
         return false;
     }
 
+    /**
+     * @return array{status: string, msg: string, msg_success: string, download_error: bool, download_msg: string, output: string, module_name: string}
+     */
     public static function updateModule(string $alias): array
     {
         if (self::$updateCallback) {
             return (self::$updateCallback)($alias);
         }
-        return [];
+        return [
+            'status' => 'error',
+            'msg' => 'Module update not implemented in stub',
+            'msg_success' => '',
+            'download_error' => false,
+            'download_msg' => '',
+            'output' => '',
+            'module_name' => '',
+        ];
     }
 }

@@ -14,8 +14,8 @@ class Alert extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $alert_message;
-    public $alert_subject;
+    public string $alert_message;
+    public string $alert_subject;
 
     /**
      * Create a new message instance.
@@ -33,7 +33,8 @@ class Alert extends Mailable
      */
     public function envelope(): Envelope
     {
-        $subject = '['.config('app.name').'] ';
+        $appName = config('app.name');
+        $subject = '['.(is_string($appName) ? $appName : '').'] ';
         if (! empty($this->title)) {
             $subject .= $this->title;
         } else {
@@ -41,7 +42,9 @@ class Alert extends Mailable
         }
         
         // Get domain from app URL
-        $domain = parse_url(config('app.url'), PHP_URL_HOST) ?: config('app.url');
+        $appUrl = config('app.url');
+        $appUrl = is_string($appUrl) ? $appUrl : '';
+        $domain = parse_url($appUrl, PHP_URL_HOST) ?: $appUrl;
         $subject .= ' - '.$domain;
 
         return new Envelope(

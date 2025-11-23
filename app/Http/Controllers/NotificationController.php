@@ -6,13 +6,13 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    public function index()
+    public function index(): \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
     {
         // Mock notifications for now
         return view('notifications.index', ['notifications' => []]);
     }
 
-    public function markAsRead($id)
+    public function markAsRead(int|string $id): \Illuminate\Http\RedirectResponse
     {
         return back();
     }

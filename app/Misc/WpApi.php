@@ -10,11 +10,15 @@ namespace App\Misc;
  */
 class WpApi
 {
-    public static ?string $lastError = null;
+    /** @var array<string, mixed>|null */
+    public static ?array $lastError = null;
+    /** @var array<int, array<string, mixed>>|null */
     public static ?array $modules = null;
 
     /**
      * Get modules directory
+     * 
+     * @return array<int, array<string, mixed>>
      */
     public static function getModules(): array
     {

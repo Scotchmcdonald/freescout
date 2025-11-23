@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Email extends Model
 {
+    /** @use HasFactory<\Database\Factories\EmailFactory> */
     use HasFactory;
 
     const TYPE_WORK = 1;

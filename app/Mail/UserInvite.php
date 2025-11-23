@@ -29,6 +29,7 @@ class UserInvite extends Mailable
     public function envelope(): Envelope
     {
         $companyName = \App\Models\Option::get('company_name') ?: config('app.name');
+        $companyName = is_string($companyName) ? $companyName : '';
         $subject = __('Welcome to :company_name!', ['company_name' => $companyName]);
 
         return new Envelope(

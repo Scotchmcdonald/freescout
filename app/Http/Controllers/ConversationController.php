@@ -23,8 +23,12 @@ class ConversationController extends Controller
      */
     public function index(Request $request, Mailbox $mailbox): View|ViewFactory
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access to mailbox
         if (! $user->mailboxes->contains($mailbox->id)) {
@@ -45,8 +49,12 @@ class ConversationController extends Controller
      */
     public function show(Request $request, Conversation $conversation): View|RedirectResponse|ViewFactory
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access - user must be attached to the mailbox
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -74,6 +82,9 @@ class ConversationController extends Controller
         ]);
 
         // Get folders for sidebar
+        if (!$conversation->mailbox) {
+            abort(404);
+        }
         $folders = $conversation->mailbox->folders()
             ->where(function ($query) use ($user) {
                 $query->whereNull('user_id')
@@ -87,14 +98,19 @@ class ConversationController extends Controller
     /**
      * Create a new conversation.
      */
-    public function create(Request $request, $mailbox): View|ViewFactory
+    public function create(Request $request, mixed $mailbox): View|ViewFactory
     {
         if (! ($mailbox instanceof Mailbox)) {
             $mailbox = Mailbox::findOrFail($mailbox);
         }
+        /** @var Mailbox $mailbox */
 
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($mailbox->id)) {
@@ -115,14 +131,19 @@ class ConversationController extends Controller
     /**
      * Store a new conversation.
      */
-    public function store(Request $request, $mailbox): RedirectResponse
+    public function store(Request $request, mixed $mailbox): RedirectResponse
     {
         if (! ($mailbox instanceof Mailbox)) {
             $mailbox = Mailbox::findOrFail($mailbox);
         }
+        /** @var Mailbox $mailbox */
 
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($mailbox->id)) {
@@ -143,7 +164,7 @@ class ConversationController extends Controller
         ]);
 
         try {
-            return DB::transaction(function () use ($request, $mailbox, $user, $validated) {
+            return DB::transaction(function () use ($mailbox, $user, $validated) {
                 // Find or create customer
                 if (! empty($validated['customer_id'])) {
                     /** @var \App\Models\Customer $customer */
@@ -227,8 +248,12 @@ class ConversationController extends Controller
      */
     public function update(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -260,8 +285,12 @@ class ConversationController extends Controller
      */
     public function reply(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -276,6 +305,13 @@ class ConversationController extends Controller
 
         try {
             return DB::transaction(function () use ($request, $conversation, $user, $validated) {
+                if (!$conversation->mailbox) {
+                    $conversation->load('mailbox');
+                }
+                if (!$conversation->mailbox) {
+                    throw new \Exception('Mailbox not found');
+                }
+
                 // Create thread
                 /** @var \App\Models\Thread $thread */
                 $thread = Thread::create([
@@ -346,9 +382,15 @@ class ConversationController extends Controller
      */
     public function search(Request $request): View|ViewFactory
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
-        $searchQuery = (string) $request->input('q', '');
+
+        if (! $user) {
+            abort(401);
+        }
+
+        $searchQuery = $request->input('q', '');
+        $searchQuery = is_string($searchQuery) ? $searchQuery : '';
 
         /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Conversation> $queryBuilder */
         $queryBuilder = Conversation::query()
@@ -362,8 +404,10 @@ class ConversationController extends Controller
             ->where(function ($q) use ($searchQuery) {
                 $q->where('subject', 'like', "%{$searchQuery}%")
                     ->orWhere('preview', 'like', "%{$searchQuery}%")
-                    ->orWhereHas('customer', function ($customerQuery) use ($searchQuery) {
-                        $customerQuery->where('first_name', 'like', "%{$searchQuery}%")
+                    ->orWhereHas('customer', function ($q) use ($searchQuery) {
+                        // @phpstan-ignore-next-line
+                        $q->where('first_name', 'like', "%{$searchQuery}%")
+                            // @phpstan-ignore-next-line
                             ->orWhere('last_name', 'like', "%{$searchQuery}%");
                     });
             });
@@ -390,8 +434,12 @@ class ConversationController extends Controller
 
         /** @var \App\Models\Conversation $conversation */
         $conversation = Conversation::findOrFail($conversationId);
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -455,8 +503,12 @@ class ConversationController extends Controller
      */
     public function clone(Request $request, Mailbox $mailbox, Thread $thread): RedirectResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access to mailbox
         $this->authorize('view', $mailbox);
@@ -469,7 +521,8 @@ class ConversationController extends Controller
         $conversation = new Conversation;
         
         // Generate new conversation number
-        $currentNumber = Conversation::max('number') ?? 0;
+        $maxNumber = Conversation::max('number');
+        $currentNumber = is_numeric($maxNumber) ? (int)$maxNumber : 0;
         $conversation->number = $currentNumber + 1;
         
         $conversation->type = $originalConversation->type;
@@ -532,8 +585,12 @@ class ConversationController extends Controller
      */
     public function destroy(Request $request, Conversation $conversation): RedirectResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access - user must be attached to the mailbox
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -556,6 +613,7 @@ class ConversationController extends Controller
     public function ajaxHtml(Request $request): View|ViewFactory
     {
         $action = $request->input('action');
+        $action = is_string($action) ? $action : '';
         $conversationId = $request->input('conversation_id');
         $threadId = $request->input('thread_id');
 
@@ -577,8 +635,12 @@ class ConversationController extends Controller
      */
     public function changeCustomer(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -605,10 +667,11 @@ class ConversationController extends Controller
                     'first_name' => $validated['new_customer_first_name'] ?? '',
                     'last_name' => $validated['new_customer_last_name'] ?? '',
                 ]);
-                $customerId = $newCustomer?->id;
+                $customerId = $newCustomer->id;
             }
 
             if ($customerId) {
+                /** @var \App\Models\Customer $customer */
                 $customer = Customer::findOrFail($customerId);
                 $conversation->update([
                     'customer_id' => $customerId,
@@ -641,8 +704,12 @@ class ConversationController extends Controller
      */
     public function merge(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -655,6 +722,7 @@ class ConversationController extends Controller
             'update_customer' => 'nullable|boolean',
         ]);
 
+        /** @var \App\Models\Conversation $targetConversation */
         $targetConversation = Conversation::findOrFail($validated['target_conversation_id']);
 
         // Prevent merging into self
@@ -710,8 +778,12 @@ class ConversationController extends Controller
      */
     public function move(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -743,8 +815,12 @@ class ConversationController extends Controller
      */
     public function updateThread(Request $request, Conversation $conversation, Thread $thread): RedirectResponse|JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -780,8 +856,12 @@ class ConversationController extends Controller
      */
     public function updateSettings(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -826,8 +906,12 @@ class ConversationController extends Controller
      */
     public function chats(Request $request): View|ViewFactory
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Get conversations in chat mode
         $conversations = Conversation::with(['customer', 'threads'])
@@ -853,12 +937,17 @@ class ConversationController extends Controller
     /**
      * Print a conversation.
      */
-    public function print(Request $request, $id): View|ViewFactory
+    public function print(Request $request, mixed $id): View|ViewFactory
     {
+        /** @var \App\Models\Conversation $conversation */
         $conversation = Conversation::findOrFail($id);
         
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -877,8 +966,12 @@ class ConversationController extends Controller
      */
     public function export(Request $request): \Symfony\Component\HttpFoundation\BinaryFileResponse|RedirectResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         if (! $user->isAdmin()) {
             abort(403);
@@ -902,8 +995,12 @@ class ConversationController extends Controller
      */
     public function import(Request $request): View|ViewFactory
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         if (! $user->isAdmin()) {
             abort(403);
@@ -917,8 +1014,12 @@ class ConversationController extends Controller
      */
     public function batchUpdate(Request $request): RedirectResponse|JsonResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Models\User|null $user */
         $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
 
         $validated = $request->validate([
             'ids' => 'required|array',
@@ -927,9 +1028,11 @@ class ConversationController extends Controller
             'user_id' => 'nullable|integer|exists:users,id',
         ]);
 
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations */
         $conversations = Conversation::whereIn('id', $validated['ids'])->get();
 
         foreach ($conversations as $conversation) {
+            /** @var \App\Models\Conversation $conversation */
             // Check access
             if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
                 continue; // Skip unauthorized

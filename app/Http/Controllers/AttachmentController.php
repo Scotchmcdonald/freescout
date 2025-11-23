@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class AttachmentController extends Controller
 {
-    public function download($id)
+    public function download(int $id): \Illuminate\Http\JsonResponse
     {
         $attachment = Attachment::findOrFail($id);
         
@@ -15,7 +15,13 @@ class AttachmentController extends Controller
         // This assumes Attachment has a relationship to Thread, and Thread to Conversation
         // And User has relationship to Mailboxes which have Conversations
         
+        /** @var \App\Models\User|null $user */
         $user = auth()->user();
+
+        if (!$user) {
+            abort(401);
+        }
+
         $conversation = $attachment->thread->conversation;
         
         if (!$user->mailboxes->contains($conversation->mailbox_id) && !$user->isAdmin()) {

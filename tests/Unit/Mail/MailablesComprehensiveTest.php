@@ -304,7 +304,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         
-        $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
+        $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         
         $this->assertInstanceOf(UserNotification::class, $mailable);
         $this->assertEquals($conversation->id, $mailable->conversation->id);
@@ -319,7 +319,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         
-        $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
+        $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         $envelope = $mailable->envelope();
         
         $this->assertStringContainsString('Test Notification', $envelope->subject);
@@ -334,7 +334,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         
-        Mail::to($user->email)->send(new UserNotification($user, $conversation, $threads, [], [], $mailbox));
+        Mail::to($user->email)->send(new UserNotification($user, $conversation, $threads, $mailbox, [], []));
         
         Mail::assertSent(UserNotification::class);
     }
@@ -346,7 +346,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         
-        $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
+        $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         
         $this->assertCount(5, $mailable->threads);
     }
@@ -443,7 +443,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         
-        $mailable = new UserNotification($user, $conversation, $threads, [], [], $mailbox);
+        $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         
         $this->assertCount(0, $mailable->threads);
     }

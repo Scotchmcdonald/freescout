@@ -25,7 +25,7 @@ class AfterAppUpdate extends Command
     /**
      * The aliases of the console command.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $aliases = ['app:after-update'];
 

@@ -74,7 +74,10 @@ class ProfileController extends Controller
             'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
         ]);
 
-        $request->user()->update([
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        
+        $user->update([
             'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),
         ]);
 

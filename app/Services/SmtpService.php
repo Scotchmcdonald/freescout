@@ -13,6 +13,8 @@ class SmtpService
 {
     /**
      * Test SMTP connection by sending a test email.
+     *
+     * @return array{success: bool, message: string}
      */
     public function testConnection(Mailbox $mailbox, string $testEmailAddress): array
     {
@@ -89,6 +91,8 @@ class SmtpService
 
     /**
      * Validate mailbox SMTP settings.
+     *
+     * @return array<int, string>
      */
     protected function validateMailboxSettings(Mailbox $mailbox): array
     {
@@ -146,8 +150,12 @@ class SmtpService
     /**
      * Get encryption protocol.
      */
-    protected function getEncryption(?int $encryption): ?string
+    protected function getEncryption(int|string|null $encryption): ?string
     {
+        if (is_string($encryption)) {
+            $encryption = (int) $encryption;
+        }
+
         return match ($encryption) {
             1 => 'ssl',
             2 => 'tls',
@@ -157,6 +165,9 @@ class SmtpService
 
     /**
      * Validate SMTP settings without sending email.
+     *
+     * @param array<string, mixed> $settings
+     * @return array<string, string>
      */
     public function validateSettings(array $settings): array
     {

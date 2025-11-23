@@ -25,7 +25,7 @@ class FolderPolicy
         }
 
         // Users can view folders for mailboxes they have access to
-        $hasAccess = $user->mailboxes()->where('mailbox_id', $folder->mailbox_id)->exists();
+        $hasAccess = $user->mailboxes()->where('mailboxes.id', $folder->mailbox_id)->exists();
         
         return $hasAccess;
     }

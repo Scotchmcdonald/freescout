@@ -35,6 +35,7 @@ class CheckRequirements extends Command
         // Check PHP Version
         $this->comment('PHP Version');
         $phpVersion = phpversion();
+        /** @var string $minVersion */
         $minVersion = config('installer.core.minPhpVersion', '8.2.0');
         $versionOk = version_compare($phpVersion, $minVersion, '>=');
 
@@ -96,6 +97,7 @@ class CheckRequirements extends Command
     protected function checkRequiredExtensions(): array
     {
         $phpExtensions = [];
+        /** @var array<int, string> $requiredExtensions */
         $requiredExtensions = config('installer.requirements.php', []);
 
         // Add optional extensions
@@ -147,6 +149,7 @@ class CheckRequirements extends Command
     protected function checkDirectoryPermissions(): array
     {
         $permissions = [];
+        /** @var array<string, string> $directories */
         $directories = config('installer.permissions', []);
 
         foreach ($directories as $directory => $permission) {

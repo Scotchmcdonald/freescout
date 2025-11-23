@@ -85,9 +85,13 @@ class ThreadFactory extends Factory
 
     public function withHtmlBody(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'body' => '<html><body><h1>Test Email</h1>' . fake()->paragraphs(5, true) . '</body></html>',
-        ]);
+        return $this->state(function (array $attributes) {
+            $paragraphs = fake()->paragraphs(5, true);
+            $body = is_array($paragraphs) ? implode("\n", $paragraphs) : $paragraphs;
+            return [
+                'body' => '<html><body><h1>Test Email</h1>' . $body . '</body></html>',
+            ];
+        });
     }
 
     public function withAttachments(int $count = 2): static

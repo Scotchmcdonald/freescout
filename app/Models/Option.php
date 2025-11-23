@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @method static \Illuminate\Database\Eloquent\Builder<Option> whereIn(string $column, mixed $values)
- * @method static Option updateOrCreate(array $attributes, array $values = [])
+ * @method static Option updateOrCreate(array<string, mixed> $attributes, array<string, mixed> $values = [])
  */
 class Option extends Model
 {
+    /** @use HasFactory<\Database\Factories\OptionFactory> */
     use HasFactory;
 
     /**

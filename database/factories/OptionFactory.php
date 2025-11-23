@@ -5,21 +5,25 @@ namespace Database\Factories;
 use App\Models\Option;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends Factory<Option>
+ */
 class OptionFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
-     * @var string
+     * @var class-string<\App\Models\Option>
      */
     protected $model = Option::class;
 
     /**
      * Define the model's default state.
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function definition()
+    // @phpstan-ignore-next-line
+    public function definition(): array
     {
         return [
             'name' => $this->faker->unique()->word,

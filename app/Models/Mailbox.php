@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $email
  * @property bool $is_default
  * @property int $status
- * @property array|null $aliases
+ * @property string|array<int, string>|null $aliases
  * @property bool $aliases_reply
  * @property string|null $from_name
  * @property string|null $from_name_custom
@@ -37,7 +37,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $in_protocol
  * @property string|null $in_encryption
  * @property bool $in_validate_cert
- * @property array|null $in_imap_folders
+ * @property string|array<int, string>|null $in_imap_folders
  * @property string|null $imap_sent_folder
  * @property string|null $auto_bcc
  * @property bool $auto_reply_enabled
@@ -59,6 +59,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Mailbox extends Model
 {
+    /** @use HasFactory<\Database\Factories\MailboxFactory> */
     use HasFactory;
 
     const FROM_NAME_CUSTOM = 2;
@@ -138,7 +139,7 @@ class Mailbox extends Model
     /**
      * Get the users that have access to this mailbox.
      *
-     * @return BelongsToMany<User, $this>
+     * @return BelongsToMany<User, $this, MailboxUser>
      */
     public function users(): BelongsToMany
     {
@@ -202,7 +203,7 @@ class Mailbox extends Model
      */
     public function userHasAccess(int $userId): bool
     {
-        return $this->users()->where('user_id', $userId)->exists();
+        return $this->users()->wherePivot('user_id', $userId)->exists();
     }
 
     /**
@@ -216,6 +217,8 @@ class Mailbox extends Model
 
     /**
      * Get aliases as an array.
+     *
+     * @return array<int, string>
      */
     public function getAliasesArray(): array
     {
@@ -225,7 +228,7 @@ class Mailbox extends Model
         if (is_array($this->aliases)) {
             return $this->aliases;
         }
-        return explode(',', $this->aliases);
+        return explode(',', (string)$this->aliases);
     }
 
     /**

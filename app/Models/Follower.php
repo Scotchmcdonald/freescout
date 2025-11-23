@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Follower extends Model
 {
+    /** @use HasFactory<\Database\Factories\FollowerFactory> */
     use HasFactory;
 
     protected $fillable = [

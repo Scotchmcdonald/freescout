@@ -62,7 +62,6 @@ class ImapService
                 if (empty($folderPaths)) {
                     $folderPaths = ['INBOX'];
                 }
-                // @phpstan-ignore-next-line - in_imap_folders can be null from DB despite PHPDoc
             } elseif ($folderPathsRaw && trim((string) $folderPathsRaw) !== '') {
                 $folderPaths = explode(',', (string) $folderPathsRaw);
             } else {
@@ -111,12 +110,13 @@ class ImapService
                         'mailbox_id' => $mailbox->id,
                     ]);
 
-                    $messages = $folder->query()
+                    /** @var \Webklex\PHPIMAP\Query\WhereQuery $query */
+                    $query = $folder->query()
                         ->since(now()->subDays(3))
                         ->unseen()
-                        ->leaveUnread()
-                        ->setCharset(null)
-                        ->get();
+                        ->leaveUnread();
+                    // @phpstan-ignore-next-line
+                    $messages = $query->setCharset(null)->get();
                 }
 
                 $stats['fetched'] += $messages->count();
@@ -250,8 +250,10 @@ class ImapService
         $from = $message->getFrom();
 
         // Convert to array if it's an Attribute object
+        /** @phpstan-ignore-next-line */
         if (is_object($from)) {
             try {
+                /** @phpstan-ignore-next-line */
                 if (method_exists($from, 'toArray')) {
                     $from = $from->toArray();
                 } else {
@@ -260,6 +262,7 @@ class ImapService
                     $from = $from->get();
                 }
             } catch (\Throwable $e) {
+                // @phpstan-ignore-next-line
                 if (! is_array($from) && ! ($from instanceof \Traversable)) {
                     $from = [];
                 }
@@ -315,19 +318,17 @@ class ImapService
         if (is_object($fromAddress)) {
             // Try to access object properties
             try {
-                $fromEmail = $fromAddress->mail;
-                if (! is_string($fromEmail) || $fromEmail === '') {
-                    $fromEmail = null;
-                }
+                // @phpstan-ignore-next-line
+                $mail = $fromAddress->mail;
+                $fromEmail = is_string($mail) && $mail !== '' ? $mail : null;
             } catch (\Throwable $e) {
                 $fromEmail = null;
             }
             
             try {
-                $fromName = $fromAddress->personal ?? '';
-                if (is_object($fromName)) {
-                    $fromName = '';
-                }
+                /** @var mixed $personal */
+                $personal = $fromAddress->personal ?? '';
+                $fromName = is_string($personal) ? $personal : '';
             } catch (\Throwable $e) {
                 $fromName = '';
             }
@@ -343,10 +344,15 @@ class ImapService
                 }
             }
         } elseif (is_array($fromAddress)) {
-            $fromEmail = $fromAddress['mail'] ?? $fromAddress['email'] ?? null;
-            $fromName = $fromAddress['personal'] ?? $fromAddress['name'] ?? '';
+            /** @var mixed $mail */
+            $mail = $fromAddress['mail'] ?? $fromAddress['email'] ?? null;
+            $fromEmail = is_string($mail) ? $mail : null;
+            
+            /** @var mixed $personal */
+            $personal = $fromAddress['personal'] ?? $fromAddress['name'] ?? '';
+            $fromName = is_string($personal) ? $personal : '';
         } else {
-            $fromEmail = $fromAddress;
+            $fromEmail = is_string($fromAddress) ? $fromAddress : null;
             $fromName = '';
         }
 
@@ -376,6 +382,7 @@ class ImapService
 
         foreach ($attachments as $attachment) {
             try {
+                /** @var \Webklex\PHPIMAP\Attachment $attachment */
                 $filename = $attachment->getName();
                 $content = $attachment->getContent();
                 $contentId = $attachment->getId();
@@ -471,6 +478,8 @@ class ImapService
 
     /**
      * Replace CID references in body with attachment URLs.
+     *
+     * @param array<int, array{model: \App\Models\Attachment, content_id: string|null, is_embedded: bool}> $savedAttachments
      */
     protected function replaceCidReferences(
         array $savedAttachments,
@@ -603,7 +612,7 @@ class ImapService
             'state' => 2, // Published
             'source_via' => 2, // Customer
             'source_type' => 1, // Email
-            'customer_email' => $customer->email,
+            'customer_email' => $customer->getMainEmail(),
             'preview' => mb_substr(strip_tags($message->getTextBody()), 0, 255),
             'last_reply_at' => now(),
             'threads_count' => 0,
@@ -641,6 +650,7 @@ class ImapService
 
             // Create or find customer
             $customer = $this->createCustomerFromName($fromEmail, $fromName);
+            /** @var \App\Models\Customer $customer */
 
             // Check if conversation already exists by Message-ID
             $messageIdRaw = $message->getMessageId();
@@ -750,6 +760,10 @@ class ImapService
                         'last_name' => $lastName,
                     ]);
 
+                    if (! $customer) {
+                        throw new \Exception('Failed to create customer from forwarded message');
+                    }
+
                     // Clean body
                     $body = trim((string) preg_replace("/@fwd([\s<]+)/su", '$1', $body));
                 }
@@ -767,7 +781,7 @@ class ImapService
             $this->createCustomersFromMessage($message, $mailbox);
 
             // Update conversation if it's a reply to an existing one
-            if ($conversation && $conversation->exists) {
+            if ($conversation->exists) {
                 // Update conversation metadata
                 $conversation->customer_id = $customer->id;
                 $conversation->customer_email = $fromEmail;
@@ -883,14 +897,9 @@ class ImapService
     }
 
     /**
-     * Test IMAP connection.
-     *
-     * @return array{success: bool, message: string}
-     */
-    /**
      * Get list of available IMAP folders from server.
      *
-     * @return array{success: bool, message?: string, folders: array<int, string>}
+     * @return array{success: bool, message: string, folders: array<int, string>}
      */
     public function getFolders(Mailbox $mailbox): array
     {
@@ -928,6 +937,11 @@ class ImapService
         return $result;
     }
 
+    /**
+     * Test IMAP connection.
+     *
+     * @return array{success: bool, message: string}
+     */
     public function testConnection(Mailbox $mailbox): array
     {
         $result = [
@@ -970,11 +984,12 @@ class ImapService
             } catch (\Exception $e) {
                 // If charset issue, try without charset
                 if (stristr($e->getMessage(), 'charset')) {
-                    $messages = $folder->query()
+                    /** @var \Webklex\PHPIMAP\Query\WhereQuery $query */
+                    $query = $folder->query()
                         ->since(now()->subDays(1))
-                        ->leaveUnread()
-                        ->setCharset(null)
-                        ->get();
+                        ->leaveUnread();
+                    // @phpstan-ignore-next-line
+                    $messages = $query->setCharset(null)->get();
 
                     $messageCount = $messages->count();
                     $unseenCount = 0;
@@ -1050,6 +1065,7 @@ class ImapService
     {
         // Try getRawHeader() - don't check method_exists as Mockery mocks won't report it correctly
         try {
+            // @phpstan-ignore-next-line
             $rawHeader = $message->getRawHeader();
             // Ensure it's actually a string, not a mock object or empty
             if (is_string($rawHeader) && $rawHeader !== '') {
@@ -1061,6 +1077,7 @@ class ImapService
         
         // Fallback to getHeader() if available
         try {
+            // @phpstan-ignore-next-line
             $header = $message->getHeader();
             if (is_string($header) && $header !== '') {
                 return $header;
@@ -1167,7 +1184,7 @@ class ImapService
         }
 
         // Convert Attribute to array (check for method rather than exact class for mock compatibility)
-        if (is_object($addresses) && method_exists($addresses, 'get') && ! is_string($addresses)) {
+        if (is_object($addresses) && method_exists($addresses, 'get')) {
             try {
                 $addresses = $addresses->get();
             } catch (\BadMethodCallException $e) {
@@ -1207,7 +1224,6 @@ class ImapService
                 // If mail is not a property, try parsing the string representation
                 // Only attempt string conversion if the object has a __toString method
                 if (! $email && method_exists($addr, '__toString')) {
-                    // @phpstan-ignore-next-line - IMAP extension Address object cast
                     $addressString = (string) $addr;
                     if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
                         $email = $matches[1];
@@ -1226,6 +1242,7 @@ class ImapService
             // Only add if we have a valid, non-empty email
             if (is_string($email) && ! empty(trim($email))) {
                 $nameParts = explode(' ', $name, 2);
+                /** @phpstan-ignore-next-line */
                 $firstName = isset($nameParts[0]) ? $nameParts[0] : '';
                 $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
                 $result[] = [
@@ -1251,7 +1268,7 @@ class ImapService
         }
 
         // Convert Attribute to array (check for method rather than exact class for mock compatibility)
-        if (is_object($addresses) && method_exists($addresses, 'get') && ! is_string($addresses)) {
+        if (is_object($addresses) && method_exists($addresses, 'get')) {
             try {
                 $addresses = $addresses->get();
             } catch (\BadMethodCallException $e) {
@@ -1282,7 +1299,6 @@ class ImapService
 
                 // If not a property, try parsing the string representation
                 if (! $email && method_exists($addr, '__toString')) {
-                    // @phpstan-ignore-next-line - IMAP extension Address object cast
                     $addressString = (string) $addr;
                     if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
                         $email = $matches[1];

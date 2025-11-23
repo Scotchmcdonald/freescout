@@ -27,8 +27,10 @@ class Test extends Mailable
      */
     public function envelope(): Envelope
     {
+        $appName = config('app.name');
+        $appName = is_string($appName) ? $appName : '';
         return new Envelope(
-            subject: __('Test Email From :app_name', ['app_name' => config('app.name')]),
+            subject: __('Test Email From :app_name', ['app_name' => $appName]),
         );
     }
 

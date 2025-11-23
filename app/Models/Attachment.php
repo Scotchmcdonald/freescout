@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Attachment extends Model
 {
+    /** @use HasFactory<\Database\Factories\AttachmentFactory> */
     use HasFactory;
 
     protected $fillable = [

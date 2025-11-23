@@ -36,9 +36,16 @@ class CreateUser extends Command
         }
 
         $firstName = $this->option('firstName') ?: $this->ask('User first name');
+        $firstName = is_string($firstName) ? $firstName : (is_scalar($firstName) ? (string) $firstName : '');
+
         $lastName = $this->option('lastName') ?: $this->ask('User last name');
+        $lastName = is_string($lastName) ? $lastName : (is_scalar($lastName) ? (string) $lastName : '');
+
         $email = $this->option('email') ?: $this->ask('User email address');
+        $email = is_string($email) ? $email : (is_scalar($email) ? (string) $email : '');
+
         $password = $this->option('password') ?: $this->secret('User password');
+        $password = is_string($password) ? $password : (is_scalar($password) ? (string) $password : '');
 
         $validator = Validator::make([
             'role' => $role,

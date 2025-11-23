@@ -31,6 +31,10 @@ class SendAutoReply
         $mailbox = $conversation->mailbox;
         $customer = $event->customer;
 
+        if (! $mailbox) {
+            return;
+        }
+
         // Do not send auto reply if imported
         if ($conversation->imported) {
             Log::debug('Skipping auto-reply for imported conversation', [

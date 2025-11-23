@@ -331,6 +331,7 @@ class SettingsController extends Controller
     protected function sendTestAlert(Request $request): RedirectResponse
     {
         $recipients = $request->input('alert_recipients', '');
+        $recipients = is_string($recipients) ? $recipients : '';
         $emails = array_filter(array_map('trim', explode("\n", $recipients)));
 
         if (empty($emails)) {
@@ -382,7 +383,7 @@ class SettingsController extends Controller
         foreach ($data as $key => $value) {
             if (isset($mapping[$key]) && ! empty($value)) {
                 $envKey = $mapping[$key];
-                $value = is_string($value) ? $value : (string) $value;
+                $value = is_string($value) ? $value : (is_scalar($value) ? (string)$value : '');
                 $pattern = "/^{$envKey}=.*/m";
                 $content = $content ?: ''; // Ensure content is string
 
@@ -408,14 +409,10 @@ class SettingsController extends Controller
     /**
      * Display security settings.
      */
-    public function security(): View|ViewFactory
+    public function security(Request $request): View|ViewFactory
     {
-        // For now, just return the index view or a specific security view if it exists.
-        // Assuming it might be part of the general settings or a separate tab.
-        // Let's check if settings.security view exists, otherwise use index.
-        if (view()->exists('settings.security')) {
-            return view('settings.security');
-        }
-        return $this->index();
+        $settings = Option::query()->pluck('value', 'name')->toArray();
+
+        return view('settings.index', compact('settings'));
     }
 }

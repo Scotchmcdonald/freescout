@@ -27,7 +27,7 @@ class SendConversationReply implements ShouldQueue
      * Create a new job instance.
      *
      * @param  Conversation  $conversation
-     * @param  array  $replies
+     * @param  array<mixed>  $replies
      * @param  Customer  $customer
      */
     public function __construct(
@@ -49,10 +49,12 @@ class SendConversationReply implements ShouldQueue
                  $this->conversation->load('mailbox');
              }
              
-             $customerEmail = $this->customer->getMainEmail();
-             if ($customerEmail) {
-                 Mail::to($customerEmail)
-                    ->send(new ConversationReplyNotification($this->conversation, $lastReply));
+             if ($lastReply instanceof \App\Models\Thread) {
+                 $customerEmail = $this->customer->getMainEmail();
+                 if ($customerEmail) {
+                     Mail::to($customerEmail)
+                        ->send(new ConversationReplyNotification($this->conversation, $lastReply));
+                 }
              }
         }
     }

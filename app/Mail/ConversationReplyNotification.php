@@ -29,10 +29,13 @@ class ConversationReplyNotification extends Mailable
      */
     public function envelope(): Envelope
     {
+        /** @var \App\Models\Mailbox $mailbox */
+        $mailbox = $this->conversation->mailbox;
+
         return new Envelope(
             subject: 'Re: '.$this->conversation->subject,
-            from: $this->conversation->mailbox->email,
-            replyTo: [$this->conversation->mailbox->email],
+            from: $mailbox->email,
+            replyTo: [$mailbox->email],
         );
     }
 

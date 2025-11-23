@@ -33,12 +33,14 @@ class NewMessageReceived implements ShouldBroadcast
         ];
 
         // Broadcast to all users in the mailbox
-        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\User> $usersQuery */
-        $usersQuery = $this->conversation->mailbox->users();
-        $users = $usersQuery->pluck('users.id');
-        foreach ($users as $userId) {
-            if (is_int($userId) || is_string($userId)) {
-                $channels[] = new PrivateChannel('user.'.(string) $userId);
+        if ($this->conversation->mailbox) {
+            /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\User> $usersQuery */
+            $usersQuery = $this->conversation->mailbox->users();
+            $users = $usersQuery->pluck('users.id');
+            foreach ($users as $userId) {
+                if (is_int($userId) || is_string($userId)) {
+                    $channels[] = new PrivateChannel('user.'.(string) $userId);
+                }
             }
         }
 
@@ -71,7 +73,7 @@ class NewMessageReceived implements ShouldBroadcast
             'customer_name' => $this->thread->customer?->getFullName(),
             'user_name' => $this->thread->user?->getFullName(),
             'mailbox_id' => $this->conversation->mailbox_id,
-            'mailbox_name' => $this->conversation->mailbox->name,
+            'mailbox_name' => $this->conversation->mailbox?->name,
             'created_at' => $this->thread->created_at?->toISOString(),
         ];
     }

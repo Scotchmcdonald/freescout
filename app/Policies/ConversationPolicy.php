@@ -19,7 +19,7 @@ class ConversationPolicy
         }
 
         // Check if user has access to the conversation's mailbox
-        $hasAccess = $user->mailboxes()->where('mailbox_id', $conversation->mailbox_id)->exists();
+        $hasAccess = $user->mailboxes()->where('mailboxes.id', $conversation->mailbox_id)->exists();
         
         if ($hasAccess) {
             // Maybe user can see only assigned conversations
@@ -57,7 +57,7 @@ class ConversationPolicy
         }
 
         // Check if user has access to the conversation's mailbox
-        $hasAccess = $user->mailboxes()->where('mailbox_id', $conversation->mailbox_id)->exists();
+        $hasAccess = $user->mailboxes()->where('mailboxes.id', $conversation->mailbox_id)->exists();
         
         if ($hasAccess) {
             // Maybe user can see only assigned conversations
@@ -83,7 +83,7 @@ class ConversationPolicy
         }
 
         // Check if user has access to the conversation's mailbox
-        $hasAccess = $user->mailboxes()->where('mailbox_id', $conversation->mailbox_id)->exists();
+        $hasAccess = $user->mailboxes()->where('mailboxes.id', $conversation->mailbox_id)->exists();
         
         if ($hasAccess) {
             // Maybe user can see only assigned conversations
@@ -113,8 +113,8 @@ class ConversationPolicy
     public function checkIsOnlyAssigned(Conversation $conversation, User $user): bool
     {
         // Check if user is the assignee or created the conversation
-        $isAssignee = $conversation->user_id == $user->id;
-        $isCreator = $conversation->created_by_user_id == $user->id;
+        // $isAssignee = $conversation->user_id == $user->id;
+        // $isCreator = $conversation->created_by_user_id == $user->id;
 
         // If user can only see assigned conversations, check if they are assignee or creator
         // For now, we'll allow all users to see conversations they have access to

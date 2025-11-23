@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Module extends Model
 {
+    /** @use HasFactory<\Database\Factories\ModuleFactory> */
     use HasFactory;
 
     protected $fillable = [

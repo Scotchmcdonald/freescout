@@ -19,9 +19,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $photo_type
  * @property int|null $channel
  * @property string|null $channel_id
- * @property array|null $phones
- * @property array|null $websites
- * @property array|null $social_profiles
+ * @property array<string, mixed>|null $phones
+ * @property array<string, mixed>|null $websites
+ * @property array<string, mixed>|null $social_profiles
  * @property string|null $address
  * @property string|null $city
  * @property string|null $state
@@ -39,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Customer extends Model
 {
+    /** @use HasFactory<\Database\Factories\CustomerFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -189,6 +190,8 @@ class Customer extends Model
     /**
      * Create or get a customer by email address.
      * This matches the original FreeScout implementation.
+     *
+     * @param array<string, mixed> $data
      */
     public static function create(string $email, array $data = []): ?self
     {
@@ -250,6 +253,8 @@ class Customer extends Model
     /**
      * Set empty fields from data array.
      * This matches the original FreeScout implementation.
+     *
+     * @param array<string, mixed> $data
      */
     public function setData(array $data, bool $replace_data = true, bool $save = false): bool
     {

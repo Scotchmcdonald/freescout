@@ -62,6 +62,7 @@ class ConversationObserver
             // Update old folder
             $originalFolderId = $conversation->getOriginal('folder_id');
             if ($originalFolderId) {
+                /** @var \App\Models\Folder|null $oldFolder */
                 $oldFolder = \App\Models\Folder::find($originalFolderId);
                 if ($oldFolder) {
                     $this->updateFolderCounters($oldFolder);

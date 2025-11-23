@@ -20,7 +20,7 @@ class SendReplyToCustomer
         $conversation = $event->conversation;
 
         // Do not send email if this is a Phone conversation and customer has no email.
-        if (method_exists($conversation, 'isPhone') && $conversation->isPhone()) {
+        if ($conversation->isPhone()) {
             $customer = $conversation->customer;
             if (!$customer || !$customer->getMainEmail()) {
                 return;
@@ -47,8 +47,12 @@ class SendReplyToCustomer
         }
 
         // Chat conversation handling would go here
-        if (method_exists($conversation, 'isChat') && $conversation->isChat()) {
+        if ($conversation->isChat()) {
             // Chat conversation handling - to be implemented with Helper::backgroundAction
+            return;
+        }
+
+        if (! $conversation->customer) {
             return;
         }
 

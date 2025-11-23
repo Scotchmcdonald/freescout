@@ -44,7 +44,6 @@ class TestEventSystem extends Command
         $thread = $conversation->threads()->first();
         $customer = $conversation->customer;
 
-        // @phpstan-ignore-next-line - PHPDoc type hint causes false positive for null check
         if (! $thread || ! $customer) {
             $this->error('Conversation missing thread or customer.');
 

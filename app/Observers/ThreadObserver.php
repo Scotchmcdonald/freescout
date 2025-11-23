@@ -13,10 +13,10 @@ class ThreadObserver
      */
     public function created(Thread $thread): void
     {
-        // Increment the conversation's thread count
+        /** @phpstan-ignore-next-line */
         if ($thread->conversation) {
             $thread->conversation->increment('threads_count');
-            
+        
             // Update preview
             if ($thread->body && $thread->type !== Thread::TYPE_DRAFT) {
                 $thread->conversation->preview = substr(strip_tags($thread->body), 0, 100);

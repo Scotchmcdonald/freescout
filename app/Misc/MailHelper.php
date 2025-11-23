@@ -86,7 +86,7 @@ class MailHelper
      * Supports syntax: {%customer.fullName%} or {%customer.fullName,fallback=there%}
      *
      * @param  string  $text  Text containing mail variables to replace
-     * @param  array  $data  Array containing conversation, mailbox, customer, user objects
+     * @param  array{conversation?: \App\Models\Conversation, mailbox?: \App\Models\Mailbox, customer?: \App\Models\Customer, user?: \App\Models\User, mailbox_from_name?: string}  $data  Array containing conversation, mailbox, customer, user objects
      * @param  bool  $escape  Whether to escape HTML in replaced values
      * @param  bool  $remove_non_replaced  Whether to remove unreplaced variables from output
      * @return string Text with variables replaced
@@ -109,23 +109,23 @@ class MailHelper
                 $vars['{%mailbox.fromName%}'] = $data['mailbox_from_name'];
             } else {
                 $fromInfo = $data['mailbox']->getMailFrom(! empty($data['user']) ? $data['user'] : null);
-                $vars['{%mailbox.fromName%}'] = is_array($fromInfo) ? ($fromInfo['name'] ?? '') : '';
+                $vars['{%mailbox.fromName%}'] = $fromInfo['name'];
             }
         }
         if (! empty($data['customer'])) {
-            $vars['{%customer.fullName%}'] = $data['customer']->getFullName() ?? '';
-            $vars['{%customer.firstName%}'] = $data['customer']->getFirstName() ?? '';
+            $vars['{%customer.fullName%}'] = $data['customer']->getFullName();
+            $vars['{%customer.firstName%}'] = $data['customer']->getFirstName();
             $vars['{%customer.lastName%}'] = $data['customer']->last_name ?? '';
             $vars['{%customer.company%}'] = $data['customer']->company ?? '';
         }
         if (! empty($data['user'])) {
-            $vars['{%user.fullName%}'] = $data['user']->getFullName() ?? '';
-            $vars['{%user.firstName%}'] = $data['user']->getFirstName() ?? '';
+            $vars['{%user.fullName%}'] = $data['user']->getFullName();
+            $vars['{%user.firstName%}'] = $data['user']->getFirstName();
             $vars['{%user.phone%}'] = $data['user']->phone ?? '';
             $vars['{%user.email%}'] = $data['user']->email ?? '';
             $vars['{%user.jobTitle%}'] = $data['user']->job_title ?? '';
             $vars['{%user.lastName%}'] = $data['user']->last_name ?? '';
-            $vars['{%user.photoUrl%}'] = (is_object($data['user']) && method_exists($data['user'], 'getPhotoUrl')) ? $data['user']->getPhotoUrl() : '';
+            $vars['{%user.photoUrl%}'] = $data['user']->getPhotoUrl();
         }
 
         // Allow modules to add custom variables via Eventy filters
@@ -218,19 +218,19 @@ class MailHelper
     public static function sanitizeEmail(string $html): string
     {
         // Remove script tags and their content
-        $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
+        $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html) ?? '';
         
         // Remove iframe tags
-        $html = preg_replace('/<iframe\b[^>]*>(.*?)<\/iframe>/is', '', $html);
+        $html = preg_replace('/<iframe\b[^>]*>(.*?)<\/iframe>/is', '', $html) ?? '';
         
         // Remove object and embed tags
-        $html = preg_replace('/<(object|embed)\b[^>]*>(.*?)<\/\1>/is', '', $html);
+        $html = preg_replace('/<(object|embed)\b[^>]*>(.*?)<\/\1>/is', '', $html) ?? '';
         
         // Remove on* event handlers
-        $html = preg_replace('/\s*on\w+\s*=\s*["\'][^"\']*["\']/i', '', $html);
-        $html = preg_replace('/\s*on\w+\s*=\s*[^\s>]*/i', '', $html);
+        $html = preg_replace('/\s*on\w+\s*=\s*["\'][^"\']*["\']/i', '', $html) ?? '';
+        $html = preg_replace('/\s*on\w+\s*=\s*[^\s>]*/i', '', $html) ?? '';
 
-        return $html ?? '';
+        return $html;
     }
 
     /**

@@ -20,14 +20,18 @@ class UserNotification extends Mailable
 
     /**
      * Create a new message instance.
+     *
+     * @param Collection<int, \App\Models\Thread> $threads
+     * @param array<string, string> $headers
+     * @param array{address?: string, name?: string} $fromAddress
      */
     public function __construct(
         public User $user,
         public Conversation $conversation,
         public Collection $threads,
+        public Mailbox $mailbox,
         public array $headers = [],
-        public array $fromAddress = [],
-        public Mailbox $mailbox
+        public array $fromAddress = []
     ) {}
 
     /**
@@ -36,10 +40,12 @@ class UserNotification extends Mailable
     public function envelope(): Envelope
     {
         $subject = '[#'.$this->conversation->number.'] '.$this->conversation->subject;
+        $configFrom = config('mail.from.address');
+        $fromAddress = $this->fromAddress['address'] ?? (is_string($configFrom) ? $configFrom : '');
 
         return new Envelope(
             subject: $subject,
-            from: $this->fromAddress['address'] ?? config('mail.from.address'),
+            from: $fromAddress,
         );
     }
 
@@ -71,8 +77,14 @@ class UserNotification extends Mailable
         $customer = $this->conversation->customer;
         $thread = $this->threads->first();
 
+        $configFrom = config('mail.from.address');
+        $fromAddress = $this->fromAddress['address'] ?? (is_string($configFrom) ? $configFrom : '');
+        
+        $configName = config('mail.from.name');
+        $fromName = $this->fromAddress['name'] ?? (is_string($configName) ? $configName : '');
+
         $mail = $this->subject($subject)
-            ->from($this->fromAddress['address'] ?? config('mail.from.address'), $this->fromAddress['name'] ?? config('mail.from.name'))
+            ->from($fromAddress, $fromName)
             ->view('emails.user.notification', [
                 'customer' => $customer,
                 'thread' => $thread,

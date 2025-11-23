@@ -39,6 +39,9 @@ class SendNotificationToUsers implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param Collection<int, User> $users
+     * @param Collection<int, Thread> $threads
      */
     public function __construct(
         public Collection $users,
@@ -62,6 +65,7 @@ class SendNotificationToUsers implements ShouldQueue
         // Sort threads
         $this->threads = $this->threads->sortByDesc('created_at');
 
+        /** @var Thread|null $lastThread */
         $lastThread = $this->threads->first();
 
         if (! $lastThread) {
@@ -76,7 +80,7 @@ class SendNotificationToUsers implements ShouldQueue
         // Do not send email notifications to support agents
         // if the email is a bounce and mail server send limit reached
         if ($lastThread->type == Thread::TYPE_BOUNCE 
-            && str_contains($lastThread->body, 'message limit exceeded')
+            && str_contains((string) $lastThread->body, 'message limit exceeded')
         ) {
             return;
         }
@@ -93,6 +97,7 @@ class SendNotificationToUsers implements ShouldQueue
         $globalException = null;
 
         foreach ($this->users as $user) {
+            /** @var User $user */
             // User can be deleted from DB
             if (! isset($user->id)) {
                 continue;
@@ -151,8 +156,8 @@ class SendNotificationToUsers implements ShouldQueue
                 ]);
 
                 // TODO: Uncomment when UserNotification mailable is implemented
-                Mail::to([['name' => $user->getFullNameAttribute(), 'email' => $user->email]])
-                    ->send(new \App\Mail\UserNotification($user, $this->conversation, $this->threads, $headers, $from, $mailbox));
+                Mail::to([['name' => $user->getFullName(), 'email' => $user->email]])
+                    ->send(new \App\Mail\UserNotification($user, $this->conversation, $this->threads, $mailbox, $headers, $from));
             } catch (\Exception $e) {
                 Log::error('Error sending notification to user', [
                     'user_id' => $user->id,

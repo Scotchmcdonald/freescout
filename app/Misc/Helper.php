@@ -35,6 +35,9 @@ class Helper
 
     /**
      * Set default Guzzle options
+     * 
+     * @param array<string, mixed> $options
+     * @return array<string, mixed>
      */
     public static function setGuzzleDefaultOptions(array $options = []): array
     {

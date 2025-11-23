@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Subscription extends Model
 {
+    /** @use HasFactory<\Database\Factories\SubscriptionFactory> */
     use HasFactory;
 
     // Mediums

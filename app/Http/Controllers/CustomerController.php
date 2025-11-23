@@ -30,7 +30,7 @@ class CustomerController extends Controller
                 $q->where('first_name', 'like', "%{$searchTerm}%")
                     ->orWhere('last_name', 'like', "%{$searchTerm}%")
                     ->orWhereHas('emails', function ($q) use ($searchTerm) {
-                        // @phpstan-ignore-next-line
+                        /** @phpstan-ignore-next-line */
                         $q->where('email', 'like', "%{$searchTerm}%");
                     });
             });
@@ -184,7 +184,7 @@ class CustomerController extends Controller
                         $q->where('first_name', 'like', "%{$searchQuery}%")
                             ->orWhere('last_name', 'like', "%{$searchQuery}%")
                             ->orWhereHas('emails', function ($q) use ($searchQuery) {
-                                // @phpstan-ignore-next-line
+                                /** @phpstan-ignore-next-line */
                                 $q->where('email', 'like', "%{$searchQuery}%");
                             });
                     })
@@ -248,7 +248,9 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer): RedirectResponse
     {
-        if (auth()->user()->role !== \App\Models\User::ROLE_ADMIN) {
+        /** @var \App\Models\User|null $user */
+        $user = auth()->user();
+        if (!$user || $user->role !== \App\Models\User::ROLE_ADMIN) {
             abort(403);
         }
 
@@ -278,7 +280,7 @@ class CustomerController extends Controller
                 $q->where('first_name', 'like', "%{$searchQuery}%")
                     ->orWhere('last_name', 'like', "%{$searchQuery}%")
                     ->orWhereHas('emails', function ($q) use ($searchQuery) {
-                        // @phpstan-ignore-next-line
+                        /** @phpstan-ignore-next-line */
                         $q->where('email', 'like', "%{$searchQuery}%");
                     });
             })

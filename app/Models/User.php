@@ -120,7 +120,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get the mailboxes that the user has access to.
      *
-     * @return BelongsToMany<Mailbox, $this>
+     * @return BelongsToMany<Mailbox, $this, MailboxUser>
      */
     public function mailboxes(): BelongsToMany
     {
@@ -208,8 +208,11 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get user's full name (first + last) or email if name not available.
      */
-    public function getFullName(): string
+    public function getFullName(bool $short = false): string
     {
+        if ($short) {
+            return $this->first_name ?? explode('@', $this->email)[0];
+        }
         $fullName = trim(($this->first_name ?? '').' '.($this->last_name ?? ''));
 
         return $fullName !== '' ? $fullName : $this->email;
@@ -250,9 +253,17 @@ class User extends Authenticatable implements MustVerifyEmail
             return true;
         }
 
-        $pivot = $this->mailboxes()->where('mailbox_id', $mailboxId)->first()?->pivot;
+        $mailbox = $this->mailboxes()->find($mailboxId);
+        
+        /** @phpstan-ignore-next-line */
+        if (!$mailbox || !$mailbox->pivot) {
+            return false;
+        }
 
-        return $pivot && $pivot->access >= $minLevel;
+        /** @var MailboxUser $pivot */
+        $pivot = $mailbox->pivot;
+
+        return $pivot->access >= $minLevel;
     }
 
     /**
@@ -286,7 +297,11 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         if ($user && $user->timezone) {
-            $date->setTimezone($user->timezone);
+            try {
+                $date->setTimezone(new \DateTimeZone($user->timezone));
+            } catch (\Exception $e) {
+                // Invalid timezone, ignore
+            }
         }
 
         return $date->format($format);

@@ -438,7 +438,8 @@ class MailboxController extends Controller
 
         switch ($request->action) {
             case 'fetch_test':
-                $mailbox = Mailbox::find($request->mailbox_id);
+                $mailboxId = $request->mailbox_id;
+                $mailbox = Mailbox::find(is_numeric($mailboxId) ? (int) $mailboxId : 0);
 
                 if (! $mailbox) {
                     $response['msg'] = 'Mailbox not found';
@@ -447,6 +448,7 @@ class MailboxController extends Controller
                 }
 
                 if (! $response['msg']) {
+                    /** @var Mailbox $mailbox */
                     try {
                         $testResult = $imapService->testConnection($mailbox);
 
@@ -463,7 +465,8 @@ class MailboxController extends Controller
                 break;
 
             case 'imap_folders':
-                $mailbox = Mailbox::find($request->mailbox_id);
+                $mailboxId = $request->mailbox_id;
+                $mailbox = Mailbox::find(is_numeric($mailboxId) ? (int) $mailboxId : 0);
 
                 if (! $mailbox) {
                     $response['msg'] = 'Mailbox not found';
@@ -474,6 +477,7 @@ class MailboxController extends Controller
                 $response['folders'] = [];
 
                 if (! $response['msg']) {
+                    /** @var Mailbox $mailbox */
                     try {
                         $folderResult = $imapService->getFolders($mailbox);
 

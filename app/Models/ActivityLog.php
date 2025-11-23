@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ActivityLog extends Model
 {
+    /** @use HasFactory<\Database\Factories\ActivityLogFactory> */
     use HasFactory;
 
     protected $table = 'activity_log';
@@ -56,6 +57,8 @@ class ActivityLog extends Model
 
     /**
      * Get the subject (the model being logged).
+     *
+     * @return MorphTo<Model, $this>
      */
     public function subject(): MorphTo
     {
@@ -64,6 +67,8 @@ class ActivityLog extends Model
 
     /**
      * Get the causer (the user/model that caused the action).
+     *
+     * @return MorphTo<Model, $this>
      */
     public function causer(): MorphTo
     {
@@ -107,6 +112,9 @@ class ActivityLog extends Model
 
     /**
      * Scope to filter by subject.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>
      */
     public function scopeForSubject(\Illuminate\Database\Eloquent\Builder $query, Model $subject): \Illuminate\Database\Eloquent\Builder
     {

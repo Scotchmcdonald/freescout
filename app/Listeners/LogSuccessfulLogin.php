@@ -14,8 +14,11 @@ class LogSuccessfulLogin
      */
     public function handle(Login $event): void
     {
+        /** @var \App\Models\User $user */
+        $user = $event->user;
+
         activity()
-            ->causedBy($event->user)
+            ->causedBy($user)
             ->withProperties(['ip' => request()->ip()])
             ->useLog(ActivityLog::NAME_USER)
             ->log(ActivityLog::DESCRIPTION_USER_LOGIN);

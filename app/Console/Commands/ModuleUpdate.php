@@ -49,9 +49,12 @@ class ModuleUpdate extends Command
         // Create a symlink for the module (or all modules)
         $module_alias = $this->argument('module_alias');
         
+        /** @var array<int, array{alias: string, version: string}> $modules_directory */
         $modules_directory = \App\Misc\WpApi::getModules();
         if (\App\Misc\WpApi::$lastError) {
-            $this->error(__('Error occurred').': '.$lastError['message'].' ('.$lastError['code'].')');
+            /** @var array{message: string, code: string|int} $lastError */
+            $lastError = \App\Misc\WpApi::$lastError;
+            $this->error(__('Error occurred').': '.(string)$lastError['message'].' ('.(string)$lastError['code'].')');
             return;
         }
 
@@ -72,13 +75,13 @@ class ModuleUpdate extends Command
                 if ($module->getAlias() != $dir_module['alias'] /*|| !$module->active()*/) {
                     continue;
                 }
-                if (!empty($dir_module['version']) && version_compare($dir_module['version'], $module->get('version'), '>')) {
+                if (!empty($dir_module['version']) && version_compare((string)$dir_module['version'], $module->get('version'), '>')) {
 
-                    $update_result = \App\Module::updateModule($dir_module['alias']);
+                    $update_result = \App\Module::updateModule((string)$dir_module['alias']);
 
                     $this->info('['.$update_result['module_name'].' Module'.']');
                     if ($update_result['status'] == 'success') {
-                        $this->line($update_result['msg_success']);
+                        $this->line((string) $update_result['msg_success']);
                     } else {
                         $msg = $update_result['msg'];
                         if ($update_result['download_msg']) {
@@ -86,8 +89,8 @@ class ModuleUpdate extends Command
                         }
                         $this->error('ERROR: '.$msg);
                     }
-                    if (trim($update_result['output'])) {
-                        $this->line(preg_replace("#\n#", "\n> ", '> '.trim($update_result['output'])));
+                    if (!empty($update_result['output']) && trim((string)$update_result['output'])) {
+                        $this->line((string)preg_replace("#\n#", "\n> ", '> '.trim((string)$update_result['output'])));
                     }
 
                     $counter++;
@@ -139,7 +142,7 @@ class ModuleUpdate extends Command
                 $this->info('[' . $update_result['module_name'] . ' Module' . ']');
                 if ($update_result['status'] == 'success') {
                     // If the update was successful, print the success message
-                    $this->line($update_result['msg_success']);
+                    $this->line((string) $update_result['msg_success']);
                 } else {
                     // If the update failed, print the error message
                     $msg = $update_result['msg'];
@@ -149,8 +152,8 @@ class ModuleUpdate extends Command
                     $this->error('ERROR: ' . $msg);
                 }
                 // If there's any output from the update, print it
-                if (trim($update_result['output'])) {
-                    $this->line(preg_replace("#\n#", "\n> ", '> ' . trim($update_result['output'])));
+                if (!empty($update_result['output']) && trim((string)$update_result['output'])) {
+                    $this->line((string)preg_replace("#\n#", "\n> ", '> ' . trim((string)$update_result['output'])));
                 }
 
                 // Increment the counter

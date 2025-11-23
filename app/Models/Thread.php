@@ -26,14 +26,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $source_via
  * @property int|null $source_type
  * @property string|null $body
- * @property string|null $to
- * @property array|null $cc
- * @property array|null $bcc
+ * @property array<int, string>|null $to
+ * @property array<int, string>|null $cc
+ * @property array<int, string>|null $bcc
  * @property string|null $from
- * @property array|null $headers
+ * @property string|array<string, mixed>|null $headers
  * @property string|null $message_id
  * @property \Illuminate\Support\Carbon|null $opened_at
- * @property array|null $meta
+ * @property array<string, mixed>|null $meta
  * @property bool $first
  * @property bool $has_attachments
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -49,6 +49,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Thread extends Model
 {
+    /** @use HasFactory<\Database\Factories\ThreadFactory> */
     use HasFactory;
     use SoftDeletes;
 
@@ -239,6 +240,9 @@ class Thread extends Model
     {
         // Check send_status meta for bounce information
         $sendStatus = $this->meta['send_status'] ?? [];
+        if (! is_array($sendStatus)) {
+            $sendStatus = [];
+        }
 
         return ! empty($sendStatus['is_bounce']);
     }
@@ -268,7 +272,7 @@ class Thread extends Model
     /**
      * Get action text.
      */
-    public function getActionText($text = '', $html = true, $short = false, $user = null, $person_name = ''): string
+    public function getActionText(string $text = '', bool $html = true, bool $short = false, ?User $user = null, string $person_name = ''): string
     {
         return __('Action performed');
     }
@@ -276,7 +280,7 @@ class Thread extends Model
     /**
      * Get assignee name.
      */
-    public function getAssigneeName($short = false, $user = null): string
+    public function getAssigneeName(bool $short = false, ?User $user = null): string
     {
         // Assuming the assigned user ID is stored in meta or source_type?
         // Or maybe it's the 'user_id' of the thread?

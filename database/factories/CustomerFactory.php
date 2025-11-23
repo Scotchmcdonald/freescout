@@ -147,7 +147,7 @@ class CustomerFactory extends Factory
 
     public function withChannels(int $count = 2): static
     {
-        return $this->afterCreating(function (Customer $customer) use ($count) {
+        return $this->afterCreating(function (Customer $customer) {
             // This would attach to channels if Channel model exists
             // Placeholder for future implementation
         });

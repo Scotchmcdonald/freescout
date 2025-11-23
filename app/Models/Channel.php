@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $id
  * @property string $name
  * @property int $type
- * @property array|null $settings
+ * @property array<string, mixed>|null $settings
  * @property bool $active
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Channel extends Model
 {
+    /** @use HasFactory<\Database\Factories\ChannelFactory> */
     use HasFactory;
 
     protected $fillable = [

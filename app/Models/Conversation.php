@@ -19,13 +19,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $folder_id
  * @property int $mailbox_id
  * @property int|null $user_id
- * @property int $customer_id
+ * @property int|null $customer_id
  * @property int $status
  * @property int $state
  * @property string $subject
  * @property string $customer_email
- * @property array|null $cc
- * @property array|null $bcc
+ * @property array<int, string>|null $cc
+ * @property array<int, string>|null $bcc
  * @property string|null $preview
  * @property bool $imported
  * @property bool $has_attachments
@@ -40,12 +40,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $last_reply
  * @property \Illuminate\Support\Carbon|null $last_reply_at
  * @property int|null $last_reply_from
- * @property array|null $read_by_user
- * @property array|null $meta
+ * @property bool $read_by_user
+ * @property array<string, mixed>|null $meta
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Mailbox $mailbox
- * @property-read \App\Models\Customer $customer
+ * @property-read \App\Models\Mailbox|null $mailbox
+ * @property-read \App\Models\Customer|null $customer
  * @property-read \App\Models\User|null $user
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
  *
@@ -55,6 +55,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Conversation extends Model
 {
+    /** @use HasFactory<\Database\Factories\ConversationFactory> */
     use HasFactory;
     use SoftDeletes;
 
@@ -234,6 +235,8 @@ class Conversation extends Model
 
     /**
      * Get aliases as an array.
+     *
+     * @return array<string>
      */
     public function getCcArray(): array
     {

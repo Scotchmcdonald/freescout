@@ -335,7 +335,9 @@ class UserController extends Controller
         // Handle photo upload
         if ($request->hasFile('photo_url')) {
             $path = $request->file('photo_url')->store('avatars', 'public');
-            $user->photo_url = $path;
+            if ($path) {
+                $user->photo_url = $path;
+            }
         }
 
         // Update user

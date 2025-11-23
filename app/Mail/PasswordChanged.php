@@ -28,6 +28,7 @@ class PasswordChanged extends Mailable
     public function envelope(): Envelope
     {
         $companyName = \App\Models\Option::get('company_name') ?: config('app.name');
+        $companyName = is_string($companyName) ? $companyName : '';
 
         return new Envelope(
             subject: __(':company_name Password Updated', ['company_name' => $companyName]),

@@ -64,6 +64,8 @@ class ModuleBuild extends Command
 
     /**
      * Build a specific module.
+     *
+     * @param \Nwidart\Modules\Module $module
      */
     protected function buildModule($module): void
     {
@@ -82,6 +84,8 @@ class ModuleBuild extends Command
 
     /**
      * Build module variables file.
+     *
+     * @param \Nwidart\Modules\Module $module
      */
     protected function buildVars($module): void
     {

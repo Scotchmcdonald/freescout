@@ -46,7 +46,7 @@ class SendAlert implements ShouldQueue
         // Get all activated admin users
         $recipients = User::where('role', User::ROLE_ADMIN)
             ->where('status', User::STATUS_ACTIVE)
-            ->where('invite_state', User::INVITE_STATE_ACTIVATED ?? 1)
+            ->where('invite_state', User::INVITE_STATE_ACTIVATED)
             ->pluck('email')
             ->toArray();
 

@@ -121,10 +121,10 @@ class ModuleInstall extends Command
         }
 
         if (file_exists($link) || is_link($link)) {
-            $this->laravel['files']->delete($link);
+            app('files')->delete($link);
         }
         
-        $this->laravel['files']->link($target, $link);
+        app('files')->link($target, $link);
         $this->info('The ['.$link.'] symlink has been created.');
     }
 }

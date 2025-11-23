@@ -39,7 +39,9 @@ class ModuleCompatibilityServiceProvider extends ServiceProvider
         // Add findByAlias() method to Repository
         LaravelFileRepository::macro('findByAlias', function (string $alias) {
             /** @var LaravelFileRepository $this */
-            foreach ($this->all() as $module) {
+            $modules = $this->all();
+
+            foreach ($modules as $module) {
                 if ($module->get('alias') === $alias || $module->getLowerName() === $alias) {
                     return $module;
                 }
