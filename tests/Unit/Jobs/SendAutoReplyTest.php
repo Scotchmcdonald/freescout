@@ -281,8 +281,34 @@ class SendAutoReplyTest extends UnitTestCase
 
     public function test_job_handles_email_sending_exception(): void
     {
-        // Skip this test as Mail::fake() cannot be properly combined with exception mocking
-        $this->markTestSkipped('Cannot mock Mail facade exception with Mail::fake() - requires integration test');
+        // Do NOT call Mail::fake() here as we need to mock the exception behavior
+        Log::spy();
+
+        $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
+        $customer = Customer::factory()->create();
+        $conversation = Conversation::factory()->create([
+            'mailbox_id' => $mailbox->id,
+            'customer_id' => $customer->id,
+            'customer_email' => 'customer@example.com',
+        ]);
+        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+
+        $smtpService = $this->createMock(SmtpService::class);
+        $smtpService->expects($this->once())->method('configureSmtp');
+
+        // Mock Mail facade to throw exception
+        Mail::shouldReceive('to')
+            ->andReturnSelf();
+        Mail::shouldReceive('send')
+            ->andThrow(new \Exception('SMTP Error'));
+
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        
+        try {
+            $job->handle($smtpService);
+        } catch (\Exception $e) {
+            $this->assertEquals('SMTP Error', $e->getMessage());
+        }
 
         // Should log error
         Log::shouldHaveReceived('error')

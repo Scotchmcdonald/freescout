@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Console\Commands;
 
 use Illuminate\Support\Facades\Artisan;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -203,33 +204,137 @@ class ModuleUpdateTest extends TestCase
         $this->assertArrayHasKey('freescout:module-update', $commands);
     }
 
+    #[RunInSeparateProcess]
     public function test_command_shows_all_modules_up_to_date_message(): void
     {
-        $this->markTestSkipped('Skipping due to WpApi facade mock complexity');
+        \App\Misc\WpApi::$modules = [];
+
+        // Mock Module facade
+        \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([]);
+        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
+
+        $this->artisan('freescout:module-update')
+            ->expectsOutput('All modules are up-to-date')
+            ->assertExitCode(0);
     }
 
+    #[RunInSeparateProcess]
     public function test_handle_clears_cache_on_execution(): void
     {
-        $this->markTestSkipped('Skipping due to WpApi facade mock complexity');
+        \App\Misc\WpApi::$modules = [];
+
+        \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([]);
+        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
+
+        $this->artisan('freescout:module-update')
+            ->assertExitCode(0);
     }
 
+    #[RunInSeparateProcess]
     public function test_handle_processes_module_with_newer_version(): void
     {
-        $this->markTestSkipped('Skipping due to WpApi facade mock complexity');
+        \App\Misc\WpApi::$modules = [
+            ['alias' => 'test-module', 'version' => '2.0.0']
+        ];
+        
+        $mockModule = \Mockery::mock(\Nwidart\Modules\Laravel\Module::class);
+        $mockModule->shouldReceive('getAlias')->andReturn('test-module');
+        $mockModule->shouldReceive('get')->with('version')->andReturn('1.0.0');
+        $mockModule->shouldReceive('get')->with('authorUrl')->andReturn('https://example.com');
+        $mockModule->shouldReceive('getExtraPath')->andReturn('');
+
+        \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([$mockModule]);
+        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([$mockModule]);
+
+        \App\Module::$isOfficialResult = true;
+        \App\Module::$updateCallback = function ($alias) {
+            if ($alias === 'test-module') {
+                return [
+                    'module_name' => 'Test Module',
+                    'status' => 'success',
+                    'msg_success' => 'Updated successfully',
+                    'output' => 'Some output'
+                ];
+            }
+            return [];
+        };
+
+        $this->artisan('freescout:module-update')
+            ->expectsOutput('[Test Module Module]')
+            ->expectsOutput('Updated successfully')
+            ->assertExitCode(0);
     }
 
+    #[RunInSeparateProcess]
     public function test_handle_shows_error_for_failed_update(): void
     {
-        $this->markTestSkipped('Skipping due to WpApi facade mock complexity');
+        \App\Misc\WpApi::$modules = [
+            ['alias' => 'test-module', 'version' => '2.0.0']
+        ];
+        
+        $mockModule = \Mockery::mock(\Nwidart\Modules\Laravel\Module::class);
+        $mockModule->shouldReceive('getAlias')->andReturn('test-module');
+        $mockModule->shouldReceive('get')->with('version')->andReturn('1.0.0');
+        $mockModule->shouldReceive('get')->with('authorUrl')->andReturn('https://example.com');
+        $mockModule->shouldReceive('getExtraPath')->andReturn('');
+
+        \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([$mockModule]);
+        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([$mockModule]);
+
+        \App\Module::$isOfficialResult = true;
+        \App\Module::$updateCallback = function ($alias) {
+            return [
+                'module_name' => 'Test Module',
+                'status' => 'error',
+                'msg' => 'Update failed',
+                'download_msg' => 'Download failed',
+                'output' => ''
+            ];
+        };
+
+        $this->artisan('freescout:module-update')
+            ->expectsOutput('ERROR: Update failed (Download failed)')
+            ->assertExitCode(0);
     }
 
-    public function test_handle_processes_custom_module_updates(): void
-    {
-        $this->markTestSkipped('Skipping due to WpApi facade mock complexity');
-    }
-
+    #[RunInSeparateProcess]
     public function test_handle_filters_by_module_alias(): void
     {
-        $this->markTestSkipped('Skipping due to WpApi facade mock complexity');
+        \App\Misc\WpApi::$modules = [
+            ['alias' => 'target-module', 'version' => '2.0.0'],
+            ['alias' => 'other-module', 'version' => '2.0.0']
+        ];
+        
+        $targetModule = \Mockery::mock(\Nwidart\Modules\Laravel\Module::class);
+        $targetModule->shouldReceive('getAlias')->andReturn('target-module');
+        $targetModule->shouldReceive('get')->with('version')->andReturn('1.0.0');
+        $targetModule->shouldReceive('get')->with('authorUrl')->andReturn('https://example.com');
+        $targetModule->shouldReceive('getExtraPath')->andReturn('');
+
+        $otherModule = \Mockery::mock(\Nwidart\Modules\Laravel\Module::class);
+        $otherModule->shouldReceive('getAlias')->andReturn('other-module');
+        $otherModule->shouldReceive('get')->with('version')->andReturn('1.0.0');
+        $otherModule->shouldReceive('get')->with('authorUrl')->andReturn('https://example.com');
+        $otherModule->shouldReceive('getExtraPath')->andReturn('');
+
+        \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([$targetModule, $otherModule]);
+        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([$targetModule, $otherModule]);
+
+        \App\Module::$isOfficialResult = true;
+        \App\Module::$updateCallback = function ($alias) {
+            if ($alias === 'target-module') {
+                return [
+                    'module_name' => 'Target Module',
+                    'status' => 'success',
+                    'msg_success' => 'Updated',
+                    'output' => ''
+                ];
+            }
+            return [];
+        };
+
+        $this->artisan('freescout:module-update', ['module_alias' => 'target-module'])
+            ->expectsOutput('[Target Module Module]')
+            ->assertExitCode(0);
     }
 }

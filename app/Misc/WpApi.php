@@ -11,12 +11,13 @@ namespace App\Misc;
 class WpApi
 {
     public static ?string $lastError = null;
+    public static ?array $modules = null;
 
     /**
      * Get modules directory
      */
     public static function getModules(): array
     {
-        return [];
+        return self::$modules ?? [];
     }
 }
