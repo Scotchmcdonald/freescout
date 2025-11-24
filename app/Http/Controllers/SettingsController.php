@@ -65,6 +65,10 @@ class SettingsController extends Controller
         $sections = $this->getSections();
         $currentSection = 'general';
 
+        // Allow modules to modify settings
+        $settings = \Eventy::filter('settings.section_settings', $settings, $currentSection);
+        $settings = \Eventy::filter('settings.alter_section_settings', $settings, $currentSection);
+
         return view('settings.index', compact('settings', 'sections', 'currentSection'));
     }
 
@@ -73,6 +77,11 @@ class SettingsController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
+        $currentSection = 'general';
+        
+        // Allow modules to modify request before saving
+        $request = \Eventy::filter('settings.before_save', $request, $currentSection, []);
+
         $validated = $request->validate([
             'company_name' => 'nullable|string|max:255',
             'timezone' => 'nullable|timezone',
@@ -93,7 +102,11 @@ class SettingsController extends Controller
         // Clear cache
         Cache::flush();
 
-        return back()->with('success', 'Settings updated successfully.');
+        // Allow modules to perform actions after save
+        $response = back()->with('success', 'Settings updated successfully.');
+        $response = \Eventy::filter('settings.after_save', $response, $request, $currentSection, $validated);
+
+        return $response;
     }
 
     /**

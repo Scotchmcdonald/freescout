@@ -399,36 +399,67 @@ class ConversationController extends Controller
         $searchQuery = $request->input('q', '');
         $searchQuery = is_string($searchQuery) ? $searchQuery : '';
 
-        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Conversation> $queryBuilder */
-        $queryBuilder = Conversation::query()
-            ->whereIn(
-                'mailbox_id',
-                $user->isAdmin()
-                ? Mailbox::pluck('id')
-                : $user->mailboxes->pluck('id')
-            )
-            ->where('state', 2) // Published
-            ->where(function ($q) use ($searchQuery) {
-                $q->where('subject', 'like', "%{$searchQuery}%")
-                    ->orWhere('preview', 'like', "%{$searchQuery}%")
-                    ->orWhereHas('customer', function ($q) use ($searchQuery) {
-                        // @phpstan-ignore-next-line
-                        $q->where('first_name', 'like', "%{$searchQuery}%")
-                            // @phpstan-ignore-next-line
-                            ->orWhere('last_name', 'like', "%{$searchQuery}%")
-                            ->orWhere('phones', 'like', "%{$searchQuery}%")
-                            ->orWhereHas('emails', function ($q) use ($searchQuery) {
-                                $q->where('email', 'like', "%{$searchQuery}%");
-                            });
-                    });
-            });
+        // Build filters from request
+        $filters = [
+            'mailbox' => $request->input('mailbox'),
+            'assigned' => $request->input('assigned'),
+            'status' => $request->input('status'),
+            'type' => $request->input('type'),
+            'after' => $request->input('after'),
+            'before' => $request->input('before'),
+        ];
+
+        // Only add attachments filter if explicitly requested
+        if ($request->boolean('attachments')) {
+            $filters['attachments'] = true;
+        }
+
+        // Remove empty filters (null and empty string only)
+        $filters = array_filter($filters, function ($v) {
+            return $v !== null && $v !== '';
+        });
+
+        // Store recent search queries in session
+        if ($searchQuery) {
+            $recentSearches = session('recent_search_queries', []);
+            if (! in_array($searchQuery, $recentSearches)) {
+                array_unshift($recentSearches, $searchQuery);
+                $recentSearches = array_slice($recentSearches, 0, 4);
+                session()->put('recent_search_queries', $recentSearches);
+            }
+        }
+
+        // Allow modules to modify search
+        $shouldSearch = \Eventy::filter('search.is_needed', true, 'conversations');
+
+        if ($shouldSearch) {
+            $queryBuilder = Conversation::search($searchQuery, $filters, $user);
+        } else {
+            // Fallback to basic query
+            /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Conversation> $queryBuilder */
+            $queryBuilder = Conversation::query()->whereRaw('1 = 0');
+        }
+
+        // Get available mailboxes and users for filters
+        $mailboxes = $user->isAdmin() ? Mailbox::all() : $user->mailboxes;
+        $assignees = \Eventy::filter('search.assignees', User::where('status', 1)->get(), $user, $mailboxes);
+
+        // Allow modules to modify filters list
+        $filtersList = \Eventy::filter('search.filters_list', Conversation::$search_filters, 'conversations', $filters, $searchQuery);
 
         $conversations = $queryBuilder
             ->with(['mailbox', 'customer', 'user', 'folder'])
-            ->orderBy('last_reply_at', 'desc')
             ->paginate(50);
 
-        return view('conversations.search', ['conversations' => $conversations, 'query' => $searchQuery]);
+        return view('conversations.search', [
+            'conversations' => $conversations,
+            'query' => $searchQuery,
+            'filters' => $filters,
+            'filters_list' => $filtersList,
+            'mailboxes' => $mailboxes,
+            'assignees' => $assignees,
+            'recent' => session('recent_search_queries', []),
+        ]);
     }
 
     /**
@@ -1504,7 +1535,7 @@ class ConversationController extends Controller
                 'user_id' => $user->id, // Assign to creator
                 'status' => Conversation::STATUS_ACTIVE,
                 'state' => Conversation::STATE_PUBLISHED,
-                'source_via' => Conversation::SOURCE_VIA_USER,
+                'source_via' => Conversation::PERSON_USER,
                 'source_type' => Conversation::SOURCE_TYPE_WEB,
                 'preview' => \Illuminate\Support\Str::limit(strip_tags($validated['body']), 255),
             ]);
@@ -1518,8 +1549,8 @@ class ConversationController extends Controller
                 'state' => Conversation::STATE_PUBLISHED,
                 'body' => $validated['body'],
                 'from' => $mailbox->email,
-                'source_via' => Thread::SOURCE_VIA_USER,
-                'source_type' => Thread::SOURCE_TYPE_WEB,
+                'source_via' => Conversation::PERSON_USER,
+                'source_type' => Conversation::SOURCE_TYPE_WEB,
             ]);
 
             DB::commit();

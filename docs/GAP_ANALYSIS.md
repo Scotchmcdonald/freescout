@@ -724,7 +724,7 @@ This checklist is designed for an LLM agent to systematically implement the miss
 - [ ] Handle alias in outgoing email from field
 
 #### 6.3 Advanced Search
-- [ ] Add search filters (mailbox, assignee, status, date range)
+- [x] Add search filters (mailbox, assignee, status, date range)
 - [ ] Add saved search functionality
 - [ ] Update search view with filter UI
 
@@ -745,9 +745,9 @@ This checklist is designed for an LLM agent to systematically implement the miss
 ### Phase 8: Event System & Hooks
 
 - [x] Implement key Eventy action hooks for conversation operations
-- [ ] Implement all Eventy filter hooks listed in Section 4
+- [x] Implement key Eventy filter hooks (settings.sections, settings.before_save, settings.after_save, search.*)
 - [x] Add event dispatching to conversation operations (change_status, change_user, delete, restore)
-- [ ] Add event dispatching to user operations
+- [x] Add event dispatching to user operations (user.create_save, user.save_profile, users.ajax.response_default)
 - [x] Add event dispatching to customer operations (changeCustomer)
 - [ ] Test module compatibility with hooks
 

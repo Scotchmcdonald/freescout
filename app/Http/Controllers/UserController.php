@@ -69,6 +69,9 @@ class UserController extends Controller
 
         $user = User::create($validated);
 
+        // Allow modules to modify user after creation
+        $user = \Eventy::filter('user.create_save', $user, $request);
+
         return redirect()
             ->route('users.show', $user)
             ->with('success', 'User created successfully.');
@@ -138,6 +141,9 @@ class UserController extends Controller
         }
 
         $user->update($validated);
+
+        // Allow modules to modify user after save
+        $user = \Eventy::filter('user.save_profile', $user, $request);
 
         // Sync mailboxes if provided
         if ($mailboxes !== null) {
@@ -252,7 +258,11 @@ class UserController extends Controller
                 return $this->ajaxSendPasswordReset($request);
 
             default:
-                return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
+                // Allow modules to handle custom actions
+                $response = ['success' => false, 'message' => 'Invalid action'];
+                $response = \Eventy::filter('users.ajax.response_default', $response, $request);
+                
+                return response()->json($response, $response['success'] ? 200 : 400);
         }
     }
 

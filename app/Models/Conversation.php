@@ -76,10 +76,45 @@ class Conversation extends Model
     // State constants
     public const STATE_DRAFT = 1;
     public const STATE_PUBLISHED = 2;
+    public const STATE_DELETED = 3;
 
     // Source via constants (who created)
     public const PERSON_CUSTOMER = 1;
     public const PERSON_USER = 2;
+
+    // Source type constants
+    public const SOURCE_TYPE_WEB = 1;
+    public const SOURCE_TYPE_EMAIL = 2;
+    public const SOURCE_TYPE_API = 3;
+
+    // Search modes
+    public const SEARCH_MODE_CONV = 'conversations';
+    public const SEARCH_MODE_CUSTOMERS = 'customers';
+
+    // User assignment constant
+    public const USER_UNASSIGNED = 'unassigned';
+
+    /**
+     * Search filters.
+     *
+     * @var array<int, string>
+     */
+    public static array $search_filters = [
+        'assigned',
+        'customer',
+        'mailbox',
+        'status',
+        'state',
+        'subject',
+        'attachments',
+        'type',
+        'body',
+        'number',
+        'following',
+        'id',
+        'after',
+        'before',
+    ];
 
     protected $fillable = [
         'number',
@@ -614,5 +649,126 @@ class Conversation extends Model
             // Fire event
             \Eventy::action('conversation.customer_changed', $this, $user, $oldCustomerId);
         }
+    }
+
+    /**
+     * Search conversations with filters.
+     *
+     * @param string $query Search query
+     * @param array<string, mixed> $filters Search filters
+     * @param User|null $user User performing the search
+     * @return \Illuminate\Database\Eloquent\Builder<Conversation>
+     */
+    public static function search(string $query, array $filters = [], ?User $user = null)
+    {
+        $builder = static::query()
+            ->select('conversations.*');
+
+        // Apply mailbox filter based on user access
+        if ($user) {
+            $mailboxIds = [];
+            if (! empty($filters['mailbox'])) {
+                // Verify user has access to the mailbox
+                if ($user->mailboxes->contains($filters['mailbox'])) {
+                    $mailboxIds[] = $filters['mailbox'];
+                } else {
+                    $mailboxIds = $user->mailboxes->pluck('id')->toArray();
+                }
+            } else {
+                $mailboxIds = $user->mailboxes->pluck('id')->toArray();
+            }
+            $builder->whereIn('conversations.mailbox_id', $mailboxIds);
+        }
+
+        // Apply search query
+        if ($query) {
+            $escapedQuery = addcslashes($query, '%_');
+            $like = '%' . mb_strtolower($escapedQuery) . '%';
+            $queryInt = min((int) $query, PHP_INT_MAX);
+
+            $builder->leftJoin('customers', 'conversations.customer_id', '=', 'customers.id')
+                ->leftJoin('threads', 'conversations.id', '=', 'threads.conversation_id')
+                ->where(function ($q) use ($like, $queryInt) {
+                    $q->where('conversations.subject', 'like', $like)
+                        ->orWhere('conversations.customer_email', 'like', $like)
+                        ->orWhere('conversations.number', $queryInt)
+                        ->orWhere('conversations.id', $queryInt)
+                        ->orWhere('customers.first_name', 'like', $like)
+                        ->orWhere('customers.last_name', 'like', $like)
+                        ->orWhere('threads.body', 'like', $like);
+                })
+                ->groupBy('conversations.id');
+        }
+
+        // Apply search filters
+        if (! empty($filters['assigned'])) {
+            if ($filters['assigned'] === self::USER_UNASSIGNED) {
+                $builder->whereNull('conversations.user_id');
+            } else {
+                $builder->where('conversations.user_id', $filters['assigned']);
+            }
+        }
+
+        if (! empty($filters['customer'])) {
+            $builder->where('conversations.customer_id', $filters['customer']);
+        }
+
+        if (! empty($filters['status'])) {
+            $statuses = is_array($filters['status']) ? $filters['status'] : [$filters['status']];
+            $builder->whereIn('conversations.status', $statuses);
+        }
+
+        if (! empty($filters['state'])) {
+            $states = is_array($filters['state']) ? $filters['state'] : [$filters['state']];
+            $builder->whereIn('conversations.state', $states);
+        }
+
+        if (! empty($filters['type'])) {
+            $builder->where('conversations.type', $filters['type']);
+        }
+
+        if (! empty($filters['attachments'])) {
+            $builder->where('conversations.has_attachments', true);
+        }
+
+        if (! empty($filters['after'])) {
+            $builder->where('conversations.created_at', '>=', $filters['after']);
+        }
+
+        if (! empty($filters['before'])) {
+            $builder->where('conversations.created_at', '<=', $filters['before']);
+        }
+
+        // Allow modules to modify search query
+        $builder = \Eventy::filter('search.conversations.query', $builder, $query, $filters, $user);
+
+        return $builder->orderBy('conversations.created_at', 'desc');
+    }
+
+    /**
+     * Get status label.
+     */
+    public function getStatusLabel(): string
+    {
+        return match ($this->status) {
+            self::STATUS_ACTIVE => __('Active'),
+            self::STATUS_PENDING => __('Pending'),
+            self::STATUS_CLOSED => __('Closed'),
+            self::STATUS_SPAM => __('Spam'),
+            default => __('Unknown'),
+        };
+    }
+
+    /**
+     * Get type label.
+     */
+    public function getTypeLabel(): string
+    {
+        return match ($this->type) {
+            self::TYPE_EMAIL => __('Email'),
+            self::TYPE_PHONE => __('Phone'),
+            self::TYPE_CHAT => __('Chat'),
+            default => __('Unknown'),
+        };
     }
 }
