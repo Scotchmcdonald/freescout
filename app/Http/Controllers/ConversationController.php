@@ -486,6 +486,41 @@ class ConversationController extends Controller
             return $this->handleFollowAction($request, $user, $action);
         }
 
+        // Handle viewer operations (no conversation_id required for cleanup)
+        if ($action === 'set_viewer') {
+            $conversationId = (int) $request->input('conversation_id');
+            $replying = (bool) $request->input('replying', false);
+
+            if ($conversationId) {
+                Conversation::setViewer($conversationId, $user->id, $replying);
+            }
+
+            return response()->json(['success' => true]);
+        }
+
+        if ($action === 'remove_viewer') {
+            $conversationId = (int) $request->input('conversation_id');
+
+            if ($conversationId) {
+                Conversation::removeViewer($conversationId, $user->id);
+            }
+
+            return response()->json(['success' => true]);
+        }
+
+        if ($action === 'get_viewers') {
+            $conversationIds = $request->input('conversation_ids', []);
+
+            if (! empty($conversationIds)) {
+                $conversations = Conversation::whereIn('id', $conversationIds)->get();
+                $viewers = Conversation::getViewersInfo($conversations, ['id', 'first_name', 'last_name'], [$user->id]);
+
+                return response()->json(['success' => true, 'viewers' => $viewers]);
+            }
+
+            return response()->json(['success' => true, 'viewers' => []]);
+        }
+
         $conversationId = $request->input('conversation_id');
 
         if (! $conversationId) {

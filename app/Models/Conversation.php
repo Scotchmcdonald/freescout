@@ -771,4 +771,130 @@ class Conversation extends Model
             default => __('Unknown'),
         };
     }
+
+    /**
+     * Get real-time viewers info for conversations.
+     * Shows who is currently viewing or replying to conversations.
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection<int, Conversation>|array<int, Conversation>  $conversations
+     * @param  array<int, string>  $fields
+     * @param  array<int, int>  $excludeUserIds
+     * @return array<int, array{user: User|null, user_id: int, replying: bool}>
+     */
+    public static function getViewersInfo($conversations, array $fields = ['id', 'first_name', 'last_name'], array $excludeUserIds = []): array
+    {
+        $viewersCache = \Cache::get('conv_view', []);
+        $viewers = [];
+        $userIds = [];
+
+        foreach ($conversations as $conversation) {
+            $firstUserId = null;
+
+            if (! empty($viewersCache[$conversation->id])) {
+                // Get replying viewers first (higher priority)
+                foreach ($viewersCache[$conversation->id] as $userId => $viewer) {
+                    if (! $firstUserId) {
+                        $firstUserId = $userId;
+                    }
+
+                    if (! empty($viewer['r']) && ! in_array($userId, $excludeUserIds)) {
+                        $viewers[$conversation->id] = [
+                            'user' => null,
+                            'user_id' => $userId,
+                            'replying' => true,
+                        ];
+                        $userIds[] = $userId;
+                        break;
+                    }
+                }
+
+                // Get first non-replying viewer if no replying viewer found
+                if (empty($viewers[$conversation->id]) && $firstUserId && ! in_array($firstUserId, $excludeUserIds)) {
+                    $viewers[$conversation->id] = [
+                        'user' => null,
+                        'user_id' => $firstUserId,
+                        'replying' => false,
+                    ];
+                    $userIds[] = $firstUserId;
+                }
+            }
+        }
+
+        // Get all viewing users in one query
+        if ($userIds) {
+            $userIds = array_unique($userIds);
+            $users = User::select($fields)->whereIn('id', $userIds)->get();
+
+            foreach ($viewers as $convId => $viewer) {
+                foreach ($users as $user) {
+                    if ($user->id === $viewer['user_id']) {
+                        $viewers[$convId]['user'] = $user;
+                    }
+                }
+            }
+        }
+
+        return $viewers;
+    }
+
+    /**
+     * Set conversation as being viewed by a user.
+     */
+    public static function setViewer(int $conversationId, int $userId, bool $replying = false): void
+    {
+        $viewersCache = \Cache::get('conv_view', []);
+
+        $viewersCache[$conversationId][$userId] = [
+            'r' => $replying,
+            't' => time(),
+        ];
+
+        // Cache for 5 minutes (will be refreshed by heartbeat)
+        \Cache::put('conv_view', $viewersCache, 300);
+    }
+
+    /**
+     * Remove viewer from conversation.
+     */
+    public static function removeViewer(int $conversationId, int $userId): void
+    {
+        $viewersCache = \Cache::get('conv_view', []);
+
+        if (isset($viewersCache[$conversationId][$userId])) {
+            unset($viewersCache[$conversationId][$userId]);
+
+            if (empty($viewersCache[$conversationId])) {
+                unset($viewersCache[$conversationId]);
+            }
+
+            \Cache::put('conv_view', $viewersCache, 300);
+        }
+    }
+
+    /**
+     * Clean up stale viewers (older than 2 minutes).
+     */
+    public static function cleanupViewers(): void
+    {
+        $viewersCache = \Cache::get('conv_view', []);
+        $staleTime = time() - 120; // 2 minutes
+
+        foreach ($viewersCache as $convId => $viewers) {
+            foreach ($viewers as $userId => $data) {
+                if (($data['t'] ?? 0) < $staleTime) {
+                    unset($viewersCache[$convId][$userId]);
+                }
+            }
+
+            if (empty($viewersCache[$convId])) {
+                unset($viewersCache[$convId]);
+            }
+        }
+
+        if (! empty($viewersCache)) {
+            \Cache::put('conv_view', $viewersCache, 300);
+        } else {
+            \Cache::forget('conv_view');
+        }
+    }
 }
