@@ -126,6 +126,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/user/{user}/permissions', [UserController::class, 'permissions'])->name('users.permissions.update');
     Route::match(['patch', 'put'], '/user/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users/ajax', [UserController::class, 'ajax'])->name('users.ajax');
 
     // Settings (admin only)
     Route::middleware(['admin'])->group(function () {

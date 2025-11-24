@@ -239,8 +239,150 @@ class UserController extends Controller
                     'status' => $newStatus,
                 ]);
 
+            case 'delete_photo':
+                return $this->ajaxDeletePhoto($request);
+
+            case 'upload_photo':
+                return $this->ajaxUploadPhoto($request);
+
+            case 'resend_invite':
+                return $this->ajaxResendInvite($request);
+
+            case 'send_password_reset':
+                return $this->ajaxSendPasswordReset($request);
+
             default:
                 return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
+        }
+    }
+
+    /**
+     * AJAX: Delete user photo.
+     */
+    protected function ajaxDeletePhoto(Request $request): JsonResponse
+    {
+        $userId = $request->input('user_id');
+        /** @var \App\Models\User $user */
+        $user = User::findOrFail($userId);
+
+        $this->authorize('update', $user);
+
+        // Delete the file if it's a local path
+        if ($user->photo_url && ! str_starts_with($user->photo_url, 'http')) {
+            $fullPath = storage_path('app/public/'.$user->photo_url);
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
+        }
+
+        $user->update(['photo_url' => null]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Photo deleted successfully'),
+        ]);
+    }
+
+    /**
+     * AJAX: Upload user photo.
+     */
+    protected function ajaxUploadPhoto(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $userId = $request->input('user_id');
+        /** @var \App\Models\User $user */
+        $user = User::findOrFail($userId);
+
+        $this->authorize('update', $user);
+
+        // Delete old photo
+        if ($user->photo_url && ! str_starts_with($user->photo_url, 'http')) {
+            $fullPath = storage_path('app/public/'.$user->photo_url);
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
+        }
+
+        // Store new photo
+        $path = $request->file('photo')->store('avatars', 'public');
+
+        $user->update(['photo_url' => $path]);
+
+        return response()->json([
+            'success' => true,
+            'photo_url' => asset('storage/'.$path),
+            'message' => __('Photo uploaded successfully'),
+        ]);
+    }
+
+    /**
+     * AJAX: Resend invitation email.
+     */
+    protected function ajaxResendInvite(Request $request): JsonResponse
+    {
+        $userId = $request->input('user_id');
+        /** @var \App\Models\User $user */
+        $user = User::findOrFail($userId);
+
+        $this->authorize('update', $user);
+
+        if ($user->invite_state === User::INVITE_STATE_ACTIVATED) {
+            return response()->json([
+                'success' => false,
+                'message' => __('User has already activated their account'),
+            ]);
+        }
+
+        // Generate new invite hash if needed
+        if (! $user->invite_hash) {
+            $user->invite_hash = \Illuminate\Support\Str::random(32);
+            $user->save();
+        }
+
+        try {
+            $user->sendInvite(true);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Invitation email sent successfully'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Failed to send invitation: ').$e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * AJAX: Send password reset email.
+     */
+    protected function ajaxSendPasswordReset(Request $request): JsonResponse
+    {
+        $userId = $request->input('user_id');
+        /** @var \App\Models\User $user */
+        $user = User::findOrFail($userId);
+
+        $this->authorize('update', $user);
+
+        try {
+            \Illuminate\Support\Facades\Password::broker()->sendResetLink([
+                'email' => $user->email,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Password reset email sent successfully'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Failed to send password reset: ').$e->getMessage(),
+            ]);
         }
     }
 
