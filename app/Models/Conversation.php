@@ -94,6 +94,11 @@ class Conversation extends Model
     // User assignment constant
     public const USER_UNASSIGNED = 'unassigned';
 
+    // Viewer cache constants
+    public const VIEWER_CACHE_KEY = 'conv_view';
+    public const VIEWER_CACHE_TTL = 300; // 5 minutes
+    public const VIEWER_STALE_TIMEOUT = 120; // 2 minutes
+
     /**
      * Search filters.
      *
@@ -783,7 +788,7 @@ class Conversation extends Model
      */
     public static function getViewersInfo($conversations, array $fields = ['id', 'first_name', 'last_name'], array $excludeUserIds = []): array
     {
-        $viewersCache = \Cache::get('conv_view', []);
+        $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
         $viewers = [];
         $userIds = [];
 
@@ -842,15 +847,14 @@ class Conversation extends Model
      */
     public static function setViewer(int $conversationId, int $userId, bool $replying = false): void
     {
-        $viewersCache = \Cache::get('conv_view', []);
+        $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
 
         $viewersCache[$conversationId][$userId] = [
             'r' => $replying,
             't' => time(),
         ];
 
-        // Cache for 5 minutes (will be refreshed by heartbeat)
-        \Cache::put('conv_view', $viewersCache, 300);
+        cache()->put(self::VIEWER_CACHE_KEY, $viewersCache, self::VIEWER_CACHE_TTL);
     }
 
     /**
@@ -858,7 +862,7 @@ class Conversation extends Model
      */
     public static function removeViewer(int $conversationId, int $userId): void
     {
-        $viewersCache = \Cache::get('conv_view', []);
+        $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
 
         if (isset($viewersCache[$conversationId][$userId])) {
             unset($viewersCache[$conversationId][$userId]);
@@ -867,17 +871,17 @@ class Conversation extends Model
                 unset($viewersCache[$conversationId]);
             }
 
-            \Cache::put('conv_view', $viewersCache, 300);
+            cache()->put(self::VIEWER_CACHE_KEY, $viewersCache, self::VIEWER_CACHE_TTL);
         }
     }
 
     /**
-     * Clean up stale viewers (older than 2 minutes).
+     * Clean up stale viewers (older than configured timeout).
      */
     public static function cleanupViewers(): void
     {
-        $viewersCache = \Cache::get('conv_view', []);
-        $staleTime = time() - 120; // 2 minutes
+        $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
+        $staleTime = time() - self::VIEWER_STALE_TIMEOUT;
 
         foreach ($viewersCache as $convId => $viewers) {
             foreach ($viewers as $userId => $data) {
@@ -892,9 +896,9 @@ class Conversation extends Model
         }
 
         if (! empty($viewersCache)) {
-            \Cache::put('conv_view', $viewersCache, 300);
+            cache()->put(self::VIEWER_CACHE_KEY, $viewersCache, self::VIEWER_CACHE_TTL);
         } else {
-            \Cache::forget('conv_view');
+            cache()->forget(self::VIEWER_CACHE_KEY);
         }
     }
 }

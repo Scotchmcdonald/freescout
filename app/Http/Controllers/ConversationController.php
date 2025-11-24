@@ -492,7 +492,11 @@ class ConversationController extends Controller
             $replying = (bool) $request->input('replying', false);
 
             if ($conversationId) {
-                Conversation::setViewer($conversationId, $user->id, $replying);
+                // Validate conversation exists and user has access
+                $conversation = Conversation::find($conversationId);
+                if ($conversation && ($user->isAdmin() || $user->mailboxes->contains($conversation->mailbox_id))) {
+                    Conversation::setViewer($conversationId, $user->id, $replying);
+                }
             }
 
             return response()->json(['success' => true]);
@@ -502,6 +506,7 @@ class ConversationController extends Controller
             $conversationId = (int) $request->input('conversation_id');
 
             if ($conversationId) {
+                // No need to validate - user can always remove themselves as viewer
                 Conversation::removeViewer($conversationId, $user->id);
             }
 
@@ -511,8 +516,16 @@ class ConversationController extends Controller
         if ($action === 'get_viewers') {
             $conversationIds = $request->input('conversation_ids', []);
 
-            if (! empty($conversationIds)) {
-                $conversations = Conversation::whereIn('id', $conversationIds)->get();
+            if (! empty($conversationIds) && is_array($conversationIds)) {
+                // Only get viewers for conversations user has access to
+                $accessibleMailboxIds = $user->isAdmin()
+                    ? Mailbox::pluck('id')->toArray()
+                    : $user->mailboxes->pluck('id')->toArray();
+
+                $conversations = Conversation::whereIn('id', $conversationIds)
+                    ->whereIn('mailbox_id', $accessibleMailboxIds)
+                    ->get();
+
                 $viewers = Conversation::getViewersInfo($conversations, ['id', 'first_name', 'last_name'], [$user->id]);
 
                 return response()->json(['success' => true, 'viewers' => $viewers]);
