@@ -7,6 +7,7 @@ namespace Tests\Unit\Services;
 use App\Models\Mailbox;
 use App\Services\SmtpService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
 
 class SmtpServiceTest extends TestCase
@@ -21,159 +22,172 @@ class SmtpServiceTest extends TestCase
         $this->smtpService = new SmtpService();
     }
 
-    public function test_validate_settings_requires_host(): void
+    public function test_validate_settings_requires_smtp_server(): void
     {
         $result = $this->smtpService->validateSettings([
-            'port' => 587,
-            'username' => 'user@example.com',
-            'password' => 'password',
+            'out_port' => 587,
+            'email' => 'user@example.com',
         ]);
 
-        $this->assertFalse($result['success'] ?? true);
-        $this->assertStringContainsString('host', strtolower($result['error'] ?? ''));
+        $this->assertArrayHasKey('out_server', $result);
+        $this->assertStringContainsString('required', strtolower($result['out_server']));
     }
 
-    public function test_validate_settings_requires_port(): void
+    public function test_validate_settings_requires_smtp_port(): void
     {
         $result = $this->smtpService->validateSettings([
-            'host' => 'smtp.example.com',
-            'username' => 'user@example.com',
-            'password' => 'password',
+            'out_server' => 'smtp.example.com',
+            'email' => 'user@example.com',
         ]);
 
-        $this->assertFalse($result['success'] ?? true);
-        $this->assertStringContainsString('port', strtolower($result['error'] ?? ''));
+        $this->assertArrayHasKey('out_port', $result);
+        $this->assertStringContainsString('required', strtolower($result['out_port']));
     }
 
-    public function test_validate_settings_requires_valid_port_number(): void
+    public function test_validate_settings_requires_valid_port_range(): void
     {
         $result = $this->smtpService->validateSettings([
-            'host' => 'smtp.example.com',
-            'port' => 'invalid',
-            'username' => 'user@example.com',
-            'password' => 'password',
+            'out_server' => 'smtp.example.com',
+            'out_port' => 99999,
+            'email' => 'user@example.com',
         ]);
 
-        $this->assertFalse($result['success'] ?? true);
+        $this->assertArrayHasKey('out_port', $result);
+        $this->assertStringContainsString('between', strtolower($result['out_port']));
+    }
+
+    public function test_validate_settings_requires_email(): void
+    {
+        $result = $this->smtpService->validateSettings([
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+        ]);
+
+        $this->assertArrayHasKey('email', $result);
+        $this->assertStringContainsString('required', strtolower($result['email']));
+    }
+
+    public function test_validate_settings_requires_valid_email(): void
+    {
+        $result = $this->smtpService->validateSettings([
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'invalid-email',
+        ]);
+
+        $this->assertArrayHasKey('email', $result);
+        $this->assertStringContainsString('invalid', strtolower($result['email']));
+    }
+
+    public function test_validate_settings_warns_ssl_on_port_465(): void
+    {
+        $result = $this->smtpService->validateSettings([
+            'out_server' => 'smtp.example.com',
+            'out_port' => 465,
+            'email' => 'user@example.com',
+            'out_encryption' => 0, // No encryption
+        ]);
+
+        $this->assertArrayHasKey('out_encryption', $result);
+        $this->assertStringContainsString('SSL', $result['out_encryption']);
+    }
+
+    public function test_validate_settings_warns_tls_on_port_587(): void
+    {
+        $result = $this->smtpService->validateSettings([
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'user@example.com',
+            'out_encryption' => 0, // No encryption
+        ]);
+
+        $this->assertArrayHasKey('out_encryption', $result);
+        $this->assertStringContainsString('TLS', $result['out_encryption']);
     }
 
     public function test_validate_settings_accepts_valid_configuration(): void
     {
         $result = $this->smtpService->validateSettings([
-            'host' => 'smtp.example.com',
-            'port' => 587,
-            'username' => 'user@example.com',
-            'password' => 'password',
-            'encryption' => 'tls',
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'user@example.com',
+            'out_encryption' => 2, // TLS
         ]);
 
-        // Should not have validation errors for format
-        $this->assertTrue(
-            ($result['success'] ?? false) || 
-            !str_contains(strtolower($result['error'] ?? ''), 'required')
-        );
+        $this->assertEmpty($result);
     }
 
-    public function test_validate_settings_accepts_common_ports(): void
-    {
-        $commonPorts = [25, 465, 587, 2525];
-
-        foreach ($commonPorts as $port) {
-            $result = $this->smtpService->validateSettings([
-                'host' => 'smtp.example.com',
-                'port' => $port,
-                'username' => 'user@example.com',
-                'password' => 'password',
-            ]);
-
-            // Should not fail on port validation
-            $this->assertNotEquals(
-                'invalid port',
-                strtolower($result['error'] ?? ''),
-                "Port {$port} should be valid"
-            );
-        }
-    }
-
-    public function test_validate_settings_accepts_ssl_encryption(): void
+    public function test_validate_settings_accepts_ssl_on_port_465(): void
     {
         $result = $this->smtpService->validateSettings([
-            'host' => 'smtp.example.com',
-            'port' => 465,
-            'username' => 'user@example.com',
-            'password' => 'password',
-            'encryption' => 'ssl',
+            'out_server' => 'smtp.example.com',
+            'out_port' => 465,
+            'email' => 'user@example.com',
+            'out_encryption' => 1, // SSL
         ]);
 
-        // Should not fail on encryption validation
-        $this->assertNotEquals(
-            'invalid encryption',
-            strtolower($result['error'] ?? '')
-        );
+        $this->assertArrayNotHasKey('out_encryption', $result);
     }
 
-    public function test_validate_settings_accepts_tls_encryption(): void
-    {
-        $result = $this->smtpService->validateSettings([
-            'host' => 'smtp.example.com',
-            'port' => 587,
-            'username' => 'user@example.com',
-            'password' => 'password',
-            'encryption' => 'tls',
-        ]);
-
-        // Should not fail on encryption validation
-        $this->assertNotEquals(
-            'invalid encryption',
-            strtolower($result['error'] ?? '')
-        );
-    }
-
-    public function test_configure_smtp_creates_valid_transport_config(): void
+    public function test_configure_smtp_sets_mail_config(): void
     {
         $mailbox = Mailbox::factory()->create([
             'out_server' => 'smtp.example.com',
             'out_port' => 587,
             'out_username' => 'user@example.com',
             'out_password' => 'password',
-            'out_encryption' => 'tls',
+            'out_encryption' => 2, // TLS
+            'email' => 'support@example.com',
+            'name' => 'Support',
         ]);
 
-        $config = $this->smtpService->configureSmtp($mailbox);
+        $this->smtpService->configureSmtp($mailbox);
 
-        $this->assertIsArray($config);
-        $this->assertArrayHasKey('transport', $config);
-        $this->assertEquals('smtp', $config['transport']);
+        $this->assertEquals('smtp', Config::get('mail.default'));
+        $this->assertEquals('smtp.example.com', Config::get('mail.mailers.smtp.host'));
+        $this->assertEquals(587, Config::get('mail.mailers.smtp.port'));
+        $this->assertEquals('tls', Config::get('mail.mailers.smtp.encryption'));
     }
 
-    public function test_configure_smtp_includes_host_and_port(): void
-    {
-        $mailbox = Mailbox::factory()->create([
-            'out_server' => 'smtp.test.com',
-            'out_port' => 465,
-            'out_username' => 'test@test.com',
-            'out_password' => 'secret',
-        ]);
-
-        $config = $this->smtpService->configureSmtp($mailbox);
-
-        $this->assertEquals('smtp.test.com', $config['host'] ?? null);
-        $this->assertEquals(465, $config['port'] ?? null);
-    }
-
-    public function test_configure_smtp_includes_authentication(): void
+    public function test_configure_smtp_sets_from_address(): void
     {
         $mailbox = Mailbox::factory()->create([
             'out_server' => 'smtp.example.com',
             'out_port' => 587,
-            'out_username' => 'user@example.com',
-            'out_password' => 'mypassword',
+            'email' => 'support@company.com',
+            'name' => 'Support Team',
         ]);
 
-        $config = $this->smtpService->configureSmtp($mailbox);
+        $this->smtpService->configureSmtp($mailbox);
 
-        $this->assertEquals('user@example.com', $config['username'] ?? null);
-        $this->assertEquals('mypassword', $config['password'] ?? null);
+        $this->assertEquals('support@company.com', Config::get('mail.from.address'));
+        $this->assertEquals('Support Team', Config::get('mail.from.name'));
+    }
+
+    public function test_configure_smtp_with_ssl_encryption(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'smtp.example.com',
+            'out_port' => 465,
+            'out_encryption' => 1, // SSL
+        ]);
+
+        $this->smtpService->configureSmtp($mailbox);
+
+        $this->assertEquals('ssl', Config::get('mail.mailers.smtp.encryption'));
+    }
+
+    public function test_configure_smtp_with_no_encryption(): void
+    {
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'smtp.example.com',
+            'out_port' => 25,
+            'out_encryption' => 0, // None
+        ]);
+
+        $this->smtpService->configureSmtp($mailbox);
+
+        $this->assertNull(Config::get('mail.mailers.smtp.encryption'));
     }
 
     public function test_test_connection_returns_result_array(): void
@@ -183,50 +197,89 @@ class SmtpServiceTest extends TestCase
             'out_port' => 587,
             'out_username' => 'user@example.com',
             'out_password' => 'password',
+            'email' => 'test@example.com',
         ]);
 
-        $result = $this->smtpService->testConnection($mailbox);
+        $result = $this->smtpService->testConnection($mailbox, 'recipient@test.com');
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('success', $result);
+        $this->assertArrayHasKey('message', $result);
     }
 
-    public function test_test_connection_fails_for_invalid_server(): void
+    public function test_test_connection_validates_settings_first(): void
     {
         $mailbox = Mailbox::factory()->create([
-            'out_server' => 'nonexistent.invalid.server',
+            'out_server' => '', // Invalid - empty
             'out_port' => 587,
-            'out_username' => 'user@example.com',
-            'out_password' => 'password',
+            'email' => 'test@example.com',
         ]);
 
-        $result = $this->smtpService->testConnection($mailbox);
+        $result = $this->smtpService->testConnection($mailbox, 'recipient@test.com');
 
         $this->assertFalse($result['success']);
-        $this->assertArrayHasKey('error', $result);
+        $this->assertStringContainsString('Configuration errors', $result['message']);
     }
 
-    public function test_validate_mailbox_settings_with_empty_server(): void
+    public function test_test_connection_validates_email_address(): void
     {
-        $result = $this->smtpService->validateSettings([
-            'host' => '',
-            'port' => 587,
-            'username' => 'user@example.com',
-            'password' => 'password',
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'invalid-email', // Invalid email
         ]);
 
-        $this->assertFalse($result['success'] ?? true);
+        $result = $this->smtpService->testConnection($mailbox, 'recipient@test.com');
+
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('Configuration errors', $result['message']);
     }
 
-    public function test_validate_mailbox_settings_with_zero_port(): void
+    public function test_configure_smtp_handles_oauth_token(): void
     {
-        $result = $this->smtpService->validateSettings([
-            'host' => 'smtp.example.com',
-            'port' => 0,
-            'username' => 'user@example.com',
-            'password' => 'password',
+        $mailbox = Mailbox::factory()->create([
+            'out_server' => 'smtp.office365.com',
+            'out_port' => 587,
+            'out_username' => 'client-id',
+            'out_password' => encrypt('client-secret'),
+            'email' => 'user@company.com',
+            'meta' => [
+                'oauth' => [
+                    'provider' => 'ms',
+                    'a_token' => 'valid-access-token',
+                    'r_token' => 'valid-refresh-token',
+                    'issued_on' => now()->toDateTimeString(),
+                    'expires_in' => 3600,
+                ],
+            ],
         ]);
 
-        $this->assertFalse($result['success'] ?? true);
+        $this->smtpService->configureSmtp($mailbox);
+
+        // Should use OAuth token as password
+        $this->assertEquals('valid-access-token', Config::get('mail.mailers.smtp.password'));
+        $this->assertEquals('XOAUTH2', Config::get('mail.mailers.smtp.auth_mode'));
+    }
+
+    public function test_validate_settings_with_invalid_port_string(): void
+    {
+        $result = $this->smtpService->validateSettings([
+            'out_server' => 'smtp.example.com',
+            'out_port' => 'abc',
+            'email' => 'user@example.com',
+        ]);
+
+        $this->assertArrayHasKey('out_port', $result);
+    }
+
+    public function test_validate_settings_with_negative_port(): void
+    {
+        $result = $this->smtpService->validateSettings([
+            'out_server' => 'smtp.example.com',
+            'out_port' => -1,
+            'email' => 'user@example.com',
+        ]);
+
+        $this->assertArrayHasKey('out_port', $result);
     }
 }
