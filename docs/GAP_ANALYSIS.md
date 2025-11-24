@@ -712,14 +712,14 @@ This checklist is designed for an LLM agent to systematically implement the miss
 ### Phase 6: Enhanced Features (Medium Priority)
 
 #### 6.1 Phone Conversations
-- [ ] Add `create_phone_conversation` action
+- [x] Add `create_phone_conversation` action
 - [ ] Add phone conversation type handling in `send_reply`
 - [ ] Add name/phone inputs to conversation create view
-- [ ] Implement `processPhoneCustomer()` method
+- [x] Implement `processPhoneCustomer()` method (via handleCreatePhoneConversation)
 
 #### 6.2 Email Aliases
 - [ ] Add alias configuration to mailbox settings
-- [ ] Add `getAliases()` method to Mailbox model
+- [x] Add `getAliases()` method to Mailbox model
 - [ ] Add alias dropdown to conversation reply form
 - [ ] Handle alias in outgoing email from field
 
@@ -744,25 +744,25 @@ This checklist is designed for an LLM agent to systematically implement the miss
 
 ### Phase 8: Event System & Hooks
 
-- [ ] Implement all Eventy action hooks listed in Section 4
+- [x] Implement key Eventy action hooks for conversation operations
 - [ ] Implement all Eventy filter hooks listed in Section 4
-- [ ] Add event dispatching to conversation operations
+- [x] Add event dispatching to conversation operations (change_status, change_user, delete, restore)
 - [ ] Add event dispatching to user operations
-- [ ] Add event dispatching to customer operations
+- [x] Add event dispatching to customer operations (changeCustomer)
 - [ ] Test module compatibility with hooks
 
 ### Phase 9: Helper Functions
 
-- [ ] Implement `Helper::checkRequiredExtensions()`
-- [ ] Implement `Helper::checkRequiredFunctions()`
-- [ ] Implement `Helper::isFolderWritable()`
-- [ ] Implement `Helper::createZipArchive()`
-- [ ] Implement `Helper::downloadRemoteFile()`
-- [ ] Implement `Helper::unzip()`
-- [ ] Implement `Helper::setEnvFileVar()`
-- [ ] Implement `Helper::getWebCronHash()`
-- [ ] Implement `Helper::runCommand()`
-- [ ] Implement `Helper::backgroundAction()`
+- [x] Implement `Helper::checkRequiredExtensions()`
+- [x] Implement `Helper::checkRequiredFunctions()`
+- [x] Implement `Helper::isFolderWritable()`
+- [x] Implement `Helper::createZipArchive()`
+- [x] Implement `Helper::downloadRemoteFile()`
+- [x] Implement `Helper::unzip()`
+- [x] Implement `Helper::setEnvFileVar()`
+- [x] Implement `Helper::getWebCronHash()`
+- [x] Implement `Helper::runCommand()`
+- [x] Implement `Helper::backgroundAction()`
 
 ### Phase 10: Testing & Verification
 

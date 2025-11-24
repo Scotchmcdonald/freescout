@@ -538,4 +538,81 @@ class Conversation extends Model
 
         return $result;
     }
+
+    /**
+     * Star a conversation for a user.
+     */
+    public function star(User $user): void
+    {
+        if (! $this->starredByUsers()->where('user_id', $user->id)->exists()) {
+            $this->starredByUsers()->attach($user->id);
+        }
+    }
+
+    /**
+     * Unstar a conversation for a user.
+     */
+    public function unstar(User $user): void
+    {
+        $this->starredByUsers()->detach($user->id);
+    }
+
+    /**
+     * Check if starred by a user.
+     */
+    public function isStarredBy(User $user): bool
+    {
+        return $this->starredByUsers()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Get starred by users relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<User, $this>
+     */
+    public function starredByUsers()
+    {
+        return $this->belongsToMany(User::class, 'conversation_user_stars', 'conversation_id', 'user_id');
+    }
+
+    /**
+     * Change the customer for this conversation.
+     */
+    public function changeCustomer(?string $email, ?int $customerId, ?User $user): void
+    {
+        $oldCustomerId = $this->customer_id;
+
+        if ($customerId) {
+            /** @var \App\Models\Customer|null $customer */
+            $customer = Customer::find($customerId);
+            if ($customer) {
+                $this->customer_id = $customerId;
+                $this->customer_email = $customer->getMainEmail();
+            }
+        } elseif ($email) {
+            // Find or create customer by email
+            $customer = Customer::create($email);
+            if ($customer) {
+                $this->customer_id = $customer->id;
+                $this->customer_email = $email;
+            }
+        }
+
+        $this->save();
+
+        // Log activity
+        if ($user && $oldCustomerId !== $this->customer_id) {
+            ActivityLog::query()->create([
+                'type' => ActivityLog::TYPE_CONVERSATION,
+                'causer_type' => User::class,
+                'causer_id' => $user->id,
+                'subject_type' => self::class,
+                'subject_id' => $this->id,
+                'description' => 'Customer changed',
+            ]);
+
+            // Fire event
+            \Eventy::action('conversation.customer_changed', $this, $user, $oldCustomerId);
+        }
+    }
 }
