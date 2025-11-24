@@ -728,17 +728,17 @@ This checklist is designed for an LLM agent to systematically implement the miss
 - [ ] Add saved search functionality
 - [ ] Update search view with filter UI
 
-### Phase 7: UI Enhancements (Low Priority)
+### Phase 7: UI Enhancements (Largely Complete)
 
 #### 7.1 Conversation View Enhancements
-- [ ] Add real-time viewing indicators
-- [ ] Add previous conversations sidebar
-- [ ] Add customer sidebar with info
-- [ ] Add status/type badges
-- [ ] Add attachment display improvements
+- [x] Add real-time viewing indicators (`getViewersInfo()`, `setViewer()`, `removeViewer()`)
+- [x] Add previous conversations sidebar (`prev_convs_short.blade.php`)
+- [x] Add customer sidebar with info (`customer_sidebar.blade.php`)
+- [x] Add status/type badges (`badges.blade.php`)
+- [x] Add attachment display improvements (`thread_attachments.blade.php`)
 
 #### 7.2 Additional Views
-- [ ] Create modal views for all ajax_html actions
+- [x] Create modal views for all ajax_html actions (send_log, show_original, change_customer, move_conv, merge_conv, assignee_filter, default_redirect)
 - [ ] Add floating flash messages
 - [ ] Add DataTables integration where appropriate
 
