@@ -271,7 +271,11 @@ class UserController extends Controller
         if ($user->photo_url && ! str_starts_with($user->photo_url, 'http')) {
             $fullPath = storage_path('app/public/'.$user->photo_url);
             if (file_exists($fullPath)) {
-                unlink($fullPath);
+                try {
+                    unlink($fullPath);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to delete user photo: '.$e->getMessage());
+                }
             }
         }
 
@@ -303,7 +307,11 @@ class UserController extends Controller
         if ($user->photo_url && ! str_starts_with($user->photo_url, 'http')) {
             $fullPath = storage_path('app/public/'.$user->photo_url);
             if (file_exists($fullPath)) {
-                unlink($fullPath);
+                try {
+                    unlink($fullPath);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to delete old user photo: '.$e->getMessage());
+                }
             }
         }
 

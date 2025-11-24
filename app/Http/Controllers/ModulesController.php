@@ -264,7 +264,13 @@ class ModulesController extends Controller
                 $zip->close();
 
                 // Clean up temp file
-                @unlink($tempFile);
+                if (file_exists($tempFile)) {
+                    try {
+                        unlink($tempFile);
+                    } catch (\Exception $unlinkError) {
+                        \Illuminate\Support\Facades\Log::warning('Failed to cleanup temp file: '.$unlinkError->getMessage());
+                    }
+                }
 
                 // Clear cache to ensure new module is detected
                 Artisan::call('cache:clear');
@@ -294,7 +300,11 @@ class ModulesController extends Controller
 
         } catch (\Exception $e) {
             if (file_exists($tempFile)) {
-                @unlink($tempFile);
+                try {
+                    unlink($tempFile);
+                } catch (\Exception $unlinkError) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to cleanup temp file: '.$unlinkError->getMessage());
+                }
             }
 
             return redirect()->back()->with('error', $e->getMessage());
@@ -535,7 +545,13 @@ class ModulesController extends Controller
                 $zip->close();
             }
 
-            @unlink($tempFile);
+            if (file_exists($tempFile)) {
+                try {
+                    unlink($tempFile);
+                } catch (\Exception $unlinkError) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to cleanup temp file: '.$unlinkError->getMessage());
+                }
+            }
 
             // Re-enable module if it was enabled
             if ($wasEnabled) {
@@ -560,7 +576,11 @@ class ModulesController extends Controller
 
         } catch (\Exception $e) {
             if (file_exists($tempFile)) {
-                @unlink($tempFile);
+                try {
+                    unlink($tempFile);
+                } catch (\Exception $unlinkError) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to cleanup temp file: '.$unlinkError->getMessage());
+                }
             }
 
             return response()->json([

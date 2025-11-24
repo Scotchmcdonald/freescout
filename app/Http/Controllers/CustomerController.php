@@ -347,7 +347,11 @@ class CustomerController extends Controller
         if ($customer->photo_url && ! str_starts_with($customer->photo_url, 'http')) {
             $fullPath = storage_path('app/public/'.$customer->photo_url);
             if (file_exists($fullPath)) {
-                unlink($fullPath);
+                try {
+                    unlink($fullPath);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to delete old customer photo: '.$e->getMessage());
+                }
             }
         }
 
@@ -379,7 +383,11 @@ class CustomerController extends Controller
         if ($customer->photo_url && ! str_starts_with($customer->photo_url, 'http')) {
             $fullPath = storage_path('app/public/'.$customer->photo_url);
             if (file_exists($fullPath)) {
-                unlink($fullPath);
+                try {
+                    unlink($fullPath);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to delete customer photo: '.$e->getMessage());
+                }
             }
         }
 

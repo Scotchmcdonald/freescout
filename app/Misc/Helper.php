@@ -290,10 +290,11 @@ class Helper
     public static function backgroundAction(string $command, array $params = []): void
     {
         $artisan = base_path('artisan');
+        $escapedCommand = escapeshellarg($command);
         $paramsStr = implode(' ', array_map('escapeshellarg', $params));
 
         // Run in background
-        exec("php {$artisan} {$command} {$paramsStr} > /dev/null 2>&1 &");
+        exec("php {$artisan} {$escapedCommand} {$paramsStr} > /dev/null 2>&1 &");
     }
 
     /**

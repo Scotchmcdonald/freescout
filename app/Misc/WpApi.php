@@ -108,7 +108,7 @@ class WpApi
             }
 
             if (! empty($json['code']) && ! empty($json['message']) &&
-                ! empty($json['data']) && ! empty($json['data']['status']) && $json['data']['status'] != 200
+                ! empty($json['data']) && ! empty($json['data']['status']) && (int) $json['data']['status'] !== 200
             ) {
                 self::$lastError = $json;
 
