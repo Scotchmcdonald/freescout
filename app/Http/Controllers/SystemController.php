@@ -182,8 +182,11 @@ class SystemController extends Controller
             cache()->forget('tools_execute_output');
         }
 
+        $cronHash = self::getWebCronHash();
+
         return view('system.tools', [
             'output' => $output,
+            'cronHash' => $cronHash,
         ]);
     }
 
@@ -643,14 +646,12 @@ class SystemController extends Controller
     /**
      * Web cron endpoint for HTTP-based cron triggering.
      */
-    public function cron(Request $request): \Illuminate\Http\Response
+    public function cron(Request $request, string $hash): \Illuminate\Http\Response
     {
-        $hash = $request->input('hash');
+        // Verify the hash matches using a secure comparison
+        $expectedHash = self::getWebCronHash();
 
-        // Verify the hash matches
-        $expectedHash = md5(config('app.key').'cron');
-
-        if ($hash !== $expectedHash) {
+        if (! hash_equals($expectedHash, $hash)) {
             abort(404);
         }
 
@@ -662,10 +663,10 @@ class SystemController extends Controller
     }
 
     /**
-     * Get the web cron hash.
+     * Get the web cron hash using a secure algorithm.
      */
     public static function getWebCronHash(): string
     {
-        return md5(config('app.key').'cron');
+        return hash_hmac('sha256', 'cron', config('app.key'));
     }
 }

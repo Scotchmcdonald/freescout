@@ -660,7 +660,7 @@ class ConversationController extends Controller
                 'state' => Thread::STATE_DRAFT,
                 'body' => $body,
                 'from' => $conversation->mailbox?->email ?? '',
-                'to' => json_encode([$conversation->customer_email]),
+                'to' => json_encode([$conversation->customer_email ?? '']),
                 'source_via' => 1,
                 'source_type' => 2,
             ]);
@@ -706,8 +706,9 @@ class ConversationController extends Controller
             return response()->json(['success' => false, 'message' => 'Cannot empty this folder type'], 400);
         }
 
-        // Delete all conversations in this folder
-        $count = $folder->conversations()->forceDelete();
+        // Count then delete all conversations in this folder
+        $count = $folder->conversations()->count();
+        $folder->conversations()->forceDelete();
 
         return response()->json(['success' => true, 'deleted' => $count]);
     }

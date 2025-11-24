@@ -72,7 +72,7 @@
             </p>
             <div class="bg-gray-100 dark:bg-gray-900 p-3 rounded-lg">
                 <code class="text-sm text-gray-800 dark:text-gray-200 break-all">
-                    {{ route('system.cron', ['hash' => \App\Http\Controllers\SystemController::getWebCronHash()]) }}
+                    {{ route('system.cron', ['hash' => $cronHash]) }}
                 </code>
             </div>
         </div>

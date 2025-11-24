@@ -528,8 +528,14 @@ class Conversation extends Model
      */
     public static function sanitizeEmails(array $emails): array
     {
-        return array_values(array_filter(array_map('trim', $emails), function ($email) {
-            return filter_var($email, FILTER_VALIDATE_EMAIL);
-        }));
+        $result = [];
+        foreach ($emails as $email) {
+            $trimmed = trim($email);
+            if (filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+                $result[] = $trimmed;
+            }
+        }
+
+        return $result;
     }
 }
