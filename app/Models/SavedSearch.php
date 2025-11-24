@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $user_id
  * @property string $name
- * @property string $query
+ * @property string|null $query
  * @property array|null $filters
  * @property bool $is_default
  * @property int $sort_order
@@ -26,6 +26,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SavedSearch extends Model
 {
     use HasFactory;
+
+    /**
+     * Maximum length for search name.
+     */
+    public const NAME_MAX_LENGTH = 255;
 
     /**
      * The attributes that are mass assignable.

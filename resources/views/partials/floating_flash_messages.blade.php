@@ -147,12 +147,21 @@
             @endpush
         @endif
     @endforeach
-    {{-- Clear flashes that were set in service provider --}}
+    {{-- 
+        Clear flashes_floating session key explicitly.
+        This is needed because flashes set from service providers 
+        may not be automatically cleared like regular flash data.
+    --}}
     @php
-        Session::forget('flashes_floating');
+        session()->forget('flashes_floating');
     @endphp
 @endif
 
+{{-- 
+    Animation styles for floating flash messages.
+    These are defined inline to ensure they're available when the component is used.
+    In production, consider moving to app.css or using Tailwind's animation utilities.
+--}}
 <style>
     @keyframes slide-in {
         from {

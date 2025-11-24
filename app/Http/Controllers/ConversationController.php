@@ -1778,7 +1778,7 @@ class ConversationController extends Controller
 
         $search = SavedSearch::create([
             'user_id' => $user->id,
-            'name' => substr($name, 0, 255),
+            'name' => substr($name, 0, SavedSearch::NAME_MAX_LENGTH),
             'query' => $query,
             'filters' => ! empty($filters) ? $filters : null,
             'sort_order' => $maxSortOrder + 1,
