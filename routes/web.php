@@ -197,6 +197,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/modules/{alias}/disable', [ModulesController::class, 'disable'])->name('modules.disable');
         Route::delete('/modules/{alias}', [ModulesController::class, 'delete'])->name('modules.delete');
         Route::post('/modules/install', [ModulesController::class, 'install'])->name('modules.install');
+        Route::post('/modules/ajax', [ModulesController::class, 'ajax'])->name('modules.ajax');
     });
 
     // Mailbox Permissions
