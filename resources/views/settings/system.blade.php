@@ -6,13 +6,16 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- System Info -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <h3 class="text-lg font-semibold mb-4">{{ __('System Information') }}</h3>
-                    
-                    <dl class="space-y-3 text-sm">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex flex-col md:flex-row">
+            @include('settings.partials.sidebar')
+            
+            <div class="flex-1">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- System Info -->
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">{{ __('System Information') }}</h3>
+                        
+                        <dl class="space-y-3 text-sm">
                         <div class="flex justify-between py-2 border-b border-gray-200">
                             <dt class="font-medium text-gray-700">PHP Version</dt>
                             <dd class="text-gray-900">{{ $settings['php_version'] }}</dd>
@@ -79,6 +82,7 @@
             
             <!-- Response Messages -->
             <div id="responseMessage" class="hidden mt-6"></div>
+            </div>
         </div>
     </div>
     

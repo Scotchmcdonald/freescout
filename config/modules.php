@@ -279,4 +279,14 @@ return [
     ],
 
     'activator' => 'file',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Module Source URL
+    |--------------------------------------------------------------------------
+    |
+    | The URL to fetch the list of available modules from.
+    |
+    */
+    'source_url' => env('MODULE_SOURCE_URL', 'https://raw.githubusercontent.com/freescout-helpdesk/modules/main/modules.json'),
 ];

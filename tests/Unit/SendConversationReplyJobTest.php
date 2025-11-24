@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Jobs\SendConversationReply;
-use App\Mail\ConversationReplyNotification;
+use App\Mail\CustomerReply;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
@@ -20,14 +20,12 @@ class SendConversationReplyJobTest extends UnitTestCase
     public function test_job_has_required_properties(): void
     {
         $conversation = new Conversation(['id' => 1]);
-        $replies = [new Thread(['id' => 2])];
-        $customer = new Customer(['id' => 3]);
+        $thread = new Thread(['id' => 2]);
 
-        $job = new SendConversationReply($conversation, $replies, $customer);
+        $job = new SendConversationReply($conversation, $thread);
 
         $this->assertSame($conversation, $job->conversation);
-        $this->assertSame($replies, $job->replies);
-        $this->assertSame($customer, $job->customer);
+        $this->assertSame($thread, $job->thread);
     }
 
     /** Test job implements ShouldQueue */
@@ -35,8 +33,7 @@ class SendConversationReplyJobTest extends UnitTestCase
     {
         $job = new SendConversationReply(
             new Conversation,
-            [],
-            new Customer
+            new Thread
         );
 
         $this->assertInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class, $job);
@@ -53,8 +50,7 @@ class SendConversationReplyJobTest extends UnitTestCase
     {
         $job = new SendConversationReply(
             new Conversation,
-            [],
-            new Customer
+            new Thread
         );
 
         $this->assertTrue(method_exists($job, 'handle'));
@@ -70,22 +66,25 @@ class SendConversationReplyJobTest extends UnitTestCase
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
+            'customer_email' => 'recipient@example.com',
         ]);
         // Ensure mailbox is loaded for the mailable envelope
         $conversation->load('mailbox');
         
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+            'type' => Thread::TYPE_MESSAGE,
         ]);
 
-        $job = new SendConversationReply($conversation, [$thread], $customer);
+        $job = new SendConversationReply($conversation, $thread);
         $job->handle();
 
-        Mail::assertSent(ConversationReplyNotification::class);
-        Mail::assertSent(ConversationReplyNotification::class, function ($mail) use ($customer) {
+        Mail::assertSent(CustomerReply::class);
+        Mail::assertSent(CustomerReply::class, function ($mail) use ($customer) {
             // The mailable was sent - just verify it exists
             // The Mail::to() call in the job ensures proper recipient
-            return true;
+            return $mail->hasTo($customer->getMainEmail());
         });
     }
 
@@ -99,15 +98,18 @@ class SendConversationReplyJobTest extends UnitTestCase
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
+            'customer_email' => 'test@example.com',
         ]);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+            'type' => Thread::TYPE_MESSAGE,
         ]);
 
-        $job = new SendConversationReply($conversation, [$thread], $customer);
+        $job = new SendConversationReply($conversation, $thread);
         $job->handle();
 
-        Mail::assertSent(ConversationReplyNotification::class);
+        Mail::assertSent(CustomerReply::class);
     }
 
     /** Test job can be dispatched and queued */
@@ -125,7 +127,7 @@ class SendConversationReplyJobTest extends UnitTestCase
             'conversation_id' => $conversation->id,
         ]);
 
-        SendConversationReply::dispatch($conversation, [$thread], $customer);
+        SendConversationReply::dispatch($conversation, $thread);
 
         // Job was dispatched successfully
         $this->expectNotToPerformAssertions();
@@ -138,7 +140,11 @@ class SendConversationReplyJobTest extends UnitTestCase
 
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+            'type' => Thread::TYPE_MESSAGE,
+        ]);
 
         $emailFormats = [
             'simple@example.com',
@@ -149,10 +155,11 @@ class SendConversationReplyJobTest extends UnitTestCase
 
         foreach ($emailFormats as $email) {
             $customer = Customer::factory()->create(['email' => $email]);
-            $job = new SendConversationReply($conversation, [$thread], $customer);
+            $conversation->customer_email = $email;
+            $job = new SendConversationReply($conversation, $thread);
             $job->handle();
 
-            Mail::assertSent(ConversationReplyNotification::class);
+            Mail::assertSent(CustomerReply::class);
         }
     }
 
@@ -163,7 +170,11 @@ class SendConversationReplyJobTest extends UnitTestCase
 
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+            'type' => Thread::TYPE_MESSAGE,
+        ]);
 
         $emails = [
             'user@example.co.uk',
@@ -174,7 +185,8 @@ class SendConversationReplyJobTest extends UnitTestCase
 
         foreach ($emails as $email) {
             $customer = Customer::factory()->create(['email' => $email]);
-            $job = new SendConversationReply($conversation, [$thread], $customer);
+            $conversation->customer_email = $email;
+            $job = new SendConversationReply($conversation, $thread);
             $job->handle();
         }
 
@@ -196,13 +208,18 @@ class SendConversationReplyJobTest extends UnitTestCase
 
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+            'type' => Thread::TYPE_MESSAGE,
+        ]);
 
         // Very long but valid email
         $longEmail = str_repeat('a', 50).'@'.str_repeat('b', 50).'.com';
         $customer = Customer::factory()->create(['email' => $longEmail]);
+        $conversation->customer_email = $longEmail;
 
-        $job = new SendConversationReply($conversation, [$thread], $customer);
+        $job = new SendConversationReply($conversation, $thread);
 
         try {
             $job->handle();
@@ -217,15 +234,13 @@ class SendConversationReplyJobTest extends UnitTestCase
     public function test_job_properties_are_public(): void
     {
         $conversation = new Conversation(['id' => 1]);
-        $replies = [new Thread(['id' => 2])];
-        $customer = new Customer(['id' => 3]);
+        $thread = new Thread(['id' => 2]);
 
-        $job = new SendConversationReply($conversation, $replies, $customer);
+        $job = new SendConversationReply($conversation, $thread);
 
         // Properties should be accessible
         $this->assertIsObject($job->conversation);
-        $this->assertIsArray($job->replies);
-        $this->assertIsObject($job->customer);
+        $this->assertIsObject($job->thread);
     }
 
     /** Test multiple jobs can be dispatched simultaneously */
@@ -241,7 +256,8 @@ class SendConversationReplyJobTest extends UnitTestCase
 
         foreach ($emails as $email) {
             $customer = Customer::factory()->create(['email' => $email]);
-            SendConversationReply::dispatch($conversation, [$thread], $customer);
+            $conversation->customer_email = $email;
+            SendConversationReply::dispatch($conversation, $thread);
         }
 
         // All jobs dispatched successfully

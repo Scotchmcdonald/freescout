@@ -165,14 +165,16 @@ class RemainingCommandsTest extends UnitTestCase
     
     public function test_module_update_command_can_be_instantiated(): void
     {
-        $command = new ModuleUpdate();
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $command = new ModuleUpdate($mockModuleSource);
         
         $this->assertInstanceOf(ModuleUpdate::class, $command);
     }
 
     public function test_module_update_has_correct_signature(): void
     {
-        $command = new ModuleUpdate();
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $command = new ModuleUpdate($mockModuleSource);
         
         $this->assertEquals('freescout:module-update', $command->getName());
     }

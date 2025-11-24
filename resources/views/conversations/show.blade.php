@@ -23,7 +23,15 @@
                         <div class="p-6 text-gray-900">
                             <!-- Conversation Header -->
                             <div class="mb-6 pb-6 border-b border-gray-200">
-                                <h3 class="text-2xl font-semibold mb-2">{{ $conversation->subject }}</h3>
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="flex-1">
+                                        <h3 class="text-2xl font-semibold mb-2">{{ $conversation->subject }}</h3>
+                                        @action('conversation.after_subject', $conversation)
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        @action('conversation.action_buttons', $conversation)
+                                    </div>
+                                </div>
                                 <div class="flex items-center space-x-4 text-sm text-gray-600">
                                     <span>{{ $conversation->customer->getFullName() }}</span>
                                     <span>•</span>
@@ -35,6 +43,7 @@
                             
                             <!-- Threads -->
                             <div class="space-y-6">
+                                @action('conversation.before_threads', $conversation)
                                 @foreach($conversation->threads as $thread)
                                     <div class="border border-gray-200 rounded-lg p-4 {{ $thread->type == 2 ? 'bg-yellow-50' : '' }}">
                                         <div class="flex items-start justify-between mb-3">
@@ -84,6 +93,7 @@
                                         @endif
                                     </div>
                                 @endforeach
+                                @action('conversation.after_threads', $conversation)
                             </div>
                             
                             <!-- Reply Form -->
@@ -170,6 +180,12 @@
                                 <div class="text-gray-500 mb-1">Last Reply</div>
                                 <div class="font-medium">{{ $conversation->last_reply_at->diffForHumans() }}</div>
                             </div>
+                        </div>
+                        
+                        @action('conversation.after_customer_sidebar', $conversation)
+
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            @action('conversation.view.buttons', $conversation)
                         </div>
                     </div>
                 </div>

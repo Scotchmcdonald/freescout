@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Spatie\Activitylog\Models\Activity as SpatieActivity;
 
-class ActivityLog extends Model
+class ActivityLog extends SpatieActivity
 {
     /** @use HasFactory<\Database\Factories\ActivityLogFactory> */
     use HasFactory;
@@ -49,30 +48,10 @@ class ActivityLog extends Model
     protected function casts(): array
     {
         return [
-            'properties' => 'json',
+            'properties' => 'array',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Get the subject (the model being logged).
-     *
-     * @return MorphTo<Model, $this>
-     */
-    public function subject(): MorphTo
-    {
-        return $this->morphTo();
-    }
-
-    /**
-     * Get the causer (the user/model that caused the action).
-     *
-     * @return MorphTo<Model, $this>
-     */
-    public function causer(): MorphTo
-    {
-        return $this->morphTo();
     }
 
     /**
@@ -85,41 +64,5 @@ class ActivityLog extends Model
         }
 
         return null;
-    }
-
-    /**
-     * Scope to filter by log name.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>
-     */
-    public function scopeInLog(\Illuminate\Database\Eloquent\Builder $query, string $logName): \Illuminate\Database\Eloquent\Builder
-    {
-        return $query->where('log_name', $logName);
-    }
-
-    /**
-     * Scope to filter by causer.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>
-     */
-    public function scopeCausedBy(\Illuminate\Database\Eloquent\Builder $query, Model $causer): \Illuminate\Database\Eloquent\Builder
-    {
-        return $query->where('causer_type', get_class($causer))
-            ->where('causer_id', $causer->getKey());
-    }
-
-    /**
-     * Scope to filter by subject.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog>
-     */
-    public function scopeForSubject(\Illuminate\Database\Eloquent\Builder $query, Model $subject): \Illuminate\Database\Eloquent\Builder
-    {
-        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\ActivityLog> $query */
-        return $query->where('subject_type', get_class($subject))
-            ->where('subject_id', $subject->getKey());
     }
 }

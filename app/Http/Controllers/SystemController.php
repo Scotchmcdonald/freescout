@@ -56,6 +56,8 @@ class SystemController extends Controller
             'disk_total' => disk_total_space('/'),
             'memory_limit' => ini_get('memory_limit'),
             'max_execution_time' => ini_get('max_execution_time'),
+            'last_run_fetch' => cache()->get('last_run_fetch'),
+            'last_run_queue' => cache()->get('last_run_queue'),
         ];
 
         $viewName = 'system.index';
@@ -294,5 +296,72 @@ class SystemController extends Controller
         }
 
         return response()->download($logFile, 'laravel-'.date('Y-m-d').'.log');
+    }
+
+    /**
+     * List failed jobs.
+     */
+    public function failedJobs(): View|Factory
+    {
+        $failedJobs = DB::table('failed_jobs')->orderBy('failed_at', 'desc')->paginate(50);
+
+        return view('system.failed_jobs', compact('failedJobs'));
+    }
+
+    /**
+     * Retry a failed job.
+     */
+    public function retryFailedJob(Request $request, string $uuid): JsonResponse
+    {
+        try {
+            Artisan::call('queue:retry', ['id' => [$uuid]]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Job retry queued successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retry job: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a failed job.
+     */
+    public function deleteFailedJob(Request $request, string $uuid): JsonResponse
+    {
+        try {
+            Artisan::call('queue:forget', ['id' => [$uuid]]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Failed job deleted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete job: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Perform system update (migrations, cache clear).
+     */
+    public function performUpdate(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        try {
+            // Increase memory limit
+            ini_set('memory_limit', '256M');
+
+            Artisan::call('freescout:update', ['--force' => true]);
+
+            return back()->with('status', 'Update script ran successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Update failed: ' . $e->getMessage());
+        }
     }
 }

@@ -43,7 +43,7 @@ return [
             'connection' => (string) env('DB_CACHE_CONNECTION', ''),
             'table' => (string) env('DB_CACHE_TABLE', 'cache'),
             'lock_connection' => (string) env('DB_CACHE_LOCK_CONNECTION', ''),
-            'lock_table' => (string) env('DB_CACHE_LOCK_TABLE', ''),
+            'lock_table' => (string) env('DB_CACHE_LOCK_TABLE', 'cache_locks'),
         ],
 
         'file' => [

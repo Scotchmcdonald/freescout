@@ -89,4 +89,16 @@
       0 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
     ),
   ),
+  'tormjens/eventy' => 
+  array (
+    'aliases' => 
+    array (
+      'Eventy' => 'TorMorten\\Eventy\\Facades\\Events',
+    ),
+    'providers' => 
+    array (
+      0 => 'TorMorten\\Eventy\\EventServiceProvider',
+      1 => 'TorMorten\\Eventy\\EventBladeServiceProvider',
+    ),
+  ),
 );

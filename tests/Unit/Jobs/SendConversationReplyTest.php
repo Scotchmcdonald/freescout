@@ -18,7 +18,7 @@ class SendConversationReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
         $customer = \App\Models\Customer::factory()->create(['email' => 'test@example.com']);
 
-        $job = new SendConversationReply($conversation, [$thread], $customer);
+        $job = new SendConversationReply($conversation, $thread);
 
         $this->assertInstanceOf(SendConversationReply::class, $job);
     }
@@ -28,16 +28,15 @@ class SendConversationReplyTest extends UnitTestCase
         $this->assertTrue(method_exists(SendConversationReply::class, 'handle'));
     }
 
-    public function test_job_requires_conversation_thread_and_email(): void
+    public function test_job_requires_conversation_and_thread(): void
     {
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
         $customer = \App\Models\Customer::factory()->create(['email' => 'test@example.com']);
 
-        $job = new SendConversationReply($conversation, [$thread], $customer);
+        $job = new SendConversationReply($conversation, $thread);
 
         $this->assertEquals($conversation->id, $job->conversation->id);
-        $this->assertCount(1, $job->replies);
-        $this->assertEquals($customer->id, $job->customer->id);
+        $this->assertEquals($thread->id, $job->thread->id);
     }
 }

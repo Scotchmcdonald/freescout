@@ -7,6 +7,7 @@ namespace App\Console\Commands;
 use App\Models\Mailbox;
 use App\Services\ImapService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class FetchEmails extends Command
 {
@@ -93,6 +94,9 @@ class FetchEmails extends Command
             $this->line("Total fetched: {$totalFetched}");
             $this->line("Total created: {$totalCreated}");
             $this->line("Total errors: {$totalErrors}");
+
+            // Update last run timestamp
+            Cache::put('last_run_fetch', now()->timestamp);
         }
 
         return $totalErrors > 0 ? 1 : 0;

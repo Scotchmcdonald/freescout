@@ -21,6 +21,12 @@ class EnsureUserIsAdmin
         $user = $request->user();
 
         if (! $user || ! $user->isAdmin()) {
+            \Illuminate\Support\Facades\Log::warning('EnsureUserIsAdmin: Access denied', [
+                'user_id' => $user?->id,
+                'role' => $user?->role,
+                'is_admin' => $user?->isAdmin(),
+                'path' => $request->path(),
+            ]);
             abort(403, 'Unauthorized action.');
         }
 

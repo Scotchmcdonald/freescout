@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\CollisionController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
@@ -16,10 +17,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\Api\ConversationController as ApiConversationController;
+use App\Http\Controllers\PublicAttachmentController;
+use App\Http\Controllers\TrackingController;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
 });
+
+// Public Attachment Download
+Route::get('/attachments/{id}/public-download', [PublicAttachmentController::class, 'download'])->name('attachments.public_download');
+
+// Tracking Pixel
+Route::get('/track/pixel/{id}', [TrackingController::class, 'pixel'])->name('track.pixel');
 
 // User invitation setup (public route for invited users)
 Route::get('/user/setup/{hash}', [UserController::class, 'userSetup'])->name('user_setup');
@@ -30,7 +39,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-        // Mailboxes
+        // Collision Detection
+    Route::post('/conversations/{id}/viewing', [CollisionController::class, 'viewing'])->name('conversations.viewing');
+    
+    // Mailboxes
     Route::get('/mailboxes', [MailboxController::class, 'index'])->name('mailboxes.index');
     Route::get('/mailboxes/create', [MailboxController::class, 'create'])->name('mailboxes.create');
     Route::post('/mailboxes', [MailboxController::class, 'store'])->name('mailboxes.store');
@@ -47,6 +59,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/mailbox/{mailbox}/connection/outgoing', [MailboxController::class, 'saveConnectionOutgoing']);
     Route::post('/mailbox/{mailbox}/fetch-emails', [MailboxController::class, 'fetchEmails'])->name('mailboxes.fetch-emails');
     Route::post('/mailbox/ajax', [MailboxController::class, 'ajax'])->name('mailboxes.ajax');
+
+    // OAuth
+    Route::get('/mailbox/oauth/connect/{provider}', [MailboxController::class, 'oauthConnect'])->name('mailboxes.oauth_connect');
+    Route::get('/mailbox/oauth/callback', [MailboxController::class, 'oauthCallback'])->name('mailboxes.oauth_callback');
+    Route::get('/mailbox/oauth/disconnect/{mailbox}', [MailboxController::class, 'oauthDisconnect'])->name('mailboxes.oauth_disconnect');
 
     // Conversations
     Route::get('/mailbox/{mailbox}/conversations', [ConversationController::class, 'index'])->name('conversations.index');
@@ -67,6 +84,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/conversations/search', [ConversationController::class, 'search'])->name('conversations.search');
     Route::get('/search', [ConversationController::class, 'search'])->name('search'); // Alias for tests
     Route::get('/mailbox/{mailbox}/clone-ticket/{thread}', [ConversationController::class, 'clone'])->name('conversations.clone');
+    Route::post('/conversation/{conversation}/thread/{thread}/forward', [ConversationController::class, 'forward'])->name('conversations.forward');
+    Route::post('/conversation/{conversation}/thread/{thread}/undo-send', [ConversationController::class, 'undoSend'])->name('conversations.undo_send');
     
     // Conversation AJAX operations
     Route::get('/conversations/ajax-html', [ConversationController::class, 'ajaxHtml'])->name('conversations.ajax_html');
@@ -129,10 +148,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::get('/system', [SystemController::class, 'index'])->name('system');
         Route::get('/system/update', [SystemController::class, 'update'])->name('system.update'); // New route for tests
+        Route::post('/system/update', [SystemController::class, 'performUpdate'])->name('system.perform_update');
         Route::post('/system/ajax', [SystemController::class, 'ajax'])->name('system.ajax');
         Route::get('/system/diagnostics', [SystemController::class, 'diagnostics'])->name('system.diagnostics');
         Route::get('/system/logs', [SystemController::class, 'logs'])->name('system.logs');
         Route::get('/system/logs/download', [SystemController::class, 'downloadLogs'])->name('system.logs.download');
+        
+        // Failed Jobs
+        Route::get('/system/failed-jobs', [SystemController::class, 'failedJobs'])->name('system.failed_jobs');
+        Route::post('/system/failed-jobs/{uuid}/retry', [SystemController::class, 'retryFailedJob'])->name('system.failed_jobs.retry');
+        Route::delete('/system/failed-jobs/{uuid}', [SystemController::class, 'deleteFailedJob'])->name('system.failed_jobs.delete');
         
         // Added for tests
         Route::get('/logs', [SystemController::class, 'logs'])->name('logs');
@@ -151,11 +176,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Modules (admin only)
     Route::middleware(['admin'])->group(function () {
-        Route::get('/modules', [ModulesController::class, 'index'])->name('modules');
+        Route::get('/modules/list', [ModulesController::class, 'index'])->name('modules');
         Route::post('/modules/{alias}/enable', [ModulesController::class, 'enable'])->name('modules.enable');
         Route::post('/modules/{alias}/activate', [ModulesController::class, 'enable'])->name('modules.activate'); // Alias for tests
         Route::post('/modules/{alias}/disable', [ModulesController::class, 'disable'])->name('modules.disable');
         Route::delete('/modules/{alias}', [ModulesController::class, 'delete'])->name('modules.delete');
+        Route::post('/modules/install', [ModulesController::class, 'install'])->name('modules.install');
     });
 
     // Mailbox Permissions
@@ -174,10 +200,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/mailboxes/{mailbox}/auto-reply', [MailboxController::class, 'saveAutoReply'])
         ->name('mailboxes.auto_reply.save');
 
+    // Test email route
+    Route::post('/mailbox/{mailbox}/send-test-email', [MailboxController::class, 'sendTestEmail'])->name('mailboxes.send_test_email');
+
     Route::post('/customers/ajax', [CustomerController::class, 'ajax'])->name('customers.ajax');
 });
 
 Route::middleware('auth')->group(function () {
+    // Drafts
+    Route::post('/drafts/save', [App\Http\Controllers\DraftController::class, 'save'])->name('drafts.save');
+    Route::post('/drafts/discard', [App\Http\Controllers\DraftController::class, 'discard'])->name('drafts.discard');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/profile/show', [ProfileController::class, 'edit'])->name('profile.show'); // Alias for tests
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

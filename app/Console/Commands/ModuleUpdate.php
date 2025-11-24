@@ -6,6 +6,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Services\ModuleSource;
 
 class ModuleUpdate extends Command
 {
@@ -23,14 +24,17 @@ class ModuleUpdate extends Command
      */
     protected $description = 'Update all modules or a single module (if module_alias is set)';
 
+    protected $moduleSource;
+
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(ModuleSource $moduleSource)
     {
         parent::__construct();
+        $this->moduleSource = $moduleSource;
     }
 
     /**
@@ -49,14 +53,7 @@ class ModuleUpdate extends Command
         // Create a symlink for the module (or all modules)
         $module_alias = $this->argument('module_alias');
         
-        /** @var array<int, array{alias: string, version: string}> $modules_directory */
-        $modules_directory = \App\Misc\WpApi::getModules();
-        if (\App\Misc\WpApi::$lastError) {
-            /** @var array{message: string, code: string|int} $lastError */
-            $lastError = \App\Misc\WpApi::$lastError;
-            $this->error(__('Error occurred').': '.(string)$lastError['message'].' ('.(string)$lastError['code'].')');
-            return;
-        }
+        $modules_directory = $this->moduleSource->getModules();
 
         $installed_modules = \Module::all();
 
@@ -101,8 +98,15 @@ class ModuleUpdate extends Command
         // Update custom modules.
         // Loop through each installed module.
         foreach ($installed_modules as $module) {
-            // Skip if the module is an official one
-            if (\App\Module::isOfficial($module->get('authorUrl'))) {
+            // Skip if the module is in the source (already handled above)
+            $inSource = false;
+            foreach ($modules_directory as $dir_module) {
+                if ($dir_module['alias'] == $module->getAlias()) {
+                    $inSource = true;
+                    break;
+                }
+            }
+            if ($inSource) {
                 continue;
             }
 
@@ -162,7 +166,17 @@ class ModuleUpdate extends Command
         }
 
         if ($module_alias && !$found) {
-            $this->error('Module with the following alias not found: '.$module_alias);
+            // Check if it's a custom module
+             $isCustom = false;
+             foreach ($installed_modules as $module) {
+                 if ($module->getAlias() == $module_alias) {
+                     $isCustom = true;
+                     break;
+                 }
+             }
+             if (!$isCustom) {
+                $this->error('Module with the following alias not found: '.$module_alias);
+             }
         } elseif (!$counter) {
             $this->line('All modules are up-to-date');
         }

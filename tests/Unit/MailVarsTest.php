@@ -454,6 +454,11 @@ class MailVarsTest extends TestCase
                 {
                     return 'Test';
                 }
+
+                public function getPhotoUrl(): string
+                {
+                    return 'http://example.com/photo.jpg';
+                }
             },
         ];
 

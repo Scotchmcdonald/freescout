@@ -30,26 +30,29 @@ class JobsTest extends TestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
         $customer = Customer::factory()->create(['email' => 'test@example.com']);
 
-        $job = new SendConversationReply($conversation, [$thread], $customer);
+        $job = new SendConversationReply($conversation, $thread);
 
         $this->assertInstanceOf(SendConversationReply::class, $job);
         $this->assertEquals($conversation->id, $job->conversation->id);
-        $this->assertCount(1, $job->replies);
-        $this->assertEquals($customer->id, $job->customer->id);
+        $this->assertEquals($thread->id, $job->thread->id);
     }
 
     public function test_send_conversation_reply_job_sends_email(): void
     {
         Mail::fake();
 
-        $conversation = Conversation::factory()->create();
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $conversation = Conversation::factory()->create(['customer_email' => 'customer@example.com']);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+            'type' => Thread::TYPE_MESSAGE,
+        ]);
         $customer = Customer::factory()->create(['email' => 'customer@example.com']);
 
-        $job = new SendConversationReply($conversation, [$thread], $customer);
+        $job = new SendConversationReply($conversation, $thread);
         $job->handle();
 
-        Mail::assertSent(ConversationReplyNotification::class, function ($mail) {
+        Mail::assertSent(\App\Mail\CustomerReply::class, function ($mail) {
             return $mail->hasTo('customer@example.com');
         });
     }
@@ -58,14 +61,18 @@ class JobsTest extends TestCase
     {
         Mail::fake();
 
-        $conversation = Conversation::factory()->create();
-        $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
+        $conversation = Conversation::factory()->create(['customer_email' => 'test@example.com']);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+            'type' => Thread::TYPE_MESSAGE,
+        ]);
         $customer = Customer::factory()->create(['email' => 'test@example.com']);
 
-        $job = new SendConversationReply($conversation, [$thread], $customer);
+        $job = new SendConversationReply($conversation, $thread);
         $job->handle();
 
-        Mail::assertSent(ConversationReplyNotification::class);
+        Mail::assertSent(\App\Mail\CustomerReply::class);
     }
 
     public function test_send_auto_reply_job_can_be_constructed(): void
@@ -108,33 +115,37 @@ class JobsTest extends TestCase
     {
         Mail::fake();
 
-        $conversation = Conversation::factory()->withUnicodeSubject()->create();
+        $conversation = Conversation::factory()->withUnicodeSubject()->create(['customer_email' => 'test@example.com']);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'body' => '日本語のメッセージ',
+            'state' => Thread::STATE_PUBLISHED,
+            'type' => Thread::TYPE_MESSAGE,
         ]);
         $customer = Customer::factory()->create(['email' => 'test@example.com']);
 
-        $job = new SendConversationReply($conversation, [$thread], $customer);
+        $job = new SendConversationReply($conversation, $thread);
         $job->handle();
 
-        Mail::assertSent(ConversationReplyNotification::class);
+        Mail::assertSent(\App\Mail\CustomerReply::class);
     }
 
     public function test_send_conversation_reply_job_handles_long_email_body(): void
     {
         Mail::fake();
 
-        $conversation = Conversation::factory()->create();
+        $conversation = Conversation::factory()->create(['customer_email' => 'test@example.com']);
         $thread = Thread::factory()->withLargeBody()->create([
             'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+            'type' => Thread::TYPE_MESSAGE,
         ]);
         $customer = Customer::factory()->create(['email' => 'test@example.com']);
 
-        $job = new SendConversationReply($conversation, [$thread], $customer);
+        $job = new SendConversationReply($conversation, $thread);
         $job->handle();
 
-        Mail::assertSent(ConversationReplyNotification::class);
+        Mail::assertSent(\App\Mail\CustomerReply::class);
     }
 
     public function test_send_conversation_reply_job_is_queueable(): void
@@ -143,7 +154,7 @@ class JobsTest extends TestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
         $customer = Customer::factory()->create(['email' => 'test@example.com']);
 
-        $job = new SendConversationReply($conversation, [$thread], $customer);
+        $job = new SendConversationReply($conversation, $thread);
 
         $this->assertInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class, $job);
     }

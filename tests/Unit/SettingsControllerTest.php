@@ -372,12 +372,13 @@ class SettingsControllerTest extends UnitTestCase
             ->once()
             ->andReturn(true);
         \View::shouldReceive('make')
-            ->with('settings.security', [], [])
+            ->with('settings.security', \Mockery::any(), \Mockery::any())
             ->once()
             ->andReturn(\Mockery::mock(\Illuminate\Contracts\View\View::class));
 
         $controller = new SettingsController();
-        $response = $controller->security();
+        $request = \Illuminate\Http\Request::create('/settings/security', 'GET');
+        $response = $controller->security($request);
 
         $this->assertInstanceOf(\Illuminate\Contracts\View\View::class, $response);
     }
@@ -389,12 +390,14 @@ class SettingsControllerTest extends UnitTestCase
             ->once()
             ->andReturn(false);
         
-        $controller = \Mockery::mock(SettingsController::class)->makePartial();
-        $controller->shouldReceive('index')
+        \View::shouldReceive('make')
+            ->with('settings.index', \Mockery::any(), \Mockery::any())
             ->once()
             ->andReturn(\Mockery::mock(\Illuminate\Contracts\View\View::class));
 
-        $response = $controller->security();
+        $controller = new SettingsController();
+        $request = \Illuminate\Http\Request::create('/settings/security', 'GET');
+        $response = $controller->security($request);
 
         $this->assertInstanceOf(\Illuminate\Contracts\View\View::class, $response);
     }

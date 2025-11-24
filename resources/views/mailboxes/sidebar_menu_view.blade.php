@@ -34,6 +34,8 @@
         @else
             @include('mailboxes.partials.folders')
         @endif
+        
+        @action('mailbox.sidebar.menu', $mailbox)
     </nav>
 
     {{-- Action Buttons --}}

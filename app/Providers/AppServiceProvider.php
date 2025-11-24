@@ -19,7 +19,10 @@ use App\Policies\ConversationPolicy;
 use App\Policies\FolderPolicy;
 use App\Policies\MailboxPolicy;
 use App\Policies\ThreadPolicy;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -47,5 +50,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Mailbox::class, MailboxPolicy::class);
         Gate::policy(Thread::class, ThreadPolicy::class);
         Gate::policy(Folder::class, FolderPolicy::class);
+
+        // Monitor queue health
+        Event::listen(JobProcessed::class, function (JobProcessed $event) {
+            Cache::put('last_run_queue', now()->timestamp);
+        });
     }
 }

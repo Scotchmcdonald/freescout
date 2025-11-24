@@ -19,8 +19,10 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @action('layout.head')
     </head>
     <body class="font-sans antialiased">
+        @action('layout.body_start')
         <div class="min-h-screen bg-gray-100">
             @include('layouts.navigation')
 
@@ -42,5 +44,6 @@
                 @endif
             </main>
         </div>
+        @action('layout.body_end')
     </body>
 </html>

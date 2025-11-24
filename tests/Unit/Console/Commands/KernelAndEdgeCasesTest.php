@@ -50,6 +50,11 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         
         // Ensure clean state
         Cache::flush();
+
+        // Mock ModuleSource to prevent network calls and timeouts
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource->method('getModules')->willReturn([]);
+        $this->app->instance(\App\Services\ModuleSource::class, $mockModuleSource);
     }
 
     protected function tearDown(): void
@@ -1287,7 +1292,6 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         $commands = [
             ModuleBuild::class,
             ModuleInstall::class,
-            ModuleUpdate::class,
             Update::class,
         ];
         
@@ -1295,6 +1299,11 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             $command = new $commandClass();
             $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
         }
+
+        // Handle ModuleUpdate separately due to dependency
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $command = new ModuleUpdate($mockModuleSource);
+        $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
     }
 
     public function test_all_commands_have_handle_method(): void
@@ -1316,10 +1325,12 @@ class KernelAndEdgeCasesTest extends UnitTestCase
 
     public function test_all_commands_have_non_empty_descriptions(): void
     {
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+
         $commands = [
             new ModuleBuild(),
             new ModuleInstall(),
-            new ModuleUpdate(),
+            new ModuleUpdate($mockModuleSource),
             new Update(),
         ];
         
@@ -1331,10 +1342,12 @@ class KernelAndEdgeCasesTest extends UnitTestCase
 
     public function test_all_commands_have_unique_signatures(): void
     {
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+
         $commands = [
             new ModuleBuild(),
             new ModuleInstall(),
-            new ModuleUpdate(),
+            new ModuleUpdate($mockModuleSource),
             new Update(),
         ];
         

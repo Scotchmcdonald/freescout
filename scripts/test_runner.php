@@ -7,6 +7,13 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
+
+// --- CONFIGURATION ---
+// Files that should be run in isolation (own batch/process) to avoid conflicts or timeouts
+$isolatedTests = [
+    'tests/Unit/Console/Commands/KernelAndEdgeCasesTest.php',
+];
 
 // --- INITIALIZATION ---
 $output = new ConsoleOutput();
@@ -17,12 +24,17 @@ $baseDir = realpath(__DIR__.'/..');
 // Check for coverage flag and filter flag, clean argv
 $withCoverage = false;
 $filterPattern = null;
+$timeout = 60; // Default 1m
+
 foreach ($_SERVER['argv'] as $key => $value) {
     if ($value === '--coverage') {
         $withCoverage = true;
         unset($_SERVER['argv'][$key]);
     } elseif (strpos($value, '--filter=') === 0) {
         $filterPattern = substr($value, 9); // Extract after '--filter='
+        unset($_SERVER['argv'][$key]);
+    } elseif (strpos($value, '--timeout=') === 0) {
+        $timeout = (int)substr($value, 10);
         unset($_SERVER['argv'][$key]);
     }
 }
@@ -272,9 +284,34 @@ $io->section('Running Tests (Batched)');
 $startTime = microtime(true);
 
 $totalFiles = count($filesToRun);
+
+// Separate isolated files
+$regularFiles = [];
+$isolatedFiles = [];
+
+foreach ($filesToRun as $file) {
+    $isIsolated = false;
+    foreach ($isolatedTests as $isolatedTest) {
+        if (str_contains($file, $isolatedTest)) {
+            $isIsolated = true;
+            break;
+        }
+    }
+    if ($isIsolated) {
+        $isolatedFiles[] = $file;
+    } else {
+        $regularFiles[] = $file;
+    }
+}
+
 // Dynamic batch size: ~5% of total files, min 5, max 25 to balance speed vs memory
-$batchSize = max(5, min(25, (int)ceil($totalFiles * 0.033)));
-$chunks = array_chunk($filesToRun, $batchSize);
+$batchSize = max(5, min(25, (int)ceil(count($regularFiles) * 0.025)));
+$chunks = array_chunk($regularFiles, $batchSize);
+
+// Add isolated files as single-item chunks
+foreach ($isolatedFiles as $file) {
+    $chunks[] = [$file];
+}
 
 $executionProgressBar = $io->createProgressBar($totalFiles);
 
@@ -307,7 +344,7 @@ $executionProgressBar->setMessage('Initializing...'); // Set initial message
 $executionProgressBar->start();
 
 $allResultsOutput = '';
-$runningStats = ['Tests' => 0, 'Assertions' => 0, 'Errors' => 0, 'Failures' => 0, 'Skipped' => 0, 'Incomplete' => 0];
+$runningStats = ['Tests' => 0, 'Assertions' => 0, 'Errors' => 0, 'Failures' => 0, 'Skipped' => 0, 'Incomplete' => 0, 'TimedOut' => 0];
 
 foreach ($chunks as $chunkIndex => $chunkFiles) {
     $firstFile = basename($chunkFiles[0]);
@@ -322,18 +359,22 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
     $totalTestsRunSoFar = $runningStats['Tests'];
     $barStr = "";
     
-    if ($totalTestsRunSoFar > 0 && $filledChars > 0) {
+    if (($totalTestsRunSoFar > 0 || $runningStats['TimedOut'] > 0) && $filledChars > 0) {
         $counts = [
-            'Pass' => $totalTestsRunSoFar - $runningStats['Failures'] - $runningStats['Errors'] - $runningStats['Skipped'] - $runningStats['Incomplete'],
+            'Pass' => $runningStats['Tests'] - $runningStats['Failures'] - $runningStats['Errors'] - $runningStats['Skipped'] - $runningStats['Incomplete'],
             'Fail' => $runningStats['Failures'],
             'Err' => $runningStats['Errors'],
             'Skip' => $runningStats['Skipped'],
-            'Inc' => $runningStats['Incomplete']
+            'Inc' => $runningStats['Incomplete'],
+            'Time' => $runningStats['TimedOut']
         ];
         
+        $totalForBar = array_sum($counts);
+        if ($totalForBar == 0) $totalForBar = 1;
+
         $widths = [];
         foreach ($counts as $type => $count) {
-            $widths[$type] = ($count / $totalTestsRunSoFar) * $filledChars;
+            $widths[$type] = ($count / $totalForBar) * $filledChars;
         }
         
         $roundedWidths = array_map('round', $widths);
@@ -368,6 +409,7 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
         $barStr .= "<fg=red>" . str_repeat("▓", max(0, (int)$roundedWidths['Err'])) . "</>";
         $barStr .= "<fg=blue>" . str_repeat("▓", max(0, (int)$roundedWidths['Skip'])) . "</>";
         $barStr .= "<fg=yellow>" . str_repeat("▓", max(0, (int)$roundedWidths['Inc'])) . "</>";
+        $barStr .= "<fg=magenta>" . str_repeat("▓", max(0, (int)$roundedWidths['Time'])) . "</>";
     } else {
         if ($filledChars > 0) {
              $barStr .= "<fg=gray>" . str_repeat("▓", $filledChars) . "</>";
@@ -378,12 +420,13 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
     $executionProgressBar->setMessage($barStr, 'custom_bar');
 
     $statsMsg = sprintf(
-        "<fg=green>Pass: %d</> | <fg=#FFA500>Fail: %d</> | <fg=red>Err: %d</> | <fg=blue>Skip: %d</> | <fg=yellow>Inc: %d</>",
+        "<fg=green>Pass: %d</> | <fg=#FFA500>Fail: %d</> | <fg=red>Err: %d</> | <fg=blue>Skip: %d</> | <fg=yellow>Inc: %d</> | <fg=magenta>Time: %d</>",
         $runningStats['Tests'] - $runningStats['Failures'] - $runningStats['Errors'] - $runningStats['Skipped'] - $runningStats['Incomplete'],
         $runningStats['Failures'],
         $runningStats['Errors'],
         $runningStats['Skipped'],
-        $runningStats['Incomplete']
+        $runningStats['Incomplete'],
+        $runningStats['TimedOut']
     );
     
     $executionProgressBar->setMessage("Batch " . ($chunkIndex + 1) . "/" . count($chunks) . " (starts with {$firstFile})\n " . $statsMsg);
@@ -408,16 +451,61 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
     // Merge command parts with the files
     $command = array_merge($commandParts, $chunkFiles);
     
-    $process = new Process($command, $baseDir, null, null, 600);
-    $process->run();
+    $process = new Process($command, $baseDir, null, null, $timeout);
     
-    $output = $process->getOutput();
+    $output = '';
+    $errorOutput = '';
+    $timedOut = false;
+
+    try {
+        $process->run();
+        $output = $process->getOutput();
+        $errorOutput = $process->getErrorOutput();
+    } catch (ProcessTimedOutException $e) {
+        $timedOut = true;
+        $msg = "Batch " . ($chunkIndex + 1) . " TIMED OUT. Retrying individually.";
+        file_put_contents("{$reportsDir}/timeout.log", $msg . "\nFiles:\n" . implode("\n", $chunkFiles) . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+        $io->warning($msg);
+    }
+
+    if ($timedOut) {
+        $output = ''; // Reset output for aggregation
+        $errorOutput = '';
+        foreach ($chunkFiles as $file) {
+            $singleCommand = [$baseDir.'/vendor/bin/phpunit', '--testdox'];
+            
+            if ($withCoverage) {
+                $singleCommand[] = '--coverage-php';
+                $singleCommand[] = $coveragePartialsDir . '/batch_' . ($chunkIndex + 1) . '_' . basename($file) . '.cov';
+            }
+            
+            if ($filterPattern !== null) {
+                $singleCommand[] = '--filter';
+                $singleCommand[] = $phpunitFilter;
+            }
+            
+            $singleCommand[] = $file;
+            
+            $p = new Process($singleCommand, $baseDir, null, null, $timeout);
+            try {
+                $p->run();
+                $output .= $p->getOutput();
+                $errorOutput .= $p->getErrorOutput();
+            } catch (ProcessTimedOutException $e) {
+                $count = $fileTestCounts[$file] ?? 0;
+                $runningStats['TimedOut'] += $count;
+                $msg = ">>> CULPRIT FOUND: File TIMED OUT: $file";
+                file_put_contents("{$reportsDir}/timeout.log", $msg . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+                $io->error($msg);
+            }
+        }
+    }
+    
     $logFileName = 'batch_' . ($chunkIndex + 1) . '.log';
     file_put_contents("{$reportsDir}/{$logFileName}", $output);
     $allResultsOutput .= $output . PHP_EOL;
 
     // --- Log Errors and Failures separately ---
-    $errorOutput = $process->getErrorOutput();
     if (!empty($errorOutput)) {
         // Check if it's purely warnings/notices/deprecations
         // If the output contains "Fatal error" or "Parse error", it stays in error.log
@@ -438,41 +526,53 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
     $foundSummary = false;
     
     // Extract Failures from STDOUT (Standard Format)
-    if (preg_match('/There (?:was|were) \d+ failure(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|risky|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
-        $failureContent = "Batch " . ($chunkIndex + 1) . " Failures:\n" . trim($matches[1]) . "\n\n" . str_repeat('-', 40) . "\n\n";
-        file_put_contents("{$reportsDir}/failure.log", $failureContent, FILE_APPEND);
+    if (preg_match_all('/There (?:was|were) \d+ failure(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|risky|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        foreach ($matches[1] as $match) {
+            $failureContent = "Batch " . ($chunkIndex + 1) . " Failures:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n";
+            file_put_contents("{$reportsDir}/failure.log", $failureContent, FILE_APPEND);
+        }
         $foundSummary = true;
     }
 
     // Extract Errors from STDOUT (Standard Format)
-    if (preg_match('/There (?:was|were) \d+ error(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:failure|risky|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
-        $errorContent = "Batch " . ($chunkIndex + 1) . " Errors:\n" . trim($matches[1]) . "\n\n" . str_repeat('-', 40) . "\n\n";
-        file_put_contents("{$reportsDir}/error.log", $errorContent, FILE_APPEND);
+    if (preg_match_all('/There (?:was|were) \d+ error(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:failure|risky|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        foreach ($matches[1] as $match) {
+            $errorContent = "Batch " . ($chunkIndex + 1) . " Errors:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n";
+            file_put_contents("{$reportsDir}/error.log", $errorContent, FILE_APPEND);
+        }
         $foundSummary = true;
     }
 
     // Extract Skipped from STDOUT
-    if (preg_match('/There (?:was|were) \d+ skipped test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|risky|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
-        $skippedContent = "Batch " . ($chunkIndex + 1) . " Skipped:\n" . trim($matches[1]) . "\n\n" . str_repeat('-', 40) . "\n\n";
-        file_put_contents("{$reportsDir}/skipped.log", $skippedContent, FILE_APPEND);
+    if (preg_match_all('/There (?:was|were) \d+ skipped test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|risky|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        foreach ($matches[1] as $match) {
+            $skippedContent = "Batch " . ($chunkIndex + 1) . " Skipped:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n";
+            file_put_contents("{$reportsDir}/skipped.log", $skippedContent, FILE_APPEND);
+        }
     }
 
     // Extract Incomplete from STDOUT
-    if (preg_match('/There (?:was|were) \d+ incomplete test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|risky|skipped)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
-        $incompleteContent = "Batch " . ($chunkIndex + 1) . " Incomplete:\n" . trim($matches[1]) . "\n\n" . str_repeat('-', 40) . "\n\n";
-        file_put_contents("{$reportsDir}/incomplete.log", $incompleteContent, FILE_APPEND);
+    if (preg_match_all('/There (?:was|were) \d+ incomplete test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|risky|skipped)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        foreach ($matches[1] as $match) {
+            $incompleteContent = "Batch " . ($chunkIndex + 1) . " Incomplete:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n";
+            file_put_contents("{$reportsDir}/incomplete.log", $incompleteContent, FILE_APPEND);
+        }
     }
 
     // Extract Risky from STDOUT
-    if (preg_match('/There (?:was|were) \d+ risky test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
-        $riskyContent = "Batch " . ($chunkIndex + 1) . " Risky:\n" . trim($matches[1]) . "\n\n" . str_repeat('-', 40) . "\n\n";
-        file_put_contents("{$reportsDir}/risky.log", $riskyContent, FILE_APPEND);
+    if (preg_match_all('/There (?:was|were) \d+ risky test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        foreach ($matches[1] as $match) {
+            $riskyContent = "Batch " . ($chunkIndex + 1) . " Risky:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n";
+            file_put_contents("{$reportsDir}/risky.log", $riskyContent, FILE_APPEND);
+        }
     }
 
     // Extract PHPUnit test runner warnings
-    if (preg_match('/There (?:was|were) (\d+) PHPUnit test runner warning(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were)|OK, but|FAILURES!|ERRORS!|Tests:)|$)/s', $output, $matches)) {
-        $warningContent = "Batch " . ($chunkIndex + 1) . " - PHPUnit Warnings (" . $matches[1] . "):\n" . trim($matches[2]) . "\n\n" . str_repeat('-', 40) . "\n\n";
-        file_put_contents("{$reportsDir}/warnings.log", $warningContent, FILE_APPEND);
+    if (preg_match_all('/There (?:was|were) (\d+) PHPUnit test runner warning(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were)|OK, but|FAILURES!|ERRORS!|Tests:)|$)/s', $output, $matches, PREG_SET_ORDER)) {
+        foreach ($matches as $match) {
+            $warningContent = "Batch " . ($chunkIndex + 1) . " - PHPUnit Warnings (" . $match[1] . "):\n" . trim($match[2]) . "\n\n" . str_repeat('-', 40) . "\n\n";
+            file_put_contents("{$reportsDir}/warnings.log", $warningContent, FILE_APPEND);
+        }
     }
 
     // Extract Deprecations from STDOUT
@@ -535,19 +635,22 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
 
     // Parse batch output to update stats
     // 1. Match standard PHPUnit summary line
-    if (preg_match('/(Tests:.*)/', $output, $matches)) {
-        $line = $matches[1];
-        preg_match_all('/(Tests|Assertions|Errors|Failures|Risky|Skipped|Incomplete|PHPUnit Warnings): (\d+)/', $line, $statMatches, PREG_SET_ORDER);
-        foreach ($statMatches as $match) {
-            if (isset($runningStats[$match[1]])) {
-                $runningStats[$match[1]] += (int)$match[2];
+    if (preg_match_all('/(Tests:.*)/', $output, $matches)) {
+        foreach ($matches[1] as $line) {
+            preg_match_all('/(Tests|Assertions|Errors|Failures|Risky|Skipped|Incomplete|PHPUnit Warnings): (\d+)/', $line, $statMatches, PREG_SET_ORDER);
+            foreach ($statMatches as $match) {
+                if (isset($runningStats[$match[1]])) {
+                    $runningStats[$match[1]] += (int)$match[2];
+                }
             }
         }
     } 
     // 2. Match "OK (X tests, Y assertions)"
-    elseif (preg_match('/OK \((\d+) tests?, (\d+) assertions?\)/', $output, $matches)) {
-        $runningStats['Tests'] += (int)$matches[1];
-        $runningStats['Assertions'] += (int)$matches[2];
+    if (preg_match_all('/OK \((\d+) tests?, (\d+) assertions?\)/', $output, $matches, PREG_SET_ORDER)) {
+        foreach ($matches as $match) {
+            $runningStats['Tests'] += (int)$match[1];
+            $runningStats['Assertions'] += (int)$match[2];
+        }
     }
 
     $executionProgressBar->advance(count($chunkFiles));
@@ -563,7 +666,7 @@ $executionTime = microtime(true) - $startTime;
 $io->writeln("Total Time: " . number_format($executionTime, 2) . "s");
 
 $io->section('Log Files');
-$logFiles = ['error.log', 'failure.log', 'skipped.log', 'incomplete.log', 'risky.log', 'warnings.log', 'deprecation.log'];
+$logFiles = ['error.log', 'failure.log', 'skipped.log', 'incomplete.log', 'risky.log', 'warnings.log', 'deprecation.log', 'timeout.log'];
 foreach ($logFiles as $file) {
     if (file_exists("{$reportsDir}/{$file}")) {
         $io->writeln(" - {$reportsDir}/{$file}");
@@ -571,7 +674,7 @@ foreach ($logFiles as $file) {
 }
 $io->newLine();
 
-$summary = ['Tests' => 0, 'Assertions' => 0, 'Errors' => 0, 'Failures' => 0, 'Risky' => 0, 'Skipped' => 0, 'Incomplete' => 0, 'PHPUnit Warnings' => 0];
+$summary = ['Tests' => 0, 'Assertions' => 0, 'Errors' => 0, 'Failures' => 0, 'Risky' => 0, 'Skipped' => 0, 'Incomplete' => 0, 'PHPUnit Warnings' => 0, 'TimedOut' => $runningStats['TimedOut']];
 $failureDetails = '';
 
 // Find all summary lines (e.g., "Tests: 123, Assertions: 456, ...")
@@ -607,6 +710,7 @@ foreach ($summary as $key => $value) {
         switch ($key) {
             case 'Errors':
             case 'Failures':
+            case 'TimedOut':
                 $color = 'red';
                 break;
             case 'Risky':

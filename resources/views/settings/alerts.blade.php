@@ -6,8 +6,10 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex flex-col md:flex-row">
+            @include('settings.partials.sidebar')
+            
+            <div class="flex-1 bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     @if(session('success'))
                         <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4">

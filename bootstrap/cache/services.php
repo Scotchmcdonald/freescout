@@ -36,8 +36,10 @@
     32 => 'Termwind\\Laravel\\TermwindServiceProvider',
     33 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
     34 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
-    35 => 'App\\Providers\\EventServiceProvider',
-    36 => 'App\\Providers\\ModuleCompatibilityServiceProvider',
+    35 => 'TorMorten\\Eventy\\EventServiceProvider',
+    36 => 'TorMorten\\Eventy\\EventBladeServiceProvider',
+    37 => 'App\\Providers\\EventServiceProvider',
+    38 => 'App\\Providers\\ModuleCompatibilityServiceProvider',
   ),
   'eager' => 
   array (
@@ -59,8 +61,10 @@
     15 => 'Termwind\\Laravel\\TermwindServiceProvider',
     16 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
     17 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
-    18 => 'App\\Providers\\EventServiceProvider',
-    19 => 'App\\Providers\\ModuleCompatibilityServiceProvider',
+    18 => 'TorMorten\\Eventy\\EventServiceProvider',
+    19 => 'TorMorten\\Eventy\\EventBladeServiceProvider',
+    20 => 'App\\Providers\\EventServiceProvider',
+    21 => 'App\\Providers\\ModuleCompatibilityServiceProvider',
   ),
   'deferred' => 
   array (

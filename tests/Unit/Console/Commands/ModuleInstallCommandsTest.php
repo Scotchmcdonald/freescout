@@ -27,7 +27,7 @@ use Tests\UnitTestCase;
  *
  * Total: 54 tests targeting 95%+ coverage of ModuleInstall command
  */
-#[RunTestsInSeparateProcesses]
+// #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState(false)]
 class ModuleInstallCommandsTest extends UnitTestCase
 {

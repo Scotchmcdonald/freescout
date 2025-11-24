@@ -218,6 +218,46 @@ class ImapService
             'timeout' => 30,
         ];
 
+        // Check for OAuth
+        $meta = $mailbox->meta ?? [];
+        if (!empty($meta['oauth']) && !empty($meta['oauth']['a_token'])) {
+            // Check if token is expired
+            $issuedOn = $meta['oauth']['issued_on'] ?? null;
+            $expiresIn = $meta['oauth']['expires_in'] ?? 0;
+            
+            if ($issuedOn && (strtotime($issuedOn) + $expiresIn) < time()) {
+                // Refresh token
+                $provider = $meta['oauth']['provider'] ?? \App\Misc\OAuth::PROVIDER_MICROSOFT;
+                $params = [
+                    'client_id' => $mailbox->in_username, // Assuming incoming username is client ID
+                    'client_secret' => $mailbox->in_password, // Assuming incoming password is client secret
+                    'refresh_token' => $meta['oauth']['r_token'] ?? null,
+                ];
+                
+                // Decrypt secret if needed
+                try {
+                    $params['client_secret'] = decrypt($params['client_secret']);
+                } catch (\Exception $e) {}
+                
+                $tokenData = \App\Misc\OAuth::getAccessToken($provider, $params);
+                
+                if (!empty($tokenData['a_token'])) {
+                    $meta['oauth'] = $tokenData;
+                    $mailbox->meta = $meta;
+                    $mailbox->save();
+                } else {
+                    Log::error('Failed to refresh OAuth token', ['mailbox_id' => $mailbox->id, 'error' => $tokenData['error'] ?? 'Unknown']);
+                }
+            }
+            
+            // Use OAuth token
+            if (!empty($meta['oauth']['a_token'])) {
+                $config['username'] = $mailbox->email; // Username is email for OAuth
+                $config['password'] = $meta['oauth']['a_token'];
+                $config['authentication'] = 'oauth';
+            }
+        }
+
         $cm = new ClientManager;
 
         return $cm->make($config);

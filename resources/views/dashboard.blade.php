@@ -7,9 +7,10 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            @filter('dashboard.before', '')
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-medium mb-4">Welcome, {{ $user->full_name }}!</h3>
+                    <h3 class="text-lg font-medium mb-4">Welcome, {{ $user->full_name }}! @action('dashboard.heading_append')</h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div class="bg-blue-100 p-4 rounded-lg">
@@ -33,6 +34,7 @@
                         <ul class="space-y-2">
                             @forelse($mailboxes as $mailbox)
                                 <li class="border-l-4 border-blue-500 pl-3">
+                                    @action('dash_card.before_mailbox_name', $mailbox)
                                     <a href="{{ route('mailboxes.view', $mailbox->id) }}" class="text-blue-600 hover:text-blue-800">
                                         {{ $mailbox->name }} ({{ $mailbox->email }})
                                     </a>
@@ -42,8 +44,11 @@
                             @endforelse
                         </ul>
                     </div>
+
+                    @action('dashboard.modules')
                 </div>
             </div>
+            @filter('dashboard.after', '')
         </div>
     </div>
 </x-app-layout>

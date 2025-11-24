@@ -15,7 +15,9 @@
         "mews/purifier": "^3.4",
         "nwidart/laravel-modules": "^11.0",
         "spatie/laravel-activitylog": "^4.8",
-        "webklex/php-imap": "^6.2"
+        "tormjens/eventy": "^0.8.0",
+        "webklex/php-imap": "^6.2",
+        "wikimedia/composer-merge-plugin": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -33,7 +35,8 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Modules\\": "Modules/"
         }
     },
     "autoload-dev": {
@@ -70,6 +73,11 @@
     "extra": {
         "laravel": {
             "dont-discover": []
+        },
+        "merge-plugin": {
+            "include": [
+                "Modules/*/composer.json"
+            ]
         }
     },
     "config": {

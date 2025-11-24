@@ -506,4 +506,156 @@ class MailboxController extends Controller
 
         return response()->json($response);
     }
+
+    /**
+     * Connect to OAuth provider.
+     */
+    public function oauthConnect(Request $request, $provider)
+    {
+        $mailboxId = $request->input('mailbox_id');
+        if (!$mailboxId) {
+            return redirect()->back()->with('error', 'Mailbox ID is missing');
+        }
+        
+        $mailbox = Mailbox::findOrFail($mailboxId);
+        $this->authorize('update', $mailbox);
+        
+        session(['oauth_mailbox_id' => $mailbox->id]);
+        
+        $type = $request->input('type', 'incoming');
+        session(['oauth_type' => $type]);
+        
+        if ($type == 'incoming') {
+            $clientId = $mailbox->in_username;
+        } else {
+            $clientId = $mailbox->out_username;
+        }
+        
+        if (!$clientId) {
+             return redirect()->back()->with('error', 'Client ID is missing in settings');
+        }
+        
+        $params = [
+            'client_id' => $clientId,
+            'state' => $mailbox->id,
+        ];
+        
+        $url = \App\Misc\OAuth::getAuthorizationUrl($provider, $params);
+        
+        return redirect()->away($url);
+    }
+
+    /**
+     * OAuth Callback.
+     */
+    public function oauthCallback(Request $request)
+    {
+        $code = $request->input('code');
+        $state = $request->input('state');
+        $error = $request->input('error');
+        
+        if ($error) {
+            return redirect()->route('mailboxes.index')->with('error', 'OAuth Error: ' . $error);
+        }
+        
+        if (!$state) {
+             $state = session('oauth_mailbox_id');
+        }
+        
+        if (!$state) {
+            return redirect()->route('mailboxes.index')->with('error', 'Unknown mailbox');
+        }
+        
+        $mailbox = Mailbox::findOrFail($state);
+        $this->authorize('update', $mailbox);
+        
+        $type = session('oauth_type', 'incoming');
+        
+        if ($type == 'incoming') {
+            $clientId = $mailbox->in_username;
+            try {
+                $clientSecret = decrypt($mailbox->in_password);
+            } catch (\Exception $e) {
+                $clientSecret = $mailbox->in_password;
+            }
+        } else {
+            $clientId = $mailbox->out_username;
+            try {
+                $clientSecret = decrypt($mailbox->out_password);
+            } catch (\Exception $e) {
+                $clientSecret = $mailbox->out_password;
+            }
+        }
+        
+        $params = [
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
+            'code' => $code,
+        ];
+        
+        $provider = \App\Misc\OAuth::PROVIDER_MICROSOFT;
+        
+        $tokenData = \App\Misc\OAuth::getAccessToken($provider, $params);
+        
+        if (!empty($tokenData['error'])) {
+            return redirect()->route('mailboxes.connection.'.$type, $mailbox)->with('error', 'Failed to get access token: ' . $tokenData['error']);
+        }
+        
+        $meta = $mailbox->meta ?? [];
+        $meta['oauth'] = $tokenData;
+        $mailbox->meta = $meta;
+        $mailbox->save();
+        
+        return redirect()->route('mailboxes.connection.'.$type, $mailbox)->with('success', 'Connected successfully');
+    }
+    
+    /**
+     * Disconnect OAuth.
+     */
+    public function oauthDisconnect(Request $request, Mailbox $mailbox)
+    {
+        $this->authorize('update', $mailbox);
+        
+        $meta = $mailbox->meta ?? [];
+        unset($meta['oauth']);
+        $mailbox->meta = $meta;
+        $mailbox->save();
+        
+        return redirect()->back()->with('success', 'Disconnected successfully');
+    }
+    
+    /**
+     * Send a test email to verify SMTP settings.
+     */
+    public function sendTestEmail(Request $request, Mailbox $mailbox, \App\Services\SmtpService $smtpService): JsonResponse
+    {
+        $this->authorize('update', $mailbox);
+
+        $request->validate([
+            'test_email' => 'required|email',
+        ]);
+
+        $testEmail = $request->input('test_email');
+
+        try {
+            $result = $smtpService->testConnection($mailbox, $testEmail);
+
+            if ($result['success']) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $result['message'],
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $result['message'],
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

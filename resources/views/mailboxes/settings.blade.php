@@ -100,6 +100,8 @@
                     <div id="fetch-result" class="mt-4 hidden"></div>
                 </div>
             </div>
+
+            @action('mailbox.settings.menu', $mailbox)
         </div>
     </div>
     

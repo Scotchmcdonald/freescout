@@ -131,8 +131,7 @@ class SmtpService
             'from_email' => $mailbox->email,
         ]);
 
-        Config::set('mail.default', 'smtp');
-        Config::set('mail.mailers.smtp', [
+        $config = [
             'transport' => 'smtp',
             'host' => $mailbox->out_server,
             'port' => $mailbox->out_port,
@@ -140,7 +139,50 @@ class SmtpService
             'username' => $mailbox->out_username,
             'password' => $mailbox->out_password,
             'timeout' => null,
-        ]);
+        ];
+        
+        // Check for OAuth
+        $meta = $mailbox->meta ?? [];
+        if (!empty($meta['oauth']) && !empty($meta['oauth']['a_token'])) {
+            // Check if token is expired
+            $issuedOn = $meta['oauth']['issued_on'] ?? null;
+            $expiresIn = $meta['oauth']['expires_in'] ?? 0;
+            
+            if ($issuedOn && (strtotime($issuedOn) + $expiresIn) < time()) {
+                // Refresh token
+                $provider = $meta['oauth']['provider'] ?? \App\Misc\OAuth::PROVIDER_MICROSOFT;
+                $params = [
+                    'client_id' => $mailbox->out_username, // Assuming outgoing username is client ID
+                    'client_secret' => $mailbox->out_password, // Assuming outgoing password is client secret
+                    'refresh_token' => $meta['oauth']['r_token'] ?? null,
+                ];
+                
+                // Decrypt secret if needed
+                try {
+                    $params['client_secret'] = decrypt($params['client_secret']);
+                } catch (\Exception $e) {}
+                
+                $tokenData = \App\Misc\OAuth::getAccessToken($provider, $params);
+                
+                if (!empty($tokenData['a_token'])) {
+                    $meta['oauth'] = $tokenData;
+                    $mailbox->meta = $meta;
+                    $mailbox->save();
+                } else {
+                    Log::error('Failed to refresh OAuth token for SMTP', ['mailbox_id' => $mailbox->id, 'error' => $tokenData['error'] ?? 'Unknown']);
+                }
+            }
+            
+            // Use OAuth token
+            if (!empty($meta['oauth']['a_token'])) {
+                $config['username'] = $mailbox->email; // Username is email for OAuth
+                $config['password'] = $meta['oauth']['a_token'];
+                $config['auth_mode'] = 'XOAUTH2';
+            }
+        }
+
+        Config::set('mail.default', 'smtp');
+        Config::set('mail.mailers.smtp', $config);
         Config::set('mail.from', [
             'address' => $mailbox->email,
             'name' => $mailbox->name,

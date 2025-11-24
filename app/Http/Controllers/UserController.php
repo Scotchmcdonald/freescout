@@ -59,6 +59,14 @@ class UserController extends Controller
         // Password will be hashed by the User model cast
         // $validated['password'] = Hash::make($validated['password']);
 
+        // Remove null values for timezone and locale to use database defaults
+        if (empty($validated['timezone'])) {
+            unset($validated['timezone']);
+        }
+        if (empty($validated['locale'])) {
+            unset($validated['locale']);
+        }
+
         $user = User::create($validated);
 
         return redirect()
@@ -120,6 +128,14 @@ class UserController extends Controller
         // Extract mailboxes before updating user
         $mailboxes = $validated['mailboxes'] ?? null;
         unset($validated['mailboxes']);
+
+        // Remove null values for timezone and locale to use database defaults or keep existing
+        if (empty($validated['timezone'])) {
+            unset($validated['timezone']);
+        }
+        if (empty($validated['locale'])) {
+            unset($validated['locale']);
+        }
 
         $user->update($validated);
 

@@ -1140,7 +1140,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $mockModule = $this->createMock(\Nwidart\Modules\Module::class);
         $mockModule->expects($this->once())
             ->method('enable');
-        $mockModule->expects($this->exactly(3)) // Called 3 times: Log, Migration, Success message
+        $mockModule->expects($this->exactly(3)) // Called 3 times: Log, Install command, Success message
             ->method('getName')
             ->willReturn('TestModule');
 
@@ -1150,7 +1150,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             ->andReturn($mockModule);
 
         Artisan::shouldReceive('call')
-            ->with('module:migrate', ['module' => 'TestModule'])
+            ->with('freescout:module-install', ['module_alias' => 'TestModule'], \Mockery::any())
             ->once();
         
         Artisan::shouldReceive('call')
@@ -1164,7 +1164,8 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/enable/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ModulesController;
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $controller = new ModulesController($mockModuleSource);
         $response = $controller->enable($request, 'testmodule');
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -1183,7 +1184,8 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/enable/nonexistent', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ModulesController;
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $controller = new ModulesController($mockModuleSource);
         $response = $controller->enable($request, 'nonexistent');
 
         $this->assertEquals(404, $response->getStatusCode());
@@ -1211,7 +1213,8 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/enable/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ModulesController;
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $controller = new ModulesController($mockModuleSource);
         $response = $controller->enable($request, 'testmodule');
 
         $this->assertEquals(500, $response->getStatusCode());
@@ -1237,17 +1240,14 @@ class ControllerCoverageTest extends IntegrationTestCase
             ->andReturn($mockModule);
 
         Artisan::shouldReceive('call')
-            ->with('cache:clear')
-            ->once();
-        
-        Artisan::shouldReceive('call')
-            ->with('config:clear')
+            ->with('freescout:clear-cache', [], \Mockery::any())
             ->once();
 
         $request = Request::create('/modules/disable/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ModulesController;
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $controller = new ModulesController($mockModuleSource);
         $response = $controller->disable($request, 'testmodule');
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -1266,7 +1266,8 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/disable/nonexistent', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ModulesController;
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $controller = new ModulesController($mockModuleSource);
         $response = $controller->disable($request, 'nonexistent');
 
         $this->assertEquals(404, $response->getStatusCode());
@@ -1291,7 +1292,8 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/disable/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ModulesController;
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $controller = new ModulesController($mockModuleSource);
         $response = $controller->disable($request, 'testmodule');
 
         $this->assertEquals(500, $response->getStatusCode());
@@ -1341,7 +1343,8 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/delete/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ModulesController;
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $controller = new ModulesController($mockModuleSource);
         $response = $controller->delete($request, 'testmodule');
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -1389,7 +1392,8 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/delete/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ModulesController;
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $controller = new ModulesController($mockModuleSource);
         $response = $controller->delete($request, 'testmodule');
 
         if ($response->getStatusCode() !== 200) {
@@ -1409,7 +1413,8 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/delete/nonexistent', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ModulesController;
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $controller = new ModulesController($mockModuleSource);
         $response = $controller->delete($request, 'nonexistent');
 
         $this->assertEquals(404, $response->getStatusCode());
@@ -1442,7 +1447,8 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/delete/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new ModulesController;
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $controller = new ModulesController($mockModuleSource);
         $response = $controller->delete($request, 'testmodule');
 
         $this->assertEquals(500, $response->getStatusCode());

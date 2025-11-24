@@ -92,7 +92,14 @@ class ConversationController extends Controller
             })
             ->get();
 
-        return view('conversations.show', compact('conversation', 'folders'));
+        // Fetch draft for the current user
+        $draft = $conversation->threads()
+            ->where('user_id', $user->id)
+            ->where('type', Thread::TYPE_DRAFT)
+            ->where('state', Thread::STATE_DRAFT)
+            ->first();
+
+        return view('conversations.show', compact('conversation', 'folders', 'draft'));
     }
 
     /**
@@ -344,11 +351,10 @@ class ConversationController extends Controller
                 // Send email notification if it's a reply (not a note)
                 $type = $validated['type'] ?? 1;
                 if ($type == 1) {
-                    // \App\Jobs\SendConversationReply::dispatch(
-                    //     $conversation,
-                    //     $thread,
-                    //     $conversation->customer_email
-                    // );
+                    \App\Jobs\SendConversationReply::dispatch(
+                        $conversation,
+                        $thread
+                    )->delay(now()->addSeconds(10));
                 }
 
                 // Return appropriate response based on request expectation
@@ -408,7 +414,11 @@ class ConversationController extends Controller
                         // @phpstan-ignore-next-line
                         $q->where('first_name', 'like', "%{$searchQuery}%")
                             // @phpstan-ignore-next-line
-                            ->orWhere('last_name', 'like', "%{$searchQuery}%");
+                            ->orWhere('last_name', 'like', "%{$searchQuery}%")
+                            ->orWhere('phones', 'like', "%{$searchQuery}%")
+                            ->orWhereHas('emails', function ($q) use ($searchQuery) {
+                                $q->where('email', 'like', "%{$searchQuery}%");
+                            });
                     });
             });
 
@@ -1056,5 +1066,113 @@ class ConversationController extends Controller
         }
 
         return back()->with('success', 'Conversations updated successfully.');
+    }
+
+    /**
+     * Forward a conversation thread.
+     */
+    public function forward(Request $request, Conversation $conversation, Thread $thread): RedirectResponse
+    {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
+
+        // Check access
+        if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
+            abort(403);
+        }
+
+        // Create new conversation draft
+        $newConversation = new Conversation;
+        
+        // Generate new conversation number
+        $maxNumber = Conversation::max('number');
+        $currentNumber = is_numeric($maxNumber) ? (int)$maxNumber : 0;
+        $newConversation->number = $currentNumber + 1;
+        
+        $newConversation->type = 1; // Email
+        $newConversation->subject = 'Fwd: ' . $conversation->subject;
+        $newConversation->mailbox_id = $conversation->mailbox_id;
+        $newConversation->folder_id = $conversation->mailbox->folders()->where('type', 1)->first()->id ?? 1;
+        $newConversation->source_via = 1; // User
+        $newConversation->source_type = 2; // Web
+        $newConversation->status = 1; // Active
+        $newConversation->state = 1; // Draft
+        $newConversation->user_id = $user->id;
+        $newConversation->created_by_user_id = $user->id;
+        $newConversation->preview = '';
+        $newConversation->save();
+
+        // Create draft thread
+        $newThread = new Thread;
+        $newThread->conversation_id = $newConversation->id;
+        $newThread->user_id = $user->id;
+        $newThread->type = 5; // Draft
+        $newThread->status = 1;
+        $newThread->state = 1; // Draft
+        $newThread->body = "<br><br>---------- Forwarded message ---------<br>From: {$thread->from}<br>Date: {$thread->created_at}<br>Subject: {$conversation->subject}<br>To: " . implode(', ', $thread->to ?? []) . "<br><br>" . $thread->body;
+        $newThread->from = $conversation->mailbox->email;
+        $newThread->created_by_user_id = $user->id;
+        $newThread->source_via = 1; // User
+        $newThread->source_type = 2; // Web
+        $newThread->save();
+
+        // Clone attachments
+        if ($thread->has_attachments) {
+            foreach ($thread->attachments as $attachment) {
+                $newAttachment = $attachment->replicate();
+                $newAttachment->thread_id = $newThread->id;
+                $newAttachment->save();
+            }
+        }
+
+        return redirect()->route('conversations.show', $newConversation)
+            ->with('success', 'Conversation forwarded. You can now edit and send it.');
+    }
+
+    /**
+     * Undo sending a reply.
+     */
+    public function undoSend(Request $request, Conversation $conversation, Thread $thread): RedirectResponse|JsonResponse
+    {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+
+        if (! $user) {
+            abort(401);
+        }
+
+        // Check access
+        if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
+            abort(403);
+        }
+
+        // Verify thread belongs to conversation
+        if ($thread->conversation_id !== $conversation->id) {
+            abort(404, 'Thread not found in this conversation');
+        }
+
+        // Check if thread is eligible for undo (e.g. created within last 15 seconds)
+        // We gave 10 seconds delay, so let's allow 15 seconds to be safe/generous
+        if ($thread->created_at && $thread->created_at->diffInSeconds(now()) > 15) {
+             return back()->withErrors(['error' => 'Undo time limit expired']);
+        }
+
+        // Change state to Draft
+        $thread->update([
+            'state' => Thread::STATE_DRAFT, // 1
+            'type' => Thread::TYPE_DRAFT, // 5
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()
+            ->route('conversations.show', $conversation)
+            ->with('success', 'Sending undone. Reply saved as draft.');
     }
 }

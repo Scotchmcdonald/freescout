@@ -26,6 +26,9 @@ class DashboardController extends Controller
             ? Mailbox::all()
             : $user->mailboxes;
 
+        // Filter mailboxes (Eventy hook)
+        $mailboxes = \Eventy::filter('dashboard.mailboxes', $mailboxes);
+
         // Get active conversations count
         $activeConversations = Conversation::whereIn('mailbox_id', $mailboxes->pluck('id'))
             ->where('status', 1) // Active status

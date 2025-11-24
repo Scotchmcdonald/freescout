@@ -25,15 +25,10 @@ class SendConversationReply implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @param  Conversation  $conversation
-     * @param  array<mixed>  $replies
-     * @param  Customer  $customer
      */
     public function __construct(
         public Conversation $conversation,
-        public array $replies,
-        public Customer $customer
+        public \App\Models\Thread $thread
     ) {}
 
     /**
@@ -41,21 +36,25 @@ class SendConversationReply implements ShouldQueue
      */
     public function handle(): void
     {
-        if (!empty($this->replies)) {
-             $lastReply = end($this->replies);
-             
-             // Ensure conversation has mailbox loaded
-             if (!$this->conversation->relationLoaded('mailbox')) {
-                 $this->conversation->load('mailbox');
-             }
-             
-             if ($lastReply instanceof \App\Models\Thread) {
-                 $customerEmail = $this->customer->getMainEmail();
-                 if ($customerEmail) {
-                     Mail::to($customerEmail)
-                        ->send(new ConversationReplyNotification($this->conversation, $lastReply));
-                 }
-             }
+        // Reload thread to check current state
+        $this->thread->refresh();
+
+        // Check if thread is still valid for sending
+        // Must be Published (2) and Message type (1)
+        if ($this->thread->state !== \App\Models\Thread::STATE_PUBLISHED || $this->thread->type !== \App\Models\Thread::TYPE_MESSAGE) {
+            return;
+        }
+
+        // Ensure conversation has mailbox loaded
+        if (!$this->conversation->relationLoaded('mailbox')) {
+            $this->conversation->load('mailbox');
+        }
+
+        $customerEmail = $this->conversation->customer_email;
+        
+        if ($customerEmail) {
+            Mail::to($customerEmail)
+                ->send(new \App\Mail\CustomerReply($this->conversation, $this->thread));
         }
     }
 }

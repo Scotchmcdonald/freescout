@@ -18,6 +18,7 @@ class SendReplyToCustomer
     public function handle(UserReplied|UserCreatedConversation $event): void
     {
         $conversation = $event->conversation;
+        $thread = $event->thread;
 
         // Do not send email if this is a Phone conversation and customer has no email.
         if ($conversation->isPhone()) {
@@ -27,23 +28,9 @@ class SendReplyToCustomer
             }
         }
 
-        $replies = method_exists($conversation, 'getReplies') ? $conversation->getReplies() : collect();
-
         // Ignore imported messages.
-        if ($replies && $replies->first() && $replies->first()->imported) {
+        if ($thread->imported) {
             return;
-        }
-
-        // Remove threads added after this event had fired.
-        $thread = $event->thread ?? null;
-        if ($thread) {
-            foreach ($replies as $i => $reply) {
-                if ($reply->id == $thread->id) {
-                    break;
-                } else {
-                    $replies->forget($i);
-                }
-            }
         }
 
         // Chat conversation handling would go here
@@ -57,7 +44,7 @@ class SendReplyToCustomer
         }
 
         // Dispatch SendConversationReply job
-        \App\Jobs\SendConversationReply::dispatch($conversation, $replies->toArray(), $conversation->customer)
+        \App\Jobs\SendConversationReply::dispatch($conversation, $thread)
             ->delay(now()->addSeconds(10))
             ->onQueue('emails');
     }

@@ -164,7 +164,8 @@ class ModuleUpdateTest extends TestCase
 
     public function test_command_instance_can_be_created(): void
     {
-        $command = new \App\Console\Commands\ModuleUpdate();
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $command = new \App\Console\Commands\ModuleUpdate($mockModuleSource);
         
         $this->assertInstanceOf(\App\Console\Commands\ModuleUpdate::class, $command);
         $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
@@ -172,14 +173,16 @@ class ModuleUpdateTest extends TestCase
 
     public function test_command_has_handle_method(): void
     {
-        $command = new \App\Console\Commands\ModuleUpdate();
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $command = new \App\Console\Commands\ModuleUpdate($mockModuleSource);
         
         $this->assertTrue(method_exists($command, 'handle'));
     }
 
     public function test_command_signature_includes_optional_argument(): void
     {
-        $command = new \App\Console\Commands\ModuleUpdate();
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $command = new \App\Console\Commands\ModuleUpdate($mockModuleSource);
         $definition = $command->getDefinition();
         
         $this->assertTrue($definition->hasArgument('module_alias'));
@@ -189,7 +192,8 @@ class ModuleUpdateTest extends TestCase
 
     public function test_command_description_mentions_update(): void
     {
-        $command = new \App\Console\Commands\ModuleUpdate();
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $command = new \App\Console\Commands\ModuleUpdate($mockModuleSource);
         $description = $command->getDescription();
         
         $this->assertNotEmpty($description);
@@ -207,7 +211,9 @@ class ModuleUpdateTest extends TestCase
     #[RunInSeparateProcess]
     public function test_command_shows_all_modules_up_to_date_message(): void
     {
-        \App\Misc\WpApi::$modules = [];
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource->method('getModules')->willReturn([]);
+        $this->app->instance(\App\Services\ModuleSource::class, $mockModuleSource);
 
         // Mock Module facade
         \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([]);
@@ -221,7 +227,9 @@ class ModuleUpdateTest extends TestCase
     #[RunInSeparateProcess]
     public function test_handle_clears_cache_on_execution(): void
     {
-        \App\Misc\WpApi::$modules = [];
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource->method('getModules')->willReturn([]);
+        $this->app->instance(\App\Services\ModuleSource::class, $mockModuleSource);
 
         \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([]);
         \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
@@ -233,9 +241,11 @@ class ModuleUpdateTest extends TestCase
     #[RunInSeparateProcess]
     public function test_handle_processes_module_with_newer_version(): void
     {
-        \App\Misc\WpApi::$modules = [
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource->method('getModules')->willReturn([
             ['alias' => 'test-module', 'version' => '2.0.0']
-        ];
+        ]);
+        $this->app->instance(\App\Services\ModuleSource::class, $mockModuleSource);
         
         $mockModule = \Mockery::mock(\Nwidart\Modules\Laravel\Module::class);
         $mockModule->shouldReceive('getAlias')->andReturn('test-module');
@@ -268,9 +278,11 @@ class ModuleUpdateTest extends TestCase
     #[RunInSeparateProcess]
     public function test_handle_shows_error_for_failed_update(): void
     {
-        \App\Misc\WpApi::$modules = [
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource->method('getModules')->willReturn([
             ['alias' => 'test-module', 'version' => '2.0.0']
-        ];
+        ]);
+        $this->app->instance(\App\Services\ModuleSource::class, $mockModuleSource);
         
         $mockModule = \Mockery::mock(\Nwidart\Modules\Laravel\Module::class);
         $mockModule->shouldReceive('getAlias')->andReturn('test-module');
@@ -300,10 +312,12 @@ class ModuleUpdateTest extends TestCase
     #[RunInSeparateProcess]
     public function test_handle_filters_by_module_alias(): void
     {
-        \App\Misc\WpApi::$modules = [
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource->method('getModules')->willReturn([
             ['alias' => 'target-module', 'version' => '2.0.0'],
             ['alias' => 'other-module', 'version' => '2.0.0']
-        ];
+        ]);
+        $this->app->instance(\App\Services\ModuleSource::class, $mockModuleSource);
         
         $targetModule = \Mockery::mock(\Nwidart\Modules\Laravel\Module::class);
         $targetModule->shouldReceive('getAlias')->andReturn('target-module');

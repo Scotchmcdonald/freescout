@@ -286,9 +286,8 @@ class AdditionalListenersTest extends UnitTestCase
 
         $listener->handle($event);
 
-        // Since conversation.getReplies() doesn't exist, it returns empty collection
-        // so imported check doesn't apply - job gets dispatched
-        Queue::assertPushed(SendConversationReply::class);
+        // Imported threads should be ignored
+        Queue::assertNotPushed(SendConversationReply::class);
     }
 
     public function test_send_reply_to_customer_checks_method_does_not_exist(): void

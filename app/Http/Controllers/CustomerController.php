@@ -29,6 +29,7 @@ class CustomerController extends Controller
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('first_name', 'like', "%{$searchTerm}%")
                     ->orWhere('last_name', 'like', "%{$searchTerm}%")
+                    ->orWhere('phones', 'like', "%{$searchTerm}%")
                     ->orWhereHas('emails', function ($q) use ($searchTerm) {
                         /** @phpstan-ignore-next-line */
                         $q->where('email', 'like', "%{$searchTerm}%");
@@ -183,6 +184,7 @@ class CustomerController extends Controller
                     ->where(function ($q) use ($searchQuery) {
                         $q->where('first_name', 'like', "%{$searchQuery}%")
                             ->orWhere('last_name', 'like', "%{$searchQuery}%")
+                            ->orWhere('phones', 'like', "%{$searchQuery}%")
                             ->orWhereHas('emails', function ($q) use ($searchQuery) {
                                 /** @phpstan-ignore-next-line */
                                 $q->where('email', 'like', "%{$searchQuery}%");
@@ -279,6 +281,7 @@ class CustomerController extends Controller
             ->where(function ($q) use ($searchQuery) {
                 $q->where('first_name', 'like', "%{$searchQuery}%")
                     ->orWhere('last_name', 'like', "%{$searchQuery}%")
+                    ->orWhere('phones', 'like', "%{$searchQuery}%")
                     ->orWhereHas('emails', function ($q) use ($searchQuery) {
                         /** @phpstan-ignore-next-line */
                         $q->where('email', 'like', "%{$searchQuery}%");

@@ -154,4 +154,17 @@ return [
 
     'freescout_url' => 'https://freescout.net',
 
+    /*
+    |--------------------------------------------------------------------------
+    | FreeScout API
+    |--------------------------------------------------------------------------
+    |
+    | API endpoints for module marketplace and updates.
+    |
+    */
+
+    'freescout_api' => 'https://freescout.net/wp-json/',
+    'freescout_alt_api' => 'https://freescout.net/wp-json/',
+    'version' => '1.0.0',
+
 ];

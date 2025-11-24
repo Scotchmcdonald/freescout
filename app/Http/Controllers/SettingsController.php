@@ -21,13 +21,51 @@ use Illuminate\Support\Facades\Mail;
 class SettingsController extends Controller
 {
     /**
+     * Get all settings sections.
+     */
+    protected function getSections(): array
+    {
+        $sections = [
+            'general' => [
+                'title' => __('General'),
+                'route' => 'settings',
+                'icon' => 'cog',
+                'order' => 100
+            ],
+            'email' => [
+                'title' => __('Email Settings'),
+                'route' => 'settings.email',
+                'icon' => 'mail',
+                'order' => 200
+            ],
+            'alerts' => [
+                'title' => __('Alerts'),
+                'route' => 'settings.alerts',
+                'icon' => 'bell',
+                'order' => 300
+            ],
+            'system' => [
+                'title' => __('System'),
+                'route' => 'settings.system',
+                'icon' => 'server',
+                'order' => 400
+            ],
+        ];
+
+        // Allow modules to add/remove sections
+        return \Eventy::filter('settings.sections', $sections);
+    }
+
+    /**
      * Display general settings.
      */
     public function index(): View|ViewFactory
     {
         $settings = Option::query()->pluck('value', 'name')->toArray();
+        $sections = $this->getSections();
+        $currentSection = 'general';
 
-        return view('settings.index', compact('settings'));
+        return view('settings.index', compact('settings', 'sections', 'currentSection'));
     }
 
     /**
@@ -74,7 +112,10 @@ class SettingsController extends Controller
             'mail_from_name',
         ])->pluck('value', 'name')->toArray();
 
-        return view('settings.email', compact('settings'));
+        $sections = $this->getSections();
+        $currentSection = 'email';
+
+        return view('settings.email', compact('settings', 'sections', 'currentSection'));
     }
 
     /**
@@ -124,7 +165,10 @@ class SettingsController extends Controller
             'session_driver' => config('session.driver'),
         ];
 
-        return view('settings.system', compact('settings'));
+        $sections = $this->getSections();
+        $currentSection = 'system';
+
+        return view('settings.system', compact('settings', 'sections', 'currentSection'));
     }
 
     /**
@@ -256,7 +300,10 @@ class SettingsController extends Controller
             'alert_recipients',
         ])->pluck('value', 'name')->toArray();
 
-        return view('settings.alerts', compact('settings'));
+        $sections = $this->getSections();
+        $currentSection = 'alerts';
+
+        return view('settings.alerts', compact('settings', 'sections', 'currentSection'));
     }
 
     /**
@@ -412,7 +459,13 @@ class SettingsController extends Controller
     public function security(Request $request): View|ViewFactory
     {
         $settings = Option::query()->pluck('value', 'name')->toArray();
+        $sections = $this->getSections();
+        $currentSection = 'security';
 
-        return view('settings.index', compact('settings'));
+        if (view()->exists('settings.security')) {
+            return view('settings.security', compact('settings', 'sections', 'currentSection'));
+        }
+
+        return view('settings.index', compact('settings', 'sections', 'currentSection'));
     }
 }

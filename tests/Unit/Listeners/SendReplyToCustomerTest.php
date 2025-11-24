@@ -71,7 +71,6 @@ class SendReplyToCustomerTest extends UnitTestCase
             'customer_id' => $customer->id,
         ]);
         
-        // Mock getReplies method
         $importedThread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'created_by_user_id' => $user->id,
@@ -169,36 +168,6 @@ class SendReplyToCustomerTest extends UnitTestCase
         $this->expectNotToPerformAssertions();
     }
 
-    public function test_listener_filters_threads_after_event_thread(): void
-    {
-        $user = User::factory()->create();
-        $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
-        
-        $thread1 = Thread::factory()->create([
-            'conversation_id' => $conversation->id,
-            'id' => 1,
-            'created_at' => now()->subMinutes(10),
-        ]);
-        $thread2 = Thread::factory()->create([
-            'conversation_id' => $conversation->id,
-            'id' => 2,
-            'created_at' => now()->subMinutes(5),
-        ]);
-        $thread3 = Thread::factory()->create([
-            'conversation_id' => $conversation->id,
-            'id' => 3,
-            'created_at' => now(),
-        ]);
-
-        $event = new UserReplied($conversation, $thread2);
-        $listener = new SendReplyToCustomer();
-        
-        // Should only process threads up to thread2
-        $listener->handle($event);
-        $this->assertEquals(2, $event->thread->id);
-    }
-
     public function test_listener_handles_user_replied_with_customer(): void
     {
         $user = User::factory()->create();
@@ -252,28 +221,6 @@ class SendReplyToCustomerTest extends UnitTestCase
         $listener->handle($event);
 
         \Queue::assertNotPushed(\App\Jobs\SendConversationReply::class);
-    }
-
-    public function test_listener_handles_conversation_without_get_replies_method(): void
-    {
-        $user = User::factory()->create();
-        $customer = Customer::factory()->create();
-        $conversation = Conversation::factory()->create([
-            'customer_id' => $customer->id,
-        ]);
-        $thread = Thread::factory()->create([
-            'conversation_id' => $conversation->id,
-            'created_by_user_id' => $user->id,
-            'imported' => false,
-        ]);
-
-        // Conversation model does not have getReplies method, so this tests that path
-        $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
-        
-        $listener->handle($event);
-        // Should handle gracefully with empty collection
-        $this->expectNotToPerformAssertions();
     }
 
     public function test_listener_dispatches_job_with_correct_delay(): void
@@ -348,10 +295,9 @@ class SendReplyToCustomerTest extends UnitTestCase
         
         $listener->handle($event);
 
-        \Queue::assertPushed(\App\Jobs\SendConversationReply::class, function ($job) use ($conversation, $customer) {
+        \Queue::assertPushed(\App\Jobs\SendConversationReply::class, function ($job) use ($conversation, $thread) {
             return $job->conversation->id === $conversation->id &&
-                   $job->customer->id === $customer->id &&
-                   is_array($job->replies);
+                   $job->thread->id === $thread->id;
         });
     }
 }

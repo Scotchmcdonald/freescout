@@ -67,6 +67,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public const INVITE_STATE_NOT_INVITED = 3;
 
     /**
+     * Global user permissions.
+     */
+    public const PERM_DELETE_CONVERSATIONS = 1;
+    public const PERM_EDIT_CONVERSATIONS = 2;
+    public const PERM_EDIT_SAVED_REPLIES = 3;
+    public const PERM_EDIT_TAGS = 4;
+    public const PERM_EDIT_CUSTOM_FOLDERS = 5;
+    public const PERM_EDIT_USERS = 10;
+
+    /**
      * The attributes that are mass assignable.
      */
     protected $fillable = [
@@ -112,6 +122,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'status' => 'integer',
             'invite_state' => 'integer',
             'enable_kb_shortcuts' => 'boolean',
+            'permissions' => 'array',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -313,5 +324,68 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendPasswordChanged(): void
     {
         \Illuminate\Support\Facades\Mail::to($this)->send(new \App\Mail\PasswordChanged($this));
+    }
+
+    /**
+     * Get mailboxes user can view.
+     *
+     * @param bool $checkPermission
+     * @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mailbox>
+     */
+    public function mailboxesCanView(bool $checkPermission = false)
+    {
+        if ($this->isAdmin()) {
+            return Mailbox::all();
+        }
+
+        return $this->mailboxes;
+    }
+
+    /**
+     * Check if user has permission.
+     */
+    public function hasPermission(int $permission, bool $checkOwnPermissions = true): bool
+    {
+        $hasPermission = false;
+
+        $globalPermissions = self::getGlobalUserPermissions();
+
+        if (!empty($globalPermissions) && is_array($globalPermissions) && in_array($permission, $globalPermissions)) {
+            $hasPermission = true;
+        }
+
+        if ($checkOwnPermissions && !empty($this->permissions)) {
+            if (isset($this->permissions[$permission])) {
+                $hasPermission = (bool)$this->permissions[$permission];
+            }
+        }
+
+        return $hasPermission;
+    }
+
+    /**
+     * Get global user permissions.
+     * 
+     * @return array<int>
+     */
+    public static function getGlobalUserPermissions(): array
+    {
+        $permissions = [];
+        $permissionsJson = config('app.user_permissions');
+
+        if ($permissionsJson) {
+            $permissionsJson = base64_decode($permissionsJson);
+            try {
+                $permissions = json_decode($permissionsJson, true);
+            } catch (\Exception $e) {
+                // Do nothing.
+            }
+        }
+
+        if (!is_array($permissions)) {
+            $permissions = [];
+        }
+
+        return $permissions;
     }
 }
