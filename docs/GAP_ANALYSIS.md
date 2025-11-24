@@ -10,22 +10,15 @@ This document provides a comprehensive gap analysis between the legacy Laravel 5
 
 ### 1. Route & Controller Mapping
 
-#### 1.1 Translation Management (MISSING)
+#### 1.1 Translation Management (INTENTIONALLY EXCLUDED)
 
-The legacy application includes a complete translation management system that is not present in the new version.
+The legacy application includes a translation management system (`/archive/app/Http/Controllers/TranslateController.php`) that allowed sending translations to the FreeScout team, downloading translations as ZIP, and managing unpublished translations.
 
-- **Missing Routes:**
-  - `POST /translations/send` - Send translations to FreeScout team
-  - `POST /translations/removeUnpublished` - Remove unpublished translations
-  - `POST /translations/download` - Download translations as ZIP
+**Decision:** This feature has been intentionally excluded from the migration. It is not needed in the modern application.
 
-- **Missing Controller:**
-  - `/archive/app/Http/Controllers/TranslateController.php`
-  
-- **Key Features Missing:**
-  - Translation submission to development team
-  - Translation archive/download functionality
-  - Unpublished translation management
+**Legacy Reference (for documentation only):**
+- `/archive/app/Http/Controllers/TranslateController.php`
+- Routes: `/translations/send`, `/translations/removeUnpublished`, `/translations/download`
 
 ---
 
@@ -534,14 +527,13 @@ The legacy application uses an extensive event system that may not be fully port
 
 #### High Priority (Core Functionality)
 
-1. **Translation Management System** - Complete system missing
-2. **System Tools & Status Page** - Comprehensive admin tools missing
-3. **Activity Logging System** - Multi-category logging missing
-4. **Module License Management** - Activation/deactivation missing
-5. **Conversation Draft System** - Auto-save and manual drafts incomplete
-6. **Bulk Operations** - Missing bulk status/assignee/delete operations
-7. **Thread Editing** - Missing thread edit functionality
-8. **Conversation Following** - Follow/unfollow system missing
+1. **System Tools & Status Page** - Comprehensive admin tools missing
+2. **Activity Logging System** - Multi-category logging missing
+3. **Module License Management** - Activation/deactivation missing
+4. **Conversation Draft System** - Auto-save and manual drafts incomplete
+5. **Bulk Operations** - Missing bulk status/assignee/delete operations
+6. **Thread Editing** - Missing thread edit functionality
+7. **Conversation Following** - Follow/unfollow system missing
 
 #### Medium Priority (Enhanced Functionality)
 
@@ -573,6 +565,224 @@ The legacy application uses an extensive event system that may not be fully port
 4. **Review Event System:** Ensure all Eventy hooks are implemented to maintain module compatibility.
 
 5. **Test Module System:** The module licensing and update system is critical for the FreeScout ecosystem.
+
+---
+
+## 7. Implementation Checklist
+
+This checklist is designed for an LLM agent to systematically implement the missing functionality. Tasks are ordered by priority and dependency.
+
+### Phase 1: Core Infrastructure (High Priority)
+
+#### 1.1 Activity Logging System
+- [ ] Create `App\Models\ActivityLog` model based on `/archive/app/ActivityLog.php`
+- [ ] Add log category constants (NAME_USER, NAME_OUT_EMAILS, NAME_EMAILS_SENDING, etc.)
+- [ ] Implement `getEventDescription()` method for human-readable event descriptions
+- [ ] Implement `getLogTitle()` and `getAvailableLogs()` methods
+- [ ] Create migration if `activity_log` table doesn't exist
+- [ ] Add `SecureController::logs()` method to display logs
+- [ ] Add `SecureController::logsSubmit()` method for log clearing
+- [ ] Create `/resources/views/secure/logs.blade.php` view with DataTables
+
+#### 1.2 System Status & Tools
+- [ ] Update `SystemController::index()` to include:
+  - [ ] PHP extensions check (`Helper::checkRequiredExtensions()`)
+  - [ ] Required functions check (`Helper::checkRequiredFunctions()`)
+  - [ ] Directory permissions check
+  - [ ] Cache file writability check
+  - [ ] Public symlink verification
+  - [ ] .env file writability check
+  - [ ] Command running status (fetch-emails, queue:work)
+  - [ ] Version update check
+  - [ ] Migration status detection
+- [ ] Create `SystemController::tools()` method
+- [ ] Create `SystemController::toolsExecute()` for tool actions
+- [ ] Create `/resources/views/system/tools.blade.php` view
+- [ ] Update `/resources/views/system/status.blade.php` (or create `index.blade.php`)
+- [ ] Implement Web Cron endpoint `SystemController::cron()`
+
+#### 1.3 Failed Job Management
+- [ ] Create `App\Models\FailedJob` model based on `/archive/app/FailedJob.php`
+- [ ] Create `App\Models\Job` model based on `/archive/app/Job.php`
+- [ ] Add job retry/cancel actions to SystemController
+- [ ] Create job details modal view
+
+### Phase 2: Conversation Operations (High Priority)
+
+#### 2.1 Conversation Draft System
+- [ ] Add `save_draft` action to `ConversationController::ajax()`
+- [ ] Add `discard_draft` action
+- [ ] Implement auto-save JavaScript functionality
+- [ ] Update conversation view to show draft indicator
+- [ ] Add `STATE_DRAFT` handling in conversation retrieval
+
+#### 2.2 Bulk Operations
+- [ ] Add `bulk_conversation_change_user` action
+- [ ] Add `bulk_conversation_change_status` action
+- [ ] Add `bulk_delete_conversation` action
+- [ ] Add `empty_folder` action
+- [ ] Create `/resources/views/conversations/partials/bulk_actions.blade.php`
+- [ ] Add bulk action JavaScript handlers
+
+#### 2.3 Thread Editing
+- [ ] Add `load_edit_thread` action to `ConversationController::ajax()`
+- [ ] Add `save_edit_thread` action
+- [ ] Add `delete_thread` action (for notes)
+- [ ] Create `/resources/views/conversations/partials/edit_thread.blade.php`
+- [ ] Add edit button and modal to thread display
+
+#### 2.4 Conversation Following
+- [ ] Create `App\Models\Follower` model if not exists
+- [ ] Add `follow` action to `ConversationController::ajax()`
+- [ ] Add `unfollow` action
+- [ ] Add `isUserFollowing()` method to Conversation model
+- [ ] Add `followConversation()` method to User model
+- [ ] Update conversation view with follow/unfollow button
+
+#### 2.5 Additional Conversation Actions
+- [ ] Add `conversation_move` action with mailbox selection
+- [ ] Add `conversation_merge` action
+- [ ] Add `merge_search` action for finding merge targets
+- [ ] Add `update_subject` action for inline editing
+- [ ] Add `retry_send` action for failed emails
+- [ ] Add `restore_conversation` action
+- [ ] Create modal views for move and merge operations
+
+### Phase 3: Module System (High Priority)
+
+#### 3.1 Module License Management
+- [ ] Create `App\Misc\WpApi` service based on `/archive/app/Misc/WpApi.php`
+- [ ] Implement license activation via `WpApi::activateLicense()`
+- [ ] Implement license deactivation via `WpApi::deactivateLicense()`
+- [ ] Implement license checking via `WpApi::checkLicense()`
+- [ ] Add license management actions to `ModulesController::ajax()`
+
+#### 3.2 Module Installation & Updates
+- [ ] Implement module download functionality
+- [ ] Implement module installation from ZIP
+- [ ] Implement module update checking via `WpApi::getVersion()`
+- [ ] Add update action to `ModulesController::ajax()`
+- [ ] Add bulk update functionality
+- [ ] Update modules view with update indicators
+
+### Phase 4: Settings & Configuration (Medium Priority)
+
+#### 4.1 General Settings Expansion
+- [ ] Add custom conversation number configuration
+- [ ] Add user global permissions management
+- [ ] Add email conversation history settings
+- [ ] Add max message size configuration
+- [ ] Add open tracking toggle
+- [ ] Add email branding toggle
+- [ ] Update `/resources/views/settings/general.blade.php`
+
+#### 4.2 Alert Settings
+- [ ] Create `SettingsController` section for alerts
+- [ ] Add alert recipients configuration
+- [ ] Add fetch monitoring alerts
+- [ ] Add log monitoring alerts
+- [ ] Create `/resources/views/settings/alerts.blade.php`
+
+#### 4.3 Mailbox Settings Expansion
+- [ ] Add email aliases configuration
+- [ ] Add from name options
+- [ ] Add ticket assignment options
+- [ ] Add before reply/forward text customization
+- [ ] Add signature configuration with editor
+- [ ] Add ratings system toggle
+
+### Phase 5: User & Customer Management (Medium Priority)
+
+#### 5.1 User Management Enhancements
+- [ ] Add separate password change page/action
+- [ ] Add user photo upload with `savePhoto()` method
+- [ ] Add user invitation system with `sendInvite()` method
+- [ ] Add user deletion with conversation reassignment
+- [ ] Add AJAX operations (photo delete, resend invite, etc.)
+- [ ] Implement personal folders sync
+
+#### 5.2 Customer Management Enhancements
+- [ ] Add customer photo upload
+- [ ] Add multiple email management (add/remove)
+- [ ] Add email migration between customers
+- [ ] Add phone field management
+- [ ] Add social profiles management
+- [ ] Add website fields management
+
+### Phase 6: Enhanced Features (Medium Priority)
+
+#### 6.1 Phone Conversations
+- [ ] Add `create_phone_conversation` action
+- [ ] Add phone conversation type handling in `send_reply`
+- [ ] Add name/phone inputs to conversation create view
+- [ ] Implement `processPhoneCustomer()` method
+
+#### 6.2 Email Aliases
+- [ ] Add alias configuration to mailbox settings
+- [ ] Add `getAliases()` method to Mailbox model
+- [ ] Add alias dropdown to conversation reply form
+- [ ] Handle alias in outgoing email from field
+
+#### 6.3 Advanced Search
+- [ ] Add search filters (mailbox, assignee, status, date range)
+- [ ] Add saved search functionality
+- [ ] Update search view with filter UI
+
+### Phase 7: UI Enhancements (Low Priority)
+
+#### 7.1 Conversation View Enhancements
+- [ ] Add real-time viewing indicators
+- [ ] Add previous conversations sidebar
+- [ ] Add customer sidebar with info
+- [ ] Add status/type badges
+- [ ] Add attachment display improvements
+
+#### 7.2 Additional Views
+- [ ] Create modal views for all ajax_html actions
+- [ ] Add floating flash messages
+- [ ] Add DataTables integration where appropriate
+
+### Phase 8: Event System & Hooks
+
+- [ ] Implement all Eventy action hooks listed in Section 4
+- [ ] Implement all Eventy filter hooks listed in Section 4
+- [ ] Add event dispatching to conversation operations
+- [ ] Add event dispatching to user operations
+- [ ] Add event dispatching to customer operations
+- [ ] Test module compatibility with hooks
+
+### Phase 9: Helper Functions
+
+- [ ] Implement `Helper::checkRequiredExtensions()`
+- [ ] Implement `Helper::checkRequiredFunctions()`
+- [ ] Implement `Helper::isFolderWritable()`
+- [ ] Implement `Helper::createZipArchive()`
+- [ ] Implement `Helper::downloadRemoteFile()`
+- [ ] Implement `Helper::unzip()`
+- [ ] Implement `Helper::setEnvFileVar()`
+- [ ] Implement `Helper::getWebCronHash()`
+- [ ] Implement `Helper::runCommand()`
+- [ ] Implement `Helper::backgroundAction()`
+
+### Phase 10: Testing & Verification
+
+- [ ] Test all new AJAX actions
+- [ ] Test bulk operations with multiple conversations
+- [ ] Test module installation and licensing
+- [ ] Test system tools functionality
+- [ ] Test activity logging across all categories
+- [ ] Verify all "Needs Verification" items from gap analysis
+- [ ] Run full regression test suite
+
+---
+
+## 8. Excluded Features
+
+The following features have been intentionally excluded from the migration:
+
+| Feature | Reason | Legacy Reference |
+|---------|--------|------------------|
+| Translation Management System | Not needed in modern application | `/archive/app/Http/Controllers/TranslateController.php` |
 
 ---
 
