@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
+use App\Models\User;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -436,6 +437,24 @@ class ConversationController extends Controller
     public function ajax(Request $request): JsonResponse
     {
         $action = $request->input('action');
+
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        // Handle bulk operations separately
+        if (str_starts_with($action ?? '', 'bulk_')) {
+            return $this->handleBulkAction($request, $user, $action ?? '');
+        }
+
+        // Handle following operations
+        if ($action === 'follow' || $action === 'unfollow') {
+            return $this->handleFollowAction($request, $user, $action);
+        }
+
         $conversationId = $request->input('conversation_id');
 
         if (! $conversationId) {
@@ -444,12 +463,6 @@ class ConversationController extends Controller
 
         /** @var \App\Models\Conversation $conversation */
         $conversation = Conversation::findOrFail($conversationId);
-        /** @var \App\Models\User|null $user */
-        $user = $request->user();
-
-        if (! $user) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
-        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -458,12 +471,14 @@ class ConversationController extends Controller
 
         switch ($action) {
             case 'change_status':
-                $conversation->update(['status' => $request->input('status')]);
+                $newStatus = (int) $request->input('status');
+                $conversation->changeStatus($newStatus, $user);
 
                 return response()->json(['success' => true]);
 
             case 'change_user':
-                $conversation->update(['user_id' => $request->input('user_id')]);
+                $newUserId = $request->input('user_id') ? (int) $request->input('user_id') : null;
+                $conversation->changeUser($newUserId, $user);
 
                 return response()->json(['success' => true]);
 
@@ -473,13 +488,228 @@ class ConversationController extends Controller
                 return response()->json(['success' => true]);
 
             case 'delete':
-                $conversation->update(['state' => 3]); // Deleted state
+                $conversation->deleteToFolder($user);
 
                 return response()->json(['success' => true]);
+
+            case 'delete_forever':
+                $conversation->forceDelete();
+
+                return response()->json(['success' => true]);
+
+            case 'restore':
+                $conversation->restoreFromDeleted($user);
+
+                return response()->json(['success' => true]);
+
+            case 'save_draft':
+                return $this->handleSaveDraft($request, $user, $conversation);
+
+            case 'discard_draft':
+                return $this->handleDiscardDraft($request, $user, $conversation);
+
+            case 'update_subject':
+                $conversation->update(['subject' => $request->input('subject')]);
+
+                return response()->json(['success' => true]);
+
+            case 'retry_send':
+                // Find the failed thread and retry sending
+                $threadId = $request->input('thread_id');
+                if ($threadId) {
+                    $thread = Thread::findOrFail($threadId);
+                    // Re-dispatch the send job
+                    \App\Jobs\SendConversationReply::dispatch($conversation, $thread);
+                }
+
+                return response()->json(['success' => true, 'message' => 'Retry queued']);
 
             default:
                 return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
         }
+    }
+
+    /**
+     * Handle bulk conversation actions.
+     */
+    protected function handleBulkAction(Request $request, User $user, string $action): JsonResponse
+    {
+        $conversationIds = $request->input('conversation_ids', []);
+
+        if (empty($conversationIds)) {
+            return response()->json(['success' => false, 'message' => 'No conversations selected'], 400);
+        }
+
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations */
+        $conversations = Conversation::whereIn('id', $conversationIds)->get();
+
+        // Filter to only conversations user has access to
+        $conversations = $conversations->filter(function ($conversation) use ($user) {
+            return $user->isAdmin() || $user->mailboxes->contains($conversation->mailbox_id);
+        });
+
+        if ($conversations->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'No accessible conversations'], 403);
+        }
+
+        switch ($action) {
+            case 'bulk_change_status':
+                $newStatus = (int) $request->input('status');
+                foreach ($conversations as $conversation) {
+                    $conversation->changeStatus($newStatus, $user);
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            case 'bulk_change_user':
+                $newUserId = $request->input('user_id') ? (int) $request->input('user_id') : null;
+                foreach ($conversations as $conversation) {
+                    $conversation->changeUser($newUserId, $user);
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            case 'bulk_delete':
+                foreach ($conversations as $conversation) {
+                    $conversation->deleteToFolder($user);
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            case 'bulk_delete_forever':
+                foreach ($conversations as $conversation) {
+                    $conversation->forceDelete();
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            case 'bulk_restore':
+                foreach ($conversations as $conversation) {
+                    $conversation->restoreFromDeleted($user);
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            case 'bulk_move':
+                $mailboxId = (int) $request->input('mailbox_id');
+                foreach ($conversations as $conversation) {
+                    $conversation->moveToMailbox($mailboxId, $user);
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            default:
+                return response()->json(['success' => false, 'message' => 'Invalid bulk action'], 400);
+        }
+    }
+
+    /**
+     * Handle follow/unfollow actions.
+     */
+    protected function handleFollowAction(Request $request, User $user, string $action): JsonResponse
+    {
+        $conversationId = $request->input('conversation_id');
+
+        if (! $conversationId) {
+            return response()->json(['success' => false, 'message' => 'Conversation ID required'], 400);
+        }
+
+        /** @var \App\Models\Conversation $conversation */
+        $conversation = Conversation::findOrFail($conversationId);
+
+        // Check access
+        if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        if ($action === 'follow') {
+            if (! $conversation->followers()->where('user_id', $user->id)->exists()) {
+                $conversation->followers()->attach($user->id);
+            }
+
+            return response()->json(['success' => true, 'following' => true]);
+        } else {
+            $conversation->followers()->detach($user->id);
+
+            return response()->json(['success' => true, 'following' => false]);
+        }
+    }
+
+    /**
+     * Handle saving a draft.
+     */
+    protected function handleSaveDraft(Request $request, User $user, Conversation $conversation): JsonResponse
+    {
+        $body = $request->input('body', '');
+
+        // Find existing draft or create new one
+        $draft = $conversation->threads()
+            ->where('user_id', $user->id)
+            ->where('type', Thread::TYPE_DRAFT)
+            ->where('state', Thread::STATE_DRAFT)
+            ->first();
+
+        if ($draft) {
+            $draft->update(['body' => $body]);
+        } else {
+            Thread::create([
+                'conversation_id' => $conversation->id,
+                'user_id' => $user->id,
+                'type' => Thread::TYPE_DRAFT,
+                'status' => 1,
+                'state' => Thread::STATE_DRAFT,
+                'body' => $body,
+                'from' => $conversation->mailbox?->email ?? '',
+                'to' => json_encode([$conversation->customer_email]),
+                'source_via' => 1,
+                'source_type' => 2,
+            ]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Draft saved']);
+    }
+
+    /**
+     * Handle discarding a draft.
+     */
+    protected function handleDiscardDraft(Request $request, User $user, Conversation $conversation): JsonResponse
+    {
+        $conversation->threads()
+            ->where('user_id', $user->id)
+            ->where('type', Thread::TYPE_DRAFT)
+            ->where('state', Thread::STATE_DRAFT)
+            ->delete();
+
+        return response()->json(['success' => true, 'message' => 'Draft discarded']);
+    }
+
+    /**
+     * Empty a folder.
+     */
+    public function emptyFolder(Request $request, Folder $folder): JsonResponse
+    {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        // Check access to mailbox
+        if (! $user->isAdmin() && ! $user->mailboxes->contains($folder->mailbox_id)) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        // Only allow emptying certain folder types
+        $allowedTypes = [Folder::TYPE_TRASH, Folder::TYPE_SPAM, Folder::TYPE_DELETED];
+        if (! in_array($folder->type, $allowedTypes)) {
+            return response()->json(['success' => false, 'message' => 'Cannot empty this folder type'], 400);
+        }
+
+        // Delete all conversations in this folder
+        $count = $folder->conversations()->forceDelete();
+
+        return response()->json(['success' => true, 'deleted' => $count]);
     }
 
     /**

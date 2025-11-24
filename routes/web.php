@@ -34,6 +34,9 @@ Route::get('/track/pixel/{id}', [TrackingController::class, 'pixel'])->name('tra
 Route::get('/user/setup/{hash}', [UserController::class, 'userSetup'])->name('user_setup');
 Route::post('/user/setup/{hash}', [UserController::class, 'userSetupSave'])->name('user_setup.save');
 
+// Web Cron (public route with hash verification)
+Route::get('/cron/{hash}', [SystemController::class, 'cron'])->name('system.cron');
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
@@ -158,6 +161,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/system/failed-jobs', [SystemController::class, 'failedJobs'])->name('system.failed_jobs');
         Route::post('/system/failed-jobs/{uuid}/retry', [SystemController::class, 'retryFailedJob'])->name('system.failed_jobs.retry');
         Route::delete('/system/failed-jobs/{uuid}', [SystemController::class, 'deleteFailedJob'])->name('system.failed_jobs.delete');
+        Route::post('/system/failed-jobs/queue/delete', [SystemController::class, 'deleteFailedJobsForQueue'])->name('system.failed_jobs.delete_queue');
+        Route::post('/system/failed-jobs/queue/retry', [SystemController::class, 'retryFailedJobsForQueue'])->name('system.failed_jobs.retry_queue');
+        
+        // System Tools
+        Route::get('/system/tools', [SystemController::class, 'tools'])->name('system.tools');
+        Route::post('/system/tools', [SystemController::class, 'toolsExecute'])->name('system.tools.execute');
+        
+        // Logs clearing
+        Route::post('/system/logs/clear', [SystemController::class, 'clearLogs'])->name('system.logs.clear');
+        
+        // Empty folder
+        Route::post('/folder/{folder}/empty', [ConversationController::class, 'emptyFolder'])->name('folders.empty');
         
         // Added for tests
         Route::get('/logs', [SystemController::class, 'logs'])->name('logs');

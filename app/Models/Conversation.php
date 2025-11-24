@@ -338,4 +338,198 @@ class Conversation extends Model
             $this->save();
         }
     }
+
+    /**
+     * Check if user is following this conversation.
+     */
+    public function isUserFollowing(?User $user = null): bool
+    {
+        if (! $user) {
+            $user = auth()->user();
+        }
+
+        if (! $user) {
+            return false;
+        }
+
+        return $this->followers()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Change conversation user (assignee) with logging.
+     */
+    public function changeUser(?int $userId, ?User $byUser = null): bool
+    {
+        $oldUserId = $this->user_id;
+        $this->user_id = $userId;
+        $this->user_updated_at = now();
+        $saved = $this->save();
+
+        if ($saved && $oldUserId !== $userId) {
+            // Log the change
+            activity()
+                ->causedBy($byUser)
+                ->performedOn($this)
+                ->withProperties([
+                    'old_user_id' => $oldUserId,
+                    'new_user_id' => $userId,
+                ])
+                ->log('conversation_user_changed');
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Change conversation status with logging.
+     */
+    public function changeStatus(int $status, ?User $byUser = null): bool
+    {
+        $oldStatus = $this->status;
+        $this->status = $status;
+
+        // Update closed_at and closed_by if closing
+        if ($status === self::STATUS_CLOSED && $oldStatus !== self::STATUS_CLOSED) {
+            $this->closed_at = now();
+            $this->closed_by_user_id = $byUser?->id;
+        }
+
+        $saved = $this->save();
+
+        if ($saved && $oldStatus !== $status) {
+            // Log the change
+            activity()
+                ->causedBy($byUser)
+                ->performedOn($this)
+                ->withProperties([
+                    'old_status' => $oldStatus,
+                    'new_status' => $status,
+                ])
+                ->log('conversation_status_changed');
+
+            // Update folder based on new status
+            $this->updateFolder();
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Delete conversation to Deleted folder (soft delete).
+     */
+    public function deleteToFolder(?User $byUser = null): bool
+    {
+        // Find or create Deleted folder
+        $deletedFolder = Folder::where('mailbox_id', $this->mailbox_id)
+            ->where('type', Folder::TYPE_DELETED)
+            ->first();
+
+        if (! $deletedFolder) {
+            return false;
+        }
+
+        $this->state = 3; // Deleted state
+        $this->folder_id = $deletedFolder->id;
+
+        $saved = $this->save();
+
+        if ($saved) {
+            activity()
+                ->causedBy($byUser)
+                ->performedOn($this)
+                ->log('conversation_deleted');
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Restore conversation from Deleted folder.
+     */
+    public function restoreFromDeleted(?User $byUser = null): bool
+    {
+        // Find Inbox folder
+        $inboxFolder = Folder::where('mailbox_id', $this->mailbox_id)
+            ->where('type', Folder::TYPE_INBOX)
+            ->first();
+
+        if (! $inboxFolder) {
+            return false;
+        }
+
+        $this->state = self::STATE_PUBLISHED;
+        $this->folder_id = $inboxFolder->id;
+
+        $saved = $this->save();
+
+        if ($saved) {
+            activity()
+                ->causedBy($byUser)
+                ->performedOn($this)
+                ->log('conversation_restored');
+
+            // Update to proper folder
+            $this->updateFolder();
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Move conversation to different mailbox.
+     */
+    public function moveToMailbox(int $mailboxId, ?User $byUser = null): bool
+    {
+        $oldMailboxId = $this->mailbox_id;
+
+        // Find inbox folder in new mailbox
+        $inboxFolder = Folder::where('mailbox_id', $mailboxId)
+            ->where('type', Folder::TYPE_INBOX)
+            ->first();
+
+        if (! $inboxFolder) {
+            return false;
+        }
+
+        $this->mailbox_id = $mailboxId;
+        $this->folder_id = $inboxFolder->id;
+
+        $saved = $this->save();
+
+        if ($saved) {
+            activity()
+                ->causedBy($byUser)
+                ->performedOn($this)
+                ->withProperties([
+                    'old_mailbox_id' => $oldMailboxId,
+                    'new_mailbox_id' => $mailboxId,
+                ])
+                ->log('conversation_moved');
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Get BCC array.
+     *
+     * @return array<string>
+     */
+    public function getBccArray(): array
+    {
+        return $this->bcc ?? [];
+    }
+
+    /**
+     * Sanitize email array.
+     *
+     * @param  array<string>  $emails
+     * @return array<string>
+     */
+    public static function sanitizeEmails(array $emails): array
+    {
+        return array_values(array_filter(array_map('trim', $emails), function ($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        }));
+    }
 }

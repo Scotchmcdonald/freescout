@@ -388,4 +388,90 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return $permissions;
     }
+
+    /**
+     * Scope to exclude deleted users.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<User>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<User>
+     */
+    public function scopeNonDeleted($query)
+    {
+        return $query->where('status', '!=', self::STATUS_DELETED);
+    }
+
+    /**
+     * Follow a conversation.
+     */
+    public function followConversation(Conversation $conversation): void
+    {
+        if (! $this->followedConversations()->where('conversation_id', $conversation->id)->exists()) {
+            $this->followedConversations()->attach($conversation->id);
+        }
+    }
+
+    /**
+     * Unfollow a conversation.
+     */
+    public function unfollowConversation(Conversation $conversation): void
+    {
+        $this->followedConversations()->detach($conversation->id);
+    }
+
+    /**
+     * Check if user is following a conversation.
+     */
+    public function isFollowingConversation(Conversation $conversation): bool
+    {
+        return $this->followedConversations()->where('conversation_id', $conversation->id)->exists();
+    }
+
+    /**
+     * Generate a random password.
+     */
+    public static function generateRandomPassword(int $length = 16): string
+    {
+        return \Illuminate\Support\Str::random($length);
+    }
+
+    /**
+     * Send user invitation email.
+     *
+     * @throws \Exception
+     */
+    public function sendInvite(bool $throwException = false): bool
+    {
+        try {
+            \Illuminate\Support\Facades\Mail::to($this)->send(new \App\Mail\UserInvite($this));
+            $this->update(['invite_state' => self::INVITE_STATE_SENT]);
+
+            return true;
+        } catch (\Exception $e) {
+            if ($throwException) {
+                throw $e;
+            }
+
+            return false;
+        }
+    }
+
+    /**
+     * Check if user is deleted.
+     */
+    public function isDeleted(): bool
+    {
+        return $this->status === self::STATUS_DELETED;
+    }
+
+    /**
+     * Can manage mailbox.
+     */
+    public function canManageMailbox(int $mailboxId): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return $this->hasAccessToMailbox($mailboxId, MailboxUser::ACCESS_ADMIN);
+    }
 }

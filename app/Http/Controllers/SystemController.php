@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
@@ -12,9 +13,11 @@ use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 class SystemController extends Controller
 {
@@ -48,6 +51,21 @@ class SystemController extends Controller
             $dbVersion = 'Unknown';
         }
 
+        // PHP extensions check
+        $phpExtensions = $this->checkRequiredExtensions();
+
+        // Required functions check
+        $requiredFunctions = $this->checkRequiredFunctions();
+
+        // Directory permissions check
+        $permissions = $this->checkDirectoryPermissions();
+
+        // Check if .env is writable
+        $envIsWritable = is_writable(base_path('.env'));
+
+        // Check public symlink
+        $publicSymlinkExists = file_exists(public_path('storage'));
+
         $systemInfo = [
             'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
@@ -58,11 +76,162 @@ class SystemController extends Controller
             'max_execution_time' => ini_get('max_execution_time'),
             'last_run_fetch' => cache()->get('last_run_fetch'),
             'last_run_queue' => cache()->get('last_run_queue'),
+            'php_extensions' => $phpExtensions,
+            'required_functions' => $requiredFunctions,
+            'permissions' => $permissions,
+            'env_is_writable' => $envIsWritable,
+            'public_symlink_exists' => $publicSymlinkExists,
         ];
 
         $viewName = 'system.index';
 
         return view($viewName, compact('stats', 'systemInfo'));
+    }
+
+    /**
+     * Check required PHP extensions.
+     *
+     * @return array<string, bool>
+     */
+    protected function checkRequiredExtensions(): array
+    {
+        $required = [
+            'mbstring',
+            'openssl',
+            'pdo',
+            'tokenizer',
+            'xml',
+            'ctype',
+            'json',
+            'curl',
+            'gd',
+            'imap',
+            'zip',
+            'fileinfo',
+        ];
+
+        $result = [];
+        foreach ($required as $ext) {
+            $result[$ext] = extension_loaded($ext);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check required PHP functions.
+     *
+     * @return array<string, bool>
+     */
+    protected function checkRequiredFunctions(): array
+    {
+        $required = [
+            'proc_open',
+            'proc_close',
+            'proc_get_status',
+            'shell_exec',
+            'putenv',
+            'symlink',
+        ];
+
+        $disabledFunctions = array_map('trim', explode(',', ini_get('disable_functions') ?: ''));
+
+        $result = [];
+        foreach ($required as $func) {
+            $result[$func] = function_exists($func) && ! in_array($func, $disabledFunctions);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check directory permissions.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected function checkDirectoryPermissions(): array
+    {
+        $directories = [
+            'storage' => storage_path(),
+            'storage/app' => storage_path('app'),
+            'storage/framework' => storage_path('framework'),
+            'storage/logs' => storage_path('logs'),
+            'bootstrap/cache' => base_path('bootstrap/cache'),
+            'public' => public_path(),
+        ];
+
+        $result = [];
+        foreach ($directories as $name => $path) {
+            $result[$name] = [
+                'path' => $path,
+                'writable' => is_writable($path),
+                'exists' => file_exists($path),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * System tools page.
+     */
+    public function tools(Request $request): View|Factory
+    {
+        $output = cache()->get('tools_execute_output');
+        if ($output) {
+            cache()->forget('tools_execute_output');
+        }
+
+        return view('system.tools', [
+            'output' => $output,
+        ]);
+    }
+
+    /**
+     * Execute tools action.
+     */
+    public function toolsExecute(Request $request): RedirectResponse
+    {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (! $user || ! $user->isAdmin()) {
+            abort(403);
+        }
+
+        $outputLog = new BufferedOutput;
+
+        switch ($request->input('action')) {
+            case 'clear_cache':
+                Artisan::call('cache:clear', [], $outputLog);
+                Artisan::call('config:clear', [], $outputLog);
+                Artisan::call('route:clear', [], $outputLog);
+                Artisan::call('view:clear', [], $outputLog);
+                break;
+
+            case 'fetch_emails':
+                $params = [];
+                if ($request->filled('days')) {
+                    $params['--days'] = (int) $request->input('days');
+                }
+                Artisan::call('freescout:fetch-emails', $params, $outputLog);
+                break;
+
+            case 'migrate_db':
+                Artisan::call('migrate', ['--force' => true], $outputLog);
+                break;
+
+            case 'optimize':
+                Artisan::call('optimize', [], $outputLog);
+                break;
+        }
+
+        $output = $outputLog->fetch();
+
+        if ($output) {
+            cache()->forever('tools_execute_output', $output);
+        }
+
+        return redirect()->route('system.tools')->withInput($request->only(['days']));
     }
 
     /**
@@ -100,14 +269,8 @@ class SystemController extends Controller
         }
 
         // Required PHP extensions
-        $requiredExtensions = ['mbstring', 'openssl', 'pdo', 'tokenizer', 'xml', 'ctype', 'json'];
-        $missingExtensions = [];
-
-        foreach ($requiredExtensions as $ext) {
-            if (! extension_loaded($ext)) {
-                $missingExtensions[] = $ext;
-            }
-        }
+        $phpExtensions = $this->checkRequiredExtensions();
+        $missingExtensions = array_keys(array_filter($phpExtensions, fn ($loaded) => ! $loaded));
 
         $checks['extensions'] = [
             'status' => empty($missingExtensions) ? 'ok' : 'warning',
@@ -220,6 +383,38 @@ class SystemController extends Controller
                     'info' => $info,
                 ]);
 
+            case 'cancel_job':
+                try {
+                    $jobId = $request->input('job_id');
+                    DB::table('jobs')->where('id', $jobId)->delete();
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Job cancelled successfully.',
+                    ]);
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to cancel job: '.$e->getMessage(),
+                    ], 500);
+                }
+
+            case 'retry_job':
+                try {
+                    $jobId = $request->input('job_id');
+                    DB::table('jobs')->where('id', $jobId)->update(['available_at' => time()]);
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Job retry queued.',
+                    ]);
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to retry job: '.$e->getMessage(),
+                    ], 500);
+                }
+
             default:
                 return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
         }
@@ -259,7 +454,7 @@ class SystemController extends Controller
 
             case 'activity':
                 // Get recent activity logs
-                $activityLogs = \App\Models\ActivityLog::with(['causer'])
+                $activityLogs = ActivityLog::with(['causer'])
                     ->latest()
                     ->paginate(50);
 
@@ -268,10 +463,44 @@ class SystemController extends Controller
         }
 
         $data['currentType'] = $type;
+        $data['availableLogs'] = ActivityLog::getAvailableLogs();
 
         $viewName = 'system.logs';
 
         return view($viewName, $data);
+    }
+
+    /**
+     * Clear logs.
+     */
+    public function clearLogs(Request $request): RedirectResponse
+    {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+        if (! $user || ! $user->isAdmin()) {
+            abort(403);
+        }
+
+        $type = $request->input('type', 'application');
+
+        switch ($type) {
+            case 'application':
+                $logFile = storage_path('logs/laravel.log');
+                if (file_exists($logFile)) {
+                    file_put_contents($logFile, '');
+                }
+                break;
+
+            case 'activity':
+                $logName = $request->input('log_name');
+                if ($logName) {
+                    ActivityLog::where('log_name', $logName)->delete();
+                }
+                break;
+        }
+
+        return redirect()->route('system.logs', ['type' => $type])
+            ->with('success', 'Logs cleared successfully.');
     }
 
     /**
@@ -315,7 +544,7 @@ class SystemController extends Controller
     {
         try {
             Artisan::call('queue:retry', ['id' => [$uuid]]);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Job retry queued successfully.',
@@ -335,7 +564,7 @@ class SystemController extends Controller
     {
         try {
             Artisan::call('queue:forget', ['id' => [$uuid]]);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Failed job deleted successfully.',
@@ -349,9 +578,55 @@ class SystemController extends Controller
     }
 
     /**
+     * Delete all failed jobs for a queue.
+     */
+    public function deleteFailedJobsForQueue(Request $request): JsonResponse
+    {
+        try {
+            $queue = $request->input('queue');
+            DB::table('failed_jobs')->where('queue', $queue)->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Failed jobs deleted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete jobs: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Retry all failed jobs for a queue.
+     */
+    public function retryFailedJobsForQueue(Request $request): JsonResponse
+    {
+        try {
+            $queue = $request->input('queue');
+            $jobs = DB::table('failed_jobs')->where('queue', $queue)->get();
+
+            foreach ($jobs as $job) {
+                Artisan::call('queue:retry', ['id' => [$job->uuid]]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Failed jobs retried successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retry jobs: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Perform system update (migrations, cache clear).
      */
-    public function performUpdate(Request $request): \Illuminate\Http\RedirectResponse
+    public function performUpdate(Request $request): RedirectResponse
     {
         try {
             // Increase memory limit
@@ -361,7 +636,36 @@ class SystemController extends Controller
 
             return back()->with('status', 'Update script ran successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Update failed: ' . $e->getMessage());
+            return back()->with('error', 'Update failed: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Web cron endpoint for HTTP-based cron triggering.
+     */
+    public function cron(Request $request): \Illuminate\Http\Response
+    {
+        $hash = $request->input('hash');
+
+        // Verify the hash matches
+        $expectedHash = md5(config('app.key').'cron');
+
+        if ($hash !== $expectedHash) {
+            abort(404);
+        }
+
+        $outputLog = new BufferedOutput;
+        Artisan::call('schedule:run', [], $outputLog);
+        $output = $outputLog->fetch();
+
+        return response($output, 200)->header('Content-Type', 'text/plain');
+    }
+
+    /**
+     * Get the web cron hash.
+     */
+    public static function getWebCronHash(): string
+    {
+        return md5(config('app.key').'cron');
     }
 }
