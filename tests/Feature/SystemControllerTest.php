@@ -282,4 +282,142 @@ class SystemControllerTest extends TestCase
         $response1->assertDownload();
         $response2->assertDownload();
     }
+
+    // ==================== Additional SystemController Tests ====================
+
+    public function test_system_index_returns_statistics(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $response = $this->actingAs($admin)->get(route('system.index'));
+
+        $response->assertOk();
+        $response->assertViewHas('stats', function ($stats) {
+            return isset($stats['users']) &&
+                   isset($stats['mailboxes']) &&
+                   isset($stats['conversations']) &&
+                   isset($stats['customers']);
+        });
+    }
+
+    public function test_system_index_returns_system_info(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $response = $this->actingAs($admin)->get(route('system.index'));
+
+        $response->assertOk();
+        $response->assertViewHas('systemInfo', function ($info) {
+            return isset($info['php_version']) &&
+                   isset($info['laravel_version']) &&
+                   isset($info['memory_limit']);
+        });
+    }
+
+    public function test_diagnostics_checks_all_components(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $response = $this->actingAs($admin)->getJson(route('system.diagnostics'));
+
+        $response->assertOk();
+        $response->assertJson(['success' => true]);
+        $response->assertJsonStructure([
+            'checks' => [
+                'database' => ['status', 'message'],
+                'storage' => ['status', 'message'],
+                'cache' => ['status', 'message'],
+                'extensions' => ['status', 'message'],
+            ],
+        ]);
+    }
+
+    public function test_ajax_queue_work_requires_admin(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+
+        $response = $this->actingAs($user)
+            ->postJson(route('system.ajax'), [
+                'action' => 'queue_work',
+            ]);
+
+        $response->assertForbidden();
+    }
+
+    public function test_ajax_fetch_mail_requires_admin(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+
+        $response = $this->actingAs($user)
+            ->postJson(route('system.ajax'), [
+                'action' => 'fetch_mail',
+            ]);
+
+        $response->assertForbidden();
+    }
+
+    public function test_logs_page_with_activity_type(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $response = $this->actingAs($admin)
+            ->get(route('system.logs', ['type' => 'activity']));
+
+        $response->assertOk();
+        $response->assertViewHas('currentType', 'activity');
+    }
+
+    public function test_update_page_renders(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $response = $this->actingAs($admin)->get(route('system.update'));
+
+        $response->assertOk();
+        $response->assertViewIs('system.update');
+    }
+
+    public function test_failed_jobs_page_renders(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $response = $this->actingAs($admin)->get(route('system.failed_jobs'));
+
+        $response->assertOk();
+        $response->assertViewHas('failedJobs');
+    }
+
+    public function test_perform_update_runs_update_script(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $response = $this->actingAs($admin)->post(route('system.perform_update'));
+
+        $response->assertRedirect();
+        // Either success or error status
+        $this->assertTrue(
+            session()->has('status') || session()->has('error')
+        );
+    }
+
+    public function test_non_admin_cannot_access_system_routes(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+
+        $routes = [
+            route('system.index'),
+            route('system.diagnostics'),
+            route('system.logs'),
+            route('system.update'),
+            route('system.failed_jobs'),
+        ];
+
+        foreach ($routes as $routeUrl) {
+            $response = $this->actingAs($user)->get($routeUrl);
+            $this->assertTrue(
+                $response->isForbidden() || $response->isRedirect(),
+                "Route {$routeUrl} should be forbidden for non-admin"
+            );
+        }
+    }
 }

@@ -216,14 +216,15 @@ class ModulesTest extends TestCase
      */
     public function test_enable_module_returns_proper_json_structure(): void
     {
-        // Skip if no modules available
-        if (Module::count() === 0) {
-            $this->markTestSkipped('No modules available for testing');
-        }
+        // Test with a non-existent module to verify error response structure
+        $response = $this->actingAs($this->admin)
+            ->postJson(route('modules.enable', 'test-module'));
 
-        // This test documents expected response structure
-        // In a real scenario with a test module, we would verify the actual response
-        $this->assertTrue(true);
+        $response->assertNotFound();
+        $response->assertJsonStructure([
+            'status',
+            'message',
+        ]);
     }
 
     /**
@@ -231,13 +232,15 @@ class ModulesTest extends TestCase
      */
     public function test_disable_module_returns_proper_json_structure(): void
     {
-        // Skip if no modules available
-        if (Module::count() === 0) {
-            $this->markTestSkipped('No modules available for testing');
-        }
+        // Test with a non-existent module to verify error response structure
+        $response = $this->actingAs($this->admin)
+            ->postJson(route('modules.disable', 'test-module'));
 
-        // This test documents expected response structure
-        $this->assertTrue(true);
+        $response->assertNotFound();
+        $response->assertJsonStructure([
+            'status',
+            'message',
+        ]);
     }
 
     /**
