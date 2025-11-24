@@ -8,6 +8,7 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Folder;
 use App\Models\Mailbox;
+use App\Models\SavedSearch;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory as ViewFactory;
@@ -532,6 +533,46 @@ class ConversationController extends Controller
             }
 
             return response()->json(['success' => true, 'viewers' => []]);
+        }
+
+        // Handle saved search operations (no conversation_id required)
+        if ($action === 'save_search') {
+            return $this->handleSaveSearch($request, $user);
+        }
+
+        if ($action === 'delete_search') {
+            return $this->handleDeleteSearch($request, $user);
+        }
+
+        if ($action === 'list_saved_searches') {
+            $searches = SavedSearch::forUser($user->id)->ordered()->get();
+
+            return response()->json([
+                'success' => true,
+                'searches' => $searches->map(function ($search) {
+                    return [
+                        'id' => $search->id,
+                        'name' => $search->name,
+                        'query' => $search->query,
+                        'filters' => $search->filters,
+                        'url' => $search->getUrl(),
+                        'is_default' => $search->is_default,
+                    ];
+                }),
+            ]);
+        }
+
+        if ($action === 'set_default_search') {
+            $searchId = (int) $request->input('search_id');
+            $search = SavedSearch::forUser($user->id)->find($searchId);
+
+            if (! $search) {
+                return response()->json(['success' => false, 'message' => 'Saved search not found'], 404);
+            }
+
+            $search->setAsDefault();
+
+            return response()->json(['success' => true]);
         }
 
         $conversationId = $request->input('conversation_id');
@@ -1708,5 +1749,66 @@ class ConversationController extends Controller
                 ];
             }),
         ]);
+    }
+
+    /**
+     * Handle saving a search.
+     */
+    protected function handleSaveSearch(Request $request, User $user): JsonResponse
+    {
+        $name = $request->input('name', '');
+        $query = $request->input('query', '');
+        $filters = $request->input('filters', []);
+
+        if (empty($name)) {
+            return response()->json(['success' => false, 'message' => 'Search name is required'], 400);
+        }
+
+        // Validate filters is an array
+        if (! is_array($filters)) {
+            $filters = [];
+        }
+
+        // Clean up filters - only keep valid keys
+        $validFilterKeys = ['mailbox', 'assigned', 'status', 'type', 'has_attachments', 'date_from', 'date_to'];
+        $filters = array_intersect_key($filters, array_flip($validFilterKeys));
+
+        // Get next sort order
+        $maxSortOrder = SavedSearch::forUser($user->id)->max('sort_order') ?? 0;
+
+        $search = SavedSearch::create([
+            'user_id' => $user->id,
+            'name' => substr($name, 0, 255),
+            'query' => $query,
+            'filters' => ! empty($filters) ? $filters : null,
+            'sort_order' => $maxSortOrder + 1,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'search' => [
+                'id' => $search->id,
+                'name' => $search->name,
+                'url' => $search->getUrl(),
+            ],
+        ]);
+    }
+
+    /**
+     * Handle deleting a saved search.
+     */
+    protected function handleDeleteSearch(Request $request, User $user): JsonResponse
+    {
+        $searchId = (int) $request->input('search_id');
+
+        $search = SavedSearch::forUser($user->id)->find($searchId);
+
+        if (! $search) {
+            return response()->json(['success' => false, 'message' => 'Saved search not found'], 404);
+        }
+
+        $search->delete();
+
+        return response()->json(['success' => true]);
     }
 }

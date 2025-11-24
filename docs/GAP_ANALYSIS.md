@@ -725,10 +725,10 @@ This checklist is designed for an LLM agent to systematically implement the miss
 
 #### 6.3 Advanced Search
 - [x] Add search filters (mailbox, assignee, status, date range)
-- [ ] Add saved search functionality
+- [x] Add saved search functionality (SavedSearch model, AJAX actions: save_search, delete_search, list_saved_searches, set_default_search)
 - [ ] Update search view with filter UI
 
-### Phase 7: UI Enhancements (Largely Complete)
+### Phase 7: UI Enhancements (Complete)
 
 #### 7.1 Conversation View Enhancements
 - [x] Add real-time viewing indicators (`getViewersInfo()`, `setViewer()`, `removeViewer()`)
@@ -739,8 +739,8 @@ This checklist is designed for an LLM agent to systematically implement the miss
 
 #### 7.2 Additional Views
 - [x] Create modal views for all ajax_html actions (send_log, show_original, change_customer, move_conv, merge_conv, assignee_filter, default_redirect)
-- [ ] Add floating flash messages
-- [ ] Add DataTables integration where appropriate
+- [x] Add floating flash messages (`floating_flash_messages.blade.php`)
+- [ ] Add DataTables integration where appropriate (low priority - modern Tailwind tables adequate)
 
 ### Phase 8: Event System & Hooks
 
