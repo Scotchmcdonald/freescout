@@ -147,10 +147,12 @@ The module management system in the legacy app is significantly more comprehensi
 | Module Installation | `/archive/app/Http/Controllers/ModulesController.php::ajax()` | N/A | MISSING |
 | Module Updates | `/archive/app/Http/Controllers/ModulesController.php::ajax()` | N/A | MISSING |
 
-**Missing Module Features:**
+**Missing Module Features (High Priority):**
 - License activation/deactivation via WpApi
 - Module installation from remote repository
 - Module update system with version checking
+
+**Missing Module Features (Medium Priority):**
 - Third-party module support
 - Module directory (marketplace) integration
 - Bulk module updates
@@ -447,7 +449,7 @@ The legacy conversation views contain extensive UI components:
 - `userHasAccess()` - Check user access
 - `usersAssignable()` - Get users who can be assigned
 - `updateFoldersCounters()` - Update folder counts
-- `getAssesibleFolders()` - Get accessible folders
+- `getAccessibleFolders()` - Get accessible folders
 
 **Customer Model (`/archive/app/Customer.php`):**
 - `getByEmail()` - Find customer by email
@@ -574,5 +576,5 @@ The legacy application uses an extensive event system that may not be fully port
 
 ---
 
-*Generated: 2024*
+*Generated: November 2024*
 *Comparison: Laravel 5 (archive) → Laravel 11 (root)*
