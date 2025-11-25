@@ -83,6 +83,9 @@
                                         <x-dropdown-link :href="route('modules')">
                                             {{ __('Modules') }}
                                         </x-dropdown-link>
+                                        <x-dropdown-link :href="route('themes')">
+                                            {{ __('Themes') }}
+                                        </x-dropdown-link>
                                         <x-dropdown-link :href="route('logs')">
                                             {{ __('Logs') }}
                                         </x-dropdown-link>

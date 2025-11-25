@@ -25,6 +25,7 @@ use Illuminate\Notifications\Notifiable;
  * @property int|null $type
  * @property int|null $invite_state
  * @property string|null $locale
+ * @property string|null $theme
  * @property string|null $job_title
  * @property string|null $phone
  * @property int|null $time_format
@@ -92,6 +93,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'invite_state',
         'invite_hash',
         'locale',
+        'theme',
         'job_title',
         'phone',
         'time_format',
