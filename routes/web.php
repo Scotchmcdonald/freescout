@@ -122,6 +122,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/user/{user}', [UserController::class, 'show'])->name('users.show');
     Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::get('/user/{user}/password', [UserController::class, 'passwordForm'])->name('users.password');
+    Route::post('/user/{user}/password', [UserController::class, 'updatePassword'])->name('users.password.update');
     Route::get('/user/{user}/notifications', [UserController::class, 'notifications'])->name('users.notifications');
     Route::post('/user/{user}/notifications', [UserController::class, 'updateNotifications'])->name('users.notifications.update');
     Route::get('/user/{user}/permissions', [UserController::class, 'permissionsForm'])->name('users.permissions');

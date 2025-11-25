@@ -578,4 +578,50 @@ class UserController extends Controller
         
         return redirect()->route('permissions')->with('success', 'Permissions saved successfully.');
     }
+
+    /**
+     * Show password change form.
+     */
+    public function passwordForm(User $user): View|Factory
+    {
+        $this->authorize('update', $user);
+
+        return view('users.password', compact('user'));
+    }
+
+    /**
+     * Update user password.
+     */
+    public function updatePassword(Request $request, User $user): RedirectResponse
+    {
+        $this->authorize('update', $user);
+
+        /** @var \App\Models\User|null $currentUser */
+        $currentUser = auth()->user();
+        $isOwnProfile = $currentUser && $currentUser->id === $user->id;
+
+        $rules = [
+            'password' => 'required|string|min:8|confirmed',
+        ];
+
+        // Require current password if user is changing their own password
+        if ($isOwnProfile) {
+            $rules['current_password'] = 'required|string';
+        }
+
+        $validated = $request->validate($rules);
+
+        // Verify current password if changing own password
+        if ($isOwnProfile) {
+            if (!Hash::check($validated['current_password'], $user->password)) {
+                return back()->withErrors(['current_password' => __('Current password is incorrect')]);
+            }
+        }
+
+        $user->update([
+            'password' => $validated['password'], // Hashed by model cast
+        ]);
+
+        return back()->with('success', __('Password updated successfully'));
+    }
 }

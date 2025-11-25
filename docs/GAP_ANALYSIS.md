@@ -671,7 +671,7 @@ This checklist is designed for an LLM agent to systematically implement the miss
 - [x] Add custom conversation number configuration
 - [x] Add user global permissions management
 - [x] Add email conversation history settings
-- [ ] Add max message size configuration
+- [x] Add max message size configuration
 - [x] Add open tracking toggle
 - [x] Add email branding toggle
 - [x] Update `/resources/views/settings/general.blade.php`
@@ -694,7 +694,7 @@ This checklist is designed for an LLM agent to systematically implement the miss
 ### Phase 5: User & Customer Management (Medium Priority)
 
 #### 5.1 User Management Enhancements
-- [ ] Add separate password change page/action
+- [x] Add separate password change page/action (users.password route)
 - [x] Add user photo upload with `savePhoto()` method (ajaxUploadPhoto)
 - [x] Add user invitation system with `sendInvite()` method
 - [x] Add user deletion with conversation reassignment
@@ -706,8 +706,8 @@ This checklist is designed for an LLM agent to systematically implement the miss
 - [x] Add multiple email management (add/remove) (ajaxAddEmail, ajaxDeleteEmail)
 - [x] Add email migration between customers (ajaxMigrateEmail)
 - [x] Add phone field management (ajaxAddPhone, ajaxDeletePhone)
-- [ ] Add social profiles management
-- [ ] Add website fields management
+- [x] Add social profiles management (ajaxAddSocialProfile, ajaxDeleteSocialProfile)
+- [x] Add website fields management (ajaxAddWebsite, ajaxDeleteWebsite)
 
 ### Phase 6: Enhanced Features (Medium Priority)
 

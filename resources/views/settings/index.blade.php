@@ -151,6 +151,21 @@
                                         </p>
                                     </div>
                                     
+                                    <div>
+                                        <label for="max_message_size" class="block text-sm font-medium text-gray-700 mb-2">
+                                            {{ __('Max Message Size (KB)') }}
+                                        </label>
+                                        <div class="flex items-center">
+                                            <input type="number" name="max_message_size" id="max_message_size" min="0" max="102400"
+                                                   value="{{ old('max_message_size', $settings['max_message_size'] ?? 25000) }}"
+                                                   class="w-32 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-500">KB</span>
+                                        </div>
+                                        <p class="mt-1 text-sm text-gray-500">
+                                            {{ __('Maximum size of email messages including attachments. Set to 0 for unlimited.') }}
+                                        </p>
+                                    </div>
+                                    
                                     <div class="flex items-center">
                                         <input type="checkbox" name="email_branding" id="email_branding" value="1"
                                                {{ old('email_branding', $settings['email_branding'] ?? false) ? 'checked' : '' }}

@@ -104,6 +104,7 @@ class SettingsController extends Controller
             'timezone' => 'nullable|timezone',
             'time_format' => 'nullable|in:12,24',
             'email_conv_history' => 'nullable|in:none,last,full',
+            'max_message_size' => 'nullable|integer|min:0|max:102400',
             'email_branding' => 'nullable|boolean',
             'open_tracking' => 'nullable|boolean',
             'enrich_customer_data' => 'nullable|boolean',

@@ -243,6 +243,18 @@ class CustomerController extends Controller
             case 'migrate_email':
                 return $this->ajaxMigrateEmail($request);
 
+            case 'add_social_profile':
+                return $this->ajaxAddSocialProfile($request);
+
+            case 'delete_social_profile':
+                return $this->ajaxDeleteSocialProfile($request);
+
+            case 'add_website':
+                return $this->ajaxAddWebsite($request);
+
+            case 'delete_website':
+                return $this->ajaxDeleteWebsite($request);
+
             default:
                 return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
         }
@@ -585,5 +597,127 @@ class CustomerController extends Controller
             ->paginate(50);
 
         return view('customers.index', compact('customers'));
+    }
+
+    /**
+     * AJAX: Add social profile to customer.
+     */
+    protected function ajaxAddSocialProfile(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'customer_id' => 'required|integer|exists:customers,id',
+            'type' => 'required|string|in:twitter,facebook,linkedin,instagram,github',
+            'value' => 'required|string|max:255',
+        ]);
+
+        /** @var \App\Models\Customer $customer */
+        $customer = Customer::findOrFail($validated['customer_id']);
+
+        // Get current social profiles
+        $profiles = $customer->social_profiles ?? [];
+        if (!is_array($profiles)) {
+            $profiles = [];
+        }
+
+        // Add new profile (overwrite if same type exists)
+        $profiles[$validated['type']] = $validated['value'];
+
+        $customer->update(['social_profiles' => $profiles]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Social profile added successfully'),
+        ]);
+    }
+
+    /**
+     * AJAX: Delete social profile from customer.
+     */
+    protected function ajaxDeleteSocialProfile(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'customer_id' => 'required|integer|exists:customers,id',
+            'type' => 'required|string|in:twitter,facebook,linkedin,instagram,github',
+        ]);
+
+        /** @var \App\Models\Customer $customer */
+        $customer = Customer::findOrFail($validated['customer_id']);
+
+        $profiles = $customer->social_profiles ?? [];
+        if (!is_array($profiles)) {
+            $profiles = [];
+        }
+
+        unset($profiles[$validated['type']]);
+
+        $customer->update(['social_profiles' => $profiles]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Social profile deleted successfully'),
+        ]);
+    }
+
+    /**
+     * AJAX: Add website to customer.
+     */
+    protected function ajaxAddWebsite(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'customer_id' => 'required|integer|exists:customers,id',
+            'url' => 'required|url|max:255',
+        ]);
+
+        /** @var \App\Models\Customer $customer */
+        $customer = Customer::findOrFail($validated['customer_id']);
+
+        // Get current websites
+        $websites = $customer->websites ?? [];
+        if (!is_array($websites)) {
+            $websites = [];
+        }
+
+        // Add new website if not already present
+        if (!in_array($validated['url'], $websites)) {
+            $websites[] = $validated['url'];
+        }
+
+        $customer->update(['websites' => $websites]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Website added successfully'),
+        ]);
+    }
+
+    /**
+     * AJAX: Delete website from customer.
+     */
+    protected function ajaxDeleteWebsite(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'customer_id' => 'required|integer|exists:customers,id',
+            'website_index' => 'required|integer|min:0',
+        ]);
+
+        /** @var \App\Models\Customer $customer */
+        $customer = Customer::findOrFail($validated['customer_id']);
+
+        $websites = $customer->websites ?? [];
+        if (!is_array($websites)) {
+            $websites = [];
+        }
+
+        if (isset($websites[$validated['website_index']])) {
+            unset($websites[$validated['website_index']]);
+            $websites = array_values($websites); // Re-index
+        }
+
+        $customer->update(['websites' => $websites]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Website deleted successfully'),
+        ]);
     }
 }
