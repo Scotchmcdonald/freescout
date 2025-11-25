@@ -69,6 +69,9 @@ class UserController extends Controller
 
         $user = User::create($validated);
 
+        // Allow modules to modify user after creation
+        $user = \Eventy::filter('user.create_save', $user, $request);
+
         return redirect()
             ->route('users.show', $user)
             ->with('success', 'User created successfully.');
@@ -139,6 +142,9 @@ class UserController extends Controller
 
         $user->update($validated);
 
+        // Allow modules to modify user after save
+        $user = \Eventy::filter('user.save_profile', $user, $request);
+
         // Sync mailboxes if provided
         if ($mailboxes !== null) {
             $user->mailboxes()->sync($mailboxes);
@@ -152,21 +158,42 @@ class UserController extends Controller
     /**
      * Remove the specified user.
      */
-    public function destroy(User $user): RedirectResponse
+    public function destroy(Request $request, User $user): RedirectResponse
     {
         $this->authorize('delete', $user);
 
+        $reassignTo = $request->input('reassign_to');
+        
         if ($user->conversations()->exists()) {
-            return back()->withErrors([
-                'error' => 'Cannot delete user with existing conversations. Reassign them first.',
-            ]);
+            if (!$reassignTo) {
+                return back()->withErrors([
+                    'error' => 'Cannot delete user with existing conversations. Select a user to reassign conversations to.',
+                ]);
+            }
+            
+            // Validate reassign target
+            $targetUser = User::find($reassignTo);
+            if (!$targetUser || $targetUser->id === $user->id || $targetUser->isDeleted()) {
+                return back()->withErrors([
+                    'error' => 'Invalid user selected for conversation reassignment.',
+                ]);
+            }
+            
+            // Reassign all conversations
+            $user->conversations()->update(['user_id' => $targetUser->id]);
+            
+            // Log the reassignment
+            \Illuminate\Support\Facades\Log::info(
+                "Reassigned conversations from user {$user->id} to user {$targetUser->id} during deletion"
+            );
         }
 
-        $user->delete();
+        // Mark as deleted instead of hard delete (soft delete)
+        $user->update(['status' => User::STATUS_DELETED]);
 
         return redirect()
             ->route('users.index')
-            ->with('success', 'User deleted successfully.');
+            ->with('success', 'User deleted successfully.' . ($reassignTo ? ' Conversations reassigned.' : ''));
     }
 
     /**
@@ -239,8 +266,162 @@ class UserController extends Controller
                     'status' => $newStatus,
                 ]);
 
+            case 'delete_photo':
+                return $this->ajaxDeletePhoto($request);
+
+            case 'upload_photo':
+                return $this->ajaxUploadPhoto($request);
+
+            case 'resend_invite':
+                return $this->ajaxResendInvite($request);
+
+            case 'send_password_reset':
+                return $this->ajaxSendPasswordReset($request);
+
             default:
-                return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
+                // Allow modules to handle custom actions
+                $response = ['success' => false, 'message' => 'Invalid action'];
+                $response = \Eventy::filter('users.ajax.response_default', $response, $request);
+                
+                return response()->json($response, $response['success'] ? 200 : 400);
+        }
+    }
+
+    /**
+     * AJAX: Delete user photo.
+     */
+    protected function ajaxDeletePhoto(Request $request): JsonResponse
+    {
+        $userId = $request->input('user_id');
+        /** @var \App\Models\User $user */
+        $user = User::findOrFail($userId);
+
+        $this->authorize('update', $user);
+
+        // Delete the file if it's a local path
+        if ($user->photo_url && ! str_starts_with($user->photo_url, 'http')) {
+            $fullPath = storage_path('app/public/'.$user->photo_url);
+            if (file_exists($fullPath)) {
+                try {
+                    unlink($fullPath);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to delete user photo: '.$e->getMessage());
+                }
+            }
+        }
+
+        $user->update(['photo_url' => null]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Photo deleted successfully'),
+        ]);
+    }
+
+    /**
+     * AJAX: Upload user photo.
+     */
+    protected function ajaxUploadPhoto(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $userId = $request->input('user_id');
+        /** @var \App\Models\User $user */
+        $user = User::findOrFail($userId);
+
+        $this->authorize('update', $user);
+
+        // Delete old photo
+        if ($user->photo_url && ! str_starts_with($user->photo_url, 'http')) {
+            $fullPath = storage_path('app/public/'.$user->photo_url);
+            if (file_exists($fullPath)) {
+                try {
+                    unlink($fullPath);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Failed to delete old user photo: '.$e->getMessage());
+                }
+            }
+        }
+
+        // Store new photo
+        $path = $request->file('photo')->store('avatars', 'public');
+
+        $user->update(['photo_url' => $path]);
+
+        return response()->json([
+            'success' => true,
+            'photo_url' => asset('storage/'.$path),
+            'message' => __('Photo uploaded successfully'),
+        ]);
+    }
+
+    /**
+     * AJAX: Resend invitation email.
+     */
+    protected function ajaxResendInvite(Request $request): JsonResponse
+    {
+        $userId = $request->input('user_id');
+        /** @var \App\Models\User $user */
+        $user = User::findOrFail($userId);
+
+        $this->authorize('update', $user);
+
+        if ($user->invite_state === User::INVITE_STATE_ACTIVATED) {
+            return response()->json([
+                'success' => false,
+                'message' => __('User has already activated their account'),
+            ]);
+        }
+
+        // Generate new invite hash if needed
+        if (! $user->invite_hash) {
+            $user->invite_hash = \Illuminate\Support\Str::random(32);
+            $user->save();
+        }
+
+        try {
+            $user->sendInvite(true);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Invitation email sent successfully'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Failed to send invitation: ').$e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * AJAX: Send password reset email.
+     */
+    protected function ajaxSendPasswordReset(Request $request): JsonResponse
+    {
+        $userId = $request->input('user_id');
+        /** @var \App\Models\User $user */
+        $user = User::findOrFail($userId);
+
+        $this->authorize('update', $user);
+
+        try {
+            \Illuminate\Support\Facades\Password::broker()->sendResetLink([
+                'email' => $user->email,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Password reset email sent successfully'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Failed to send password reset: ').$e->getMessage(),
+            ]);
         }
     }
 
@@ -396,5 +577,51 @@ class UserController extends Controller
         // Logic to save permissions would go here
         
         return redirect()->route('permissions')->with('success', 'Permissions saved successfully.');
+    }
+
+    /**
+     * Show password change form.
+     */
+    public function passwordForm(User $user): View|Factory
+    {
+        $this->authorize('update', $user);
+
+        return view('users.password', compact('user'));
+    }
+
+    /**
+     * Update user password.
+     */
+    public function updatePassword(Request $request, User $user): RedirectResponse
+    {
+        $this->authorize('update', $user);
+
+        /** @var \App\Models\User|null $currentUser */
+        $currentUser = auth()->user();
+        $isOwnProfile = $currentUser && $currentUser->id === $user->id;
+
+        $rules = [
+            'password' => 'required|string|min:8|confirmed',
+        ];
+
+        // Require current password if user is changing their own password
+        if ($isOwnProfile) {
+            $rules['current_password'] = 'required|string';
+        }
+
+        $validated = $request->validate($rules);
+
+        // Verify current password if changing own password
+        if ($isOwnProfile) {
+            if (!Hash::check($validated['current_password'], $user->password)) {
+                return back()->withErrors(['current_password' => __('Current password is incorrect')]);
+            }
+        }
+
+        $user->update([
+            'password' => $validated['password'], // Hashed by model cast
+        ]);
+
+        return back()->with('success', __('Password updated successfully'));
     }
 }

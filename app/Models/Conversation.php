@@ -76,10 +76,50 @@ class Conversation extends Model
     // State constants
     public const STATE_DRAFT = 1;
     public const STATE_PUBLISHED = 2;
+    public const STATE_DELETED = 3;
 
     // Source via constants (who created)
     public const PERSON_CUSTOMER = 1;
     public const PERSON_USER = 2;
+
+    // Source type constants
+    public const SOURCE_TYPE_WEB = 1;
+    public const SOURCE_TYPE_EMAIL = 2;
+    public const SOURCE_TYPE_API = 3;
+
+    // Search modes
+    public const SEARCH_MODE_CONV = 'conversations';
+    public const SEARCH_MODE_CUSTOMERS = 'customers';
+
+    // User assignment constant
+    public const USER_UNASSIGNED = 'unassigned';
+
+    // Viewer cache constants
+    public const VIEWER_CACHE_KEY = 'conv_view';
+    public const VIEWER_CACHE_TTL = 300; // 5 minutes
+    public const VIEWER_STALE_TIMEOUT = 120; // 2 minutes
+
+    /**
+     * Search filters.
+     *
+     * @var array<int, string>
+     */
+    public static array $search_filters = [
+        'assigned',
+        'customer',
+        'mailbox',
+        'status',
+        'state',
+        'subject',
+        'attachments',
+        'type',
+        'body',
+        'number',
+        'following',
+        'id',
+        'after',
+        'before',
+    ];
 
     protected $fillable = [
         'number',
@@ -336,6 +376,529 @@ class Conversation extends Model
         if ($folder && $this->folder_id !== $folder->id) {
             $this->folder_id = $folder->id;
             $this->save();
+        }
+    }
+
+    /**
+     * Check if user is following this conversation.
+     */
+    public function isUserFollowing(?User $user = null): bool
+    {
+        if (! $user) {
+            $user = auth()->user();
+        }
+
+        if (! $user) {
+            return false;
+        }
+
+        return $this->followers()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Change conversation user (assignee) with logging.
+     */
+    public function changeUser(?int $userId, ?User $byUser = null): bool
+    {
+        $oldUserId = $this->user_id;
+        $this->user_id = $userId;
+        $this->user_updated_at = now();
+        $saved = $this->save();
+
+        if ($saved && $oldUserId !== $userId) {
+            // Log the change
+            activity()
+                ->causedBy($byUser)
+                ->performedOn($this)
+                ->withProperties([
+                    'old_user_id' => $oldUserId,
+                    'new_user_id' => $userId,
+                ])
+                ->log('conversation_user_changed');
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Change conversation status with logging.
+     */
+    public function changeStatus(int $status, ?User $byUser = null): bool
+    {
+        $oldStatus = $this->status;
+        $this->status = $status;
+
+        // Update closed_at and closed_by if closing
+        if ($status === self::STATUS_CLOSED && $oldStatus !== self::STATUS_CLOSED) {
+            $this->closed_at = now();
+            $this->closed_by_user_id = $byUser?->id;
+        }
+
+        $saved = $this->save();
+
+        if ($saved && $oldStatus !== $status) {
+            // Log the change
+            activity()
+                ->causedBy($byUser)
+                ->performedOn($this)
+                ->withProperties([
+                    'old_status' => $oldStatus,
+                    'new_status' => $status,
+                ])
+                ->log('conversation_status_changed');
+
+            // Update folder based on new status
+            $this->updateFolder();
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Delete conversation to Deleted folder (soft delete).
+     */
+    public function deleteToFolder(?User $byUser = null): bool
+    {
+        // Find or create Deleted folder
+        $deletedFolder = Folder::where('mailbox_id', $this->mailbox_id)
+            ->where('type', Folder::TYPE_DELETED)
+            ->first();
+
+        if (! $deletedFolder) {
+            return false;
+        }
+
+        $this->state = 3; // Deleted state
+        $this->folder_id = $deletedFolder->id;
+
+        $saved = $this->save();
+
+        if ($saved) {
+            activity()
+                ->causedBy($byUser)
+                ->performedOn($this)
+                ->log('conversation_deleted');
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Restore conversation from Deleted folder.
+     */
+    public function restoreFromDeleted(?User $byUser = null): bool
+    {
+        // Find Inbox folder
+        $inboxFolder = Folder::where('mailbox_id', $this->mailbox_id)
+            ->where('type', Folder::TYPE_INBOX)
+            ->first();
+
+        if (! $inboxFolder) {
+            return false;
+        }
+
+        $this->state = self::STATE_PUBLISHED;
+        $this->folder_id = $inboxFolder->id;
+
+        $saved = $this->save();
+
+        if ($saved) {
+            activity()
+                ->causedBy($byUser)
+                ->performedOn($this)
+                ->log('conversation_restored');
+
+            // Update to proper folder
+            $this->updateFolder();
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Move conversation to different mailbox.
+     */
+    public function moveToMailbox(int $mailboxId, ?User $byUser = null): bool
+    {
+        $oldMailboxId = $this->mailbox_id;
+
+        // Find inbox folder in new mailbox
+        $inboxFolder = Folder::where('mailbox_id', $mailboxId)
+            ->where('type', Folder::TYPE_INBOX)
+            ->first();
+
+        if (! $inboxFolder) {
+            return false;
+        }
+
+        $this->mailbox_id = $mailboxId;
+        $this->folder_id = $inboxFolder->id;
+
+        $saved = $this->save();
+
+        if ($saved) {
+            activity()
+                ->causedBy($byUser)
+                ->performedOn($this)
+                ->withProperties([
+                    'old_mailbox_id' => $oldMailboxId,
+                    'new_mailbox_id' => $mailboxId,
+                ])
+                ->log('conversation_moved');
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Get BCC array.
+     *
+     * @return array<string>
+     */
+    public function getBccArray(): array
+    {
+        return $this->bcc ?? [];
+    }
+
+    /**
+     * Sanitize email array.
+     *
+     * @param  array<string>  $emails
+     * @return array<string>
+     */
+    public static function sanitizeEmails(array $emails): array
+    {
+        $result = [];
+        foreach ($emails as $email) {
+            $trimmed = trim($email);
+            if (filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+                $result[] = $trimmed;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Star a conversation for a user.
+     */
+    public function star(User $user): void
+    {
+        if (! $this->starredByUsers()->where('user_id', $user->id)->exists()) {
+            $this->starredByUsers()->attach($user->id);
+        }
+    }
+
+    /**
+     * Unstar a conversation for a user.
+     */
+    public function unstar(User $user): void
+    {
+        $this->starredByUsers()->detach($user->id);
+    }
+
+    /**
+     * Check if starred by a user.
+     */
+    public function isStarredBy(User $user): bool
+    {
+        return $this->starredByUsers()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Get starred by users relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<User, $this>
+     */
+    public function starredByUsers()
+    {
+        return $this->belongsToMany(User::class, 'conversation_user_stars', 'conversation_id', 'user_id');
+    }
+
+    /**
+     * Change the customer for this conversation.
+     */
+    public function changeCustomer(?string $email, ?int $customerId, ?User $user): void
+    {
+        $oldCustomerId = $this->customer_id;
+
+        if ($customerId) {
+            /** @var \App\Models\Customer|null $customer */
+            $customer = Customer::find($customerId);
+            if ($customer) {
+                $this->customer_id = $customerId;
+                $this->customer_email = $customer->getMainEmail();
+            }
+        } elseif ($email) {
+            // Find or create customer by email
+            $customer = Customer::create($email);
+            if ($customer) {
+                $this->customer_id = $customer->id;
+                $this->customer_email = $email;
+            }
+        }
+
+        $this->save();
+
+        // Log activity
+        if ($user && $oldCustomerId !== $this->customer_id) {
+            ActivityLog::query()->create([
+                'type' => ActivityLog::TYPE_CONVERSATION,
+                'causer_type' => User::class,
+                'causer_id' => $user->id,
+                'subject_type' => self::class,
+                'subject_id' => $this->id,
+                'description' => 'Customer changed',
+            ]);
+
+            // Fire event
+            \Eventy::action('conversation.customer_changed', $this, $user, $oldCustomerId);
+        }
+    }
+
+    /**
+     * Search conversations with filters.
+     *
+     * @param string $query Search query
+     * @param array<string, mixed> $filters Search filters
+     * @param User|null $user User performing the search
+     * @return \Illuminate\Database\Eloquent\Builder<Conversation>
+     */
+    public static function search(string $query, array $filters = [], ?User $user = null)
+    {
+        $builder = static::query()
+            ->select('conversations.*');
+
+        // Apply mailbox filter based on user access
+        if ($user) {
+            $mailboxIds = [];
+            if (! empty($filters['mailbox'])) {
+                // Verify user has access to the mailbox
+                if ($user->mailboxes->contains($filters['mailbox'])) {
+                    $mailboxIds[] = $filters['mailbox'];
+                } else {
+                    $mailboxIds = $user->mailboxes->pluck('id')->toArray();
+                }
+            } else {
+                $mailboxIds = $user->mailboxes->pluck('id')->toArray();
+            }
+            $builder->whereIn('conversations.mailbox_id', $mailboxIds);
+        }
+
+        // Apply search query
+        if ($query) {
+            $escapedQuery = addcslashes($query, '%_');
+            $like = '%' . mb_strtolower($escapedQuery) . '%';
+            $queryInt = min((int) $query, PHP_INT_MAX);
+
+            $builder->leftJoin('customers', 'conversations.customer_id', '=', 'customers.id')
+                ->leftJoin('threads', 'conversations.id', '=', 'threads.conversation_id')
+                ->where(function ($q) use ($like, $queryInt) {
+                    $q->where('conversations.subject', 'like', $like)
+                        ->orWhere('conversations.customer_email', 'like', $like)
+                        ->orWhere('conversations.number', $queryInt)
+                        ->orWhere('conversations.id', $queryInt)
+                        ->orWhere('customers.first_name', 'like', $like)
+                        ->orWhere('customers.last_name', 'like', $like)
+                        ->orWhere('threads.body', 'like', $like);
+                })
+                ->groupBy('conversations.id');
+        }
+
+        // Apply search filters
+        if (! empty($filters['assigned'])) {
+            if ($filters['assigned'] === self::USER_UNASSIGNED) {
+                $builder->whereNull('conversations.user_id');
+            } else {
+                $builder->where('conversations.user_id', $filters['assigned']);
+            }
+        }
+
+        if (! empty($filters['customer'])) {
+            $builder->where('conversations.customer_id', $filters['customer']);
+        }
+
+        if (! empty($filters['status'])) {
+            $statuses = is_array($filters['status']) ? $filters['status'] : [$filters['status']];
+            $builder->whereIn('conversations.status', $statuses);
+        }
+
+        if (! empty($filters['state'])) {
+            $states = is_array($filters['state']) ? $filters['state'] : [$filters['state']];
+            $builder->whereIn('conversations.state', $states);
+        }
+
+        if (! empty($filters['type'])) {
+            $builder->where('conversations.type', $filters['type']);
+        }
+
+        if (! empty($filters['attachments'])) {
+            $builder->where('conversations.has_attachments', true);
+        }
+
+        if (! empty($filters['after'])) {
+            $builder->where('conversations.created_at', '>=', $filters['after']);
+        }
+
+        if (! empty($filters['before'])) {
+            $builder->where('conversations.created_at', '<=', $filters['before']);
+        }
+
+        // Allow modules to modify search query
+        $builder = \Eventy::filter('search.conversations.query', $builder, $query, $filters, $user);
+
+        return $builder->orderBy('conversations.created_at', 'desc');
+    }
+
+    /**
+     * Get status label.
+     */
+    public function getStatusLabel(): string
+    {
+        return match ($this->status) {
+            self::STATUS_ACTIVE => __('Active'),
+            self::STATUS_PENDING => __('Pending'),
+            self::STATUS_CLOSED => __('Closed'),
+            self::STATUS_SPAM => __('Spam'),
+            default => __('Unknown'),
+        };
+    }
+
+    /**
+     * Get type label.
+     */
+    public function getTypeLabel(): string
+    {
+        return match ($this->type) {
+            self::TYPE_EMAIL => __('Email'),
+            self::TYPE_PHONE => __('Phone'),
+            self::TYPE_CHAT => __('Chat'),
+            default => __('Unknown'),
+        };
+    }
+
+    /**
+     * Get real-time viewers info for conversations.
+     * Shows who is currently viewing or replying to conversations.
+     *
+     * @param  \Illuminate\Database\Eloquent\Collection<int, Conversation>|array<int, Conversation>  $conversations
+     * @param  array<int, string>  $fields
+     * @param  array<int, int>  $excludeUserIds
+     * @return array<int, array{user: User|null, user_id: int, replying: bool}>
+     */
+    public static function getViewersInfo($conversations, array $fields = ['id', 'first_name', 'last_name'], array $excludeUserIds = []): array
+    {
+        $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
+        $viewers = [];
+        $userIds = [];
+
+        foreach ($conversations as $conversation) {
+            $firstUserId = null;
+
+            if (! empty($viewersCache[$conversation->id])) {
+                // Get replying viewers first (higher priority)
+                foreach ($viewersCache[$conversation->id] as $userId => $viewer) {
+                    if (! $firstUserId) {
+                        $firstUserId = $userId;
+                    }
+
+                    if (! empty($viewer['r']) && ! in_array($userId, $excludeUserIds)) {
+                        $viewers[$conversation->id] = [
+                            'user' => null,
+                            'user_id' => $userId,
+                            'replying' => true,
+                        ];
+                        $userIds[] = $userId;
+                        break;
+                    }
+                }
+
+                // Get first non-replying viewer if no replying viewer found
+                if (empty($viewers[$conversation->id]) && $firstUserId && ! in_array($firstUserId, $excludeUserIds)) {
+                    $viewers[$conversation->id] = [
+                        'user' => null,
+                        'user_id' => $firstUserId,
+                        'replying' => false,
+                    ];
+                    $userIds[] = $firstUserId;
+                }
+            }
+        }
+
+        // Get all viewing users in one query
+        if ($userIds) {
+            $userIds = array_unique($userIds);
+            $users = User::select($fields)->whereIn('id', $userIds)->get();
+
+            foreach ($viewers as $convId => $viewer) {
+                foreach ($users as $user) {
+                    if ($user->id === $viewer['user_id']) {
+                        $viewers[$convId]['user'] = $user;
+                    }
+                }
+            }
+        }
+
+        return $viewers;
+    }
+
+    /**
+     * Set conversation as being viewed by a user.
+     */
+    public static function setViewer(int $conversationId, int $userId, bool $replying = false): void
+    {
+        $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
+
+        $viewersCache[$conversationId][$userId] = [
+            'r' => $replying,
+            't' => time(),
+        ];
+
+        cache()->put(self::VIEWER_CACHE_KEY, $viewersCache, self::VIEWER_CACHE_TTL);
+    }
+
+    /**
+     * Remove viewer from conversation.
+     */
+    public static function removeViewer(int $conversationId, int $userId): void
+    {
+        $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
+
+        if (isset($viewersCache[$conversationId][$userId])) {
+            unset($viewersCache[$conversationId][$userId]);
+
+            if (empty($viewersCache[$conversationId])) {
+                unset($viewersCache[$conversationId]);
+            }
+
+            cache()->put(self::VIEWER_CACHE_KEY, $viewersCache, self::VIEWER_CACHE_TTL);
+        }
+    }
+
+    /**
+     * Clean up stale viewers (older than configured timeout).
+     */
+    public static function cleanupViewers(): void
+    {
+        $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
+        $staleTime = time() - self::VIEWER_STALE_TIMEOUT;
+
+        foreach ($viewersCache as $convId => $viewers) {
+            foreach ($viewers as $userId => $data) {
+                if (($data['t'] ?? 0) < $staleTime) {
+                    unset($viewersCache[$convId][$userId]);
+                }
+            }
+
+            if (empty($viewersCache[$convId])) {
+                unset($viewersCache[$convId]);
+            }
+        }
+
+        if (! empty($viewersCache)) {
+            cache()->put(self::VIEWER_CACHE_KEY, $viewersCache, self::VIEWER_CACHE_TTL);
+        } else {
+            cache()->forget(self::VIEWER_CACHE_KEY);
         }
     }
 }

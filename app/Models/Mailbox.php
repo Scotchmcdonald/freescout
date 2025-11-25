@@ -232,6 +232,59 @@ class Mailbox extends Model
     }
 
     /**
+     * Get mailbox aliases as an associative array.
+     *
+     * @return array<string, string>
+     */
+    public function getAliases(bool $includeMailboxEmail = true, bool $checkAliasesReply = false): array
+    {
+        if ($checkAliasesReply && !$this->aliases_reply) {
+            return [];
+        }
+
+        $emails = [];
+        if ($includeMailboxEmail) {
+            $emails[$this->email] = $this->name;
+        }
+
+        if ($this->aliases) {
+            $aliasesList = is_array($this->aliases) ? $this->aliases : explode(',', (string)$this->aliases);
+            foreach ($aliasesList as $alias) {
+                $name = '';
+                $alias = trim($alias);
+
+                // Parse alias format: email(Name) using a safer pattern
+                if (preg_match('/^([^(]+)\(([^)]*)\)$/', $alias, $m)) {
+                    $alias = trim($m[1]);
+                    $name = $m[2] ?? '';
+                }
+
+                $alias = filter_var(trim($alias), FILTER_VALIDATE_EMAIL);
+                if ($alias) {
+                    $emails[$alias] = $name;
+                }
+            }
+        }
+
+        return $emails;
+    }
+
+    /**
+     * Remove mailbox email and aliases from the list of emails.
+     *
+     * @param array<string> $list
+     * @return array<string>
+     */
+    public function removeMailboxEmailsFromList(array $list): array
+    {
+        $mailboxEmails = array_keys($this->getAliases(true, false));
+        
+        return array_filter($list, function ($email) use ($mailboxEmails) {
+            return !in_array(strtolower(trim($email)), array_map('strtolower', $mailboxEmails));
+        });
+    }
+
+    /**
      * Check if fetching is enabled.
      */
     public function isFetchingEnabled(): bool

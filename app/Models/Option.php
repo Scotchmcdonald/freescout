@@ -91,4 +91,12 @@ class Option extends Model
     {
         return static::getValue($name, $default);
     }
+
+    /**
+     * Alias for setValue for backward compatibility.
+     */
+    public static function set(string $name, mixed $value): bool
+    {
+        return static::setValue($name, $value);
+    }
 }

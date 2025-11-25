@@ -8,7 +8,9 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Folder;
 use App\Models\Mailbox;
+use App\Models\SavedSearch;
 use App\Models\Thread;
+use App\Models\User;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -398,36 +400,67 @@ class ConversationController extends Controller
         $searchQuery = $request->input('q', '');
         $searchQuery = is_string($searchQuery) ? $searchQuery : '';
 
-        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Conversation> $queryBuilder */
-        $queryBuilder = Conversation::query()
-            ->whereIn(
-                'mailbox_id',
-                $user->isAdmin()
-                ? Mailbox::pluck('id')
-                : $user->mailboxes->pluck('id')
-            )
-            ->where('state', 2) // Published
-            ->where(function ($q) use ($searchQuery) {
-                $q->where('subject', 'like', "%{$searchQuery}%")
-                    ->orWhere('preview', 'like', "%{$searchQuery}%")
-                    ->orWhereHas('customer', function ($q) use ($searchQuery) {
-                        // @phpstan-ignore-next-line
-                        $q->where('first_name', 'like', "%{$searchQuery}%")
-                            // @phpstan-ignore-next-line
-                            ->orWhere('last_name', 'like', "%{$searchQuery}%")
-                            ->orWhere('phones', 'like', "%{$searchQuery}%")
-                            ->orWhereHas('emails', function ($q) use ($searchQuery) {
-                                $q->where('email', 'like', "%{$searchQuery}%");
-                            });
-                    });
-            });
+        // Build filters from request
+        $filters = [
+            'mailbox' => $request->input('mailbox'),
+            'assigned' => $request->input('assigned'),
+            'status' => $request->input('status'),
+            'type' => $request->input('type'),
+            'after' => $request->input('after'),
+            'before' => $request->input('before'),
+        ];
+
+        // Only add attachments filter if explicitly requested
+        if ($request->boolean('attachments')) {
+            $filters['attachments'] = true;
+        }
+
+        // Remove empty filters (null and empty string only)
+        $filters = array_filter($filters, function ($v) {
+            return $v !== null && $v !== '';
+        });
+
+        // Store recent search queries in session
+        if ($searchQuery) {
+            $recentSearches = session('recent_search_queries', []);
+            if (! in_array($searchQuery, $recentSearches)) {
+                array_unshift($recentSearches, $searchQuery);
+                $recentSearches = array_slice($recentSearches, 0, 4);
+                session()->put('recent_search_queries', $recentSearches);
+            }
+        }
+
+        // Allow modules to modify search
+        $shouldSearch = \Eventy::filter('search.is_needed', true, 'conversations');
+
+        if ($shouldSearch) {
+            $queryBuilder = Conversation::search($searchQuery, $filters, $user);
+        } else {
+            // Fallback to basic query
+            /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Conversation> $queryBuilder */
+            $queryBuilder = Conversation::query()->whereRaw('1 = 0');
+        }
+
+        // Get available mailboxes and users for filters
+        $mailboxes = $user->isAdmin() ? Mailbox::all() : $user->mailboxes;
+        $assignees = \Eventy::filter('search.assignees', User::where('status', 1)->get(), $user, $mailboxes);
+
+        // Allow modules to modify filters list
+        $filtersList = \Eventy::filter('search.filters_list', Conversation::$search_filters, 'conversations', $filters, $searchQuery);
 
         $conversations = $queryBuilder
             ->with(['mailbox', 'customer', 'user', 'folder'])
-            ->orderBy('last_reply_at', 'desc')
             ->paginate(50);
 
-        return view('conversations.search', ['conversations' => $conversations, 'query' => $searchQuery]);
+        return view('conversations.search', [
+            'conversations' => $conversations,
+            'query' => $searchQuery,
+            'filters' => $filters,
+            'filters_list' => $filtersList,
+            'mailboxes' => $mailboxes,
+            'assignees' => $assignees,
+            'recent' => session('recent_search_queries', []),
+        ]);
     }
 
     /**
@@ -436,6 +469,112 @@ class ConversationController extends Controller
     public function ajax(Request $request): JsonResponse
     {
         $action = $request->input('action');
+
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        // Handle bulk operations separately
+        if (str_starts_with($action ?? '', 'bulk_')) {
+            return $this->handleBulkAction($request, $user, $action ?? '');
+        }
+
+        // Handle following operations
+        if ($action === 'follow' || $action === 'unfollow') {
+            return $this->handleFollowAction($request, $user, $action);
+        }
+
+        // Handle viewer operations (no conversation_id required for cleanup)
+        if ($action === 'set_viewer') {
+            $conversationId = (int) $request->input('conversation_id');
+            $replying = (bool) $request->input('replying', false);
+
+            if ($conversationId) {
+                // Validate conversation exists and user has access
+                $conversation = Conversation::find($conversationId);
+                if ($conversation && ($user->isAdmin() || $user->mailboxes->contains($conversation->mailbox_id))) {
+                    Conversation::setViewer($conversationId, $user->id, $replying);
+                }
+            }
+
+            return response()->json(['success' => true]);
+        }
+
+        if ($action === 'remove_viewer') {
+            $conversationId = (int) $request->input('conversation_id');
+
+            if ($conversationId) {
+                // No need to validate - user can always remove themselves as viewer
+                Conversation::removeViewer($conversationId, $user->id);
+            }
+
+            return response()->json(['success' => true]);
+        }
+
+        if ($action === 'get_viewers') {
+            $conversationIds = $request->input('conversation_ids', []);
+
+            if (! empty($conversationIds) && is_array($conversationIds)) {
+                // Only get viewers for conversations user has access to
+                $accessibleMailboxIds = $user->isAdmin()
+                    ? Mailbox::pluck('id')->toArray()
+                    : $user->mailboxes->pluck('id')->toArray();
+
+                $conversations = Conversation::whereIn('id', $conversationIds)
+                    ->whereIn('mailbox_id', $accessibleMailboxIds)
+                    ->get();
+
+                $viewers = Conversation::getViewersInfo($conversations, ['id', 'first_name', 'last_name'], [$user->id]);
+
+                return response()->json(['success' => true, 'viewers' => $viewers]);
+            }
+
+            return response()->json(['success' => true, 'viewers' => []]);
+        }
+
+        // Handle saved search operations (no conversation_id required)
+        if ($action === 'save_search') {
+            return $this->handleSaveSearch($request, $user);
+        }
+
+        if ($action === 'delete_search') {
+            return $this->handleDeleteSearch($request, $user);
+        }
+
+        if ($action === 'list_saved_searches') {
+            $searches = SavedSearch::forUser($user->id)->ordered()->get();
+
+            return response()->json([
+                'success' => true,
+                'searches' => $searches->map(function ($search) {
+                    return [
+                        'id' => $search->id,
+                        'name' => $search->name,
+                        'query' => $search->query,
+                        'filters' => $search->filters,
+                        'url' => $search->getUrl(),
+                        'is_default' => $search->is_default,
+                    ];
+                }),
+            ]);
+        }
+
+        if ($action === 'set_default_search') {
+            $searchId = (int) $request->input('search_id');
+            $search = SavedSearch::forUser($user->id)->find($searchId);
+
+            if (! $search) {
+                return response()->json(['success' => false, 'message' => 'Saved search not found'], 404);
+            }
+
+            $search->setAsDefault();
+
+            return response()->json(['success' => true]);
+        }
+
         $conversationId = $request->input('conversation_id');
 
         if (! $conversationId) {
@@ -444,12 +583,6 @@ class ConversationController extends Controller
 
         /** @var \App\Models\Conversation $conversation */
         $conversation = Conversation::findOrFail($conversationId);
-        /** @var \App\Models\User|null $user */
-        $user = $request->user();
-
-        if (! $user) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
-        }
 
         // Check access
         if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
@@ -458,12 +591,22 @@ class ConversationController extends Controller
 
         switch ($action) {
             case 'change_status':
-                $conversation->update(['status' => $request->input('status')]);
+                $newStatus = (int) $request->input('status');
+                $prevStatus = $conversation->status;
+                $conversation->changeStatus($newStatus, $user);
+                
+                // Fire event hook
+                \Eventy::action('conversation.status_changed', $conversation, $user, false, $prevStatus);
 
                 return response()->json(['success' => true]);
 
             case 'change_user':
-                $conversation->update(['user_id' => $request->input('user_id')]);
+                $newUserId = $request->input('user_id') ? (int) $request->input('user_id') : null;
+                $prevUserId = $conversation->user_id;
+                $conversation->changeUser($newUserId, $user);
+                
+                // Fire event hook
+                \Eventy::action('conversation.user_changed', $conversation, $user, $prevUserId);
 
                 return response()->json(['success' => true]);
 
@@ -473,13 +616,260 @@ class ConversationController extends Controller
                 return response()->json(['success' => true]);
 
             case 'delete':
-                $conversation->update(['state' => 3]); // Deleted state
+                $conversation->deleteToFolder($user);
+                
+                // Fire event hook
+                \Eventy::action('conversation.deleted', $conversation, $user);
 
                 return response()->json(['success' => true]);
+
+            case 'delete_forever':
+                // Fire event hook before deletion
+                \Eventy::action('conversation.deleted_forever', $conversation, $user);
+                
+                $conversation->forceDelete();
+
+                return response()->json(['success' => true]);
+
+            case 'restore':
+                $conversation->restoreFromDeleted($user);
+
+                return response()->json(['success' => true]);
+
+            case 'save_draft':
+                return $this->handleSaveDraft($request, $user, $conversation);
+
+            case 'discard_draft':
+                return $this->handleDiscardDraft($request, $user, $conversation);
+
+            case 'update_subject':
+                $conversation->update(['subject' => $request->input('subject')]);
+
+                return response()->json(['success' => true]);
+
+            case 'retry_send':
+                // Find the failed thread and retry sending
+                $threadId = $request->input('thread_id');
+                if ($threadId) {
+                    $thread = Thread::findOrFail($threadId);
+                    // Re-dispatch the send job
+                    \App\Jobs\SendConversationReply::dispatch($conversation, $thread);
+                }
+
+                return response()->json(['success' => true, 'message' => 'Retry queued']);
+
+            case 'star':
+                $conversation->star($user);
+                return response()->json(['success' => true, 'starred' => true]);
+
+            case 'unstar':
+                $conversation->unstar($user);
+                return response()->json(['success' => true, 'starred' => false]);
+
+            case 'change_customer':
+                $customerEmail = $request->input('customer_email');
+                if (!$customerEmail) {
+                    return response()->json(['success' => false, 'message' => 'Customer email required'], 400);
+                }
+                $conversation->changeCustomer($customerEmail, null, $user);
+                return response()->json(['success' => true, 'message' => 'Customer changed']);
+
+            case 'create_phone_conversation':
+                return $this->handleCreatePhoneConversation($request, $user);
+
+            case 'merge':
+                return $this->handleMergeConversation($request, $user, $conversation);
+
+            case 'merge_search':
+                return $this->handleMergeSearch($request, $user, $conversation);
 
             default:
                 return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
         }
+    }
+
+    /**
+     * Handle bulk conversation actions.
+     */
+    protected function handleBulkAction(Request $request, User $user, string $action): JsonResponse
+    {
+        $conversationIds = $request->input('conversation_ids', []);
+
+        if (empty($conversationIds)) {
+            return response()->json(['success' => false, 'message' => 'No conversations selected'], 400);
+        }
+
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations */
+        $conversations = Conversation::whereIn('id', $conversationIds)->get();
+
+        // Filter to only conversations user has access to
+        $conversations = $conversations->filter(function ($conversation) use ($user) {
+            return $user->isAdmin() || $user->mailboxes->contains($conversation->mailbox_id);
+        });
+
+        if ($conversations->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'No accessible conversations'], 403);
+        }
+
+        switch ($action) {
+            case 'bulk_change_status':
+                $newStatus = (int) $request->input('status');
+                foreach ($conversations as $conversation) {
+                    $conversation->changeStatus($newStatus, $user);
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            case 'bulk_change_user':
+                $newUserId = $request->input('user_id') ? (int) $request->input('user_id') : null;
+                foreach ($conversations as $conversation) {
+                    $conversation->changeUser($newUserId, $user);
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            case 'bulk_delete':
+                foreach ($conversations as $conversation) {
+                    $conversation->deleteToFolder($user);
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            case 'bulk_delete_forever':
+                foreach ($conversations as $conversation) {
+                    $conversation->forceDelete();
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            case 'bulk_restore':
+                foreach ($conversations as $conversation) {
+                    $conversation->restoreFromDeleted($user);
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            case 'bulk_move':
+                $mailboxId = (int) $request->input('mailbox_id');
+                foreach ($conversations as $conversation) {
+                    $conversation->moveToMailbox($mailboxId, $user);
+                }
+
+                return response()->json(['success' => true, 'count' => $conversations->count()]);
+
+            default:
+                return response()->json(['success' => false, 'message' => 'Invalid bulk action'], 400);
+        }
+    }
+
+    /**
+     * Handle follow/unfollow actions.
+     */
+    protected function handleFollowAction(Request $request, User $user, string $action): JsonResponse
+    {
+        $conversationId = $request->input('conversation_id');
+
+        if (! $conversationId) {
+            return response()->json(['success' => false, 'message' => 'Conversation ID required'], 400);
+        }
+
+        /** @var \App\Models\Conversation $conversation */
+        $conversation = Conversation::findOrFail($conversationId);
+
+        // Check access
+        if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        if ($action === 'follow') {
+            if (! $conversation->followers()->where('user_id', $user->id)->exists()) {
+                $conversation->followers()->attach($user->id);
+            }
+
+            return response()->json(['success' => true, 'following' => true]);
+        } else {
+            $conversation->followers()->detach($user->id);
+
+            return response()->json(['success' => true, 'following' => false]);
+        }
+    }
+
+    /**
+     * Handle saving a draft.
+     */
+    protected function handleSaveDraft(Request $request, User $user, Conversation $conversation): JsonResponse
+    {
+        $body = $request->input('body', '');
+
+        // Find existing draft or create new one
+        $draft = $conversation->threads()
+            ->where('user_id', $user->id)
+            ->where('type', Thread::TYPE_DRAFT)
+            ->where('state', Thread::STATE_DRAFT)
+            ->first();
+
+        if ($draft) {
+            $draft->update(['body' => $body]);
+        } else {
+            Thread::create([
+                'conversation_id' => $conversation->id,
+                'user_id' => $user->id,
+                'type' => Thread::TYPE_DRAFT,
+                'status' => 1,
+                'state' => Thread::STATE_DRAFT,
+                'body' => $body,
+                'from' => $conversation->mailbox?->email ?? '',
+                'to' => json_encode([$conversation->customer_email ?? '']),
+                'source_via' => 1,
+                'source_type' => 2,
+            ]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Draft saved']);
+    }
+
+    /**
+     * Handle discarding a draft.
+     */
+    protected function handleDiscardDraft(Request $request, User $user, Conversation $conversation): JsonResponse
+    {
+        $conversation->threads()
+            ->where('user_id', $user->id)
+            ->where('type', Thread::TYPE_DRAFT)
+            ->where('state', Thread::STATE_DRAFT)
+            ->delete();
+
+        return response()->json(['success' => true, 'message' => 'Draft discarded']);
+    }
+
+    /**
+     * Empty a folder.
+     */
+    public function emptyFolder(Request $request, Folder $folder): JsonResponse
+    {
+        /** @var \App\Models\User|null $user */
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        // Check access to mailbox
+        if (! $user->isAdmin() && ! $user->mailboxes->contains($folder->mailbox_id)) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        // Only allow emptying certain folder types
+        $allowedTypes = [Folder::TYPE_TRASH, Folder::TYPE_SPAM, Folder::TYPE_DELETED];
+        if (! in_array($folder->type, $allowedTypes)) {
+            return response()->json(['success' => false, 'message' => 'Cannot empty this folder type'], 400);
+        }
+
+        // Count then delete all conversations in this folder
+        $count = $folder->conversations()->count();
+        $folder->conversations()->forceDelete();
+
+        return response()->json(['success' => true, 'deleted' => $count]);
     }
 
     /**
@@ -1174,5 +1564,251 @@ class ConversationController extends Controller
         return redirect()
             ->route('conversations.show', $conversation)
             ->with('success', 'Sending undone. Reply saved as draft.');
+    }
+
+    /**
+     * Handle creating a phone conversation.
+     */
+    protected function handleCreatePhoneConversation(Request $request, User $user): JsonResponse
+    {
+        $validated = $request->validate([
+            'mailbox_id' => 'required|integer|exists:mailboxes,id',
+            'customer_name' => 'required|string|max:255',
+            'customer_phone' => 'nullable|string|max:60',
+            'customer_email' => 'nullable|email',
+            'subject' => 'required|string|max:998',
+            'body' => 'required|string',
+        ]);
+
+        // Check access to mailbox
+        if (! $user->isAdmin() && ! $user->mailboxes->contains($validated['mailbox_id'])) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        /** @var \App\Models\Mailbox $mailbox */
+        $mailbox = Mailbox::findOrFail($validated['mailbox_id']);
+
+        DB::beginTransaction();
+
+        try {
+            // Find or create customer
+            $customer = null;
+            if (! empty($validated['customer_email'])) {
+                $customer = Customer::create($validated['customer_email'], [
+                    'first_name' => $validated['customer_name'],
+                ]);
+            } else {
+                // Create customer without email
+                $customer = Customer::query()->create([
+                    'first_name' => $validated['customer_name'],
+                    'phones' => ! empty($validated['customer_phone']) ? json_encode([$validated['customer_phone']]) : null,
+                ]);
+            }
+
+            if (! $customer) {
+                throw new \Exception('Failed to create customer');
+            }
+
+            // Create conversation
+            $maxNumber = Conversation::max('number');
+            $currentNumber = is_numeric($maxNumber) ? (int) $maxNumber : 0;
+
+            $conversation = Conversation::query()->create([
+                'number' => $currentNumber + 1,
+                'type' => Conversation::TYPE_PHONE,
+                'subject' => $validated['subject'],
+                'mailbox_id' => $mailbox->id,
+                'folder_id' => $mailbox->folders()->where('type', Folder::TYPE_INBOX)->first()?->id ?? 1,
+                'customer_id' => $customer->id,
+                'customer_email' => $customer->getMainEmail() ?? '',
+                'user_id' => $user->id, // Assign to creator
+                'status' => Conversation::STATUS_ACTIVE,
+                'state' => Conversation::STATE_PUBLISHED,
+                'source_via' => Conversation::PERSON_USER,
+                'source_type' => Conversation::SOURCE_TYPE_WEB,
+                'preview' => \Illuminate\Support\Str::limit(strip_tags($validated['body']), 255),
+            ]);
+
+            // Create thread
+            Thread::query()->create([
+                'conversation_id' => $conversation->id,
+                'user_id' => $user->id,
+                'type' => Thread::TYPE_NOTE,
+                'status' => Conversation::STATUS_ACTIVE,
+                'state' => Conversation::STATE_PUBLISHED,
+                'body' => $validated['body'],
+                'from' => $mailbox->email,
+                'source_via' => Conversation::PERSON_USER,
+                'source_type' => Conversation::SOURCE_TYPE_WEB,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'conversation_id' => $conversation->id,
+                'conversation_number' => $conversation->number,
+                'redirect_url' => route('conversations.show', $conversation),
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create phone conversation: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Handle merge conversation via AJAX.
+     */
+    protected function handleMergeConversation(Request $request, User $user, Conversation $conversation): JsonResponse
+    {
+        $targetConversationId = $request->input('target_conversation_id');
+        
+        if (! $targetConversationId || ! is_numeric($targetConversationId)) {
+            return response()->json(['success' => false, 'message' => 'Target conversation ID required'], 400);
+        }
+
+        /** @var \App\Models\Conversation|null $targetConversation */
+        $targetConversation = Conversation::find((int) $targetConversationId);
+
+        if (! $targetConversation) {
+            return response()->json(['success' => false, 'message' => 'Target conversation not found'], 404);
+        }
+
+        // Check access to target FIRST before any other validation
+        if (! $user->isAdmin() && ! $user->mailboxes->contains($targetConversation->mailbox_id)) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        // Prevent merging into self
+        if ($conversation->id === $targetConversation->id) {
+            return response()->json(['success' => false, 'message' => 'Cannot merge conversation into itself'], 400);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Move threads to target conversation
+            Thread::where('conversation_id', $conversation->id)
+                ->update(['conversation_id' => $targetConversation->id]);
+
+            // Update thread count
+            $targetConversation->increment('threads_count', $conversation->threads_count);
+
+            // Mark source as deleted
+            $conversation->update(['state' => Conversation::STATE_DELETED]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'redirect_url' => route('conversations.show', $targetConversation),
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to merge: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Handle merge search via AJAX.
+     */
+    protected function handleMergeSearch(Request $request, User $user, Conversation $conversation): JsonResponse
+    {
+        $query = $request->input('query', '');
+        $searchQuery = is_string($query) ? $query : '';
+
+        $conversations = Conversation::query()
+            ->where('id', '!=', $conversation->id)
+            ->where('mailbox_id', $conversation->mailbox_id)
+            ->where(function ($q) use ($searchQuery) {
+                // Use proper parameter binding for LIKE queries
+                $q->where('subject', 'like', '%' . addcslashes($searchQuery, '%_') . '%')
+                    ->orWhere('number', 'like', '%' . addcslashes($searchQuery, '%_') . '%');
+            })
+            ->where('state', '!=', Conversation::STATE_DELETED)
+            ->limit(20)
+            ->get(['id', 'number', 'subject', 'customer_email', 'created_at']);
+
+        return response()->json([
+            'success' => true,
+            'conversations' => $conversations->map(function ($conv) {
+                return [
+                    'id' => $conv->id,
+                    'number' => $conv->number,
+                    'subject' => $conv->subject,
+                    'customer_email' => $conv->customer_email,
+                    'created_at' => $conv->created_at?->format('Y-m-d H:i'),
+                ];
+            }),
+        ]);
+    }
+
+    /**
+     * Handle saving a search.
+     */
+    protected function handleSaveSearch(Request $request, User $user): JsonResponse
+    {
+        $name = $request->input('name', '');
+        $query = $request->input('query', '');
+        $filters = $request->input('filters', []);
+
+        if (empty($name)) {
+            return response()->json(['success' => false, 'message' => 'Search name is required'], 400);
+        }
+
+        // Validate filters is an array
+        if (! is_array($filters)) {
+            $filters = [];
+        }
+
+        // Clean up filters - only keep valid keys
+        $validFilterKeys = ['mailbox', 'assigned', 'status', 'type', 'has_attachments', 'date_from', 'date_to'];
+        $filters = array_intersect_key($filters, array_flip($validFilterKeys));
+
+        // Get next sort order
+        $maxSortOrder = SavedSearch::forUser($user->id)->max('sort_order') ?? 0;
+
+        $search = SavedSearch::create([
+            'user_id' => $user->id,
+            'name' => substr($name, 0, SavedSearch::NAME_MAX_LENGTH),
+            'query' => $query,
+            'filters' => ! empty($filters) ? $filters : null,
+            'sort_order' => $maxSortOrder + 1,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'search' => [
+                'id' => $search->id,
+                'name' => $search->name,
+                'url' => $search->getUrl(),
+            ],
+        ]);
+    }
+
+    /**
+     * Handle deleting a saved search.
+     */
+    protected function handleDeleteSearch(Request $request, User $user): JsonResponse
+    {
+        $searchId = (int) $request->input('search_id');
+
+        $search = SavedSearch::forUser($user->id)->find($searchId);
+
+        if (! $search) {
+            return response()->json(['success' => false, 'message' => 'Saved search not found'], 404);
+        }
+
+        $search->delete();
+
+        return response()->json(['success' => true]);
     }
 }

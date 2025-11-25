@@ -34,6 +34,9 @@ Route::get('/track/pixel/{id}', [TrackingController::class, 'pixel'])->name('tra
 Route::get('/user/setup/{hash}', [UserController::class, 'userSetup'])->name('user_setup');
 Route::post('/user/setup/{hash}', [UserController::class, 'userSetupSave'])->name('user_setup.save');
 
+// Web Cron (public route with hash verification)
+Route::get('/cron/{hash}', [SystemController::class, 'cron'])->name('system.cron');
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
@@ -51,6 +54,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::match(['patch', 'put'], '/mailbox/{mailbox}', [MailboxController::class, 'update'])->name('mailboxes.update');
     Route::delete('/mailbox/{mailbox}', [MailboxController::class, 'destroy'])->name('mailboxes.destroy');
     Route::get('/mailbox/{mailbox}/settings', [MailboxController::class, 'settings'])->name('mailboxes.settings');
+    Route::get('/mailbox/{mailbox}/advanced-settings', [MailboxController::class, 'advancedSettings'])->name('mailboxes.advanced_settings');
+    Route::post('/mailbox/{mailbox}/advanced-settings', [MailboxController::class, 'saveAdvancedSettings'])->name('mailboxes.save_advanced_settings');
     Route::get('/mailbox/{mailbox}/connection/incoming', [MailboxController::class, 'connectionIncoming'])->name('mailboxes.connection.incoming');
     Route::get('/mailbox/{mailbox}/connection-incoming', [MailboxController::class, 'connectionIncoming'])->name('mailboxes.connection-incoming'); // Alias for tests
     Route::post('/mailbox/{mailbox}/connection/incoming', [MailboxController::class, 'saveConnectionIncoming'])->name('mailboxes.save-connection-incoming');
@@ -117,12 +122,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::get('/user/{user}', [UserController::class, 'show'])->name('users.show');
     Route::get('/user/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::get('/user/{user}/password', [UserController::class, 'passwordForm'])->name('users.password');
+    Route::post('/user/{user}/password', [UserController::class, 'updatePassword'])->name('users.password.update');
     Route::get('/user/{user}/notifications', [UserController::class, 'notifications'])->name('users.notifications');
     Route::post('/user/{user}/notifications', [UserController::class, 'updateNotifications'])->name('users.notifications.update');
     Route::get('/user/{user}/permissions', [UserController::class, 'permissionsForm'])->name('users.permissions');
     Route::post('/user/{user}/permissions', [UserController::class, 'permissions'])->name('users.permissions.update');
     Route::match(['patch', 'put'], '/user/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users/ajax', [UserController::class, 'ajax'])->name('users.ajax');
 
     // Settings (admin only)
     Route::middleware(['admin'])->group(function () {
@@ -158,6 +166,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/system/failed-jobs', [SystemController::class, 'failedJobs'])->name('system.failed_jobs');
         Route::post('/system/failed-jobs/{uuid}/retry', [SystemController::class, 'retryFailedJob'])->name('system.failed_jobs.retry');
         Route::delete('/system/failed-jobs/{uuid}', [SystemController::class, 'deleteFailedJob'])->name('system.failed_jobs.delete');
+        Route::post('/system/failed-jobs/queue/delete', [SystemController::class, 'deleteFailedJobsForQueue'])->name('system.failed_jobs.delete_queue');
+        Route::post('/system/failed-jobs/queue/retry', [SystemController::class, 'retryFailedJobsForQueue'])->name('system.failed_jobs.retry_queue');
+        
+        // System Tools
+        Route::get('/system/tools', [SystemController::class, 'tools'])->name('system.tools');
+        Route::post('/system/tools', [SystemController::class, 'toolsExecute'])->name('system.tools.execute');
+        
+        // Logs clearing
+        Route::post('/system/logs/clear', [SystemController::class, 'clearLogs'])->name('system.logs.clear');
+        
+        // Empty folder
+        Route::post('/folder/{folder}/empty', [ConversationController::class, 'emptyFolder'])->name('folders.empty');
         
         // Added for tests
         Route::get('/logs', [SystemController::class, 'logs'])->name('logs');
@@ -182,6 +202,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/modules/{alias}/disable', [ModulesController::class, 'disable'])->name('modules.disable');
         Route::delete('/modules/{alias}', [ModulesController::class, 'delete'])->name('modules.delete');
         Route::post('/modules/install', [ModulesController::class, 'install'])->name('modules.install');
+        Route::post('/modules/ajax', [ModulesController::class, 'ajax'])->name('modules.ajax');
     });
 
     // Mailbox Permissions
