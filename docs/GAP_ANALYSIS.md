@@ -684,12 +684,12 @@ This checklist is designed for an LLM agent to systematically implement the miss
 - [x] Create `/resources/views/settings/alerts.blade.php`
 
 #### 4.3 Mailbox Settings Expansion
-- [x] Add email aliases configuration (getAliases() method)
-- [ ] Add from name options
-- [ ] Add ticket assignment options
-- [ ] Add before reply/forward text customization
-- [ ] Add signature configuration with editor
-- [ ] Add ratings system toggle
+- [x] Add email aliases configuration (getAliases() method + UI)
+- [x] Add from name options (advancedSettings page)
+- [x] Add ticket assignment options (advancedSettings page)
+- [x] Add before reply/forward text customization (advancedSettings page)
+- [x] Add signature configuration with editor (advancedSettings page)
+- [x] Add ratings system toggle (advancedSettings page)
 
 ### Phase 5: User & Customer Management (Medium Priority)
 
@@ -697,14 +697,14 @@ This checklist is designed for an LLM agent to systematically implement the miss
 - [ ] Add separate password change page/action
 - [x] Add user photo upload with `savePhoto()` method (ajaxUploadPhoto)
 - [x] Add user invitation system with `sendInvite()` method
-- [ ] Add user deletion with conversation reassignment
+- [x] Add user deletion with conversation reassignment
 - [x] Add AJAX operations (photo delete, resend invite, etc.)
 - [ ] Implement personal folders sync
 
 #### 5.2 Customer Management Enhancements
 - [x] Add customer photo upload (ajaxUploadPhoto)
 - [x] Add multiple email management (add/remove) (ajaxAddEmail, ajaxDeleteEmail)
-- [ ] Add email migration between customers
+- [x] Add email migration between customers (ajaxMigrateEmail)
 - [x] Add phone field management (ajaxAddPhone, ajaxDeletePhone)
 - [ ] Add social profiles management
 - [ ] Add website fields management
@@ -718,7 +718,7 @@ This checklist is designed for an LLM agent to systematically implement the miss
 - [x] Implement `processPhoneCustomer()` method (via handleCreatePhoneConversation)
 
 #### 6.2 Email Aliases
-- [ ] Add alias configuration to mailbox settings
+- [x] Add alias configuration to mailbox settings (advancedSettings page)
 - [x] Add `getAliases()` method to Mailbox model
 - [ ] Add alias dropdown to conversation reply form
 - [ ] Handle alias in outgoing email from field
@@ -740,6 +740,7 @@ This checklist is designed for an LLM agent to systematically implement the miss
 #### 7.2 Additional Views
 - [x] Create modal views for all ajax_html actions (send_log, show_original, change_customer, move_conv, merge_conv, assignee_filter, default_redirect)
 - [x] Add floating flash messages (`floating_flash_messages.blade.php`)
+- [x] Add mailbox advanced settings page (`advanced_settings.blade.php`)
 - [ ] Add DataTables integration where appropriate (low priority - modern Tailwind tables adequate)
 
 ### Phase 8: Event System & Hooks
@@ -766,12 +767,15 @@ This checklist is designed for an LLM agent to systematically implement the miss
 
 ### Phase 10: Testing & Verification
 
-- [x] Test all new AJAX actions (340+ tests created)
+- [x] Test all new AJAX actions (440+ tests created)
 - [x] Test bulk operations with multiple conversations
 - [x] Test module installation and licensing
 - [x] Test system tools functionality
 - [x] Test activity logging across all categories
 - [x] Test alert settings functionality
+- [x] Test mailbox advanced settings (MailboxAdvancedSettingsTest.php - 25+ tests)
+- [x] Test user deletion with reassignment (UserDeletionWithReassignmentTest.php - 15+ tests)
+- [x] Test customer email migration (CustomerEmailMigrationTest.php - 15+ tests)
 - [ ] Verify all "Needs Verification" items from gap analysis
 - [ ] Run full regression test suite
 
@@ -789,6 +793,9 @@ This checklist is designed for an LLM agent to systematically implement the miss
 - `tests/Feature/CustomerControllerAjaxTest.php` - 20+ tests
 - `tests/Feature/ModulesControllerAjaxTest.php` - 25+ tests
 - `tests/Feature/SettingsControllerMethodsTest.php` - 40+ tests (SMTP, IMAP, alerts)
+- `tests/Feature/MailboxAdvancedSettingsTest.php` - 25+ tests
+- `tests/Feature/UserDeletionWithReassignmentTest.php` - 15+ tests
+- `tests/Feature/CustomerEmailMigrationTest.php` - 15+ tests
 
 ---
 

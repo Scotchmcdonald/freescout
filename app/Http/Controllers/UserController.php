@@ -158,21 +158,42 @@ class UserController extends Controller
     /**
      * Remove the specified user.
      */
-    public function destroy(User $user): RedirectResponse
+    public function destroy(Request $request, User $user): RedirectResponse
     {
         $this->authorize('delete', $user);
 
+        $reassignTo = $request->input('reassign_to');
+        
         if ($user->conversations()->exists()) {
-            return back()->withErrors([
-                'error' => 'Cannot delete user with existing conversations. Reassign them first.',
-            ]);
+            if (!$reassignTo) {
+                return back()->withErrors([
+                    'error' => 'Cannot delete user with existing conversations. Select a user to reassign conversations to.',
+                ]);
+            }
+            
+            // Validate reassign target
+            $targetUser = User::find($reassignTo);
+            if (!$targetUser || $targetUser->id === $user->id || $targetUser->isDeleted()) {
+                return back()->withErrors([
+                    'error' => 'Invalid user selected for conversation reassignment.',
+                ]);
+            }
+            
+            // Reassign all conversations
+            $user->conversations()->update(['user_id' => $targetUser->id]);
+            
+            // Log the reassignment
+            \Illuminate\Support\Facades\Log::info(
+                "Reassigned conversations from user {$user->id} to user {$targetUser->id} during deletion"
+            );
         }
 
-        $user->delete();
+        // Mark as deleted instead of hard delete (soft delete)
+        $user->update(['status' => User::STATUS_DELETED]);
 
         return redirect()
             ->route('users.index')
-            ->with('success', 'User deleted successfully.');
+            ->with('success', 'User deleted successfully.' . ($reassignTo ? ' Conversations reassigned.' : ''));
     }
 
     /**

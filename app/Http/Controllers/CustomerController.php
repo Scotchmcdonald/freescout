@@ -240,6 +240,9 @@ class CustomerController extends Controller
             case 'delete_phone':
                 return $this->ajaxDeletePhone($request);
 
+            case 'migrate_email':
+                return $this->ajaxMigrateEmail($request);
+
             default:
                 return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
         }
@@ -456,6 +459,62 @@ class CustomerController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('Phone deleted successfully'),
+        ]);
+    }
+
+    /**
+     * AJAX: Migrate email from one customer to another.
+     */
+    protected function ajaxMigrateEmail(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'email_id' => 'required|integer|exists:emails,id',
+            'source_customer_id' => 'required|integer|exists:customers,id',
+            'target_customer_id' => 'required|integer|exists:customers,id|different:source_customer_id',
+        ]);
+
+        /** @var \App\Models\Customer $sourceCustomer */
+        $sourceCustomer = Customer::findOrFail($validated['source_customer_id']);
+
+        /** @var \App\Models\Customer $targetCustomer */
+        $targetCustomer = Customer::findOrFail($validated['target_customer_id']);
+
+        // Get the email
+        $email = $sourceCustomer->emails()->find($validated['email_id']);
+        if (!$email) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Email not found for source customer'),
+            ]);
+        }
+
+        // Ensure source customer has at least one other email
+        if ($sourceCustomer->emails()->count() <= 1) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Source customer must retain at least one email'),
+            ]);
+        }
+
+        // Move the email to target customer
+        $email->update(['customer_id' => $targetCustomer->id]);
+
+        // If this was the main email, set a new main for source customer
+        if ($email->is_main) {
+            $newMain = $sourceCustomer->emails()->first();
+            if ($newMain) {
+                $newMain->update(['is_main' => true]);
+            }
+        }
+
+        // Also migrate any conversations associated with this email
+        Conversation::where('customer_id', $sourceCustomer->id)
+            ->where('customer_email', $email->email)
+            ->update(['customer_id' => $targetCustomer->id]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Email and associated conversations migrated successfully'),
         ]);
     }
 

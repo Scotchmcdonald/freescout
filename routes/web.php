@@ -54,6 +54,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::match(['patch', 'put'], '/mailbox/{mailbox}', [MailboxController::class, 'update'])->name('mailboxes.update');
     Route::delete('/mailbox/{mailbox}', [MailboxController::class, 'destroy'])->name('mailboxes.destroy');
     Route::get('/mailbox/{mailbox}/settings', [MailboxController::class, 'settings'])->name('mailboxes.settings');
+    Route::get('/mailbox/{mailbox}/advanced-settings', [MailboxController::class, 'advancedSettings'])->name('mailboxes.advanced_settings');
+    Route::post('/mailbox/{mailbox}/advanced-settings', [MailboxController::class, 'saveAdvancedSettings'])->name('mailboxes.save_advanced_settings');
     Route::get('/mailbox/{mailbox}/connection/incoming', [MailboxController::class, 'connectionIncoming'])->name('mailboxes.connection.incoming');
     Route::get('/mailbox/{mailbox}/connection-incoming', [MailboxController::class, 'connectionIncoming'])->name('mailboxes.connection-incoming'); // Alias for tests
     Route::post('/mailbox/{mailbox}/connection/incoming', [MailboxController::class, 'saveConnectionIncoming'])->name('mailboxes.save-connection-incoming');

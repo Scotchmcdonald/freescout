@@ -508,6 +508,72 @@ class MailboxController extends Controller
     }
 
     /**
+     * Show mailbox advanced settings (aliases, from name, ticket options, signature).
+     */
+    public function advancedSettings(Request $request, Mailbox $mailbox): View|ViewFactory
+    {
+        $this->authorize('update', $mailbox);
+
+        // Get from name options
+        $fromNameOptions = [
+            1 => __('Mailbox Name'),
+            2 => __('User Name'),
+            3 => __('User Name + Mailbox Name'),
+            4 => __('Custom'),
+        ];
+
+        // Get ticket assignment options
+        $ticketAssigneeOptions = [
+            1 => __('Leave unassigned'),
+            2 => __('To replying user'),
+        ];
+
+        return view('mailboxes.advanced_settings', compact('mailbox', 'fromNameOptions', 'ticketAssigneeOptions'));
+    }
+
+    /**
+     * Save mailbox advanced settings.
+     */
+    public function saveAdvancedSettings(Request $request, Mailbox $mailbox): RedirectResponse
+    {
+        $this->authorize('update', $mailbox);
+
+        $validated = $request->validate([
+            'aliases' => 'nullable|string|max:1000',
+            'aliases_reply' => 'nullable|boolean',
+            'from_name' => 'required|integer|in:1,2,3,4',
+            'from_name_custom' => 'nullable|string|max:255|required_if:from_name,4',
+            'ticket_status' => 'nullable|integer|in:1,2',
+            'ticket_assignee' => 'nullable|integer|in:1,2',
+            'before_reply' => 'nullable|string|max:5000',
+            'signature' => 'nullable|string|max:10000',
+            'ratings' => 'nullable|boolean',
+        ]);
+
+        // Process booleans
+        $validated['aliases_reply'] = $request->has('aliases_reply');
+        $validated['ratings'] = $request->has('ratings');
+
+        // Process aliases (convert newlines to commas)
+        if (!empty($validated['aliases'])) {
+            $aliasLines = preg_split('/[\r\n,]+/', $validated['aliases']);
+            $cleanAliases = [];
+            foreach ($aliasLines as $alias) {
+                $alias = trim($alias);
+                if (!empty($alias) && filter_var($alias, FILTER_VALIDATE_EMAIL)) {
+                    $cleanAliases[] = $alias;
+                }
+            }
+            $validated['aliases'] = implode(',', $cleanAliases);
+        }
+
+        $mailbox->update($validated);
+
+        return redirect()->route('mailboxes.advanced_settings', $mailbox)
+            ->with('success', 'Advanced settings saved successfully.');
+    }
+
+    /**
      * Connect to OAuth provider.
      */
     public function oauthConnect(Request $request, $provider)
