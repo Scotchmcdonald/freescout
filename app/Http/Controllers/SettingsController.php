@@ -429,16 +429,22 @@ class SettingsController extends Controller
         }
 
         try {
+            $sentCount = 0;
             foreach ($emails as $email) {
                 if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                     Mail::to($email)->send(new Alert(
                         'Test Alert',
                         'This is a test alert from FreeScout. Your alert configuration is working correctly.'
                     ));
+                    $sentCount++;
                 }
             }
 
-            return back()->with('success', 'Test alert sent successfully to ' . count($emails) . ' recipient(s).');
+            if ($sentCount === 0) {
+                return back()->with('error', 'No valid email addresses found in recipients.');
+            }
+
+            return back()->with('success', 'Test alert sent successfully to ' . $sentCount . ' recipient(s).');
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to send test alert: ' . $e->getMessage());
         }

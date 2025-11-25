@@ -669,6 +669,24 @@ class SettingsControllerMethodsTest extends TestCase
         \Illuminate\Support\Facades\Mail::assertSent(\App\Mail\Alert::class, 2);
     }
 
+    public function test_send_test_alert_returns_error_when_all_emails_invalid(): void
+    {
+        $this->actingAs($this->admin);
+
+        \Illuminate\Support\Facades\Mail::fake();
+
+        $response = $this->put(route('settings.alerts.update'), [
+            'action' => 'test',
+            'alert_recipients' => "invalid-email-1\ninvalid-email-2\nnot-an-email",
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error', 'No valid email addresses found in recipients.');
+
+        // No emails should be sent
+        \Illuminate\Support\Facades\Mail::assertNothingSent();
+    }
+
     public function test_send_test_alert_handles_mail_exception(): void
     {
         $this->actingAs($this->admin);
