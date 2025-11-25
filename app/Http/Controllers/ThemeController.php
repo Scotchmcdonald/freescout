@@ -31,10 +31,15 @@ class ThemeController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'theme' => 'nullable|string|max:50',
+            'theme' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z0-9_-]+$/'],
         ]);
 
         $theme = $validated['theme'] ?? null;
+
+        // Additional sanitization: prevent directory traversal
+        if ($theme && (str_contains($theme, '..') || str_contains($theme, '/') || str_contains($theme, '\\'))) {
+            return back()->with('error', __('Invalid theme name.'));
+        }
 
         // Verify theme exists if not null or "default"
         if ($theme && $theme !== 'default') {
@@ -104,6 +109,23 @@ class ThemeController extends Controller
      */
     public function preview(string $theme): View|ViewFactory
     {
+        // Sanitize theme name - only allow alphanumeric, hyphens, and underscores
+        if (! preg_match('/^[a-zA-Z0-9_-]+$/', $theme)) {
+            abort(400, __('Invalid theme name.'));
+        }
+
+        // Additional check to prevent directory traversal
+        if (str_contains($theme, '..') || str_contains($theme, '/') || str_contains($theme, '\\')) {
+            abort(400, __('Invalid theme name.'));
+        }
+
+        // Verify theme exists
+        $themes = $this->getAvailableThemes();
+        $themeNames = array_column($themes, 'name');
+        if (! in_array($theme, $themeNames)) {
+            abort(404, __('Theme not found.'));
+        }
+
         // Temporarily set the theme for preview
         Theme::set($theme);
 
