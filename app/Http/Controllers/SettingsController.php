@@ -65,11 +65,25 @@ class SettingsController extends Controller
         $sections = $this->getSections();
         $currentSection = 'general';
 
+        // Parse user_permissions if stored as JSON
+        if (isset($settings['user_permissions']) && is_string($settings['user_permissions'])) {
+            $settings['user_permissions'] = json_decode($settings['user_permissions'], true) ?: [];
+        }
+
+        // Get available user permissions for display
+        $userPermissions = [];
+        if (class_exists('\App\Models\User') && method_exists('\App\Models\User', 'getUserPermissionsList')) {
+            $permissionIds = \App\Models\User::getUserPermissionsList();
+            foreach ($permissionIds as $permissionId) {
+                $userPermissions[$permissionId] = \App\Models\User::getUserPermissionName($permissionId);
+            }
+        }
+
         // Allow modules to modify settings
         $settings = \Eventy::filter('settings.section_settings', $settings, $currentSection);
         $settings = \Eventy::filter('settings.alter_section_settings', $settings, $currentSection);
 
-        return view('settings.index', compact('settings', 'sections', 'currentSection'));
+        return view('settings.index', compact('settings', 'sections', 'currentSection', 'userPermissions'));
     }
 
     /**
@@ -84,18 +98,34 @@ class SettingsController extends Controller
 
         $validated = $request->validate([
             'company_name' => 'nullable|string|max:255',
-            'timezone' => 'nullable|timezone',
+            'custom_number' => 'nullable|boolean',
             'next_ticket' => 'nullable|integer|min:1',
-            'user_permissions' => 'nullable|array',
+            'locale' => 'nullable|string|max:10',
+            'timezone' => 'nullable|timezone',
+            'time_format' => 'nullable|in:12,24',
+            'email_conv_history' => 'nullable|in:none,last,full',
             'email_branding' => 'nullable|boolean',
             'open_tracking' => 'nullable|boolean',
             'enrich_customer_data' => 'nullable|boolean',
+            'user_permissions' => 'nullable|array',
+            'user_permissions.*' => 'nullable|integer',
         ]);
 
         foreach ($validated as $name => $value) {
+            if ($value === null) {
+                continue;
+            }
+            
+            // Handle arrays (like user_permissions)
+            if (is_array($value)) {
+                $value = json_encode($value);
+            } elseif (is_bool($value)) {
+                $value = (int) $value;
+            }
+            
             Option::updateOrCreate(
                 ['name' => $name],
-                ['value' => is_bool($value) ? (int) $value : $value]
+                ['value' => $value]
             );
         }
 
