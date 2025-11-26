@@ -96,30 +96,31 @@ cd "$DEFAULT_INSTALL_DIR"
 
 # 3. Generate Dockerfile
 echo -e "${GREEN}Generating Dockerfile...${NC}"
+# Using serversideup/php:8.2-fpm-nginx as recommended base image
 cat <<EOF > Dockerfile
-FROM php:8.2-fpm
+FROM serversideup/php:8.2-fpm-nginx
 
+# Switch to root to install extensions
+USER root
+
+# Install dependencies for FreeScout (IMAP, GMP, SOAP, Intl)
 RUN apt-get update && apt-get install -y \\
-    git curl libpng-dev libonig-dev libxml2-dev zip unzip \\
-    libgmp-dev libc-client-dev libkrb5-dev nginx \\
+    libc-client-dev libkrb5-dev libgmp-dev libxml2-dev \\
     && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \\
-    && docker-php-ext-install imap \\
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd gmp soap intl
+    && docker-php-ext-install imap gmp soap intl bcmath \\
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/memory-limit.ini \\
-    && echo "upload_max_filesize=20M" > /usr/local/etc/php/conf.d/uploads.ini \\
-    && echo "post_max_size=20M" > /usr/local/etc/php/conf.d/uploads.ini
-
-WORKDIR /var/www/html
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Switch back to www-data
+USER www-data
 EOF
 
 # 4. Generate Nginx Config
+# We override the default config to ensure FreeScout specific rules are applied
 echo -e "${GREEN}Generating Nginx Config...${NC}"
 cat <<EOF > nginx/default.conf
 server {
-    listen 80;
-    server_name $DOMAIN_NAME;
+    listen 8080 default_server;
+    server_name _;
     root /var/www/html/public;
     index index.php index.html;
     
@@ -131,11 +132,33 @@ server {
 
     location ~ \.php$ {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass app:9000;
+        fastcgi_pass 127.0.0.1:9000; # In this image, PHP-FPM is on localhost
         fastcgi_index index.php;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         fastcgi_param PATH_INFO \$fastcgi_path_info;
+    }
+
+    # FreeScout specific security rules
+    location ~* ^/storage/attachment/ {
+        expires 1M;
+        access_log off;
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+
+    location ~* ^/(?:css|js)/.*\.(?:css|js)$ {
+        expires 2d;
+        access_log off;
+        add_header Cache-Control "public, must-revalidate";
+    }
+
+    location ~* ^/storage/.*\.((?!(jpg|jpeg|jfif|pjpeg|pjp|apng|bmp|gif|ico|cur|png|tif|tiff|webp|pdf|txt|diff|patch|json|mp3|wav|ogg|wma)).)*$ {
+        add_header Content-disposition "attachment; filename=\$2";
+        default_type application/octet-stream;
+    }
+
+    location ~ /\. {
+        deny all;
     }
 }
 EOF
@@ -148,6 +171,10 @@ DB_DATABASE=$DB_NAME
 DB_USER=$DB_USER
 DB_PASSWORD=$DB_PASS
 APP_URL=http://$DOMAIN_NAME
+# Redis Configuration
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
 EOF
 
 # 6. Generate Docker Compose
@@ -160,23 +187,24 @@ services:
     build: .
     image: freescout-app
     restart: unless-stopped
-    volumes:
-      - ./src:/var/www/html
-    networks:
-      - fs-net
-
-  web:
-    image: nginx:alpine
-    restart: unless-stopped
     ports:
-      - "80:80"
+      - "80:8080"
+    environment:
+      - PUID=33
+      - PGID=33
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_POST_MAX_SIZE=20M
+      - PHP_UPLOAD_MAX_FILESIZE=20M
     volumes:
       - ./src:/var/www/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - app
+      - db
+      - redis
     networks:
       - fs-net
+    # Uncomment the following line if you need mDNS/Avahi discovery
+    # network_mode: host
 
   db:
     image: mysql:8.0
@@ -191,15 +219,24 @@ services:
     networks:
       - fs-net
 
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - fs-net
+
   queue:
     image: freescout-app
     restart: always
     command: php artisan queue:work --queue=emails,default --sleep=3 --tries=3 --max-time=3600
+    environment:
+      - PHP_MEMORY_LIMIT=512M
     volumes:
       - ./src:/var/www/html
     depends_on:
       - app
       - db
+      - redis
     networks:
       - fs-net
 
@@ -212,6 +249,7 @@ services:
     depends_on:
       - app
       - db
+      - redis
     networks:
       - fs-net
 
@@ -274,6 +312,11 @@ if [ ! -f "$DEFAULT_INSTALL_DIR/src/.env" ]; then
     sed -i "s/# DB_PASSWORD=/DB_PASSWORD=$DB_PASS/g" "$DEFAULT_INSTALL_DIR/src/.env"
     sed -i "s|APP_URL=http://localhost|APP_URL=http://$DOMAIN_NAME|g" "$DEFAULT_INSTALL_DIR/src/.env"
 
+    # Configure Redis for Cache and Session
+    sed -i "s/CACHE_STORE=database/CACHE_STORE=redis/g" "$DEFAULT_INSTALL_DIR/src/.env"
+    sed -i "s/SESSION_DRIVER=database/SESSION_DRIVER=redis/g" "$DEFAULT_INSTALL_DIR/src/.env"
+    sed -i "s/REDIS_HOST=127.0.0.1/REDIS_HOST=redis/g" "$DEFAULT_INSTALL_DIR/src/.env"
+
     # Add Admin details to .env (for freescout:install)
     echo "" >> "$DEFAULT_INSTALL_DIR/src/.env"
     echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> "$DEFAULT_INSTALL_DIR/src/.env"
@@ -282,6 +325,7 @@ fi
 
 # 10. Set Permissions
 echo -e "${GREEN}Setting permissions...${NC}"
+# serversideup image uses www-data (33)
 sudo chown -R 33:33 "$DEFAULT_INSTALL_DIR/src"
 
 # 11. Launch
