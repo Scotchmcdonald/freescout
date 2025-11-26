@@ -66,6 +66,10 @@ DB_USER="freescout"
 DB_PASS=$(openssl rand -base64 12)
 DB_NAME="freescout"
 
+# Admin Credentials (Auto-generated)
+ADMIN_EMAIL="admin@$DOMAIN_NAME"
+ADMIN_PASS=$(openssl rand -base64 12)
+
 # ==========================================
 # 3. DEPLOYMENT LOGIC
 # ==========================================
@@ -253,13 +257,50 @@ else
     git clone -b "$GIT_BRANCH" "$GIT_REPO_URL" src
 fi
 
-# 9. Set Permissions
+# 9. Configure Application
+echo -e "${GREEN}Configuring Application...${NC}"
+
+# Create .env in src if it doesn't exist
+if [ ! -f "$DEFAULT_INSTALL_DIR/src/.env" ]; then
+    cp "$DEFAULT_INSTALL_DIR/src/.env.example" "$DEFAULT_INSTALL_DIR/src/.env"
+    
+    # Update .env with DB details
+    # We use sed to replace the placeholder values
+    sed -i "s/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/g" "$DEFAULT_INSTALL_DIR/src/.env"
+    sed -i "s/# DB_HOST=127.0.0.1/DB_HOST=db/g" "$DEFAULT_INSTALL_DIR/src/.env"
+    sed -i "s/# DB_PORT=3306/DB_PORT=3306/g" "$DEFAULT_INSTALL_DIR/src/.env"
+    sed -i "s/# DB_DATABASE=laravel/DB_DATABASE=$DB_NAME/g" "$DEFAULT_INSTALL_DIR/src/.env"
+    sed -i "s/# DB_USERNAME=root/DB_USERNAME=$DB_USER/g" "$DEFAULT_INSTALL_DIR/src/.env"
+    sed -i "s/# DB_PASSWORD=/DB_PASSWORD=$DB_PASS/g" "$DEFAULT_INSTALL_DIR/src/.env"
+    sed -i "s|APP_URL=http://localhost|APP_URL=http://$DOMAIN_NAME|g" "$DEFAULT_INSTALL_DIR/src/.env"
+
+    # Add Admin details to .env (for freescout:install)
+    echo "" >> "$DEFAULT_INSTALL_DIR/src/.env"
+    echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> "$DEFAULT_INSTALL_DIR/src/.env"
+    echo "ADMIN_PASSWORD=$ADMIN_PASS" >> "$DEFAULT_INSTALL_DIR/src/.env"
+fi
+
+# 10. Set Permissions
 echo -e "${GREEN}Setting permissions...${NC}"
 sudo chown -R 33:33 "$DEFAULT_INSTALL_DIR/src"
 
-# 10. Launch
+# 11. Launch
 echo -e "${GREEN}Building and Starting Containers...${NC}"
 docker-compose up -d --build
+
+# 12. Post-Launch Setup
+echo -e "${GREEN}Running Post-Launch Setup...${NC}"
+echo "Waiting for database to initialize (20s)..."
+sleep 20
+
+echo "Installing dependencies..."
+docker-compose exec -T app composer install --no-dev --optimize-autoloader
+
+echo "Generating Application Key..."
+docker-compose exec -T app php artisan key:generate
+
+echo "Running FreeScout Installation..."
+docker-compose exec -T app php artisan freescout:install --force
 
 echo ""
 echo -e "${CYAN}============================================================${NC}"
@@ -268,15 +309,18 @@ echo -e "${CYAN}============================================================${NC
 echo "Repo:   $GIT_REPO_URL"
 echo "Branch: $GIT_BRANCH"
 echo ""
-echo "1. Run the installer now with this command:"
-echo "   cd $DEFAULT_INSTALL_DIR && docker-compose exec app php artisan freescout:install"
+echo "Application URL: http://$DOMAIN_NAME"
 echo ""
-echo "2. Use these database details when asked:"
+echo "Admin Credentials:"
+echo "   - Email: $ADMIN_EMAIL"
+echo "   - Pass:  $ADMIN_PASS"
+echo ""
+echo "Database Credentials:"
 echo "   - Host: db"
 echo "   - Name: $DB_NAME"
 echo "   - User: $DB_USER"
 echo "   - Pass: $DB_PASS"
 echo ""
-echo "3. To update this branch later:"
+echo "To update this branch later:"
 echo "   $DEFAULT_INSTALL_DIR/update.sh"
 echo "============================================================"
