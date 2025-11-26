@@ -210,7 +210,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::get('/themes', [ThemeController::class, 'index'])->name('themes');
         Route::post('/themes', [ThemeController::class, 'update'])->name('themes.update');
-        Route::get('/themes/preview/{theme}', [ThemeController::class, 'preview'])->name('themes.preview');
+        
+        // Theme Editor
+        Route::get('/themes/editor', [App\Http\Controllers\ThemeEditorController::class, 'index'])->name('themes.editor.index');
+        Route::get('/themes/editor/create', [App\Http\Controllers\ThemeEditorController::class, 'create'])->name('themes.editor.create');
+        Route::post('/themes/editor', [App\Http\Controllers\ThemeEditorController::class, 'store'])->name('themes.editor.store');
+        Route::get('/themes/editor/{theme}', [App\Http\Controllers\ThemeEditorController::class, 'show'])->name('themes.editor.show');
+        Route::get('/themes/editor/{theme}/edit', [App\Http\Controllers\ThemeEditorController::class, 'edit'])->name('themes.editor.edit');
+        Route::post('/themes/editor/{theme}/update', [App\Http\Controllers\ThemeEditorController::class, 'update'])->name('themes.editor.update');
+        Route::delete('/themes/editor/{theme}', [App\Http\Controllers\ThemeEditorController::class, 'destroy'])->name('themes.editor.destroy');
     });
 
     // Mailbox Permissions

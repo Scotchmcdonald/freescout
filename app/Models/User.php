@@ -127,6 +127,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'permissions' => 'array',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'dark_mode' => 'boolean',
         ];
     }
 

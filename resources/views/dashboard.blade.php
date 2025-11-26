@@ -13,19 +13,19 @@
                     <h3 class="text-lg font-medium mb-4">Welcome, {{ $user->full_name }}! @action('dashboard.heading_append')</h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-blue-100 p-4 rounded-lg">
-                            <div class="text-2xl font-bold text-blue-800">{{ $mailboxes->count() }}</div>
-                            <div class="text-sm text-blue-600">Mailboxes</div>
-                        </div>
-                        
                         <div class="bg-green-100 p-4 rounded-lg">
-                            <div class="text-2xl font-bold text-green-800">{{ $activeConversations }}</div>
-                            <div class="text-sm text-green-600">Active Conversations</div>
+                            <div class="text-2xl font-bold text-green-800">{{ $mailboxes->count() }}</div>
+                            <div class="text-sm text-green-600">Mailboxes</div>
                         </div>
                         
                         <div class="bg-yellow-100 p-4 rounded-lg">
-                            <div class="text-2xl font-bold text-yellow-800">{{ $unassignedConversations }}</div>
-                            <div class="text-sm text-yellow-600">Unassigned</div>
+                            <div class="text-2xl font-bold text-yellow-800">{{ $activeConversations }}</div>
+                            <div class="text-sm text-yellow-600">Active Conversations</div>
+                        </div>
+                        
+                        <div class="bg-red-100 p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-red-800">{{ $unassignedConversations }}</div>
+                            <div class="text-sm text-red-600">Unassigned</div>
                         </div>
                     </div>
                     

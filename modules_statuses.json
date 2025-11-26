@@ -1,9 +1,9 @@
 {
-    "SampleModule": true,
+    "SampleModule": false,
     "TestModule": true,
-    "SymlinkTest": true,
-    "ValidateTest": true,
-    "PermissionTest": true,
-    "CacheTest": true,
+    "SymlinkTest": false,
+    "ValidateTest": false,
+    "PermissionTest": false,
+    "CacheTest": false,
     "HookTest": false
 }

@@ -1,4 +1,25 @@
 <?php return array (
+  'blade-ui-kit/blade-icons' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'BladeUI\\Icons\\BladeIconsServiceProvider',
+    ),
+  ),
+  'laravel/breeze' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Breeze\\BreezeServiceProvider',
+    ),
+  ),
+  'laravel/dusk' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Dusk\\DuskServiceProvider',
+    ),
+  ),
   'laravel/reverb' => 
   array (
     'aliases' => 
@@ -9,6 +30,13 @@
     array (
       0 => 'Laravel\\Reverb\\ApplicationManagerServiceProvider',
       1 => 'Laravel\\Reverb\\ReverbServiceProvider',
+    ),
+  ),
+  'laravel/sail' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Sail\\SailServiceProvider',
     ),
   ),
   'laravel/tinker' => 
@@ -36,6 +64,13 @@
       0 => 'Carbon\\Laravel\\ServiceProvider',
     ),
   ),
+  'nunomaduro/collision' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
+    ),
+  ),
   'nunomaduro/termwind' => 
   array (
     'providers' => 
@@ -52,6 +87,20 @@
     'providers' => 
     array (
       0 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
+    ),
+  ),
+  'owenvoke/blade-entypo' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'OwenVoke\\BladeEntypo\\BladeEntypoServiceProvider',
+    ),
+  ),
+  'qirolab/laravel-themer' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Qirolab\\Theme\\ThemeServiceProvider',
     ),
   ),
   'spatie/laravel-activitylog' => 

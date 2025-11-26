@@ -21,106 +21,192 @@
                         </div>
                     @endif
 
-                    <div class="mb-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('Select Theme') }}</h3>
-                        <p class="text-sm text-gray-600">
-                            {{ __('Choose a theme to customize the appearance of the application. Your preference will be remembered for future sessions.') }}
-                        </p>
+                    <div class="mb-6 flex justify-between items-end">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('Select Theme') }}</h3>
+                            <p class="text-sm text-gray-600">
+                                {{ __('Choose a theme to customize the appearance of the application. Your preference will be remembered for future sessions.') }}
+                            </p>
+                        </div>
+                        <div>
+                            <a href="{{ route('themes.editor.index') }}" class="text-sm text-blue-600 hover:underline">Theme Editor</a>
+                        </div>
                     </div>
 
-                    <form method="POST" action="{{ route('themes.update') }}">
+                    <form method="POST" action="{{ route('themes.update') }}" id="theme-form">
                         @csrf
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- Default Theme Option -->
-                            <label class="relative cursor-pointer">
-                                <input type="radio" name="theme" value="default"
-                                       {{ !$currentTheme ? 'checked' : '' }}
-                                       class="peer sr-only">
-                                <div class="border-2 rounded-lg p-4 transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-400">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <h4 class="font-medium text-gray-900">{{ __('Default') }}</h4>
-                                        <div class="w-4 h-4 rounded-full border-2 border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-500 flex items-center justify-center">
-                                            <svg class="w-2 h-2 text-white hidden peer-checked:block" fill="currentColor" viewBox="0 0 8 8">
-                                                <circle cx="4" cy="4" r="4"/>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <p class="text-sm text-gray-600">{{ __('The default application theme') }}</p>
-                                    <div class="mt-3 flex gap-1">
-                                        <div class="w-6 h-6 rounded bg-blue-600"></div>
-                                        <div class="w-6 h-6 rounded bg-gray-100"></div>
-                                        <div class="w-6 h-6 rounded bg-white border"></div>
-                                    </div>
-                                </div>
-                            </label>
-
-                            <!-- Available Themes -->
-                            @forelse($themes as $theme)
-                                <label class="relative cursor-pointer">
-                                    <input type="radio" name="theme" value="{{ $theme['name'] }}"
-                                           {{ $currentTheme === $theme['name'] ? 'checked' : '' }}
-                                           class="peer sr-only">
-                                    <div class="border-2 rounded-lg p-4 transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-gray-400">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                            @foreach($themes as $theme)
+                                <label class="relative cursor-pointer group">
+                                    <input type="radio" name="theme" value="{{ $theme->name }}"
+                                           {{ $currentTheme === $theme->name ? 'checked' : '' }}
+                                           class="peer sr-only theme-selector">
+                                    <div class="theme-selection-card border-2 border-gray-200 rounded-xl p-4 transition-all peer-checked:ring-2 peer-checked:ring-offset-2 hover:border-gray-400 h-full flex flex-col">
                                         <div class="flex items-center justify-between mb-3">
-                                            <h4 class="font-medium text-gray-900">{{ $theme['title'] }}</h4>
-                                            <div class="w-4 h-4 rounded-full border-2 border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-500"></div>
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="font-medium text-gray-900">{{ $theme->title }}</h4>
+                                                @if($currentTheme === $theme->name)
+                                                    <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Active</span>
+                                                @endif
+                                            </div>
+                                            <div class="theme-selection-check w-4 h-4 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                                                <svg class="w-2 h-2 text-white hidden peer-checked:block" fill="currentColor" viewBox="0 0 8 8">
+                                                    <circle cx="4" cy="4" r="4"/>
+                                                </svg>
+                                            </div>
                                         </div>
-                                        @if($theme['description'])
-                                            <p class="text-sm text-gray-600">{{ $theme['description'] }}</p>
-                                        @else
-                                            <p class="text-sm text-gray-500 italic">{{ __('No description available') }}</p>
-                                        @endif
-                                        @if($theme['preview'])
-                                            <div class="mt-3">
-                                                <img src="{{ $theme['preview'] }}" alt="{{ $theme['title'] }} preview" class="rounded border w-full h-20 object-cover">
+                                        <p class="text-sm text-gray-600 mb-4 flex-grow">
+                                            {{ $theme->is_system ? 'System Theme' : 'Custom Theme' }}
+                                        </p>
+                                        <div class="mt-auto">
+                                            <div class="flex items-center gap-2">
+                                                <div class="flex gap-1">
+                                                    <!-- Light Mode Preview -->
+                                                    <div class="w-6 h-6 rounded border" style="background-color: {{ $theme->config['light']['primary']['500'] ?? '#ccc' }}" title="Primary"></div>
+                                                    <div class="w-6 h-6 rounded border" style="background-color: {{ $theme->config['light']['bg']['main'] ?? '#fff' }}" title="Background"></div>
+                                                </div>
+                                                <span class="text-gray-400">/</span>
+                                                <div class="flex gap-1">
+                                                    <!-- Dark Mode Preview -->
+                                                    <div class="w-6 h-6 rounded border" style="background-color: {{ $theme->config['dark']['primary']['500'] ?? '#ccc' }}" title="Primary"></div>
+                                                    <div class="w-6 h-6 rounded border" style="background-color: {{ $theme->config['dark']['bg']['main'] ?? '#000' }}" title="Background"></div>
+                                                </div>
                                             </div>
-                                        @else
-                                            <div class="mt-3 flex gap-1">
-                                                <div class="w-6 h-6 rounded bg-gray-400"></div>
-                                                <div class="w-6 h-6 rounded bg-gray-200"></div>
-                                                <div class="w-6 h-6 rounded bg-gray-100"></div>
-                                            </div>
-                                        @endif
+                                            <div class="text-xs text-gray-500 mt-1">Light / Dark</div>
+                                        </div>
                                     </div>
                                 </label>
-                            @empty
-                                {{-- No custom themes message shown only if themes array is empty --}}
-                            @endforelse
-                        </div>
-
-                        @if(count($themes) === 0)
-                            <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                <p class="text-sm text-gray-600">
-                                    <span class="font-medium">{{ __('No custom themes available.') }}</span>
-                                    {{ __('To add themes, create theme folders in the') }}
-                                    <code class="px-1 py-0.5 bg-gray-100 rounded text-xs">themes/</code>
-                                    {{ __('directory.') }}
-                                </p>
-                            </div>
-                        @endif
-
-                        <div class="mt-6 flex justify-end">
-                            <button type="submit"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                {{ __('Save Theme') }}
-                            </button>
+                            @endforeach
                         </div>
                     </form>
 
-                    <div class="mt-8 border-t pt-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('Creating Custom Themes') }}</h3>
-                        <div class="prose prose-sm text-gray-600">
-                            <p>{{ __('To create a custom theme:') }}</p>
-                            <ol class="list-decimal list-inside space-y-1 mt-2">
-                                <li>{{ __('Create a folder in the') }} <code class="px-1 py-0.5 bg-gray-100 rounded text-xs">themes/</code> {{ __('directory') }}</li>
-                                <li>{{ __('Add your custom views in') }} <code class="px-1 py-0.5 bg-gray-100 rounded text-xs">themes/your-theme/views/</code></li>
-                                <li>{{ __('Optionally, add a') }} <code class="px-1 py-0.5 bg-gray-100 rounded text-xs">theme.json</code> {{ __('file with title and description') }}</li>
-                            </ol>
+                    <div class="mt-12 border-t pt-8">
+                        <h3 class="text-lg font-medium text-gray-900 mb-6">{{ __('Theme Preview Elements') }}</h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Typography & Buttons -->
+                            <div class="space-y-6">
+                                <div class="bg-gray-50 p-4 rounded-lg border">
+                                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Typography</h4>
+                                    <h1 class="text-4xl font-bold mb-2">Heading 1</h1>
+                                    <h2 class="text-3xl font-bold mb-2">Heading 2</h2>
+                                    <h3 class="text-2xl font-bold mb-2">Heading 3</h3>
+                                    <p class="text-gray-600">This is a paragraph of text to demonstrate body copy. It contains <strong>bold text</strong>, <em>italic text</em>, and <a href="#" class="text-blue-600 hover:underline">links</a>.</p>
+                                </div>
+
+                                <div class="bg-gray-50 p-4 rounded-lg border">
+                                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Buttons</h4>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Primary</button>
+                                        <button class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Secondary</button>
+                                        <button class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Success</button>
+                                        <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Danger</button>
+                                        <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50">Outline</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Forms & Alerts -->
+                            <div class="space-y-6">
+                                <div class="bg-gray-50 p-4 rounded-lg border">
+                                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Form Elements</h4>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Text Input</label>
+                                            <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Sample text...">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700">Select</label>
+                                            <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                <option>Option 1</option>
+                                                <option>Option 2</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" checked>
+                                                <span class="ml-2 text-sm text-gray-600">Checkbox</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" class="border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" checked>
+                                                <span class="ml-2 text-sm text-gray-600">Radio</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 p-4 rounded-lg border">
+                                    <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Alerts</h4>
+                                    <div class="space-y-2">
+                                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+                                            <p class="text-sm text-blue-700">Info alert message.</p>
+                                        </div>
+                                        <div class="bg-blue-50 border-l-4 border-green-400 p-4">
+                                            <p class="text-sm text-blue-700">Success alert message.</p>
+                                        </div>
+                                        <div class="bg-blue-50 border-l-4 border-yellow-400 p-4">
+                                            <p class="text-sm text-blue-700">Warning alert message.</p>
+                                        </div>
+                                        <div class="bg-blue-50 border-l-4 border-red-400 p-4">
+                                            <p class="text-sm text-blue-700">Error alert message.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeSelectors = document.querySelectorAll('.theme-selector');
+            const form = document.getElementById('theme-form');
+            
+            themeSelectors.forEach(selector => {
+                selector.addEventListener('change', function() {
+                    const theme = this.value;
+                    
+                    // Save scroll position
+                    const scrollPos = window.scrollY;
+                    sessionStorage.setItem('themeScrollPos', scrollPos);
+                    
+                    // Use Fetch API to submit form without full reload first
+                    const formData = new FormData(form);
+                    
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            // Reload page to apply theme (since we rely on server-side blade rendering for the style block)
+                            window.location.reload();
+                        } else {
+                            console.error('Theme update failed');
+                            // Fallback to normal submit if fetch fails
+                            form.submit();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        form.submit();
+                    });
+                });
+            });
+            
+            // Restore scroll position if it exists
+            const savedScrollPos = sessionStorage.getItem('themeScrollPos');
+            if (savedScrollPos) {
+                window.scrollTo(0, parseInt(savedScrollPos));
+                sessionStorage.removeItem('themeScrollPos');
+            }
+        });
+    </script>
 </x-app-layout>

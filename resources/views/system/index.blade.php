@@ -58,7 +58,7 @@
                         </div>
                         <div class="flex justify-between">
                             <dt class="text-gray-600">Database Version</dt>
-                            <dd class="font-medium">{{ Str::limit($systemInfo['db_version'], 20) }}</dd>
+                            <dd class="font-medium">{{ $systemInfo['db_version'] }}</dd>
                         </div>
                         <div class="flex justify-between">
                             <dt class="text-gray-600">Memory Limit</dt>

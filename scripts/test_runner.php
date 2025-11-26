@@ -147,7 +147,11 @@ if ($process->isSuccessful()) {
 // --- TEST DISCOVERY ---
 $io->section('Discovering Test Files');
 $finder = new Finder();
-$finder->files()->in($baseDir . '/tests')->name('*Test.php')->sortByName();
+$finder->files()
+    ->in($baseDir . '/tests')
+    ->name('*Test.php')
+    ->notPath('Browser') // Exclude Browser tests
+    ->sortByName();
 $allFiles = [];
 foreach ($finder as $file) {
     $allFiles[] = $file->getRealPath();
@@ -173,6 +177,13 @@ function logBatchResults($output, $reportsDir, $batchId) {
     if (preg_match_all('/There (?:was|were) \d+ error(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:failure|risky|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
         foreach ($matches[1] as $match) {
             file_put_contents("{$reportsDir}/error.log", "Batch {$batchId} Errors:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+        }
+    }
+
+    // Extract Pre-Test Errors (PHPUnit 11)
+    if (preg_match_all('/These before-first-test methods errored:\s*(.*?)(?=\n(?:FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        foreach ($matches[1] as $match) {
+            file_put_contents("{$reportsDir}/error.log", "Batch {$batchId} Pre-Test Errors:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
         }
     }
 
@@ -429,7 +440,14 @@ foreach ($config['batches'] as $batch) {
 $newFiles = array_diff($allFiles, $knownFiles);
 
 // 2. Prepare Batches
-$batchesToRun = $config['batches'];
+$batchesToRun = [];
+foreach ($config['batches'] as $batch) {
+    $validBatch = array_intersect($batch, $allFiles);
+    if (!empty($validBatch)) {
+        $batchesToRun[] = array_values($validBatch);
+    }
+}
+
 // Add new files as individual batches for now
 foreach ($newFiles as $file) {
     $batchesToRun[] = [$file];
@@ -488,6 +506,7 @@ function runBatch($files, $io, $baseDir, $reportsDir, &$runningStats, &$allResul
         }
         
         // Parse stats
+        $batchHasError = false;
         if (preg_match_all('/(Tests:.*)/', $output, $matches)) {
             foreach ($matches[1] as $line) {
                 preg_match_all('/(Tests|Assertions|Errors|Failures|Risky|Skipped|Incomplete|PHPUnit Warnings): (\d+)/', $line, $statMatches, PREG_SET_ORDER);
@@ -495,9 +514,17 @@ function runBatch($files, $io, $baseDir, $reportsDir, &$runningStats, &$allResul
                     if (isset($runningStats[$match[1]])) {
                         $runningStats[$match[1]] += (int)$match[2];
                     }
+                    if (($match[1] === 'Errors' || $match[1] === 'Failures') && (int)$match[2] > 0) {
+                        $batchHasError = true;
+                    }
                 }
             }
         }
+
+        if ($batchHasError) {
+            file_put_contents("{$reportsDir}/batch_{$batchId}_full_output.log", $output);
+        }
+
         if (preg_match_all('/OK \((\d+) tests?, (\d+) assertions?\)/', $output, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
                 $runningStats['Tests'] += (int)$match[1];

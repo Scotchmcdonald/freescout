@@ -178,4 +178,19 @@ class ThemeControllerTest extends TestCase
 
         $this->assertTrue($response->isForbidden() || $response->isRedirect());
     }
+
+    public function test_admin_can_toggle_dark_mode_via_ajax(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $response = $this->actingAs($admin)->postJson(route('themes.update'), [
+            'dark_mode' => true,
+        ]);
+
+        $response->assertOk();
+        $response->assertJson(['success' => true, 'dark_mode' => true]);
+
+        $admin->refresh();
+        $this->assertTrue($admin->dark_mode);
+    }
 }
