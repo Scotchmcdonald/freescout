@@ -159,7 +159,7 @@ class AdditionalListenersTest extends UnitTestCase
             'mailbox_id' => $mailbox->id,
         ]);
 
-        $event = new ConversationUserChanged($conversation, $user);
+        $event = new ConversationUserChanged($conversation, null, null, $user);
         $listener = new UpdateMailboxCounters();
 
         $listener->handle($event);

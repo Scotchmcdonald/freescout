@@ -71,6 +71,7 @@ class AttachmentControllerTest extends TestCase
     public function test_attachment_download_returns_404_for_missing_file(): void
     {
         $this->actingAs($this->user);
+        Storage::fake('attachments');
 
         $thread = Thread::factory()->create([
             'conversation_id' => $this->conversation->id,
@@ -133,12 +134,12 @@ class AttachmentControllerTest extends TestCase
             'thread_id' => $thread->id,
             'file_name' => 'report.xlsx',
             'mime_type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'size' => 1024,
+            'file_size' => 1024,
         ]);
 
         $this->assertEquals('report.xlsx', $attachment->file_name);
         $this->assertEquals('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', $attachment->mime_type);
-        $this->assertEquals(1024, $attachment->size);
+        $this->assertEquals(1024, $attachment->file_size);
         $this->assertEquals($thread->id, $attachment->thread_id);
     }
 

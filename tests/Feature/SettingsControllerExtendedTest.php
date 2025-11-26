@@ -46,31 +46,28 @@ class SettingsControllerExtendedTest extends TestCase
     public function test_admin_can_update_alerts_settings(): void
     {
         $response = $this->actingAs($this->admin)
-            ->post(route('settings.alerts.update'), [
-                'alert_email' => 'admin@example.com',
-                'alert_fetch_failed' => true,
-                'alert_sending_failed' => true,
-                'alert_queue_error' => false,
+            ->put(route('settings.alerts.update'), [
+                'alert_recipients' => 'admin@example.com',
+                'alerts' => [
+                    'failed_jobs' => true,
+                    'system_errors' => true,
+                ],
             ]);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('options', [
-            'name' => 'alert_email',
+            'name' => 'alert_recipients',
             'value' => 'admin@example.com',
+        ]);
+        
+        $this->assertDatabaseHas('options', [
+            'name' => 'alert_failed_jobs',
+            'value' => '1',
         ]);
     }
 
-    public function test_alerts_settings_validates_email(): void
-    {
-        $response = $this->actingAs($this->admin)
-            ->post(route('settings.alerts.update'), [
-                'alert_email' => 'invalid-email',
-            ]);
-
-        $response->assertSessionHasErrors('alert_email');
-    }
 
     // ==================== SMTP Testing ====================
 

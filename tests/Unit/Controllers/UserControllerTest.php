@@ -175,6 +175,9 @@ class UserControllerTest extends UnitTestCase
 
         $response = $this->actingAs($admin)->delete(route('users.destroy', $user));
 
-        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'status' => User::STATUS_DELETED,
+        ]);
     }
 }

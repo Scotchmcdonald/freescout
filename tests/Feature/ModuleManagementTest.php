@@ -24,19 +24,18 @@ class ModuleManagementTest extends TestCase
 
     public function test_index_displays_available_modules()
     {
-        // Mock ModuleSource
-        $mockSource = Mockery::mock(ModuleSource::class);
-        $mockSource->shouldReceive('getModules')->andReturn([
-            [
-                'name' => 'Test Module',
-                'alias' => 'testmodule',
-                'description' => 'A test module',
-                'version' => '1.0.0',
-                'price' => 'Free',
-            ]
+        // Mock WpApi response via Http::fake
+        Http::fake([
+            '*/freescout/v1/modules*' => Http::response([
+                [
+                    'name' => 'Test Module',
+                    'alias' => 'testmodule',
+                    'description' => 'A test module',
+                    'version' => '1.0.0',
+                    'price' => 'Free',
+                ]
+            ], 200),
         ]);
-
-        $this->app->instance(ModuleSource::class, $mockSource);
 
         $response = $this->actingAs($this->admin)->get(route('modules'));
 
@@ -47,17 +46,15 @@ class ModuleManagementTest extends TestCase
 
     public function test_install_downloads_and_installs_module()
     {
-        // Mock ModuleSource
-        $mockSource = Mockery::mock(ModuleSource::class);
-        $mockSource->shouldReceive('getModule')->with('testmodule')->andReturn([
-            'name' => 'Test Module',
-            'alias' => 'testmodule',
-            'download_url' => 'https://example.com/testmodule.zip',
-        ]);
-        $this->app->instance(ModuleSource::class, $mockSource);
-
-        // Mock Http for download
+        // Mock WpApi response and download
         Http::fake([
+            '*/freescout/v1/modules*' => Http::response([
+                [
+                    'name' => 'Test Module',
+                    'alias' => 'testmodule',
+                    'download_url' => 'https://example.com/testmodule.zip',
+                ]
+            ], 200),
             'https://example.com/testmodule.zip' => Http::response($this->createZipContent(), 200),
         ]);
 

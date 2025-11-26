@@ -237,7 +237,7 @@ class UserMethodsTest extends UnitTestCase
     public function test_can_manage_mailbox_returns_true_for_user_with_full_access(): void
     {
         $regularUser = User::factory()->create(['role' => User::ROLE_USER]);
-        $this->mailbox->users()->attach($regularUser->id, ['access' => 2]); // Full access
+        $this->mailbox->users()->attach($regularUser->id, ['access' => \App\Models\MailboxUser::ACCESS_ADMIN]);
 
         $this->assertTrue($regularUser->canManageMailbox($this->mailbox->id));
     }

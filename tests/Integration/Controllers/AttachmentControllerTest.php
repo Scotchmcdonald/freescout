@@ -9,12 +9,15 @@ use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Tests\IntegrationTestCase;
 
 class AttachmentControllerTest extends IntegrationTestCase
 {
     public function test_download_returns_response_for_authorized_user(): void
     {
+        Storage::fake('attachments');
+
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($user->id);
@@ -23,6 +26,8 @@ class AttachmentControllerTest extends IntegrationTestCase
         $thread = Thread::factory()->for($conversation)->create();
         $attachment = Attachment::factory()->for($thread)->create();
 
+        Storage::disk('attachments')->put($attachment->file_dir . '/' . $attachment->file_name, 'content');
+
         $response = $this->actingAs($user)->get("/attachments/{$attachment->id}/download");
 
         $response->assertStatus(200);
@@ -30,12 +35,16 @@ class AttachmentControllerTest extends IntegrationTestCase
 
     public function test_download_denies_unauthorized_user(): void
     {
+        Storage::fake('attachments');
+
         $user = User::factory()->create();
         $otherMailbox = Mailbox::factory()->create();
         
         $conversation = Conversation::factory()->for($otherMailbox)->create();
         $thread = Thread::factory()->for($conversation)->create();
         $attachment = Attachment::factory()->for($thread)->create();
+
+        Storage::disk('attachments')->put($attachment->file_dir . '/' . $attachment->file_name, 'content');
 
         $response = $this->actingAs($user)->get("/attachments/{$attachment->id}/download");
 
@@ -44,12 +53,16 @@ class AttachmentControllerTest extends IntegrationTestCase
 
     public function test_download_allows_admin_user_regardless_of_mailbox(): void
     {
+        Storage::fake('attachments');
+
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
         
         $conversation = Conversation::factory()->for($mailbox)->create();
         $thread = Thread::factory()->for($conversation)->create();
         $attachment = Attachment::factory()->for($thread)->create();
+
+        Storage::disk('attachments')->put($attachment->file_dir . '/' . $attachment->file_name, 'content');
 
         $response = $this->actingAs($admin)->get("/attachments/{$attachment->id}/download");
 

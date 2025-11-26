@@ -374,7 +374,11 @@ class UserControllerFullTest extends FeatureTestCase
         $response = $this->actingAs($admin)->delete(route('users.destroy', $user));
         
         $response->assertRedirect();
-        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+        // User is soft deleted (status updated)
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'status' => User::STATUS_DELETED,
+        ]);
     }
 
     public function test_destroy_admin_cannot_delete_self(): void

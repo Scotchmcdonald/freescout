@@ -41,6 +41,10 @@ class AdvancedSearchTest extends TestCase
         $customer->phones = [['type' => 'mobile', 'value' => '+9876543210']];
         $customer->save();
 
+        // Debug: Check what is saved
+        // dump(Customer::find($customer->id)->phones);
+        // dump(Customer::find($customer->id)->getAttributes()['phones']);
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
@@ -49,6 +53,11 @@ class AdvancedSearchTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)->get(route('conversations.search', ['q' => '9876543210']));
+
+        // Debug: Check response content if it fails
+        if ($response->status() !== 200 || !str_contains($response->getContent(), 'Test Subject')) {
+             // dump($response->getContent());
+        }
 
         $response->assertStatus(200);
         $response->assertSee('Test Subject');

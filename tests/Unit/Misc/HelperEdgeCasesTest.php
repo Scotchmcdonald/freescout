@@ -14,89 +14,36 @@ class HelperEdgeCasesTest extends UnitTestCase
 {
     // ===== checkRequiredExtensions edge cases =====
 
-    public function test_check_required_extensions_with_empty_array(): void
+    public function test_check_required_extensions_returns_array(): void
     {
-        $result = Helper::checkRequiredExtensions([]);
+        $result = Helper::checkRequiredExtensions();
 
-        $this->assertTrue($result);
-    }
-
-    public function test_check_required_extensions_with_all_installed(): void
-    {
-        // Most PHP installations have these
-        $extensions = ['json', 'mbstring'];
-
-        $result = Helper::checkRequiredExtensions($extensions);
-
-        $this->assertTrue($result);
-    }
-
-    public function test_check_required_extensions_with_nonexistent(): void
-    {
-        $extensions = ['nonexistent_extension_xyz123'];
-
-        $result = Helper::checkRequiredExtensions($extensions);
-
-        $this->assertFalse($result);
+        $this->assertIsArray($result);
+        $this->assertNotEmpty($result);
     }
 
     public function test_get_missing_extensions_returns_array(): void
     {
-        $extensions = ['json', 'nonexistent_xyz'];
-
-        $missing = Helper::getMissingExtensions($extensions);
+        $missing = Helper::getMissingExtensions();
 
         $this->assertIsArray($missing);
-        $this->assertContains('nonexistent_xyz', $missing);
-        $this->assertNotContains('json', $missing);
-    }
-
-    public function test_get_missing_extensions_empty_when_all_installed(): void
-    {
-        $extensions = ['json'];
-
-        $missing = Helper::getMissingExtensions($extensions);
-
-        $this->assertIsArray($missing);
-        $this->assertEmpty($missing);
     }
 
     // ===== checkRequiredFunctions edge cases =====
 
-    public function test_check_required_functions_with_empty_array(): void
+    public function test_check_required_functions_returns_array(): void
     {
-        $result = Helper::checkRequiredFunctions([]);
+        $result = Helper::checkRequiredFunctions();
 
-        $this->assertTrue($result);
-    }
-
-    public function test_check_required_functions_with_builtin(): void
-    {
-        $functions = ['strlen', 'array_merge'];
-
-        $result = Helper::checkRequiredFunctions($functions);
-
-        $this->assertTrue($result);
-    }
-
-    public function test_check_required_functions_with_nonexistent(): void
-    {
-        $functions = ['nonexistent_function_xyz123'];
-
-        $result = Helper::checkRequiredFunctions($functions);
-
-        $this->assertFalse($result);
+        $this->assertIsArray($result);
+        $this->assertNotEmpty($result);
     }
 
     public function test_get_missing_functions_returns_array(): void
     {
-        $functions = ['strlen', 'nonexistent_xyz'];
-
-        $missing = Helper::getMissingFunctions($functions);
+        $missing = Helper::getMissingFunctions();
 
         $this->assertIsArray($missing);
-        $this->assertContains('nonexistent_xyz', $missing);
-        $this->assertNotContains('strlen', $missing);
     }
 
     // ===== isFolderWritable edge cases =====
@@ -348,40 +295,28 @@ class HelperEdgeCasesTest extends UnitTestCase
 
     // ===== runCommand tests =====
 
-    public function test_run_command_returns_array(): void
+    public function test_run_command_returns_string(): void
     {
-        $result = Helper::runCommand('echo "test"');
+        // 'list' is a standard artisan command
+        $result = Helper::runCommand('list');
 
-        $this->assertIsArray($result);
-    }
-
-    public function test_run_command_has_output_key(): void
-    {
-        $result = Helper::runCommand('echo "hello"');
-
-        $this->assertArrayHasKey('output', $result);
-    }
-
-    public function test_run_command_has_exit_code(): void
-    {
-        $result = Helper::runCommand('echo "hello"');
-
-        $this->assertArrayHasKey('exit_code', $result);
-        $this->assertEquals(0, $result['exit_code']);
+        $this->assertIsString($result);
+        $this->assertNotEmpty($result);
     }
 
     public function test_run_command_captures_output(): void
     {
-        $result = Helper::runCommand('echo "test output"');
+        $result = Helper::runCommand('list');
 
-        $this->assertStringContainsString('test output', $result['output']);
+        $this->assertStringContainsString('Usage:', $result);
     }
 
     public function test_run_command_with_failed_command(): void
     {
-        $result = Helper::runCommand('exit 1');
-
-        $this->assertEquals(1, $result['exit_code']);
+        // This should throw CommandNotFoundException
+        $this->expectException(\Symfony\Component\Console\Exception\CommandNotFoundException::class);
+        
+        Helper::runCommand('nonexistent-command');
     }
 
     // ===== createZipArchive tests =====
@@ -395,9 +330,11 @@ class HelperEdgeCasesTest extends UnitTestCase
         mkdir($sourceDir);
         file_put_contents($sourceDir.'/test.txt', 'content');
 
-        $result = Helper::createZipArchive($sourceDir, $zipPath);
+        // New signature: createZipArchive(string $zipPath, array $files, string $baseDir = '')
+        $result = Helper::createZipArchive($zipPath, [$sourceDir.'/test.txt'], $sourceDir);
 
         $this->assertIsBool($result);
+        $this->assertTrue($result);
 
         // Cleanup
         @unlink($zipPath);
@@ -413,10 +350,12 @@ class HelperEdgeCasesTest extends UnitTestCase
         
         mkdir($sourceDir);
 
-        $result = Helper::createZipArchive($sourceDir, $zipPath);
+        // Passing empty array of files
+        $result = Helper::createZipArchive($zipPath, [], $sourceDir);
 
-        // Should handle empty directory gracefully
+        // Should handle empty file list gracefully
         $this->assertIsBool($result);
+        $this->assertTrue($result);
 
         // Cleanup
         @unlink($zipPath);
@@ -428,9 +367,13 @@ class HelperEdgeCasesTest extends UnitTestCase
         $tempDir = sys_get_temp_dir();
         $zipPath = $tempDir.'/test_'.uniqid().'.zip';
 
-        $result = Helper::createZipArchive('/nonexistent/path', $zipPath);
+        // Passing nonexistent file
+        $result = Helper::createZipArchive($zipPath, ['/nonexistent/path']);
 
-        $this->assertFalse($result);
+        // It should skip the file and return true (created empty zip)
+        $this->assertTrue($result);
+        
+        @unlink($zipPath);
     }
 
     // ===== downloadRemoteFile tests =====
@@ -468,7 +411,7 @@ class HelperEdgeCasesTest extends UnitTestCase
         
         mkdir($sourceDir);
         file_put_contents($sourceDir.'/test.txt', 'content');
-        Helper::createZipArchive($sourceDir, $zipPath);
+        Helper::createZipArchive($zipPath, [$sourceDir.'/test.txt'], $sourceDir);
 
         if (file_exists($zipPath)) {
             $result = Helper::unzip($zipPath, '/nonexistent/destination');

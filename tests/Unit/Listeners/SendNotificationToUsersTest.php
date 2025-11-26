@@ -151,7 +151,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         ]);
 
         // The assigningUser causes the change, assignedUser receives notification
-        $event = new ConversationUserChanged($conversation, $assigningUser);
+        $event = new ConversationUserChanged($conversation, null, null, $assigningUser);
         $listener = new SendNotificationToUsers();
         
         $listener->handle($event);
@@ -251,7 +251,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $listener->handle(new UserAddedNote($conversation, $thread));
         $listener->handle(new UserCreatedConversation($conversation, $thread));
         $listener->handle(new CustomerCreatedConversation($conversation, $thread, $customer));
-        $listener->handle(new ConversationUserChanged($conversation, $user));
+        $listener->handle(new ConversationUserChanged($conversation, null, null, $user));
         $listener->handle(new CustomerReplied($conversation, $thread, $customer));
         
         // If we got here, no exceptions were thrown

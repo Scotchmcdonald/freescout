@@ -79,9 +79,10 @@ class UpdateMailboxCountersListenerTest extends TestCase
 
     public function test_handles_conversation_without_mailbox(): void
     {
-        $conversationNoMailbox = Conversation::factory()->create([
-            'mailbox_id' => null,
-        ]);
+        $conversationNoMailbox = \Mockery::mock(Conversation::class)->makePartial();
+        $conversationNoMailbox->shouldReceive('getAttribute')->with('mailbox')->andReturn(null);
+        $conversationNoMailbox->shouldReceive('getAttribute')->with('mailbox_id')->andReturn(null);
+        $conversationNoMailbox->id = 1;
 
         $listener = new UpdateMailboxCounters();
         $event = new ConversationStatusChanged(

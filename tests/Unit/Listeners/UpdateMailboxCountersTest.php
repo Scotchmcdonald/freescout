@@ -79,7 +79,7 @@ class UpdateMailboxCountersTest extends UnitTestCase
             'user_id' => $user->id,
         ]);
         
-        $event = new ConversationUserChanged($conversation, $user);
+        $event = new ConversationUserChanged($conversation, null, $user);
         
         $listener = new UpdateMailboxCounters();
         
@@ -104,7 +104,7 @@ class UpdateMailboxCountersTest extends UnitTestCase
         $user = User::factory()->create();
         
         $event1 = new ConversationStatusChanged($conversation);
-        $event2 = new ConversationUserChanged($conversation, $user);
+        $event2 = new ConversationUserChanged($conversation, null, $user);
         
         $listener = new UpdateMailboxCounters();
         $listener->handle($event1);
@@ -156,7 +156,7 @@ class UpdateMailboxCountersTest extends UnitTestCase
             'user_id' => $user->id,
         ]);
         
-        $event = new ConversationUserChanged($conversation, $user);
+        $event = new ConversationUserChanged($conversation, null, $user);
         
         $listener = new UpdateMailboxCounters();
         

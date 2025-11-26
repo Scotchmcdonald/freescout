@@ -26,6 +26,7 @@ class UserControllerAjaxTest extends FeatureTestCase
         $this->targetUser = User::factory()->create([
             'role' => User::ROLE_USER,
             'invite_hash' => 'test-hash-' . uniqid(),
+            'invite_state' => User::INVITE_STATE_SENT,
         ]);
     }
 

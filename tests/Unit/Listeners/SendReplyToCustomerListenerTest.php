@@ -101,7 +101,7 @@ class SendReplyToCustomerListenerTest extends TestCase
         Queue::fake();
 
         // Create customer without email
-        $customerNoEmail = Customer::factory()->create();
+        $customerNoEmail = Customer::factory()->withoutEmail()->create();
         
         $phoneConversation = Conversation::factory()
             ->for($this->mailbox)

@@ -42,11 +42,12 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'activate_license',
-            'module' => 'test-module',
-            'license_key' => 'test-license-key',
+            'alias' => 'test-module',
+            'license' => 'test-license-key',
         ]);
 
         $response->assertOk();
+        $this->assertTrue($response->json('success'));
     }
 
     public function test_non_admin_cannot_activate_license(): void
@@ -55,8 +56,8 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'activate_license',
-            'module' => 'test-module',
-            'license_key' => 'test-license-key',
+            'alias' => 'test-module',
+            'license' => 'test-license-key',
         ]);
 
         $response->assertForbidden();
@@ -75,8 +76,8 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'activate_license',
-            'module' => 'test-module',
-            'license_key' => 'invalid-key',
+            'alias' => 'test-module',
+            'license' => 'invalid-key',
         ]);
 
         $response->assertOk();
@@ -89,6 +90,13 @@ class ModulesControllerAjaxTest extends FeatureTestCase
     {
         $this->actingAs($this->admin);
 
+        // Mock getting license
+        // We need to mock Option::get('module_licenses') but it's static.
+        // However, the controller uses $this->getModuleLicense which calls Option::get.
+        // Since we can't easily mock Option::get in Feature test without partial mock of controller or DB seed.
+        // Let's seed the option in DB.
+        \App\Models\Option::set('module_licenses', json_encode(['test-module' => 'test-license']));
+
         Http::fake([
             '*' => Http::response([
                 'success' => true,
@@ -98,10 +106,11 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'deactivate_license',
-            'module' => 'test-module',
+            'alias' => 'test-module',
         ]);
 
         $response->assertOk();
+        $this->assertTrue($response->json('success'));
     }
 
     public function test_non_admin_cannot_deactivate_license(): void
@@ -110,7 +119,7 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'deactivate_license',
-            'module' => 'test-module',
+            'alias' => 'test-module',
         ]);
 
         $response->assertForbidden();
@@ -121,6 +130,7 @@ class ModulesControllerAjaxTest extends FeatureTestCase
     public function test_admin_can_check_license(): void
     {
         $this->actingAs($this->admin);
+        \App\Models\Option::set('module_licenses', json_encode(['test-module' => 'test-license']));
 
         Http::fake([
             '*' => Http::response([
@@ -132,10 +142,11 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'check_license',
-            'module' => 'test-module',
+            'alias' => 'test-module',
         ]);
 
         $response->assertOk();
+        $this->assertTrue($response->json('success'));
     }
 
     // ===== Check updates tests =====
@@ -153,11 +164,12 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'check_updates',
-            'module' => 'test-module',
+            'alias' => 'test-module',
             'current_version' => '1.0.0',
         ]);
 
         $response->assertOk();
+        $this->assertTrue($response->json('success'));
     }
 
     public function test_non_admin_cannot_check_updates(): void
@@ -166,7 +178,7 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'check_updates',
-            'module' => 'test-module',
+            'alias' => 'test-module',
         ]);
 
         $response->assertForbidden();
@@ -188,7 +200,7 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'update_module',
-            'module' => 'test-module',
+            'alias' => 'test-module',
         ]);
 
         // May fail due to actual download, but should not crash
@@ -201,7 +213,7 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'update_module',
-            'module' => 'test-module',
+            'alias' => 'test-module',
         ]);
 
         $response->assertForbidden();
@@ -213,8 +225,8 @@ class ModulesControllerAjaxTest extends FeatureTestCase
     {
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'activate_license',
-            'module' => 'test-module',
-            'license_key' => 'test-key',
+            'alias' => 'test-module',
+            'license' => 'test-key',
         ]);
 
         $response->assertUnauthorized();
@@ -228,11 +240,11 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'activate_license',
-            'license_key' => 'test-key',
-            // Missing module
+            'license' => 'test-key',
+            // Missing alias
         ]);
 
-        $this->assertTrue($response->status() >= 400 || $response->json('error') !== null);
+        $this->assertTrue($response->status() >= 400 || $response->json('success') === false);
     }
 
     public function test_activate_license_requires_license_key(): void
@@ -241,11 +253,11 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'activate_license',
-            'module' => 'test-module',
-            // Missing license_key
+            'alias' => 'test-module',
+            // Missing license
         ]);
 
-        $this->assertTrue($response->status() >= 400 || $response->json('error') !== null);
+        $this->assertTrue($response->status() >= 400 || $response->json('success') === false);
     }
 
     public function test_invalid_action_returns_error(): void
@@ -256,7 +268,7 @@ class ModulesControllerAjaxTest extends FeatureTestCase
             'action' => 'invalid_action_xyz',
         ]);
 
-        $this->assertTrue($response->status() >= 400 || $response->json('error') !== null);
+        $this->assertTrue($response->status() >= 400 || $response->json('success') === false);
     }
 
     // ===== Edge cases =====
@@ -271,7 +283,7 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'check_license',
-            'module' => 'test-module',
+            'alias' => 'test-module',
         ]);
 
         // Should handle gracefully
@@ -288,7 +300,7 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'check_license',
-            'module' => 'test-module',
+            'alias' => 'test-module',
         ]);
 
         // Should handle gracefully
@@ -305,7 +317,7 @@ class ModulesControllerAjaxTest extends FeatureTestCase
 
         $response = $this->postJson(route('modules.ajax'), [
             'action' => 'check_license',
-            'module' => 'test-module',
+            'alias' => 'test-module',
         ]);
 
         // Should handle gracefully

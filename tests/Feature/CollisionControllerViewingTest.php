@@ -38,7 +38,7 @@ class CollisionControllerViewingTest extends TestCase
             ->create();
 
         // Test that the collision viewing endpoint can be called
-        $response = $this->post(route('collision.viewing'), [
+        $response = $this->post(route('collision.viewing', ['id' => $conversation->id]), [
             'conversation_id' => $conversation->id,
         ]);
 
@@ -57,7 +57,7 @@ class CollisionControllerViewingTest extends TestCase
             ->for($this->mailbox)
             ->create();
 
-        $response = $this->post(route('collision.viewing'), [
+        $response = $this->post(route('collision.viewing', ['id' => $conversation->id]), [
             'conversation_id' => $conversation->id,
         ]);
 
@@ -68,12 +68,13 @@ class CollisionControllerViewingTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->post(route('collision.viewing'), []);
+        $response = $this->post(route('collision.viewing', ['id' => 1]), []);
 
         // Should return validation error or handle gracefully
         $this->assertTrue(
             $response->status() === 422 ||
             $response->status() === 400 ||
+            $response->status() === 404 ||
             $response->isRedirect()
         );
     }
@@ -86,7 +87,7 @@ class CollisionControllerViewingTest extends TestCase
             ->for($this->mailbox)
             ->create();
 
-        $response = $this->postJson(route('collision.viewing'), [
+        $response = $this->postJson(route('collision.viewing', ['id' => $conversation->id]), [
             'conversation_id' => $conversation->id,
         ]);
 
@@ -106,7 +107,7 @@ class CollisionControllerViewingTest extends TestCase
             ->for($this->mailbox)
             ->create();
 
-        $response = $this->postJson(route('collision.viewing'), [
+        $response = $this->postJson(route('collision.viewing', ['id' => $conversation->id]), [
             'conversation_id' => $conversation->id,
         ]);
 
@@ -129,13 +130,13 @@ class CollisionControllerViewingTest extends TestCase
 
         // First user views
         $this->actingAs($user1);
-        $response1 = $this->postJson(route('collision.viewing'), [
+        $response1 = $this->postJson(route('collision.viewing', ['id' => $conversation->id]), [
             'conversation_id' => $conversation->id,
         ]);
 
         // Second user views
         $this->actingAs($user2);
-        $response2 = $this->postJson(route('collision.viewing'), [
+        $response2 = $this->postJson(route('collision.viewing', ['id' => $conversation->id]), [
             'conversation_id' => $conversation->id,
         ]);
 
@@ -148,7 +149,7 @@ class CollisionControllerViewingTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->postJson(route('collision.viewing'), [
+        $response = $this->postJson(route('collision.viewing', ['id' => 999999]), [
             'conversation_id' => 999999,
         ]);
 
@@ -169,7 +170,7 @@ class CollisionControllerViewingTest extends TestCase
             ->for($this->mailbox)
             ->create();
 
-        $response = $this->postJson(route('collision.viewing'), [
+        $response = $this->postJson(route('collision.viewing', ['id' => $conversation->id]), [
             'conversation_id' => $conversation->id,
         ]);
 

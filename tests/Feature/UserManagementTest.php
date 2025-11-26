@@ -210,8 +210,9 @@ class UserManagementTest extends TestCase
 
         $response->assertRedirect();
 
-        $this->assertDatabaseMissing('users', [
+        $this->assertDatabaseHas('users', [
             'id' => $user->id,
+            'status' => User::STATUS_DELETED,
         ]);
     }
 }

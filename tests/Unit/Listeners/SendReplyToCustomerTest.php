@@ -174,7 +174,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
             'customer_id' => $customer->id,
-            'customer_email' => $customer->email,
+            'customer_email' => $customer->emails->first()->email,
         ]);
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,

@@ -33,7 +33,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::activateLicense('test-license-key', 'test-module');
+        $result = WpApi::activateLicense(['license' => 'test-license-key', 'module_alias' => 'test-module']);
 
         $this->assertIsArray($result);
     }
@@ -41,11 +41,11 @@ class WpApiServiceTest extends TestCase
     public function test_activate_license_includes_license_key_in_request(): void
     {
         Http::fake(function ($request) {
-            $this->assertStringContainsString('license', $request->url());
+            $this->assertEquals('my-license-key', $request['license']);
             return Http::response(['success' => true], 200);
         });
 
-        WpApi::activateLicense('my-license-key', 'test-module');
+        WpApi::activateLicense(['license' => 'my-license-key', 'module_alias' => 'test-module']);
 
         Http::assertSentCount(1);
     }
@@ -59,7 +59,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::activateLicense('test-key', 'test-module');
+        $result = WpApi::activateLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertTrue($result['success']);
         $this->assertEquals('valid', $result['license']);
@@ -74,7 +74,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::activateLicense('invalid-key', 'test-module');
+        $result = WpApi::activateLicense(['license' => 'invalid-key', 'module_alias' => 'test-module']);
 
         $this->assertFalse($result['success']);
     }
@@ -85,7 +85,7 @@ class WpApiServiceTest extends TestCase
             '*' => Http::response(null, 500),
         ]);
 
-        $result = WpApi::activateLicense('test-key', 'test-module');
+        $result = WpApi::activateLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertFalse($result['success'] ?? false);
     }
@@ -96,7 +96,7 @@ class WpApiServiceTest extends TestCase
             '*' => Http::response(null, 408),
         ]);
 
-        $result = WpApi::activateLicense('test-key', 'test-module');
+        $result = WpApi::activateLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertIsArray($result);
     }
@@ -112,7 +112,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::deactivateLicense('test-license-key', 'test-module');
+        $result = WpApi::deactivateLicense(['license' => 'test-license-key', 'module_alias' => 'test-module']);
 
         $this->assertIsArray($result);
     }
@@ -126,7 +126,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::deactivateLicense('test-key', 'test-module');
+        $result = WpApi::deactivateLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertTrue($result['success']);
     }
@@ -139,7 +139,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::deactivateLicense('test-key', 'test-module');
+        $result = WpApi::deactivateLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertFalse($result['success']);
     }
@@ -155,7 +155,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::checkLicense('test-license-key', 'test-module');
+        $result = WpApi::checkLicense(['license' => 'test-license-key', 'module_alias' => 'test-module']);
 
         $this->assertIsArray($result);
     }
@@ -170,7 +170,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::checkLicense('test-key', 'test-module');
+        $result = WpApi::checkLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertEquals('valid', $result['license']);
     }
@@ -184,7 +184,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::checkLicense('test-key', 'test-module');
+        $result = WpApi::checkLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertEquals('expired', $result['license']);
     }
@@ -198,7 +198,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::checkLicense('test-key', 'test-module');
+        $result = WpApi::checkLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertEquals('invalid', $result['license']);
     }
@@ -258,7 +258,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::getVersion('test-module');
+        $result = WpApi::getVersion(['module_alias' => 'test-module']);
 
         $this->assertIsArray($result);
     }
@@ -273,7 +273,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::getVersion('test-module');
+        $result = WpApi::getVersion(['module_alias' => 'test-module']);
 
         $this->assertEquals('2.0.0', $result['new_version']);
         $this->assertArrayHasKey('package', $result);
@@ -288,7 +288,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::getVersion('test-module', '1.0.0');
+        $result = WpApi::getVersion(['module_alias' => 'test-module', 'version' => '1.0.0']);
 
         $this->assertIsArray($result);
     }
@@ -303,7 +303,7 @@ class WpApiServiceTest extends TestCase
             ], 200);
         });
 
-        $result = WpApi::getVersion('test-module', '1.0.0', 'test-license-key');
+        $result = WpApi::getVersion(['module_alias' => 'test-module', 'version' => '1.0.0', 'license' => 'test-license-key']);
 
         $this->assertIsArray($result);
     }
@@ -316,7 +316,7 @@ class WpApiServiceTest extends TestCase
             '*' => Http::response('invalid json {{{', 200),
         ]);
 
-        $result = WpApi::checkLicense('test-key', 'test-module');
+        $result = WpApi::checkLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertIsArray($result);
     }
@@ -327,7 +327,7 @@ class WpApiServiceTest extends TestCase
             '*' => Http::response('', 200),
         ]);
 
-        $result = WpApi::checkLicense('test-key', 'test-module');
+        $result = WpApi::checkLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertIsArray($result);
     }
@@ -338,7 +338,7 @@ class WpApiServiceTest extends TestCase
             '*' => Http::response(null, 200),
         ]);
 
-        $result = WpApi::checkLicense('test-key', 'test-module');
+        $result = WpApi::checkLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertIsArray($result);
     }
@@ -353,7 +353,7 @@ class WpApiServiceTest extends TestCase
             return Http::response(['success' => true], 200);
         });
 
-        WpApi::checkLicense('test-key', 'test-module');
+        WpApi::checkLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
     }
 
     // ===== Response structure tests =====
@@ -370,7 +370,7 @@ class WpApiServiceTest extends TestCase
             ], 200),
         ]);
 
-        $result = WpApi::checkLicense('test-key', 'test-module');
+        $result = WpApi::checkLicense(['license' => 'test-key', 'module_alias' => 'test-module']);
 
         $this->assertArrayHasKey('success', $result);
         $this->assertArrayHasKey('license', $result);
@@ -384,7 +384,7 @@ class WpApiServiceTest extends TestCase
             '*' => Http::response(['success' => true], 200),
         ]);
 
-        $result = WpApi::activateLicense('key-with-special-chars!@#$%', 'test-module');
+        $result = WpApi::activateLicense(['license' => 'key-with-special-chars!@#$%', 'module_alias' => 'test-module']);
 
         $this->assertIsArray($result);
     }
@@ -396,7 +396,7 @@ class WpApiServiceTest extends TestCase
         ]);
 
         $longKey = str_repeat('a', 1000);
-        $result = WpApi::activateLicense($longKey, 'test-module');
+        $result = WpApi::activateLicense(['license' => $longKey, 'module_alias' => 'test-module']);
 
         $this->assertIsArray($result);
     }
@@ -407,7 +407,7 @@ class WpApiServiceTest extends TestCase
             '*' => Http::response(['success' => true], 200),
         ]);
 
-        $result = WpApi::checkLicense('test-key', 'module-名前');
+        $result = WpApi::checkLicense(['license' => 'test-key', 'module_alias' => 'module-名前']);
 
         $this->assertIsArray($result);
     }

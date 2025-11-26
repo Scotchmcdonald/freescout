@@ -121,7 +121,9 @@ class SendAutoReplyListenerTest extends TestCase
         for ($i = 0; $i < 10; $i++) {
             SendLog::create([
                 'customer_id' => $this->customer->id,
+                'email' => 'customer@example.com',
                 'mail_type' => 3, // MAIL_TYPE_AUTO_REPLY
+                'status' => SendLog::STATUS_SENT,
                 'created_at' => now()->subMinutes(30),
             ]);
         }
@@ -154,15 +156,13 @@ class SendAutoReplyListenerTest extends TestCase
     {
         Queue::fake();
 
-        // Create conversation without mailbox relationship
-        $conversation = Conversation::factory()->create([
-            'mailbox_id' => null,
-            'customer_id' => $this->customer->id,
-        ]);
-        $thread = Thread::factory()->create([
-            'conversation_id' => $conversation->id,
-        ]);
+        // Mock conversation to simulate missing mailbox
+        $conversation = \Mockery::mock(Conversation::class)->makePartial();
+        $conversation->shouldReceive('getAttribute')->with('mailbox')->andReturn(null);
+        $conversation->id = 1;
 
+        $thread = Thread::factory()->make();
+        
         $listener = new SendAutoReply();
         $event = new CustomerCreatedConversation($conversation, $thread, $this->customer);
 
@@ -179,7 +179,9 @@ class SendAutoReplyListenerTest extends TestCase
         for ($i = 0; $i < 3; $i++) {
             SendLog::create([
                 'customer_id' => $this->customer->id,
+                'email' => 'customer@example.com',
                 'mail_type' => 3, // MAIL_TYPE_AUTO_REPLY
+                'status' => SendLog::STATUS_SENT,
                 'created_at' => now()->subMinutes(30),
             ]);
         }

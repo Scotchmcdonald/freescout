@@ -105,7 +105,7 @@ class EventsComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $user = User::factory()->create();
         
-        $event = new ConversationUserChanged($conversation, $user);
+        $event = new ConversationUserChanged($conversation, null, null, $user);
         
         $this->assertInstanceOf(ConversationUserChanged::class, $event);
         $this->assertEquals($conversation->id, $event->conversation->id);
@@ -119,7 +119,7 @@ class EventsComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $user = User::factory()->create();
         
-        ConversationUserChanged::dispatch($conversation, $user);
+        ConversationUserChanged::dispatch($conversation, null, null, $user);
         
         Event::assertDispatched(ConversationUserChanged::class);
     }

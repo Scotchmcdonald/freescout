@@ -53,8 +53,8 @@ class MailboxMethodsTest extends UnitTestCase
         $aliases = $this->mailbox->getAliases();
 
         $this->assertCount(2, $aliases);
-        $this->assertContains('alias1@example.com', $aliases);
-        $this->assertContains('alias2@example.com', $aliases);
+        $this->assertArrayHasKey('alias1@example.com', $aliases);
+        $this->assertArrayHasKey('alias2@example.com', $aliases);
     }
 
     public function test_get_aliases_parses_emails_with_names(): void
@@ -65,8 +65,8 @@ class MailboxMethodsTest extends UnitTestCase
         $aliases = $this->mailbox->getAliases();
 
         $this->assertCount(2, $aliases);
-        $this->assertContains('support-alias@example.com', $aliases);
-        $this->assertContains('sales@example.com', $aliases);
+        $this->assertArrayHasKey('support-alias@example.com', $aliases);
+        $this->assertArrayHasKey('sales@example.com', $aliases);
     }
 
     public function test_get_aliases_handles_mixed_format(): void
@@ -77,8 +77,8 @@ class MailboxMethodsTest extends UnitTestCase
         $aliases = $this->mailbox->getAliases();
 
         $this->assertCount(2, $aliases);
-        $this->assertContains('plain@example.com', $aliases);
-        $this->assertContains('named@example.com', $aliases);
+        $this->assertArrayHasKey('plain@example.com', $aliases);
+        $this->assertArrayHasKey('named@example.com', $aliases);
     }
 
     public function test_get_aliases_trims_whitespace(): void
@@ -88,8 +88,8 @@ class MailboxMethodsTest extends UnitTestCase
 
         $aliases = $this->mailbox->getAliases();
 
-        $this->assertContains('whitespace@example.com', $aliases);
-        $this->assertContains('another@example.com', $aliases);
+        $this->assertArrayHasKey('whitespace@example.com', $aliases);
+        $this->assertArrayHasKey('another@example.com', $aliases);
     }
 
     public function test_get_aliases_skips_empty_lines(): void
@@ -212,7 +212,7 @@ class MailboxMethodsTest extends UnitTestCase
 
         $aliases = $this->mailbox->getAliases();
 
-        $this->assertContains('sales@example.com', $aliases);
+        $this->assertArrayHasKey('sales@example.com', $aliases);
     }
 
     public function test_get_aliases_handles_unicode_in_name(): void
@@ -222,7 +222,7 @@ class MailboxMethodsTest extends UnitTestCase
 
         $aliases = $this->mailbox->getAliases();
 
-        $this->assertContains('japanese@example.com', $aliases);
+        $this->assertArrayHasKey('japanese@example.com', $aliases);
     }
 
     public function test_remove_mailbox_emails_handles_duplicates_in_input(): void

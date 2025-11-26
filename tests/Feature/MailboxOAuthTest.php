@@ -163,7 +163,7 @@ class MailboxOAuthTest extends TestCase
         $this->mailbox->save();
 
         $response = $this->actingAs($this->admin)
-            ->post(route('mailboxes.oauth_disconnect', $this->mailbox));
+            ->get(route('mailboxes.oauth_disconnect', $this->mailbox));
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
@@ -177,7 +177,7 @@ class MailboxOAuthTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_USER]);
 
         $response = $this->actingAs($user)
-            ->post(route('mailboxes.oauth_disconnect', $this->mailbox));
+            ->get(route('mailboxes.oauth_disconnect', $this->mailbox));
 
         $response->assertForbidden();
     }

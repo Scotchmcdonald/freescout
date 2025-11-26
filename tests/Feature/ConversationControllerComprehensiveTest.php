@@ -105,8 +105,7 @@ class ConversationControllerComprehensiveTest extends FeatureTestCase
         ]);
 
         // Should handle empty array gracefully
-        $response->assertOk();
-        $this->assertTrue($response->json('count') === 0 || $response->json('success') === true);
+        $response->assertStatus(400);
     }
 
     public function test_bulk_restore_only_affects_deleted_conversations(): void
@@ -345,6 +344,7 @@ class ConversationControllerComprehensiveTest extends FeatureTestCase
             'action' => 'create_phone_conversation',
             'mailbox_id' => $this->mailbox->id,
             'customer_email' => 'newcustomer@example.com',
+            'customer_name' => 'New Customer',
             'subject' => 'Phone conversation',
             'body' => 'Call notes',
         ]);

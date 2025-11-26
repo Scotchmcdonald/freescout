@@ -41,6 +41,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->admin);
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'add_email',
             'email' => 'new@example.com',
         ]);
@@ -58,6 +59,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->admin);
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'add_email',
             'email' => 'invalid-email',
         ]);
@@ -71,12 +73,18 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->admin);
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'add_email',
             'email' => 'main@example.com', // Already exists
         ]);
 
         // Should fail or handle gracefully
-        $this->assertTrue($response->status() >= 400 || $response->json('error') !== null || $response->json('status') === 'exists');
+        $this->assertTrue(
+            $response->status() >= 400 || 
+            $response->json('success') === false || 
+            $response->json('error') !== null || 
+            $response->json('status') === 'exists'
+        );
     }
 
     // ===== ajaxDeleteEmail tests =====
@@ -92,6 +100,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         ]);
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'delete_email',
             'email_id' => $email->id,
         ]);
@@ -107,10 +116,14 @@ class CustomerControllerAjaxTest extends FeatureTestCase
     {
         $this->actingAs($this->admin);
 
-        // Customer only has one email
+        // Ensure customer has only one email
+        $this->customer->emails()->where('id', '!=', $this->customer->emails()->first()->id)->delete();
+        $this->assertEquals(1, $this->customer->emails()->count());
+
         $email = $this->customer->emails()->first();
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'delete_email',
             'email_id' => $email->id,
         ]);
@@ -134,6 +147,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         ]);
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'set_main_email',
             'email_id' => $newMainEmail->id,
         ]);
@@ -152,6 +166,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         Storage::fake('public');
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'upload_photo',
             'photo' => UploadedFile::fake()->image('customer.jpg', 200, 200),
         ]);
@@ -165,6 +180,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         Storage::fake('public');
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'upload_photo',
             'photo' => UploadedFile::fake()->create('document.pdf', 100),
         ]);
@@ -183,6 +199,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         $this->customer->save();
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'delete_photo',
         ]);
 
@@ -196,6 +213,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->admin);
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'add_phone',
             'phone' => '+1234567890',
         ]);
@@ -208,6 +226,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->admin);
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'add_phone',
             'phone' => '', // Empty phone
         ]);
@@ -222,16 +241,20 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->admin);
 
         // Add a phone first
-        $phone = $this->customer->phones()->create([
-            'phone' => '+1234567890',
-        ]);
+        $phones = ['+1234567890'];
+        $this->customer->update(['phones' => $phones]);
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
             'action' => 'delete_phone',
-            'phone_id' => $phone->id,
+            'phone_index' => 0,
+            'customer_id' => $this->customer->id,
         ]);
 
         $response->assertOk();
+        
+        $this->customer->refresh();
+        $phones = $this->customer->phones ?? [];
+        $this->assertEmpty($phones);
     }
 
     // ===== Authorization tests =====
@@ -239,6 +262,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
     public function test_guest_cannot_access_customer_ajax(): void
     {
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'add_email',
             'email' => 'new@example.com',
         ]);
@@ -251,6 +275,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->admin);
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'invalid_action_xyz',
         ]);
 
@@ -264,6 +289,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->admin);
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'add_email',
             'email' => 'NEW@EXAMPLE.COM',
         ]);
@@ -281,6 +307,7 @@ class CustomerControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->admin);
 
         $response = $this->postJson(route('customers.ajax', $this->customer), [
+            'customer_id' => $this->customer->id,
             'action' => 'add_email',
             'email' => '  whitespace@example.com  ',
         ]);

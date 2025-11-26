@@ -43,7 +43,7 @@ class ListenersComprehensiveTest extends UnitTestCase
             'status' => Conversation::STATUS_ACTIVE,
         ]);
 
-        $event = new ConversationStatusChanged($conversation, Conversation::STATUS_CLOSED);
+        $event = new ConversationStatusChanged($conversation, null, Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED);
         $listener = new UpdateMailboxCounters();
 
         $listener->handle($event);
@@ -59,7 +59,7 @@ class ListenersComprehensiveTest extends UnitTestCase
             'status' => Conversation::STATUS_ACTIVE,
         ]);
 
-        $event = new ConversationStatusChanged($conversation, Conversation::STATUS_CLOSED);
+        $event = new ConversationStatusChanged($conversation, null, Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED);
         $listener = new UpdateMailboxCounters();
 
         $listener->handle($event);
@@ -87,7 +87,7 @@ class ListenersComprehensiveTest extends UnitTestCase
             'user_id' => $user2->id,
         ]);
 
-        $event = new ConversationUserChanged($conversation, $user1);
+        $event = new ConversationUserChanged($conversation, null, $user1);
         $listener = new UpdateMailboxCounters();
 
         $listener->handle($event);
@@ -109,7 +109,7 @@ class ListenersComprehensiveTest extends UnitTestCase
             'user_id' => $assignedUser->id,
         ]);
 
-        $event = new ConversationUserChanged($conversation, $assigningUser);
+        $event = new ConversationUserChanged($conversation, null, null, $assigningUser);
         $listener = new SendNotificationToUsers();
 
         $listener->handle($event);
@@ -438,7 +438,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
         $user->delete();
 
-        $event = new ConversationStatusChanged($conversation, Conversation::STATUS_CLOSED);
+        $event = new ConversationStatusChanged($conversation, null, Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED);
         $listener = new UpdateMailboxCounters();
 
         $listener->handle($event);
@@ -453,7 +453,7 @@ class ListenersComprehensiveTest extends UnitTestCase
 
         $events = [];
         for ($i = 0; $i < 5; $i++) {
-            $events[] = new ConversationStatusChanged($conversation, Conversation::STATUS_ACTIVE);
+            $events[] = new ConversationStatusChanged($conversation, null, Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED);
         }
 
         $listener = new UpdateMailboxCounters();
@@ -473,7 +473,7 @@ class ListenersComprehensiveTest extends UnitTestCase
             'status' => Conversation::STATUS_ACTIVE,
         ]);
 
-        $event = new ConversationStatusChanged($conversation, Conversation::STATUS_CLOSED);
+        $event = new ConversationStatusChanged($conversation, null, Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED);
         $listener = new UpdateMailboxCounters();
 
         // Handle the event multiple times

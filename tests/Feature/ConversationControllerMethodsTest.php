@@ -40,6 +40,13 @@ class ConversationControllerMethodsTest extends TestCase
             'type' => Folder::TYPE_INBOX,
             'name' => 'Inbox',
         ]);
+
+        // Create deleted folder
+        Folder::factory()->create([
+            'mailbox_id' => $this->mailbox->id,
+            'type' => Folder::TYPE_DELETED,
+            'name' => 'Trash',
+        ]);
     }
 
     /**

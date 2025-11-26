@@ -18,7 +18,7 @@ class ConversationMethodsTest extends UnitTestCase
     protected User $user;
     protected Mailbox $mailbox;
     protected Folder $inboxFolder;
-    protected Folder $deletedFolder;
+    protected Folder $trashFolder;
 
     protected function setUp(): void
     {
@@ -28,15 +28,11 @@ class ConversationMethodsTest extends UnitTestCase
         $this->mailbox = Mailbox::factory()->create();
         $this->mailbox->users()->attach($this->user->id);
 
-        $this->inboxFolder = Folder::factory()->create([
-            'mailbox_id' => $this->mailbox->id,
-            'type' => Folder::TYPE_INBOX,
-        ]);
+        // Use existing Inbox created by Observer
+        $this->inboxFolder = $this->mailbox->folders()->where('type', Folder::TYPE_INBOX)->first();
 
-        $this->deletedFolder = Folder::factory()->create([
-            'mailbox_id' => $this->mailbox->id,
-            'type' => Folder::TYPE_DELETED,
-        ]);
+        // Use existing Trash created by Observer
+        $this->trashFolder = $this->mailbox->folders()->where('type', Folder::TYPE_TRASH)->first();
     }
 
     // ===== isUserFollowing tests =====
@@ -146,12 +142,16 @@ class ConversationMethodsTest extends UnitTestCase
 
         $this->assertTrue($result);
         $this->assertEquals(Conversation::STATE_DELETED, $conversation->state);
-        $this->assertEquals($this->deletedFolder->id, $conversation->folder_id);
+        $this->assertEquals($this->trashFolder->id, $conversation->folder_id);
     }
 
     public function test_delete_to_folder_returns_false_when_no_deleted_folder(): void
     {
         $mailboxWithoutDeleted = Mailbox::factory()->create();
+        // Delete default folders created by Observer
+        $mailboxWithoutDeleted->folders()->delete();
+        
+        // Create only Inbox
         $folder = Folder::factory()->create([
             'mailbox_id' => $mailboxWithoutDeleted->id,
             'type' => Folder::TYPE_INBOX,
@@ -171,7 +171,7 @@ class ConversationMethodsTest extends UnitTestCase
     public function test_restore_from_deleted_moves_to_inbox(): void
     {
         $conversation = Conversation::factory()->for($this->mailbox)->create([
-            'folder_id' => $this->deletedFolder->id,
+            'folder_id' => $this->trashFolder->id,
             'state' => Conversation::STATE_DELETED,
         ]);
 
@@ -187,10 +187,7 @@ class ConversationMethodsTest extends UnitTestCase
     public function test_move_to_mailbox_changes_mailbox(): void
     {
         $newMailbox = Mailbox::factory()->create();
-        $newInbox = Folder::factory()->create([
-            'mailbox_id' => $newMailbox->id,
-            'type' => Folder::TYPE_INBOX,
-        ]);
+        $newInbox = $newMailbox->folders()->where('type', Folder::TYPE_INBOX)->first();
 
         $conversation = Conversation::factory()->for($this->mailbox)->create([
             'folder_id' => $this->inboxFolder->id,
@@ -206,7 +203,8 @@ class ConversationMethodsTest extends UnitTestCase
     public function test_move_to_mailbox_returns_false_when_no_inbox_in_target(): void
     {
         $newMailbox = Mailbox::factory()->create();
-        // No folders created for this mailbox
+        // Delete default folders created by Observer
+        $newMailbox->folders()->delete();
 
         $conversation = Conversation::factory()->for($this->mailbox)->create();
 
@@ -533,6 +531,9 @@ class ConversationMethodsTest extends UnitTestCase
 
     public function test_search_filters_by_user_mailbox_access(): void
     {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $this->mailbox->users()->attach($user->id);
+
         $otherMailbox = Mailbox::factory()->create();
         $otherFolder = Folder::factory()->create([
             'mailbox_id' => $otherMailbox->id,
@@ -542,7 +543,7 @@ class ConversationMethodsTest extends UnitTestCase
         Conversation::factory()->for($this->mailbox)->create(['subject' => 'Test 1']);
         Conversation::factory()->for($otherMailbox)->create(['subject' => 'Test 2']);
 
-        $results = Conversation::search('Test', [], $this->user)->get();
+        $results = Conversation::search('Test', [], $user)->get();
 
         $this->assertCount(1, $results);
         $this->assertEquals('Test 1', $results->first()->subject);

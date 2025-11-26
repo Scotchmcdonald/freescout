@@ -34,24 +34,24 @@ class CustomerEmailMigrationTest extends TestCase
         $this->mailbox = Mailbox::factory()->create();
         
         // Create source customer with multiple emails
-        $this->sourceCustomer = Customer::factory()->create();
+        $this->sourceCustomer = Customer::factory()->withoutEmail()->create();
         Email::create([
             'customer_id' => $this->sourceCustomer->id,
             'email' => 'primary@example.com',
-            'is_main' => true,
+            'type' => Email::TYPE_PRIMARY,
         ]);
         Email::create([
             'customer_id' => $this->sourceCustomer->id,
             'email' => 'secondary@example.com',
-            'is_main' => false,
+            'type' => Email::TYPE_SECONDARY,
         ]);
         
         // Create target customer with one email
-        $this->targetCustomer = Customer::factory()->create();
+        $this->targetCustomer = Customer::factory()->withoutEmail()->create();
         Email::create([
             'customer_id' => $this->targetCustomer->id,
             'email' => 'target@example.com',
-            'is_main' => true,
+            'type' => Email::TYPE_PRIMARY,
         ]);
     }
 
@@ -61,7 +61,7 @@ class CustomerEmailMigrationTest extends TestCase
 
     public function test_migrate_email_to_another_customer(): void
     {
-        $emailToMigrate = $this->sourceCustomer->emails()->where('is_main', false)->first();
+        $emailToMigrate = $this->sourceCustomer->emails()->where('type', Email::TYPE_SECONDARY)->first();
 
         $response = $this->actingAs($this->adminUser)
             ->postJson(route('customers.ajax'), [
@@ -84,7 +84,7 @@ class CustomerEmailMigrationTest extends TestCase
     public function test_migrate_main_email_sets_new_main_for_source(): void
     {
         // Get the main email
-        $mainEmail = $this->sourceCustomer->emails()->where('is_main', true)->first();
+        $mainEmail = $this->sourceCustomer->emails()->where('type', Email::TYPE_PRIMARY)->first();
 
         $response = $this->actingAs($this->adminUser)
             ->postJson(route('customers.ajax'), [
@@ -97,14 +97,14 @@ class CustomerEmailMigrationTest extends TestCase
         $response->assertJson(['success' => true]);
         
         // Source customer should have new main email
-        $newMainEmail = $this->sourceCustomer->emails()->where('is_main', true)->first();
+        $newMainEmail = $this->sourceCustomer->emails()->where('type', Email::TYPE_PRIMARY)->first();
         $this->assertNotNull($newMainEmail);
         $this->assertNotEquals($mainEmail->id, $newMainEmail->id);
     }
 
     public function test_migrate_email_also_migrates_conversations(): void
     {
-        $emailToMigrate = $this->sourceCustomer->emails()->where('is_main', false)->first();
+        $emailToMigrate = $this->sourceCustomer->emails()->where('type', Email::TYPE_SECONDARY)->first();
         
         // Create a conversation associated with the email
         $conversation = Conversation::factory()->create([
@@ -135,7 +135,7 @@ class CustomerEmailMigrationTest extends TestCase
     public function test_cannot_migrate_only_email_of_source_customer(): void
     {
         // Remove one email so source customer has only one
-        $this->sourceCustomer->emails()->where('is_main', false)->delete();
+        $this->sourceCustomer->emails()->where('type', Email::TYPE_SECONDARY)->delete();
         
         $onlyEmail = $this->sourceCustomer->emails()->first();
 

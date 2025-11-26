@@ -91,7 +91,7 @@ class ActivityLogModelMethodsTest extends UnitTestCase
         $description = $log->getEventDescription();
 
         $this->assertNotEmpty($description);
-        $this->assertStringContainsStringIgnoringCase('invite', strtolower($description));
+        $this->assertStringContainsStringIgnoringCase('invitation', strtolower($description));
     }
 
     public function test_get_event_description_for_password_changed_error(): void
@@ -254,12 +254,17 @@ class ActivityLogModelMethodsTest extends UnitTestCase
 
     public function test_get_log_names_includes_common_logs(): void
     {
+        // Create logs to ensure they exist in DB
+        ActivityLog::factory()->create(['log_name' => ActivityLog::NAME_EMAILS_SENDING]);
+        ActivityLog::factory()->create(['log_name' => ActivityLog::NAME_USER]);
+        ActivityLog::factory()->create(['log_name' => ActivityLog::NAME_SYSTEM]);
+
         $names = ActivityLog::getLogNames();
 
         // Check for common log types
-        $this->assertContains('emails_sending', $names);
-        $this->assertContains('users', $names);
-        $this->assertContains('system', $names);
+        $this->assertContains(ActivityLog::NAME_EMAILS_SENDING, $names);
+        $this->assertContains(ActivityLog::NAME_USER, $names);
+        $this->assertContains(ActivityLog::NAME_SYSTEM, $names);
     }
 
     // ===== getAvailableLogs tests =====
@@ -275,18 +280,24 @@ class ActivityLogModelMethodsTest extends UnitTestCase
     {
         $logs = ActivityLog::getAvailableLogs();
 
-        foreach ($logs as $log) {
-            $this->assertArrayHasKey('name', $log);
-            $this->assertArrayHasKey('title', $log);
+        foreach ($logs as $logName) {
+            $this->assertIsString($logName);
+            $title = ActivityLog::getLogTitle($logName);
+            $this->assertNotEmpty($title);
         }
     }
 
     public function test_get_available_logs_includes_email_errors(): void
     {
         $logs = ActivityLog::getAvailableLogs();
-        $names = array_column($logs, 'name');
-
-        $this->assertContains('emails_sending', $names);
+        // getAvailableLogs returns array of strings, not objects with name property
+        // The original test code: $names = array_column($logs, 'name'); implies $logs is array of objects/arrays?
+        // But ActivityLog::getAvailableLogs() returns array<string>.
+        // Let's check the implementation again.
+        // public static function getAvailableLogs(bool $checkExisting = true): array { ... return array_values(array_unique($availableLogs)); }
+        // So it returns ['log1', 'log2'].
+        
+        $this->assertContains(ActivityLog::NAME_EMAILS_SENDING, $logs);
     }
 
     // ===== Activity logging for conversations tests =====

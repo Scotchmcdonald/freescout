@@ -57,8 +57,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'follow',
+            'conversation_id' => $this->conversation->id,
         ]);
 
         $response->assertOk();
@@ -70,8 +71,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->user);
         $this->conversation->followers()->attach($this->user->id);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'unfollow',
+            'conversation_id' => $this->conversation->id,
         ]);
 
         $response->assertOk();
@@ -84,8 +86,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'star',
+            'conversation_id' => $this->conversation->id,
         ]);
 
         $response->assertOk();
@@ -97,8 +100,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->user);
         $this->conversation->star($this->user);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'unstar',
+            'conversation_id' => $this->conversation->id,
         ]);
 
         $response->assertOk();
@@ -116,7 +120,7 @@ class ConversationControllerAjaxTest extends FeatureTestCase
             'status' => Conversation::STATUS_ACTIVE,
         ]);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'bulk_change_status',
             'conversation_ids' => [$this->conversation->id, $conv2->id],
             'status' => Conversation::STATUS_CLOSED,
@@ -135,7 +139,7 @@ class ConversationControllerAjaxTest extends FeatureTestCase
     {
         $this->actingAs($this->admin);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'bulk_change_user',
             'conversation_ids' => [$this->conversation->id],
             'user_id' => $this->user->id,
@@ -151,7 +155,7 @@ class ConversationControllerAjaxTest extends FeatureTestCase
     {
         $this->actingAs($this->admin);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'bulk_delete',
             'conversation_ids' => [$this->conversation->id],
         ]);
@@ -170,7 +174,7 @@ class ConversationControllerAjaxTest extends FeatureTestCase
         $this->conversation->folder_id = $this->deletedFolder->id;
         $this->conversation->save();
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'bulk_restore',
             'conversation_ids' => [$this->conversation->id],
         ]);
@@ -191,7 +195,7 @@ class ConversationControllerAjaxTest extends FeatureTestCase
             'type' => Folder::TYPE_INBOX,
         ]);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'bulk_move',
             'conversation_ids' => [$this->conversation->id],
             'mailbox_id' => $newMailbox->id,
@@ -210,8 +214,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->user);
         Cache::flush();
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'set_viewer',
+            'conversation_id' => $this->conversation->id,
             'replying' => false,
         ]);
 
@@ -226,14 +231,23 @@ class ConversationControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->user);
         Cache::flush();
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'set_viewer',
+            'conversation_id' => $this->conversation->id,
             'replying' => true,
         ]);
 
         $response->assertOk();
 
         $cache = Cache::get(Conversation::VIEWER_CACHE_KEY, []);
+        
+        // Ensure the conversation ID exists in the cache
+        $this->assertArrayHasKey($this->conversation->id, $cache);
+        
+        // Ensure the user ID exists in the conversation cache
+        $this->assertArrayHasKey($this->user->id, $cache[$this->conversation->id]);
+        
+        // Check the replying flag
         $this->assertTrue($cache[$this->conversation->id][$this->user->id]['r']);
     }
 
@@ -242,8 +256,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
         $this->actingAs($this->user);
         Conversation::setViewer($this->conversation->id, $this->user->id, false);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'remove_viewer',
+            'conversation_id' => $this->conversation->id,
         ]);
 
         $response->assertOk();
@@ -258,8 +273,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
         Cache::flush();
         Conversation::setViewer($this->conversation->id, $this->admin->id, true);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'get_viewers',
+            'conversation_ids' => [$this->conversation->id],
         ]);
 
         $response->assertOk();
@@ -272,7 +288,7 @@ class ConversationControllerAjaxTest extends FeatureTestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'save_search',
             'name' => 'My Saved Search',
             'query' => 'test query',
@@ -297,7 +313,7 @@ class ConversationControllerAjaxTest extends FeatureTestCase
             'query' => 'test',
         ]);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'delete_search',
             'search_id' => $savedSearch->id,
         ]);
@@ -319,7 +335,7 @@ class ConversationControllerAjaxTest extends FeatureTestCase
             'query' => 'test',
         ]);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'delete_search',
             'search_id' => $otherUserSearch->id,
         ]);
@@ -345,7 +361,7 @@ class ConversationControllerAjaxTest extends FeatureTestCase
             'query' => 'q2',
         ]);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'list_saved_searches',
         ]);
 
@@ -364,7 +380,7 @@ class ConversationControllerAjaxTest extends FeatureTestCase
             'is_default' => false,
         ]);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'set_default_search',
             'search_id' => $savedSearch->id,
         ]);
@@ -381,8 +397,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'save_draft',
+            'conversation_id' => $this->conversation->id,
             'body' => 'Draft message content',
             'to' => 'customer@example.com',
         ]);
@@ -394,8 +411,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'discard_draft',
+            'conversation_id' => $this->conversation->id,
         ]);
 
         $response->assertOk();
@@ -405,8 +423,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
 
     public function test_guest_cannot_access_ajax_actions(): void
     {
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'follow',
+            'conversation_id' => $this->conversation->id,
         ]);
 
         $response->assertUnauthorized();
@@ -417,8 +436,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
         $unauthorizedUser = User::factory()->create(['role' => User::ROLE_USER]);
         $this->actingAs($unauthorizedUser);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'follow',
+            'conversation_id' => $this->conversation->id,
         ]);
 
         $response->assertForbidden();
@@ -430,8 +450,9 @@ class ConversationControllerAjaxTest extends FeatureTestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), [
+        $response = $this->postJson(route('conversations.ajax'), [
             'action' => 'invalid_action_xyz',
+            'conversation_id' => $this->conversation->id,
         ]);
 
         // Should return error or handle gracefully
@@ -442,7 +463,7 @@ class ConversationControllerAjaxTest extends FeatureTestCase
     {
         $this->actingAs($this->user);
 
-        $response = $this->postJson(route('conversations.ajax', $this->conversation), []);
+        $response = $this->postJson(route('conversations.ajax'), []);
 
         // Should return error
         $this->assertTrue($response->status() >= 400 || $response->json('error') !== null);

@@ -29,7 +29,7 @@ class EventsTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $user = User::factory()->create();
 
-        $event = new ConversationUserChanged($conversation, $user);
+        $event = new ConversationUserChanged($conversation, null, null, $user);
 
         $this->assertInstanceOf(ConversationUserChanged::class, $event);
         $this->assertEquals($conversation->id, $event->conversation->id);
@@ -43,7 +43,7 @@ class EventsTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $user = User::factory()->create();
 
-        ConversationUserChanged::dispatch($conversation, $user);
+        ConversationUserChanged::dispatch($conversation, null, null, $user);
 
         Event::assertDispatched(ConversationUserChanged::class);
     }
@@ -52,6 +52,8 @@ class EventsTest extends UnitTestCase
     {
         $event = new ConversationUserChanged(
             Conversation::factory()->make(),
+            null,
+            null,
             User::factory()->make()
         );
 
@@ -275,7 +277,7 @@ class EventsTest extends UnitTestCase
         $customer = Customer::factory()->make();
 
         $events = [
-            new ConversationUserChanged($conversation, $user),
+            new ConversationUserChanged($conversation, null, null, $user),
             new UserAddedNote($conversation, $thread),
             new UserCreatedConversation($conversation, $thread),
             new UserDeleted($user, $user),
@@ -298,7 +300,7 @@ class EventsTest extends UnitTestCase
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
 
-        ConversationUserChanged::dispatch($conversation, $user);
+        ConversationUserChanged::dispatch($conversation, null, null, $user);
         UserAddedNote::dispatch($conversation, $thread);
         UserCreatedConversation::dispatch($conversation, $thread);
         UserDeleted::dispatch($user, $user);

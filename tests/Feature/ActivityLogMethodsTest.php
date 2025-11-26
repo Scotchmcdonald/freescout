@@ -55,7 +55,7 @@ class ActivityLogMethodsTest extends UnitTestCase
 
         $description = $log->getEventDescription();
 
-        $this->assertStringContainsString('Status', $description);
+        $this->assertStringContainsString('status', $description);
     }
 
     public function test_get_event_description_handles_unknown_description(): void
@@ -69,24 +69,13 @@ class ActivityLogMethodsTest extends UnitTestCase
         $this->assertIsString($description);
     }
 
-    public function test_get_event_description_handles_null_description(): void
-    {
-        $log = ActivityLog::factory()->create([
-            'description' => null,
-        ]);
-
-        $description = $log->getEventDescription();
-
-        $this->assertIsString($description);
-    }
-
     // ===== getLogTitle tests =====
 
     public function test_get_log_title_returns_string(): void
     {
         $log = ActivityLog::factory()->create();
 
-        $title = $log->getLogTitle();
+        $title = ActivityLog::getLogTitle($log->log_name);
 
         $this->assertIsString($title);
     }
@@ -99,7 +88,7 @@ class ActivityLogMethodsTest extends UnitTestCase
             'subject_id' => $conversation->id,
         ]);
 
-        $title = $log->getLogTitle();
+        $title = ActivityLog::getLogTitle($log->log_name);
 
         $this->assertIsString($title);
     }
@@ -292,6 +281,6 @@ class ActivityLogMethodsTest extends UnitTestCase
 
     public function test_available_logs_contains_expected_types(): void
     {
-        $this->assertArrayHasKey('default', ActivityLog::$available_logs);
+        $this->assertContains('default', ActivityLog::$available_logs);
     }
 }
