@@ -12,6 +12,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SystemController;
+use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
@@ -203,6 +204,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/modules/{alias}', [ModulesController::class, 'delete'])->name('modules.delete');
         Route::post('/modules/install', [ModulesController::class, 'install'])->name('modules.install');
         Route::post('/modules/ajax', [ModulesController::class, 'ajax'])->name('modules.ajax');
+    });
+
+    // Themes (admin only for management, but all users can select their theme)
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/themes', [ThemeController::class, 'index'])->name('themes');
+        Route::post('/themes', [ThemeController::class, 'update'])->name('themes.update');
+        Route::get('/themes/preview/{theme}', [ThemeController::class, 'preview'])->name('themes.preview');
     });
 
     // Mailbox Permissions

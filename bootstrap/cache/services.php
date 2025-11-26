@@ -24,22 +24,19 @@
     20 => 'Illuminate\\Translation\\TranslationServiceProvider',
     21 => 'Illuminate\\Validation\\ValidationServiceProvider',
     22 => 'Illuminate\\View\\ViewServiceProvider',
-    23 => 'Laravel\\Breeze\\BreezeServiceProvider',
-    24 => 'Laravel\\Dusk\\DuskServiceProvider',
-    25 => 'Laravel\\Reverb\\ApplicationManagerServiceProvider',
-    26 => 'Laravel\\Reverb\\ReverbServiceProvider',
-    27 => 'Laravel\\Sail\\SailServiceProvider',
-    28 => 'Laravel\\Tinker\\TinkerServiceProvider',
-    29 => 'Mews\\Purifier\\PurifierServiceProvider',
-    30 => 'Carbon\\Laravel\\ServiceProvider',
-    31 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-    32 => 'Termwind\\Laravel\\TermwindServiceProvider',
-    33 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
-    34 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
-    35 => 'TorMorten\\Eventy\\EventServiceProvider',
-    36 => 'TorMorten\\Eventy\\EventBladeServiceProvider',
-    37 => 'App\\Providers\\EventServiceProvider',
-    38 => 'App\\Providers\\ModuleCompatibilityServiceProvider',
+    23 => 'Laravel\\Reverb\\ApplicationManagerServiceProvider',
+    24 => 'Laravel\\Reverb\\ReverbServiceProvider',
+    25 => 'Laravel\\Tinker\\TinkerServiceProvider',
+    26 => 'Mews\\Purifier\\PurifierServiceProvider',
+    27 => 'Carbon\\Laravel\\ServiceProvider',
+    28 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    29 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
+    30 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
+    31 => 'TorMorten\\Eventy\\EventServiceProvider',
+    32 => 'TorMorten\\Eventy\\EventBladeServiceProvider',
+    33 => 'App\\Providers\\EventServiceProvider',
+    34 => 'App\\Providers\\ModuleCompatibilityServiceProvider',
+    35 => 'Qirolab\\Theme\\ThemeServiceProvider',
   ),
   'eager' => 
   array (
@@ -53,18 +50,17 @@
     7 => 'Illuminate\\Pagination\\PaginationServiceProvider',
     8 => 'Illuminate\\Session\\SessionServiceProvider',
     9 => 'Illuminate\\View\\ViewServiceProvider',
-    10 => 'Laravel\\Dusk\\DuskServiceProvider',
-    11 => 'Laravel\\Reverb\\ReverbServiceProvider',
-    12 => 'Mews\\Purifier\\PurifierServiceProvider',
-    13 => 'Carbon\\Laravel\\ServiceProvider',
-    14 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-    15 => 'Termwind\\Laravel\\TermwindServiceProvider',
-    16 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
-    17 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
-    18 => 'TorMorten\\Eventy\\EventServiceProvider',
-    19 => 'TorMorten\\Eventy\\EventBladeServiceProvider',
-    20 => 'App\\Providers\\EventServiceProvider',
-    21 => 'App\\Providers\\ModuleCompatibilityServiceProvider',
+    10 => 'Laravel\\Reverb\\ReverbServiceProvider',
+    11 => 'Mews\\Purifier\\PurifierServiceProvider',
+    12 => 'Carbon\\Laravel\\ServiceProvider',
+    13 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    14 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
+    15 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
+    16 => 'TorMorten\\Eventy\\EventServiceProvider',
+    17 => 'TorMorten\\Eventy\\EventBladeServiceProvider',
+    18 => 'App\\Providers\\EventServiceProvider',
+    19 => 'App\\Providers\\ModuleCompatibilityServiceProvider',
+    20 => 'Qirolab\\Theme\\ThemeServiceProvider',
   ),
   'deferred' => 
   array (
@@ -217,11 +213,8 @@
     'validator' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'validation.presence' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'Illuminate\\Contracts\\Validation\\UncompromisedVerifier' => 'Illuminate\\Validation\\ValidationServiceProvider',
-    'Laravel\\Breeze\\Console\\InstallCommand' => 'Laravel\\Breeze\\BreezeServiceProvider',
     'Laravel\\Reverb\\ApplicationManager' => 'Laravel\\Reverb\\ApplicationManagerServiceProvider',
     'Laravel\\Reverb\\Contracts\\ApplicationProvider' => 'Laravel\\Reverb\\ApplicationManagerServiceProvider',
-    'Laravel\\Sail\\Console\\InstallCommand' => 'Laravel\\Sail\\SailServiceProvider',
-    'Laravel\\Sail\\Console\\PublishCommand' => 'Laravel\\Sail\\SailServiceProvider',
     'command.tinker' => 'Laravel\\Tinker\\TinkerServiceProvider',
   ),
   'when' => 
@@ -265,13 +258,7 @@
     'Illuminate\\Validation\\ValidationServiceProvider' => 
     array (
     ),
-    'Laravel\\Breeze\\BreezeServiceProvider' => 
-    array (
-    ),
     'Laravel\\Reverb\\ApplicationManagerServiceProvider' => 
-    array (
-    ),
-    'Laravel\\Sail\\SailServiceProvider' => 
     array (
     ),
     'Laravel\\Tinker\\TinkerServiceProvider' => 
