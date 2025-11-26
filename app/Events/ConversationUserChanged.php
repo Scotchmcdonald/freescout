@@ -17,6 +17,8 @@ class ConversationUserChanged
      */
     public function __construct(
         public Conversation $conversation,
-        public User $user
+        public ?User $oldUser = null,
+        public ?User $newUser = null,
+        public ?User $user = null
     ) {}
 }

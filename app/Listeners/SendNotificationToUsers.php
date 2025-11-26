@@ -58,7 +58,7 @@ class SendNotificationToUsers
                 }
                 break;
             case ConversationUserChanged::class:
-                $caused_by_user_id = $event->user->id;
+                $caused_by_user_id = $event->user?->id;
                 // EVENT_TYPE_ASSIGNED = 2
                 $event_type = 2;
                 break;

@@ -45,15 +45,15 @@ class WpApi
      * Make HTTP request.
      *
      * @param  array<string, mixed>  $params
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return \Illuminate\Http\Client\Response
      */
     public static function httpRequest(string $method, string $url, array $params)
     {
-        $client = new Client;
-
         $options = Helper::setGuzzleDefaultOptions([
             'connect_timeout' => 10,
         ]);
+
+        $http = \Illuminate\Support\Facades\Http::withOptions($options);
 
         if ($method === self::METHOD_POST) {
             if (str_contains($url, '?')) {
@@ -62,15 +62,13 @@ class WpApi
                 $url .= '?';
             }
             $url .= 'v='.config('app.version', '1.0.0');
-            $options['form_params'] = $params;
-
-            return $client->request('POST', $url, $options);
+            
+            return $http->asForm()->post($url, $params);
         }
 
         $params['v'] = config('app.version', '1.0.0');
-        $options['query'] = $params;
-
-        return $client->request('GET', $url, $options);
+        
+        return $http->get($url, $params);
     }
 
     /**

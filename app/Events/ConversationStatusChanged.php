@@ -15,6 +15,9 @@ class ConversationStatusChanged
      * Create a new event instance.
      */
     public function __construct(
-        public Conversation $conversation
+        public Conversation $conversation,
+        public ?\App\Models\User $user = null,
+        public int $oldStatus = 0,
+        public int $newStatus = 0
     ) {}
 }

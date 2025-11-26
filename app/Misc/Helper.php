@@ -221,7 +221,11 @@ class Helper
         }
 
         if (! File::isDirectory($destPath)) {
-            File::makeDirectory($destPath, self::DIR_PERMISSIONS, true);
+            try {
+                File::makeDirectory($destPath, self::DIR_PERMISSIONS, true);
+            } catch (\Exception $e) {
+                return false;
+            }
         }
 
         $result = $zip->extractTo($destPath);
@@ -233,9 +237,9 @@ class Helper
     /**
      * Set environment variable in .env file.
      */
-    public static function setEnvFileVar(string $key, string $value): bool
+    public static function setEnvFileVar(string $key, string $value, ?string $path = null): bool
     {
-        $envPath = base_path('.env');
+        $envPath = $path ?? base_path('.env');
 
         if (! file_exists($envPath)) {
             return false;

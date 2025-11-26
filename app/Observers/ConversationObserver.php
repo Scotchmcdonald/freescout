@@ -54,7 +54,12 @@ class ConversationObserver
             // Auto-move to appropriate folder
             $conversation->updateFolder();
             
-            ConversationStatusChanged::dispatch($conversation);
+            ConversationStatusChanged::dispatch(
+                $conversation,
+                auth()->user(),
+                (int) $conversation->getOriginal('status'),
+                (int) $conversation->status
+            );
         }
 
         // Handle folder changes
@@ -81,7 +86,9 @@ class ConversationObserver
         }
 
         if ($conversation->wasChanged('user_id') && $conversation->user) {
-            ConversationUserChanged::dispatch($conversation, $conversation->user);
+            $oldUserId = $conversation->getOriginal('user_id');
+            $oldUser = $oldUserId ? \App\Models\User::find($oldUserId) : null;
+            ConversationUserChanged::dispatch($conversation, $oldUser, $conversation->user, auth()->user());
         }
     }
 
