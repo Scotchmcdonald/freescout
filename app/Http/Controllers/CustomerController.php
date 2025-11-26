@@ -333,11 +333,11 @@ class CustomerController extends Controller
         /** @var \App\Models\Customer $customer */
         $customer = Customer::findOrFail($validated['customer_id']);
 
-        // Reset all emails to not main
-        $customer->emails()->update(['is_main' => false]);
+        // Reset all emails to not main (type = 2)
+        $customer->emails()->update(['type' => \App\Models\Email::TYPE_SECONDARY]);
 
-        // Set the new main email
-        $customer->emails()->where('id', $validated['email_id'])->update(['is_main' => true]);
+        // Set the new main email (type = 1)
+        $customer->emails()->where('id', $validated['email_id'])->update(['type' => \App\Models\Email::TYPE_PRIMARY]);
 
         return response()->json([
             'success' => true,
@@ -428,14 +428,14 @@ class CustomerController extends Controller
         $customer = Customer::findOrFail($validated['customer_id']);
 
         // Get current phones and add new one
-        $phones = $customer->phones ? json_decode($customer->phones, true) : [];
+        $phones = $customer->phones ?? [];
         if (! is_array($phones)) {
             $phones = [];
         }
 
         $phones[] = $validated['phone'];
 
-        $customer->update(['phones' => json_encode(array_unique($phones))]);
+        $customer->update(['phones' => array_values(array_unique($phones))]);
 
         return response()->json([
             'success' => true,
@@ -456,7 +456,7 @@ class CustomerController extends Controller
         /** @var \App\Models\Customer $customer */
         $customer = Customer::findOrFail($validated['customer_id']);
 
-        $phones = $customer->phones ? json_decode($customer->phones, true) : [];
+        $phones = $customer->phones ?? [];
         if (! is_array($phones)) {
             $phones = [];
         }
@@ -466,7 +466,7 @@ class CustomerController extends Controller
             $phones = array_values($phones); // Re-index
         }
 
-        $customer->update(['phones' => json_encode($phones)]);
+        $customer->update(['phones' => $phones]);
 
         return response()->json([
             'success' => true,
@@ -509,13 +509,13 @@ class CustomerController extends Controller
         }
 
         // Move the email to target customer
-        $email->update(['customer_id' => $targetCustomer->id]);
+        $updated = $email->update(['customer_id' => $targetCustomer->id]);
 
         // If this was the main email, set a new main for source customer
-        if ($email->is_main) {
+        if ($email->type === \App\Models\Email::TYPE_PRIMARY) {
             $newMain = $sourceCustomer->emails()->first();
             if ($newMain) {
-                $newMain->update(['is_main' => true]);
+                $newMain->update(['type' => \App\Models\Email::TYPE_PRIMARY]);
             }
         }
 

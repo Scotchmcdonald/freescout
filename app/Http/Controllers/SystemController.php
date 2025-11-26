@@ -234,7 +234,9 @@ class SystemController extends Controller
             cache()->forever('tools_execute_output', $output);
         }
 
-        return redirect()->route('system.tools')->withInput($request->only(['days']));
+        return redirect()->route('system.tools')
+            ->withInput($request->only(['days']))
+            ->with('flash_success', 'Action executed successfully.');
     }
 
     /**

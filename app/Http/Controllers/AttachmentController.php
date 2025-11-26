@@ -27,6 +27,10 @@ class AttachmentController extends Controller
         if (!$user->mailboxes->contains($conversation->mailbox_id) && !$user->isAdmin()) {
             abort(403);
         }
+
+        if (!\Illuminate\Support\Facades\Storage::disk('attachments')->exists($attachment->file_dir . '/' . $attachment->file_name)) {
+            abort(404);
+        }
         
         // Mock download for test
         return response()->json(['status' => 'downloading']);

@@ -575,6 +575,10 @@ class ConversationController extends Controller
             return response()->json(['success' => true]);
         }
 
+        if ($action === 'create_phone_conversation') {
+            return $this->handleCreatePhoneConversation($request, $user);
+        }
+
         $conversationId = $request->input('conversation_id');
 
         if (! $conversationId) {
@@ -671,11 +675,13 @@ class ConversationController extends Controller
                 if (!$customerEmail) {
                     return response()->json(['success' => false, 'message' => 'Customer email required'], 400);
                 }
+                
+                if (!filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+                    return response()->json(['success' => false, 'message' => 'Invalid email format'], 400);
+                }
+
                 $conversation->changeCustomer($customerEmail, null, $user);
                 return response()->json(['success' => true, 'message' => 'Customer changed']);
-
-            case 'create_phone_conversation':
-                return $this->handleCreatePhoneConversation($request, $user);
 
             case 'merge':
                 return $this->handleMergeConversation($request, $user, $conversation);
@@ -714,6 +720,9 @@ class ConversationController extends Controller
         switch ($action) {
             case 'bulk_change_status':
                 $newStatus = (int) $request->input('status');
+                if (!in_array($newStatus, [Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED, Conversation::STATUS_PENDING])) {
+                    return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
+                }
                 foreach ($conversations as $conversation) {
                     $conversation->changeStatus($newStatus, $user);
                 }
@@ -751,6 +760,12 @@ class ConversationController extends Controller
 
             case 'bulk_move':
                 $mailboxId = (int) $request->input('mailbox_id');
+                
+                // Validate mailbox exists
+                if (! Mailbox::where('id', $mailboxId)->exists()) {
+                    return response()->json(['success' => false, 'message' => 'Target mailbox not found'], 400);
+                }
+
                 foreach ($conversations as $conversation) {
                     $conversation->moveToMailbox($mailboxId, $user);
                 }
@@ -1762,6 +1777,10 @@ class ConversationController extends Controller
 
         if (empty($name)) {
             return response()->json(['success' => false, 'message' => 'Search name is required'], 400);
+        }
+
+        if (strlen($name) > SavedSearch::NAME_MAX_LENGTH) {
+            return response()->json(['success' => false, 'message' => 'Search name is too long'], 400);
         }
 
         // Validate filters is an array

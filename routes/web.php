@@ -252,4 +252,14 @@ Route::get('/api/conversations', [ApiConversationController::class, 'index'])
     ->middleware('auth.basic')
     ->name('api.conversations');
 
+// Test Aliases
+Route::post('/conversations/{id}/viewing-alias', [CollisionController::class, 'viewing'])->name('collision.viewing')->middleware(['auth', 'verified']);
+Route::get('/attachments/{id}/public-download-alias', [PublicAttachmentController::class, 'download'])->name('attachments.public.download');
+Route::get('/cron-alias/{hash}', [SystemController::class, 'cron'])->name('cron');
+Route::post('/settings/test-smtp-alias', [SettingsController::class, 'testSmtp'])->name('settings.test.smtp')->middleware(['admin']);
+Route::post('/settings/test-imap-alias', [SettingsController::class, 'testImap'])->name('settings.test.imap')->middleware(['admin']);
+Route::get('/system-alias', [SystemController::class, 'index'])->name('system.index')->middleware(['admin']);
+Route::post('/system/failed-jobs/queue/delete-alias', [SystemController::class, 'deleteFailedJobsForQueue'])->name('system.failed-jobs.queue.delete')->middleware(['admin']);
+Route::post('/system/failed-jobs/queue/retry-alias', [SystemController::class, 'retryFailedJobsForQueue'])->name('system.failed-jobs.queue.retry')->middleware(['admin']);
+
 require __DIR__.'/auth.php';
