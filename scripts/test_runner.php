@@ -9,357 +9,244 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 
-// --- CONFIGURATION ---
-// Files that should be run in isolation (own batch/process) to avoid conflicts or timeouts
-$isolatedTests = [
-    'tests/Unit/Console/Commands/KernelAndEdgeCasesTest.php',
-];
+// --- SIGNAL HANDLING ---
+$currentProcess = null;
+
+if (function_exists('pcntl_async_signals') && function_exists('pcntl_signal')) {
+    pcntl_async_signals(true);
+    
+    $signalHandler = function ($signo) use (&$currentProcess) {
+        // We can't use $io here easily as it might not be initialized or in scope depending on where we are
+        // So we use basic echo
+        echo "\n\nScript interrupted. Cleaning up...\n";
+        
+        if ($currentProcess instanceof Process && $currentProcess->isRunning()) {
+            echo "Stopping active process...\n";
+            $currentProcess->stop(3, SIGKILL);
+        }
+        
+        exit(130);
+    };
+    
+    pcntl_signal(SIGINT, $signalHandler);
+    pcntl_signal(SIGTERM, $signalHandler);
+}
 
 // --- INITIALIZATION ---
 $output = new ConsoleOutput();
-$io = new SymfonyStyle(new ArgvInput(), $output);
 $baseDir = realpath(__DIR__.'/..');
+$configFile = $baseDir . '/tests/runner_config.json';
 
 // --- ARGUMENT PARSING ---
-// Check for coverage flag and filter flag, clean argv
+$calibrate = false;
+$defaultTarget = 20.0;
+$targetSeconds = $defaultTarget;
+$targetSpecified = false;
 $withCoverage = false;
 $filterPattern = null;
-$timeout = 60; // Default 1m
 
 foreach ($_SERVER['argv'] as $key => $value) {
-    if ($value === '--coverage') {
+    if ($value === '--calibrate') {
+        $calibrate = true;
+        unset($_SERVER['argv'][$key]);
+    } elseif (strpos($value, '--target=') === 0) {
+        $targetSeconds = (float)substr($value, 9);
+        $targetSpecified = true;
+        unset($_SERVER['argv'][$key]);
+    } elseif ($value === '--coverage') {
         $withCoverage = true;
         unset($_SERVER['argv'][$key]);
     } elseif (strpos($value, '--filter=') === 0) {
-        $filterPattern = substr($value, 9); // Extract after '--filter='
-        unset($_SERVER['argv'][$key]);
-    } elseif (strpos($value, '--timeout=') === 0) {
-        $timeout = (int)substr($value, 10);
+        $filterPattern = substr($value, 9);
         unset($_SERVER['argv'][$key]);
     }
 }
-// Re-index argv so suite selection logic (checking index 1) still works
 $_SERVER['argv'] = array_values($_SERVER['argv']);
 
-// Coverage directories will be set later inside the test run directory
-$coveragePartialsDir = null;
-$finalCoverageDir = null;
+// Initialize IO after argument cleanup so ArgvInput sees the clean arguments
+$io = new SymfonyStyle(new ArgvInput(), $output);
 
-if ($withCoverage) {
-    $io->note("Coverage mode enabled. This will slow down execution.");
-
-    // Ensure drivers are available
-    if (!extension_loaded('xdebug') && !extension_loaded('pcov')) {
-        $io->warning("Coverage requested but no driver (Xdebug or PCOV) detected. Tests may run slow or fail to generate reports.");
-    }
-}
-
-// --- CACHE CLEARING (Silent) ---
-$process = new Process(['php', 'artisan', 'optimize:clear'], $baseDir);
-$process->run();
-
-$io->title('Freescout Test Runner (File-by-File)');
-
-// --- PERMISSIONS FIX ---
-$io->section('Fixing Permissions');
-$commands = [
-    "sudo chown -R www-data:www-data $baseDir",
-    "sudo chmod -R 755 $baseDir",
-    "sudo setfacl -R -m u:dev:rwx $baseDir"
+// --- CONFIG LOADING ---
+$config = [
+    'target_seconds' => $targetSeconds, // Start with default or CLI value
+    'file_times' => [],
+    'batches' => []
 ];
 
-foreach ($commands as $cmd) {
-    $io->writeln("Running: <info>$cmd</info>");
-    passthru($cmd, $returnVar);
-    if ($returnVar !== 0) {
-        $io->warning("Command failed with exit code $returnVar");
+if (file_exists($configFile)) {
+    $loadedConfig = json_decode(file_get_contents($configFile), true);
+    if (is_array($loadedConfig)) {
+        $config = array_merge($config, $loadedConfig);
+    }
+} else {
+    $calibrate = true; // Force calibration if no config
+}
+
+// If user explicitly specified a target, it overrides the loaded config
+if ($targetSpecified) {
+    $config['target_seconds'] = $targetSeconds;
+}
+
+if ($calibrate) {
+    $io->title("Calibrating Test Runner (Target: {$config['target_seconds']}s)");
+} else {
+    $io->title("Smart Test Runner (Target: {$config['target_seconds']}s)");
+}
+
+// --- PERMISSIONS FIX ---
+$io->section('Checking Permissions');
+$needsFix = false;
+
+// Check root ownership
+$stat = stat($baseDir);
+$owner = posix_getpwuid($stat['uid'])['name'];
+$group = posix_getgrgid($stat['gid'])['name'];
+
+if ($owner !== 'www-data' || $group !== 'www-data') {
+    $needsFix = true;
+    $io->text("Root directory owner/group is $owner:$group (expected www-data:www-data).");
+}
+
+// Check writability of critical directories
+$criticalPaths = ['/storage', '/bootstrap/cache'];
+foreach ($criticalPaths as $path) {
+    if (!is_writable($baseDir . $path)) {
+        $needsFix = true;
+        $io->text("Directory $path is not writable.");
     }
 }
-$io->success('Permissions fixed.');
+
+if ($needsFix) {
+    $io->text('Fixing permissions...');
+    $commands = [
+        "sudo chown -R www-data:www-data $baseDir",
+        "sudo chmod -R 755 $baseDir",
+        "sudo setfacl -R -m u:dev:rwx $baseDir"
+    ];
+    foreach ($commands as $cmd) {
+        passthru($cmd, $returnVar);
+    }
+    $io->success('Permissions fixed.');
+} else {
+    $io->success('Permissions appear correct. Skipping recursive fix.');
+}
 
 // --- CACHE CLEARING ---
-$io->section('Clearing Caches');
+$io->section('Clearing Cache');
+$process = new Process(['php', 'artisan', 'optimize:clear'], $baseDir);
+$currentProcess = $process;
+$process->run();
+$currentProcess = null;
+
 if ($process->isSuccessful()) {
-    $io->success('Caches cleared.');
+    $io->success('Cache cleared.');
 } else {
-    $io->warning('Failed to clear caches: ' . $process->getErrorOutput());
+    $io->warning('Failed to clear cache: ' . $process->getErrorOutput());
 }
-
-// --- SUITE SELECTION ---
-$availableSuites = [];
-$testsDir = $baseDir . '/tests';
-
-// 1. Scan for subdirectories in tests/
-$dirs = glob($testsDir . '/*', GLOB_ONLYDIR);
-foreach ($dirs as $dir) {
-    $suiteName = basename($dir);
-    $availableSuites[$suiteName] = 'tests/' . $suiteName;
-}
-
-// 2. Check for files in root of tests/ for "Misc"
-$miscFinder = new Finder();
-$miscFinder->files()->in($testsDir)->depth(0)->name('*Test.php');
-if ($miscFinder->hasResults()) {
-    $availableSuites['Misc'] = 'tests';
-}
-
-ksort($availableSuites);
-$suiteNames = array_keys($availableSuites);
-
-$selectedSuitesInput = [];
-if (isset($_SERVER['argv'][1])) {
-    $arg = $_SERVER['argv'][1];
-    if (strtolower($arg) === 'a' || strtolower($arg) === 'all') {
-        $selectedSuitesInput = ['All'];
-    } elseif (is_numeric($arg)) {
-        $index = (int)$arg;
-        if (isset($suiteNames[$index])) {
-            $selectedSuitesInput = [$suiteNames[$index]];
-        } else {
-            $io->error("Invalid suite index: $arg");
-            exit(1);
-        }
-    } elseif (in_array($arg, $suiteNames)) {
-        $selectedSuitesInput = [$arg];
-    }
-}
-
-if (empty($selectedSuitesInput)) {
-    $io->section('Available Test Suites');
-    foreach ($suiteNames as $idx => $name) {
-        $io->writeln(" [$idx] $name");
-    }
-    $io->newLine();
-    
-    $answer = $io->ask('Which test suite(s) would you like to run? (enter index, name, or "All")', 'All');
-    
-    if (strtolower($answer) === 'all' || strtolower($answer) === 'a') {
-        $selectedSuitesInput = ['All'];
-    } elseif (is_numeric($answer)) {
-        $index = (int)$answer;
-        if (isset($suiteNames[$index])) {
-            $selectedSuitesInput = [$suiteNames[$index]];
-        } else {
-            $io->error("Invalid suite index: $answer");
-            exit(1);
-        }
-    } elseif (in_array($answer, $suiteNames)) {
-        $selectedSuitesInput = [$answer];
-    } else {
-        $io->error("Invalid selection: $answer");
-        exit(1);
-    }
-}
-
-$suitesToRun = in_array('All', $selectedSuitesInput) ? $availableSuites : array_intersect_key($availableSuites, array_flip($selectedSuitesInput));
 
 // --- TEST DISCOVERY ---
-$io->section('Discovering and Analyzing Test Files');
-$filesToRun = [];
-
-$finderProgressBar = $io->createProgressBar(count($suitesToRun));
-$finderProgressBar->setFormat(' %current%/%max% [%bar%] Discovering in %message%...');
-$finderProgressBar->start();
-
-foreach ($suitesToRun as $suiteName => $suiteDir) {
-    $finderProgressBar->setMessage($suiteName);
-    $absoluteSuiteDir = realpath($baseDir . '/' . $suiteDir);
-    if (!$absoluteSuiteDir) continue;
-
-    $finder = new Finder();
-    $finder->files()->in($absoluteSuiteDir)->name('*Test.php')->sortByName();
-    
-    if ($suiteName === 'Misc') {
-        $finder->depth(0);
-    }
-
-    foreach ($finder as $file) {
-        $filesToRun[] = $file->getRealPath();
-    }
-    $finderProgressBar->advance();
+$io->section('Discovering Test Files');
+$finder = new Finder();
+$finder->files()->in($baseDir . '/tests')->name('*Test.php')->sortByName();
+$allFiles = [];
+foreach ($finder as $file) {
+    $allFiles[] = $file->getRealPath();
 }
-$finderProgressBar->setFormat(' %current%/%max% [%bar%] %message%');
-$finderProgressBar->setMessage("Reviewed <info>" . count($suitesToRun) . "/" . count($suitesToRun) . "</info> folders for tests.");
-$finderProgressBar->finish();
-$io->newLine();
+$io->text("Found " . count($allFiles) . " test files.");
 
-// --- TEST ANALYSIS ---
-$totalTestCount = 0;
-$fileTestCounts = [];
-
-$analysisProgressBar = $io->createProgressBar(count($filesToRun));
-$analysisProgressBar->setFormat(' %current%/%max% [%bar%] Analyzing %message%...');
-$analysisProgressBar->start();
-
-foreach ($filesToRun as $file) {
-    $analysisProgressBar->setMessage(basename($file));
-    $content = file_get_contents($file);
-    
-    // Apply filter if specified
-    if ($filterPattern !== null) {
-        $patterns = array_map('trim', explode('|', $filterPattern));
-        $matchesFilter = false;
-        
-        foreach ($patterns as $pattern) {
-            // Check if pattern matches filename or any test method
-            if (stripos(basename($file), $pattern) !== false) {
-                $matchesFilter = true;
-                break;
-            }
-            if (preg_match('/public\s+function\s+(test[a-zA-Z0-9_]*' . preg_quote($pattern, '/') . '[a-zA-Z0-9_]*)/i', $content)) {
-                $matchesFilter = true;
-                break;
-            }
-        }
-        
-        if (!$matchesFilter) {
-            unset($filesToRun[array_search($file, $filesToRun)]);
-            $analysisProgressBar->advance();
-            continue;
-        }
-    }
-    
-    // Heuristic to count tests: "public function test..." or "@test" annotation
-    // More accurate counting by filtering out false positives
-    $lines = explode("\n", $content);
-    $count = 0;
-    $inAnonymousClass = false;
-    
-    foreach ($lines as $line) {
-        // Track anonymous class context
-        if (preg_match('/new\s+(?:class|#?\[.*?\]\s*class)\s*[(\{]/', $line)) {
-            $inAnonymousClass = true;
-        }
-        
-        // Skip methods in anonymous classes
-        if ($inAnonymousClass) {
-            if (preg_match('/^\s*}[;,)]/', $line)) {
-                $inAnonymousClass = false;
-            }
-            continue;
-        }
-        
-        // Count actual test methods (not in anonymous classes)
-        if (preg_match('/^\s*public\s+function\s+test[a-zA-Z0-9_]*\s*\(/', $line)) {
-            $count++;
-        }
-        
-        // Count @test annotations in docblocks
-        if (preg_match('/^\s*\*\s*@test\s*$/', $line)) {
-            $count++;
-        }
-    }
-    
-    $fileTestCounts[$file] = $count;
-    $totalTestCount += $count;
-    $analysisProgressBar->advance();
-}
-$filesToRun = array_values($filesToRun); // Re-index after filtering
-$totalFilesAnalyzed = count($filesToRun);
-$analysisProgressBar->setFormat(' %current%/%max% [%bar%] %message%');
-$analysisProgressBar->setMessage("Analyzed <info>{$totalFilesAnalyzed}/{$totalFilesAnalyzed}</info> test files, estimated ~<info>{$totalTestCount}</info> test methods.");
-$analysisProgressBar->finish();
-$io->newLine();
-
-if ($filterPattern !== null) {
-    $io->text("Filter applied: <comment>{$filterPattern}</comment>");
-}
-
-// File listing suppressed
-$io->newLine();
-
-// --- EXECUTION ---
+// --- REPORTS INIT ---
 $reportsDir = $baseDir.'/reports/test_runs_'.date('Y-m-d_His');
-mkdir($reportsDir, 0777, true);
-
-// Set coverage directories inside the test run directory
-if ($withCoverage) {
-    $coveragePartialsDir = $reportsDir . '/coverage_partials';
-    $finalCoverageDir = $reportsDir . '/coverage-report';
-    mkdir($coveragePartialsDir, 0777, true);
+if (!is_dir($reportsDir)) {
+    mkdir($reportsDir, 0777, true);
 }
 
-$io->section('Running Tests (Batched)');
-
-$startTime = microtime(true);
-
-$totalFiles = count($filesToRun);
-
-// Separate isolated files
-$regularFiles = [];
-$isolatedFiles = [];
-
-foreach ($filesToRun as $file) {
-    $isIsolated = false;
-    foreach ($isolatedTests as $isolatedTest) {
-        if (str_contains($file, $isolatedTest)) {
-            $isIsolated = true;
-            break;
+// --- HELPER: LOGGING ---
+function logBatchResults($output, $reportsDir, $batchId) {
+    // Extract Failures
+    if (preg_match_all('/There (?:was|were) \d+ failure(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|risky|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        foreach ($matches[1] as $match) {
+            file_put_contents("{$reportsDir}/failure.log", "Batch {$batchId} Failures:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
         }
     }
-    if ($isIsolated) {
-        $isolatedFiles[] = $file;
-    } else {
-        $regularFiles[] = $file;
+
+    // Extract Errors
+    if (preg_match_all('/There (?:was|were) \d+ error(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:failure|risky|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        foreach ($matches[1] as $match) {
+            file_put_contents("{$reportsDir}/error.log", "Batch {$batchId} Errors:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+        }
+    }
+
+    // Extract Skipped
+    if (preg_match_all('/There (?:was|were) \d+ skipped test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|risky|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        foreach ($matches[1] as $match) {
+            file_put_contents("{$reportsDir}/skipped.log", "Batch {$batchId} Skipped:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+        }
+    }
+
+    // Extract Incomplete
+    if (preg_match_all('/There (?:was|were) \d+ incomplete test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|risky|skipped)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        foreach ($matches[1] as $match) {
+            file_put_contents("{$reportsDir}/incomplete.log", "Batch {$batchId} Incomplete:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+        }
+    }
+
+    // Extract Risky
+    if (preg_match_all('/There (?:was|were) \d+ risky test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
+        foreach ($matches[1] as $match) {
+            file_put_contents("{$reportsDir}/risky.log", "Batch {$batchId} Risky:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+        }
+    }
+
+    // Extract PHPUnit Warnings
+    if (preg_match_all('/There (?:was|were) (\d+) PHPUnit test runner warning(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were)|OK, but|FAILURES!|ERRORS!|Tests:)|$)/s', $output, $matches, PREG_SET_ORDER)) {
+        foreach ($matches as $match) {
+            file_put_contents("{$reportsDir}/warnings.log", "Batch {$batchId} - PHPUnit Warnings ({$match[1]}):\n" . trim($match[2]) . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+        }
+    }
+
+    // Extract Deprecations
+    if (preg_match_all('/Deprecation\s+Triggered[^\n]*\n.*?(?=\n\n|There (?:was|were)|$)/s', $output, $matches)) {
+        foreach ($matches[0] as $deprecation) {
+            file_put_contents("{$reportsDir}/deprecation.log", "Batch {$batchId}:\n" . trim($deprecation) . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+        }
+    }
+    
+    // TestDox Fallback (for symbols)
+    $testDoxPatterns = [
+        '✘' => ['file' => 'failure.log'],
+        '⚠' => ['file' => 'risky.log'],
+        '↩' => ['file' => 'skipped.log'],
+        '∅' => ['file' => 'incomplete.log'],
+    ];
+
+    foreach ($testDoxPatterns as $symbol => $config) {
+        $pattern = '/^\s*' . $symbol . '\s+([^\n]+)\n((?:\s+│.*?\n)+)/ms';
+        if (preg_match_all($pattern, $output, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $testName = trim($match[1]);
+                $details = trim($match[2]);
+                $targetLog = $config['file'];
+                
+                if ($symbol === '✘' && (str_contains($details, 'Error') || str_contains($details, 'Exception'))) {
+                    $targetLog = 'error.log';
+                }
+                
+                file_put_contents("{$reportsDir}/{$targetLog}", "Batch {$batchId} - {$testName}\n{$details}\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+            }
+        }
     }
 }
 
-// Dynamic batch size: ~5% of total files, min 5, max 25 to balance speed vs memory
-$batchSize = max(5, min(25, (int)ceil(count($regularFiles) * 0.025)));
-$chunks = array_chunk($regularFiles, $batchSize);
-
-// Add isolated files as single-item chunks
-foreach ($isolatedFiles as $file) {
-    $chunks[] = [$file];
-}
-
-$executionProgressBar = $io->createProgressBar($totalFiles);
-
-// Add custom placeholder for remaining time
-$executionProgressBar->setPlaceholderFormatterDefinition('remaining', function ($bar) {
-    if (!$bar->getMaxSteps()) {
-        return '0 s';
-    }
-    if (!$bar->getProgress()) {
-        return '?';
-    }
-    
-    $elapsed = time() - $bar->getStartTime();
-    $rate = $bar->getProgress() / $elapsed;
-    $remaining = ($bar->getMaxSteps() - $bar->getProgress()) / $rate;
-    
-    // Format as "X min, Y s" or just "Y s" for under 60 seconds
-    $mins = floor($remaining / 60);
-    $secs = (int)($remaining % 60);
-    
-    if ($mins > 0) {
-        return sprintf('%d min, %d s', $mins, $secs);
-    }
-    return sprintf('%d s', $secs);
-});
-
-$executionProgressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | Elapsed: %elapsed:6s% | ETA: %remaining:-6s% | Mem: %memory:6s%\n %message%");
-$executionProgressBar->setMessage('', 'custom_bar');
-$executionProgressBar->setMessage('Initializing...'); // Set initial message
-$executionProgressBar->start();
-
-$allResultsOutput = '';
-$runningStats = ['Tests' => 0, 'Assertions' => 0, 'Errors' => 0, 'Failures' => 0, 'Skipped' => 0, 'Incomplete' => 0, 'TimedOut' => 0];
-
-foreach ($chunks as $chunkIndex => $chunkFiles) {
-    $firstFile = basename($chunkFiles[0]);
-    
-    // Calculate Results Bar
+// --- HELPER: UPDATE PROGRESS BAR ---
+function updateProgressBar($progressBar, $runningStats, $totalFiles, $currentStep, $message = '') {
     $barWidth = 30;
-    $currentStep = $executionProgressBar->getProgress() + count($chunkFiles);
     $progressRatio = min(1, $currentStep / $totalFiles);
     $filledChars = (int)round($barWidth * $progressRatio);
     $emptyChars = $barWidth - $filledChars;
     
-    $totalTestsRunSoFar = $runningStats['Tests'];
     $barStr = "";
     
-    if (($totalTestsRunSoFar > 0 || $runningStats['TimedOut'] > 0) && $filledChars > 0) {
+    if (($runningStats['Tests'] > 0 || $runningStats['TimedOut'] > 0) && $filledChars > 0) {
         $counts = [
             'Pass' => $runningStats['Tests'] - $runningStats['Failures'] - $runningStats['Errors'] - $runningStats['Skipped'] - $runningStats['Incomplete'],
             'Fail' => $runningStats['Failures'],
@@ -372,44 +259,59 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
         $totalForBar = array_sum($counts);
         if ($totalForBar == 0) $totalForBar = 1;
 
-        $widths = [];
-        foreach ($counts as $type => $count) {
-            $widths[$type] = ($count / $totalForBar) * $filledChars;
-        }
+        // Filter out zero counts
+        $activeCounts = array_filter($counts, function($c) { return $c > 0; });
+        $numActive = count($activeCounts);
         
-        $roundedWidths = array_map('round', $widths);
-        $sumRounded = array_sum($roundedWidths);
-        $diff = $filledChars - $sumRounded;
+        $widths = array_fill_keys(array_keys($counts), 0);
         
-        // Adjust largest
-        arsort($counts);
-        $largestType = array_key_first($counts);
-        $roundedWidths[$largestType] += $diff;
-        
-        // Stealing logic for visibility
-        foreach ($counts as $type => $count) {
-            if ($count > 0 && $roundedWidths[$type] == 0) {
-                $donorType = null;
-                $maxW = 0;
-                foreach ($roundedWidths as $t => $w) {
-                    if ($t !== $type && $w > $maxW) {
-                        $maxW = $w;
-                        $donorType = $t;
-                    }
+        if ($numActive > 0) {
+            if ($filledChars < $numActive) {
+                // Not enough space for all. Prioritize largest counts.
+                arsort($activeCounts);
+                $topTypes = array_slice(array_keys($activeCounts), 0, $filledChars);
+                foreach ($topTypes as $type) {
+                    $widths[$type] = 1;
                 }
-                if ($donorType && $maxW > 0) {
-                    $roundedWidths[$donorType]--;
-                    $roundedWidths[$type]++;
+            } else {
+                // Enough space. Give 1 to each active type.
+                foreach (array_keys($activeCounts) as $type) {
+                    $widths[$type] = 1;
+                }
+                
+                $remainingChars = $filledChars - $numActive;
+                if ($remainingChars > 0) {
+                    // Distribute remaining proportionally
+                    $totalActive = array_sum($activeCounts);
+                    $fractionalWidths = [];
+                    
+                    foreach ($activeCounts as $type => $count) {
+                        $fractionalWidths[$type] = ($count / $totalActive) * $remainingChars;
+                    }
+                    
+                    // Round and adjust
+                    $roundedExtras = array_map('round', $fractionalWidths);
+                    $sumExtras = array_sum($roundedExtras);
+                    $diff = $remainingChars - $sumExtras;
+                    
+                    // Adjust largest of the extras
+                    arsort($activeCounts); // Sort by count to find largest
+                    $largestType = array_key_first($activeCounts);
+                    $roundedExtras[$largestType] += $diff;
+                    
+                    foreach ($roundedExtras as $type => $extra) {
+                        $widths[$type] += $extra;
+                    }
                 }
             }
         }
         
-        $barStr .= "<fg=green>" . str_repeat("▓", max(0, (int)$roundedWidths['Pass'])) . "</>";
-        $barStr .= "<fg=#FFA500>" . str_repeat("▓", max(0, (int)$roundedWidths['Fail'])) . "</>";
-        $barStr .= "<fg=red>" . str_repeat("▓", max(0, (int)$roundedWidths['Err'])) . "</>";
-        $barStr .= "<fg=blue>" . str_repeat("▓", max(0, (int)$roundedWidths['Skip'])) . "</>";
-        $barStr .= "<fg=yellow>" . str_repeat("▓", max(0, (int)$roundedWidths['Inc'])) . "</>";
-        $barStr .= "<fg=magenta>" . str_repeat("▓", max(0, (int)$roundedWidths['Time'])) . "</>";
+        $barStr .= "<fg=green>" . str_repeat("▓", max(0, (int)$widths['Pass'])) . "</>";
+        $barStr .= "<fg=#FFA500>" . str_repeat("▓", max(0, (int)$widths['Fail'])) . "</>";
+        $barStr .= "<fg=red>" . str_repeat("▓", max(0, (int)$widths['Err'])) . "</>";
+        $barStr .= "<fg=blue>" . str_repeat("▓", max(0, (int)$widths['Skip'])) . "</>";
+        $barStr .= "<fg=yellow>" . str_repeat("▓", max(0, (int)$widths['Inc'])) . "</>";
+        $barStr .= "<fg=magenta>" . str_repeat("▓", max(0, (int)$widths['Time'])) . "</>";
     } else {
         if ($filledChars > 0) {
              $barStr .= "<fg=gray>" . str_repeat("▓", $filledChars) . "</>";
@@ -417,10 +319,10 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
     }
     $barStr .= "<fg=gray>" . str_repeat("░", max(0, (int)$emptyChars)) . "</>";
 
-    $executionProgressBar->setMessage($barStr, 'custom_bar');
+    $progressBar->setMessage($barStr, 'custom_bar');
 
     $statsMsg = sprintf(
-        "<fg=green>Pass: %d</> | <fg=#FFA500>Fail: %d</> | <fg=red>Err: %d</> | <fg=blue>Skip: %d</> | <fg=yellow>Inc: %d</> | <fg=magenta>Time: %d</>",
+        "<fg=green>Pass: %d</> | <fg=#FFA500>Fail: %d</> | <fg=red>Err: %d</> | <fg=blue>Skip: %d</> | <fg=yellow>Inc: %d</> | <fg=magenta>T/O: %d</>",
         $runningStats['Tests'] - $runningStats['Failures'] - $runningStats['Errors'] - $runningStats['Skipped'] - $runningStats['Incomplete'],
         $runningStats['Failures'],
         $runningStats['Errors'],
@@ -429,381 +331,349 @@ foreach ($chunks as $chunkIndex => $chunkFiles) {
         $runningStats['TimedOut']
     );
     
-    $executionProgressBar->setMessage("Batch " . ($chunkIndex + 1) . "/" . count($chunks) . " (starts with {$firstFile})\n " . $statsMsg);
+    if ($message === '') {
+        $progressBar->setMessage(" " . $statsMsg);
+    } else {
+        $progressBar->setMessage($message . "\n " . $statsMsg);
+    }
+}
 
-    // --- COMMAND PREPARATION ---
-    $commandParts = [$baseDir.'/vendor/bin/phpunit', '--testdox'];
+// --- CALIBRATION LOGIC ---
+if ($calibrate) {
+    $io->section('Running Calibration (Individual Files)');
+    $config['file_times'] = [];
+    $config['batches'] = [];
+    $config['target_seconds'] = $targetSeconds;
 
-    if ($withCoverage) {
-        // Tell PHPUnit to dump raw PHP coverage data for this specific batch
-        $commandParts[] = '--coverage-php';
-        $commandParts[] = $coveragePartialsDir . '/batch_' . ($chunkIndex + 1) . '.cov';
+    $progressBar = $io->createProgressBar(count($allFiles));
+    $progressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | Elapsed: %elapsed:6s% | ETA: %remaining:-6s% | Mem: %memory:6s%\n %message%");
+    $progressBar->setMessage('', 'custom_bar');
+    $progressBar->setMessage('Starting calibration...');
+    $progressBar->start();
+
+    $runningStats = ['Tests' => 0, 'Assertions' => 0, 'Errors' => 0, 'Failures' => 0, 'Skipped' => 0, 'Incomplete' => 0, 'TimedOut' => 0];
+    $allResultsOutput = '';
+
+    foreach ($allFiles as $index => $file) {
+        $result = runBatch([$file], $io, $baseDir, $reportsDir, $runningStats, $allResultsOutput, $targetSeconds);
+        
+        if (isset($result['duration'])) {
+            $config['file_times'][$file] = $result['duration'];
+        } else {
+            $config['file_times'][$file] = 0.1; // Fallback
+        }
+        
+        updateProgressBar($progressBar, $runningStats, count($allFiles), $index + 1, basename($file));
+        $progressBar->advance();
+    }
+    updateProgressBar($progressBar, $runningStats, count($allFiles), count($allFiles), '');
+    $progressBar->finish();
+    $io->newLine();
+    
+    // Generate Initial Batches
+    $io->section('Generating Batches');
+    $batches = [];
+    $currentBatch = [];
+    $currentBatchTime = 0;
+    
+    foreach ($allFiles as $file) {
+        $time = $config['file_times'][$file] ?? 0.1;
+        
+        // If single file is larger than target, it must be its own batch
+        if ($time > $targetSeconds) {
+            if (!empty($currentBatch)) {
+                $batches[] = $currentBatch;
+                $currentBatch = [];
+                $currentBatchTime = 0;
+            }
+            $batches[] = [$file];
+            continue;
+        }
+        
+        if ($currentBatchTime + $time > $targetSeconds + 1.0) { // Tolerance
+            $batches[] = $currentBatch;
+            $currentBatch = [];
+            $currentBatchTime = 0;
+        }
+        
+        $currentBatch[] = $file;
+        $currentBatchTime += $time;
+    }
+    if (!empty($currentBatch)) {
+        $batches[] = $currentBatch;
     }
     
-    // Add filter if specified (PHPUnit will filter by test name)
-    if ($filterPattern !== null) {
-        $commandParts[] = '--filter';
-        // Convert pipe-separated to PHPUnit regex: (pattern1|pattern2|pattern3)
-        $phpunitFilter = '(' . str_replace('|', '|', $filterPattern) . ')';
-        $commandParts[] = $phpunitFilter;
+    $config['batches'] = $batches;
+    file_put_contents($configFile, json_encode($config, JSON_PRETTY_PRINT));
+    $io->success("Calibration complete. Config saved to runner_config.json");
+    
+    $io->section('Created Files');
+    $io->writeln(" - tests/" . basename($configFile));
+    $io->writeln(" - reports/" . basename($reportsDir) . "/");
+    foreach(glob($reportsDir . '/*.log') as $log) {
+        $io->writeln("   - " . basename($log));
     }
+    
+    exit(0);
+}
 
-    // Merge command parts with the files
-    $command = array_merge($commandParts, $chunkFiles);
+// --- NORMAL RUN LOGIC ---
+
+// 1. Identify New Files
+$knownFiles = [];
+foreach ($config['batches'] as $batch) {
+    foreach ($batch as $file) {
+        $knownFiles[] = $file;
+    }
+}
+$newFiles = array_diff($allFiles, $knownFiles);
+
+// 2. Prepare Batches
+$batchesToRun = $config['batches'];
+// Add new files as individual batches for now
+foreach ($newFiles as $file) {
+    $batchesToRun[] = [$file];
+}
+
+// 3. Execution
+$io->section('Running Batches');
+$progressBar = $io->createProgressBar(count($batchesToRun));
+$progressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | Elapsed: %elapsed:6s% | ETA: %remaining:-6s% | Mem: %memory:6s%\n %message%");
+$progressBar->setMessage('', 'custom_bar');
+$progressBar->setMessage('Starting batches...');
+$progressBar->start();
+
+$runningStats = ['Tests' => 0, 'Assertions' => 0, 'Errors' => 0, 'Failures' => 0, 'Skipped' => 0, 'Incomplete' => 0, 'TimedOut' => 0];
+$allResultsOutput = '';
+
+// Recursive function to run a batch
+function runBatch($files, $io, $baseDir, $reportsDir, &$runningStats, &$allResultsOutput, $targetSeconds, $depth = 0) {
+    // Calculate timeout: 5 * target, but at least 10s
+    $timeout = max(10, $targetSeconds * 5);
+    
+    $junitFile = $reportsDir . '/batch_' . md5(implode('', $files) . microtime()) . '.xml';
+    $command = array_merge([$baseDir.'/vendor/bin/phpunit', '--testdox', '--log-junit', $junitFile], $files);
     
     $process = new Process($command, $baseDir, null, null, $timeout);
     
-    $output = '';
-    $errorOutput = '';
-    $timedOut = false;
-
+    global $currentProcess;
+    $currentProcess = $process;
+    
     try {
+        $startTime = microtime(true);
         $process->run();
+        $currentProcess = null;
+        
+        $duration = microtime(true) - $startTime;
+        
         $output = $process->getOutput();
         $errorOutput = $process->getErrorOutput();
-    } catch (ProcessTimedOutException $e) {
-        $timedOut = true;
-        $msg = "Batch " . ($chunkIndex + 1) . " TIMED OUT. Retrying individually.";
-        file_put_contents("{$reportsDir}/timeout.log", $msg . "\nFiles:\n" . implode("\n", $chunkFiles) . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
-        $io->warning($msg);
-    }
-
-    if ($timedOut) {
-        $output = ''; // Reset output for aggregation
-        $errorOutput = '';
-        foreach ($chunkFiles as $file) {
-            $singleCommand = [$baseDir.'/vendor/bin/phpunit', '--testdox'];
-            
-            if ($withCoverage) {
-                $singleCommand[] = '--coverage-php';
-                $singleCommand[] = $coveragePartialsDir . '/batch_' . ($chunkIndex + 1) . '_' . basename($file) . '.cov';
-            }
-            
-            if ($filterPattern !== null) {
-                $singleCommand[] = '--filter';
-                $singleCommand[] = $phpunitFilter;
-            }
-            
-            $singleCommand[] = $file;
-            
-            $p = new Process($singleCommand, $baseDir, null, null, $timeout);
-            try {
-                $p->run();
-                $output .= $p->getOutput();
-                $errorOutput .= $p->getErrorOutput();
-            } catch (ProcessTimedOutException $e) {
-                $count = $fileTestCounts[$file] ?? 0;
-                $runningStats['TimedOut'] += $count;
-                $msg = ">>> CULPRIT FOUND: File TIMED OUT: $file";
-                file_put_contents("{$reportsDir}/timeout.log", $msg . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
-                $io->error($msg);
-            }
-        }
-    }
-    
-    $logFileName = 'batch_' . ($chunkIndex + 1) . '.log';
-    file_put_contents("{$reportsDir}/{$logFileName}", $output);
-    $allResultsOutput .= $output . PHP_EOL;
-
-    // --- Log Errors and Failures separately ---
-    if (!empty($errorOutput)) {
-        // Check if it's purely warnings/notices/deprecations
-        // If the output contains "Fatal error" or "Parse error", it stays in error.log
-        // Otherwise if it contains "Warning", "Deprecated", "Notice", put in warnings.log
-        $isWarning = false;
-        if (preg_match('/(?:PHP )?(?:Warning|Deprecated|Notice):/i', $errorOutput) && !preg_match('/(?:PHP )?(?:Fatal|Parse) error:/i', $errorOutput)) {
-            $isWarning = true;
-        }
-
-        if ($isWarning) {
-            file_put_contents("{$reportsDir}/warnings.log", "Batch " . ($chunkIndex + 1) . " STDERR (Warnings):\n" . $errorOutput . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
-        } else {
-            file_put_contents("{$reportsDir}/error.log", "Batch " . ($chunkIndex + 1) . " STDERR:\n" . $errorOutput . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
-        }
-    }
-
-    // Strategy 1: Standard PHPUnit Summary Blocks
-    $foundSummary = false;
-    
-    // Extract Failures from STDOUT (Standard Format)
-    if (preg_match_all('/There (?:was|were) \d+ failure(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|risky|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
-        foreach ($matches[1] as $match) {
-            $failureContent = "Batch " . ($chunkIndex + 1) . " Failures:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n";
-            file_put_contents("{$reportsDir}/failure.log", $failureContent, FILE_APPEND);
-        }
-        $foundSummary = true;
-    }
-
-    // Extract Errors from STDOUT (Standard Format)
-    if (preg_match_all('/There (?:was|were) \d+ error(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:failure|risky|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
-        foreach ($matches[1] as $match) {
-            $errorContent = "Batch " . ($chunkIndex + 1) . " Errors:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n";
-            file_put_contents("{$reportsDir}/error.log", $errorContent, FILE_APPEND);
-        }
-        $foundSummary = true;
-    }
-
-    // Extract Skipped from STDOUT
-    if (preg_match_all('/There (?:was|were) \d+ skipped test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|risky|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
-        foreach ($matches[1] as $match) {
-            $skippedContent = "Batch " . ($chunkIndex + 1) . " Skipped:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n";
-            file_put_contents("{$reportsDir}/skipped.log", $skippedContent, FILE_APPEND);
-        }
-    }
-
-    // Extract Incomplete from STDOUT
-    if (preg_match_all('/There (?:was|were) \d+ incomplete test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|risky|skipped)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
-        foreach ($matches[1] as $match) {
-            $incompleteContent = "Batch " . ($chunkIndex + 1) . " Incomplete:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n";
-            file_put_contents("{$reportsDir}/incomplete.log", $incompleteContent, FILE_APPEND);
-        }
-    }
-
-    // Extract Risky from STDOUT
-    if (preg_match_all('/There (?:was|were) \d+ risky test(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were) \d+ (?:error|failure|skipped|incomplete)|FAILURES!|ERRORS!|OK)|$)/s', $output, $matches)) {
-        foreach ($matches[1] as $match) {
-            $riskyContent = "Batch " . ($chunkIndex + 1) . " Risky:\n" . trim($match) . "\n\n" . str_repeat('-', 40) . "\n\n";
-            file_put_contents("{$reportsDir}/risky.log", $riskyContent, FILE_APPEND);
-        }
-    }
-
-    // Extract PHPUnit test runner warnings
-    if (preg_match_all('/There (?:was|were) (\d+) PHPUnit test runner warning(?:s)?:\s*(.*?)(?=\n(?:There (?:was|were)|OK, but|FAILURES!|ERRORS!|Tests:)|$)/s', $output, $matches, PREG_SET_ORDER)) {
-        foreach ($matches as $match) {
-            $warningContent = "Batch " . ($chunkIndex + 1) . " - PHPUnit Warnings (" . $match[1] . "):\n" . trim($match[2]) . "\n\n" . str_repeat('-', 40) . "\n\n";
-            file_put_contents("{$reportsDir}/warnings.log", $warningContent, FILE_APPEND);
-        }
-    }
-
-    // Extract Deprecations from STDOUT
-    if (preg_match_all('/Deprecation\s+Triggered[^\n]*\n.*?(?=\n\n|There (?:was|were)|$)/s', $output, $matches)) {
-        foreach ($matches[0] as $deprecation) {
-            $deprecationContent = "Batch " . ($chunkIndex + 1) . ":\n" . trim($deprecation) . "\n\n" . str_repeat('-', 40) . "\n\n";
-            file_put_contents("{$reportsDir}/deprecation.log", $deprecationContent, FILE_APPEND);
-        }
-    }
-
-    // Strategy 2: TestDox Inline Blocks (Fallback/Supplement)
-    // Match lines starting with specific symbols followed by test name
-    // Symbols: ✘ (Fail/Error), ⚠ (Risky), ↩ (Skipped), ∅ (Incomplete)
-    // IMPORTANT: Only capture tests that have actual error details (indicated by │ lines following)
-    
-    $testDoxPatterns = [
-        '✘' => ['file' => 'failure.log'],
-        '⚠' => ['file' => 'risky.log'],
-        '↩' => ['file' => 'skipped.log'],
-        '∅' => ['file' => 'incomplete.log'],
-    ];
-
-    foreach ($testDoxPatterns as $symbol => $config) {
-        // Regex to find the symbol, the test name, and REQUIRED details block
-        // We look for the symbol at the start of a line (after whitespace)
-        // Then the test name.
-        // Then a block of lines that start with whitespace and │ (REQUIRED)
-        // This prevents matching test names that just happen to match the symbol (like a test called "Warning")
+        $allResultsOutput .= $output . PHP_EOL;
         
-        $pattern = '/^\s*' . $symbol . '\s+([^\n]+)\n((?:\s+│.*?\n)+)/ms';
+        // Log detailed results
+        $batchId = ($depth > 0 ? "Split-{$depth}-" : "") . substr(md5(implode('', $files)), 0, 8);
+        logBatchResults($output, $reportsDir, $batchId);
         
-        if (preg_match_all($pattern, $output, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $match) {
-                $testName = trim($match[1]);
-                $details = trim($match[2]);
-                
-                $targetLog = $config['file'];
-                
-                // Refine target for ✘
-                if ($symbol === '✘') {
-                    // If details contain "Error" or "Exception", treat as error.log
-                    // Otherwise failure.log
-                    if (str_contains($details, 'Error') || str_contains($details, 'Exception')) {
-                        $targetLog = 'error.log';
+        // Log Stderr
+        if (!empty($errorOutput)) {
+            $isWarning = false;
+            if (preg_match('/(?:PHP )?(?:Warning|Deprecated|Notice):/i', $errorOutput) && !preg_match('/(?:PHP )?(?:Fatal|Parse) error:/i', $errorOutput)) {
+                $isWarning = true;
+            }
+            if ($isWarning) {
+                file_put_contents("{$reportsDir}/warnings.log", "Batch {$batchId} STDERR (Warnings):\n" . $errorOutput . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+            } else {
+                file_put_contents("{$reportsDir}/error.log", "Batch {$batchId} STDERR:\n" . $errorOutput . "\n\n" . str_repeat('-', 40) . "\n\n", FILE_APPEND);
+            }
+        }
+        
+        // Parse stats
+        if (preg_match_all('/(Tests:.*)/', $output, $matches)) {
+            foreach ($matches[1] as $line) {
+                preg_match_all('/(Tests|Assertions|Errors|Failures|Risky|Skipped|Incomplete|PHPUnit Warnings): (\d+)/', $line, $statMatches, PREG_SET_ORDER);
+                foreach ($statMatches as $match) {
+                    if (isset($runningStats[$match[1]])) {
+                        $runningStats[$match[1]] += (int)$match[2];
                     }
                 }
-                
-                $entry = "Batch " . ($chunkIndex + 1) . " - {$testName}\n";
-                if ($details) {
-                    $entry .= $details . "\n";
-                } else {
-                    $entry .= "(No details provided in output)\n";
-                }
-                $entry .= str_repeat('-', 40) . "\n\n";
-                
-                file_put_contents("{$reportsDir}/{$targetLog}", $entry, FILE_APPEND);
             }
         }
-    }
-
-    // Parse batch output to update stats
-    // 1. Match standard PHPUnit summary line
-    if (preg_match_all('/(Tests:.*)/', $output, $matches)) {
-        foreach ($matches[1] as $line) {
-            preg_match_all('/(Tests|Assertions|Errors|Failures|Risky|Skipped|Incomplete|PHPUnit Warnings): (\d+)/', $line, $statMatches, PREG_SET_ORDER);
-            foreach ($statMatches as $match) {
-                if (isset($runningStats[$match[1]])) {
-                    $runningStats[$match[1]] += (int)$match[2];
-                }
+        if (preg_match_all('/OK \((\d+) tests?, (\d+) assertions?\)/', $output, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $runningStats['Tests'] += (int)$match[1];
+                $runningStats['Assertions'] += (int)$match[2];
             }
         }
-    } 
-    // 2. Match "OK (X tests, Y assertions)"
-    if (preg_match_all('/OK \((\d+) tests?, (\d+) assertions?\)/', $output, $matches, PREG_SET_ORDER)) {
-        foreach ($matches as $match) {
-            $runningStats['Tests'] += (int)$match[1];
-            $runningStats['Assertions'] += (int)$match[2];
-        }
-    }
-
-    $executionProgressBar->advance(count($chunkFiles));
-}
-// Finish the progress bar and clear it to prevent duplicate display
-$executionProgressBar->clear();
-$executionProgressBar->finish();
-$io->newLine(1);
-
-// --- SUMMARY ---
-$io->section('Test Results Summary');
-$executionTime = microtime(true) - $startTime;
-$io->writeln("Total Time: " . number_format($executionTime, 2) . "s");
-
-$io->section('Log Files');
-$logFiles = ['error.log', 'failure.log', 'skipped.log', 'incomplete.log', 'risky.log', 'warnings.log', 'deprecation.log', 'timeout.log'];
-foreach ($logFiles as $file) {
-    if (file_exists("{$reportsDir}/{$file}")) {
-        $io->writeln(" - {$reportsDir}/{$file}");
-    }
-}
-$io->newLine();
-
-$summary = ['Tests' => 0, 'Assertions' => 0, 'Errors' => 0, 'Failures' => 0, 'Risky' => 0, 'Skipped' => 0, 'Incomplete' => 0, 'PHPUnit Warnings' => 0, 'TimedOut' => $runningStats['TimedOut']];
-$failureDetails = '';
-
-// Find all summary lines (e.g., "Tests: 123, Assertions: 456, ...")
-preg_match_all('/(Tests:.*)/', $allResultsOutput, $summaryLines);
-foreach ($summaryLines[0] as $line) {
-    // Extract individual metrics from each summary line
-    preg_match_all('/(Tests|Assertions|Errors|Failures|Risky|Skipped|Incomplete|PHPUnit Warnings): (\d+)/', $line, $matches, PREG_SET_ORDER);
-    foreach ($matches as $match) {
-        if (isset($summary[$match[1]])) {
-            $summary[$match[1]] += (int)$match[2];
-        }
-    }
-}
-
-// Handle PHPUnit 10+ success output "OK (X tests, Y assertions)"
-preg_match_all('/OK \((\d+) tests?, (\d+) assertions?\)/', $allResultsOutput, $okMatches, PREG_SET_ORDER);
-foreach ($okMatches as $match) {
-    $summary['Tests'] += (int)$match[1];
-    $summary['Assertions'] += (int)$match[2];
-}
-
-// Extract failure blocks
-preg_match_all('/There (was|were) \d+ (failure|error)s?:\n\n(.*?)(?=OK|FAILURES!|ERRORS!)/s', $allResultsOutput, $failureBlocks);
-if (!empty($failureBlocks[3])) {
-    $uniqueFailures = array_unique(array_map('trim', $failureBlocks[3]));
-    $failureDetails = implode("\n\n--\n\n", $uniqueFailures);
-}
-
-$summaryString = "<options=bold>Totals:</> ";
-foreach ($summary as $key => $value) {
-    if ($value > 0) {
-        $color = 'default';
-        switch ($key) {
-            case 'Errors':
-            case 'Failures':
-            case 'TimedOut':
-                $color = 'red';
-                break;
-            case 'Risky':
-            case 'Incomplete':
-            case 'PHPUnit Warnings':
-                $color = 'yellow';
-                break;
-            case 'Skipped':
-                $color = 'blue';
-                break;
-            case 'Tests':
-            case 'Assertions':
-                $color = 'green';
-                break;
-        }
-        $summaryString .= "<fg={$color}>{$key}: {$value}</>, ";
-    }
-}
-$io->writeln('');
-$io->writeln(rtrim($summaryString, ', '));
-
-if ($summary['Failures'] > 0 || $summary['Errors'] > 0) {
-    $io->section('Failure Details');
-    $io->writeln($failureDetails);
-    $io->error('Tests failed.');
-    exit(1);
-}
-
-if (count($filesToRun) > 0 && $summary['Tests'] === 0) {
-    $io->warning('No tests were executed. Check your configuration and filters.');
-    exit(1);
-}
-
-// --- COVERAGE MERGING ---
-if ($withCoverage) {
-    $io->section('Generating Coverage Report');
-    
-    // Check for phpcov binary (standard tool for merging phpunit coverage)
-    $phpcovBin = $baseDir . '/vendor/bin/phpcov';
-    
-    if (file_exists($phpcovBin)) {
-        $io->text('Merging partial coverage files...');
         
-        // Generate Clover XML report
-        $mergeCloverCommand = [
-            $phpcovBin, 
-            'merge', 
-            $coveragePartialsDir,
-            '--clover',
-            $reportsDir . '/coverage.xml',
-        ];
-
-        $process = new Process($mergeCloverCommand, $baseDir, null, null, 300);
-        $process->run();
-
-        if ($process->isSuccessful()) {
-            $io->writeln("Clover XML: {$reportsDir}/coverage.xml");
-        } else {
-            $io->warning("Failed to generate Clover XML report.");
-            $io->writeln("Error: " . $process->getErrorOutput());
+        // Parse JUnit XML for file times
+        $updatedTimes = [];
+        if (file_exists($junitFile)) {
+            $xml = @simplexml_load_file($junitFile);
+            if ($xml) {
+                foreach ($xml->xpath('//testsuite[@file]') as $suite) {
+                    $file = (string)$suite['file'];
+                    $time = (float)$suite['time'];
+                    $updatedTimes[$file] = $time;
+                }
+            }
+            @unlink($junitFile);
         }
         
-        // Generate HTML report
-        $io->text('Generating HTML coverage report...');
-        $mergeHtmlCommand = [
-            $phpcovBin, 
-            'merge', 
-            $coveragePartialsDir,
-            '--html', 
-            $finalCoverageDir,
-        ];
-
-        $process = new Process($mergeHtmlCommand, $baseDir, null, null, 300);
-        $process->run();
-
-        if ($process->isSuccessful()) {
-            $io->success("Coverage reports generated successfully!");
-            $io->writeln("HTML report: file://{$finalCoverageDir}/index.html");
+        // Return duration and success
+        return ['success' => true, 'duration' => $duration, 'files' => $files, 'updated_times' => $updatedTimes];
+        
+    } catch (ProcessTimedOutException $e) {
+        $runningStats['TimedOut']++;
+        $msg = "Batch timed out (Depth $depth). Splitting...";
+        file_put_contents("{$reportsDir}/timeout.log", $msg . "\nFiles:\n" . implode("\n", $files) . "\n\n", FILE_APPEND);
+        
+        // Split batch
+        if (count($files) <= 1) {
+            // Cannot split further
+            $msg = "Single file timed out: " . $files[0];
+            file_put_contents("{$reportsDir}/timeout.log", $msg . "\n\n", FILE_APPEND);
+            return ['success' => false, 'files' => $files];
+        }
+        
+        $chunks = array_chunk($files, ceil(count($files) / 2));
+        $results = [];
+        foreach ($chunks as $chunk) {
+            $results[] = runBatch($chunk, $io, $baseDir, $reportsDir, $runningStats, $allResultsOutput, $targetSeconds, $depth + 1);
+        }
+        
+        // Flatten results to return the new batch structure
+        $newBatches = [];
+        $mergedUpdatedTimes = [];
+        
+        foreach ($results as $res) {
+            if (isset($res['new_batches'])) {
+                foreach ($res['new_batches'] as $b) $newBatches[] = $b;
+            } else {
+                $newBatches[] = $res; // It was a single run result
+            }
             
-            // Clean up partials
-            array_map('unlink', glob("$coveragePartialsDir/*"));
-            rmdir($coveragePartialsDir);
-        } else {
-            $io->error("Failed to merge HTML coverage reports.");
-            $io->writeln("Command output: " . $process->getErrorOutput());
-            $io->writeln($process->getOutput());
+            if (isset($res['updated_times'])) {
+                $mergedUpdatedTimes = array_merge($mergedUpdatedTimes, $res['updated_times']);
+            }
+        }
+        return ['success' => true, 'new_batches' => $newBatches, 'updated_times' => $mergedUpdatedTimes];
+    }
+}
+
+$finalBatches = [];
+$batchRuntimes = [];
+
+foreach ($batchesToRun as $index => $batch) {
+    $result = runBatch($batch, $io, $baseDir, $reportsDir, $runningStats, $allResultsOutput, $config['target_seconds']);
+    
+    if (isset($result['updated_times'])) {
+        foreach ($result['updated_times'] as $file => $time) {
+            $config['file_times'][$file] = $time;
+        }
+    }
+    
+    if (isset($result['new_batches'])) {
+        // The batch was split
+        foreach ($result['new_batches'] as $b) {
+            if (isset($b['files'])) {
+                $finalBatches[] = $b['files'];
+                if (isset($b['duration'])) {
+                    $batchRuntimes[] = $b['duration'];
+                }
+            }
         }
     } else {
-        $io->warning("The 'phpcov' binary was not found in vendor/bin.");
-        $io->note("Partial coverage files have been saved to: {$coveragePartialsDir}");
-        $io->note("To enable automatic merging, run: composer require --dev phpunit/phpcov");
+        $finalBatches[] = $batch;
+        if (isset($result['duration'])) {
+            $batchRuntimes[] = $result['duration'];
+        }
+    }
+    updateProgressBar($progressBar, $runningStats, count($batchesToRun), $index + 1, "Batch " . ($index + 1));
+    $progressBar->advance();
+}
+updateProgressBar($progressBar, $runningStats, count($batchesToRun), count($batchesToRun), '');
+$progressBar->finish();
+$io->newLine();
+
+// --- REBALANCING ---
+$io->section('Rebalancing Batches');
+$newConfigBatches = [];
+$currentBatch = [];
+$currentBatchTime = 0;
+
+// Reconstruct batches using updated file times
+// This merges small batches and respects duration-based splits
+// It does NOT explicitly prevent merging files that split due to interaction,
+// but it's the best "estimate" approach as requested.
+
+$allFilesFlat = [];
+foreach ($finalBatches as $batch) {
+    foreach ($batch as $file) {
+        $allFilesFlat[] = $file;
     }
 }
+// Ensure we don't lose any files (though finalBatches should have them all)
+$allFilesFlat = array_unique($allFilesFlat);
 
-$io->success('All tests passed!');
+// Sort files? No, keep existing order to minimize context switching churn, 
+// or maybe sort by directory? Let's keep the order they came out in $finalBatches
+// which preserves the split order.
+
+foreach ($allFilesFlat as $file) {
+    $time = $config['file_times'][$file] ?? 0.1;
+    
+    // If single file is larger than target, it must be its own batch
+    if ($time > $config['target_seconds']) {
+        if (!empty($currentBatch)) {
+            $newConfigBatches[] = $currentBatch;
+            $currentBatch = [];
+            $currentBatchTime = 0;
+        }
+        $newConfigBatches[] = [$file];
+        continue;
+    }
+    
+    if ($currentBatchTime + $time > $config['target_seconds'] + 1.0) { // Tolerance
+        $newConfigBatches[] = $currentBatch;
+        $currentBatch = [];
+        $currentBatchTime = 0;
+    }
+    
+    $currentBatch[] = $file;
+    $currentBatchTime += $time;
+}
+if (!empty($currentBatch)) {
+    $newConfigBatches[] = $currentBatch;
+}
+
+$originalBatchesJson = json_encode($config['batches']);
+$newBatchesJson = json_encode($newConfigBatches);
+
+$config['batches'] = $newConfigBatches;
+file_put_contents($configFile, json_encode($config, JSON_PRETTY_PRINT));
+
+if ($originalBatchesJson !== $newBatchesJson) {
+    $io->success("Recalibration complete. Config saved to runner_config.json");
+} else {
+    $io->success("Run complete.");
+}
+
+// --- CREATED FILES ---
+$io->section('Created Files');
+$io->writeln(" - tests/" . basename($configFile));
+$io->writeln(" - reports/" . basename($reportsDir) . "/");
+foreach(glob($reportsDir . '/*.log') as $log) {
+    $io->writeln("   - " . basename($log));
+}
+
+// --- SUMMARY ---
+$io->section('Status');
+$io->writeln("Tests: {$runningStats['Tests']}");
+$io->writeln("Failures: {$runningStats['Failures']}");
+$io->writeln("Errors: {$runningStats['Errors']}");
+$io->writeln("Timeouts: {$runningStats['TimedOut']}");
+
+if ($runningStats['Failures'] > 0 || $runningStats['Errors'] > 0) {
+    exit(1);
+}
 exit(0);

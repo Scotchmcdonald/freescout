@@ -132,6 +132,14 @@ class SystemTest extends TestCase
         // Arrange
         $this->actingAs($this->admin);
 
+        // Mock Artisan to prevent actual optimization
+        \Illuminate\Support\Facades\Artisan::shouldReceive('call')
+            ->with('optimize')
+            ->once();
+
+        \Illuminate\Support\Facades\Artisan::shouldReceive('output')
+            ->andReturn('Optimized.');
+
         // Act
         $response = $this->post(route('system.ajax'), [
             'action' => 'optimize',

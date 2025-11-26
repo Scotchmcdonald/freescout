@@ -54,6 +54,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         $this->cleanupTestArtifacts();
         
+        // Ensure route cache is cleared after tests
+        Artisan::call('optimize:clear');
+
         parent::tearDown();
     }
 
