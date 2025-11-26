@@ -102,6 +102,7 @@ class Thread extends Model
         'meta',
         'first',
         'has_attachments',
+        'imported',
     ];
 
     /**
@@ -123,6 +124,7 @@ class Thread extends Model
             'opened_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'imported' => 'boolean',
         ];
     }
 

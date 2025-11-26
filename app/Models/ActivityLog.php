@@ -21,6 +21,8 @@ class ActivityLog extends SpatieActivity
     public const NAME_EMAILS_FETCHING = 'fetch_errors';
     public const NAME_SYSTEM = 'system';
     public const NAME_APP_LOGS = 'app';
+    public const NAME_CONVERSATION = 'conversation';
+    public const TYPE_CONVERSATION = 'conversation';
 
     /**
      * Available log categories.
@@ -28,12 +30,14 @@ class ActivityLog extends SpatieActivity
      * @var array<string>
      */
     public static array $available_logs = [
+        'default',
         self::NAME_USER,
         self::NAME_OUT_EMAILS,
         self::NAME_EMAILS_SENDING,
         self::NAME_EMAILS_FETCHING,
         self::NAME_SYSTEM,
         self::NAME_APP_LOGS,
+        self::NAME_CONVERSATION,
     ];
 
     // Log descriptions
@@ -44,14 +48,25 @@ class ActivityLog extends SpatieActivity
     public const DESCRIPTION_USER_LOGIN_FAILED = 'login_failed';
     public const DESCRIPTION_USER_PASSWORD_RESET = 'password_reset';
     public const DESCRIPTION_USER_DELETED = 'user_deleted';
+    public const DESCRIPTION_USER_CREATED = 'user_created';
+    public const DESCRIPTION_CONVERSATION_STATUS_CHANGED = 'conversation_status_changed';
+    public const DESCRIPTION_CONVERSATION_USER_CHANGED = 'conversation_user_changed';
+    public const DESCRIPTION_CONVERSATION_DELETED = 'conversation_deleted';
+    public const DESCRIPTION_EMAIL_SEND_ERROR_TO_CUSTOMER = 'email_send_error_to_customer';
+    public const DESCRIPTION_EMAIL_SEND_ERROR_TO_USER = 'email_send_error_to_user';
+    public const DESCRIPTION_EMAIL_SEND_ERROR = 'email_send_error';
     public const DESCRIPTION_EMAILS_SENDING_ERROR_TO_CUSTOMER = 'error_sending_email_to_customer';
     public const DESCRIPTION_EMAILS_SENDING_ERROR_TO_USER = 'error_sending_email_to_user';
     public const DESCRIPTION_EMAILS_SENDING_ERROR_INVITE = 'error_sending_invite_to_user';
     public const DESCRIPTION_EMAILS_SENDING_ERROR_PASSWORD_CHANGED = 'error_sending_password_changed';
     public const DESCRIPTION_EMAILS_SENDING_ERROR_ALERT = 'error_sending_alert';
-    public const DESCRIPTION_EMAILS_SENDING_WRONG_EMAIL = 'error_sending_wrong_email';
+    public const DESCRIPTION_EMAILS_SENDING_ERROR_WRONG_EMAIL = 'error_sending_wrong_email';
     public const DESCRIPTION_EMAILS_FETCHING_ERROR = 'error_fetching_email';
     public const DESCRIPTION_SYSTEM_ERROR = 'system_error';
+    public const DESCRIPTION_EMAILS_SENDING_ERROR_AUTO_REPLY = 'error_sending_auto_reply';
+    public const DESCRIPTION_EMAILS_SENDING_ERROR_USER_NOTIFICATION = 'error_sending_user_notification';
+    public const DESCRIPTION_EMAILS_SENDING_ERROR_SYSTEM = 'error_sending_system_email';
+    public const DESCRIPTION_EMAILS_SENDING_ERROR_FORWARD = 'error_sending_forward';
 
     protected $fillable = [
         'log_name',
@@ -105,11 +120,17 @@ class ActivityLog extends SpatieActivity
             self::DESCRIPTION_EMAILS_SENDING_ERROR_INVITE => __('Error sending invitation email to user'),
             self::DESCRIPTION_EMAILS_SENDING_ERROR_PASSWORD_CHANGED => __('Error sending password changed notification to user'),
             self::DESCRIPTION_EMAILS_SENDING_ERROR_ALERT => __('Error sending alert'),
-            self::DESCRIPTION_EMAILS_SENDING_WRONG_EMAIL => __('Error sending email to the user who replied to notification from wrong email'),
+            self::DESCRIPTION_EMAILS_SENDING_ERROR_WRONG_EMAIL => __('Error sending email to the user who replied to notification from wrong email'),
             self::DESCRIPTION_EMAILS_FETCHING_ERROR => __('Error fetching email'),
             self::DESCRIPTION_SYSTEM_ERROR => __('System error'),
             self::DESCRIPTION_USER_DELETED => __('Deleted user'),
-            default => $this->description ?? '',
+            self::DESCRIPTION_USER_CREATED => __('User created'),
+            self::DESCRIPTION_CONVERSATION_STATUS_CHANGED => __('Conversation status changed'),
+            self::DESCRIPTION_EMAILS_SENDING_ERROR_AUTO_REPLY => __('Error sending auto reply'),
+            self::DESCRIPTION_EMAILS_SENDING_ERROR_USER_NOTIFICATION => __('Error sending user notification'),
+            self::DESCRIPTION_EMAILS_SENDING_ERROR_SYSTEM => __('Error sending system email'),
+            self::DESCRIPTION_EMAILS_SENDING_ERROR_FORWARD => __('Error sending forward'),
+            default => (string) ($this->description ?? ''),
         };
     }
 
@@ -125,6 +146,7 @@ class ActivityLog extends SpatieActivity
             self::NAME_EMAILS_FETCHING => __('Fetch Errors'),
             self::NAME_SYSTEM => __('System'),
             self::NAME_APP_LOGS => __('App Logs'),
+            self::NAME_CONVERSATION => __('Conversations'),
             default => ucwords(str_replace('_', ' ', $logName)),
         };
     }
@@ -136,7 +158,7 @@ class ActivityLog extends SpatieActivity
     {
         $col = str_replace('_', ' ', $col);
 
-        return ucfirst($col);
+        return ucwords($col);
     }
 
     /**

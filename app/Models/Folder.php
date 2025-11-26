@@ -36,6 +36,7 @@ class Folder extends Model
     public const TYPE_SPAM = 4;
     public const TYPE_TRASH = 5;
     public const TYPE_SENT = 6;
+    public const TYPE_CLOSED = 7;
     public const TYPE_DELETED = 10;
     public const TYPE_ASSIGNED = 20;
     public const TYPE_MINE = 25;

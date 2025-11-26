@@ -461,7 +461,7 @@ class Conversation extends Model
     {
         // Find or create Deleted folder
         $deletedFolder = Folder::where('mailbox_id', $this->mailbox_id)
-            ->where('type', Folder::TYPE_DELETED)
+            ->where('type', Folder::TYPE_TRASH)
             ->first();
 
         if (! $deletedFolder) {
@@ -643,7 +643,7 @@ class Conversation extends Model
         // Log activity
         if ($user && $oldCustomerId !== $this->customer_id) {
             ActivityLog::query()->create([
-                'type' => ActivityLog::TYPE_CONVERSATION,
+                'log_name' => ActivityLog::TYPE_CONVERSATION,
                 'causer_type' => User::class,
                 'causer_id' => $user->id,
                 'subject_type' => self::class,
@@ -674,15 +674,24 @@ class Conversation extends Model
             $mailboxIds = [];
             if (! empty($filters['mailbox'])) {
                 // Verify user has access to the mailbox
-                if ($user->mailboxes->contains($filters['mailbox'])) {
-                    $mailboxIds[] = $filters['mailbox'];
-                } else {
+                if ($user->isAdmin() || $user->mailboxes->contains($filters['mailbox'])) {
+                    $builder->where('conversations.mailbox_id', $filters['mailbox']);
+                } elseif (! $user->isAdmin()) {
                     $mailboxIds = $user->mailboxes->pluck('id')->toArray();
+                    if (! empty($mailboxIds)) {
+                        $builder->whereIn('conversations.mailbox_id', $mailboxIds);
+                    } else {
+                        $builder->whereRaw('1 = 0');
+                    }
                 }
-            } else {
+            } elseif (! $user->isAdmin()) {
                 $mailboxIds = $user->mailboxes->pluck('id')->toArray();
+                if (! empty($mailboxIds)) {
+                    $builder->whereIn('conversations.mailbox_id', $mailboxIds);
+                } else {
+                    $builder->whereRaw('1 = 0');
+                }
             }
-            $builder->whereIn('conversations.mailbox_id', $mailboxIds);
         }
 
         // Apply search query
@@ -700,6 +709,7 @@ class Conversation extends Model
                         ->orWhere('conversations.id', $queryInt)
                         ->orWhere('customers.first_name', 'like', $like)
                         ->orWhere('customers.last_name', 'like', $like)
+                        ->orWhere('customers.phones', 'like', $like)
                         ->orWhere('threads.body', 'like', $like);
                 })
                 ->groupBy('conversations.id');

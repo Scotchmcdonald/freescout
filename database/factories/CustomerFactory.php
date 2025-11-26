@@ -23,12 +23,8 @@ class CustomerFactory extends Factory
             'photo_type' => 1,
             'channel' => 1, // Email channel
             'channel_id' => null,
-            'phones' => fake()->optional()->passthrough([
-                ['type' => 'work', 'value' => fake()->phoneNumber()],
-            ]),
-            'websites' => fake()->optional()->passthrough([
-                ['value' => fake()->url()],
-            ]),
+            'phones' => null,
+            'websites' => null,
             'social_profiles' => null,
             'address' => fake()->optional()->streetAddress(),
             'city' => fake()->optional()->city(),

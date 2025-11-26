@@ -236,7 +236,7 @@ class Mailbox extends Model
      *
      * @return array<string, string>
      */
-    public function getAliases(bool $includeMailboxEmail = true, bool $checkAliasesReply = false): array
+    public function getAliases(bool $includeMailboxEmail = false, bool $checkAliasesReply = false): array
     {
         if ($checkAliasesReply && !$this->aliases_reply) {
             return [];
@@ -248,13 +248,21 @@ class Mailbox extends Model
         }
 
         if ($this->aliases) {
-            $aliasesList = is_array($this->aliases) ? $this->aliases : explode(',', (string)$this->aliases);
+            $aliasesList = is_array($this->aliases) ? $this->aliases : preg_split('/[,\n\r]+/', (string)$this->aliases);
             foreach ($aliasesList as $alias) {
                 $name = '';
                 $alias = trim($alias);
+                if (empty($alias)) {
+                    continue;
+                }
 
-                // Parse alias format: email(Name) using a safer pattern
-                if (preg_match('/^([^(]+)\(([^)]*)\)$/', $alias, $m)) {
+                // Parse alias format: Name <email>
+                if (preg_match('/^(.*)<(.*)>$/', $alias, $m)) {
+                    $name = trim($m[1]);
+                    $alias = trim($m[2]);
+                }
+                // Parse alias format: email(Name)
+                elseif (preg_match('/^([^(]+)\(([^)]*)\)$/', $alias, $m)) {
                     $alias = trim($m[1]);
                     $name = $m[2] ?? '';
                 }

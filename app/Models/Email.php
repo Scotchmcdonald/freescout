@@ -25,6 +25,8 @@ class Email extends Model
     const TYPE_WORK = 1;
     const TYPE_HOME = 2;
     const TYPE_OTHER = 3;
+    const TYPE_PRIMARY = 1;
+    const TYPE_SECONDARY = 2;
 
     protected $fillable = [
         'customer_id',

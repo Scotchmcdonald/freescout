@@ -193,6 +193,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the saved searches for this user.
+     *
+     * @return HasMany<SavedSearch, $this>
+     */
+    public function savedSearches(): HasMany
+    {
+        return $this->hasMany(SavedSearch::class);
+    }
+
+    /**
      * Get the user's full name.
      */
     public function getFullNameAttribute(): string
