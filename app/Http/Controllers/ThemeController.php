@@ -65,4 +65,25 @@ class ThemeController extends Controller
 
         return back()->with('success', __('Theme updated successfully.'));
     }
+
+    /**
+     * Run the theme seeder to update themes.
+     */
+    public function seed(): RedirectResponse
+    {
+        if (!Auth::user()?->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            \Illuminate\Support\Facades\Artisan::call('db:seed', [
+                '--class' => 'ThemeSeeder',
+                '--force' => true,
+            ]);
+            
+            return back()->with('success', __('Themes re-seeded successfully.'));
+        } catch (\Exception $e) {
+            return back()->with('error', __('Failed to seed themes: ') . $e->getMessage());
+        }
+    }
 }

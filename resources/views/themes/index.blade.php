@@ -30,6 +30,15 @@
                         </div>
                         <div>
                             <a href="{{ route('themes.editor.index') }}" class="text-sm text-blue-600 hover:underline">Theme Editor</a>
+                            @if(auth()->user()->isAdmin())
+                                <span class="mx-2 text-gray-300">|</span>
+                                <form method="POST" action="{{ route('themes.seed') }}" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-sm text-blue-600 hover:underline" onclick="return confirm('Are you sure you want to re-seed themes? This will overwrite default theme configurations.')">
+                                        {{ __('Reload Themes') }}
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
 

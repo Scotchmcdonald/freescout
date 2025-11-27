@@ -225,6 +225,7 @@
         .bg-white { background-color: var(--theme-bg-card) !important; }
         .bg-gray-50 { background-color: var(--theme-bg-main) !important; }
         .bg-gray-100 { background-color: var(--theme-bg-main) !important; }
+        .bg-gray-200 { background-color: var(--theme-bg-input) !important; }
         
         .text-gray-900 { color: var(--theme-text-main) !important; }
         .text-gray-800 { color: var(--theme-text-main) !important; }
@@ -239,6 +240,11 @@
             background-color: var(--theme-bg-input) !important;
             color: var(--theme-text-main) !important;
             border-color: var(--theme-border) !important;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--theme-text-muted) !important;
+            opacity: 0.7;
         }
         
         /* Fix for white text on primary buttons */

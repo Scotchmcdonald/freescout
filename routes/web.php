@@ -210,6 +210,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::get('/themes', [ThemeController::class, 'index'])->name('themes');
         Route::post('/themes', [ThemeController::class, 'update'])->name('themes.update');
+        Route::post('/themes/seed', [ThemeController::class, 'seed'])->name('themes.seed');
         
         // Theme Editor
         Route::get('/themes/editor', [App\Http\Controllers\ThemeEditorController::class, 'index'])->name('themes.editor.index');
