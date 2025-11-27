@@ -11,6 +11,9 @@
    class="list-group-item list-group-item-action @if(Route::currentRouteName() == 'mailboxes.auto_reply') active @endif">
     {{ __('Auto Reply') }}
 </a>
-<a href="#" class="list-group-item list-group-item-action">
+{{-- Office Hours feature placeholder - uncomment when route is implemented
+<a href="{{ route('mailboxes.office_hours', $mailbox) }}" 
+   class="list-group-item list-group-item-action @if(Route::currentRouteName() == 'mailboxes.office_hours') active @endif">
     {{ __('Office Hours') }}
 </a>
+--}}

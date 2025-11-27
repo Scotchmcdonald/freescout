@@ -101,7 +101,7 @@ class UpdateCustomerAction
      */
     private function updateEmails(Customer $customer, array $emails): void
     {
-        $existingEmails = $customer->emails->pluck('email')->toArray();
+        $existingEmails = $customer->emails?->pluck('email')->toArray() ?? [];
 
         foreach ($emails as $emailData) {
             $email = $emailData['email'] ?? '';
