@@ -229,11 +229,19 @@ export function ajaxForm(url, method = 'POST') {
             this.success = false;
             this.message = '';
             
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (!csrfToken) {
+                console.error('CSRF token not found. Ensure meta[name="csrf-token"] is present in the page head.');
+                this.message = 'Security token missing. Please refresh the page.';
+                this.loading = false;
+                return null;
+            }
+            
             try {
                 const response = await fetch(url, {
                     method: method,
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                        'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json'
                     },
                     body: formData
