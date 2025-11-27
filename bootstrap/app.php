@@ -25,11 +25,16 @@ return Application::configure(basePath: dirname(__DIR__))
             'theme' => \App\Http\Middleware\ApplyUserTheme::class,
         ]);
         
-        // Add FrameGuard middleware to web group for security
-        // Add ApplyUserTheme middleware to apply user's selected theme
+        // Add middleware to web group:
+        // - FrameGuard: Security against clickjacking
+        // - ApplyUserTheme: Apply user's selected theme
+        // - Localize: Set user's preferred locale
+        // - LogoutIfDeleted: Force logout deleted/disabled users
         $middleware->web(append: [
             \App\Http\Middleware\FrameGuard::class,
             \App\Http\Middleware\ApplyUserTheme::class,
+            \App\Http\Middleware\Localize::class,
+            \App\Http\Middleware\LogoutIfDeleted::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {})->create();
