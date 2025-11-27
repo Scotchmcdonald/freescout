@@ -20,17 +20,13 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @include('partials.theme-styles')
+        <x-theme-styles />
         @action('layout.head')
-        <script>
-            // Set theme update URL for Alpine.js component
-            window.themeUpdateUrl = '{{ route('themes.update') }}';
-        </script>
     </head>
     <body class="font-sans antialiased" x-data="dynamicFavicon()">
         @action('layout.body_start')
         <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+            <x-layouts.navigation />
 
             <!-- Page Heading -->
             @isset($header)

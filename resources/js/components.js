@@ -135,14 +135,230 @@ export function dynamicFavicon() {
     };
 }
 
-// Register components with Alpine.js
-// Note: Components are registered in app.js via:
-// Alpine.data('themeToggle', themeToggle);
-// Alpine.data('conversationStatus', conversationStatus);
-// Alpine.data('dynamicFavicon', dynamicFavicon);
+/**
+ * Alpine.js component for dropdown menus.
+ * 
+ * Usage: x-data="dropdown()"
+ */
+export function dropdown() {
+    return {
+        open: false,
+        
+        toggle() {
+            this.open = !this.open;
+        },
+        
+        close() {
+            this.open = false;
+        }
+    };
+}
 
+/**
+ * Alpine.js component for modal dialogs.
+ * 
+ * Usage: x-data="modal()" @keydown.escape.window="close()"
+ */
+export function modal() {
+    return {
+        show: false,
+        
+        open() {
+            this.show = true;
+            document.body.classList.add('overflow-hidden');
+        },
+        
+        close() {
+            this.show = false;
+            document.body.classList.remove('overflow-hidden');
+        },
+        
+        toggle() {
+            this.show ? this.close() : this.open();
+        }
+    };
+}
+
+/**
+ * Alpine.js component for confirmation dialogs.
+ * 
+ * Usage: x-data="confirmDialog()" 
+ */
+export function confirmDialog() {
+    return {
+        show: false,
+        message: '',
+        onConfirm: null,
+        
+        confirm(message, callback) {
+            this.message = message;
+            this.onConfirm = callback;
+            this.show = true;
+        },
+        
+        proceed() {
+            if (this.onConfirm) {
+                this.onConfirm();
+            }
+            this.close();
+        },
+        
+        close() {
+            this.show = false;
+            this.message = '';
+            this.onConfirm = null;
+        }
+    };
+}
+
+/**
+ * Alpine.js component for AJAX form submission.
+ * 
+ * Usage: x-data="ajaxForm('url', 'method')"
+ */
+export function ajaxForm(url, method = 'POST') {
+    return {
+        loading: false,
+        errors: {},
+        success: false,
+        message: '',
+        
+        async submit(formData) {
+            this.loading = true;
+            this.errors = {};
+            this.success = false;
+            this.message = '';
+            
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    this.success = true;
+                    this.message = data.message || 'Success';
+                    return data;
+                } else {
+                    this.errors = data.errors || {};
+                    this.message = data.message || 'An error occurred';
+                    return null;
+                }
+            } catch (error) {
+                this.message = error.message;
+                return null;
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        hasError(field) {
+            return field in this.errors;
+        },
+        
+        getError(field) {
+            return this.errors[field]?.[0] || '';
+        }
+    };
+}
+
+/**
+ * Alpine.js component for select all checkboxes.
+ * 
+ * Usage: x-data="selectAll()"
+ */
+export function selectAll() {
+    return {
+        allSelected: false,
+        selected: [],
+        
+        toggleAll(items) {
+            if (this.allSelected) {
+                this.selected = [];
+            } else {
+                this.selected = items.map(item => item.id || item);
+            }
+            this.allSelected = !this.allSelected;
+        },
+        
+        toggle(id) {
+            const index = this.selected.indexOf(id);
+            if (index > -1) {
+                this.selected.splice(index, 1);
+            } else {
+                this.selected.push(id);
+            }
+        },
+        
+        isSelected(id) {
+            return this.selected.includes(id);
+        },
+        
+        get count() {
+            return this.selected.length;
+        }
+    };
+}
+
+/**
+ * Alpine.js component for search/filter input.
+ * 
+ * Usage: x-data="searchFilter()"
+ */
+export function searchFilter() {
+    return {
+        query: '',
+        debounceTimer: null,
+        
+        search(callback, delay = 300) {
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = setTimeout(() => {
+                callback(this.query);
+            }, delay);
+        },
+        
+        clear(callback) {
+            this.query = '';
+            if (callback) callback('');
+        }
+    };
+}
+
+/**
+ * Alpine.js component for tabs.
+ * 
+ * Usage: x-data="tabs('default-tab')"
+ */
+export function tabs(defaultTab = '') {
+    return {
+        activeTab: defaultTab,
+        
+        isActive(tab) {
+            return this.activeTab === tab;
+        },
+        
+        select(tab) {
+            this.activeTab = tab;
+        }
+    };
+}
+
+// Export all components
 export default {
     themeToggle,
     conversationStatus,
-    dynamicFavicon
+    dynamicFavicon,
+    dropdown,
+    modal,
+    confirmDialog,
+    ajaxForm,
+    selectAll,
+    searchFilter,
+    tabs
 };

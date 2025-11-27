@@ -1,11 +1,29 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
-import { themeToggle, conversationStatus, dynamicFavicon } from './components';
+import { 
+    themeToggle, 
+    conversationStatus, 
+    dynamicFavicon,
+    dropdown,
+    modal,
+    confirmDialog,
+    ajaxForm,
+    selectAll,
+    searchFilter,
+    tabs
+} from './components';
 
 // Register Alpine.js components
 Alpine.data('themeToggle', themeToggle);
 Alpine.data('conversationStatus', conversationStatus);
 Alpine.data('dynamicFavicon', dynamicFavicon);
+Alpine.data('dropdown', dropdown);
+Alpine.data('modal', modal);
+Alpine.data('confirmDialog', confirmDialog);
+Alpine.data('ajaxForm', ajaxForm);
+Alpine.data('selectAll', selectAll);
+Alpine.data('searchFilter', searchFilter);
+Alpine.data('tabs', tabs);
 
 window.Alpine = Alpine;
 Alpine.start();

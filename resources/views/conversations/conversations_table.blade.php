@@ -55,7 +55,7 @@
                         </a>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        @include('conversations.partials.badges', ['conversation' => $conversation])
+                        <x-conversation-badges :conversation="$conversation" />
                     </td>
                     <td class="px-6 py-4">
                         <div class="text-sm text-gray-900">

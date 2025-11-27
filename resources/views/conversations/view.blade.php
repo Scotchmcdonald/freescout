@@ -18,12 +18,12 @@
 @endsection
 
 @section('sidebar')
-    @include('partials/sidebar_menu_toggle')
+    <x-sidebar-menu-toggle />
     @include('mailboxes/sidebar_menu_view')
 @endsection
 
 @section('content')
-    @include('partials/flash_messages')
+    <x-flash-messages />
 
     <div id="conv-layout" class="flex gap-4 conv-type-{{ strtolower($conversation->getTypeName()) }} @if ($is_following) conv-following @endif" x-data="conversationManager()">
         <div id="conv-layout-header" class="bg-white shadow-sm rounded-lg p-4 mb-4">
