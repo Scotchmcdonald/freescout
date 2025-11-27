@@ -10,25 +10,22 @@
 
 **Branch**: `laravel-11-foundation`  
 **Progress**: **97% Complete** (Email System Fully Functional!)  
-**Latest Update**: November 11, 2025
+**Latest Update**: November 27, 2025
 
 ### What's Working ✅
-- Laravel 11.46.1 with PHP 8.2+ foundation
-- Complete database layer (27 tables)
-- All core controllers and business logic (19 controllers)
+- Laravel 11.x with PHP 8.2+ foundation
+- Complete database layer
+- All core controllers and business logic
 - **Full email system** with IMAP/SMTP, auto-replies, threading, attachments
 - Event system with auto-reply rate limiting
 - Bounce and auto-responder detection
-- 11 responsive Tailwind CSS views
+- Responsive Tailwind CSS views
 - Real-time features with Laravel Echo + Reverb
 - Modern frontend with Vite, Tailwind, Alpine.js
 - Authorization policies (100% complete)
 
 ### 📚 Documentation
 
-- **[📊 Implementation Progress Report](IMPLEMENTATION_PROGRESS_REPORT.md)** - **NEW!** Comprehensive analysis and roadmap
-- **[Progress Tracking](docs/PROGRESS.md)** - Current status and next steps
-- **[Comparison Analysis](COMPARISON_ANALYSIS_SUMMARY.md)** - Archive vs modernized comparison
 - **[Planning Documents](docs/archive/)** - Original analysis and strategy
 
 ---
@@ -102,22 +99,23 @@ Mobile apps support the same functionality and modules as the web version of you
 FreeScout is a pure PHP/MySQL application, so it can be easily deployed even on a [shared hosting](https://github.com/freescout-help-desk/freescout/wiki/Choosing-a-Server).
 
   * Nginx / Apache / IIS
-  * PHP 7.1 - 8.x
+  * PHP 8.2+
   * MySQL 5.0+ / MariaDB 5.0+ / PostgreSQL
 
 There are no minimum system requirements (CPU / RAM) – FreeScout will run on any system.
 
 ## Installation
 
+### Docker (Recommended)
+See the [Docker Deployment](#-docker-deployment) section below for the easiest way to get started.
+
+### Manual Installation
 [Installation Guide](https://github.com/freescout-help-desk/freescout/wiki/Installation-Guide)
 
-Images & one-click installs:
-
-* [Docker Image](http://freescout.net/docker/)
-* [Softaculous](http://www.softaculous.com/apps/customersupport/FreeScout) (cPanel, Plesk, ISPmanager, H-Sphere, DirectAdmin, InterWorx)
-* [Fantastico](http://ff3.netenberg.com/visitors/scripts/freescout/view) (cPanel, DirectAdmin, ISP Manager, ISP Config)
+Other methods (Official FreeScout):
+* [Softaculous](http://www.softaculous.com/apps/customersupport/FreeScout)
+* [Fantastico](http://ff3.netenberg.com/visitors/scripts/freescout/view)
 * [Cloudron](https://cloudron.io/store/net.freescout.cloudronapp.html)
-* [Ubuntu](https://github.com/freescout-help-desk/freescout/wiki/Installation-Guide#interactive-installation-bash-script-ubuntu) (bash script)
 
 ## Cloud Hosted
 
@@ -181,47 +179,75 @@ Login page:
 
 ---
 
+## 🐳 Docker Deployment
+
+We provide a "One-Click" Docker deployment script that sets up the entire stack (App, MySQL, Redis, Nginx) with a single command.
+
+### Quick Start
+
+1.  **Run the deployment script:**
+    ```bash
+    ./docker_deploy.sh
+    ```
+    Follow the interactive prompts to confirm the repository and branch.
+
+2.  **Access the application:**
+    Open your browser and navigate to `http://<your-server-ip>`.
+
+### Features of the Docker Setup
+*   **Full Stack**: Includes Nginx, PHP 8.2 FPM, MySQL 8.0, and Redis.
+*   **Auto-Configuration**: Generates `Dockerfile`, `docker-compose.yml`, and `.env` automatically.
+*   **Production Ready**: Configured with proper permissions, volume persistence, and security headers.
+*   **Queue & Cron**: Automatically sets up background workers for emails and scheduled tasks.
+*   **Update Helper**: Includes an `update.sh` script for easy updates.
+
+### Customization
+The script allows you to override defaults by passing arguments:
+```bash
+./docker_deploy.sh <REPO_URL> <BRANCH_NAME>
+```
+
+---
+
 ## 🚀 Development Setup
 
-This project includes several scripts to help you get your development environment up and running quickly.
+To set up a local development environment manually (without Docker):
 
-### Quick Setup
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/Scotchmcdonald/freescout.git
+    cd freescout
+    ```
 
-To set up the entire environment in one go, run the master setup script:
+2.  **Install Dependencies:**
+    ```bash
+    composer install
+    npm install
+    ```
 
-```bash
-./scripts/setup.sh
-```
+3.  **Environment Setup:**
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
 
-This will present a menu allowing you to:
-1.  **Setup Development Environment**: Installs necessary PHP extensions, Composer, and other tools.
-2.  **Setup Web Server**: Configures Nginx to serve the application.
-3.  **Setup Auto-Start Services**: Configures Supervisor to run queue workers and Reverb automatically.
+4.  **Database:**
+    Configure your `.env` file with your database credentials, then run:
+    ```bash
+    php artisan migrate --seed
+    ```
 
-You can also run all steps non-interactively:
-```bash
-./scripts/setup.sh --all
-```
+5.  **Start Development Servers:**
+    ```bash
+    # Start the backend
+    php artisan serve
 
-### Starting the Development Servers
-
-To start the development servers (Laravel backend and Vite frontend), use the `start_dev.sh` script:
-
-```bash
-# Start the servers
-./scripts/start_dev.sh start
-
-# Stop the servers
-./scripts/start_dev.sh stop
-
-# Restart the servers
-./scripts/start_dev.sh restart
-```
+    # Start the frontend (in a separate terminal)
+    npm run dev
+    ```
 
 ### Running Tests
 
-A script is provided to run the test suite:
-
 ```bash
-./scripts/run_tests.sh
+php ./scripts/test_runner.php ALL
 ```
