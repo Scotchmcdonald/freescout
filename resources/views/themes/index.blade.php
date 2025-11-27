@@ -42,7 +42,7 @@
                                     <input type="radio" name="theme" value="{{ $theme->name }}"
                                            {{ $currentTheme === $theme->name ? 'checked' : '' }}
                                            class="peer sr-only theme-selector">
-                                    <div class="theme-selection-card border-2 border-gray-200 rounded-xl p-4 transition-all peer-checked:ring-2 peer-checked:ring-offset-2 hover:border-gray-400 h-full flex flex-col">
+                                    <div class="theme-selection-card rounded-2xl p-4 transition-all peer-checked:ring-2 peer-checked:ring-offset-2 h-full flex flex-col bg-white shadow-sm">
                                         <div class="flex items-center justify-between mb-3">
                                             <div class="flex items-center gap-2">
                                                 <h4 class="font-medium text-gray-900">{{ $theme->title }}</h4>

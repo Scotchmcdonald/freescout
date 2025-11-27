@@ -262,16 +262,19 @@
 
     /* Theme Selection Card */
     .theme-selection-card {
-        border-color: #e5e7eb; /* gray-200 */
+        border: none !important;
+        border-radius: 1rem !important; /* rounded-2xl */
+        overflow: hidden !important;
     }
-    
+
     .theme-selection-card:hover {
-        border-color: var(--theme-primary-500) !important;
+        /* border-color: var(--theme-primary-500) !important; */
+        background-color: var(--theme-bg-hover) !important;
     }
 
     .peer:checked ~ .theme-selection-card {
         background-color: var(--theme-primary-50) !important;
-        border-color: var(--theme-primary-500) !important;
+        /* border-color: var(--theme-primary-500) !important; */
         --tw-ring-color: var(--theme-primary-500) !important;
     }
 
