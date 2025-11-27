@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreConversationRequest;
+use App\Http\Requests\UpdateConversationRequest;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Folder;
@@ -140,7 +142,7 @@ class ConversationController extends Controller
     /**
      * Store a new conversation.
      */
-    public function store(Request $request, mixed $mailbox): RedirectResponse
+    public function store(StoreConversationRequest $request, mixed $mailbox): RedirectResponse
     {
         if (! ($mailbox instanceof Mailbox)) {
             $mailbox = Mailbox::findOrFail($mailbox);
@@ -159,18 +161,7 @@ class ConversationController extends Controller
             abort(403);
         }
 
-        $validated = $request->validate([
-            'subject' => 'required|string|max:998',
-            'body' => 'required|string',
-            'to' => 'required|array|min:1',
-            'to.*' => 'email',
-            'customer_id' => 'nullable|exists:customers,id',
-            'customer_email' => 'nullable|email',
-            'customer_first_name' => 'nullable|string|max:50',
-            'customer_last_name' => 'nullable|string|max:50',
-            'status' => 'nullable|integer|in:1,2,3',
-            'assign_to' => 'nullable|exists:users,id',
-        ]);
+        $validated = $request->validated();
 
         try {
             return DB::transaction(function () use ($mailbox, $user, $validated) {
@@ -255,7 +246,7 @@ class ConversationController extends Controller
     /**
      * Update conversation details (status, assignee, folder, etc).
      */
-    public function update(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
+    public function update(UpdateConversationRequest $request, Conversation $conversation): RedirectResponse|JsonResponse
     {
         /** @var \App\Models\User|null $user */
         $user = $request->user();
@@ -269,11 +260,7 @@ class ConversationController extends Controller
             abort(403);
         }
 
-        $validated = $request->validate([
-            'status' => 'nullable|integer|in:1,2,3',
-            'user_id' => 'nullable|integer|exists:users,id',
-            'folder_id' => 'nullable|integer|exists:folders,id',
-        ]);
+        $validated = $request->validated();
 
         // Reporters cannot close tickets
         if (isset($validated['status']) && (int)$validated['status'] === Conversation::STATUS_CLOSED && $user->isReporter()) {

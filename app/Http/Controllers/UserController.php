@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -39,22 +41,11 @@ class UserController extends Controller
     /**
      * Store a newly created user.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreUserRequest $request): RedirectResponse
     {
         $this->authorize('create', User::class);
 
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'role' => 'required|integer|in:1,2,3',
-            'status' => 'required|integer|in:1,2',
-            'job_title' => 'nullable|string|max:100',
-            'phone' => 'nullable|string|max:60',
-            'timezone' => 'nullable|string|max:255',
-            'locale' => 'nullable|string|max:2',
-        ]);
+        $validated = $request->validated();
 
         // Password will be hashed by the User model cast
         // $validated['password'] = Hash::make($validated['password']);
@@ -105,24 +96,11 @@ class UserController extends Controller
     /**
      * Update the specified user.
      */
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         $this->authorize('update', $user);
 
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
-            'password' => 'nullable|string|min:8',
-            'role' => 'required|integer|in:1,2,3',
-            'status' => 'required|integer|in:1,2',
-            'job_title' => 'nullable|string|max:100',
-            'phone' => 'nullable|string|max:60',
-            'timezone' => 'nullable|string|max:255',
-            'locale' => 'nullable|string|max:2',
-            'mailboxes' => 'nullable|array',
-            'mailboxes.*' => 'integer|exists:mailboxes,id',
-        ]);
+        $validated = $request->validated();
 
         if (! empty($validated['password'])) {
             // Password will be hashed by the User model cast

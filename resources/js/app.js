@@ -1,5 +1,11 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
+import { themeToggle, conversationStatus, dynamicFavicon } from './components';
+
+// Register Alpine.js components
+Alpine.data('themeToggle', themeToggle);
+Alpine.data('conversationStatus', conversationStatus);
+Alpine.data('dynamicFavicon', dynamicFavicon);
 
 window.Alpine = Alpine;
 Alpine.start();

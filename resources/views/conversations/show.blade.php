@@ -1,15 +1,20 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center"
+             x-data="conversationStatus({{ $conversation->id }}, {{ $conversation->status }}, '{{ route('conversations.ajax') }}', '{{ csrf_token() }}')">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ $conversation->subject }}
             </h2>
             <div class="flex gap-2">
-                <select class="border-gray-300 rounded-md text-sm" onchange="updateStatus(this.value)">
-                    <option value="1" {{ $conversation->status == 1 ? 'selected' : '' }}>Active</option>
-                    <option value="2" {{ $conversation->status == 2 ? 'selected' : '' }}>Closed</option>
-                    <option value="3" {{ $conversation->status == 3 ? 'selected' : '' }}>Pending</option>
+                <select class="border-gray-300 rounded-md text-sm"
+                        x-model="status"
+                        @change="updateStatus($event.target.value)"
+                        :disabled="loading">
+                    <option value="1">Active</option>
+                    <option value="2">Closed</option>
+                    <option value="3">Pending</option>
                 </select>
+                <span x-show="loading" class="text-sm text-gray-500">Updating...</span>
             </div>
         </div>
     </x-slot>
@@ -217,28 +222,6 @@
             })
             .catch(error => {
                 alert('Error: ' + error);
-            });
-        }
-        
-        function updateStatus(status) {
-            fetch('{{ route('conversations.ajax') }}', {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'change_status',
-                    conversation_id: {{ $conversation->id }},
-                    status: status
-                }),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                }
             });
         }
     </script>

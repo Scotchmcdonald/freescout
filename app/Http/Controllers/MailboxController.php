@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMailboxRequest;
+use App\Http\Requests\UpdateMailboxRequest;
 use App\Models\Mailbox;
 use App\Models\User;
 use App\Services\ImapService;
@@ -92,29 +94,11 @@ class MailboxController extends Controller
     /**
      * Store a newly created mailbox.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreMailboxRequest $request): RedirectResponse
     {
         $this->authorize('create', Mailbox::class);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:mailboxes,email',
-            'from_name' => 'nullable|string|max:255',
-            'users' => 'nullable|array',
-            'users.*' => 'exists:users,id',
-            'out_method' => 'nullable|in:mail,smtp',
-            'out_server' => 'nullable|string|max:255',
-            'out_port' => 'nullable|integer',
-            'out_username' => 'nullable|string|max:255',
-            'out_password' => 'nullable|string',
-            'out_encryption' => 'nullable|in:none,ssl,tls',
-            'in_server' => 'nullable|string|max:255',
-            'in_port' => 'nullable|integer',
-            'in_username' => 'nullable|string|max:255',
-            'in_password' => 'nullable|string',
-            'in_protocol' => 'nullable|in:imap,pop3',
-            'in_encryption' => 'nullable|in:none,ssl,tls',
-        ]);
+        $validated = $request->validated();
 
         // Encrypt passwords if provided
         if (! empty($validated['out_password'])) {
@@ -152,30 +136,11 @@ class MailboxController extends Controller
     /**
      * Update the specified mailbox.
      */
-    public function update(Request $request, Mailbox $mailbox): RedirectResponse
+    public function update(UpdateMailboxRequest $request, Mailbox $mailbox): RedirectResponse
     {
         $this->authorize('update', $mailbox);
 
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:mailboxes,email,'.$mailbox->id,
-            'from_name' => 'nullable|string|max:255',
-            'out_method' => 'nullable|in:mail,smtp',
-            'out_server' => 'nullable|string|max:255',
-            'out_port' => 'nullable|integer',
-            'out_username' => 'nullable|string|max:255',
-            'out_password' => 'nullable|string',
-            'out_encryption' => 'nullable|in:none,ssl,tls',
-            'in_server' => 'nullable|string|max:255',
-            'in_port' => 'nullable|integer',
-            'in_username' => 'nullable|string|max:255',
-            'in_password' => 'nullable|string',
-            'in_protocol' => 'nullable|in:imap,pop3',
-            'in_encryption' => 'nullable|in:none,ssl,tls',
-            'auto_reply_enabled' => 'nullable|boolean',
-            'auto_reply_subject' => 'nullable|string|max:255',
-            'auto_reply_message' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         // Encrypt passwords if provided and changed
         if (! empty($validated['out_password'])) {
