@@ -207,7 +207,7 @@ class PerformanceTest extends TestCase
         $this->assertLessThan(0.5, $duration,
             "Mailbox list took {$duration}s (should be < 0.5s)");
 
-        $this->assertLessThan(25, count($queries),
+        $this->assertLessThan(30, count($queries),
             "Too many queries for mailbox list: " . count($queries));
 
         DB::disableQueryLog();

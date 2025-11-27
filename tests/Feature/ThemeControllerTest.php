@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Models\Theme;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -41,6 +42,7 @@ class ThemeControllerTest extends TestCase
 
     public function test_admin_can_update_theme_preference(): void
     {
+        Theme::create(['name' => 'dark', 'title' => 'Dark', 'config' => []]);
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
         $response = $this->actingAs($admin)->post(route('themes.update'), [
@@ -57,6 +59,7 @@ class ThemeControllerTest extends TestCase
 
     public function test_admin_can_set_default_theme(): void
     {
+        Theme::create(['name' => 'default', 'title' => 'Default', 'config' => []]);
         $admin = User::factory()->create([
             'role' => User::ROLE_ADMIN,
             'theme' => 'dark',
@@ -69,9 +72,9 @@ class ThemeControllerTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        // Refresh user from database - null should be stored for default
+        // Refresh user from database - 'default' should be stored
         $admin->refresh();
-        $this->assertNull($admin->theme);
+        $this->assertEquals('default', $admin->theme);
     }
 
     public function test_theme_page_shows_available_themes(): void
@@ -114,6 +117,7 @@ class ThemeControllerTest extends TestCase
 
     public function test_theme_validation_accepts_valid_theme_name(): void
     {
+        Theme::create(['name' => 'valid-theme-name', 'title' => 'Valid Theme', 'config' => []]);
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
         $response = $this->actingAs($admin)->post(route('themes.update'), [

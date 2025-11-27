@@ -19,7 +19,13 @@ class ApplyUserTheme
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check()) {
+        if ($request->has('preview_theme')) {
+            $previewTheme = $request->input('preview_theme');
+            // Basic validation to prevent directory traversal if the Theme package doesn't handle it
+            if (is_string($previewTheme) && preg_match('/^[a-zA-Z0-9_-]+$/', $previewTheme)) {
+                Theme::set($previewTheme);
+            }
+        } elseif (Auth::check()) {
             /** @var \App\Models\User $user */
             $user = Auth::user();
 

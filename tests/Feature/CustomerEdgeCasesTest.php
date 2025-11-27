@@ -48,7 +48,8 @@ class CustomerEdgeCasesTest extends TestCase
 
         $response->assertOk();
         // Verify XSS is escaped
-        $response->assertDontSee('<script>', false);
+        $response->assertSee(htmlspecialchars('<script>alert("xss")</script>'), false);
+        $response->assertDontSee('<script>alert("xss")</script>', false);
     }
 
     public function test_customer_with_null_optional_fields_displays_correctly(): void

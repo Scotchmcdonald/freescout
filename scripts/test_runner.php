@@ -250,7 +250,7 @@ function logBatchResults($output, $reportsDir, $batchId) {
 
 // --- HELPER: UPDATE PROGRESS BAR ---
 function updateProgressBar($progressBar, $runningStats, $totalFiles, $currentStep, $message = '') {
-    $barWidth = 30;
+    $barWidth = 15;
     $progressRatio = min(1, $currentStep / $totalFiles);
     $filledChars = (int)round($barWidth * $progressRatio);
     $emptyChars = $barWidth - $filledChars;
@@ -317,35 +317,36 @@ function updateProgressBar($progressBar, $runningStats, $totalFiles, $currentSte
             }
         }
         
-        $barStr .= "<fg=green>" . str_repeat("▓", max(0, (int)$widths['Pass'])) . "</>";
-        $barStr .= "<fg=#FFA500>" . str_repeat("▓", max(0, (int)$widths['Fail'])) . "</>";
-        $barStr .= "<fg=red>" . str_repeat("▓", max(0, (int)$widths['Err'])) . "</>";
-        $barStr .= "<fg=blue>" . str_repeat("▓", max(0, (int)$widths['Skip'])) . "</>";
-        $barStr .= "<fg=yellow>" . str_repeat("▓", max(0, (int)$widths['Inc'])) . "</>";
-        $barStr .= "<fg=magenta>" . str_repeat("▓", max(0, (int)$widths['Time'])) . "</>";
+        $barStr .= "<fg=green>" . str_repeat("=", max(0, (int)$widths['Pass'])) . "</>";
+        $barStr .= "<fg=#FFA500>" . str_repeat("=", max(0, (int)$widths['Fail'])) . "</>";
+        $barStr .= "<fg=red>" . str_repeat("=", max(0, (int)$widths['Err'])) . "</>";
+        $barStr .= "<fg=blue>" . str_repeat("=", max(0, (int)$widths['Skip'])) . "</>";
+        $barStr .= "<fg=yellow>" . str_repeat("=", max(0, (int)$widths['Inc'])) . "</>";
+        $barStr .= "<fg=magenta>" . str_repeat("=", max(0, (int)$widths['Time'])) . "</>";
     } else {
         if ($filledChars > 0) {
-             $barStr .= "<fg=gray>" . str_repeat("▓", $filledChars) . "</>";
+             $barStr .= "<fg=gray>" . str_repeat("=", $filledChars) . "</>";
         }
     }
-    $barStr .= "<fg=gray>" . str_repeat("░", max(0, (int)$emptyChars)) . "</>";
+    $barStr .= "<fg=gray>" . str_repeat("-", max(0, (int)$emptyChars)) . "</>";
 
     $progressBar->setMessage($barStr, 'custom_bar');
 
     $statsMsg = sprintf(
-        "<fg=green>Pass: %d</> | <fg=#FFA500>Fail: %d</> | <fg=red>Err: %d</> | <fg=blue>Skip: %d</> | <fg=yellow>Inc: %d</> | <fg=magenta>T/O: %d</>",
+        "<fg=green>P:%d</> <fg=#FFA500>F:%d</> <fg=red>E:%d</>",
         $runningStats['Tests'] - $runningStats['Failures'] - $runningStats['Errors'] - $runningStats['Skipped'] - $runningStats['Incomplete'],
         $runningStats['Failures'],
-        $runningStats['Errors'],
-        $runningStats['Skipped'],
-        $runningStats['Incomplete'],
-        $runningStats['TimedOut']
+        $runningStats['Errors']
     );
+
+    if ($runningStats['Skipped'] > 0) $statsMsg .= sprintf(" <fg=blue>S:%d</>", $runningStats['Skipped']);
+    if ($runningStats['Incomplete'] > 0) $statsMsg .= sprintf(" <fg=yellow>I:%d</>", $runningStats['Incomplete']);
+    if ($runningStats['TimedOut'] > 0) $statsMsg .= sprintf(" <fg=magenta>T:%d</>", $runningStats['TimedOut']);
     
     if ($message === '') {
-        $progressBar->setMessage(" " . $statsMsg);
+        $progressBar->setMessage(" | " . $statsMsg);
     } else {
-        $progressBar->setMessage($message . "\n " . $statsMsg);
+        $progressBar->setMessage(" | " . $message . " | " . $statsMsg);
     }
 }
 
@@ -357,7 +358,7 @@ if ($calibrate) {
     $config['target_seconds'] = $targetSeconds;
 
     $progressBar = $io->createProgressBar(count($allFiles));
-    $progressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | Elapsed: %elapsed:6s% | ETA: %remaining:-6s% | Mem: %memory:6s%\n %message%");
+    $progressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | %elapsed:6s%/%remaining:-6s% | Mem: %memory:6s%%message%");
     $progressBar->setMessage('', 'custom_bar');
     $progressBar->setMessage('Starting calibration...');
     $progressBar->start();
@@ -456,7 +457,7 @@ foreach ($newFiles as $file) {
 // 3. Execution
 $io->section('Running Batches');
 $progressBar = $io->createProgressBar(count($batchesToRun));
-$progressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | Elapsed: %elapsed:6s% | ETA: %remaining:-6s% | Mem: %memory:6s%\n %message%");
+$progressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | %elapsed:6s%/%remaining:-6s% | Mem: %memory:6s%%message%");
 $progressBar->setMessage('', 'custom_bar');
 $progressBar->setMessage('Starting batches...');
 $progressBar->start();
@@ -615,7 +616,7 @@ foreach ($batchesToRun as $index => $batch) {
             $batchRuntimes[] = $result['duration'];
         }
     }
-    updateProgressBar($progressBar, $runningStats, count($batchesToRun), $index + 1, "Batch " . ($index + 1));
+    updateProgressBar($progressBar, $runningStats, count($batchesToRun), $index + 1, "");
     $progressBar->advance();
 }
 updateProgressBar($progressBar, $runningStats, count($batchesToRun), count($batchesToRun), '');

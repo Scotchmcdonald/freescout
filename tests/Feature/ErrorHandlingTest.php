@@ -132,7 +132,8 @@ class ErrorHandlingTest extends TestCase
 
         $response->assertOk();
         // Verify script tag is escaped in output
-        $response->assertDontSee('<script>', false);
+        $response->assertSee(htmlspecialchars($xssAttempt), false);
+        $response->assertDontSee($xssAttempt, false);
     }
 
     public function test_accessing_conversation_in_deleted_mailbox_returns_404(): void
