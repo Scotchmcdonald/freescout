@@ -8,9 +8,6 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * Create channels table for multi-channel customer communication support.
-     * Channels represent different communication methods (email, chat, phone, social, etc.)
      */
     public function up(): void
     {

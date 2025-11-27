@@ -53,6 +53,7 @@ return new class extends Migration
             $table->boolean('read_by_user')->default(false);
             $table->text('meta')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             // Indexes
             $table->index(['folder_id', 'status']);
@@ -101,6 +102,7 @@ return new class extends Migration
             $table->timestamp('opened_at')->nullable();
             $table->text('meta')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index('conversation_id');
             $table->index('user_id');
@@ -134,6 +136,16 @@ return new class extends Migration
 
             $table->unique(['conversation_id', 'user_id']);
         });
+
+        // Conversation User Stars - users starring conversations
+        Schema::create('conversation_user_stars', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+
+            $table->unique(['conversation_id', 'user_id']);
+        });
     }
 
     /**
@@ -141,6 +153,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('conversation_user_stars');
         Schema::dropIfExists('followers');
         Schema::dropIfExists('conversation_folder');
         Schema::dropIfExists('threads');

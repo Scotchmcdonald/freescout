@@ -23,7 +23,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('photo_type')->nullable();
             $table->string('age', 7)->nullable();
             $table->unsignedTinyInteger('gender')->nullable();
-            $table->json('phones')->nullable(); // modernized to JSON type
+            $table->json('phones')->nullable();
             $table->json('websites')->nullable();
             $table->json('social_profiles')->nullable();
             $table->json('chats')->nullable();
@@ -65,6 +65,17 @@ return new class extends Migration
 
             $table->index(['customer_id', 'channel']);
         });
+
+        // Channel-Customer pivot (many-to-many relationship)
+        Schema::create('channel_customer', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('channel_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+
+            $table->unique(['channel_id', 'customer_id']);
+            $table->index('customer_id');
+        });
     }
 
     /**
@@ -72,6 +83,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('channel_customer');
         Schema::dropIfExists('customer_channel');
         Schema::dropIfExists('emails');
         Schema::dropIfExists('customers');

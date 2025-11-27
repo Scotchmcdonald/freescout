@@ -16,11 +16,13 @@ return new class extends Migration
             $table->string('first_name', 20);
             $table->string('last_name', 30);
             $table->string('email', 191)->unique();
+            $table->string('google_id')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->unsignedTinyInteger('role')->default(1)->index(); // 1: user, 2: admin
             $table->string('timezone')->default('UTC');
             $table->string('photo_url')->nullable();
+            $table->string('avatar')->nullable();
             $table->unsignedTinyInteger('type')->default(1); // team/user
             $table->unsignedTinyInteger('invite_state')->default(1);
             $table->string('invite_hash', 100)->nullable();
@@ -32,6 +34,8 @@ return new class extends Migration
             $table->boolean('locked')->default(false);
             $table->unsignedTinyInteger('status')->default(1)->index();
             $table->string('locale', 5)->default('en');
+            $table->string('theme', 50)->nullable();
+            $table->boolean('dark_mode')->default(true);
             $table->text('permissions')->nullable();
             $table->rememberToken();
             $table->timestamps();

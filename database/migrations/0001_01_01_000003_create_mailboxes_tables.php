@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean('is_default')->default(false);
             $table->unsignedTinyInteger('status')->default(1)->index();
             $table->string('email', 128)->unique();
-            $table->text('aliases')->nullable(); // changed from string(255) to text
+            $table->text('aliases')->nullable();
             $table->boolean('aliases_reply')->default(false);
             $table->unsignedTinyInteger('from_name')->default(1); // 1=mailbox, 2=user, 3=custom
             $table->string('from_name_custom', 128)->nullable();
@@ -31,7 +31,7 @@ return new class extends Migration
             // Outgoing mail (SMTP)
             $table->unsignedTinyInteger('out_method')->default(1); // 1=PHP mail, 2=Sendmail, 3=SMTP
             $table->string('out_server')->nullable();
-            $table->text('out_username')->nullable(); // changed from string to text
+            $table->text('out_username')->nullable();
             $table->text('out_password')->nullable();
             $table->unsignedInteger('out_port')->nullable();
             $table->unsignedTinyInteger('out_encryption')->default(0); // 0=none, 1=SSL, 2=TLS
@@ -45,7 +45,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('in_encryption')->default(0);
             $table->boolean('in_validate_cert')->default(true);
             $table->text('in_imap_folders')->nullable();
-            $table->text('imap_sent_folder')->nullable(); // changed from string to text
+            $table->text('imap_sent_folder')->nullable();
 
             // Auto-reply
             $table->boolean('auto_reply_enabled')->default(false);
