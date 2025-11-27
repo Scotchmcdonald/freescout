@@ -64,8 +64,10 @@
                                                 <div class="text-sm text-gray-600">{{ $user->email }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                @if($user->role == 1)
+                                                @if($user->role == 2)
                                                     <span class="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">Admin</span>
+                                                @elseif($user->role == 3)
+                                                    <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">Reporter</span>
                                                 @else
                                                     <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded">User</span>
                                                 @endif

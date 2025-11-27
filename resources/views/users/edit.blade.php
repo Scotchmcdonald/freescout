@@ -76,8 +76,9 @@
                                         </label>
                                         <select name="role" id="role" required
                                                 class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                            <option value="2" {{ old('role', $user->role) == 2 ? 'selected' : '' }}>User</option>
-                                            <option value="1" {{ old('role', $user->role) == 1 ? 'selected' : '' }}>Admin</option>
+                                            <option value="1" {{ old('role', $user->role) == 1 ? 'selected' : '' }}>User</option>
+                                            <option value="2" {{ old('role', $user->role) == 2 ? 'selected' : '' }}>Admin</option>
+                                            <option value="3" {{ old('role', $user->role) == 3 ? 'selected' : '' }}>Reporter</option>
                                         </select>
                                     </div>
                                     

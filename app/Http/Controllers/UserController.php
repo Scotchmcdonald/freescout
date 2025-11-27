@@ -48,7 +48,7 @@ class UserController extends Controller
             'last_name' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|integer|in:1,2',
+            'role' => 'required|integer|in:1,2,3',
             'status' => 'required|integer|in:1,2',
             'job_title' => 'nullable|string|max:100',
             'phone' => 'nullable|string|max:60',
@@ -66,6 +66,9 @@ class UserController extends Controller
         if (empty($validated['locale'])) {
             unset($validated['locale']);
         }
+
+        // Default to Dark Mode for new users
+        $validated['dark_mode'] = true;
 
         $user = User::create($validated);
 
@@ -111,7 +114,7 @@ class UserController extends Controller
             'last_name' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:8',
-            'role' => 'required|integer|in:1,2',
+            'role' => 'required|integer|in:1,2,3',
             'status' => 'required|integer|in:1,2',
             'job_title' => 'nullable|string|max:100',
             'phone' => 'nullable|string|max:60',

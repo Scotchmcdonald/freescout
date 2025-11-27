@@ -53,6 +53,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public const ROLE_ADMIN = 2;
 
+    public const ROLE_REPORTER = 3;
+
     // Status constants
     public const STATUS_ACTIVE = 1;
 
@@ -98,6 +100,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone',
         'time_format',
         'enable_kb_shortcuts',
+        'google_id',
+        'avatar',
     ];
 
     /**
@@ -219,6 +223,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    /**
+     * Check if user is a reporter.
+     */
+    public function isReporter(): bool
+    {
+        return $this->role === self::ROLE_REPORTER;
     }
 
     /**

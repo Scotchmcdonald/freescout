@@ -275,6 +275,11 @@ class ConversationController extends Controller
             'folder_id' => 'nullable|integer|exists:folders,id',
         ]);
 
+        // Reporters cannot close tickets
+        if (isset($validated['status']) && (int)$validated['status'] === Conversation::STATUS_CLOSED && $user->isReporter()) {
+            abort(403, 'Reporters cannot close tickets');
+        }
+
         $conversation->update($validated);
 
         if ($request->expectsJson()) {
@@ -311,6 +316,15 @@ class ConversationController extends Controller
             'type' => 'nullable|integer|in:1,2', // 1=reply, 2=note (default 1)
             'status' => 'nullable|integer|in:1,2,3',
         ]);
+
+        // Reporters cannot close tickets
+        if (isset($validated['status']) && (int)$validated['status'] === Conversation::STATUS_CLOSED && $user->isReporter()) {
+            $message = 'Reporters cannot close tickets';
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 403);
+            }
+            return back()->withInput()->withErrors(['error' => $message]);
+        }
 
         try {
             return DB::transaction(function () use ($request, $conversation, $user, $validated) {
@@ -596,6 +610,12 @@ class ConversationController extends Controller
         switch ($action) {
             case 'change_status':
                 $newStatus = (int) $request->input('status');
+
+                // Reporters cannot close tickets
+                if ($user->isReporter() && $newStatus === Conversation::STATUS_CLOSED) {
+                    return response()->json(['success' => false, 'message' => 'Reporters cannot close tickets'], 403);
+                }
+
                 $prevStatus = $conversation->status;
                 $conversation->changeStatus($newStatus, $user);
                 
@@ -723,6 +743,12 @@ class ConversationController extends Controller
                 if (!in_array($newStatus, [Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED, Conversation::STATUS_PENDING])) {
                     return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
                 }
+
+                // Reporters cannot close tickets
+                if ($user->isReporter() && $newStatus === Conversation::STATUS_CLOSED) {
+                    return response()->json(['success' => false, 'message' => 'Reporters cannot close tickets'], 403);
+                }
+
                 foreach ($conversations as $conversation) {
                     $conversation->changeStatus($newStatus, $user);
                 }
@@ -1442,6 +1468,14 @@ class ConversationController extends Controller
             'status' => 'nullable|integer|in:1,2,3',
             'user_id' => 'nullable|integer|exists:users,id',
         ]);
+
+        // Reporters cannot close tickets
+        if (isset($validated['status']) && (int)$validated['status'] === Conversation::STATUS_CLOSED && $user->isReporter()) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Reporters cannot close tickets'], 403);
+            }
+            return back()->withErrors(['error' => 'Reporters cannot close tickets']);
+        }
 
         /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations */
         $conversations = Conversation::whereIn('id', $validated['ids'])->get();

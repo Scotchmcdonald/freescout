@@ -68,8 +68,9 @@
                                     </label>
                                     <select name="role" id="role" required
                                             class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        <option value="2" {{ old('role') == 2 ? 'selected' : '' }}>User</option>
-                                        <option value="1" {{ old('role') == 1 ? 'selected' : '' }}>Admin</option>
+                                        <option value="1" {{ old('role') == 1 ? 'selected' : '' }}>User</option>
+                                        <option value="2" {{ old('role') == 2 ? 'selected' : '' }}>Admin</option>
+                                        <option value="3" {{ old('role') == 3 ? 'selected' : '' }}>Reporter</option>
                                     </select>
                                     <p class="mt-1 text-sm text-gray-500">
                                         Admins have full access to all mailboxes and settings
