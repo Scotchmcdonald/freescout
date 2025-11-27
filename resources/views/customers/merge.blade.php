@@ -4,7 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ $customer->getFullName() }} - {{ __('Merge Customer') }}
             </h2>
-            @include('customers.profile_menu')
+            <x-customer-profile-menu :customer="$customer" />
         </div>
     </x-slot>
 
@@ -13,12 +13,12 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {{-- Sidebar with customer info --}}
                 <div class="lg:col-span-1">
-                    @include('customers.profile_snippet')
+                    <x-customer-profile-snippet :customer="$customer" />
                 </div>
                 
                 {{-- Main content area --}}
                 <div class="lg:col-span-2">
-                    @include('customers.profile_tabs', ['extra_tab' => __('Merge')])
+                    <x-customer-profile-tabs :customer="$customer" :extra-tab="__('Merge')" />
                     
                     {{-- Flash messages --}}
                     @if(session('success'))

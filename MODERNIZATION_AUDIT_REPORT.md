@@ -202,8 +202,8 @@ Most inline scripts are for:
 | Area | Issue | Action | Status |
 |------|-------|--------|--------|
 | Alpine.js components | Inline scripts in views | Extract to `resources/js/components.js` | ✅ Done (10 components) |
-| Blade templates | 74 `@include` usages | Convert key partials to components | ✅ Done (reduced to 67, 7 components created) |
-| Test assertions | Some simple 200 checks | Add more specific assertions where appropriate | ⚠️ Optional |
+| Blade templates | 74 `@include` usages | Convert key partials to components | ✅ Done (reduced to 54, 13 components created) |
+| Test assertions | Some simple 200 checks | Most tests already use specific assertions | ✅ Verified |
 
 **Blade Components Created:**
 - `<x-flash-messages />` - Flash message alerts
@@ -213,6 +213,13 @@ Most inline scripts are for:
 - `<x-settings-sidebar />` - Settings navigation
 - `<x-subscription-checkbox />` - Subscription toggle
 - `<x-layouts.navigation />` - Main navigation
+- `<x-customer-profile-menu />` - Customer dropdown menu
+- `<x-customer-profile-snippet />` - Customer info card
+- `<x-customer-profile-tabs />` - Customer navigation tabs
+- `<x-user-sidebar-menu />` - User management sidebar
+- `<x-mailbox-settings-nav />` - Mailbox settings navigation
+- `<x-locale-options />` - Language select options
+- `<x-timezone-options />` - Timezone select options
 
 **Alpine.js Components Added:**
 - `dropdown()` - Dropdown menu management
@@ -228,8 +235,8 @@ Most inline scripts are for:
 | Area | Suggestion | Status |
 |------|------------|--------|
 | Enums | PHP 8.1 enums for status constants | ✅ Done (4 enums) |
-| DTOs | Data Transfer Objects for complex operations | ✅ Done (2 DTOs) |
-| Actions | Action classes for complex business logic | ✅ Done (1 Action) |
+| DTOs | Data Transfer Objects for complex operations | ✅ Done (3 DTOs) |
+| Actions | Action classes for complex business logic | ✅ Done (3 Actions) |
 
 **Enums Created:**
 - `ConversationStatus` - Active, Pending, Closed, Spam
@@ -240,9 +247,12 @@ Most inline scripts are for:
 **DTOs Created:**
 - `CreateConversationData` - Type-safe conversation creation data
 - `UserData` - Type-safe user creation/update data
+- `CustomerData` - Type-safe customer data
 
 **Actions Created:**
 - `CreateConversationAction` - Encapsulates conversation creation logic
+- `MergeCustomersAction` - Encapsulates customer merge logic
+- `UpdateCustomerAction` - Encapsulates customer update logic
 
 ---
 

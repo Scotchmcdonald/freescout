@@ -93,7 +93,7 @@
                                             {{ __('Default Language') }}
                                         </label>
                                         <select id="locale" name="locale" class="w-full max-w-lg border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                            @include('partials.locale_options', ['selected' => old('locale', $settings['locale'] ?? config('app.locale'))])
+                                            <x-locale-options :selected="old('locale', $settings['locale'] ?? config('app.locale'))" />
                                         </select>
                                     </div>
                                     
@@ -102,7 +102,7 @@
                                             {{ __('Timezone') }}
                                         </label>
                                         <select id="timezone" name="timezone" class="w-full max-w-lg border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                            @include('partials.timezone_options', ['current_timezone' => old('timezone', $settings['timezone'] ?? config('app.timezone'))])
+                                            <x-timezone-options :current-timezone="old('timezone', $settings['timezone'] ?? config('app.timezone'))" />
                                         </select>
                                     </div>
                                     

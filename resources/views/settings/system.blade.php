@@ -7,7 +7,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex flex-col md:flex-row">
-            @include('settings.partials.sidebar')
+            <x-settings-sidebar :sections="$sections" :current-section="$currentSection" />
             
             <div class="flex-1">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
