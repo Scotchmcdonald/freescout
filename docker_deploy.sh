@@ -8,6 +8,10 @@ DEFAULT_REPO="https://github.com/Scotchmcdonald/freescout.git"
 DEFAULT_BRANCH="laravel-11-foundation"
 DEFAULT_INSTALL_DIR="/opt/freescout-docker"
 
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+GOOGLE_ADMIN_EMAILS=""
+
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
@@ -34,10 +38,27 @@ else
     read -p "Press ENTER to confirm, or type a new branch name: " INPUT_BRANCH
     GIT_BRANCH="${INPUT_BRANCH:-$DEFAULT_BRANCH}"
     echo ""
+
+    # 3. Google OAuth (Optional)
+    echo -e "${YELLOW}Google OAuth Configuration (Optional)${NC}"
+    echo "Enter your credentials to enable 'Login with Google' immediately."
+    read -p "Google Client ID (press Enter to skip): " GOOGLE_CLIENT_ID
+    if [ -n "$GOOGLE_CLIENT_ID" ]; then
+        read -p "Google Client Secret: " GOOGLE_CLIENT_SECRET
+        echo "Enter comma-separated emails for auto-admin access (e.g. 'bob@ex.com,alice@ex.com')"
+        read -p "Admin Emails (press Enter to skip): " GOOGLE_ADMIN_EMAILS
+    fi
+    echo ""
+
     echo "------------------------------------------------------------"
     echo -e "CONFIGURATION SUMMARY:"
     echo -e "  Repo:   ${GREEN}$GIT_REPO_URL${NC}"
     echo -e "  Branch: ${GREEN}$GIT_BRANCH${NC}"
+    if [ -n "$GOOGLE_CLIENT_ID" ]; then
+        echo -e "  Google: ${GREEN}Configured${NC}"
+    else
+        echo -e "  Google: ${YELLOW}Skipped${NC}"
+    fi
     echo "------------------------------------------------------------"
     echo "Press ENTER to start deployment (or Ctrl+C to cancel)..."
     read CONFIRM
@@ -136,7 +157,7 @@ server {
 }
 EOF
 
-# 4. Generate .env
+# 5. Generate .env
 cat <<EOF > .env
 DB_ROOT_PASSWORD=$DB_ROOT_PASS
 DB_DATABASE=$DB_NAME
@@ -146,6 +167,9 @@ APP_URL=http://$DOMAIN_NAME
 REDIS_HOST=redis
 REDIS_PASSWORD=null
 REDIS_PORT=6379
+GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+GOOGLE_REDIRECT_URI=http://$DOMAIN_NAME/auth/google/callback
 EOF
 
 # 5. Generate Docker Compose
@@ -272,6 +296,16 @@ echo "" >> "$DEFAULT_INSTALL_DIR/src/.env"
 echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> "$DEFAULT_INSTALL_DIR/src/.env"
 echo "ADMIN_PASSWORD=$ADMIN_PASS" >> "$DEFAULT_INSTALL_DIR/src/.env"
 
+if [ -n "$GOOGLE_CLIENT_ID" ]; then
+    echo "" >> "$DEFAULT_INSTALL_DIR/src/.env"
+    echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> "$DEFAULT_INSTALL_DIR/src/.env"
+    echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> "$DEFAULT_INSTALL_DIR/src/.env"
+    echo "GOOGLE_REDIRECT_URI=http://$DOMAIN_NAME/auth/google/callback" >> "$DEFAULT_INSTALL_DIR/src/.env"
+    if [ -n "$GOOGLE_ADMIN_EMAILS" ]; then
+        echo "GOOGLE_ADMIN_EMAILS=\"$GOOGLE_ADMIN_EMAILS\"" >> "$DEFAULT_INSTALL_DIR/src/.env"
+    fi
+fi
+
 # 9. Create Storage Structure & Permissions
 echo -e "${GREEN}Creating Storage Folders...${NC}"
 mkdir -p src/storage/framework/{cache,sessions,views}
@@ -299,6 +333,9 @@ echo "Generating Key..."
 sudo docker compose exec -T app php artisan key:generate
 echo "Installing FreeScout..."
 sudo docker compose exec -T app php artisan freescout:install --force
+
+echo "Seeding Themes..."
+sudo docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
 
 echo "Verifying Admin User..."
 sudo docker compose exec -T app php artisan tinker --execute="App\Models\User::where('email', '$ADMIN_EMAIL')->update(['email_verified_at' => now()]);"
