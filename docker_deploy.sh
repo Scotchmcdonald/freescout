@@ -340,9 +340,13 @@ sudo docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
 echo "Verifying Admin User..."
 sudo docker compose exec -T app php artisan tinker --execute="App\Models\User::where('email', '$ADMIN_EMAIL')->update(['email_verified_at' => now()]);"
 
+# Fix git safe directory for updates
+cd "$DEFAULT_INSTALL_DIR"
+sudo git config --global --add safe.directory "$DEFAULT_INSTALL_DIR/src"
+
 echo ""
 echo -e "${CYAN}DEPLOYMENT FINISHED${NC}"
 echo "URL: http://$DOMAIN_NAME"
 echo "Email: $ADMIN_EMAIL"
 echo "Pass:  $ADMIN_PASS"
-echo "Update: $DEFAULT_INSTALL_DIR/update.sh"
+echo "To update: cd $DEFAULT_INSTALL_DIR && sudo sh update.sh"
