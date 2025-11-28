@@ -30,16 +30,19 @@ if [ -f "$CONFIG_FILE" ]; then
     echo -e "${GREEN}Configuration file '$CONFIG_FILE' found.${NC}"
     read -p "Do you want to use this configuration? [Y/n] " USE_CONFIG
     USE_CONFIG=${USE_CONFIG:-Y}
-    if [[ "$USE_CONFIG" =~ ^[Yy]$ ]]; then
-        echo "Loading configuration..."
-        source "$CONFIG_FILE"
-        INTERACTIVE=false
-    fi
+    case "$USE_CONFIG" in
+        [Yy])
+            echo "Loading configuration..."
+            source "$CONFIG_FILE"
+            INTERACTIVE=false
+            ;;
+    esac
 else
     echo "No configuration file found."
     read -p "Do you want to create a configuration template? [y/N] " CREATE_CONFIG
-    if [[ "$CREATE_CONFIG" =~ ^[Yy]$ ]]; then
-        cat <<EOF > "$CONFIG_FILE"
+    case "$CREATE_CONFIG" in
+        [Yy])
+            cat <<EOF > "$CONFIG_FILE"
 # Repository Settings
 GIT_REPO_URL="$DEFAULT_REPO"
 GIT_BRANCH="$DEFAULT_BRANCH"
@@ -76,10 +79,57 @@ MAILBOX_SMTP_PASS=""
 # Sample Data Seeding (Optional)
 SEED_SAMPLE_DATA=false
 EOF
-        echo -e "${GREEN}Configuration template created at $CONFIG_FILE.${NC}"
-        echo "Please edit the file and run this script again."
-        exit 0
+            echo -e "${GREEN}Configuration template created at $CONFIG_FILE.${NC}"
+            echo "Please edit the file and run this script again."
+            exit 0
+            ;;
+    esac
+fi
+
+# 0. Check for Existing Install & Reuse
+REUSE_DB=false
+EXISTING_COMPOSE_ENV="$DEFAULT_INSTALL_DIR/.env"
+
+if [ -f "$EXISTING_COMPOSE_ENV" ]; then
+    echo -e "${YELLOW}Existing installation found at $DEFAULT_INSTALL_DIR${NC}"
+    if [ "$INTERACTIVE" = true ]; then
+        read -p "Do you want to reuse the existing database (keep data)? [Y/n] " INPUT_REUSE
+        INPUT_REUSE=${INPUT_REUSE:-Y}
+    else
+        INPUT_REUSE="Y" # Default to reuse in non-interactive if config exists? Or maybe N? Let's assume Y for safety.
     fi
+
+    case "$INPUT_REUSE" in
+        [Yy])
+            REUSE_DB=true
+            echo "Loading existing credentials..."
+            # Load credentials from the docker .env file
+            if [ -f "$EXISTING_COMPOSE_ENV" ]; then
+                # We use grep/cut to avoid sourcing the whole file which might have other junk
+                EXISTING_DB_PASS=$(grep "^DB_PASSWORD=" "$EXISTING_COMPOSE_ENV" | cut -d '=' -f2)
+                EXISTING_DB_ROOT=$(grep "^DB_ROOT_PASSWORD=" "$EXISTING_COMPOSE_ENV" | cut -d '=' -f2)
+                EXISTING_DB_USER=$(grep "^DB_USER=" "$EXISTING_COMPOSE_ENV" | cut -d '=' -f2)
+                EXISTING_DB_NAME=$(grep "^DB_DATABASE=" "$EXISTING_COMPOSE_ENV" | cut -d '=' -f2)
+                
+                if [ -n "$EXISTING_DB_PASS" ]; then DB_PASS=$EXISTING_DB_PASS; fi
+                if [ -n "$EXISTING_DB_ROOT" ]; then DB_ROOT_PASS=$EXISTING_DB_ROOT; fi
+                if [ -n "$EXISTING_DB_USER" ]; then DB_USER=$EXISTING_DB_USER; fi
+                if [ -n "$EXISTING_DB_NAME" ]; then DB_NAME=$EXISTING_DB_NAME; fi
+            fi
+
+            # Try to recover Admin credentials from src/.env
+            if [ -f "$DEFAULT_INSTALL_DIR/src/.env" ]; then
+                EXISTING_EMAIL=$(grep "^ADMIN_EMAIL=" "$DEFAULT_INSTALL_DIR/src/.env" | cut -d '=' -f2 | tr -d '"' | tr -d "'")
+                EXISTING_PASS=$(grep "^ADMIN_PASSWORD=" "$DEFAULT_INSTALL_DIR/src/.env" | cut -d '=' -f2 | tr -d '"' | tr -d "'")
+                
+                if [ -n "$EXISTING_EMAIL" ]; then ADMIN_EMAIL=$EXISTING_EMAIL; fi
+                if [ -n "$EXISTING_PASS" ]; then 
+                    ADMIN_PASS=$EXISTING_PASS
+                    ADMIN_PASS_PRESERVED=true
+                fi
+            fi
+            ;;
+    esac
 fi
 
 # Check arguments
@@ -88,7 +138,7 @@ if [ "$INTERACTIVE" = true ]; then
         GIT_REPO_URL=$1
         GIT_BRANCH=${2:-$DEFAULT_BRANCH}
     else
-        echo "No arguments provided. Entering interactive setup."
+        echo "Entering interactive setup..."
         echo ""
         echo -e "Default Repository: ${YELLOW}$DEFAULT_REPO${NC}"
         read -p "Press ENTER to confirm, or paste a new URL: " INPUT_REPO
@@ -112,12 +162,15 @@ if [ "$INTERACTIVE" = true ]; then
 
         # 4. Sample Data Seeding
         echo -e "${YELLOW}Sample Data Seeding${NC}"
-        read -p "Seed sample data (Mailboxes, Users, Conversations)? [y/N] " INPUT_SEED
-        if [[ "$INPUT_SEED" =~ ^[Yy]$ ]]; then
-            SEED_SAMPLE_DATA=true
-        else
-            SEED_SAMPLE_DATA=false
+        if [ "$REUSE_DB" = true ]; then
+            echo -e "${RED}WARNING: You are reusing an existing database.${NC}"
+            echo -e "${RED}Seeding sample data may cause conflicts or duplicate records.${NC}"
         fi
+        read -p "Seed sample data (Mailboxes, Users, Conversations)? [y/N] " INPUT_SEED
+        case "$INPUT_SEED" in
+            [Yy]) SEED_SAMPLE_DATA=true ;;
+            *) SEED_SAMPLE_DATA=false ;;
+        esac
         echo ""
 
         echo "------------------------------------------------------------"
@@ -140,7 +193,7 @@ fi
 # ==========================================
 
 # 1. Credentials (Using HEX to avoid special char issues in .env)
-# Only set defaults if not provided by config
+# Only set defaults if not provided by config or existing install
 DOMAIN_NAME="${DOMAIN_NAME:-192.168.0.138}"
 DB_ROOT_PASS="${DB_ROOT_PASS:-$(openssl rand -hex 16)}"
 DB_USER="${DB_USER:-freescout}"
@@ -183,8 +236,21 @@ set -e
 
 # 0. Decommission Existing Install
 if [ -d "$DEFAULT_INSTALL_DIR" ] && [ -f "$DEFAULT_INSTALL_DIR/docker-compose.yml" ]; then
-    echo -e "${YELLOW}Existing installation found. Decommissioning...${NC}"
-    (cd "$DEFAULT_INSTALL_DIR" && sudo docker compose down -v || true)
+    echo -e "${YELLOW}Existing installation found. Stopping containers...${NC}"
+    cd "$DEFAULT_INSTALL_DIR"
+    
+    if [ "$REUSE_DB" = true ]; then
+        # Down without -v to keep volumes
+        sudo docker compose down || true
+    else
+        # Down with -v to destroy volumes
+        echo -e "${RED}Destroying existing database volume...${NC}"
+        sudo docker compose down -v || true
+    fi
+    
+    # Prune networks to prevent subnet exhaustion
+    echo "Pruning unused networks..."
+    sudo docker network prune -f || true
 fi
 
 # 1. Setup Directory
@@ -312,6 +378,10 @@ services:
       - fs-net
 networks:
   fs-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.220.0/24
 volumes:
   db_data:
 EOF
@@ -338,9 +408,53 @@ chmod +x update.sh
 if [ -d "$DEFAULT_INSTALL_DIR/src" ]; then
     echo "Source folder already exists. Syncing..."
     cd "$DEFAULT_INSTALL_DIR/src"
+    
+    # Ensure git can operate in this directory
+    git config --global --add safe.directory "$DEFAULT_INSTALL_DIR/src"
+
     git remote set-url origin "$GIT_REPO_URL"
     git fetch origin
-    git checkout "$GIT_BRANCH"
+    
+    # Checkout branch (create if missing)
+    if ! git checkout "$GIT_BRANCH" 2>/dev/null; then
+        git checkout -b "$GIT_BRANCH" "origin/$GIT_BRANCH"
+    fi
+
+    # Pull latest changes
+    if ! git pull origin "$GIT_BRANCH"; then
+        echo -e "${RED}Git pull failed! You have local changes or conflicts.${NC}"
+        
+        if [ "$INTERACTIVE" = true ]; then
+            echo ""
+            echo -e "${YELLOW}Conflict detected. How do you want to proceed?${NC}"
+            echo "1) Discard local changes (git reset --hard)"
+            echo "2) Nuke & Re-clone (Delete src and download fresh)"
+            echo "3) Exit and fix manually"
+            read -p "Select [1-3]: " GIT_OPT
+            
+            case "$GIT_OPT" in
+                1)
+                    echo "Resetting to origin/$GIT_BRANCH..."
+                    git reset --hard "origin/$GIT_BRANCH"
+                    ;;
+                2)
+                    echo "Nuking source directory..."
+                    cd ..
+                    sudo rm -rf src
+                    echo -e "${GREEN}Cloning branch '$GIT_BRANCH'...${NC}"
+                    git clone -b "$GIT_BRANCH" "$GIT_REPO_URL" src
+                    cd src
+                    ;;
+                *)
+                    echo "Aborting. Please fix git conflicts in $DEFAULT_INSTALL_DIR/src"
+                    exit 1
+                    ;;
+            esac
+        else
+            echo "Non-interactive mode: Git pull failed. Exiting."
+            exit 1
+        fi
+    fi
     cd ..
 else
     echo -e "${GREEN}Cloning branch '$GIT_BRANCH'...${NC}"
@@ -399,12 +513,26 @@ sudo docker compose up -d
 # 11. Finalize
 echo -e "${GREEN}Waiting for DB (25s)...${NC}"
 sleep 25
-echo "Installing dependencies..."
-sudo docker compose exec -T app composer install --no-dev --optimize-autoloader
+
+# Install dependencies (include dev if seeding is needed)
+if [ "$SEED_SAMPLE_DATA" = true ]; then
+    echo "Installing dependencies (including dev for seeding)..."
+    sudo docker compose exec -T app composer install --optimize-autoloader
+else
+    echo "Installing dependencies..."
+    sudo docker compose exec -T app composer install --no-dev --optimize-autoloader
+fi
+
 echo "Generating Key..."
 sudo docker compose exec -T app php artisan key:generate
-echo "Installing FreeScout..."
-sudo docker compose exec -T app php artisan freescout:install --force
+
+if [ "$REUSE_DB" = true ]; then
+    echo "Existing database detected. Running migrations..."
+    sudo docker compose exec -T app php artisan migrate --force
+else
+    echo "Installing FreeScout..."
+    sudo docker compose exec -T app php artisan freescout:install --force
+fi
 
 echo "Seeding Themes..."
 sudo docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
@@ -412,6 +540,9 @@ sudo docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
 if [ "$SEED_SAMPLE_DATA" = true ]; then
     echo "Seeding Sample Data (Users, Mailboxes, Conversations)..."
     sudo docker compose exec -T app php artisan db:seed --class=DatabaseSeeder --force
+    
+    echo "Cleaning up dev dependencies..."
+    sudo docker compose exec -T app composer install --no-dev --optimize-autoloader
 fi
 
 echo "Verifying Admin User..."
@@ -453,5 +584,11 @@ echo ""
 echo -e "${CYAN}DEPLOYMENT FINISHED${NC}"
 echo "URL: http://$DOMAIN_NAME"
 echo "Email: $ADMIN_EMAIL"
-echo "Pass:  $ADMIN_PASS"
+
+if [ "$REUSE_DB" = true ] && [ "$ADMIN_PASS_PRESERVED" != "true" ]; then
+    echo "Pass:  (Existing password unchanged)"
+else
+    echo "Pass:  $ADMIN_PASS"
+fi
+
 echo "To update: cd $DEFAULT_INSTALL_DIR && sudo sh update.sh"
