@@ -19,7 +19,10 @@ import {
     adminActions,
     customerForm,
     mailboxSettings,
-    customerMerge
+    customerMerge,
+    systemTools,
+    advancedMailboxSettings,
+    mergeConversationSearch
 } from './components';
 
 // Register Alpine.js components
@@ -42,6 +45,9 @@ Alpine.data('adminActions', adminActions);
 Alpine.data('customerForm', customerForm);
 Alpine.data('mailboxSettings', mailboxSettings);
 Alpine.data('customerMerge', customerMerge);
+Alpine.data('systemTools', systemTools);
+Alpine.data('advancedMailboxSettings', advancedMailboxSettings);
+Alpine.data('mergeConversationSearch', mergeConversationSearch);
 
 window.Alpine = Alpine;
 Alpine.start();

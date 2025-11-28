@@ -57,7 +57,7 @@
                             Choose how the "From" name appears in outgoing emails.
                         </p>
                         
-                        <div class="space-y-2 mb-4">
+                        <div class="space-y-2 mb-4" x-data="advancedMailboxSettings()">
                             @foreach($fromNameOptions as $value => $label)
                                 <label class="flex items-center">
                                     <input 
@@ -66,7 +66,7 @@
                                         value="{{ $value }}" 
                                         {{ ($mailbox->from_name ?? 1) == $value ? 'checked' : '' }}
                                         class="border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
-                                        onchange="toggleCustomFromName()">
+                                        @change="toggleCustomFromName()">
                                     <span class="ml-2 text-sm text-gray-600">{{ $label }}</span>
                                 </label>
                             @endforeach
@@ -198,17 +198,4 @@
             </form>
         </div>
     </div>
-    
-    <script>
-        function toggleCustomFromName() {
-            const customField = document.getElementById('custom_from_name_field');
-            const customRadio = document.querySelector('input[name="from_name"][value="4"]');
-            
-            if (customRadio && customRadio.checked) {
-                customField.classList.remove('hidden');
-            } else {
-                customField.classList.add('hidden');
-            }
-        }
-    </script>
 </x-app-layout>

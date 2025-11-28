@@ -814,6 +814,178 @@ export function customerMerge(searchUrl, csrfToken) {
     };
 }
 
+/**
+ * Alpine.js component for system dashboard tools (cache, optimize, diagnostics).
+ * 
+ * Usage: x-data="systemTools('{{ route('system.ajax') }}', '{{ route('system.diagnostics') }}', '{{ csrf_token() }}')"
+ */
+export function systemTools(ajaxUrl, diagnosticsUrl, csrfToken) {
+    return {
+        loading: false,
+        message: '',
+        messageType: '',
+        
+        async clearCache() {
+            await this.executeAction('clear_cache', 'Clearing cache...');
+        },
+        
+        async optimizeApp() {
+            await this.executeAction('optimize', 'Optimizing application...');
+        },
+        
+        async runDiagnostics() {
+            this.loading = true;
+            this.message = 'Running diagnostics...';
+            this.messageType = 'info';
+            
+            try {
+                const response = await fetch(diagnosticsUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    let results = 'Diagnostics Results:\n';
+                    for (const [key, result] of Object.entries(data.checks || {})) {
+                        results += `\n${key}: ${result.status?.toUpperCase() || 'UNKNOWN'} - ${result.message || ''}`;
+                    }
+                    alert(results);
+                    this.showMessage('success', 'Diagnostics completed');
+                } else {
+                    this.showMessage('error', 'Diagnostics failed');
+                }
+            } catch (error) {
+                this.showMessage('error', 'Error: ' + error.message);
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        async executeAction(action, loadingMessage) {
+            this.loading = true;
+            this.showMessage('info', loadingMessage);
+            
+            try {
+                const response = await fetch(ajaxUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ action: action })
+                });
+                const data = await response.json();
+                this.showMessage(data.success ? 'success' : 'error', data.message);
+            } catch (error) {
+                this.showMessage('error', 'Operation failed: ' + error.message);
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        showMessage(type, msg) {
+            this.messageType = type;
+            this.message = msg;
+            
+            if (type !== 'info') {
+                setTimeout(() => {
+                    this.message = '';
+                    this.messageType = '';
+                }, 5000);
+            }
+        }
+    };
+}
+
+/**
+ * Alpine.js component for advanced mailbox settings (from name toggle).
+ * 
+ * Usage: x-data="advancedMailboxSettings()"
+ */
+export function advancedMailboxSettings() {
+    return {
+        init() {
+            this.toggleCustomFromName();
+        },
+        
+        toggleCustomFromName() {
+            const customField = document.getElementById('custom_from_name_field');
+            const customRadio = document.querySelector('input[name="from_name"][value="4"]');
+            
+            if (customRadio && customField) {
+                if (customRadio.checked) {
+                    customField.classList.remove('hidden');
+                } else {
+                    customField.classList.add('hidden');
+                }
+            }
+        }
+    };
+}
+
+/**
+ * Alpine.js component for conversation merge search.
+ * 
+ * Usage: x-data="mergeConversationSearch('searchUrl', 'csrfToken')"
+ */
+export function mergeConversationSearch(searchUrl, csrfToken) {
+    return {
+        query: '',
+        results: [],
+        loading: false,
+        selectedId: null,
+        debounceTimer: null,
+        
+        search() {
+            if (this.query.length < 2) {
+                this.results = [];
+                return;
+            }
+            
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = setTimeout(() => this.performSearch(), 300);
+        },
+        
+        async performSearch() {
+            this.loading = true;
+            
+            try {
+                const response = await fetch(searchUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'merge_search',
+                        q: this.query
+                    })
+                });
+                const data = await response.json();
+                this.results = data.results || [];
+            } catch (error) {
+                console.error('Search failed:', error);
+                this.results = [];
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        select(id) {
+            this.selectedId = id;
+        },
+        
+        isSelected(id) {
+            return this.selectedId === id;
+        }
+    };
+}
+
 // Export all components
 export default {
     themeToggle,
@@ -834,5 +1006,8 @@ export default {
     adminActions,
     customerForm,
     mailboxSettings,
-    customerMerge
+    customerMerge,
+    systemTools,
+    advancedMailboxSettings,
+    mergeConversationSearch
 };

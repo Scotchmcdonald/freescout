@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12" x-data="systemTools('{{ route('system.ajax') }}', '{{ route('system.diagnostics') }}', '{{ csrf_token() }}')">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
@@ -73,18 +73,21 @@
                 <h3 class="text-lg font-semibold mb-4">{{ __('System Tools') }}</h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <button onclick="clearCache()" 
-                            class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium">
+                    <button @click="clearCache()" 
+                            :disabled="loading"
+                            class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium disabled:opacity-50">
                         {{ __('Clear Cache') }}
                     </button>
                     
-                    <button onclick="optimizeApp()" 
-                            class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium">
+                    <button @click="optimizeApp()" 
+                            :disabled="loading"
+                            class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium disabled:opacity-50">
                         {{ __('Optimize Application') }}
                     </button>
                     
-                    <button onclick="runDiagnostics()" 
-                            class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium">
+                    <button @click="runDiagnostics()" 
+                            :disabled="loading"
+                            class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium disabled:opacity-50">
                         {{ __('Run Diagnostics') }}
                     </button>
                     
@@ -94,78 +97,18 @@
                     </a>
                 </div>
                 
-                <div id="systemMessage" class="mt-4 hidden"></div>
+                <!-- Status Message -->
+                <div x-show="message" 
+                     x-transition
+                     class="mt-4 p-4 border-l-4"
+                     :class="{
+                         'bg-blue-50 border-blue-400 text-blue-700': messageType === 'info',
+                         'bg-green-50 border-green-400 text-green-700': messageType === 'success',
+                         'bg-red-50 border-red-400 text-red-700': messageType === 'error'
+                     }">
+                    <span x-text="message"></span>
+                </div>
             </div>
         </div>
     </div>
-    
-    <script>
-        function clearCache() {
-            executeSystemAction('clear_cache', 'Clearing cache...');
-        }
-        
-        function optimizeApp() {
-            executeSystemAction('optimize', 'Optimizing application...');
-        }
-        
-        function runDiagnostics() {
-            fetch('{{ route('system.diagnostics') }}', {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    let message = 'Diagnostics Results:\n';
-                    for (const [key, result] of Object.entries(data.checks)) {
-                        message += `\n${key}: ${result.status.toUpperCase()} - ${result.message}`;
-                    }
-                    alert(message);
-                } else {
-                    showMessage('error', 'Diagnostics failed');
-                }
-            });
-        }
-        
-        function executeSystemAction(action, loadingMessage) {
-            showMessage('info', loadingMessage);
-            
-            fetch('{{ route('system.ajax') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ action: action })
-            })
-            .then(response => response.json())
-            .then(data => {
-                showMessage(data.success ? 'success' : 'error', data.message);
-            })
-            .catch(error => {
-                showMessage('error', 'Operation failed: ' + error);
-            });
-        }
-        
-        function showMessage(type, message) {
-            const messageDiv = document.getElementById('systemMessage');
-            let bgColor = 'bg-blue-50 border-blue-400 text-blue-700';
-            
-            if (type === 'success') bgColor = 'bg-green-50 border-green-400 text-green-700';
-            if (type === 'error') bgColor = 'bg-red-50 border-red-400 text-red-700';
-            
-            messageDiv.className = `p-4 border-l-4 ${bgColor}`;
-            messageDiv.textContent = message;
-            messageDiv.classList.remove('hidden');
-            
-            if (type !== 'info') {
-                setTimeout(() => {
-                    messageDiv.classList.add('hidden');
-                }, 5000);
-            }
-        }
-    </script>
 </x-app-layout>
