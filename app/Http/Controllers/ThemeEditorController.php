@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\Theme;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 
 class ThemeEditorController extends Controller
 {
@@ -60,6 +61,12 @@ class ThemeEditorController extends Controller
             'created_by' => Auth::id(),
         ]);
 
+        // Create theme directory structure
+        $themePath = base_path('themes/' . $theme->name . '/views');
+        if (!File::exists($themePath)) {
+            File::makeDirectory($themePath, 0755, true);
+        }
+
         return redirect()->route('themes.editor.show', $theme)->with('success', 'Theme created successfully.');
     }
 
@@ -96,7 +103,16 @@ class ThemeEditorController extends Controller
             return back()->with('error', 'System themes cannot be deleted.');
         }
 
+        // Reset users using this theme to default
+        \App\Models\User::where('theme', $theme->name)->update(['theme' => 'default']);
+
         $theme->delete();
+
+        // Remove theme directory
+        $themePath = base_path('themes/' . $theme->name);
+        if (File::exists($themePath)) {
+            File::deleteDirectory($themePath);
+        }
 
         return redirect()->route('themes.editor.index')->with('success', 'Theme deleted successfully.');
     }

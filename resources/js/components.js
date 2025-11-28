@@ -8,12 +8,14 @@ export function themeToggle() {
         isDarkMode: false,
 
         init() {
+            console.log('Theme toggle initialized');
             // Check current icon state to determine mode
             const lightIcon = document.getElementById('theme-toggle-light-icon');
             this.isDarkMode = lightIcon?.classList.contains('hidden') ?? false;
         },
 
         async toggle() {
+            console.log('Theme toggle clicked');
             this.isDarkMode = !this.isDarkMode;
 
             // Toggle icon visibility
@@ -41,11 +43,61 @@ export function themeToggle() {
 
                 const data = await response.json();
                 
-                if (data.success) {
-                    window.location.reload();
+                if (data.success && data.palette) {
+                    this.applyPalette(data.palette, this.isDarkMode);
                 }
             } catch (error) {
                 console.error('Failed to update theme:', error);
+            }
+        },
+
+        applyPalette(palette, isDarkMode) {
+            const root = document.documentElement;
+            const set = (name, value) => root.style.setProperty(name, value);
+            
+            if (palette.primary) {
+                set('--theme-primary-50', palette.primary['50']);
+                set('--theme-primary-100', palette.primary['100']);
+                set('--theme-primary-500', palette.primary['500']);
+                set('--theme-primary-600', palette.primary['600']);
+                set('--theme-primary-700', palette.primary['700']);
+            }
+            
+            if (palette.bg) {
+                set('--theme-bg-main', palette.bg.main);
+                set('--theme-bg-card', palette.bg.card);
+                set('--theme-bg-input', palette.bg.input);
+                set('--theme-bg-hover', palette.bg.hover || palette.bg.main);
+            }
+            
+            if (palette.text) {
+                set('--theme-text-main', palette.text.main);
+                set('--theme-text-muted', palette.text.muted);
+                set('--theme-text-inverted', palette.text.inverted);
+            }
+            
+            if (palette.border) {
+                set('--theme-border', palette.border);
+            }
+            
+            if (palette.status) {
+                set('--theme-status-success-bg', palette.status.success.bg);
+                set('--theme-status-success-text', palette.status.success.text);
+                set('--theme-status-warning-bg', palette.status.warning.bg);
+                set('--theme-status-warning-text', palette.status.warning.text);
+                set('--theme-status-info-bg', palette.status.info.bg);
+                set('--theme-status-info-text', palette.status.info.text);
+                
+                const errorBg = palette.status.error?.bg || (isDarkMode ? '#450a0a' : '#fee2e2');
+                const errorText = palette.status.error?.text || (isDarkMode ? '#fca5a5' : '#991b1b');
+                set('--theme-status-error-bg', errorBg);
+                set('--theme-status-error-text', errorText);
+            }
+
+            if (palette.nav) {
+                set('--theme-nav-bg', palette.nav.bg || palette.bg.card);
+                set('--theme-nav-text', palette.nav.text || palette.text.main);
+                set('--theme-nav-border', palette.nav.border || palette.border);
             }
         }
     };

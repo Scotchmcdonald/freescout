@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Theme;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
 
 class ThemeSeeder extends Seeder
 {
@@ -296,6 +297,12 @@ class ThemeSeeder extends Seeder
                     'created_by' => 1, // Assuming admin user ID 1
                 ]
             );
+
+            // Ensure theme directory exists to prevent optimization errors
+            $themePath = base_path('themes/' . $key . '/views');
+            if (!File::exists($themePath)) {
+                File::makeDirectory($themePath, 0755, true);
+            }
         }
     }
 }

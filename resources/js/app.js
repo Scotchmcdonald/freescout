@@ -75,7 +75,9 @@ window.systemTools = systemTools;
 window.advancedMailboxSettings = advancedMailboxSettings;
 window.mergeConversationSearch = mergeConversationSearch;
 
-Alpine.start();
+document.addEventListener('DOMContentLoaded', () => {
+    Alpine.start();
+});
 
 // Global helpers
 window.fsReplyChanged = false;
@@ -89,14 +91,17 @@ const lazyLoadConversation = () => import('./conversation').then(m => m.default 
 // Load UI helpers (lightweight, needed everywhere)
 import('./ui-helpers').then(module => {
     window.UIHelpers = module.UIHelpers || module.default;
+    console.log('UIHelpers loaded');
 });
 
 // Initialize keyboard shortcuts and UI enhancements
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM fully loaded and parsed');
     // Auto-focus search inputs
     const searchInput = document.querySelector('#search-input');
     if (searchInput && !document.querySelector('[autofocus]')) {
         setTimeout(() => searchInput.focus(), 100);
+        console.log('Search input focused');
     }
 
     // Initialize tooltips (if needed)
@@ -104,32 +109,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Lazy load modules based on page content
     const pageModules = [];
+    console.log('Page modules initialization:', { 
+        editor: document.querySelector('[data-editor]'), 
+        replyForm: document.querySelector('.reply-form'),
+        uploader: document.querySelector('[data-uploader]'),
+        dropzone: document.querySelector('.dropzone'),
+        userIdMeta: document.querySelector('meta[name="user-id"]'),
+        conversationId: document.querySelector('[data-conversation-id]')
+    });
     
     // Load editor if reply form exists
     if (document.querySelector('[data-editor]') || document.querySelector('.reply-form')) {
         pageModules.push(lazyLoadEditor());
+        console.log('Editor module queued for loading');
     }
     
     // Load uploader if file upload area exists
     if (document.querySelector('[data-uploader]') || document.querySelector('.dropzone')) {
         pageModules.push(lazyLoadUploader());
+        console.log('Uploader module queued for loading');
     }
     
     // Load notifications if user is authenticated
     if (document.querySelector('meta[name="user-id"]')) {
         pageModules.push(lazyLoadNotifications());
+        console.log('Notifications module queued for loading');
     }
     
     // Load conversation module if on conversation page
     if (document.querySelector('[data-conversation-id]')) {
         pageModules.push(lazyLoadConversation());
+        console.log('Conversation module queued for loading');
     }
     
     // Load all needed modules
     if (pageModules.length > 0) {
-        Promise.all(pageModules).catch(err => {
+        Promise.all(pageModules).then(() => {
+            console.log('All page modules loaded successfully');
+        }).catch(err => {
             console.error('Failed to load modules:', err);
         });
+    } else {
+        console.log('No page modules to load');
     }
 
     // Handle form submissions with loading states
@@ -140,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.disabled = true;
                 btn.dataset.originalText = btn.textContent;
                 btn.textContent = 'Processing...';
+                console.log('Form submitted, button text changed to Processing...');
             }
         });
     });
@@ -153,11 +175,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (confirmed) {
                 if (this.tagName === 'FORM') {
                     this.submit();
+                    console.log('Form submitted via confirm dialog');
                 } else if (this.form) {
                     this.form.submit();
+                    console.log('Form submitted via confirm dialog (alternative)');
                 } else {
                     window.location.href = this.href;
+                    console.log('Navigating to:', this.href);
                 }
+            } else {
+                console.log('Action cancelled by the user');
             }
         });
     });
@@ -179,12 +206,14 @@ function initTooltips() {
             tooltip.style.top = rect.bottom + 5 + 'px';
             
             this.dataset.tooltipId = tooltip.id;
+            console.log('Tooltip shown:', { text, id: tooltip.id });
         });
         
         element.addEventListener('mouseleave', function() {
             const tooltipId = this.dataset.tooltipId;
             if (tooltipId) {
                 document.getElementById(tooltipId)?.remove();
+                console.log('Tooltip hidden:', { id: tooltipId });
             }
         });
     });

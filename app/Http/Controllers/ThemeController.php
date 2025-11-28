@@ -42,7 +42,32 @@ class ThemeController extends Controller
             $user->save();
             
             if ($request->wantsJson()) {
-                return response()->json(['success' => true, 'dark_mode' => $user->dark_mode]);
+                // Calculate new palette
+                $currentTheme = $user->theme ?? 'default';
+                $themeMap = [
+                    'light-classic' => 'classic',
+                    'dark-classic' => 'classic',
+                    'light-blue' => 'synthwave',
+                    'dark-blue' => 'synthwave',
+                    'blue' => 'synthwave',
+                    'light-green' => 'monokai',
+                    'dark-green' => 'monokai',
+                    'green' => 'monokai',
+                    'light-purple' => 'purple',
+                    'dark-purple' => 'purple',
+                    'dark' => 'solarized',
+                ];
+                $normalizedTheme = $themeMap[$currentTheme] ?? $currentTheme;
+                $themeModel = Theme::where('name', $normalizedTheme)->first() ?? Theme::where('name', 'default')->first();
+                
+                $mode = $user->dark_mode ? 'dark' : 'light';
+                $palette = $themeModel->config[$mode] ?? null;
+
+                return response()->json([
+                    'success' => true, 
+                    'dark_mode' => $user->dark_mode,
+                    'palette' => $palette
+                ]);
             }
             
             return back()->with('success', __('Theme mode updated.'));

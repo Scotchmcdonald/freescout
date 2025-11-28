@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
+use App\Models\Theme;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +18,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class SystemController extends Controller
@@ -224,6 +226,14 @@ class SystemController extends Controller
                 break;
 
             case 'optimize':
+                // Ensure theme directories exist before optimizing
+                $themes = Theme::all();
+                foreach ($themes as $theme) {
+                    $themePath = base_path('themes/' . $theme->name . '/views');
+                    if (!File::exists($themePath)) {
+                        File::makeDirectory($themePath, 0755, true);
+                    }
+                }
                 Artisan::call('optimize', [], $outputLog);
                 break;
         }
@@ -324,6 +334,15 @@ class SystemController extends Controller
 
             case 'optimize':
                 try {
+                    // Ensure theme directories exist before optimizing to prevent errors
+                    $themes = Theme::all();
+                    foreach ($themes as $theme) {
+                        $themePath = base_path('themes/' . $theme->name . '/views');
+                        if (!File::exists($themePath)) {
+                            File::makeDirectory($themePath, 0755, true);
+                        }
+                    }
+
                     Artisan::call('optimize');
 
                     return response()->json([
