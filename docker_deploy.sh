@@ -43,28 +43,44 @@ else
     case "$CREATE_CONFIG" in
         [Yy])
             cat <<EOF > "$CONFIG_FILE"
-# Repository Settings
+# ==========================================
+# INSTALLATION SETTINGS
+# ==========================================
 GIT_REPO_URL="$DEFAULT_REPO"
 GIT_BRANCH="$DEFAULT_BRANCH"
 DEFAULT_INSTALL_DIR="$DEFAULT_INSTALL_DIR"
 
-# Domain & Database
-DOMAIN_NAME="freescout.local"
+# ==========================================
+# NETWORK SETTINGS
+# ==========================================
+DOMAIN_NAME=""
+DOCKER_SUBNET=""
+
+# ==========================================
+# DATABASE SETTINGS
+# ==========================================
 DB_ROOT_PASS="change_me"
 DB_USER="freescout"
 DB_PASS="change_me"
 DB_NAME="freescout"
 
-# Admin User
+# ==========================================
+# ADMIN USER
+# ==========================================
 ADMIN_EMAIL="admin@freescout.local"
 ADMIN_PASS="change_me"
 
-# Google OAuth (Optional)
+# ==========================================
+# INTEGRATIONS (OPTIONAL)
+# ==========================================
+# Google OAuth
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
 GOOGLE_ADMIN_EMAILS="" # Comma separated
 
-# Mailbox Auto-Provisioning (Optional)
+# ==========================================
+# MAILBOX AUTO-PROVISIONING (OPTIONAL)
+# ==========================================
 MAILBOX_EMAIL=""
 MAILBOX_NAME=""
 MAILBOX_IMAP_HOST=""
@@ -76,7 +92,9 @@ MAILBOX_SMTP_PORT="587"
 MAILBOX_SMTP_USER=""
 MAILBOX_SMTP_PASS=""
 
-# Sample Data Seeding (Optional)
+# ==========================================
+# SEEDING (OPTIONAL)
+# ==========================================
 SEED_SAMPLE_DATA=false
 EOF
             echo -e "${GREEN}Configuration template created at $CONFIG_FILE.${NC}"
@@ -149,6 +167,17 @@ if [ "$INTERACTIVE" = true ]; then
         GIT_BRANCH="${INPUT_BRANCH:-$DEFAULT_BRANCH}"
         echo ""
 
+        # 2. Network Configuration
+        echo -e "${YELLOW}Network Configuration${NC}"
+        while [ -z "$DOMAIN_NAME" ]; do
+            read -p "Enter Domain Name: " DOMAIN_NAME
+        done
+        
+        while [ -z "$DOCKER_SUBNET" ]; do
+            read -p "Enter Docker Subnet (CIDR, e.g. 192.168.220.0/24): " DOCKER_SUBNET
+        done
+        echo ""
+
         # 3. Google OAuth (Optional)
         echo -e "${YELLOW}Google OAuth Configuration (Optional)${NC}"
         echo "Enter your credentials to enable 'Login with Google' immediately."
@@ -194,7 +223,9 @@ fi
 
 # 1. Credentials (Using HEX to avoid special char issues in .env)
 # Only set defaults if not provided by config or existing install
-DOMAIN_NAME="${DOMAIN_NAME:-192.168.0.138}"
+if [ -z "$DOMAIN_NAME" ]; then echo -e "${RED}Error: DOMAIN_NAME not set.${NC}"; exit 1; fi
+if [ -z "$DOCKER_SUBNET" ]; then echo -e "${RED}Error: DOCKER_SUBNET not set.${NC}"; exit 1; fi
+
 DB_ROOT_PASS="${DB_ROOT_PASS:-$(openssl rand -hex 16)}"
 DB_USER="${DB_USER:-freescout}"
 DB_PASS="${DB_PASS:-$(openssl rand -hex 16)}"
@@ -381,7 +412,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.220.0/24
+        - subnet: $DOCKER_SUBNET
 volumes:
   db_data:
 EOF
