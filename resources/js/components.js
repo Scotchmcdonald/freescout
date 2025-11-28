@@ -618,22 +618,32 @@ export function customerForm(initialEmailCount = 1) {
             const container = document.getElementById('emails-container');
             const newRow = document.createElement('div');
             newRow.className = 'email-row flex gap-2 mb-2';
-            newRow.innerHTML = `
-                <input type="email" name="emails[${this.emailIndex}][email]"
-                       placeholder="email@example.com"
-                       class="flex-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                <select name="emails[${this.emailIndex}][type]"
-                        class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                    <option value="work">Work</option>
-                    <option value="home">Home</option>
-                    <option value="other">Other</option>
-                </select>
-                <button type="button" @click="removeEmail($event)" class="px-3 py-2 text-red-600 hover:text-red-800">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            `;
+            
+            // Create input element
+            const input = document.createElement('input');
+            input.type = 'email';
+            input.name = `emails[${this.emailIndex}][email]`;
+            input.placeholder = 'email@example.com';
+            input.className = 'flex-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500';
+            
+            // Create select element
+            const select = document.createElement('select');
+            select.name = `emails[${this.emailIndex}][type]`;
+            select.className = 'border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500';
+            select.innerHTML = '<option value="work">Work</option><option value="home">Home</option><option value="other">Other</option>';
+            
+            // Create remove button
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'px-3 py-2 text-red-600 hover:text-red-800';
+            button.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            button.addEventListener('click', (e) => this.removeEmail(e));
+            
+            // Append all elements
+            newRow.appendChild(input);
+            newRow.appendChild(select);
+            newRow.appendChild(button);
+            
             container.insertBefore(newRow, container.querySelector('button[type="button"]'));
             this.emailIndex++;
         },

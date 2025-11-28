@@ -103,7 +103,13 @@ final class ForwardConversationAction
         $fromLine = "From: " . ($thread->from ?? 'Unknown');
         $dateLine = "Date: " . ($thread->created_at?->format('D, M j, Y \a\t g:i A') ?? 'Unknown');
         $subjectLine = "Subject: " . $conversation->subject;
-        $toLine = "To: " . implode(', ', $thread->to ?? []);
+        
+        // Decode the to field if it's a JSON string
+        $toRecipients = $thread->to;
+        if (is_string($toRecipients)) {
+            $toRecipients = json_decode($toRecipients, true) ?? [];
+        }
+        $toLine = "To: " . implode(', ', $toRecipients ?: []);
 
         return "<br><br>{$separator}<br>{$fromLine}<br>{$dateLine}<br>{$subjectLine}<br>{$toLine}<br><br>" . $thread->body;
     }
