@@ -115,7 +115,7 @@ EXISTING_COMPOSE_ENV="$DEFAULT_INSTALL_DIR/.env"
 
 if [ -f "$EXISTING_COMPOSE_ENV" ]; then
     echo -e "${YELLOW}Existing installation found at $DEFAULT_INSTALL_DIR${NC}"
-    if [ "$INTERACTIVE" = true ]; then
+    if [ "$INTERACTIVE" = true ] || [ -t 0 ]; then
         echo ""
         echo "An existing installation was detected."
         echo "1) Reuse existing database (Keep data)"
