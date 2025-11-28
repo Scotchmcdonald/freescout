@@ -41,7 +41,8 @@ class MergeConversationsAction
                 // Create merge note thread
                 $this->createMergeNote($source, $target, $user);
 
-                // Delete or archive source conversation
+                // Archive source conversation by setting state to deleted
+                // STATE_DELETED = 3 (defined in Conversation model)
                 $source->update([
                     'state' => Conversation::STATE_DELETED,
                     'merged_into_id' => $target->id,

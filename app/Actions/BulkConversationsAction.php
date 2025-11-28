@@ -82,9 +82,10 @@ class BulkConversationsAction
             return ['success' => false, 'count' => 0, 'message' => 'Status is required'];
         }
 
+        // Get the integer value from the enum
         $statusValue = $data->status->value;
 
-        // Reporters cannot close tickets
+        // Reporters cannot close tickets - compare integer values
         if ($user->isReporter() && $statusValue === Conversation::STATUS_CLOSED) {
             return ['success' => false, 'count' => 0, 'message' => 'Reporters cannot close tickets'];
         }

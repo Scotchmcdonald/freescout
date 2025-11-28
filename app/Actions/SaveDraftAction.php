@@ -19,7 +19,7 @@ class SaveDraftAction
     /**
      * Save or update a draft for a conversation.
      *
-     * @return array{success: bool, draft?: Thread, message: string}
+     * @return array{success: bool, draft: Thread, message: string}
      */
     public function execute(DraftData $data, Conversation $conversation): array
     {
