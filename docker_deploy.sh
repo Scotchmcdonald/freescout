@@ -23,45 +23,116 @@ echo -e "${CYAN}============================================================${NC
 echo -e "${CYAN}   FreeScout Docker Deployer   ${NC}"
 echo -e "${CYAN}============================================================${NC}"
 
-# Check arguments
-if [ -n "$1" ]; then
-    GIT_REPO_URL=$1
-    GIT_BRANCH=${2:-$DEFAULT_BRANCH}
+CONFIG_FILE="deploy.conf"
+INTERACTIVE=true
+
+if [ -f "$CONFIG_FILE" ]; then
+    echo -e "${GREEN}Configuration file '$CONFIG_FILE' found.${NC}"
+    read -p "Do you want to use this configuration? [Y/n] " USE_CONFIG
+    USE_CONFIG=${USE_CONFIG:-Y}
+    if [[ "$USE_CONFIG" =~ ^[Yy]$ ]]; then
+        echo "Loading configuration..."
+        source "$CONFIG_FILE"
+        INTERACTIVE=false
+    fi
 else
-    echo "No arguments provided. Entering interactive setup."
-    echo ""
-    echo -e "Default Repository: ${YELLOW}$DEFAULT_REPO${NC}"
-    read -p "Press ENTER to confirm, or paste a new URL: " INPUT_REPO
-    GIT_REPO_URL="${INPUT_REPO:-$DEFAULT_REPO}"
-    echo ""
-    echo -e "Default Branch: ${YELLOW}$DEFAULT_BRANCH${NC}"
-    read -p "Press ENTER to confirm, or type a new branch name: " INPUT_BRANCH
-    GIT_BRANCH="${INPUT_BRANCH:-$DEFAULT_BRANCH}"
-    echo ""
+    echo "No configuration file found."
+    read -p "Do you want to create a configuration template? [y/N] " CREATE_CONFIG
+    if [[ "$CREATE_CONFIG" =~ ^[Yy]$ ]]; then
+        cat <<EOF > "$CONFIG_FILE"
+# Repository Settings
+GIT_REPO_URL="$DEFAULT_REPO"
+GIT_BRANCH="$DEFAULT_BRANCH"
+DEFAULT_INSTALL_DIR="$DEFAULT_INSTALL_DIR"
 
-    # 3. Google OAuth (Optional)
-    echo -e "${YELLOW}Google OAuth Configuration (Optional)${NC}"
-    echo "Enter your credentials to enable 'Login with Google' immediately."
-    read -p "Google Client ID (press Enter to skip): " GOOGLE_CLIENT_ID
-    if [ -n "$GOOGLE_CLIENT_ID" ]; then
-        read -p "Google Client Secret: " GOOGLE_CLIENT_SECRET
-        echo "Enter comma-separated emails for auto-admin access (e.g. 'bob@ex.com,alice@ex.com')"
-        read -p "Admin Emails (press Enter to skip): " GOOGLE_ADMIN_EMAILS
+# Domain & Database
+DOMAIN_NAME="freescout.local"
+DB_ROOT_PASS="change_me"
+DB_USER="freescout"
+DB_PASS="change_me"
+DB_NAME="freescout"
+
+# Admin User
+ADMIN_EMAIL="admin@freescout.local"
+ADMIN_PASS="change_me"
+
+# Google OAuth (Optional)
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+GOOGLE_ADMIN_EMAILS="" # Comma separated
+
+# Mailbox Auto-Provisioning (Optional)
+MAILBOX_EMAIL=""
+MAILBOX_NAME=""
+MAILBOX_IMAP_HOST=""
+MAILBOX_IMAP_PORT="993"
+MAILBOX_IMAP_USER=""
+MAILBOX_IMAP_PASS=""
+MAILBOX_SMTP_HOST=""
+MAILBOX_SMTP_PORT="587"
+MAILBOX_SMTP_USER=""
+MAILBOX_SMTP_PASS=""
+
+# Sample Data Seeding (Optional)
+SEED_SAMPLE_DATA=false
+EOF
+        echo -e "${GREEN}Configuration template created at $CONFIG_FILE.${NC}"
+        echo "Please edit the file and run this script again."
+        exit 0
     fi
-    echo ""
+fi
 
-    echo "------------------------------------------------------------"
-    echo -e "CONFIGURATION SUMMARY:"
-    echo -e "  Repo:   ${GREEN}$GIT_REPO_URL${NC}"
-    echo -e "  Branch: ${GREEN}$GIT_BRANCH${NC}"
-    if [ -n "$GOOGLE_CLIENT_ID" ]; then
-        echo -e "  Google: ${GREEN}Configured${NC}"
+# Check arguments
+if [ "$INTERACTIVE" = true ]; then
+    if [ -n "$1" ]; then
+        GIT_REPO_URL=$1
+        GIT_BRANCH=${2:-$DEFAULT_BRANCH}
     else
-        echo -e "  Google: ${YELLOW}Skipped${NC}"
+        echo "No arguments provided. Entering interactive setup."
+        echo ""
+        echo -e "Default Repository: ${YELLOW}$DEFAULT_REPO${NC}"
+        read -p "Press ENTER to confirm, or paste a new URL: " INPUT_REPO
+        GIT_REPO_URL="${INPUT_REPO:-$DEFAULT_REPO}"
+        echo ""
+        echo -e "Default Branch: ${YELLOW}$DEFAULT_BRANCH${NC}"
+        read -p "Press ENTER to confirm, or type a new branch name: " INPUT_BRANCH
+        GIT_BRANCH="${INPUT_BRANCH:-$DEFAULT_BRANCH}"
+        echo ""
+
+        # 3. Google OAuth (Optional)
+        echo -e "${YELLOW}Google OAuth Configuration (Optional)${NC}"
+        echo "Enter your credentials to enable 'Login with Google' immediately."
+        read -p "Google Client ID (press Enter to skip): " GOOGLE_CLIENT_ID
+        if [ -n "$GOOGLE_CLIENT_ID" ]; then
+            read -p "Google Client Secret: " GOOGLE_CLIENT_SECRET
+            echo "Enter comma-separated emails for auto-admin access (e.g. 'bob@ex.com,alice@ex.com')"
+            read -p "Admin Emails (press Enter to skip): " GOOGLE_ADMIN_EMAILS
+        fi
+        echo ""
+
+        # 4. Sample Data Seeding
+        echo -e "${YELLOW}Sample Data Seeding${NC}"
+        read -p "Seed sample data (Mailboxes, Users, Conversations)? [y/N] " INPUT_SEED
+        if [[ "$INPUT_SEED" =~ ^[Yy]$ ]]; then
+            SEED_SAMPLE_DATA=true
+        else
+            SEED_SAMPLE_DATA=false
+        fi
+        echo ""
+
+        echo "------------------------------------------------------------"
+        echo -e "CONFIGURATION SUMMARY:"
+        echo -e "  Repo:   ${GREEN}$GIT_REPO_URL${NC}"
+        echo -e "  Branch: ${GREEN}$GIT_BRANCH${NC}"
+        if [ -n "$GOOGLE_CLIENT_ID" ]; then
+            echo -e "  Google: ${GREEN}Configured${NC}"
+        else
+            echo -e "  Google: ${YELLOW}Skipped${NC}"
+        fi
+        echo "------------------------------------------------------------"
+        echo "Press ENTER to start deployment (or Ctrl+C to cancel)..."
+        read CONFIRM
     fi
-    echo "------------------------------------------------------------"
-    echo "Press ENTER to start deployment (or Ctrl+C to cancel)..."
-    read CONFIRM
 fi
 
 # ==========================================
@@ -69,13 +140,14 @@ fi
 # ==========================================
 
 # 1. Credentials (Using HEX to avoid special char issues in .env)
-DOMAIN_NAME="192.168.0.138"
-DB_ROOT_PASS=$(openssl rand -hex 16)
-DB_USER="freescout"
-DB_PASS=$(openssl rand -hex 16)
-DB_NAME="freescout"
-ADMIN_EMAIL="admin@freescout.local"
-ADMIN_PASS=$(openssl rand -hex 12)
+# Only set defaults if not provided by config
+DOMAIN_NAME="${DOMAIN_NAME:-192.168.0.138}"
+DB_ROOT_PASS="${DB_ROOT_PASS:-$(openssl rand -hex 16)}"
+DB_USER="${DB_USER:-freescout}"
+DB_PASS="${DB_PASS:-$(openssl rand -hex 16)}"
+DB_NAME="${DB_NAME:-freescout}"
+ADMIN_EMAIL="${ADMIN_EMAIL:-admin@freescout.local}"
+ADMIN_PASS="${ADMIN_PASS:-$(openssl rand -hex 12)}"
 
 # 2. Check Dependencies
 export PATH=$PATH:/usr/bin:/usr/local/bin:/usr/sbin:/sbin
@@ -337,8 +409,41 @@ sudo docker compose exec -T app php artisan freescout:install --force
 echo "Seeding Themes..."
 sudo docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
 
+if [ "$SEED_SAMPLE_DATA" = true ]; then
+    echo "Seeding Sample Data (Users, Mailboxes, Conversations)..."
+    sudo docker compose exec -T app php artisan db:seed --class=DatabaseSeeder --force
+fi
+
 echo "Verifying Admin User..."
 sudo docker compose exec -T app php artisan tinker --execute="App\Models\User::where('email', '$ADMIN_EMAIL')->update(['email_verified_at' => now()]);"
+
+# Provision Mailbox if configured
+if [ -n "$MAILBOX_EMAIL" ] && [ -n "$MAILBOX_NAME" ]; then
+    echo "Provisioning Mailbox: $MAILBOX_EMAIL..."
+    sudo docker compose exec -T app php artisan tinker --execute="
+        \$mailbox = App\Models\Mailbox::firstOrCreate(
+            ['email' => '$MAILBOX_EMAIL'],
+            [
+                'name' => '$MAILBOX_NAME',
+                'is_default' => true,
+                'status' => 1,
+                'in_server' => '$MAILBOX_IMAP_HOST',
+                'in_port' => '$MAILBOX_IMAP_PORT',
+                'in_username' => '$MAILBOX_IMAP_USER',
+                'in_password' => '$MAILBOX_IMAP_PASS',
+                'in_protocol' => 1, // IMAP
+                'in_encryption' => 2, // SSL/TLS
+                'out_server' => '$MAILBOX_SMTP_HOST',
+                'out_port' => '$MAILBOX_SMTP_PORT',
+                'out_username' => '$MAILBOX_SMTP_USER',
+                'out_password' => '$MAILBOX_SMTP_PASS',
+                'out_method' => 1, // SMTP
+                'out_encryption' => 2, // TLS
+            ]
+        );
+        echo 'Mailbox created: ' . \$mailbox->name . PHP_EOL;
+    "
+fi
 
 # Fix git safe directory for updates
 cd "$DEFAULT_INSTALL_DIR"

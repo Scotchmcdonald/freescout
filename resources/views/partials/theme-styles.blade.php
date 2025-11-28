@@ -2,15 +2,15 @@
     use App\Models\Theme;
     use Illuminate\Support\Facades\Auth;
 
-    // Try to get the active theme from the Theme facade/manager, fallback to user setting, then default
-    $currentTheme = 'default';
+    // Prioritize user preference, then Theme facade, then default
+    $userTheme = Auth::user()?->theme;
     
-    if (class_exists('Qirolab\Theme\Theme')) {
+    if ($userTheme) {
+        $currentTheme = $userTheme;
+    } elseif (class_exists('Qirolab\Theme\Theme')) {
         $currentTheme = \Qirolab\Theme\Theme::active();
-    }
-    
-    if (!$currentTheme || $currentTheme === 'default') {
-        $currentTheme = Auth::user()?->theme ?? config('theme.active', 'default');
+    } else {
+        $currentTheme = config('theme.active', 'default');
     }
 
     // Determine if dark mode is active

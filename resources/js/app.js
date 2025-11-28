@@ -50,6 +50,31 @@ Alpine.data('advancedMailboxSettings', advancedMailboxSettings);
 Alpine.data('mergeConversationSearch', mergeConversationSearch);
 
 window.Alpine = Alpine;
+
+// Expose components to window for x-data="component()" usage
+window.themeToggle = themeToggle;
+window.conversationStatus = conversationStatus;
+window.dynamicFavicon = dynamicFavicon;
+window.dropdown = dropdown;
+window.modal = modal;
+window.confirmDialog = confirmDialog;
+window.ajaxForm = ajaxForm;
+window.selectAll = selectAll;
+window.searchFilter = searchFilter;
+window.tabs = tabs;
+window.subscriptionTable = subscriptionTable;
+window.failedJobs = failedJobs;
+window.replyForm = replyForm;
+window.printPage = printPage;
+window.themeSelector = themeSelector;
+window.adminActions = adminActions;
+window.customerForm = customerForm;
+window.mailboxSettings = mailboxSettings;
+window.customerMerge = customerMerge;
+window.systemTools = systemTools;
+window.advancedMailboxSettings = advancedMailboxSettings;
+window.mergeConversationSearch = mergeConversationSearch;
+
 Alpine.start();
 
 // Global helpers

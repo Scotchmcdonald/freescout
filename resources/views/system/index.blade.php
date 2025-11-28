@@ -108,6 +108,40 @@
                      }">
                     <span x-text="message"></span>
                 </div>
+
+                <!-- Diagnostics Results -->
+                <div x-show="diagnosticsResults" x-transition class="mt-6 border-t pt-6">
+                    <h4 class="text-lg font-semibold mb-4">{{ __('Diagnostics Results') }}</h4>
+                    <div class="overflow-x-auto border rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <template x-for="(result, key) in diagnosticsResults" :key="key">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="key"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                                  :class="{
+                                                      'bg-green-100 text-green-800': result.status === 'ok',
+                                                      'bg-red-100 text-red-800': result.status === 'error',
+                                                      'bg-yellow-100 text-yellow-800': result.status === 'warning'
+                                                  }"
+                                                  x-text="result.status ? result.status.toUpperCase() : 'UNKNOWN'">
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-500" x-text="result.message"></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

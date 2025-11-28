@@ -2,9 +2,14 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Editing Palette: ') }} {{ $theme->title }}
+                {{ __('Theme Details: ') }} {{ $theme->title }}
             </h2>
-            <a href="{{ route('themes.editor.index') }}" class="text-sm text-blue-600 hover:underline">{{ __('Back to List') }}</a>
+            <div class="flex gap-4">
+                <a href="{{ route('themes.editor.index') }}" class="text-sm text-gray-600 hover:underline">{{ __('Back to List') }}</a>
+                @if(!$theme->is_system)
+                    <a href="{{ route('themes.editor.edit', $theme) }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Edit Theme</a>
+                @endif
+            </div>
         </div>
     </x-slot>
 

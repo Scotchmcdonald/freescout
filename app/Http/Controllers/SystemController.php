@@ -332,6 +332,8 @@ class SystemController extends Controller
                         'output' => Artisan::output(),
                     ]);
                 } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Optimization failed: ' . $e->getMessage());
+                    \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
                     return response()->json([
                         'success' => false,
                         'message' => 'Optimization failed: '.$e->getMessage(),

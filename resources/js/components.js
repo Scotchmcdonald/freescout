@@ -824,6 +824,7 @@ export function systemTools(ajaxUrl, diagnosticsUrl, csrfToken) {
         loading: false,
         message: '',
         messageType: '',
+        diagnosticsResults: null,
         
         async clearCache() {
             await this.executeAction('clear_cache', 'Clearing cache...');
@@ -837,6 +838,7 @@ export function systemTools(ajaxUrl, diagnosticsUrl, csrfToken) {
             this.loading = true;
             this.message = 'Running diagnostics...';
             this.messageType = 'info';
+            this.diagnosticsResults = null;
             
             try {
                 const response = await fetch(diagnosticsUrl, {
@@ -848,11 +850,7 @@ export function systemTools(ajaxUrl, diagnosticsUrl, csrfToken) {
                 const data = await response.json();
                 
                 if (data.success) {
-                    let results = 'Diagnostics Results:\n';
-                    for (const [key, result] of Object.entries(data.checks || {})) {
-                        results += `\n${key}: ${result.status?.toUpperCase() || 'UNKNOWN'} - ${result.message || ''}`;
-                    }
-                    alert(results);
+                    this.diagnosticsResults = data.checks;
                     this.showMessage('success', 'Diagnostics completed');
                 } else {
                     this.showMessage('error', 'Diagnostics failed');

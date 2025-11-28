@@ -20,10 +20,10 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <x-theme-styles />
+        @include('partials.theme-styles')
         @action('layout.head')
     </head>
-    <body class="font-sans antialiased" x-data="dynamicFavicon()">
+    <body class="font-sans antialiased" x-data="dynamicFavicon">
         @action('layout.body_start')
         <div class="min-h-screen bg-gray-100">
             <x-layouts.navigation />

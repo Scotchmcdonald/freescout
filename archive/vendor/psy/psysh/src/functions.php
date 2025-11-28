@@ -1,1 +1,0 @@
-<?php require_once __DIR__ . '/../../../../overrides/psy/psysh/src/functions.php';

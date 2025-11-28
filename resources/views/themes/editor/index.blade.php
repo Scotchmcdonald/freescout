@@ -59,7 +59,16 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="{{ route('themes.editor.show', $theme) }}" class="text-blue-600 hover:text-blue-900">Edit Palette</a>
+                                            @if($theme->is_system)
+                                                <a href="{{ route('themes.editor.show', $theme) }}" class="text-gray-600 hover:text-gray-900 mr-3">View Palette</a>
+                                            @else
+                                                <a href="{{ route('themes.editor.edit', $theme) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit Palette</a>
+                                                <form action="{{ route('themes.editor.destroy', $theme) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this theme?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

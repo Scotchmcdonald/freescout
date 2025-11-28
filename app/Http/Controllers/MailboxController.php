@@ -50,6 +50,9 @@ class MailboxController extends Controller
         $conversations = $mailbox->conversations()
             ->with(['customer', 'user', 'folder'])
             ->where('state', Conversation::STATE_PUBLISHED)
+            ->when($request->input('folder'), function ($query, $folderId) {
+                $query->where('folder_id', $folderId);
+            })
             ->orderBy('last_reply_at', 'desc')
             ->paginate(50);
 

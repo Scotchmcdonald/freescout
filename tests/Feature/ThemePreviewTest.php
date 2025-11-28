@@ -12,7 +12,7 @@ class ThemePreviewTest extends TestCase
 
     protected function tearDown(): void
     {
-        $themePath = base_path('themes/dark/views/layouts');
+        $themePath = base_path('themes/dark/views/components/layouts');
         if (file_exists($themePath . '/navigation.blade.php')) {
             unlink($themePath . '/navigation.blade.php');
         }
@@ -26,7 +26,7 @@ class ThemePreviewTest extends TestCase
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
         
         // Ensure the theme directory and file exist for the test
-        $themePath = base_path('themes/dark/views/layouts');
+        $themePath = base_path('themes/dark/views/components/layouts');
         if (!is_dir($themePath)) {
             mkdir($themePath, 0755, true);
         }

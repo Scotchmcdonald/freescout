@@ -1,1 +1,0 @@
-<?php require_once __DIR__ . '/../../../../overrides/spatie/laravel-activitylog/src/helpers.php';

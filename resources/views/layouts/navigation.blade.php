@@ -103,7 +103,7 @@
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <!-- Theme Toggle -->
-                <button id="theme-toggle" type="button" class="text-inherit hover:opacity-75 focus:outline-none mr-4" aria-label="Toggle Dark Mode">
+                <button id="theme-toggle" type="button" x-data="themeToggle" @click="toggle" class="text-inherit hover:opacity-75 focus:outline-none mr-4" aria-label="Toggle Dark Mode">
                     <svg id="theme-toggle-dark-icon" class="w-5 h-5 {{ Auth::user()->dark_mode ? '' : 'hidden' }}" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
                     </svg>
