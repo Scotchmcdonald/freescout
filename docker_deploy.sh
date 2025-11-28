@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Ensure the script is running in Bash (resolves compatibility issues with sh/dash)
+if [ -z "$BASH_VERSION" ]; then
+    exec bash "$0" "$@"
+fi
+
 # ==========================================
 # 1. DEFAULTS & INTERACTIVE SETUP
 # ==========================================
@@ -33,7 +38,7 @@ if [ -f "$CONFIG_FILE" ]; then
     case "$USE_CONFIG" in
         [Yy])
             echo "Loading configuration..."
-            source "$CONFIG_FILE"
+            . "$CONFIG_FILE"
             INTERACTIVE=false
             ;;
     esac
