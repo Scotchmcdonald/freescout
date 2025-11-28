@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12" x-data="customerForm({{ count(old('emails', $customer->emails ?? [['email' => '', 'type' => 'work']])) }})">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
@@ -70,7 +70,7 @@
                                             <option value="other" {{ (is_array($email) && ($email['type'] ?? '') == 'other') ? 'selected' : '' }}>Other</option>
                                         </select>
                                         @if($index > 0)
-                                            <button type="button" onclick="removeEmail(this)" class="px-3 py-2 text-red-600 hover:text-red-800">
+                                            <button type="button" @click="removeEmail($event)" class="px-3 py-2 text-red-600 hover:text-red-800">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                 </svg>
@@ -78,7 +78,7 @@
                                         @endif
                                     </div>
                                 @endforeach
-                                <button type="button" onclick="addEmail()" class="mt-2 text-sm text-blue-600 hover:text-blue-800">
+                                <button type="button" @click="addEmail()" class="mt-2 text-sm text-blue-600 hover:text-blue-800">
                                     + Add another email
                                 </button>
                             </div>
@@ -175,36 +175,4 @@
             </div>
         </div>
     </div>
-    
-    <script>
-        let emailIndex = {{ count($emails) }};
-        
-        function addEmail() {
-            const container = document.getElementById('emails-container');
-            const newRow = document.createElement('div');
-            newRow.className = 'email-row flex gap-2 mb-2';
-            newRow.innerHTML = `
-                <input type="email" name="emails[${emailIndex}][email]"
-                       placeholder="email@example.com"
-                       class="flex-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                <select name="emails[${emailIndex}][type]"
-                        class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                    <option value="work">Work</option>
-                    <option value="home">Home</option>
-                    <option value="other">Other</option>
-                </select>
-                <button type="button" onclick="removeEmail(this)" class="px-3 py-2 text-red-600 hover:text-red-800">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            `;
-            container.insertBefore(newRow, container.querySelector('button'));
-            emailIndex++;
-        }
-        
-        function removeEmail(button) {
-            button.closest('.email-row').remove();
-        }
-    </script>
 </x-app-layout>

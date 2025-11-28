@@ -203,12 +203,12 @@ Most inline scripts are for:
 
 | Area | Issue | Action | Status |
 |------|-------|--------|--------|
-| Alpine.js components | Inline scripts in views | Extract to `resources/js/components.js` | ✅ Done (14 components) |
+| Alpine.js components | Inline scripts in views | Extract to `resources/js/components.js` | ✅ Done (19 components) |
 | Blade templates | 74 `@include` usages | Convert key partials to components | ✅ Done (reduced to 21, 14 components created) |
 | Test assertions | Some simple 200 checks | Most tests already use specific assertions | ✅ Verified |
-| Inline `<script>` blocks | ~27 inline scripts | Extract to Alpine.js components | ✅ Done (reduced to 25) |
+| Inline `<script>` blocks | ~27 inline scripts | Extract to Alpine.js components | ✅ Done (reduced to 17, 37% reduction) |
 
-**Blade Components Created:**
+**Blade Components Created (14 total):**
 - `<x-flash-messages />` - Flash message alerts
 - `<x-sidebar-menu-toggle />` - Mobile sidebar toggle
 - `<x-theme-styles />` - Theme CSS variables
@@ -224,7 +224,7 @@ Most inline scripts are for:
 - `<x-locale-options />` - Language select options
 - `<x-timezone-options />` - Timezone select options
 
-**Alpine.js Components Added:**
+**Alpine.js Components Added (19 total):**
 - `themeToggle()` - Dark/light mode switching
 - `conversationStatus()` - Status updates via AJAX
 - `dynamicFavicon()` - Theme-colored favicon
@@ -239,30 +239,39 @@ Most inline scripts are for:
 - `failedJobs()` - Failed job management actions
 - `replyForm()` - Conversation reply submission
 - `printPage()` - Print functionality
+- `themeSelector()` - Theme selection with scroll restore
+- `adminActions()` - Admin system tools (cache clear, migrations)
+- `customerForm()` - Customer edit form with dynamic emails
+- `mailboxSettings()` - Mailbox SMTP/IMAP testing
+- `customerMerge()` - Customer merge search
 
 ### Priority 4: Low (Nice to Have) - ✅ COMPLETED
 
 | Area | Suggestion | Status |
 |------|------------|--------|
 | Enums | PHP 8.1 enums for status constants | ✅ Done (4 enums) |
-| DTOs | Data Transfer Objects for complex operations | ✅ Done (3 DTOs) |
-| Actions | Action classes for complex business logic | ✅ Done (3 Actions) |
+| DTOs | Data Transfer Objects for complex operations | ✅ Done (5 DTOs) |
+| Actions | Action classes for complex business logic | ✅ Done (5 Actions) |
 
-**Enums Created:**
+**Enums Created (4 total):**
 - `ConversationStatus` - Active, Pending, Closed, Spam
 - `ConversationType` - Email, Phone, Chat
 - `UserRole` - User, Admin, Reporter
 - `UserStatus` - Active, Inactive, Deleted
 
-**DTOs Created:**
+**DTOs Created (5 total):**
 - `CreateConversationData` - Type-safe conversation creation data
 - `UserData` - Type-safe user creation/update data
 - `CustomerData` - Type-safe customer data
+- `ThreadData` - Type-safe thread/reply data
+- `MailboxData` - Type-safe mailbox configuration data
 
-**Actions Created:**
+**Actions Created (5 total):**
 - `CreateConversationAction` - Encapsulates conversation creation logic
 - `MergeCustomersAction` - Encapsulates customer merge logic
 - `UpdateCustomerAction` - Encapsulates customer update logic
+- `ReplyToConversationAction` - Encapsulates reply creation logic
+- `ForwardConversationAction` - Encapsulates conversation forwarding logic
 
 ---
 

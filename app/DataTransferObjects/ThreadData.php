@@ -1,0 +1,99 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\DataTransferObjects;
+
+/**
+ * Data Transfer Object for thread/reply data.
+ *
+ * Provides type-safe wrapper for conversation reply data
+ * with immutable readonly properties.
+ */
+final readonly class ThreadData
+{
+    /**
+     * Create a new ThreadData instance.
+     *
+     * @param string $body The thread body content
+     * @param int $type Thread type (1=reply, 2=note, 5=draft)
+     * @param int|null $status Thread status
+     * @param array<string> $to Recipient email addresses
+     * @param array<string> $cc CC email addresses
+     * @param array<string> $bcc BCC email addresses
+     * @param array<string> $attachmentPaths Paths to uploaded attachments
+     * @param bool $isDraft Whether this is a draft
+     */
+    public function __construct(
+        public string $body,
+        public int $type = 1, // Default to reply
+        public ?int $status = null,
+        public array $to = [],
+        public array $cc = [],
+        public array $bcc = [],
+        public array $attachmentPaths = [],
+        public bool $isDraft = false,
+    ) {}
+
+    /**
+     * Create ThreadData from a request array.
+     *
+     * @param array<string, mixed> $data
+     * @return self
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            body: $data['body'] ?? '',
+            type: (int) ($data['type'] ?? 1),
+            status: isset($data['status']) ? (int) $data['status'] : null,
+            to: (array) ($data['to'] ?? []),
+            cc: (array) ($data['cc'] ?? []),
+            bcc: (array) ($data['bcc'] ?? []),
+            attachmentPaths: (array) ($data['attachments'] ?? []),
+            isDraft: (bool) ($data['is_draft'] ?? false),
+        );
+    }
+
+    /**
+     * Check if this is a note (internal).
+     */
+    public function isNote(): bool
+    {
+        return $this->type === 2;
+    }
+
+    /**
+     * Check if this is a reply (customer-facing).
+     */
+    public function isReply(): bool
+    {
+        return $this->type === 1;
+    }
+
+    /**
+     * Check if this thread has attachments.
+     */
+    public function hasAttachments(): bool
+    {
+        return count($this->attachmentPaths) > 0;
+    }
+
+    /**
+     * Convert to array for model creation.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'body' => $this->body,
+            'type' => $this->type,
+            'status' => $this->status,
+            'to' => json_encode($this->to),
+            'cc' => json_encode($this->cc),
+            'bcc' => json_encode($this->bcc),
+            'has_attachments' => $this->hasAttachments(),
+        ];
+    }
+}

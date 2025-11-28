@@ -488,6 +488,322 @@ export function printPage() {
     };
 }
 
+/**
+ * Alpine.js component for theme selector with scroll position restore.
+ * 
+ * Usage: x-data="themeSelector('{{ route('themes.update') }}', '{{ csrf_token() }}')"
+ */
+export function themeSelector(formAction, csrfToken) {
+    return {
+        init() {
+            // Restore scroll position if it exists
+            const savedScrollPos = sessionStorage.getItem('themeScrollPos');
+            if (savedScrollPos) {
+                window.scrollTo(0, parseInt(savedScrollPos));
+                sessionStorage.removeItem('themeScrollPos');
+            }
+        },
+        
+        async selectTheme(themeName) {
+            // Save scroll position
+            sessionStorage.setItem('themeScrollPos', window.scrollY.toString());
+            
+            const formData = new FormData();
+            formData.append('theme', themeName);
+            formData.append('_token', csrfToken);
+            
+            try {
+                const response = await fetch(formAction, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    console.error('Theme update failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    };
+}
+
+/**
+ * Alpine.js component for admin system tools (cache clear, migrations).
+ * 
+ * Usage: x-data="adminActions('{{ route('settings.cache.clear') }}', '{{ route('settings.migrate') }}', '{{ csrf_token() }}')"
+ */
+export function adminActions(clearCacheUrl, migrateUrl, csrfToken) {
+    return {
+        loading: false,
+        message: '',
+        messageType: '', // 'success' or 'error'
+        
+        async clearCache() {
+            if (!confirm('Are you sure you want to clear all caches?')) return;
+            
+            this.loading = true;
+            this.message = '';
+            
+            try {
+                const response = await fetch(clearCacheUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    }
+                });
+                const data = await response.json();
+                this.showMessage(data.success ? 'success' : 'error', data.message);
+            } catch (error) {
+                this.showMessage('error', 'Failed to clear cache: ' + error.message);
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        async runMigrations() {
+            if (!confirm('Are you sure you want to run database migrations?')) return;
+            
+            this.loading = true;
+            this.message = '';
+            
+            try {
+                const response = await fetch(migrateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    }
+                });
+                const data = await response.json();
+                this.showMessage(data.success ? 'success' : 'error', data.message);
+            } catch (error) {
+                this.showMessage('error', 'Failed to run migrations: ' + error.message);
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        showMessage(type, msg) {
+            this.messageType = type;
+            this.message = msg;
+            
+            setTimeout(() => {
+                this.message = '';
+                this.messageType = '';
+            }, 5000);
+        }
+    };
+}
+
+/**
+ * Alpine.js component for customer edit form with dynamic email fields.
+ * 
+ * Usage: x-data="customerForm(initialEmailCount)"
+ */
+export function customerForm(initialEmailCount = 1) {
+    return {
+        emailIndex: initialEmailCount,
+        
+        addEmail() {
+            const container = document.getElementById('emails-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'email-row flex gap-2 mb-2';
+            newRow.innerHTML = `
+                <input type="email" name="emails[${this.emailIndex}][email]"
+                       placeholder="email@example.com"
+                       class="flex-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <select name="emails[${this.emailIndex}][type]"
+                        class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="work">Work</option>
+                    <option value="home">Home</option>
+                    <option value="other">Other</option>
+                </select>
+                <button type="button" @click="removeEmail($event)" class="px-3 py-2 text-red-600 hover:text-red-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
+            container.insertBefore(newRow, container.querySelector('button[type="button"]'));
+            this.emailIndex++;
+        },
+        
+        removeEmail(event) {
+            event.target.closest('.email-row').remove();
+        }
+    };
+}
+
+/**
+ * Alpine.js component for mailbox settings (SMTP/IMAP testing).
+ * 
+ * Usage: x-data="mailboxSettings(mailboxId, smtpTestUrl, imapTestUrl, fetchEmailsUrl, csrfToken)"
+ */
+export function mailboxSettings(mailboxId, smtpTestUrl, imapTestUrl, fetchEmailsUrl, csrfToken) {
+    return {
+        showSmtpTestForm: false,
+        testEmail: '',
+        smtpResult: '',
+        smtpResultType: '',
+        imapResult: '',
+        imapResultType: '',
+        fetchResult: '',
+        fetchResultType: '',
+        loading: false,
+        
+        async sendTestEmail() {
+            if (!this.testEmail) {
+                alert('Please enter a test email address');
+                return;
+            }
+            
+            this.loading = true;
+            this.smtpResult = 'Sending test email...';
+            this.smtpResultType = '';
+            
+            try {
+                const response = await fetch(smtpTestUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        mailbox_id: mailboxId,
+                        test_email: this.testEmail
+                    })
+                });
+                
+                const data = await response.json();
+                this.smtpResult = data.message;
+                this.smtpResultType = data.success ? 'success' : 'error';
+                
+                if (data.success) {
+                    this.showSmtpTestForm = false;
+                }
+            } catch (error) {
+                this.smtpResult = 'Error: ' + error.message;
+                this.smtpResultType = 'error';
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        async testImap() {
+            this.loading = true;
+            this.imapResult = 'Testing IMAP connection...';
+            this.imapResultType = '';
+            
+            try {
+                const response = await fetch(imapTestUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        mailbox_id: mailboxId
+                    })
+                });
+                
+                const data = await response.json();
+                this.imapResult = data.message;
+                this.imapResultType = data.success ? 'success' : 'error';
+            } catch (error) {
+                this.imapResult = 'Error: ' + error.message;
+                this.imapResultType = 'error';
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        async fetchEmails() {
+            this.loading = true;
+            this.fetchResult = 'Fetching emails from mailbox...';
+            this.fetchResultType = '';
+            
+            try {
+                const response = await fetch(fetchEmailsUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+                
+                const data = await response.json();
+                this.fetchResult = data.success ? ('Success! ' + data.message) : ('Error: ' + data.message);
+                this.fetchResultType = data.success ? 'success' : 'error';
+            } catch (error) {
+                this.fetchResult = 'Error: ' + error.message;
+                this.fetchResultType = 'error';
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        cancelSmtpTest() {
+            this.showSmtpTestForm = false;
+            this.testEmail = '';
+        }
+    };
+}
+
+/**
+ * Alpine.js component for customer merge form.
+ * 
+ * Usage: x-data="customerMerge('{{ route('customers.ajax') }}', '{{ csrf_token() }}')"
+ */
+export function customerMerge(searchUrl, csrfToken) {
+    return {
+        selectedCustomer: null,
+        
+        init() {
+            // Initialize Select2 for customer search (if jQuery/Select2 available)
+            if (window.$ && window.$.fn.select2) {
+                const self = this;
+                $('#target_id').select2({
+                    ajax: {
+                        url: searchUrl,
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                action: 'search',
+                                q: params.term,
+                                _token: csrfToken
+                            };
+                        },
+                        processResults: function(data) {
+                            return {
+                                results: data.results
+                            };
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 2,
+                    placeholder: 'Search for a customer by name or email...'
+                }).on('select2:select', function(e) {
+                    self.selectedCustomer = {
+                        name: e.params.data.text.split('(')[0].trim(),
+                        email: e.params.data.text.match(/\(([^)]+)\)/)?.[1] || ''
+                    };
+                });
+            }
+        }
+    };
+}
+
 // Export all components
 export default {
     themeToggle,
@@ -503,5 +819,10 @@ export default {
     subscriptionTable,
     failedJobs,
     replyForm,
-    printPage
+    printPage,
+    themeSelector,
+    adminActions,
+    customerForm,
+    mailboxSettings,
+    customerMerge
 };

@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12" x-data="adminActions('{{ route('settings.cache.clear') }}', '{{ route('settings.migrate') }}', '{{ csrf_token() }}')">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex flex-col md:flex-row">
             <x-settings-sidebar :sections="$sections" :current-section="$currentSection" />
             
@@ -48,16 +48,18 @@
                     <h3 class="text-lg font-semibold mb-4">{{ __('System Tools') }}</h3>
                     
                     <div class="space-y-3">
-                        <button onclick="clearCache()" 
-                                class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-left flex justify-between items-center">
+                        <button @click="clearCache()" 
+                                :disabled="loading"
+                                class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-left flex justify-between items-center disabled:opacity-50">
                             <span class="font-medium">{{ __('Clear Cache') }}</span>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                         </button>
                         
-                        <button onclick="runMigrations()" 
-                                class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-left flex justify-between items-center">
+                        <button @click="runMigrations()" 
+                                :disabled="loading"
+                                class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-left flex justify-between items-center disabled:opacity-50">
                             <span class="font-medium">{{ __('Run Migrations') }}</span>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
@@ -81,62 +83,13 @@
             </div>
             
             <!-- Response Messages -->
-            <div id="responseMessage" class="hidden mt-6"></div>
+            <div x-show="message" 
+                 x-cloak
+                 class="mt-6 p-4 border-l-4"
+                 :class="messageType === 'success' ? 'bg-green-50 border-green-400 text-green-700' : 'bg-red-50 border-red-400 text-red-700'"
+                 x-text="message">
+            </div>
             </div>
         </div>
     </div>
-    
-    <script>
-        function clearCache() {
-            if (!confirm('Are you sure you want to clear all caches?')) return;
-            
-            fetch('{{ route('settings.cache.clear') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                showMessage(data.success ? 'success' : 'error', data.message);
-            })
-            .catch(error => {
-                showMessage('error', 'Failed to clear cache: ' + error);
-            });
-        }
-        
-        function runMigrations() {
-            if (!confirm('Are you sure you want to run database migrations?')) return;
-            
-            fetch('{{ route('settings.migrate') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                showMessage(data.success ? 'success' : 'error', data.message);
-            })
-            .catch(error => {
-                showMessage('error', 'Failed to run migrations: ' + error);
-            });
-        }
-        
-        function showMessage(type, message) {
-            const messageDiv = document.getElementById('responseMessage');
-            const bgColor = type === 'success' ? 'bg-green-50 border-green-400 text-green-700' : 'bg-red-50 border-red-400 text-red-700';
-            messageDiv.className = `p-4 border-l-4 ${bgColor}`;
-            messageDiv.textContent = message;
-            messageDiv.classList.remove('hidden');
-            
-            setTimeout(() => {
-                messageDiv.classList.add('hidden');
-            }, 5000);
-        }
-    </script>
 </x-app-layout>

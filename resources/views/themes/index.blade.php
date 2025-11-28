@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12" x-data="themeSelector('{{ route('themes.update') }}', '{{ csrf_token() }}')">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
@@ -50,7 +50,8 @@
                                 <label class="relative cursor-pointer group">
                                     <input type="radio" name="theme" value="{{ $theme->name }}"
                                            {{ $currentTheme === $theme->name ? 'checked' : '' }}
-                                           class="peer sr-only theme-selector">
+                                           class="peer sr-only theme-selector"
+                                           @change="selectTheme('{{ $theme->name }}')">
                                     <div class="theme-selection-card rounded-2xl p-4 transition-all peer-checked:ring-2 peer-checked:ring-offset-2 h-full flex flex-col bg-white shadow-sm">
                                         <div class="flex items-center justify-between mb-3">
                                             <div class="flex items-center gap-2">
@@ -169,53 +170,4 @@
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const themeSelectors = document.querySelectorAll('.theme-selector');
-            const form = document.getElementById('theme-form');
-            
-            themeSelectors.forEach(selector => {
-                selector.addEventListener('change', function() {
-                    const theme = this.value;
-                    
-                    // Save scroll position
-                    const scrollPos = window.scrollY;
-                    sessionStorage.setItem('themeScrollPos', scrollPos);
-                    
-                    // Use Fetch API to submit form without full reload first
-                    const formData = new FormData(form);
-                    
-                    fetch(form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            // Reload page to apply theme (since we rely on server-side blade rendering for the style block)
-                            window.location.reload();
-                        } else {
-                            console.error('Theme update failed');
-                            // Fallback to normal submit if fetch fails
-                            form.submit();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        form.submit();
-                    });
-                });
-            });
-            
-            // Restore scroll position if it exists
-            const savedScrollPos = sessionStorage.getItem('themeScrollPos');
-            if (savedScrollPos) {
-                window.scrollTo(0, parseInt(savedScrollPos));
-                sessionStorage.removeItem('themeScrollPos');
-            }
-        });
-    </script>
 </x-app-layout>

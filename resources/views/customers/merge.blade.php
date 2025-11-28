@@ -63,7 +63,7 @@
                             </div>
                         </div>
                         
-                        <form method="POST" action="{{ route('customers.merge') }}" x-data="mergeForm()">
+                        <form method="POST" action="{{ route('customers.merge') }}" x-data="customerMerge('{{ route('customers.ajax') }}', '{{ csrf_token() }}')">
                             @csrf
                             
                             <input type="hidden" name="source_id" value="{{ $customer->id }}">
@@ -126,45 +126,4 @@
             </div>
         </div>
     </div>
-    
-    @push('scripts')
-    <script>
-        function mergeForm() {
-            return {
-                selectedCustomer: null,
-                
-                init() {
-                    // Initialize Select2 for customer search
-                    $('#target_id').select2({
-                        ajax: {
-                            url: '{{ route("customers.ajax") }}',
-                            dataType: 'json',
-                            delay: 250,
-                            data: function (params) {
-                                return {
-                                    action: 'search',
-                                    q: params.term,
-                                    _token: '{{ csrf_token() }}'
-                                };
-                            },
-                            processResults: function (data) {
-                                return {
-                                    results: data.results
-                                };
-                            },
-                            cache: true
-                        },
-                        minimumInputLength: 2,
-                        placeholder: '{{ __("Search for a customer by name or email") }}...'
-                    }).on('select2:select', (e) => {
-                        this.selectedCustomer = {
-                            name: e.params.data.text.split('(')[0].trim(),
-                            email: e.params.data.text.match(/\(([^)]+)\)/)?.[1] || ''
-                        };
-                    });
-                }
-            };
-        }
-    </script>
-    @endpush
 </x-app-layout>

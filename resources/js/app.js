@@ -14,7 +14,12 @@ import {
     subscriptionTable,
     failedJobs,
     replyForm,
-    printPage
+    printPage,
+    themeSelector,
+    adminActions,
+    customerForm,
+    mailboxSettings,
+    customerMerge
 } from './components';
 
 // Register Alpine.js components
@@ -32,6 +37,11 @@ Alpine.data('subscriptionTable', subscriptionTable);
 Alpine.data('failedJobs', failedJobs);
 Alpine.data('replyForm', replyForm);
 Alpine.data('printPage', printPage);
+Alpine.data('themeSelector', themeSelector);
+Alpine.data('adminActions', adminActions);
+Alpine.data('customerForm', customerForm);
+Alpine.data('mailboxSettings', mailboxSettings);
+Alpine.data('customerMerge', customerMerge);
 
 window.Alpine = Alpine;
 Alpine.start();
