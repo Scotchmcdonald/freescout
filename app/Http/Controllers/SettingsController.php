@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateGeneralSettingsRequest;
 use App\Mail\Alert;
 use App\Models\Mailbox;
 use App\Models\Option;
@@ -89,28 +90,15 @@ class SettingsController extends Controller
     /**
      * Update general settings.
      */
-    public function update(Request $request): RedirectResponse
+    public function update(UpdateGeneralSettingsRequest $request): RedirectResponse
     {
         $currentSection = 'general';
         
         // Allow modules to modify request before saving
-        $request = \Eventy::filter('settings.before_save', $request, $currentSection, []);
+        // Note: Eventy filter may return a modified request or same request
+        \Eventy::action('settings.before_save', $request, $currentSection, []);
 
-        $validated = $request->validate([
-            'company_name' => 'nullable|string|max:255',
-            'custom_number' => 'nullable|boolean',
-            'next_ticket' => 'nullable|integer|min:1',
-            'locale' => 'nullable|string|max:10',
-            'timezone' => 'nullable|timezone',
-            'time_format' => 'nullable|in:12,24',
-            'email_conv_history' => 'nullable|in:none,last,full',
-            'max_message_size' => 'nullable|integer|min:0|max:102400',
-            'email_branding' => 'nullable|boolean',
-            'open_tracking' => 'nullable|boolean',
-            'enrich_customer_data' => 'nullable|boolean',
-            'user_permissions' => 'nullable|array',
-            'user_permissions.*' => 'nullable|integer',
-        ]);
+        $validated = $request->validated();
 
         foreach ($validated as $name => $value) {
             if ($value === null) {

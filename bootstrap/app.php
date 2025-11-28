@@ -26,15 +26,19 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         
         // Add middleware to web group:
+        // - ResponseHeaders: Security headers (X-Content-Type-Options, etc.)
         // - FrameGuard: Security against clickjacking
         // - ApplyUserTheme: Apply user's selected theme
         // - Localize: Set user's preferred locale
         // - LogoutIfDeleted: Force logout deleted/disabled users
+        // - CustomHandle: Chat mode toggle and module hooks
         $middleware->web(append: [
+            \App\Http\Middleware\ResponseHeaders::class,
             \App\Http\Middleware\FrameGuard::class,
             \App\Http\Middleware\ApplyUserTheme::class,
             \App\Http\Middleware\Localize::class,
             \App\Http\Middleware\LogoutIfDeleted::class,
+            \App\Http\Middleware\CustomHandle::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {})->create();

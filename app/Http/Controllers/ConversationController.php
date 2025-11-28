@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReplyConversationRequest;
 use App\Http\Requests\StoreConversationRequest;
 use App\Http\Requests\UpdateConversationRequest;
 use App\Models\Conversation;
@@ -284,7 +285,7 @@ class ConversationController extends Controller
     /**
      * Reply to a conversation.
      */
-    public function reply(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
+    public function reply(ReplyConversationRequest $request, Conversation $conversation): RedirectResponse|JsonResponse
     {
         /** @var \App\Models\User|null $user */
         $user = $request->user();
@@ -298,11 +299,7 @@ class ConversationController extends Controller
             abort(403);
         }
 
-        $validated = $request->validate([
-            'body' => 'required|string',
-            'type' => 'nullable|integer|in:1,2', // 1=reply, 2=note (default 1)
-            'status' => 'nullable|integer|in:1,2,3',
-        ]);
+        $validated = $request->validated();
 
         // Reporters cannot close tickets
         if (isset($validated['status']) && (int)$validated['status'] === Conversation::STATUS_CLOSED && $user->isReporter()) {
