@@ -7,25 +7,11 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex flex-col md:flex-row">
-            @include('users.sidebar_menu', ['user' => $user])
+            <x-user-sidebar-menu :user="$user" :users="$users ?? collect()" />
             
             <div class="flex-1 bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    @if(session('success'))
-                        <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4">
-                            <p class="text-sm text-green-700">{{ session('success') }}</p>
-                        </div>
-                    @endif
-                    
-                    @if($errors->any())
-                        <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4">
-                            <ul class="text-sm text-red-700 list-disc list-inside">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+                    <x-flash-messages />
                     
                     <form method="POST" action="{{ route('users.password.update', $user) }}">
                         @csrf

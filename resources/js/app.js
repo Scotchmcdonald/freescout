@@ -10,7 +10,11 @@ import {
     ajaxForm,
     selectAll,
     searchFilter,
-    tabs
+    tabs,
+    subscriptionTable,
+    failedJobs,
+    replyForm,
+    printPage
 } from './components';
 
 // Register Alpine.js components
@@ -24,6 +28,10 @@ Alpine.data('ajaxForm', ajaxForm);
 Alpine.data('selectAll', selectAll);
 Alpine.data('searchFilter', searchFilter);
 Alpine.data('tabs', tabs);
+Alpine.data('subscriptionTable', subscriptionTable);
+Alpine.data('failedJobs', failedJobs);
+Alpine.data('replyForm', replyForm);
+Alpine.data('printPage', printPage);
 
 window.Alpine = Alpine;
 Alpine.start();

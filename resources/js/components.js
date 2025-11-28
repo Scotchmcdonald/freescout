@@ -357,6 +357,137 @@ export function tabs(defaultTab = '') {
     };
 }
 
+/**
+ * Alpine.js component for subscription table column toggling.
+ * 
+ * Usage: x-data="subscriptionTable()"
+ */
+export function subscriptionTable() {
+    return {
+        toggleColumn(columnType, checked) {
+            const selector = `.subscription-${columnType}:not(:disabled)`;
+            document.querySelectorAll(selector).forEach(cb => {
+                cb.checked = checked;
+            });
+        }
+    };
+}
+
+/**
+ * Alpine.js component for failed jobs management.
+ * 
+ * Usage: x-data="failedJobs()"
+ */
+export function failedJobs() {
+    return {
+        loading: false,
+        
+        async retryJob(uuid) {
+            if (this.loading) return;
+            this.loading = true;
+            
+            try {
+                const response = await fetch(`/system/failed-jobs/${uuid}/retry`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to retry job');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        async deleteJob(uuid) {
+            if (this.loading) return;
+            if (!confirm('Are you sure you want to delete this job?')) return;
+            
+            this.loading = true;
+            
+            try {
+                const response = await fetch(`/system/failed-jobs/${uuid}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to delete job');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                this.loading = false;
+            }
+        }
+    };
+}
+
+/**
+ * Alpine.js component for reply form submission.
+ * 
+ * Usage: x-data="replyForm('routeUrl', 'csrfToken')"
+ */
+export function replyForm(routeUrl, csrfToken) {
+    return {
+        loading: false,
+        
+        async submit(form) {
+            if (this.loading) return;
+            this.loading = true;
+            
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch(routeUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to send reply'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                this.loading = false;
+            }
+        }
+    };
+}
+
+/**
+ * Alpine.js component for print functionality.
+ * 
+ * Usage: x-data="printPage()"
+ */
+export function printPage() {
+    return {
+        print() {
+            window.print();
+        }
+    };
+}
+
 // Export all components
 export default {
     themeToggle,
@@ -368,5 +499,9 @@ export default {
     ajaxForm,
     selectAll,
     searchFilter,
-    tabs
+    tabs,
+    subscriptionTable,
+    failedJobs,
+    replyForm,
+    printPage
 };
