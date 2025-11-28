@@ -94,8 +94,7 @@ class SettingsController extends Controller
     {
         $currentSection = 'general';
         
-        // Allow modules to modify request before saving
-        // Note: Eventy filter may return a modified request or same request
+        // Hook for modules to perform actions before saving settings
         \Eventy::action('settings.before_save', $request, $currentSection, []);
 
         $validated = $request->validated();

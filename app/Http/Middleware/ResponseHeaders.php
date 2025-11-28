@@ -28,7 +28,7 @@ class ResponseHeaders
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $this->removeUnwantedHeaders($this->unwantedHeaders);
+        $this->removeUnwantedHeaders();
 
         $response = $next($request);
 
@@ -44,12 +44,10 @@ class ResponseHeaders
 
     /**
      * Remove unwanted headers from response.
-     *
-     * @param  array<string>  $headerList
      */
-    private function removeUnwantedHeaders(array $headerList): void
+    private function removeUnwantedHeaders(): void
     {
-        foreach ($headerList as $header) {
+        foreach ($this->unwantedHeaders as $header) {
             header_remove($header);
         }
     }
