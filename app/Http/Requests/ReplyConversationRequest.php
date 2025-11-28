@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use App\Models\Conversation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ReplyConversationRequest extends FormRequest
 {
@@ -24,16 +25,18 @@ class ReplyConversationRequest extends FormRequest
      */
     public function rules(): array
     {
-        $validStatuses = implode(',', [
-            Conversation::STATUS_ACTIVE,
-            Conversation::STATUS_PENDING,
-            Conversation::STATUS_CLOSED,
-        ]);
-
         return [
             'body' => 'required|string',
-            'type' => 'nullable|integer|in:1,2', // 1=reply, 2=note
-            'status' => 'nullable|integer|in:'.$validStatuses,
+            'type' => ['nullable', 'integer', Rule::in([1, 2])], // 1=reply, 2=note
+            'status' => [
+                'nullable',
+                'integer',
+                Rule::in([
+                    Conversation::STATUS_ACTIVE,
+                    Conversation::STATUS_PENDING,
+                    Conversation::STATUS_CLOSED,
+                ]),
+            ],
         ];
     }
 

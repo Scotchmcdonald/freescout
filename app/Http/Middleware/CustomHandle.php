@@ -21,10 +21,13 @@ class CustomHandle
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Enable/disable chat mode based on request parameter
+        // Enable/disable chat mode based on request parameter (0 or 1)
         if ($request->exists('chat_mode')) {
             $chatMode = (int) $request->input('chat_mode');
-            session()->put('chat_mode', $chatMode);
+            // Validate to ensure it's a boolean-like value
+            if ($chatMode === 0 || $chatMode === 1) {
+                session()->put('chat_mode', $chatMode);
+            }
         }
 
         // Hook for modules to customize request handling

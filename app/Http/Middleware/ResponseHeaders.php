@@ -35,9 +35,12 @@ class ResponseHeaders
         // Add security headers
         $response->headers->set('X-Content-Type-Options', 'nosniff');
 
-        // Disable caching for dynamic content
-        $response->headers->set('Pragma', 'no-cache');
-        $response->headers->set('Cache-Control', 'no-cache, max-age=0, must-revalidate, no-store');
+        // Only disable caching for HTML/dynamic content, not static assets
+        $contentType = $response->headers->get('Content-Type', '');
+        if (str_contains($contentType, 'text/html') || empty($contentType)) {
+            $response->headers->set('Pragma', 'no-cache');
+            $response->headers->set('Cache-Control', 'no-cache, max-age=0, must-revalidate, no-store');
+        }
 
         return $response;
     }
