@@ -116,17 +116,29 @@ EXISTING_COMPOSE_ENV="$DEFAULT_INSTALL_DIR/.env"
 if [ -f "$EXISTING_COMPOSE_ENV" ]; then
     echo -e "${YELLOW}Existing installation found at $DEFAULT_INSTALL_DIR${NC}"
     if [ "$INTERACTIVE" = true ]; then
-        read -p "Do you want to reuse the existing database (keep data)? [Y/n] " INPUT_REUSE
-        INPUT_REUSE=${INPUT_REUSE:-Y}
+        echo ""
+        echo "An existing installation was detected."
+        echo "1) Reuse existing database (Keep data)"
+        echo "2) Overwrite database (DESTROY ALL DATA)"
+        read -p "Select [1-2]: " INPUT_REUSE_OPT
+        
+        case "$INPUT_REUSE_OPT" in
+            2)
+                REUSE_DB=false
+                echo -e "${RED}WARNING: Existing database will be destroyed!${NC}"
+                ;;
+            *)
+                REUSE_DB=true
+                ;;
+        esac
     else
-        INPUT_REUSE="Y" # Default to reuse in non-interactive if config exists? Or maybe N? Let's assume Y for safety.
+        # Non-interactive default: Reuse for safety
+        REUSE_DB=true 
     fi
 
-    case "$INPUT_REUSE" in
-        [Yy])
-            REUSE_DB=true
-            echo "Loading existing credentials..."
-            # Load credentials from the docker .env file
+    if [ "$REUSE_DB" = true ]; then
+        echo "Loading existing credentials..."
+        # Load credentials from the docker .env file
             if [ -f "$EXISTING_COMPOSE_ENV" ]; then
                 # We use grep/cut to avoid sourcing the whole file which might have other junk
                 EXISTING_DB_PASS=$(grep "^DB_PASSWORD=" "$EXISTING_COMPOSE_ENV" | cut -d '=' -f2)
@@ -151,8 +163,7 @@ if [ -f "$EXISTING_COMPOSE_ENV" ]; then
                     ADMIN_PASS_PRESERVED=true
                 fi
             fi
-            ;;
-    esac
+    fi
 fi
 
 # Check arguments
