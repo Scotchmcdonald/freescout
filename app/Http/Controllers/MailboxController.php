@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMailboxRequest;
 use App\Http\Requests\UpdateMailboxRequest;
+use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\User;
 use App\Services\ImapService;
@@ -48,7 +49,7 @@ class MailboxController extends Controller
         // Get conversations for this mailbox
         $conversations = $mailbox->conversations()
             ->with(['customer', 'user', 'folder'])
-            ->where('state', 2) // Published
+            ->where('state', Conversation::STATE_PUBLISHED)
             ->orderBy('last_reply_at', 'desc')
             ->paginate(50);
 

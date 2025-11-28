@@ -207,7 +207,7 @@ class UserController extends Controller
                 $searchQuery = is_string($query) ? $query : '';
 
                 $users = User::query()
-                    ->where('status', 1) // Active only
+                    ->where('status', User::STATUS_ACTIVE) // Active only
                     ->where(function ($q) use ($searchQuery) {
                         $q->where('first_name', 'like', "%{$searchQuery}%")
                             ->orWhere('last_name', 'like', "%{$searchQuery}%")
@@ -239,7 +239,7 @@ class UserController extends Controller
 
                 $this->authorize('update', $user);
 
-                $newStatus = $user->status === 1 ? 2 : 1;
+                $newStatus = $user->status === User::STATUS_ACTIVE ? User::STATUS_INACTIVE : User::STATUS_ACTIVE;
                 $user->update(['status' => $newStatus]);
 
                 return response()->json([

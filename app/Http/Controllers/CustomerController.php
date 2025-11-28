@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCustomerRequest;
+use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\Conversation;
 use App\Models\Customer;
 use Illuminate\Contracts\View\Factory as ViewFactory;
@@ -45,13 +47,9 @@ class CustomerController extends Controller
     /**
      * Store a newly created customer in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreCustomerRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:50',
-            'last_name' => 'nullable|string|max:50',
-            'email' => 'required|email|unique:emails,email',
-        ]);
+        $validated = $request->validated();
 
         $customer = Customer::create($validated['email'], [
             'first_name' => $validated['first_name'],
@@ -86,27 +84,9 @@ class CustomerController extends Controller
     /**
      * Update the specified customer.
      */
-    public function update(Request $request, Customer $customer): JsonResponse
+    public function update(UpdateCustomerRequest $request, Customer $customer): JsonResponse
     {
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:50',
-            'last_name' => 'nullable|string|max:50',
-            'company' => 'nullable|string|max:255',
-            'job_title' => 'nullable|string|max:100',
-            'phone' => 'nullable|string|max:60',
-            'timezone' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
-            'city' => 'nullable|string|max:255',
-            'state' => 'nullable|string|max:255',
-            'zip' => 'nullable|string|max:12',
-            'country' => 'nullable|string|max:2',
-            'notes' => 'nullable|string',
-            'emails' => 'nullable|array',
-            'emails.*.email' => 'required_with:emails|email',
-            'emails.*.type' => 'required_with:emails|string',
-            'social_profiles' => 'nullable|array',
-            'websites' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $customer->update($validated);
 
@@ -208,7 +188,7 @@ class CustomerController extends Controller
 
                 $conversations = Conversation::query()
                     ->where('customer_id', $customerId)
-                    ->where('state', 2)
+                    ->where('state', Conversation::STATE_PUBLISHED)
                     ->with(['mailbox', 'folder', 'user'])
                     ->orderBy('last_reply_at', 'desc')
                     ->limit(50)

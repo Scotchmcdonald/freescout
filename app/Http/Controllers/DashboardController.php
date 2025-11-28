@@ -31,15 +31,15 @@ class DashboardController extends Controller
 
         // Get active conversations count
         $activeConversations = Conversation::whereIn('mailbox_id', $mailboxes->pluck('id'))
-            ->where('status', 1) // Active status
-            ->where('state', 2) // Published state
+            ->where('status', Conversation::STATUS_ACTIVE)
+            ->where('state', Conversation::STATE_PUBLISHED)
             ->count();
 
         // Get unassigned conversations count
         $unassignedConversations = Conversation::whereIn('mailbox_id', $mailboxes->pluck('id'))
             ->whereNull('user_id')
-            ->where('status', 1)
-            ->where('state', 2)
+            ->where('status', Conversation::STATUS_ACTIVE)
+            ->where('state', Conversation::STATE_PUBLISHED)
             ->count();
 
         // Get stats per mailbox
@@ -48,13 +48,13 @@ class DashboardController extends Controller
         foreach ($mailboxes as $mailbox) {
             $stats[$mailbox->id] = [
                 'active' => Conversation::where('mailbox_id', $mailbox->id)
-                    ->where('status', 1)
-                    ->where('state', 2)
+                    ->where('status', Conversation::STATUS_ACTIVE)
+                    ->where('state', Conversation::STATE_PUBLISHED)
                     ->count(),
                 'unassigned' => Conversation::where('mailbox_id', $mailbox->id)
                     ->whereNull('user_id')
-                    ->where('status', 1)
-                    ->where('state', 2)
+                    ->where('status', Conversation::STATUS_ACTIVE)
+                    ->where('state', Conversation::STATE_PUBLISHED)
                     ->count(),
             ];
         }

@@ -41,7 +41,7 @@ class ConversationController extends Controller
 
         $conversations = Conversation::with(['customer', 'user', 'folder', 'mailbox'])
             ->where('mailbox_id', $mailbox->id)
-            ->where('state', 2) // Published
+            ->where('state', Conversation::STATE_PUBLISHED)
             ->orderBy('last_reply_at', 'desc')
             ->paginate(50);
 
@@ -77,7 +77,7 @@ class ConversationController extends Controller
             'user',
             'folder',
             'threads' => function ($query) {
-                $query->where('state', 2) // Published
+                $query->where('state', Thread::STATE_PUBLISHED)
                     ->orderBy('created_at', 'asc');
             },
             'threads.user',
