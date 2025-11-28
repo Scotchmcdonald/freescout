@@ -60,7 +60,9 @@ class UpdateCustomerRequest extends FormRequest
             'phone.max' => 'Phone number must not exceed 60 characters.',
             'zip.max' => 'ZIP code must not exceed 12 characters.',
             'country.max' => 'Country code must be 2 characters.',
-            'emails.*.email' => 'Please provide a valid email address.',
+            'emails.*.email.required_with' => 'Email address is required when adding email entries.',
+            'emails.*.email.email' => 'Please provide a valid email address.',
+            'emails.*.type.required_with' => 'Email type is required when adding email entries.',
         ];
     }
 }
