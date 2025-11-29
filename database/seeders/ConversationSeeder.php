@@ -36,6 +36,11 @@ class ConversationSeeder extends Seeder
 
             /** @var \App\Models\Folder $inboxFolder */
 
+            // Skip if mailbox already has conversations
+            if ($mailbox->conversations()->count() > 0) {
+                continue;
+            }
+
             // Create 10 conversations per mailbox
             for ($i = 0; $i < 10; $i++) {
                 $customer = $customers->random();

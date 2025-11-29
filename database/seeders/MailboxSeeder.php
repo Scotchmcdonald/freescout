@@ -16,52 +16,44 @@ class MailboxSeeder extends Seeder
         $users = User::all();
 
         // Create support mailbox
-        $supportMailbox = Mailbox::factory()->create([
-            'name' => 'Support',
-            'email' => 'support@example.com',
-        ]);
+        $supportMailbox = Mailbox::firstOrCreate(
+            ['email' => 'support@example.com'],
+            ['name' => 'Support']
+        );
 
         // Create sales mailbox
-        $salesMailbox = Mailbox::factory()->create([
-            'name' => 'Sales',
-            'email' => 'sales@example.com',
-        ]);
+        $salesMailbox = Mailbox::firstOrCreate(
+            ['email' => 'sales@example.com'],
+            ['name' => 'Sales']
+        );
 
         // Attach users to mailboxes
         if ($users->isNotEmpty()) {
-            $supportMailbox->users()->attach($users->pluck('id'));
-            $salesMailbox->users()->attach($users->pluck('id'));
+            $supportMailbox->users()->syncWithoutDetaching($users->pluck('id'));
+            $salesMailbox->users()->syncWithoutDetaching($users->pluck('id'));
         }
 
         // Create default folders for each mailbox
         foreach ([$supportMailbox, $salesMailbox] as $mailbox) {
-            Folder::factory()->create([
-                'mailbox_id' => $mailbox->id,
-                'user_id' => null,
-                'type' => 1, // Inbox
-                'name' => 'Inbox',
-            ]);
+            Folder::firstOrCreate(
+                ['mailbox_id' => $mailbox->id, 'type' => 1],
+                ['user_id' => null, 'name' => 'Inbox']
+            );
 
-            Folder::factory()->create([
-                'mailbox_id' => $mailbox->id,
-                'user_id' => null,
-                'type' => 2, // Sent
-                'name' => 'Sent',
-            ]);
+            Folder::firstOrCreate(
+                ['mailbox_id' => $mailbox->id, 'type' => 2],
+                ['user_id' => null, 'name' => 'Sent']
+            );
 
-            Folder::factory()->create([
-                'mailbox_id' => $mailbox->id,
-                'user_id' => null,
-                'type' => 3, // Drafts
-                'name' => 'Drafts',
-            ]);
+            Folder::firstOrCreate(
+                ['mailbox_id' => $mailbox->id, 'type' => 3],
+                ['user_id' => null, 'name' => 'Drafts']
+            );
 
-            Folder::factory()->create([
-                'mailbox_id' => $mailbox->id,
-                'user_id' => null,
-                'type' => 5, // Trash
-                'name' => 'Trash',
-            ]);
+            Folder::firstOrCreate(
+                ['mailbox_id' => $mailbox->id, 'type' => 5],
+                ['user_id' => null, 'name' => 'Trash']
+            );
         }
     }
 }
