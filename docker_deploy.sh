@@ -513,6 +513,7 @@ echo -e "${GREEN}Configuring Laravel Environment...${NC}"
 cp "$DEFAULT_INSTALL_DIR/src/.env.example" "$DEFAULT_INSTALL_DIR/src/.env"
 
 # Replace Variables
+sed -i "s/APP_NAME=Laravel/APP_NAME=\"Borealtek Ticketing\"/g" "$DEFAULT_INSTALL_DIR/src/.env"
 sed -i "s/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/g" "$DEFAULT_INSTALL_DIR/src/.env"
 sed -i "s/# DB_HOST=127.0.0.1/DB_HOST=db/g" "$DEFAULT_INSTALL_DIR/src/.env"
 sed -i "s/# DB_PORT=3306/DB_PORT=3306/g" "$DEFAULT_INSTALL_DIR/src/.env"
