@@ -288,7 +288,7 @@ class MailboxController extends Controller
 
         $mailbox->update($validated);
 
-        return redirect()->route('mailboxes.connection.incoming', $mailbox)
+        return redirect()->route('mailboxes.settings', $mailbox)
             ->with('success', 'Incoming connection settings saved.');
     }
 
@@ -342,7 +342,7 @@ class MailboxController extends Controller
 
         $mailbox->update($validated);
 
-        return redirect()->route('mailboxes.connection.outgoing', $mailbox)
+        return redirect()->route('mailboxes.settings', $mailbox)
             ->with('success', 'Outgoing connection settings saved.');
     }
 
