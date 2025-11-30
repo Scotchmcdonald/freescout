@@ -316,7 +316,10 @@ cd "$DEFAULT_INSTALL_DIR"
 cat <<EOF > Dockerfile
 FROM serversideup/php:8.2-fpm-nginx
 USER root
-RUN curl -sSLf \
+RUN apt-get update && apt-get install -y gnupg && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    curl -sSLf \
         -o /usr/local/bin/install-php-extensions \
         https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
     chmod +x /usr/local/bin/install-php-extensions && \
@@ -576,6 +579,10 @@ else
     echo "Installing dependencies..."
     sudo docker compose exec -T app composer install --no-dev --optimize-autoloader
 fi
+
+echo "Building Frontend Assets..."
+sudo docker compose exec -T app npm install
+sudo docker compose exec -T app npm run build
 
 echo "Generating Key..."
 sudo docker compose exec -T app php artisan key:generate
