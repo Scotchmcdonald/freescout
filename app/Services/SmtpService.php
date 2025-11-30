@@ -137,7 +137,7 @@ class SmtpService
             'port' => $mailbox->out_port,
             'encryption' => $encryption,
             'username' => $mailbox->out_username,
-            'password' => $mailbox->out_password,
+            'password' => $this->decryptPassword($mailbox->out_password),
             'timeout' => null,
         ];
         
@@ -203,6 +203,21 @@ class SmtpService
             2 => 'tls',
             default => null,
         };
+    }
+
+    /**
+     * Decrypt password safely.
+     */
+    protected function decryptPassword(?string $password): ?string
+    {
+        if (empty($password)) {
+            return $password;
+        }
+        try {
+            return decrypt($password);
+        } catch (\Exception $e) {
+            return $password;
+        }
     }
 
     /**

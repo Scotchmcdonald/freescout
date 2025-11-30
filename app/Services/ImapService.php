@@ -213,7 +213,7 @@ class ImapService
             'encryption' => $encryption,
             'validate_cert' => $mailbox->in_validate_cert ?? true,
             'username' => $mailbox->in_username,
-            'password' => $mailbox->in_password,
+            'password' => $this->decryptPassword($mailbox->in_password),
             'protocol' => 'imap',
             'timeout' => 30,
         ];
@@ -278,6 +278,21 @@ class ImapService
             2 => 'tls',
             default => null,
         };
+    }
+
+    /**
+     * Decrypt password safely.
+     */
+    protected function decryptPassword(?string $password): ?string
+    {
+        if (empty($password)) {
+            return $password;
+        }
+        try {
+            return decrypt($password);
+        } catch (\Exception $e) {
+            return $password;
+        }
     }
 
     /**
