@@ -61,6 +61,61 @@
 
                         <!-- Connection Settings -->
                         <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Incoming Email Settings (IMAP)') }}</h3>
+                            
+                            <!-- Protocol -->
+                            <div class="mt-4">
+                                <x-input-label for="in_protocol" :value="__('Protocol')" />
+                                <select id="in_protocol" name="in_protocol" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    <option value="imap" @if(old('in_protocol') == 'imap') selected @endif>IMAP</option>
+                                    <option value="pop3" @if(old('in_protocol') == 'pop3') selected @endif>POP3</option>
+                                </select>
+                                <x-input-error :messages="$errors->get('in_protocol')" class="mt-2" />
+                            </div>
+
+                            <!-- Server -->
+                            <div class="mt-4">
+                                <x-input-label for="in_server" :value="__('IMAP Server')" />
+                                <x-text-input id="in_server" class="block mt-1 w-full" type="text" name="in_server" :value="old('in_server')" />
+                                <x-input-error :messages="$errors->get('in_server')" class="mt-2" />
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <!-- Port -->
+                                <div>
+                                    <x-input-label for="in_port" :value="__('IMAP Port')" />
+                                    <x-text-input id="in_port" class="block mt-1 w-full" type="number" name="in_port" :value="old('in_port')" />
+                                    <x-input-error :messages="$errors->get('in_port')" class="mt-2" />
+                                </div>
+                                
+                                <!-- Encryption -->
+                                <div>
+                                    <x-input-label for="in_encryption" :value="__('Encryption')" />
+                                    <select id="in_encryption" name="in_encryption" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        <option value="none" @if(old('in_encryption') == 'none') selected @endif>None</option>
+                                        <option value="ssl" @if(old('in_encryption') == 'ssl') selected @endif>SSL</option>
+                                        <option value="tls" @if(old('in_encryption') == 'tls') selected @endif>TLS</option>
+                                    </select>
+                                    <x-input-error :messages="$errors->get('in_encryption')" class="mt-2" />
+                                </div>
+                            </div>
+
+                            <!-- Username -->
+                            <div class="mt-4">
+                                <x-input-label for="in_username" :value="__('Username')" />
+                                <x-text-input id="in_username" class="block mt-1 w-full" type="text" name="in_username" :value="old('in_username')" />
+                                <x-input-error :messages="$errors->get('in_username')" class="mt-2" />
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mt-4">
+                                <x-input-label for="in_password" :value="__('Password')" />
+                                <x-text-input id="in_password" class="block mt-1 w-full" type="password" name="in_password" />
+                                <x-input-error :messages="$errors->get('in_password')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-6">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Outgoing Email Settings (SMTP)') }}</h3>
                             
                             <!-- Method -->

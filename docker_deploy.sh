@@ -494,36 +494,32 @@ if [ -d "$DEFAULT_INSTALL_DIR/src" ]; then
     if ! git pull origin "$GIT_BRANCH"; then
         echo -e "${RED}Git pull failed! You have local changes or conflicts.${NC}"
         
-        if [ "$INTERACTIVE" = true ]; then
-            echo ""
-            echo -e "${YELLOW}Conflict detected. How do you want to proceed?${NC}"
-            echo "1) Discard local changes (git reset --hard)"
-            echo "2) Nuke & Re-clone (Delete src and download fresh)"
-            echo "3) Exit and fix manually"
-            read -p "Select [1-3]: " GIT_OPT
-            
-            case "$GIT_OPT" in
-                1)
-                    echo "Resetting to origin/$GIT_BRANCH..."
-                    git reset --hard "origin/$GIT_BRANCH"
-                    ;;
-                2)
-                    echo "Nuking source directory..."
-                    cd ..
-                    sudo rm -rf src
-                    echo -e "${GREEN}Cloning branch '$GIT_BRANCH'...${NC}"
-                    git clone -b "$GIT_BRANCH" "$GIT_REPO_URL" src
-                    cd src
-                    ;;
-                *)
-                    echo "Aborting. Please fix git conflicts in $DEFAULT_INSTALL_DIR/src"
-                    exit 1
-                    ;;
-            esac
-        else
-            echo "Non-interactive mode: Git pull failed. Exiting."
-            exit 1
-        fi
+        # Always ask for user input on git conflict, even in non-interactive mode
+        echo ""
+        echo -e "${YELLOW}Conflict detected. How do you want to proceed?${NC}"
+        echo "1) Discard local changes (git reset --hard)"
+        echo "2) Nuke & Re-clone (Delete src and download fresh)"
+        echo "3) Exit and fix manually"
+        read -p "Select [1-3]: " GIT_OPT
+        
+        case "$GIT_OPT" in
+            1)
+                echo "Resetting to origin/$GIT_BRANCH..."
+                git reset --hard "origin/$GIT_BRANCH"
+                ;;
+            2)
+                echo "Nuking source directory..."
+                cd ..
+                sudo rm -rf src
+                echo -e "${GREEN}Cloning branch '$GIT_BRANCH'...${NC}"
+                git clone -b "$GIT_BRANCH" "$GIT_REPO_URL" src
+                cd src
+                ;;
+            *)
+                echo "Aborting. Please fix git conflicts in $DEFAULT_INSTALL_DIR/src"
+                exit 1
+                ;;
+        esac
     fi
     cd ..
 else
