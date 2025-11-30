@@ -22,8 +22,8 @@
                         <div class="mt-4">
                             <x-input-label for="in_protocol" :value="__('Protocol')" />
                             <select id="in_protocol" name="in_protocol" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <option value="imap" @if(old('in_protocol', $mailbox->in_protocol) == 'imap') selected @endif>IMAP</option>
-                                <option value="pop3" @if(old('in_protocol', $mailbox->in_protocol) == 'pop3') selected @endif>POP3</option>
+                                <option value="imap" @if(old('in_protocol', $mailbox->in_protocol) == 'imap' || old('in_protocol', $mailbox->in_protocol) == 1) selected @endif>IMAP</option>
+                                <option value="pop3" @if(old('in_protocol', $mailbox->in_protocol) == 'pop3' || old('in_protocol', $mailbox->in_protocol) == 2) selected @endif>POP3</option>
                             </select>
                             <x-input-error :messages="$errors->get('in_protocol')" class="mt-2" />
                         </div>
@@ -46,9 +46,9 @@
                         <div class="mt-4">
                             <x-input-label for="in_encryption" :value="__('Encryption')" />
                             <select id="in_encryption" name="in_encryption" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <option value="none" @if(old('in_encryption', $mailbox->in_encryption) == 'none') selected @endif>None</option>
-                                <option value="ssl" @if(old('in_encryption', $mailbox->in_encryption) == 'ssl') selected @endif>SSL</option>
-                                <option value="tls" @if(old('in_encryption', $mailbox->in_encryption) == 'tls') selected @endif>TLS</option>
+                                <option value="none" @if(old('in_encryption', $mailbox->in_encryption) == 'none' || old('in_encryption', $mailbox->in_encryption) == 0) selected @endif>None</option>
+                                <option value="ssl" @if(old('in_encryption', $mailbox->in_encryption) == 'ssl' || old('in_encryption', $mailbox->in_encryption) == 1) selected @endif>SSL</option>
+                                <option value="tls" @if(old('in_encryption', $mailbox->in_encryption) == 'tls' || old('in_encryption', $mailbox->in_encryption) == 2) selected @endif>TLS</option>
                             </select>
                             <x-input-error :messages="$errors->get('in_encryption')" class="mt-2" />
                         </div>
