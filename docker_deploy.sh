@@ -432,6 +432,20 @@ services:
       - redis
     networks:
       - fs-net
+  reverb:
+    image: freescout-app
+    restart: unless-stopped
+    command: php artisan reverb:start --host="0.0.0.0" --port=8080
+    ports:
+      - "6001:8080"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - app
+      - db
+      - redis
+    networks:
+      - fs-net
 networks:
   fs-net:
     driver: bridge
@@ -538,6 +552,25 @@ sed -i "s/REDIS_HOST=127.0.0.1/REDIS_HOST=redis/g" "$DEFAULT_INSTALL_DIR/src/.en
 echo "" >> "$DEFAULT_INSTALL_DIR/src/.env"
 echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> "$DEFAULT_INSTALL_DIR/src/.env"
 echo "ADMIN_PASSWORD=$ADMIN_PASS" >> "$DEFAULT_INSTALL_DIR/src/.env"
+
+# Reverb / Broadcasting Configuration
+REVERB_APP_ID=$(openssl rand -hex 8)
+REVERB_APP_KEY=$(openssl rand -hex 16)
+REVERB_APP_SECRET=$(openssl rand -hex 16)
+
+echo "" >> "$DEFAULT_INSTALL_DIR/src/.env"
+echo "BROADCAST_CONNECTION=reverb" >> "$DEFAULT_INSTALL_DIR/src/.env"
+echo "REVERB_APP_ID=$REVERB_APP_ID" >> "$DEFAULT_INSTALL_DIR/src/.env"
+echo "REVERB_APP_KEY=$REVERB_APP_KEY" >> "$DEFAULT_INSTALL_DIR/src/.env"
+echo "REVERB_APP_SECRET=$REVERB_APP_SECRET" >> "$DEFAULT_INSTALL_DIR/src/.env"
+echo "REVERB_HOST=\"0.0.0.0\"" >> "$DEFAULT_INSTALL_DIR/src/.env"
+echo "REVERB_PORT=8080" >> "$DEFAULT_INSTALL_DIR/src/.env"
+echo "REVERB_SCHEME=http" >> "$DEFAULT_INSTALL_DIR/src/.env"
+
+echo "VITE_REVERB_APP_KEY=\"$REVERB_APP_KEY\"" >> "$DEFAULT_INSTALL_DIR/src/.env"
+echo "VITE_REVERB_HOST=\"$DOMAIN_NAME\"" >> "$DEFAULT_INSTALL_DIR/src/.env"
+echo "VITE_REVERB_PORT=6001" >> "$DEFAULT_INSTALL_DIR/src/.env"
+echo "VITE_REVERB_SCHEME=http" >> "$DEFAULT_INSTALL_DIR/src/.env"
 
 if [ -n "$GOOGLE_CLIENT_ID" ]; then
     echo "" >> "$DEFAULT_INSTALL_DIR/src/.env"
