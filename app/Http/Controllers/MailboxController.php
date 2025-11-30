@@ -104,6 +104,20 @@ class MailboxController extends Controller
 
         $validated = $request->validated();
 
+        // Map string values to integers
+        $mappings = [
+            'out_method' => ['mail' => 1, 'sendmail' => 2, 'smtp' => 3],
+            'out_encryption' => ['none' => 0, 'ssl' => 1, 'tls' => 2],
+            'in_protocol' => ['imap' => 1, 'pop3' => 2],
+            'in_encryption' => ['none' => 0, 'ssl' => 1, 'tls' => 2],
+        ];
+
+        foreach ($mappings as $field => $map) {
+            if (isset($validated[$field]) && is_string($validated[$field])) {
+                $validated[$field] = $map[$validated[$field]] ?? $validated[$field];
+            }
+        }
+
         // Encrypt passwords if provided
         if (! empty($validated['out_password'])) {
             $validated['out_password'] = encrypt($validated['out_password']);
@@ -145,6 +159,20 @@ class MailboxController extends Controller
         $this->authorize('update', $mailbox);
 
         $validated = $request->validated();
+
+        // Map string values to integers
+        $mappings = [
+            'out_method' => ['mail' => 1, 'sendmail' => 2, 'smtp' => 3],
+            'out_encryption' => ['none' => 0, 'ssl' => 1, 'tls' => 2],
+            'in_protocol' => ['imap' => 1, 'pop3' => 2],
+            'in_encryption' => ['none' => 0, 'ssl' => 1, 'tls' => 2],
+        ];
+
+        foreach ($mappings as $field => $map) {
+            if (isset($validated[$field]) && is_string($validated[$field])) {
+                $validated[$field] = $map[$validated[$field]] ?? $validated[$field];
+            }
+        }
 
         // Encrypt passwords if provided and changed
         if (! empty($validated['out_password'])) {

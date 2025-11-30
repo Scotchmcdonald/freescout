@@ -76,7 +76,7 @@
                             <!-- Server -->
                             <div class="mt-4">
                                 <x-input-label for="in_server" :value="__('IMAP Server')" />
-                                <x-text-input id="in_server" class="block mt-1 w-full" type="text" name="in_server" :value="old('in_server')" />
+                                <x-text-input id="in_server" class="block mt-1 w-full" type="text" name="in_server" :value="old('in_server', 'imap.gmail.com')" />
                                 <x-input-error :messages="$errors->get('in_server')" class="mt-2" />
                             </div>
 
@@ -84,7 +84,7 @@
                                 <!-- Port -->
                                 <div>
                                     <x-input-label for="in_port" :value="__('IMAP Port')" />
-                                    <x-text-input id="in_port" class="block mt-1 w-full" type="number" name="in_port" :value="old('in_port')" />
+                                    <x-text-input id="in_port" class="block mt-1 w-full" type="number" name="in_port" :value="old('in_port', '993')" />
                                     <x-input-error :messages="$errors->get('in_port')" class="mt-2" />
                                 </div>
                                 
@@ -93,7 +93,7 @@
                                     <x-input-label for="in_encryption" :value="__('Encryption')" />
                                     <select id="in_encryption" name="in_encryption" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                         <option value="none" @if(old('in_encryption') == 'none') selected @endif>None</option>
-                                        <option value="ssl" @if(old('in_encryption') == 'ssl') selected @endif>SSL</option>
+                                        <option value="ssl" @if(old('in_encryption', 'ssl') == 'ssl') selected @endif>SSL</option>
                                         <option value="tls" @if(old('in_encryption') == 'tls') selected @endif>TLS</option>
                                     </select>
                                     <x-input-error :messages="$errors->get('in_encryption')" class="mt-2" />
@@ -131,7 +131,7 @@
                             <!-- Server -->
                             <div class="mt-4">
                                 <x-input-label for="out_server" :value="__('SMTP Server')" />
-                                <x-text-input id="out_server" class="block mt-1 w-full" type="text" name="out_server" :value="old('out_server')" />
+                                <x-text-input id="out_server" class="block mt-1 w-full" type="text" name="out_server" :value="old('out_server', 'smtp.gmail.com')" />
                                 <x-input-error :messages="$errors->get('out_server')" class="mt-2" />
                             </div>
 
@@ -139,7 +139,7 @@
                                 <!-- Port -->
                                 <div>
                                     <x-input-label for="out_port" :value="__('SMTP Port')" />
-                                    <x-text-input id="out_port" class="block mt-1 w-full" type="number" name="out_port" :value="old('out_port')" />
+                                    <x-text-input id="out_port" class="block mt-1 w-full" type="number" name="out_port" :value="old('out_port', '465')" />
                                     <x-input-error :messages="$errors->get('out_port')" class="mt-2" />
                                 </div>
                                 
@@ -148,7 +148,7 @@
                                     <x-input-label for="out_encryption" :value="__('Encryption')" />
                                     <select id="out_encryption" name="out_encryption" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                         <option value="none" @if(old('out_encryption') == 'none') selected @endif>None</option>
-                                        <option value="ssl" @if(old('out_encryption') == 'ssl') selected @endif>SSL</option>
+                                        <option value="ssl" @if(old('out_encryption', 'ssl') == 'ssl') selected @endif>SSL</option>
                                         <option value="tls" @if(old('out_encryption') == 'tls') selected @endif>TLS</option>
                                     </select>
                                     <x-input-error :messages="$errors->get('out_encryption')" class="mt-2" />
