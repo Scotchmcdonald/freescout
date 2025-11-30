@@ -21,7 +21,7 @@
                         <!-- From Name -->
                         <div class="mt-4">
                             <x-input-label for="from_name" :value="__('From Name')" />
-                            <x-text-input id="from_name" class="block mt-1 w-full" type="text" name="from_name" :value="old('from_name', $mailbox->from_name)" />
+                            <x-text-input id="from_name" class="block mt-1 w-full" type="text" name="from_name" :value="old('from_name', ($mailbox->from_name == 3 || $mailbox->from_name == 2) ? $mailbox->from_name_custom : '')" placeholder="Leave empty to use mailbox name" />
                             <x-input-error :messages="$errors->get('from_name')" class="mt-2" />
                         </div>
 
