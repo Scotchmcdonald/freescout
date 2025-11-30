@@ -53,6 +53,14 @@
                             <x-input-error :messages="$errors->get('in_encryption')" class="mt-2" />
                         </div>
 
+                        <!-- Folder -->
+                        <div class="mt-4">
+                            <x-input-label for="in_imap_folders" :value="__('Folder (Optional)')" />
+                            <x-text-input id="in_imap_folders" class="block mt-1 w-full" type="text" name="in_imap_folders" :value="old('in_imap_folders', $mailbox->in_imap_folders)" placeholder="INBOX" />
+                            <p class="text-sm text-gray-500 mt-1">Comma separated list of folders to fetch emails from. Default: INBOX</p>
+                            <x-input-error :messages="$errors->get('in_imap_folders')" class="mt-2" />
+                        </div>
+
                         <!-- Username -->
                         <div class="mt-4">
                             <x-input-label for="in_username" :value="__('Username')" />

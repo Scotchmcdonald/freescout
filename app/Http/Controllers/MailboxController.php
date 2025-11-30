@@ -271,6 +271,7 @@ class MailboxController extends Controller
             'in_encryption' => 'nullable|in:none,ssl,tls',
             'in_username' => 'required|string|max:255',
             'in_password' => 'nullable|string',
+            'in_imap_folders' => 'nullable|string|max:255',
         ]);
 
         // Transform protocol to integer
