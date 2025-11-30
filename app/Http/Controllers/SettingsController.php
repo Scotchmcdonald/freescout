@@ -33,12 +33,12 @@ class SettingsController extends Controller
                 'icon' => 'cog',
                 'order' => 100
             ],
-            'email' => [
-                'title' => __('Email Settings'),
-                'route' => 'settings.email',
-                'icon' => 'mail',
-                'order' => 200
-            ],
+            // 'email' => [
+            //     'title' => __('Email Settings'),
+            //     'route' => 'settings.email',
+            //     'icon' => 'mail',
+            //     'order' => 200
+            // ],
             'alerts' => [
                 'title' => __('Alerts'),
                 'route' => 'settings.alerts',

@@ -32,6 +32,9 @@ CONFIG_FILE="deploy.conf"
 INTERACTIVE=true
 
 if [ -f "$CONFIG_FILE" ]; then
+    if [ -n "$SUDO_USER" ] && [ "$(stat -c '%U' "$CONFIG_FILE" 2>/dev/null)" = "root" ]; then
+        chown "$SUDO_USER:$(id -g "$SUDO_USER")" "$CONFIG_FILE"
+    fi
     echo -e "${GREEN}Configuration file '$CONFIG_FILE' found.${NC}"
     read -p "Do you want to use this configuration? [Y/n] " USE_CONFIG
     USE_CONFIG=${USE_CONFIG:-Y}
@@ -102,6 +105,9 @@ MAILBOX_SMTP_PASS=""
 # ==========================================
 SEED_SAMPLE_DATA=false
 EOF
+            if [ -n "$SUDO_USER" ]; then
+                chown "$SUDO_USER:$(id -g "$SUDO_USER")" "$CONFIG_FILE"
+            fi
             echo -e "${GREEN}Configuration template created at $CONFIG_FILE.${NC}"
             echo "Please edit the file and run this script again."
             exit 0

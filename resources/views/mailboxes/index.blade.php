@@ -66,9 +66,9 @@
                                                class="flex-1 text-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700">
                                                 View
                                             </a>
-                                            <a href="{{ route('conversations.create', $mailbox) }}" 
+                                            <a href="{{ route('mailboxes.settings', $mailbox) }}" 
                                                class="flex-1 text-center px-4 py-2 bg-gray-200 text-gray-800 text-sm font-medium rounded hover:bg-gray-300">
-                                                New
+                                                Edit
                                             </a>
                                         </div>
                                     </div>

@@ -61,7 +61,7 @@
                                 <span x-show="loading" class="inline-block animate-spin">⟳</span>
                             </button>
                             <button @click="cancelSmtpTest()"
-                                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                                    class="px-4 py-2 bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-200 rounded hover:bg-gray-400 dark:hover:bg-gray-500">
                                 Cancel
                             </button>
                         </div>

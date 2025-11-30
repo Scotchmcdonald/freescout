@@ -3,6 +3,7 @@
 /vendor
 
 # Build artifacts
+/public/build
 /public/hot
 /public/css/builds/
 /public/js/builds/

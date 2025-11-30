@@ -128,6 +128,15 @@
     .bg-blue-500 { background-color: var(--theme-primary-500) !important; }
     .bg-blue-600 { background-color: var(--theme-primary-600) !important; }
     .bg-blue-700 { background-color: var(--theme-primary-700) !important; }
+
+    /* Text Colors */
+    .text-blue-50 { color: var(--theme-primary-50) !important; }
+    .text-blue-100 { color: var(--theme-primary-100) !important; }
+    .text-blue-500 { color: var(--theme-primary-500) !important; }
+    .text-blue-600 { color: var(--theme-primary-600) !important; }
+    .text-blue-700 { color: var(--theme-primary-700) !important; }
+    .text-blue-800 { color: var(--theme-primary-700) !important; }
+    .text-blue-900 { color: var(--theme-primary-700) !important; }
     
     /* Hover Overrides */
     .hover\:bg-gray-50:hover { background-color: var(--theme-bg-hover) !important; }
@@ -207,13 +216,37 @@
     .focus\:border-blue-500:focus { border-color: var(--theme-primary-500) !important; }
     .focus\:ring-blue-500:focus { --tw-ring-color: var(--theme-primary-500) !important; }
 
-    /* Indigo Overrides (Navigation) */
+    /* Indigo Overrides (Navigation & Components) */
     .border-indigo-400 { border-color: var(--theme-primary-600) !important; }
+    .text-indigo-400 { color: var(--theme-primary-500) !important; }
+    .text-indigo-500 { color: var(--theme-primary-500) !important; }
+    .text-indigo-600 { color: var(--theme-primary-600) !important; }
     .text-indigo-700 { color: var(--theme-primary-700) !important; }
+    
     .bg-indigo-50 { background-color: var(--theme-primary-50) !important; }
+    
+    .focus\:border-indigo-500:focus { border-color: var(--theme-primary-500) !important; }
     .focus\:border-indigo-700:focus { border-color: var(--theme-primary-700) !important; }
+    
     .focus\:text-indigo-800:focus { color: var(--theme-primary-700) !important; }
     .focus\:bg-indigo-100:focus { background-color: var(--theme-primary-100) !important; }
+
+    .focus\:ring-indigo-500:focus { --tw-ring-color: var(--theme-primary-500) !important; }
+    
+    .focus-within\:ring-indigo-500:focus-within { --tw-ring-color: var(--theme-primary-500) !important; }
+    .focus-within\:border-indigo-500:focus-within { border-color: var(--theme-primary-500) !important; }
+
+    /* Additional Blue Overrides */
+    .text-blue-400 { color: var(--theme-primary-500) !important; }
+    .border-blue-200 { border-color: var(--theme-primary-100) !important; }
+    .hover\:text-blue-900:hover { color: var(--theme-primary-700) !important; }
+
+    /* Primary Button Override (Global) */
+    .bg-gray-800 { background-color: var(--theme-primary-600) !important; }
+    .bg-gray-800 .text-white { color: #ffffff !important; }
+    .hover\:bg-gray-700:hover { background-color: var(--theme-primary-500) !important; }
+    .focus\:bg-gray-700:focus { background-color: var(--theme-primary-500) !important; }
+    .active\:bg-gray-900:active { background-color: var(--theme-primary-700) !important; }
 
     /* Global Overrides for Dark Mode / Theming */
     @if($isDarkMode || ($normalizedTheme === 'default' && $mode === 'dark') || $mode === 'dark')
@@ -250,10 +283,6 @@
         /* Fix for white text on primary buttons */
         .text-white { color: var(--theme-text-inverted) !important; }
         .bg-blue-600 .text-white { color: #ffffff !important; } /* Keep buttons white text usually */
-        
-        /* Primary Button Override for Dark Mode */
-        .bg-gray-800 { background-color: var(--theme-primary-600) !important; }
-        .bg-gray-800 .text-white { color: #ffffff !important; } /* Ensure text is white on primary buttons */
         
         /* Specific Dark Mode Fixes */
         .shadow-sm, .shadow, .shadow-lg {
