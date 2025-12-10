@@ -40,6 +40,12 @@ class SocialAuthController extends Controller
         $adminEmailsString = config('services.google.admin_emails');
         $adminEmails = $adminEmailsString ? array_map('trim', explode(',', $adminEmailsString)) : [];
         
+        // Also check the system ADMIN_EMAIL from .env
+        $systemAdminEmail = env('ADMIN_EMAIL');
+        if ($systemAdminEmail) {
+            $adminEmails[] = $systemAdminEmail;
+        }
+
         $allowedDomainsString = config('services.google.allowed_domains');
         $allowedDomains = $allowedDomainsString ? array_map('trim', explode(',', $allowedDomainsString)) : [];
 
@@ -70,8 +76,8 @@ class SocialAuthController extends Controller
                 'avatar' => $googleUser->avatar,
             ];
 
-            // Auto-verify if admin or allowed domain
-            if (($isAdmin || $isAllowedDomain) && !$user->email_verified_at) {
+            // Auto-verify if admin, allowed domain, or existing user is already an admin
+            if (($isAdmin || $user->role === User::ROLE_ADMIN) && !$user->email_verified_at) {
                 $updates['email_verified_at'] = now();
             }
             
