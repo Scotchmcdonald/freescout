@@ -203,12 +203,14 @@ if [ "$INTERACTIVE" = true ]; then
         # 3. Google OAuth (Optional)
         echo -e "${YELLOW}Google OAuth Configuration (Optional)${NC}"
         echo "Enter your credentials to enable 'Login with Google' immediately."
-        read -p "Google Client ID (press Enter to skip): " GOOGLE_CLIENT_ID
-        if [ -n "$GOOGLE_CLIENT_ID" ]; then
-            read -p "Google Client Secret: " GOOGLE_CLIENT_SECRET
-            echo "Enter comma-separated emails for auto-admin access (e.g. 'bob@ex.com,alice@ex.com')"
-            read -p "Admin Emails (press Enter to skip): " GOOGLE_ADMIN_EMAILS
-        fi
+        echo -e "${YELLOW}Google OAuth (Optional)${NC}"
+    read -p "Google Client ID (Enter to skip): " GOOGLE_CLIENT_ID
+    if [ -n "$GOOGLE_CLIENT_ID" ]; then
+        read -p "Google Client Secret: " GOOGLE_CLIENT_SECRET
+        read -p "Google Admin Emails (comma separated): " GOOGLE_ADMIN_EMAILS
+        read -p "Allowed Domains (comma separated, e.g. example.com,gmail.com): " GOOGLE_ALLOWED_DOMAINS
+    fi
+fi
         echo ""
 
         # 4. Sample Data Seeding
@@ -547,7 +549,7 @@ sed -i "s/REDIS_HOST=127.0.0.1/REDIS_HOST=redis/g" "$DEFAULT_INSTALL_DIR/src/.en
 # Append Admin details
 echo "" >> "$DEFAULT_INSTALL_DIR/src/.env"
 echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> "$DEFAULT_INSTALL_DIR/src/.env"
-echo "ADMIN_PASSWORD=$ADMIN_PASS" >> "$DEFAULT_INSTALL_DIR/src/.env"
+echo "ADMIN_PASSWORD=\"$ADMIN_PASS\"" >> "$DEFAULT_INSTALL_DIR/src/.env"
 
 # Reverb / Broadcasting Configuration
 REVERB_APP_ID=$(openssl rand -hex 8)
@@ -575,6 +577,9 @@ if [ -n "$GOOGLE_CLIENT_ID" ]; then
     echo "GOOGLE_REDIRECT_URI=http://$DOMAIN_NAME/auth/google/callback" >> "$DEFAULT_INSTALL_DIR/src/.env"
     if [ -n "$GOOGLE_ADMIN_EMAILS" ]; then
         echo "GOOGLE_ADMIN_EMAILS=\"$GOOGLE_ADMIN_EMAILS\"" >> "$DEFAULT_INSTALL_DIR/src/.env"
+    fi
+    if [ -n "$GOOGLE_ALLOWED_DOMAINS" ]; then
+        echo "GOOGLE_ALLOWED_DOMAINS=\"$GOOGLE_ALLOWED_DOMAINS\"" >> "$DEFAULT_INSTALL_DIR/src/.env"
     fi
 fi
 
