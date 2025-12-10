@@ -34,53 +34,79 @@ class SocialAuthController extends Controller
             return redirect()->route('login')->with('error', 'Google authentication failed.');
         }
 
-        $user = User::where('google_id', $googleUser->id)->first();
+        $email = $googleUser->email;
+
+        // Get configuration
+        $adminEmailsString = config('services.google.admin_emails');
+        $adminEmails = $adminEmailsString ? array_map('trim', explode(',', $adminEmailsString)) : [];
+        
+        $allowedDomainsString = config('services.google.allowed_domains');
+        $allowedDomains = $allowedDomainsString ? array_map('trim', explode(',', $allowedDomainsString)) : [];
+
+        $isAdmin = in_array(strtolower($email), array_map('strtolower', $adminEmails));
+        
+        $isAllowedDomain = false;
+        if (empty($allowedDomains)) {
+            // If no domains configured, allow none (or maybe allow all? usually safer to allow none if feature is used)
+            // But for backward compatibility, if no domains are set, maybe we should rely on manual registration?
+            // The user specifically asked to "only allow emails from a configured list".
+            // So if list is empty, and not admin, deny.
+        } else {
+            foreach ($allowedDomains as $domain) {
+                if (Str::endsWith($email, '@' . $domain)) {
+                    $isAllowedDomain = true;
+                    break;
+                }
+            }
+        }
+
+        // Check if user exists (by ID or Email)
+        $user = User::where('google_id', $googleUser->id)->orWhere('email', $email)->first();
 
         if ($user) {
+            // Update existing user
+            $updates = [
+                'google_id' => $googleUser->id,
+                'avatar' => $googleUser->avatar,
+            ];
+
+            // Auto-verify if admin or allowed domain
+            if (($isAdmin || $isAllowedDomain) && !$user->email_verified_at) {
+                $updates['email_verified_at'] = now();
+            }
+            
+            // Promote to admin if in admin list and not already admin
+            if ($isAdmin && $user->role !== User::ROLE_ADMIN) {
+                $updates['role'] = User::ROLE_ADMIN;
+            }
+
+            $user->update($updates);
+            
             Auth::login($user);
             return redirect()->intended('dashboard');
         } else {
-            // Check if user exists with this email
-            $user = User::where('email', $googleUser->email)->first();
+            // Create new user
+            if ($isAdmin || $isAllowedDomain) {
+                $role = $isAdmin ? User::ROLE_ADMIN : User::ROLE_USER;
 
-            if ($user) {
-                // Link Google account
-                $user->update([
+                $newUser = User::create([
+                    'first_name' => $googleUser->user['given_name'] ?? 'User',
+                    'last_name' => $googleUser->user['family_name'] ?? '',
+                    'email' => $email,
                     'google_id' => $googleUser->id,
                     'avatar' => $googleUser->avatar,
+                    'password' => Hash::make(Str::random(24)),
+                    'role' => $role,
+                    'status' => User::STATUS_ACTIVE,
+                    'email_verified_at' => now(), // Auto-verify
+                    'dark_mode' => true,
                 ]);
-                
-                Auth::login($user);
+
+                Auth::login($newUser);
                 return redirect()->intended('dashboard');
-            } else {
-                // Get configured admin emails
-                $adminEmailsString = config('services.google.admin_emails');
-                $adminEmails = $adminEmailsString ? array_map('trim', explode(',', $adminEmailsString)) : [];
-                $isAdmin = in_array(strtolower($googleUser->email), array_map('strtolower', $adminEmails));
-
-                // Auto-register if user is Admin OR from borealtek.ca
-                if ($isAdmin || Str::endsWith($googleUser->email, '@borealtek.ca')) {
-                    $role = $isAdmin ? User::ROLE_ADMIN : User::ROLE_USER;
-
-                    $newUser = User::create([
-                        'first_name' => $googleUser->user['given_name'] ?? 'User',
-                        'last_name' => $googleUser->user['family_name'] ?? '',
-                        'email' => $googleUser->email,
-                        'google_id' => $googleUser->id,
-                        'avatar' => $googleUser->avatar,
-                        'password' => Hash::make(Str::random(24)),
-                        'role' => $role,
-                        'status' => User::STATUS_ACTIVE,
-                        'email_verified_at' => now(), // Auto-verify email
-                        'dark_mode' => true, // Default to Dark Mode
-                    ]);
-
-                    Auth::login($newUser);
-                    return redirect()->intended('dashboard');
-                }
-
-                return redirect()->route('login')->with('error', 'No account found with this email address.');
             }
+
+            return redirect()->route('login')->with('error', 'Access denied. Your email domain is not authorized.');
         }
     }
 }

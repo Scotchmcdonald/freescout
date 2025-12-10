@@ -24,7 +24,7 @@ echo -e "${CYAN}============================================================${NC
 echo -e "${CYAN}   FreeScout Cloudflare Tunnel Deployer   ${NC}"
 echo -e "${CYAN}============================================================${NC}"
 
-CONFIG_FILE="tunnel.conf"
+CONFIG_FILE="deploy.conf"
 INTERACTIVE=true
 
 # Check for Config File
@@ -93,6 +93,7 @@ if [ "$INTERACTIVE" = true ]; then
     if [ -n "$GOOGLE_CLIENT_ID" ]; then
         read -p "Google Client Secret: " GOOGLE_CLIENT_SECRET
         read -p "Google Admin Emails (comma separated): " GOOGLE_ADMIN_EMAILS
+        read -p "Allowed Domains (comma separated, e.g. example.com,gmail.com): " GOOGLE_ALLOWED_DOMAINS
     fi
 fi
 
@@ -289,6 +290,8 @@ if [ -n "$GOOGLE_CLIENT_ID" ]; then
     echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> "src/.env"
     echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> "src/.env"
     echo "GOOGLE_ADMIN_EMAILS=\"$GOOGLE_ADMIN_EMAILS\"" >> "src/.env"
+    echo "GOOGLE_ALLOWED_DOMAINS=\"$GOOGLE_ALLOWED_DOMAINS\"" >> "src/.env"
+    echo "GOOGLE_REDIRECT_URI=https://$DOMAIN_NAME/auth/google/callback" >> "src/.env"
 fi
 
 # ==========================================
@@ -346,4 +349,10 @@ echo "   - Subdomain: devtickets"
 echo "   - Domain: scotchmcdonald.dev"
 echo "   - Service: http://app:8080"
 echo ""
+if [ -n "$GOOGLE_CLIENT_ID" ]; then
+    echo "4. Google OAuth Configuration:"
+    echo "   - Add this Redirect URI to your Google Cloud Console credentials:"
+    echo "   - https://$DOMAIN_NAME/auth/google/callback"
+    echo ""
+fi
 echo "Local Access (Emergency): http://localhost:8080"
