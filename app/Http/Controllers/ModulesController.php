@@ -210,10 +210,16 @@ class ModulesController extends Controller
     }
 
     /**
-     * Install a module from the marketplace.
+     * Install a module from the marketplace or GitHub.
      */
     public function install(Request $request): \Illuminate\Http\RedirectResponse
     {
+        $githubUrl = $request->input('github_url');
+
+        if ($githubUrl) {
+            return $this->installFromGithub($githubUrl);
+        }
+
         $alias = $request->input('alias');
 
         if (! $alias) {
@@ -243,6 +249,88 @@ class ModulesController extends Controller
             return redirect()->back()->with('error', __('Could not determine download URL for this module'));
         }
 
+        return $this->installFromUrl($downloadUrl, $alias);
+    }
+
+    private function installFromGithub(string $url): \Illuminate\Http\RedirectResponse
+    {
+        if (! filter_var($url, FILTER_VALIDATE_URL)) {
+            return redirect()->back()->with('error', __('Invalid GitHub URL'));
+        }
+
+        // Extract repo name
+        $path = parse_url($url, PHP_URL_PATH);
+        $parts = explode('/', trim($path, '/'));
+        if (count($parts) < 2) {
+            return redirect()->back()->with('error', __('Invalid GitHub URL format'));
+        }
+        $repoName = end($parts);
+        $repoName = preg_replace('/\.git$/', '', $repoName);
+        
+        // Convert kebab-case to PascalCase for module name if needed, 
+        // but usually we clone into the repo name and let the module.json define the name.
+        // However, Nwidart modules expects the folder name to match the module name in module.json usually.
+        // Let's clone into a temp dir first to read module.json? 
+        // Or just clone into Modules/$repoName and hope for the best.
+        // Let's try to be smart and convert "crm-module" to "Crm".
+        
+        $moduleName = \Illuminate\Support\Str::studly($repoName);
+        // Remove "Module" suffix if present to avoid "CrmModuleModule" but keep if it's just "Module"
+        if (str_ends_with($moduleName, 'Module') && strlen($moduleName) > 6) {
+            $moduleName = substr($moduleName, 0, -6);
+        }
+
+        $targetPath = base_path("Modules/$moduleName");
+
+        if (File::exists($targetPath)) {
+            return redirect()->back()->with('error', __('Module directory already exists: :path', ['path' => $targetPath]));
+        }
+
+        try {
+            // Use git clone
+            $process = new \Symfony\Component\Process\Process(['git', 'clone', $url, $targetPath]);
+            $process->run();
+
+            if (! $process->isSuccessful()) {
+                throw new \Exception(__('Git clone failed: :error', ['error' => $process->getErrorOutput()]));
+            }
+
+            // Clear cache
+            Artisan::call('cache:clear');
+            Artisan::call('config:clear');
+
+            // Try to find the module
+            $module = Module::find($moduleName);
+            
+            // If not found by folder name, maybe the module.json name is different.
+            // We can scan all modules again.
+            if (!$module) {
+                $modules = Module::all();
+                // This might be tricky if we don't know the alias.
+                // But usually StudlyCase folder name is the standard.
+            }
+
+            if ($module) {
+                $module->enable();
+                
+                // Run install command
+                $outputLog = new BufferedOutput;
+                Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
+                
+                Artisan::call('cache:clear');
+                
+                return redirect()->back()->with('success', __('Module installed from GitHub successfully'));
+            }
+            
+            return redirect()->back()->with('warning', __('Module cloned but could not be detected. Please check the Modules directory.'));
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    private function installFromUrl(string $downloadUrl, string $alias): \Illuminate\Http\RedirectResponse
+    {
         $tempFile = tempnam(sys_get_temp_dir(), 'mod_');
 
         try {
@@ -469,6 +557,16 @@ class ModulesController extends Controller
         foreach ($modules as $module) {
             $alias = $module->getLowerName();
             $currentVersion = $module->get('version', '1.0.0');
+            $modulePath = $module->getPath();
+
+            // Check GitHub updates if it's a git repo
+            if (File::isDirectory($modulePath . '/.git')) {
+                $gitUpdate = $this->checkGithubUpdate($modulePath, $currentVersion);
+                if ($gitUpdate) {
+                    $updates[$alias] = $gitUpdate;
+                }
+                continue;
+            }
 
             $result = WpApi::getVersion([
                 'module_alias' => $alias,
@@ -479,6 +577,7 @@ class ModulesController extends Controller
                     'current' => $currentVersion,
                     'available' => $result['version'],
                     'download_url' => $result['download_url'] ?? null,
+                    'type' => 'marketplace',
                 ];
             }
         }
@@ -491,6 +590,60 @@ class ModulesController extends Controller
     }
 
     /**
+     * Check for updates from GitHub.
+     */
+    private function checkGithubUpdate(string $modulePath, string $currentVersion): ?array
+    {
+        try {
+            // Get remote URL
+            $process = new \Symfony\Component\Process\Process(['git', 'remote', 'get-url', 'origin'], $modulePath);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+            $remoteUrl = trim($process->getOutput());
+
+            // Fetch tags
+            $process = new \Symfony\Component\Process\Process(['git', 'ls-remote', '--tags', 'origin'], $modulePath);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+            $output = $process->getOutput();
+            
+            // Parse tags
+            $lines = explode("\n", $output);
+            $latestVersion = $currentVersion;
+            
+            foreach ($lines as $line) {
+                if (preg_match('/refs\/tags\/(v?[\d\.]+)(\^{})?$/', $line, $matches)) {
+                    $tag = $matches[1];
+                    // Remove 'v' prefix if present
+                    $version = ltrim($tag, 'v');
+                    
+                    if (version_compare($version, $latestVersion, '>')) {
+                        $latestVersion = $version;
+                    }
+                }
+            }
+            
+            if (version_compare($latestVersion, $currentVersion, '>')) {
+                return [
+                    'current' => $currentVersion,
+                    'available' => $latestVersion,
+                    'download_url' => $remoteUrl,
+                    'type' => 'github',
+                ];
+            }
+            
+        } catch (\Exception $e) {
+            // Log error?
+        }
+        
+        return null;
+    }
+
+    /**
      * Update a module.
      */
     protected function ajaxUpdateModule(Request $request): JsonResponse
@@ -499,6 +652,16 @@ class ModulesController extends Controller
 
         if (! $alias) {
             return response()->json(['success' => false, 'message' => __('Module alias is required')]);
+        }
+
+        $module = Module::find($alias);
+        if (!$module) {
+            return response()->json(['success' => false, 'message' => __('Module not found')]);
+        }
+
+        // Check if it's a git repo
+        if (File::isDirectory($module->getPath() . '/.git')) {
+            return $this->updateFromGithub($module);
         }
 
         $result = WpApi::getVersion([
@@ -516,12 +679,6 @@ class ModulesController extends Controller
 
             if (! $response->successful()) {
                 throw new \Exception(__('Failed to download update'));
-            }
-
-            // Get current module path
-            $module = Module::find($alias);
-            if (! $module) {
-                throw new \Exception(__('Module not found'));
             }
 
             $modulePath = $module->getPath();
@@ -589,6 +746,38 @@ class ModulesController extends Controller
                 'success' => false,
                 'message' => $e->getMessage(),
             ]);
+        }
+    }
+
+    /**
+     * Update module from GitHub.
+     */
+    private function updateFromGithub(\Nwidart\Modules\Module $module): JsonResponse
+    {
+        try {
+            $path = $module->getPath();
+            
+            // Fetch and pull
+            $process = new \Symfony\Component\Process\Process(['git', 'pull'], $path);
+            $process->run();
+            
+            if (!$process->isSuccessful()) {
+                throw new \Exception(__('Git pull failed: :error', ['error' => $process->getErrorOutput()]));
+            }
+            
+            // Run install command
+            $outputLog = new BufferedOutput;
+            Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
+            
+            Artisan::call('cache:clear');
+            
+            return response()->json([
+                'success' => true,
+                'message' => __('Module updated from GitHub successfully'),
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 

@@ -1,9 +1,3 @@
 {
-    "SampleModule": false,
-    "TestModule": true,
-    "SymlinkTest": false,
-    "ValidateTest": false,
-    "PermissionTest": false,
-    "CacheTest": false,
-    "HookTest": false
+    "Crm": true
 }

@@ -44,20 +44,26 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-medium text-gray-900">
-                            {{ __('Installed Modules') }}
-                        </h3>
-                        <p class="mt-1 text-sm text-gray-600">
-                            {{ __('Manage your installed modules. Enable or disable modules as needed.') }}
-                        </p>
+                    <div class="mb-6 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900">
+                                {{ __('Installed Modules') }}
+                            </h3>
+                            <p class="mt-1 text-sm text-gray-600">
+                                {{ __('Manage your installed modules. Enable or disable modules as needed.') }}
+                            </p>
+                        </div>
+                        <button type="button" id="check-updates-btn" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                            {{ __('Check for Updates') }}
+                        </button>
                     </div>
 
                     @if(count($modules) > 0)
                         <div class="space-y-4">
                             @foreach($modules as $module)
-                                <div class="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors"
-                                     x-data="{ processing: false }">
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors module-item"
+                                     data-alias="{{ $module['alias'] }}"
+                                     x-data="{ processing: false, updating: false }">
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1">
                                             <div class="flex items-center">
@@ -78,6 +84,42 @@
                                             <div class="mt-2 flex items-center space-x-4 text-xs text-gray-500">
                                                 <span>{{ __('Alias') }}: <code class="bg-gray-100 px-1 py-0.5 rounded">{{ $module['alias'] }}</code></span>
                                                 <span>{{ __('Version') }}: {{ $module['version'] }}</span>
+                                                <span class="update-info hidden text-indigo-600 font-bold ml-2"></span>
+                                                <button class="update-btn hidden ml-2 inline-flex items-center px-2 py-1 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150"
+                                                    @click="
+                                                        if (!confirm('{{ __('Are you sure you want to update this module?') }}')) return;
+                                                        updating = true;
+                                                        fetch('{{ route('modules.ajax') }}', {
+                                                            method: 'POST',
+                                                            headers: {
+                                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                                'Content-Type': 'application/json',
+                                                                'Accept': 'application/json'
+                                                            },
+                                                            body: JSON.stringify({
+                                                                action: 'update_module',
+                                                                alias: '{{ $module['alias'] }}'
+                                                            })
+                                                        })
+                                                        .then(response => response.json())
+                                                        .then(data => {
+                                                            if (data.success) {
+                                                                alert(data.message);
+                                                                window.location.reload();
+                                                            } else {
+                                                                alert(data.message);
+                                                                updating = false;
+                                                            }
+                                                        })
+                                                        .catch(error => {
+                                                            alert('{{ __('An error occurred') }}');
+                                                            updating = false;
+                                                        });
+                                                    "
+                                                    :disabled="updating">
+                                                    <span x-show="!updating">{{ __('Update') }}</span>
+                                                    <span x-show="updating">{{ __('Updating...') }}</span>
+                                                </button>
                                             </div>
                                         </div>
 
@@ -197,18 +239,24 @@
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-6" x-data="{ open: false }">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-medium text-gray-900">
-                            {{ __('Available Modules') }}
-                        </h3>
-                        <p class="mt-1 text-sm text-gray-600">
-                            {{ __('Browse and install modules from the repository.') }}
-                        </p>
+                    <div class="mb-6 flex justify-between items-center cursor-pointer" @click="open = !open">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900">
+                                {{ __('Official Freescout Module Roster') }}
+                            </h3>
+                            <p class="mt-1 text-sm text-gray-600">
+                                {{ __('Browse and install modules from the repository.') }}
+                            </p>
+                        </div>
+                        <svg class="w-6 h-6 transform transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
                     </div>
 
-                    @if(isset($remoteModules) && count($remoteModules) > 0)
+                    <div x-show="open" x-transition>
+                        @if(isset($remoteModules) && count($remoteModules) > 0)
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             @foreach($remoteModules as $module)
                                 <div class="border border-gray-200 rounded-lg p-4 flex flex-col h-full hover:border-gray-300 transition-colors">
@@ -262,27 +310,104 @@
                             {{ __('No modules available at the moment.') }}
                         </div>
                     @endif
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-blue-800">
-                            {{ __('Module Development') }}
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-6">
+                <div class="p-6 bg-white border-b border-gray-200">
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            {{ __('Install from GitHub') }}
                         </h3>
-                        <div class="mt-2 text-sm text-blue-700">
-                            <p>{{ __('Create a new module using:') }}</p>
-                            <code class="block mt-2 bg-white px-2 py-1 rounded text-xs">php artisan module:make ModuleName</code>
-                        </div>
+                        <p class="mt-1 text-sm text-gray-600">
+                            {{ __('Install a module directly from a GitHub repository.') }}
+                        </p>
                     </div>
+
+                    <form action="{{ route('modules.install') }}" method="POST" class="flex gap-4">
+                        @csrf
+                        <div class="flex-grow">
+                            <x-text-input id="github_url" class="block w-full" type="url" name="github_url" placeholder="https://github.com/username/repo" required />
+                        </div>
+                        <button type="submit" class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors">
+                            {{ __('Install') }}
+                        </button>
+                    </form>
                 </div>
             </div>
+
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkUpdatesBtn = document.getElementById('check-updates-btn');
+            
+            if (checkUpdatesBtn) {
+                checkUpdatesBtn.addEventListener('click', function() {
+                    const btn = this;
+                    const originalText = btn.innerText;
+                    btn.innerText = '{{ __('Checking...') }}';
+                    btn.disabled = true;
+                    
+                    fetch('{{ route('modules.ajax') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: 'check_updates'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const updates = data.updates;
+                            let count = 0;
+                            
+                            // Reset all update indicators
+                            document.querySelectorAll('.update-info').forEach(el => el.classList.add('hidden'));
+                            document.querySelectorAll('.update-btn').forEach(el => el.classList.add('hidden'));
+                            
+                            for (const [alias, info] of Object.entries(updates)) {
+                                const moduleItem = document.querySelector(`.module-item[data-alias="${alias}"]`);
+                                if (moduleItem) {
+                                    const infoSpan = moduleItem.querySelector('.update-info');
+                                    const updateBtn = moduleItem.querySelector('.update-btn');
+                                    
+                                    if (infoSpan) {
+                                        infoSpan.innerText = '{{ __('New version:') }} ' + info.available;
+                                        infoSpan.classList.remove('hidden');
+                                    }
+                                    
+                                    if (updateBtn) {
+                                        updateBtn.classList.remove('hidden');
+                                    }
+                                    count++;
+                                }
+                            }
+                            
+                            if (count === 0) {
+                                alert('{{ __('No updates available') }}');
+                            } else {
+                                alert('{{ __('Found updates for :count modules', ['count' => '']) }}'.replace(':count', count));
+                            }
+                        } else {
+                            alert(data.message || '{{ __('Failed to check for updates') }}');
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        alert('{{ __('An error occurred while checking for updates') }}');
+                    })
+                    .finally(() => {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    });
+                });
+            }
+        });
+    </script>
 </x-app-layout>
