@@ -83,9 +83,11 @@ class Install extends Command
         $user = User::where('email', $email)->first();
 
         if ($user) {
-            $this->warn("User with email {$email} already exists. Updating password and role.");
+            $this->warn("User with email {$email} already exists. Updating password, role and verification status.");
             $user->password = Hash::make($password);
             $user->role = User::ROLE_ADMIN;
+            $user->status = User::STATUS_ACTIVE;
+            $user->email_verified_at = now();
             $user->save();
         } else {
             User::create([
@@ -95,6 +97,7 @@ class Install extends Command
                 'last_name' => $lastName,
                 'role' => User::ROLE_ADMIN,
                 'status' => User::STATUS_ACTIVE,
+                'email_verified_at' => now(),
             ]);
             $this->info("Admin user created successfully.");
         }
