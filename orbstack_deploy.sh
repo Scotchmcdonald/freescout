@@ -58,8 +58,13 @@ DB_PASS="change_me"
 DB_NAME="freescout"
 
 # Admin
-ADMIN_EMAIL="admin@scotchmcdonald.dev"
+ADMIN_EMAIL="admin@borealtek.ca"
 ADMIN_PASS="change_me"
+
+# Google OAuth (Optional)
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+GOOGLE_ADMIN_EMAILS=""
 EOF
         echo -e "${GREEN}Template created at $CONFIG_FILE. Please edit it and paste your Tunnel Token.${NC}"
         exit 0
@@ -76,6 +81,19 @@ if [ "$INTERACTIVE" = true ]; then
         echo -e "${YELLOW}Paste your Cloudflare Tunnel Token (starts with ey...):${NC}"
         read -r CF_TUNNEL_TOKEN
     done
+
+    echo -e "${YELLOW}Admin User${NC}"
+    read -p "Admin Email [admin@scotchmcdonald.dev]: " INPUT_EMAIL
+    ADMIN_EMAIL="${INPUT_EMAIL:-admin@scotchmcdonald.dev}"
+    read -p "Admin Password [change_me]: " INPUT_PASS
+    ADMIN_PASS="${INPUT_PASS:-change_me}"
+
+    echo -e "${YELLOW}Google OAuth (Optional)${NC}"
+    read -p "Google Client ID (Enter to skip): " GOOGLE_CLIENT_ID
+    if [ -n "$GOOGLE_CLIENT_ID" ]; then
+        read -p "Google Client Secret: " GOOGLE_CLIENT_SECRET
+        read -p "Google Admin Emails (comma separated): " GOOGLE_ADMIN_EMAILS
+    fi
 fi
 
 # ==========================================
@@ -264,11 +282,25 @@ sed -i '' "s/APP_FORCE_HTTPS=false/APP_FORCE_HTTPS=true/g" "src/.env"
 
 echo "" >> "src/.env"
 echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> "src/.env"
+echo "ADMIN_PASSWORD=\"$ADMIN_PASS\"" >> "src/.env"
+
+if [ -n "$GOOGLE_CLIENT_ID" ]; then
+    echo "" >> "src/.env"
+    echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> "src/.env"
+    echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> "src/.env"
+    echo "GOOGLE_ADMIN_EMAILS=\"$GOOGLE_ADMIN_EMAILS\"" >> "src/.env"
+fi
 
 # ==========================================
 # NEW: FIX PERMISSIONS FOR DOCKER CACHE
 # ==========================================
 echo "Ensuring storage directories exist..."
+# Clear potential cache files from repo
+rm -f src/bootstrap/cache/*.php
+rm -rf src/storage/framework/cache/*
+rm -rf src/storage/framework/views/*
+rm -rf src/storage/framework/sessions/*
+
 mkdir -p src/storage/framework/{cache,sessions,views,testing}
 mkdir -p src/storage/logs
 mkdir -p src/bootstrap/cache
@@ -289,9 +321,15 @@ sleep 20
 
 # Install Dependencies
 echo "Installing Composer Dependencies..."
-docker compose exec -T app composer install --no-dev --optimize-autoloader
-docker compose exec -T app npm install
-docker compose exec -T app npm run build
+# Run as root to avoid permission issues with bind mounts
+docker compose exec -T -u root app composer install --no-dev --optimize-autoloader || { echo -e "${RED}Composer install failed!${NC}"; exit 1; }
+# Fix permissions for vendor directory
+docker compose exec -T -u root app chown -R www-data:www-data /var/www/html/vendor /var/www/html/composer.lock
+
+echo "Installing NPM Dependencies..."
+docker compose exec -T -u root app npm install || { echo -e "${RED}NPM install failed!${NC}"; exit 1; }
+docker compose exec -T -u root app npm run build
+
 docker compose exec -T app php artisan key:generate
 
 # Install App
