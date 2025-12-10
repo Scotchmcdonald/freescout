@@ -11,8 +11,7 @@ fi
 
 DEFAULT_REPO="https://github.com/Scotchmcdonald/freescout.git"
 DEFAULT_BRANCH="laravel-11-foundation"
-# CHANGE: Install in User Home instead of /opt for macOS permission safety
-DEFAULT_INSTALL_DIR="$HOME/freescout-docker"
+DEFAULT_INSTALL_DIR="$HOME/freescout-tunnel"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -22,10 +21,10 @@ NC='\033[0m'
 
 clear
 echo -e "${CYAN}============================================================${NC}"
-echo -e "${CYAN}   FreeScout OrbStack Deployer (macOS Edition)   ${NC}"
+echo -e "${CYAN}   FreeScout Cloudflare Tunnel Deployer   ${NC}"
 echo -e "${CYAN}============================================================${NC}"
 
-CONFIG_FILE="deploy.conf"
+CONFIG_FILE="tunnel.conf"
 INTERACTIVE=true
 
 # Check for Config File
@@ -39,6 +38,7 @@ if [ -f "$CONFIG_FILE" ]; then
         INTERACTIVE=false
     fi
 else
+    # Create Config Template
     echo "No configuration file found."
     read -p "Create configuration template? [y/N] " CREATE_CONFIG
     if [[ "$CREATE_CONFIG" =~ ^[Yy]$ ]]; then
@@ -47,7 +47,9 @@ GIT_REPO_URL="$DEFAULT_REPO"
 GIT_BRANCH="$DEFAULT_BRANCH"
 DEFAULT_INSTALL_DIR="$DEFAULT_INSTALL_DIR"
 DOMAIN_NAME="devtickets.scotchmcdonald.dev" 
-DOCKER_SUBNET="172.20.0.0/16"
+
+# Cloudflare Tunnel Token (From Zero Trust Dashboard)
+CF_TUNNEL_TOKEN=""
 
 # Database
 DB_ROOT_PASS="change_me"
@@ -58,59 +60,42 @@ DB_NAME="freescout"
 # Admin
 ADMIN_EMAIL="admin@scotchmcdonald.dev"
 ADMIN_PASS="change_me"
-
-# Porkbun DDNS API (For public access)
-PORKBUN_API_KEY=""
-PORKBUN_SECRET_KEY=""
-
-# Google OAuth (Optional)
-GOOGLE_CLIENT_ID=""
-GOOGLE_CLIENT_SECRET=""
-GOOGLE_ADMIN_EMAILS=""
-
-# Seeding
-SEED_SAMPLE_DATA=false
 EOF
-        echo -e "${GREEN}Template created at $CONFIG_FILE. Edit it and rerun.${NC}"
+        echo -e "${GREEN}Template created at $CONFIG_FILE. Please edit it and paste your Tunnel Token.${NC}"
         exit 0
     fi
 fi
 
 # Interactive Setup
 if [ "$INTERACTIVE" = true ]; then
-    echo -e "${YELLOW}Network Configuration${NC}"
+    echo -e "${YELLOW}Cloudflare Configuration${NC}"
     read -p "Enter Domain Name [devtickets.scotchmcdonald.dev]: " INPUT_DOMAIN
     DOMAIN_NAME="${INPUT_DOMAIN:-devtickets.scotchmcdonald.dev}"
     
-    echo -e "${YELLOW}Porkbun API (Optional - for Dynamic DNS)${NC}"
-    read -p "Porkbun API Key (Enter to skip): " PORKBUN_API_KEY
-    if [ -n "$PORKBUN_API_KEY" ]; then
-        read -p "Porkbun Secret Key: " PORKBUN_SECRET_KEY
-    fi
+    while [ -z "$CF_TUNNEL_TOKEN" ]; do
+        echo -e "${YELLOW}Paste your Cloudflare Tunnel Token (starts with ey...):${NC}"
+        read -r CF_TUNNEL_TOKEN
+    done
 fi
 
 # ==========================================
-# 2. SYSTEM PREP (macOS Specific)
+# 2. SYSTEM PREP
 # ==========================================
 
-# Check for Homebrew
 if ! command -v brew >/dev/null 2>&1; then
-    echo -e "${YELLOW}Homebrew not found. Please install it if dependencies are missing.${NC}"
+    echo -e "${YELLOW}Homebrew not found. Assuming dependencies are met.${NC}"
 fi
 
-# Check Dependencies
 REQUIRED_TOOLS="git curl openssl"
 for tool in $REQUIRED_TOOLS; do
     if ! command -v $tool > /dev/null 2>&1; then 
-        echo -e "${RED}Missing tool: $tool${NC}"
-        echo "Please run: brew install $tool"
+        echo -e "${RED}Missing tool: $tool${NC}. Run: brew install $tool"
         exit 1
     fi
 done
 
-# Check Docker (OrbStack)
 if ! command -v docker >/dev/null 2>&1; then
-    echo -e "${RED}Docker not found! Please install and open OrbStack first.${NC}"
+    echo -e "${RED}Docker not found! Install OrbStack first.${NC}"
     exit 1
 fi
 
@@ -136,7 +121,7 @@ RUN apt-get update && apt-get install -y gnupg && \
 USER www-data
 EOF
 
-# Generate Nginx Config
+# Generate Nginx Config (Standard Port 8080)
 cat <<EOF > nginx/default.conf
 server {
     listen 8080 default_server;
@@ -165,21 +150,23 @@ DB_ROOT_PASSWORD=${DB_ROOT_PASS:-root}
 DB_DATABASE=${DB_NAME:-freescout}
 DB_USER=${DB_USER:-freescout}
 DB_PASSWORD=${DB_PASS:-freescout}
-APP_URL=http://$DOMAIN_NAME
+APP_URL=https://$DOMAIN_NAME
 REDIS_HOST=redis
 REDIS_PORT=6379
+TUNNEL_TOKEN=$CF_TUNNEL_TOKEN
 EOF
 
 # Generate docker-compose.yml
-# CHANGE: Added porkbun-ddns service and mapped port 8080:8080
 cat <<EOF > docker-compose.yml
 services:
   app:
     build: .
     image: freescout-app
     restart: unless-stopped
+    # We only expose to localhost for debugging. 
+    # Public traffic comes via the 'tunnel' service below.
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       - PUID=$(id -u)
       - PGID=$(id -g)
@@ -223,17 +210,13 @@ services:
     networks:
       - fs-net
 
-  # Dynamic DNS Updater (Only runs if keys are present)
-  ddns:
-    image: mietzen/porkbun-ddns
+  # CLOUDFLARE TUNNEL
+  tunnel:
+    image: cloudflare/cloudflared:latest
     restart: unless-stopped
+    command: tunnel run
     environment:
-      - DOMAIN=scotchmcdonald.dev
-      - SUBDOMAINS=devtickets
-      - APIKEY=$PORKBUN_API_KEY
-      - SECRETAPIKEY=$PORKBUN_SECRET_KEY
-    profiles:
-      - $(if [ -n "$PORKBUN_API_KEY" ]; then echo "always"; else echo "donotstart"; fi)
+      - TUNNEL_TOKEN=\${TUNNEL_TOKEN}
     networks:
       - fs-net
 
@@ -270,19 +253,33 @@ fi
 
 # Configure Laravel .env
 cp "src/.env.example" "src/.env"
-# (Standard sed replacements for DB/Redis go here - same as your original script but without sudo)
-sed -i '' "s|APP_URL=http://localhost|APP_URL=http://$DOMAIN_NAME|g" "src/.env"
+
+# Set URL to HTTPS (Cloudflare handles SSL)
+sed -i '' "s|APP_URL=http://localhost|APP_URL=https://$DOMAIN_NAME|g" "src/.env"
 sed -i '' "s/DB_HOST=127.0.0.1/DB_HOST=db/g" "src/.env"
 sed -i '' "s/DB_PASSWORD=/DB_PASSWORD=$DB_PASS/g" "src/.env"
 sed -i '' "s/CACHE_STORE=database/CACHE_STORE=redis/g" "src/.env"
 sed -i '' "s/REDIS_HOST=127.0.0.1/REDIS_HOST=redis/g" "src/.env"
+sed -i '' "s/APP_FORCE_HTTPS=false/APP_FORCE_HTTPS=true/g" "src/.env"
 
 echo "" >> "src/.env"
 echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> "src/.env"
 
+# ==========================================
+# NEW: FIX PERMISSIONS FOR DOCKER CACHE
+# ==========================================
+echo "Ensuring storage directories exist..."
+mkdir -p src/storage/framework/{cache,sessions,views,testing}
+mkdir -p src/storage/logs
+mkdir -p src/bootstrap/cache
+# Set permissions (777 to avoid permission issues in Docker volume mounts)
+chmod -R 777 src/storage src/bootstrap/cache
+
+# Trust Cloudflare Proxy Headers
+echo "TRUSTED_PROXIES=*" >> "src/.env"
+
 # Launch
 echo -e "${GREEN}Starting Containers...${NC}"
-# REMOVED SUDO
 docker compose down --remove-orphans || true
 docker compose build app
 docker compose up -d
@@ -304,5 +301,11 @@ docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
 
 echo ""
 echo -e "${CYAN}DEPLOYMENT COMPLETE${NC}"
-echo "Local Access: http://localhost:8080"
-echo "Public Access: http://$DOMAIN_NAME"
+echo "1. Go to Cloudflare Zero Trust Dashboard -> Networks -> Tunnels"
+echo "2. Click your tunnel -> Configure -> Public Hostname"
+echo "3. Add Public Hostname:"
+echo "   - Subdomain: devtickets"
+echo "   - Domain: scotchmcdonald.dev"
+echo "   - Service: http://app:8080"
+echo ""
+echo "Local Access (Emergency): http://localhost:8080"
