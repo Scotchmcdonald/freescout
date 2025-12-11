@@ -92,6 +92,8 @@
                                         <x-dropdown-link :href="route('system')">
                                             {{ __('System') }}
                                         </x-dropdown-link>
+                                        
+                                        @action('menu.manage')
                                     @endif
                                 </x-slot>
                             </x-dropdown>
