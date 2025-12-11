@@ -30,7 +30,7 @@
                         </div>
                         <div>
                             <a href="{{ route('themes.editor.index') }}" class="text-sm text-blue-600 hover:underline">Theme Editor</a>
-                            @if(auth()->user()->isAdmin())
+                            @if(auth()->check() && auth()->user()->isAdmin())
                                 <span class="mx-2 text-gray-300">|</span>
                                 <form method="POST" action="{{ route('themes.seed') }}" class="inline">
                                     @csrf

@@ -68,7 +68,7 @@
                                 <p class="mt-1 text-sm text-gray-500">Leave blank to keep current password</p>
                             </div>
                             
-                            @if(auth()->user()->isAdmin())
+                            @if(auth()->check() && auth()->user()->isAdmin())
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label for="role" class="block text-sm font-medium text-gray-700 mb-2">

@@ -3,9 +3,9 @@
     {{-- Mailbox Header with Dropdown --}}
     <div class="p-4 border-b border-gray-200">
         @php
-            $menu_mailboxes = auth()->user()->isAdmin() 
+            $menu_mailboxes = auth()->check() && auth()->user()->isAdmin() 
                 ? \App\Models\Mailbox::all()->sortBy('name') 
-                : auth()->user()->mailboxes->sortBy('name');
+                : (auth()->check() ? auth()->user()->mailboxes->sortBy('name') : collect());
         @endphp
         
         {{-- Mailbox Name Dropdown --}}
