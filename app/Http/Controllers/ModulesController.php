@@ -810,21 +810,30 @@ class ModulesController extends Controller
             
             // Fetch and pull
             $process = new \Symfony\Component\Process\Process(['git', 'pull'], $path);
+            $process->setTimeout(120);
             $process->run();
             
             if (!$process->isSuccessful()) {
                 throw new \Exception(__('Git pull failed: :error', ['error' => $process->getErrorOutput()]));
             }
             
-            // Run install command
+            // Check for pending migrations
+            $hasMigrations = File::isDirectory($path . '/Database/Migrations');
+            
+            // Run install command (includes migrations)
             $outputLog = new BufferedOutput;
             Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
             
             Artisan::call('cache:clear');
             
+            $message = __('Module updated from GitHub successfully');
+            if ($hasMigrations) {
+                $message .= '. ' . __('Database migrations have been run.');
+            }
+            
             return response()->json([
                 'success' => true,
-                'message' => __('Module updated from GitHub successfully'),
+                'message' => $message,
             ]);
             
         } catch (\Exception $e) {
