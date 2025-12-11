@@ -190,6 +190,9 @@ services:
       - PUID=$(id -u)
       - PGID=$(id -g)
       - PHP_MEMORY_LIMIT=512M
+      - PHP_OPCACHE_ENABLE=1
+      - PHP_POST_MAX_SIZE=20M
+      - PHP_UPLOAD_MAX_FILESIZE=20M
     volumes:
       - ./src:/var/www/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
@@ -221,11 +224,44 @@ services:
   queue:
     image: freescout-app
     restart: always
-    command: php artisan queue:work --queue=emails,default --sleep=3 --tries=3
+    command: php artisan queue:work --queue=emails,default --sleep=3 --tries=3 --max-time=3600
+    environment:
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_OPCACHE_ENABLE=1
     volumes:
       - ./src:/var/www/html
     depends_on:
       - app
+      - db
+      - redis
+    networks:
+      - fs-net
+
+  cron:
+    image: freescout-app
+    restart: unless-stopped
+    command: /bin/sh -c "while true; do php artisan schedule:run; sleep 60; done"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - app
+      - db
+      - redis
+    networks:
+      - fs-net
+
+  reverb:
+    image: freescout-app
+    restart: unless-stopped
+    command: php artisan reverb:start --host="0.0.0.0" --port=8080
+    ports:
+      - "127.0.0.1:6001:8080"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - app
+      - db
+      - redis
     networks:
       - fs-net
 
@@ -324,6 +360,25 @@ sed -i '' "s/APP_FORCE_HTTPS=false/APP_FORCE_HTTPS=true/g" "src/.env"
 echo "" >> "src/.env"
 echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> "src/.env"
 echo "ADMIN_PASSWORD=\"$ADMIN_PASS\"" >> "src/.env"
+
+# Reverb / Broadcasting Configuration
+REVERB_APP_ID=$(openssl rand -hex 8)
+REVERB_APP_KEY=$(openssl rand -hex 16)
+REVERB_APP_SECRET=$(openssl rand -hex 16)
+
+echo "" >> "src/.env"
+echo "BROADCAST_CONNECTION=reverb" >> "src/.env"
+echo "REVERB_APP_ID=$REVERB_APP_ID" >> "src/.env"
+echo "REVERB_APP_KEY=$REVERB_APP_KEY" >> "src/.env"
+echo "REVERB_APP_SECRET=$REVERB_APP_SECRET" >> "src/.env"
+echo "REVERB_HOST=\"0.0.0.0\"" >> "src/.env"
+echo "REVERB_PORT=8080" >> "src/.env"
+echo "REVERB_SCHEME=https" >> "src/.env"
+
+echo "VITE_REVERB_APP_KEY=\"$REVERB_APP_KEY\"" >> "src/.env"
+echo "VITE_REVERB_HOST=\"$DOMAIN_NAME\"" >> "src/.env"
+echo "VITE_REVERB_PORT=443" >> "src/.env"
+echo "VITE_REVERB_SCHEME=https" >> "src/.env"
 
 if [ -n "$GOOGLE_CLIENT_ID" ]; then
     echo "" >> "src/.env"

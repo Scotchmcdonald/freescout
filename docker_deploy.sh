@@ -381,6 +381,7 @@ services:
       - PUID=33
       - PGID=33
       - PHP_MEMORY_LIMIT=512M
+      - PHP_OPCACHE_ENABLE=1
       - PHP_POST_MAX_SIZE=20M
       - PHP_UPLOAD_MAX_FILESIZE=20M
     volumes:
@@ -414,6 +415,7 @@ services:
     command: php artisan queue:work --queue=emails,default --sleep=3 --tries=3 --max-time=3600
     environment:
       - PHP_MEMORY_LIMIT=512M
+      - PHP_OPCACHE_ENABLE=1
     volumes:
       - ./src:/var/www/html
     depends_on:
@@ -639,9 +641,6 @@ if [ "$SEED_SAMPLE_DATA" = true ]; then
     echo "Cleaning up dev dependencies..."
     sudo docker compose exec -T app composer install --no-dev --optimize-autoloader
 fi
-
-echo "Verifying Admin User..."
-sudo docker compose exec -T app php artisan tinker --execute="App\Models\User::where('email', '$ADMIN_EMAIL')->update(['email_verified_at' => now()]);"
 
 # Provision Mailbox if configured
 if [ -n "$MAILBOX_EMAIL" ] && [ -n "$MAILBOX_NAME" ]; then

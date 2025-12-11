@@ -83,15 +83,14 @@ class Install extends Command
         $user = User::where('email', $email)->first();
 
         if ($user) {
-            $this->warn("User with email {$email} already exists. Updating password, role and verification status.");
+            $this->warn("User with email {$email} already exists. Updating password and role.");
             $user->password = Hash::make($password);
             $user->role = User::ROLE_ADMIN;
             $user->status = User::STATUS_ACTIVE;
             $user->email_verified_at = now();
             $user->save(['timestamps' => false]);
-            $this->info("Admin user updated and verified.");
         } else {
-            $newUser = User::create([
+            User::create([
                 'email' => $email,
                 'password' => Hash::make($password),
                 'first_name' => $firstName,
@@ -100,9 +99,9 @@ class Install extends Command
                 'status' => User::STATUS_ACTIVE,
                 'email_verified_at' => now(),
             ]);
-            $this->info("Admin user created successfully.");
         }
 
-        $this->info('FreeScout installed successfully!');
+        $this->info('✓ Admin user ready');
+        $this->info('✓ FreeScout installed successfully!');
     }
 }
