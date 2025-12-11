@@ -132,6 +132,16 @@
                                                     @click="
                                                         if (!confirm('{{ __('Are you sure you want to update this module?') }}')) return;
                                                         updating = true;
+                                                        const statusBadge = $el.closest('.module-item').querySelector('.update-status-badge');
+                                                        const updateInfo = $el.closest('.module-item').querySelector('.update-info');
+                                                        const updateBtn = $el;
+                                                        
+                                                        if (statusBadge) {
+                                                            statusBadge.innerText = '{{ __('Updating...') }}';
+                                                            statusBadge.classList.remove('hidden', 'bg-yellow-100', 'text-yellow-800', 'bg-green-100', 'text-green-800');
+                                                            statusBadge.classList.add('bg-blue-100', 'text-blue-800');
+                                                        }
+                                                        
                                                         fetch('{{ route('modules.ajax') }}', {
                                                             method: 'POST',
                                                             headers: {
@@ -147,14 +157,50 @@
                                                         .then(response => response.json())
                                                         .then(data => {
                                                             if (data.success) {
-                                                                alert(data.message);
-                                                                window.location.reload();
+                                                                if (statusBadge) {
+                                                                    statusBadge.innerText = '{{ __('Updated!') }}';
+                                                                    statusBadge.classList.remove('bg-blue-100', 'text-blue-800');
+                                                                    statusBadge.classList.add('bg-green-100', 'text-green-800');
+                                                                    
+                                                                    // Fade out update info and button after 2 seconds
+                                                                    setTimeout(() => {
+                                                                        if (updateInfo) {
+                                                                            updateInfo.style.transition = 'opacity 0.5s';
+                                                                            updateInfo.style.opacity = '0';
+                                                                            setTimeout(() => updateInfo.classList.add('hidden'), 500);
+                                                                        }
+                                                                        if (updateBtn) {
+                                                                            updateBtn.style.transition = 'opacity 0.5s';
+                                                                            updateBtn.style.opacity = '0';
+                                                                            setTimeout(() => updateBtn.classList.add('hidden'), 500);
+                                                                        }
+                                                                        // Hide status badge after 3 seconds total
+                                                                        setTimeout(() => {
+                                                                            statusBadge.style.transition = 'opacity 0.5s';
+                                                                            statusBadge.style.opacity = '0';
+                                                                            setTimeout(() => statusBadge.classList.add('hidden'), 500);
+                                                                        }, 1000);
+                                                                    }, 2000);
+                                                                }
+                                                                updating = false;
                                                             } else {
+                                                                if (statusBadge) {
+                                                                    statusBadge.innerText = '{{ __('Update Failed') }}';
+                                                                    statusBadge.classList.remove('bg-blue-100', 'text-blue-800');
+                                                                    statusBadge.classList.add('bg-red-100', 'text-red-800');
+                                                                    setTimeout(() => statusBadge.classList.add('hidden'), 3000);
+                                                                }
                                                                 alert(data.message);
                                                                 updating = false;
                                                             }
                                                         })
                                                         .catch(error => {
+                                                            if (statusBadge) {
+                                                                statusBadge.innerText = '{{ __('Update Failed') }}';
+                                                                statusBadge.classList.remove('bg-blue-100', 'text-blue-800');
+                                                                statusBadge.classList.add('bg-red-100', 'text-red-800');
+                                                                setTimeout(() => statusBadge.classList.add('hidden'), 3000);
+                                                            }
                                                             alert('{{ __('An error occurred') }}');
                                                             updating = false;
                                                         });
