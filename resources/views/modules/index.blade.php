@@ -115,6 +115,7 @@
                                                 <span class="ml-3 px-2 py-1 text-xs rounded-full {{ $module['enabled'] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
                                                     {{ $module['enabled'] ? __('Enabled') : __('Disabled') }}
                                                 </span>
+                                                <span class="update-status-badge ml-2 px-2 py-1 text-xs rounded-full hidden"></span>
                                             </div>
                                             
                                             @if($module['description'])
@@ -386,33 +387,63 @@
                             const updates = data.updates;
                             let count = 0;
                             
-                            // Reset all update indicators
+                            // Reset all update indicators and badges
                             document.querySelectorAll('.update-info').forEach(el => el.classList.add('hidden'));
                             document.querySelectorAll('.update-btn').forEach(el => el.classList.add('hidden'));
+                            document.querySelectorAll('.update-status-badge').forEach(el => {
+                                el.classList.add('hidden');
+                                el.classList.remove('bg-blue-100', 'text-blue-800', 'bg-green-100', 'text-green-800');
+                            });
                             
-                            for (const [alias, info] of Object.entries(updates)) {
-                                const moduleItem = document.querySelector(`.module-item[data-alias="${alias}"]`);
-                                if (moduleItem) {
-                                    const infoSpan = moduleItem.querySelector('.update-info');
-                                    const updateBtn = moduleItem.querySelector('.update-btn');
-                                    
-                                    if (infoSpan) {
-                                        infoSpan.innerText = '{{ __('New version:') }} ' + info.available;
-                                        infoSpan.classList.remove('hidden');
-                                    }
-                                    
-                                    if (updateBtn) {
-                                        updateBtn.classList.remove('hidden');
-                                    }
-                                    count++;
+                            // First show "Checking..." on all modules
+                            document.querySelectorAll('.module-item').forEach(item => {
+                                const badge = item.querySelector('.update-status-badge');
+                                if (badge) {
+                                    badge.innerText = '{{ __('Checking...') }}';
+                                    badge.classList.remove('hidden', 'bg-green-100', 'text-green-800');
+                                    badge.classList.add('bg-blue-100', 'text-blue-800');
                                 }
-                            }
+                            });
                             
-                            if (count === 0) {
-                                alert('{{ __('No updates available') }}');
-                            } else {
-                                alert('{{ __('Found updates for :count modules', ['count' => '']) }}'.replace(':count', count));
-                            }
+                            // After a brief delay, update with results
+                            setTimeout(() => {
+                                document.querySelectorAll('.module-item').forEach(item => {
+                                    const alias = item.dataset.alias;
+                                    const badge = item.querySelector('.update-status-badge');
+                                    
+                                    if (badge) {
+                                        if (updates[alias]) {
+                                            // Has update
+                                            const infoSpan = item.querySelector('.update-info');
+                                            const updateBtn = item.querySelector('.update-btn');
+                                            
+                                            if (infoSpan) {
+                                                infoSpan.innerText = '{{ __('New version:') }} ' + updates[alias].available;
+                                                infoSpan.classList.remove('hidden');
+                                            }
+                                            
+                                            if (updateBtn) {
+                                                updateBtn.classList.remove('hidden');
+                                            }
+                                            
+                                            badge.innerText = '{{ __('Update Available') }}';
+                                            badge.classList.remove('bg-blue-100', 'text-blue-800');
+                                            badge.classList.add('bg-yellow-100', 'text-yellow-800');
+                                            count++;
+                                        } else {
+                                            // Up to date
+                                            badge.innerText = '{{ __('Up to Date') }}';
+                                            badge.classList.remove('bg-blue-100', 'text-blue-800');
+                                            badge.classList.add('bg-green-100', 'text-green-800');
+                                        }
+                                        
+                                        // Auto-hide after 3 seconds
+                                        setTimeout(() => {
+                                            badge.classList.add('hidden');
+                                        }, 3000);
+                                    }
+                                });
+                            }, 500);
                         } else {
                             alert(data.message || '{{ __('Failed to check for updates') }}');
                         }
