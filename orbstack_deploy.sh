@@ -140,8 +140,12 @@ RUN apt-get update && apt-get install -y gnupg && \
 USER www-data
 EOF
 
-# Generate Nginx Config (HTTPS with self-signed cert)
+# Generate Nginx Config (HTTPS with WebSocket proxy to Reverb)
 cat <<EOF > nginx/default.conf
+upstream reverb_backend {
+    server reverb:8080;
+}
+
 server {
     listen 8080 ssl http2 default_server;
     server_name _;
@@ -153,6 +157,20 @@ server {
     ssl_certificate_key /etc/nginx/ssl/key.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
+    
+    # Proxy WebSocket requests to Reverb container
+    location /app/ {
+        proxy_pass https://reverb:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_read_timeout 86400;
+        proxy_ssl_verify off;
+    }
     
     location / { try_files \$uri \$uri/ /index.php?\$query_string; }
     location ~ \.php$ {
