@@ -65,9 +65,19 @@
                         </div>
                         <div>
                             <x-text-input id="github_token" class="block w-full" type="password" name="github_token" placeholder="{{ __('GitHub Personal Access Token (optional, for private repos)') }}" />
-                            <p class="mt-1 text-xs text-gray-500">
-                                {{ __('Required for private repositories. Create at: ') }}
-                                <a href="https://github.com/settings/tokens" target="_blank" class="text-blue-600 hover:underline">github.com/settings/tokens</a>
+                            <div class="mt-2 text-xs text-gray-600 space-y-1">
+                                <p class="font-medium text-gray-700">{{ __('For Private Repositories:') }}</p>
+                                <ol class="list-decimal list-inside space-y-1 ml-2">
+                                    <li>{{ __('Go to') }} <a href="https://github.com/settings/tokens/new" target="_blank" class="text-blue-600 hover:underline">{{ __('GitHub Settings → Tokens → New Token (Classic)') }}</a></li>
+                                    <li>{{ __('Set a descriptive name (e.g., "Freescout Module Installer")') }}</li>
+                                    <li>{{ __('Under "Select scopes", check:') }} <code class="bg-gray-100 px-1 rounded text-red-600">repo</code> {{ __('(Full control of private repositories)') }}</li>
+                                    <li>{{ __('Click "Generate token" and copy it immediately') }}</li>
+                                    <li>{{ __('Paste the token in the field above') }}</li>
+                                </ol>
+                                <p class="text-gray-500 italic mt-2">{{ __('Note: Public repositories do not require a token.') }}</p>
+                            </div>
+                        </div>
+                    </form>
                             </p>
                         </div>
                     </form>

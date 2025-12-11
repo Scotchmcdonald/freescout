@@ -311,15 +311,25 @@ class ModulesController extends Controller
             $process->run();
 
             if (! $process->isSuccessful()) {
-                $error = $process->getErrorOutput();
+                $errorOutput = $process->getErrorOutput();
+                $standardOutput = $process->getOutput();
+                $fullError = trim($errorOutput ?: $standardOutput);
+                
                 // Log the full error but show a sanitized version (don't expose token)
                 \Log::error('Git clone failed', [
                     'target' => $targetPath,
-                    'error' => $error,
+                    'stderr' => $errorOutput,
+                    'stdout' => $standardOutput,
+                    'exit_code' => $process->getExitCode(),
                 ]);
                 
                 // Remove token from error message if present
-                $sanitizedError = preg_replace('/https:\/\/[^@]+@/', 'https://*****@', $error);
+                $sanitizedError = preg_replace('/https:\/\/[^@]+@/', 'https://*****@', $fullError);
+                
+                if (empty($sanitizedError)) {
+                    $sanitizedError = __('Git clone failed with exit code :code', ['code' => $process->getExitCode()]);
+                }
+                
                 throw new \Exception(__('Git clone failed: :error', ['error' => $sanitizedError]));
             }
 
