@@ -633,49 +633,62 @@ class ModulesController extends Controller
     private function checkGithubUpdate(string $modulePath, string $currentVersion): ?array
     {
         try {
-            // Get remote URL
-            $process = new \Symfony\Component\Process\Process(['git', 'remote', 'get-url', 'origin'], $modulePath);
+            // Get current branch
+            $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $modulePath);
             $process->run();
             if (!$process->isSuccessful()) {
                 return null;
             }
-            $remoteUrl = trim($process->getOutput());
+            $branch = trim($process->getOutput());
 
-            // Fetch tags
-            $process = new \Symfony\Component\Process\Process(['git', 'ls-remote', '--tags', 'origin'], $modulePath);
+            // Get current commit hash
+            $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', 'HEAD'], $modulePath);
             $process->run();
             if (!$process->isSuccessful()) {
                 return null;
             }
-            $output = $process->getOutput();
-            
-            // Parse tags
-            $lines = explode("\n", $output);
-            $latestVersion = $currentVersion;
-            
-            foreach ($lines as $line) {
-                if (preg_match('/refs\/tags\/(v?[\d\.]+)(\^{})?$/', $line, $matches)) {
-                    $tag = $matches[1];
-                    // Remove 'v' prefix if present
-                    $version = ltrim($tag, 'v');
-                    
-                    if (version_compare($version, $latestVersion, '>')) {
-                        $latestVersion = $version;
-                    }
-                }
+            $localHash = trim($process->getOutput());
+
+            // Fetch latest from remote (without pulling)
+            $process = new \Symfony\Component\Process\Process(['git', 'fetch', 'origin', $branch], $modulePath);
+            $process->setTimeout(30);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
             }
-            
-            if (version_compare($latestVersion, $currentVersion, '>')) {
+
+            // Get remote commit hash
+            $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', "origin/$branch"], $modulePath);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+            $remoteHash = trim($process->getOutput());
+
+            // Compare hashes
+            if ($localHash !== $remoteHash) {
+                // Count commits behind
+                $process = new \Symfony\Component\Process\Process(
+                    ['git', 'rev-list', '--count', "$localHash..origin/$branch"],
+                    $modulePath
+                );
+                $process->run();
+                $commitsBehind = (int) trim($process->getOutput());
+
                 return [
-                    'current' => $currentVersion,
-                    'available' => $latestVersion,
-                    'download_url' => $remoteUrl,
+                    'current' => $currentVersion . ' (' . substr($localHash, 0, 7) . ')',
+                    'available' => $currentVersion . ' (' . substr($remoteHash, 0, 7) . ')',
+                    'commits_behind' => $commitsBehind,
                     'type' => 'github',
+                    'branch' => $branch,
                 ];
             }
             
         } catch (\Exception $e) {
-            // Log error?
+            \Log::error('GitHub update check failed', [
+                'path' => $modulePath,
+                'error' => $e->getMessage(),
+            ]);
         }
         
         return null;

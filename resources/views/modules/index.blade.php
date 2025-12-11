@@ -418,7 +418,10 @@
                                             const updateBtn = item.querySelector('.update-btn');
                                             
                                             if (infoSpan) {
-                                                infoSpan.innerText = '{{ __('New version:') }} ' + updates[alias].available;
+                                                const msg = updates[alias].commits_behind 
+                                                    ? '{{ __(':count commits behind', ['count' => '']) }}'.replace(':count', updates[alias].commits_behind)
+                                                    : '{{ __('New version:') }} ' + updates[alias].available;
+                                                infoSpan.innerText = msg;
                                                 infoSpan.classList.remove('hidden');
                                             }
                                             
