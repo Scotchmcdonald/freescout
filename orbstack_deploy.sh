@@ -388,29 +388,24 @@ echo "" >> "src/.env"
 echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> "src/.env"
 echo "ADMIN_PASSWORD=\"$ADMIN_PASS\"" >> "src/.env"
 
-# Reverb / Broadcasting Configuration (DISABLED - requires Cloudflare Tunnel route for port 6001)
-# Uncomment and configure Cloudflare Tunnel route if you need real-time features
-# REVERB_APP_ID=$(openssl rand -hex 8)
-# REVERB_APP_KEY=$(openssl rand -hex 16)
-# REVERB_APP_SECRET=$(openssl rand -hex 16)
-# 
-# echo "" >> "src/.env"
-# echo "BROADCAST_CONNECTION=reverb" >> "src/.env"
-# echo "REVERB_APP_ID=$REVERB_APP_ID" >> "src/.env"
-# echo "REVERB_APP_KEY=$REVERB_APP_KEY" >> "src/.env"
-# echo "REVERB_APP_SECRET=$REVERB_APP_SECRET" >> "src/.env"
-# echo "REVERB_HOST=\"0.0.0.0\"" >> "src/.env"
-# echo "REVERB_PORT=8080" >> "src/.env"
-# echo "REVERB_SCHEME=https" >> "src/.env"
-# 
-# echo "VITE_REVERB_APP_KEY=\"$REVERB_APP_KEY\"" >> "src/.env"
-# echo "VITE_REVERB_HOST=\"$DOMAIN_NAME\"" >> "src/.env"
-# echo "VITE_REVERB_PORT=443" >> "src/.env"
-# echo "VITE_REVERB_SCHEME=https" >> "src/.env"
+# Reverb / Broadcasting Configuration
+REVERB_APP_ID=$(openssl rand -hex 8)
+REVERB_APP_KEY=$(openssl rand -hex 16)
+REVERB_APP_SECRET=$(openssl rand -hex 16)
 
-# Disable broadcasting for Cloudflare Tunnel deployments
 echo "" >> "src/.env"
-echo "BROADCAST_CONNECTION=null" >> "src/.env"
+echo "BROADCAST_CONNECTION=reverb" >> "src/.env"
+echo "REVERB_APP_ID=$REVERB_APP_ID" >> "src/.env"
+echo "REVERB_APP_KEY=$REVERB_APP_KEY" >> "src/.env"
+echo "REVERB_APP_SECRET=$REVERB_APP_SECRET" >> "src/.env"
+echo "REVERB_HOST=\"0.0.0.0\"" >> "src/.env"
+echo "REVERB_PORT=8080" >> "src/.env"
+echo "REVERB_SCHEME=https" >> "src/.env"
+
+echo "VITE_REVERB_APP_KEY=\"$REVERB_APP_KEY\"" >> "src/.env"
+echo "VITE_REVERB_HOST=\"$DOMAIN_NAME\"" >> "src/.env"
+echo "VITE_REVERB_PORT=443" >> "src/.env"
+echo "VITE_REVERB_SCHEME=https" >> "src/.env"
 
 if [ -n "$GOOGLE_CLIENT_ID" ]; then
     echo "" >> "src/.env"
