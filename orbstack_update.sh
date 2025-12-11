@@ -5,10 +5,25 @@
 
 set -e
 
-echo "🔄 Updating Freescout on OrbStack..."
+# ==========================================
+# Load configuration from deploy.conf
+# ==========================================
+CONFIG_FILE="deploy.conf"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ -f "$SCRIPT_DIR/$CONFIG_FILE" ]; then
+    echo "📋 Loading configuration from $CONFIG_FILE..."
+    source "$SCRIPT_DIR/$CONFIG_FILE"
+    INSTALL_DIR="${INSTALL_DIR:-$HOME/borealtek-ticketing}"
+else
+    echo "⚠️  No deploy.conf found, using current directory..."
+    INSTALL_DIR="$SCRIPT_DIR"
+fi
+
+echo "🔄 Updating Freescout at: $INSTALL_DIR"
 
 # Navigate to project directory
-cd /var/www/html
+cd "$INSTALL_DIR"
 
 # Pull latest code
 echo "📥 Pulling latest code from GitHub..."
