@@ -102,6 +102,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'enable_kb_shortcuts',
         'google_id',
         'avatar',
+        'email_verified_at',
     ];
 
     /**
