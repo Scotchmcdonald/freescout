@@ -271,12 +271,17 @@ class ModulesController extends Controller
         // Build authenticated URL if token provided
         if ($token) {
             $parsedUrl = parse_url($url);
+            // Ensure .git suffix for authenticated clone
+            $path = $parsedUrl['path'];
+            if (!str_ends_with($path, '.git')) {
+                $path .= '.git';
+            }
             $url = sprintf(
                 '%s://%s@%s%s',
                 $parsedUrl['scheme'] ?? 'https',
-                $token,
+                urlencode($token),
                 $parsedUrl['host'],
-                $parsedUrl['path']
+                $path
             );
         }
         
@@ -302,10 +307,20 @@ class ModulesController extends Controller
         try {
             // Use git clone
             $process = new \Symfony\Component\Process\Process(['git', 'clone', $url, $targetPath]);
+            $process->setTimeout(120); // 2 minutes timeout
             $process->run();
 
             if (! $process->isSuccessful()) {
-                throw new \Exception(__('Git clone failed: :error', ['error' => $process->getErrorOutput()]));
+                $error = $process->getErrorOutput();
+                // Log the full error but show a sanitized version (don't expose token)
+                \Log::error('Git clone failed', [
+                    'target' => $targetPath,
+                    'error' => $error,
+                ]);
+                
+                // Remove token from error message if present
+                $sanitizedError = preg_replace('/https:\/\/[^@]+@/', 'https://*****@', $error);
+                throw new \Exception(__('Git clone failed: :error', ['error' => $sanitizedError]));
             }
 
             // Clear cache
