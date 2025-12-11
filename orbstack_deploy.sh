@@ -140,14 +140,20 @@ RUN apt-get update && apt-get install -y gnupg && \
 USER www-data
 EOF
 
-# Generate Nginx Config (Standard Port 8080)
+# Generate Nginx Config (HTTPS with self-signed cert)
 cat <<EOF > nginx/default.conf
 server {
-    listen 8080 default_server;
+    listen 8080 ssl http2 default_server;
     server_name _;
     root /var/www/html/public;
     index index.php index.html;
     client_max_body_size 20M;
+    
+    ssl_certificate /etc/nginx/ssl/cert.pem;
+    ssl_certificate_key /etc/nginx/ssl/key.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    
     location / { try_files \$uri \$uri/ /index.php?\$query_string; }
     location ~ \.php$ {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
@@ -156,6 +162,7 @@ server {
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         fastcgi_param PATH_INFO \$fastcgi_path_info;
+        fastcgi_param HTTPS on;
     }
     location ~* ^/storage/attachment/ { expires 1M; access_log off; try_files \$uri \$uri/ /index.php?\$query_string; }
     location ~* ^/(?:css|js)/.*\.(?:css|js)$ { expires 2d; access_log off; add_header Cache-Control "public, must-revalidate"; }
@@ -196,6 +203,7 @@ services:
     volumes:
       - ./src:/var/www/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/ssl:/etc/nginx/ssl
     depends_on:
       - db
       - redis
@@ -298,6 +306,14 @@ echo "Done."
 EOF
 chmod +x update.sh
 
+# Generate SSL certificates
+echo -e "${GREEN}Generating self-signed SSL certificate...${NC}"
+mkdir -p nginx/ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout nginx/ssl/key.pem \
+  -out nginx/ssl/cert.pem \
+  -subj "/C=US/ST=State/L=City/O=Organization/CN=$DOMAIN_NAME" 2>/dev/null
+
 # Clone/Update Repo
 if [ -d "src" ]; then
     echo -e "${GREEN}Source folder exists. Syncing...${NC}"
@@ -361,24 +377,29 @@ echo "" >> "src/.env"
 echo "ADMIN_EMAIL=$ADMIN_EMAIL" >> "src/.env"
 echo "ADMIN_PASSWORD=\"$ADMIN_PASS\"" >> "src/.env"
 
-# Reverb / Broadcasting Configuration
-REVERB_APP_ID=$(openssl rand -hex 8)
-REVERB_APP_KEY=$(openssl rand -hex 16)
-REVERB_APP_SECRET=$(openssl rand -hex 16)
+# Reverb / Broadcasting Configuration (DISABLED - requires Cloudflare Tunnel route for port 6001)
+# Uncomment and configure Cloudflare Tunnel route if you need real-time features
+# REVERB_APP_ID=$(openssl rand -hex 8)
+# REVERB_APP_KEY=$(openssl rand -hex 16)
+# REVERB_APP_SECRET=$(openssl rand -hex 16)
+# 
+# echo "" >> "src/.env"
+# echo "BROADCAST_CONNECTION=reverb" >> "src/.env"
+# echo "REVERB_APP_ID=$REVERB_APP_ID" >> "src/.env"
+# echo "REVERB_APP_KEY=$REVERB_APP_KEY" >> "src/.env"
+# echo "REVERB_APP_SECRET=$REVERB_APP_SECRET" >> "src/.env"
+# echo "REVERB_HOST=\"0.0.0.0\"" >> "src/.env"
+# echo "REVERB_PORT=8080" >> "src/.env"
+# echo "REVERB_SCHEME=https" >> "src/.env"
+# 
+# echo "VITE_REVERB_APP_KEY=\"$REVERB_APP_KEY\"" >> "src/.env"
+# echo "VITE_REVERB_HOST=\"$DOMAIN_NAME\"" >> "src/.env"
+# echo "VITE_REVERB_PORT=443" >> "src/.env"
+# echo "VITE_REVERB_SCHEME=https" >> "src/.env"
 
+# Disable broadcasting for Cloudflare Tunnel deployments
 echo "" >> "src/.env"
-echo "BROADCAST_CONNECTION=reverb" >> "src/.env"
-echo "REVERB_APP_ID=$REVERB_APP_ID" >> "src/.env"
-echo "REVERB_APP_KEY=$REVERB_APP_KEY" >> "src/.env"
-echo "REVERB_APP_SECRET=$REVERB_APP_SECRET" >> "src/.env"
-echo "REVERB_HOST=\"0.0.0.0\"" >> "src/.env"
-echo "REVERB_PORT=8080" >> "src/.env"
-echo "REVERB_SCHEME=https" >> "src/.env"
-
-echo "VITE_REVERB_APP_KEY=\"$REVERB_APP_KEY\"" >> "src/.env"
-echo "VITE_REVERB_HOST=\"$DOMAIN_NAME\"" >> "src/.env"
-echo "VITE_REVERB_PORT=443" >> "src/.env"
-echo "VITE_REVERB_SCHEME=https" >> "src/.env"
+echo "BROADCAST_CONNECTION=null" >> "src/.env"
 
 if [ -n "$GOOGLE_CLIENT_ID" ]; then
     echo "" >> "src/.env"
@@ -435,14 +456,15 @@ echo "Running Install..."
 docker compose exec -T app php artisan freescout:install --force --email="$ADMIN_EMAIL" --password="$ADMIN_PASS" --first_name="Admin" --last_name="User"
 docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
 
-echo ""
 echo -e "${CYAN}DEPLOYMENT COMPLETE${NC}"
 echo "1. Go to Cloudflare Zero Trust Dashboard -> Networks -> Tunnels"
 echo "2. Click your tunnel -> Configure -> Public Hostname"
 echo "3. Add Public Hostname:"
 echo "   - Subdomain: devtickets"
 echo "   - Domain: scotchmcdonald.dev"
-echo "   - Service: http://app:8080"
+echo "   - Service: https://app:8080"
+echo "   - TLS: No TLS Verify (since we're using self-signed cert)"
+echo ""  - Service: http://app:8080"
 echo ""
 if [ -n "$GOOGLE_CLIENT_ID" ]; then
     echo "4. Google OAuth Configuration:"
