@@ -129,7 +129,7 @@ cd "$DEFAULT_INSTALL_DIR"
 cat <<EOF > Dockerfile
 FROM serversideup/php:8.2-fpm-nginx
 USER root
-RUN apt-get update && apt-get install -y gnupg && \
+RUN apt-get update && apt-get install -y gnupg git && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     curl -sSLf \
