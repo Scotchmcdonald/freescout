@@ -70,23 +70,21 @@ class SocialAuthController extends Controller
         $user = User::where('google_id', $googleUser->id)->orWhere('email', $email)->first();
 
         if ($user) {
-            // Update existing user
-            $updates = [
-                'google_id' => $googleUser->id,
-                'avatar' => $googleUser->avatar,
-            ];
-
-            // Auto-verify if admin, allowed domain, or existing user is already an admin
-            if (($isAdmin || $user->role === User::ROLE_ADMIN) && !$user->email_verified_at) {
-                $updates['email_verified_at'] = now();
+            // Update existing user - use direct assignment
+            $user->google_id = $googleUser->id;
+            $user->avatar = $googleUser->avatar;
+            
+            // Auto-verify admins immediately
+            if ($isAdmin || $user->role === User::ROLE_ADMIN) {
+                $user->email_verified_at = now();
             }
             
-            // Promote to admin if in admin list and not already admin
+            // Promote to admin if in admin list
             if ($isAdmin && $user->role !== User::ROLE_ADMIN) {
-                $updates['role'] = User::ROLE_ADMIN;
+                $user->role = User::ROLE_ADMIN;
             }
-
-            $user->update($updates);
+            
+            $user->save();
             
             Auth::login($user);
             return redirect()->intended('dashboard');

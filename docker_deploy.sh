@@ -626,7 +626,7 @@ if [ "$REUSE_DB" = true ]; then
     sudo docker compose exec -T app php artisan migrate --force
 else
     echo "Installing FreeScout..."
-    sudo docker compose exec -T app php artisan freescout:install --force
+    sudo docker compose exec -T app php artisan freescout:install --force --email="$ADMIN_EMAIL" --password="$ADMIN_PASS" --first_name="Admin" --last_name="User"
 fi
 
 echo "Seeding Themes..."

@@ -88,9 +88,10 @@ class Install extends Command
             $user->role = User::ROLE_ADMIN;
             $user->status = User::STATUS_ACTIVE;
             $user->email_verified_at = now();
-            $user->save();
+            $user->save(['timestamps' => false]);
+            $this->info("Admin user updated and verified.");
         } else {
-            User::create([
+            $newUser = User::create([
                 'email' => $email,
                 'password' => Hash::make($password),
                 'first_name' => $firstName,

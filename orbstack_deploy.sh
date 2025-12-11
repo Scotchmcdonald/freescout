@@ -337,8 +337,11 @@ docker compose exec -T app php artisan key:generate
 
 # Install App
 echo "Running Install..."
-docker compose exec -T app php artisan freescout:install --force
+docker compose exec -T app php artisan freescout:install --force --email="$ADMIN_EMAIL" --password="$ADMIN_PASS" --first_name="Admin" --last_name="User"
 docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
+
+echo "Verifying Admin User..."
+docker compose exec -T app php artisan tinker --execute="App\Models\User::where('email', '$ADMIN_EMAIL')->update(['email_verified_at' => now()]);"
 
 echo ""
 echo -e "${CYAN}DEPLOYMENT COMPLETE${NC}"
