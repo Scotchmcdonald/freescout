@@ -249,6 +249,8 @@ services:
     image: freescout-app
     restart: unless-stopped
     command: /bin/sh -c "while true; do php artisan schedule:run; sleep 60; done"
+    environment:
+      - PHP_OPCACHE_ENABLE=1
     volumes:
       - ./src:/var/www/html
     depends_on:
@@ -262,6 +264,8 @@ services:
     image: freescout-app
     restart: unless-stopped
     command: php artisan reverb:start --host="0.0.0.0" --port=8080
+    environment:
+      - PHP_OPCACHE_ENABLE=1
     ports:
       - "127.0.0.1:6001:8080"
     volumes:
@@ -312,7 +316,14 @@ mkdir -p nginx/ssl
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout nginx/ssl/key.pem \
   -out nginx/ssl/cert.pem \
-  -subj "/C=US/ST=State/L=City/O=Organization/CN=$DOMAIN_NAME" 2>/dev/null
+  -subj "/C=US/ST=State/L=City/O=FreeScout/CN=$DOMAIN_NAME" 2>&1 | grep -v "writing new private key"
+
+# Verify certificates were created
+if [ ! -f "nginx/ssl/cert.pem" ] || [ ! -f "nginx/ssl/key.pem" ]; then
+    echo -e "${RED}Failed to generate SSL certificates!${NC}"
+    exit 1
+fi
+echo -e "${GREEN}SSL certificates generated successfully${NC}"
 
 # Clone/Update Repo
 if [ -d "src" ]; then
@@ -460,16 +471,19 @@ echo ""
 echo -e "${CYAN}DEPLOYMENT COMPLETE${NC}"
 echo "1. Go to Cloudflare Zero Trust Dashboard -> Networks -> Tunnels"
 echo "2. Click your tunnel -> Configure -> Public Hostname"
-echo "3. Add Public Hostname:"
+echo "3. Add/Edit Public Hostname:"
 echo "   - Subdomain: devtickets"
 echo "   - Domain: scotchmcdonald.dev"
-echo "   - Service: https://app:8080"
-echo "   - TLS: No TLS Verify (since we're using self-signed cert)"
+echo "   - Service Type: HTTPS"
+echo "   - URL: https://app:8080"
+echo "   - Additional settings (click Advanced):"
+echo "     - TLS: No TLS Verify (toggle ON)"
+echo "     - Origin Server Name: $DOMAIN_NAME"
 echo ""
 if [ -n "$GOOGLE_CLIENT_ID" ]; then
     echo "4. Google OAuth Configuration:"
-    echo "   - Add this Redirect URI to your Google Cloud Console credentials:"
+echo "   - Add this Redirect URI to your Google Cloud Console credentials:"
     echo "   - https://$DOMAIN_NAME/auth/google/callback"
     echo ""
 fi
-echo "Local Access (Emergency): https://localhost:8080"
+echo "Local Access (Emergency): https://localhost:8080 (accept cert warning)"
