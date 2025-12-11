@@ -48,6 +48,21 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory;
     use Notifiable;
 
+    /**
+     * Determine if the user has verified their email address.
+     * The initial deployment admin (matching ADMIN_EMAIL) bypasses verification.
+     */
+    public function hasVerifiedEmail(): bool
+    {
+        // Allow the deployment admin to bypass verification
+        $deploymentAdminEmail = env('ADMIN_EMAIL');
+        if ($deploymentAdminEmail && $this->email === $deploymentAdminEmail && $this->role === self::ROLE_ADMIN) {
+            return true;
+        }
+
+        return ! is_null($this->email_verified_at);
+    }
+
     // Role constants
     public const ROLE_USER = 1;
 
