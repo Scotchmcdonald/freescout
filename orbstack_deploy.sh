@@ -266,10 +266,9 @@ services:
     command: php artisan reverb:start --host="0.0.0.0" --port=8080
     environment:
       - PHP_OPCACHE_ENABLE=1
-    ports:
-      - "127.0.0.1:6001:8080"
     volumes:
       - ./src:/var/www/html
+      - ./nginx/ssl:/etc/nginx/ssl
     depends_on:
       - app
       - db
