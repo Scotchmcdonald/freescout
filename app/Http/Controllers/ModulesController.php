@@ -217,7 +217,8 @@ class ModulesController extends Controller
         $githubUrl = $request->input('github_url');
 
         if ($githubUrl) {
-            return $this->installFromGithub($githubUrl);
+            $githubToken = $request->input('github_token');
+            return $this->installFromGithub($githubUrl, $githubToken);
         }
 
         $alias = $request->input('alias');
@@ -252,7 +253,7 @@ class ModulesController extends Controller
         return $this->installFromUrl($downloadUrl, $alias);
     }
 
-    private function installFromGithub(string $url): \Illuminate\Http\RedirectResponse
+    private function installFromGithub(string $url, ?string $token = null): \Illuminate\Http\RedirectResponse
     {
         if (! filter_var($url, FILTER_VALIDATE_URL)) {
             return redirect()->back()->with('error', __('Invalid GitHub URL'));
@@ -266,6 +267,18 @@ class ModulesController extends Controller
         }
         $repoName = end($parts);
         $repoName = preg_replace('/\.git$/', '', $repoName);
+        
+        // Build authenticated URL if token provided
+        if ($token) {
+            $parsedUrl = parse_url($url);
+            $url = sprintf(
+                '%s://%s@%s%s',
+                $parsedUrl['scheme'] ?? 'https',
+                $token,
+                $parsedUrl['host'],
+                $parsedUrl['path']
+            );
+        }
         
         // Convert kebab-case to PascalCase for module name if needed, 
         // but usually we clone into the repo name and let the module.json define the name.
