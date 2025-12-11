@@ -8,6 +8,7 @@
         "php": "^8.2",
         "doctrine/dbal": "^4.0",
         "enshrined/svg-sanitize": "^0.22",
+        "google/apiclient": "^2.18",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^11.0",
         "laravel/reverb": "^1.6",

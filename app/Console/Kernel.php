@@ -12,7 +12,17 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Send follow-up reminders daily at 9:00 AM
+        // Checks for conversations with due follow-ups and sends email/database notifications
+        $schedule->command('followup:send-reminders')
+            ->dailyAt('09:00')
+            ->timezone(config('app.timezone', 'UTC'))
+            ->onSuccess(function () {
+                Log::info('Follow-up reminders scheduled task completed successfully');
+            })
+            ->onFailure(function () {
+                Log::error('Follow-up reminders scheduled task failed');
+            });
     }
 
     /**

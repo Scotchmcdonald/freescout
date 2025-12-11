@@ -167,4 +167,16 @@ return [
     'freescout_alt_api' => 'https://freescout.net/wp-json/',
     'version' => '1.0.0',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Follow-Up Reminder Settings
+    |--------------------------------------------------------------------------
+    |
+    | Default number of days until a follow-up reminder is sent if no specific
+    | follow-up date is set when replying to a conversation.
+    |
+    */
+
+    'default_follow_up_days' => env('DEFAULT_FOLLOW_UP_DAYS', 3),
+
 ];

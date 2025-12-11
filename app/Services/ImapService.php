@@ -844,6 +844,10 @@ class ImapService
                 $conversation->last_reply_at = now();
                 $conversation->last_reply_from = 2; // Customer
 
+                // Clear follow-up date when customer replies
+                $conversation->follow_up_date = null;
+                $conversation->follow_up_reminded_at = null;
+
                 // Update CC list - merge existing CC with new recipients
                 $existingCcRaw = $conversation->cc;
                 $existingCc = is_array($existingCcRaw) ? $existingCcRaw : [];

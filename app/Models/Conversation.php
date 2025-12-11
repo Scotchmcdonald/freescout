@@ -36,6 +36,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $channel
  * @property int|null $closed_by_user_id
  * @property \Illuminate\Support\Carbon|null $closed_at
+ * @property \Illuminate\Support\Carbon|null $follow_up_date
+ * @property \Illuminate\Support\Carbon|null $follow_up_reminded_at
  * @property \Illuminate\Support\Carbon|null $user_updated_at
  * @property \Illuminate\Support\Carbon|null $last_reply
  * @property \Illuminate\Support\Carbon|null $last_reply_at
@@ -150,6 +152,8 @@ class Conversation extends Model
         'last_reply_from',
         'read_by_user',
         'meta',
+        'follow_up_date',
+        'follow_up_reminded_at',
     ];
 
     /**
@@ -176,6 +180,8 @@ class Conversation extends Model
             'closed_at' => 'datetime',
             'user_updated_at' => 'datetime',
             'last_reply_at' => 'datetime',
+            'follow_up_date' => 'datetime',
+            'follow_up_reminded_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -392,7 +398,82 @@ class Conversation extends Model
             return false;
         }
 
-        return $this->followers()->where('user_id', $user->id)->exists();
+        return $this->followers()->where('users.id', $user->id)->exists();
+    }
+
+    /**
+     * Check if conversation has a follow-up reminder scheduled.
+     */
+    public function hasFollowUpScheduled(): bool
+    {
+        return $this->follow_up_date !== null;
+    }
+
+    /**
+     * Check if the follow-up reminder is overdue.
+     */
+    public function isFollowUpOverdue(): bool
+    {
+        return $this->follow_up_date !== null 
+            && $this->follow_up_date->isPast() 
+            && $this->follow_up_reminded_at === null;
+    }
+
+    /**
+     * Check if the follow-up reminder has been sent.
+     */
+    public function hasFollowUpBeenReminded(): bool
+    {
+        return $this->follow_up_reminded_at !== null;
+    }
+
+    /**
+     * Get a human-readable follow-up status.
+     */
+    public function getFollowUpStatus(): ?string
+    {
+        if (!$this->hasFollowUpScheduled()) {
+            return null;
+        }
+
+        if ($this->hasFollowUpBeenReminded()) {
+            return __('Reminded on :date', ['date' => $this->follow_up_reminded_at->format('M j, Y')]);
+        }
+
+        if ($this->isFollowUpOverdue()) {
+            return __('Overdue since :date', ['date' => $this->follow_up_date->format('M j, Y')]);
+        }
+
+        return __('Scheduled for :date', ['date' => $this->follow_up_date->format('M j, Y')]);
+    }
+
+    /**
+     * Clear the follow-up reminder.
+     */
+    public function clearFollowUp(): void
+    {
+        $this->update([
+            'follow_up_date' => null,
+            'follow_up_reminded_at' => null,
+        ]);
+    }
+
+    /**
+     * Set a follow-up reminder for this conversation.
+     *
+     * @param \Illuminate\Support\Carbon|string|null $date
+     */
+    public function setFollowUp($date = null): void
+    {
+        if ($date === null) {
+            $defaultDays = config('app.default_follow_up_days', 3);
+            $date = now()->addDays($defaultDays)->startOfDay();
+        }
+
+        $this->update([
+            'follow_up_date' => $date,
+            'follow_up_reminded_at' => null,
+        ]);
     }
 
     /**

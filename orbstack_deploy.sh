@@ -265,7 +265,14 @@ services:
   cron:
     image: freescout-app
     restart: unless-stopped
-    command: /bin/sh -c "while true; do php artisan schedule:run; sleep 60; done"
+    command: >
+      /bin/sh -c '
+      echo "Installing cron..." &&
+      apk add --no-cache dcron &&
+      echo "* * * * * cd /var/www/html && php artisan schedule:run >> /var/log/cron.log 2>&1" | crontab - &&
+      echo "Cron installed. Starting crond..." &&
+      crond -f -l 2
+      '
     environment:
       - PHP_OPCACHE_ENABLE=1
     volumes:

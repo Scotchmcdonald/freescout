@@ -37,6 +37,7 @@ class ReplyConversationRequest extends FormRequest
                     Conversation::STATUS_CLOSED,
                 ]),
             ],
+            'follow_up_date' => 'nullable|date|after_or_equal:today',
         ];
     }
 
@@ -51,6 +52,7 @@ class ReplyConversationRequest extends FormRequest
             'body.required' => 'Reply content is required.',
             'type.in' => 'Invalid reply type. Must be reply or note.',
             'status.in' => 'Invalid status selected.',
+            'follow_up_date.after_or_equal' => 'Follow-up date must be today or in the future.',
         ];
     }
 }

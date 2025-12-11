@@ -420,6 +420,48 @@
                                 @endif
                             </div>
 
+                            {{-- Follow-up Date --}}
+                            <div class="mb-4" x-data="{ showFollowUp: false }">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <input type="checkbox" 
+                                           id="enable_follow_up" 
+                                           x-model="showFollowUp"
+                                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
+                                           aria-describedby="follow-up-description">
+                                    <label for="enable_follow_up" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                                        {{ __('Set follow-up reminder') }}
+                                    </label>
+                                </div>
+                                <div x-show="showFollowUp" 
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 transform -translate-y-2"
+                                     x-transition:enter-end="opacity-100 transform translate-y-0"
+                                     x-transition:leave="transition ease-in duration-150"
+                                     x-transition:leave-start="opacity-100 transform translate-y-0"
+                                     x-transition:leave-end="opacity-0 transform -translate-y-2"
+                                     class="mt-3 space-y-2">
+                                    <div>
+                                        <label for="follow_up_date" class="block text-xs font-medium text-gray-700 mb-1">
+                                            {{ __('Follow-up date') }}
+                                        </label>
+                                        <input type="date" 
+                                               name="follow_up_date" 
+                                               id="follow_up_date"
+                                               min="{{ date('Y-m-d') }}"
+                                               value="{{ date('Y-m-d', strtotime('+' . config('app.default_follow_up_days', 3) . ' days')) }}"
+                                               x-ref="followUpDateInput"
+                                               @focus="$el.showPicker && $el.showPicker()"
+                                               class="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                    </div>
+                                    <p id="follow-up-description" class="text-xs text-gray-500 flex items-start gap-1">
+                                        <svg class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span>{{ __('You will receive an email reminder on this date. If unchecked, automatic reminder will be set for :days days.', ['days' => config('app.default_follow_up_days', 3)]) }}</span>
+                                    </p>
+                                </div>
+                            </div>
+
                             {{-- Bottom Toolbar --}}
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">

@@ -346,6 +346,28 @@ class ConversationController extends Controller
                     $updateData['user_id'] = $user->id;
                 }
 
+                // Handle follow-up date logic
+                $isClosing = isset($validated['status']) && (int)$validated['status'] === Conversation::STATUS_CLOSED;
+                $isNote = isset($validated['type']) && (int)$validated['type'] === 2;
+                
+                if ($isClosing) {
+                    // Clear follow-up when closing conversation
+                    $updateData['follow_up_date'] = null;
+                    $updateData['follow_up_reminded_at'] = null;
+                } elseif (!$isNote) {
+                    // Only set follow-up for replies, not internal notes
+                    if (!empty($validated['follow_up_date'])) {
+                        // User explicitly set a follow-up date
+                        $updateData['follow_up_date'] = $validated['follow_up_date'];
+                        $updateData['follow_up_reminded_at'] = null; // Reset reminder
+                    } else {
+                        // Auto-set follow-up based on default interval
+                        $defaultDays = config('app.default_follow_up_days', 3);
+                        $updateData['follow_up_date'] = now()->addDays($defaultDays)->startOfDay();
+                        $updateData['follow_up_reminded_at'] = null;
+                    }
+                }
+
                 $conversation->update($updateData);
 
                 // Send email notification if it's a reply (not a note)
