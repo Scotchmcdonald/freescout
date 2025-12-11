@@ -11,7 +11,7 @@ fi
 
 DEFAULT_REPO="https://github.com/Scotchmcdonald/freescout.git"
 DEFAULT_BRANCH="laravel-11-foundation"
-DEFAULT_INSTALL_DIR="$HOME/freescout-tunnel"
+DEFAULT_INSTALL_DIR="$HOME/borealtek-ticketing"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -262,12 +262,52 @@ echo "Done."
 EOF
 chmod +x update.sh
 
-# Clone Repo
-if [ ! -d "src" ]; then
+# Clone/Update Repo
+if [ -d "src" ]; then
+    echo -e "${GREEN}Source folder exists. Syncing...${NC}"
+    cd src
+    
+    git config --global --add safe.directory "$PWD"
+    git remote set-url origin "$DEFAULT_REPO"
+    git fetch origin
+    
+    # Checkout branch
+    if ! git checkout "$DEFAULT_BRANCH" 2>/dev/null; then
+        git checkout -b "$DEFAULT_BRANCH" "origin/$DEFAULT_BRANCH"
+    fi
+    
+    # Pull latest changes
+    if ! git pull origin "$DEFAULT_BRANCH"; then
+        echo -e "${RED}Git pull failed! Local changes detected.${NC}"
+        echo -e "${YELLOW}Options:${NC}"
+        echo "1) Discard local changes (git reset --hard)"
+        echo "2) Nuke & Re-clone (Delete src and download fresh)"
+        echo "3) Exit and fix manually"
+        read -p "Select [1-3]: " GIT_OPT
+        
+        case "$GIT_OPT" in
+            1)
+                echo "Resetting to origin/$DEFAULT_BRANCH..."
+                git reset --hard "origin/$DEFAULT_BRANCH"
+                ;;
+            2)
+                echo "Nuking source directory..."
+                cd ..
+                rm -rf src
+                echo -e "${GREEN}Cloning branch '$DEFAULT_BRANCH'...${NC}"
+                git clone -b "$DEFAULT_BRANCH" "$DEFAULT_REPO" src
+                cd src
+                ;;
+            *)
+                echo "Aborting. Please fix git conflicts manually."
+                exit 1
+                ;;
+        esac
+    fi
+    cd ..
+else
     echo -e "${GREEN}Cloning source...${NC}"
     git clone -b "$DEFAULT_BRANCH" "$DEFAULT_REPO" src
-else
-    echo "Source folder exists, skipping clone."
 fi
 
 # Configure Laravel .env
@@ -339,9 +379,6 @@ docker compose exec -T app php artisan key:generate
 echo "Running Install..."
 docker compose exec -T app php artisan freescout:install --force --email="$ADMIN_EMAIL" --password="$ADMIN_PASS" --first_name="Admin" --last_name="User"
 docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
-
-echo "Verifying Admin User..."
-docker compose exec -T app php artisan tinker --execute="App\Models\User::where('email', '$ADMIN_EMAIL')->update(['email_verified_at' => now()]);"
 
 echo ""
 echo -e "${CYAN}DEPLOYMENT COMPLETE${NC}"
