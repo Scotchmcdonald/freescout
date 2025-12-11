@@ -160,7 +160,7 @@ server {
     
     # Proxy WebSocket requests to Reverb container
     location /app/ {
-        proxy_pass https://reverb:8080;
+        proxy_pass http://reverb:8080;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -169,7 +169,6 @@ server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
         proxy_read_timeout 86400;
-        proxy_ssl_verify off;
     }
     
     location / { try_files \$uri \$uri/ /index.php?\$query_string; }
@@ -286,7 +285,6 @@ services:
       - PHP_OPCACHE_ENABLE=1
     volumes:
       - ./src:/var/www/html
-      - ./nginx/ssl:/etc/nginx/ssl
     depends_on:
       - app
       - db
