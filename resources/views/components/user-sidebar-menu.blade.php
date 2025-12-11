@@ -34,7 +34,7 @@
         {{ __('Profile') }}
     </a>
     
-    @if(Auth::user()->isAdmin())
+    @if(Auth::check() && Auth::user()->isAdmin())
         <a href="{{ route('users.permissions', $user) }}" 
            class="@if(Route::currentRouteName() == 'users.permissions') bg-blue-50 text-blue-700 border-blue-700 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-transparent @endif group flex items-center px-3 py-2 text-sm font-medium border-l-4 transition">
             <svg class="@if(Route::currentRouteName() == 'users.permissions') text-blue-500 @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5 flex-shrink-0" 

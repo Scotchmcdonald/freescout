@@ -16,8 +16,9 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    @php
-                        $mailboxes = Auth::user()->mailboxesCanView(true);
+                    @auth
+                        @php
+                            $mailboxes = Auth::user()->mailboxesCanView(true);
                     @endphp
                     @if ($mailboxes->count() == 1)
                         <x-nav-link :href="route('mailboxes.view', ['mailbox' => $mailboxes->first()->id])" :active="request()->routeIs('mailboxes.view') && request()->mailbox && request()->mailbox->id == $mailboxes->first()->id">
@@ -46,9 +47,10 @@
                             </x-dropdown>
                         </div>
                     @endif
+                    @endauth
 
-                    @if (Auth::user()->isAdmin()
-                        || Auth::user()->hasPermission(App\Models\User::PERM_EDIT_USERS)
+                    @if (Auth::check() && (Auth::user()->isAdmin()
+                        || Auth::user()->hasPermission(App\Models\User::PERM_EDIT_USERS))
                     )
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
                             <x-dropdown align="left" width="48">
