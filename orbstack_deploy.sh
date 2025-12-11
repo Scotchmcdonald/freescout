@@ -456,6 +456,7 @@ echo "Running Install..."
 docker compose exec -T app php artisan freescout:install --force --email="$ADMIN_EMAIL" --password="$ADMIN_PASS" --first_name="Admin" --last_name="User"
 docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
 
+echo ""
 echo -e "${CYAN}DEPLOYMENT COMPLETE${NC}"
 echo "1. Go to Cloudflare Zero Trust Dashboard -> Networks -> Tunnels"
 echo "2. Click your tunnel -> Configure -> Public Hostname"
@@ -464,7 +465,6 @@ echo "   - Subdomain: devtickets"
 echo "   - Domain: scotchmcdonald.dev"
 echo "   - Service: https://app:8080"
 echo "   - TLS: No TLS Verify (since we're using self-signed cert)"
-echo ""  - Service: http://app:8080"
 echo ""
 if [ -n "$GOOGLE_CLIENT_ID" ]; then
     echo "4. Google OAuth Configuration:"
@@ -472,4 +472,4 @@ if [ -n "$GOOGLE_CLIENT_ID" ]; then
     echo "   - https://$DOMAIN_NAME/auth/google/callback"
     echo ""
 fi
-echo "Local Access (Emergency): http://localhost:8080"
+echo "Local Access (Emergency): https://localhost:8080"
