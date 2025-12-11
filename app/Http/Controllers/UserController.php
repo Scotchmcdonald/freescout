@@ -61,6 +61,11 @@ class UserController extends Controller
         // Default to Dark Mode for new users
         $validated['dark_mode'] = true;
 
+        // Auto-verify if creating an admin
+        if (isset($validated['role']) && (int)$validated['role'] === User::ROLE_ADMIN) {
+            $validated['email_verified_at'] = now();
+        }
+
         $user = User::create($validated);
 
         // Allow modules to modify user after creation
