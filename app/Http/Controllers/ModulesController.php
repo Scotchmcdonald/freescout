@@ -877,9 +877,15 @@ class ModulesController extends Controller
             }
             $message .= ' ' . __('All local changes were discarded to ensure a clean update.');
             
+            // Get the new commit hash after update
+            $newCommit = $this->getModuleCommitHash($path);
+            $githubUrl = $this->getModuleGithubUrl($path);
+            
             return response()->json([
                 'success' => true,
                 'message' => $message,
+                'new_commit' => $newCommit,
+                'new_commit_url' => $githubUrl ? $githubUrl . '/commit/' . $newCommit : null,
             ]);
             
         } catch (\Exception $e) {

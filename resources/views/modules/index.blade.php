@@ -185,6 +185,18 @@
                                                         .then(response => response.json())
                                                         .then(data => {
                                                             if (data.success) {
+                                                                // Update the commit hash display if provided
+                                                                if (data.new_commit) {
+                                                                    const commitSpan = $el.closest('.module-item').querySelector('.module-commit');
+                                                                    if (commitSpan) {
+                                                                        if (data.new_commit_url) {
+                                                                            commitSpan.innerHTML = '<a href="' + data.new_commit_url + '" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">' + data.new_commit + '</a>';
+                                                                        } else {
+                                                                            commitSpan.textContent = data.new_commit;
+                                                                        }
+                                                                    }
+                                                                }
+                                                                
                                                                 if (statusBadge) {
                                                                     statusBadge.innerText = '{{ __('Updated!') }}';
                                                                     statusBadge.classList.remove('bg-blue-100', 'text-blue-800');
