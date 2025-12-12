@@ -147,13 +147,15 @@
                                                 <span>{{ __('Version') }}: {{ $module['version'] }}</span>
                                                 @if($module['commit'])
                                                     <span>{{ __('Commit') }}: 
-                                                        @if($module['commit_url'])
-                                                            <a href="{{ $module['commit_url'] }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">
+                                                        <span class="module-commit-wrapper">
+                                                            @if($module['commit_url'])
+                                                                <a href="{{ $module['commit_url'] }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">
+                                                                    <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">{{ $module['commit'] }}</code>
+                                                                </a>
+                                                            @else
                                                                 <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">{{ $module['commit'] }}</code>
-                                                            </a>
-                                                        @else
-                                                            <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">{{ $module['commit'] }}</code>
-                                                        @endif
+                                                            @endif
+                                                        </span>
                                                     </span>
                                                 @endif
                                                 <span class="update-info hidden text-indigo-600 font-bold ml-2"></span>
@@ -187,12 +189,12 @@
                                                             if (data.success) {
                                                                 // Update the commit hash display if provided
                                                                 if (data.new_commit) {
-                                                                    const commitSpan = $el.closest('.module-item').querySelector('.module-commit');
-                                                                    if (commitSpan) {
+                                                                    const commitWrapper = $el.closest('.module-item').querySelector('.module-commit-wrapper');
+                                                                    if (commitWrapper) {
                                                                         if (data.new_commit_url) {
-                                                                            commitSpan.innerHTML = '<a href="' + data.new_commit_url + '" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">' + data.new_commit + '</a>';
+                                                                            commitWrapper.innerHTML = '<a href="' + data.new_commit_url + '" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline"><code class="bg-gray-100 px-1 py-0.5 rounded font-mono">' + data.new_commit + '</code></a>';
                                                                         } else {
-                                                                            commitSpan.textContent = data.new_commit;
+                                                                            commitWrapper.innerHTML = '<code class="bg-gray-100 px-1 py-0.5 rounded font-mono">' + data.new_commit + '</code>';
                                                                         }
                                                                     }
                                                                 }
