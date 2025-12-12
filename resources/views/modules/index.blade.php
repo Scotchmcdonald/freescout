@@ -319,6 +319,58 @@
                                                 </button>
                                             @endif
 
+                                            @if(File::isDirectory($module['path'] . '/.git'))
+                                                <button 
+                                                    @click="
+                                                        if (confirm('{{ __('This will DELETE the module and re-clone from GitHub. All local changes will be lost. Continue?') }}')) {
+                                                            processing = true;
+                                                            const btn = $el;
+                                                            fetch('{{ route('modules.ajax') }}', {
+                                                                method: 'POST',
+                                                                headers: {
+                                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                                    'Content-Type': 'application/json',
+                                                                    'Accept': 'application/json'
+                                                                },
+                                                                body: JSON.stringify({
+                                                                    action: 'reset_module',
+                                                                    alias: '{{ $module['alias'] }}'
+                                                                })
+                                                            })
+                                                            .then(response => response.json())
+                                                            .then(data => {
+                                                                if (data.success) {
+                                                                    // Update commit hash if provided
+                                                                    if (data.new_commit) {
+                                                                        const commitWrapper = btn.closest('.module-item').querySelector('.module-commit-wrapper');
+                                                                        if (commitWrapper) {
+                                                                            if (data.new_commit_url) {
+                                                                                commitWrapper.innerHTML = '<a href=\"' + data.new_commit_url + '\" target=\"_blank\" class=\"text-blue-600 hover:text-blue-800 hover:underline\"><code class=\"bg-gray-100 px-1 py-0.5 rounded font-mono\">' + data.new_commit + '</code></a>';
+                                                                            } else {
+                                                                                commitWrapper.innerHTML = '<code class=\"bg-gray-100 px-1 py-0.5 rounded font-mono\">' + data.new_commit + '</code>';
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    alert(data.message);
+                                                                    processing = false;
+                                                                } else {
+                                                                    alert(data.message);
+                                                                    processing = false;
+                                                                }
+                                                            })
+                                                            .catch(error => {
+                                                                alert('{{ __('An error occurred') }}');
+                                                                processing = false;
+                                                            });
+                                                        }
+                                                    "
+                                                    :disabled="processing"
+                                                    class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                                    <span x-show="!processing">{{ __('Reset') }}</span>
+                                                    <span x-show="processing">{{ __('Resetting...') }}</span>
+                                                </button>
+                                            @endif
+
                                             <button 
                                                 @click="
                                                     if (confirm('{{ __('Are you sure you want to delete this module?') }}')) {

@@ -483,6 +483,9 @@ class ModulesController extends Controller
             case 'update_module':
                 return $this->ajaxUpdateModule($request);
 
+            case 'reset_module':
+                return $this->ajaxResetModule($request);
+
             case 'refresh_modules':
                 Cache::forget('modules_directory');
 
@@ -832,6 +835,28 @@ class ModulesController extends Controller
     }
 
     /**
+     * Reset a module (delete and re-clone from GitHub).
+     */
+    protected function ajaxResetModule(Request $request): JsonResponse
+    {
+        $alias = $request->input('alias');
+
+        if (! $alias) {
+            return response()->json(['success' => false, 'message' => __('Module alias is required')]);
+        }
+
+        $aliasStr = is_string($alias) || is_int($alias) || is_float($alias) ? (string) $alias : '';
+        $module = Module::find($aliasStr);
+
+        // Check if it's a git repo
+        if (File::isDirectory($module->getPath() . '/.git')) {
+            return $this->resetFromGithub($module);
+        }
+
+        return response()->json(['success' => false, 'message' => __('Module is not a Git repository')]);
+    }
+
+    /**
      * Update module from GitHub.
      */
     private function updateFromGithub(\Nwidart\Modules\Module $module): JsonResponse
@@ -886,6 +911,68 @@ class ModulesController extends Controller
                 'message' => $message,
                 'new_commit' => $newCommit,
                 'new_commit_url' => $githubUrl ? $githubUrl . '/commit/' . $newCommit : null,
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Reset module from GitHub (delete and re-clone).
+     */
+    private function resetFromGithub(\Nwidart\Modules\Module $module): JsonResponse
+    {
+        try {
+            $path = $module->getPath();
+            $moduleName = $module->getName();
+            
+            // Get GitHub URL before deleting
+            $githubUrl = $this->getModuleGithubUrl($path);
+            if (!$githubUrl) {
+                throw new \Exception(__('Cannot determine GitHub URL for this module'));
+            }
+            
+            // Get current branch
+            $branchProcess = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $path);
+            $branchProcess->run();
+            $branch = $branchProcess->isSuccessful() ? trim($branchProcess->getOutput()) : 'master';
+            
+            // Delete the entire module directory
+            if (File::isDirectory($path)) {
+                File::deleteDirectory($path);
+            }
+            
+            // Get parent directory (Modules/)
+            $modulesDir = dirname($path);
+            
+            // Clone fresh from GitHub
+            $cloneProcess = new \Symfony\Component\Process\Process(
+                ['git', 'clone', '-b', $branch, $githubUrl, $moduleName],
+                $modulesDir
+            );
+            $cloneProcess->setTimeout(120);
+            $cloneProcess->run();
+            
+            if (!$cloneProcess->isSuccessful()) {
+                throw new \Exception(__('Git clone failed: :error', ['error' => $cloneProcess->getErrorOutput()]));
+            }
+            
+            // Run install command
+            $outputLog = new BufferedOutput;
+            Artisan::call('freescout:module-install', ['module_alias' => $moduleName], $outputLog);
+            
+            Artisan::call('cache:clear');
+            
+            // Get the new commit hash
+            $newCommit = $this->getModuleCommitHash($path);
+            $newGithubUrl = $this->getModuleGithubUrl($path);
+            
+            return response()->json([
+                'success' => true,
+                'message' => __('Module reset and re-installed from GitHub successfully'),
+                'new_commit' => $newCommit,
+                'new_commit_url' => $newGithubUrl ? $newGithubUrl . '/commit/' . $newCommit : null,
             ]);
             
         } catch (\Exception $e) {
