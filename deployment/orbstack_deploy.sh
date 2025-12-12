@@ -11,6 +11,7 @@
 # - Docker BuildKit optimization
 # - Self-signed SSL certificates
 # - Cloudflare Tunnel integration
+# - Idempotent re-deployment (safely re-run over existing installations)
 #===============================================================================
 
 set -euo pipefail
@@ -276,6 +277,17 @@ setup_directories() {
     
     mkdir -p "$DEFAULT_INSTALL_DIR/nginx"
     cd "$DEFAULT_INSTALL_DIR"
+    
+    # Check if this is a re-deployment (docker-compose.yml exists)
+    # We stop containers EARLY before regenerating any files to ensure:
+    # 1. No file locks or conflicts with running containers
+    # 2. Clean slate for new configuration files
+    # 3. Idempotent behavior - script can be run multiple times safely
+    if [ -f "docker-compose.yml" ]; then
+        log_info "Existing deployment detected - stopping containers..."
+        docker compose down --remove-orphans 2>/dev/null || true
+        log_success "Existing containers stopped"
+    fi
     
     log_success "Directories created"
 }
@@ -728,9 +740,6 @@ setup_storage_permissions() {
 
 build_and_launch_containers() {
     log_step "Building & Launching Docker Containers"
-    
-    log_info "Stopping any existing containers..."
-    docker compose down --remove-orphans 2>/dev/null || true
     
     log_info "Building application image (with BuildKit)..."
     docker compose build app
