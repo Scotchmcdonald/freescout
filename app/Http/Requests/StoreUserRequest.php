@@ -15,7 +15,8 @@ class StoreUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Authorization handled in controller via policy
+        // Authorization: must be admin to create users
+        return $this->user()?->can('create', \App\Models\User::class) ?? false;
     }
 
     /**

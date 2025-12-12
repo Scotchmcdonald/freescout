@@ -34,7 +34,7 @@ class AdvancedIntegrationTest extends FeatureTestCase
         $mailbox->users()->attach($admin->id);
 
         // Create conversation
-        $response = $this->actingAs($admin)->post(route('conversations.create', ['mailbox_id' => $mailbox->id]), [
+        $response = $this->actingAs($admin)->post(route('conversations.store', ['mailbox' => $mailbox->id]), [
             'subject' => 'Test Issue',
             'customer_id' => $customer->id,
             'type' => Thread::TYPE_MESSAGE,

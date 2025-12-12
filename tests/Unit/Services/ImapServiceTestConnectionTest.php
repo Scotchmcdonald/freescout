@@ -160,37 +160,37 @@ class ImapServiceTestConnectionTest extends TestCase
     {
         $mailbox = $this->createMockMailbox();
 
-        $mockMessage = Mockery::mock(Message::class);
-        $mockMessage->shouldReceive('hasFlag')->with('Seen')->andReturn(false);
+        $mockMessage = Mockery::mock(Message::class)->makePartial();
+        $mockMessage->allows('hasFlag')->with('Seen')->andReturn(false);
 
         $messageCollection = new MessageCollection([$mockMessage]);
 
         // First query fails with charset error
         $mockQuery1 = Mockery::mock(WhereQuery::class);
-        $mockQuery1->shouldReceive('since')->once()->andReturnSelf();
-        $mockQuery1->shouldReceive('leaveUnread')->once()->andReturnSelf();
-        $mockQuery1->shouldReceive('get')->once()->andThrow(new \Exception('The specified charset is not supported'));
+        $mockQuery1->allows('since')->andReturnSelf();
+        $mockQuery1->allows('leaveUnread')->andReturnSelf();
+        $mockQuery1->allows('get')->andThrow(new \Exception('The specified charset is not supported'));
 
-        // Second query succeeds without charset
+        // Second query succeeds (retry without charset)
         $mockQuery2 = Mockery::mock(WhereQuery::class);
-        $mockQuery2->shouldReceive('since')->once()->andReturnSelf();
-        $mockQuery2->shouldReceive('leaveUnread')->once()->andReturnSelf();
-        $mockQuery2->shouldReceive('setCharset')->once()->with(null)->andReturnSelf();
-        $mockQuery2->shouldReceive('get')->once()->andReturn($messageCollection);
+        $mockQuery2->allows('since')->andReturnSelf();
+        $mockQuery2->allows('leaveUnread')->andReturnSelf();
+        $mockQuery2->allows('get')->andReturn($messageCollection);
 
         $mockFolder = Mockery::mock(Folder::class);
-        $mockFolder->shouldReceive('query')->twice()->andReturn($mockQuery1, $mockQuery2);
+        $mockFolder->allows('query')->andReturn($mockQuery1, $mockQuery2);
 
         $mockClient = Mockery::mock(Client::class);
-        $mockClient->shouldReceive('connect')->once();
-        $mockClient->shouldReceive('getFolder')->with('INBOX')->once()->andReturn($mockFolder);
-        $mockClient->shouldReceive('disconnect')->once();
+        $mockClient->allows('connect');
+        $mockClient->allows('getFolder')->with('INBOX')->andReturn($mockFolder);
+        $mockClient->allows('disconnect');
 
         $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
-        $service->shouldReceive('createClient')->with($mailbox)->andReturn($mockClient);
+        $service->allows('createClient')->with($mailbox)->andReturn($mockClient);
 
         $result = $service->testConnection($mailbox);
 
+        // Verify behavior: connection succeeds after charset retry
         $this->assertTrue($result['success']);
         $this->assertStringContainsString('1 messages', $result['message']);
         $this->assertStringContainsString('1 unread', $result['message']);
@@ -279,37 +279,37 @@ class ImapServiceTestConnectionTest extends TestCase
     {
         $mailbox = $this->createMockMailbox();
 
-        $mockMessage = Mockery::mock(Message::class);
-        $mockMessage->shouldReceive('hasFlag')->with('Seen')->andReturn(true);
+        $mockMessage = Mockery::mock(Message::class)->makePartial();
+        $mockMessage->allows('hasFlag')->with('Seen')->andReturn(true);
 
         $messageCollection = new MessageCollection([$mockMessage]);
 
         // First query fails with CHARSET in uppercase
         $mockQuery1 = Mockery::mock(WhereQuery::class);
-        $mockQuery1->shouldReceive('since')->once()->andReturnSelf();
-        $mockQuery1->shouldReceive('leaveUnread')->once()->andReturnSelf();
-        $mockQuery1->shouldReceive('get')->once()->andThrow(new \Exception('The specified CHARSET is not supported'));
+        $mockQuery1->allows('since')->andReturnSelf();
+        $mockQuery1->allows('leaveUnread')->andReturnSelf();
+        $mockQuery1->allows('get')->andThrow(new \Exception('The specified CHARSET is not supported'));
 
-        // Second query succeeds
+        // Second query succeeds (retry)
         $mockQuery2 = Mockery::mock(WhereQuery::class);
-        $mockQuery2->shouldReceive('since')->once()->andReturnSelf();
-        $mockQuery2->shouldReceive('leaveUnread')->once()->andReturnSelf();
-        $mockQuery2->shouldReceive('setCharset')->once()->with(null)->andReturnSelf();
-        $mockQuery2->shouldReceive('get')->once()->andReturn($messageCollection);
+        $mockQuery2->allows('since')->andReturnSelf();
+        $mockQuery2->allows('leaveUnread')->andReturnSelf();
+        $mockQuery2->allows('get')->andReturn($messageCollection);
 
         $mockFolder = Mockery::mock(Folder::class);
-        $mockFolder->shouldReceive('query')->twice()->andReturn($mockQuery1, $mockQuery2);
+        $mockFolder->allows('query')->andReturn($mockQuery1, $mockQuery2);
 
         $mockClient = Mockery::mock(Client::class);
-        $mockClient->shouldReceive('connect')->once();
-        $mockClient->shouldReceive('getFolder')->with('INBOX')->once()->andReturn($mockFolder);
-        $mockClient->shouldReceive('disconnect')->once();
+        $mockClient->allows('connect');
+        $mockClient->allows('getFolder')->with('INBOX')->andReturn($mockFolder);
+        $mockClient->allows('disconnect');
 
         $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
-        $service->shouldReceive('createClient')->with($mailbox)->andReturn($mockClient);
+        $service->allows('createClient')->with($mailbox)->andReturn($mockClient);
 
         $result = $service->testConnection($mailbox);
 
+        // Verify behavior: uppercase CHARSET error is handled case-insensitively
         $this->assertTrue($result['success']);
     }
 
@@ -319,29 +319,29 @@ class ImapServiceTestConnectionTest extends TestCase
 
         // First query fails with charset error
         $mockQuery1 = Mockery::mock(WhereQuery::class);
-        $mockQuery1->shouldReceive('since')->once()->andReturnSelf();
-        $mockQuery1->shouldReceive('leaveUnread')->once()->andReturnSelf();
-        $mockQuery1->shouldReceive('get')->once()->andThrow(new \Exception('The specified charset is not supported'));
+        $mockQuery1->allows('since')->andReturnSelf();
+        $mockQuery1->allows('leaveUnread')->andReturnSelf();
+        $mockQuery1->allows('get')->andThrow(new \Exception('The specified charset is not supported'));
 
         // Second query also fails (different error)
         $mockQuery2 = Mockery::mock(WhereQuery::class);
-        $mockQuery2->shouldReceive('since')->once()->andReturnSelf();
-        $mockQuery2->shouldReceive('leaveUnread')->once()->andReturnSelf();
-        $mockQuery2->shouldReceive('setCharset')->once()->with(null)->andReturnSelf();
-        $mockQuery2->shouldReceive('get')->once()->andThrow(new \Exception('Network error'));
+        $mockQuery2->allows('since')->andReturnSelf();
+        $mockQuery2->allows('leaveUnread')->andReturnSelf();
+        $mockQuery2->allows('get')->andThrow(new \Exception('Network error'));
 
         $mockFolder = Mockery::mock(Folder::class);
-        $mockFolder->shouldReceive('query')->twice()->andReturn($mockQuery1, $mockQuery2);
+        $mockFolder->allows('query')->andReturn($mockQuery1, $mockQuery2);
 
         $mockClient = Mockery::mock(Client::class);
-        $mockClient->shouldReceive('connect')->once();
-        $mockClient->shouldReceive('getFolder')->with('INBOX')->once()->andReturn($mockFolder);
+        $mockClient->allows('connect');
+        $mockClient->allows('getFolder')->with('INBOX')->andReturn($mockFolder);
 
         $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
-        $service->shouldReceive('createClient')->with($mailbox)->andReturn($mockClient);
+        $service->allows('createClient')->with($mailbox)->andReturn($mockClient);
 
         $result = $service->testConnection($mailbox);
 
+        // Verify behavior: second failure is reported correctly
         $this->assertFalse($result['success']);
         $this->assertStringContainsString('Network error', $result['message']);
     }

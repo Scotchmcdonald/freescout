@@ -488,6 +488,22 @@ class SystemController extends Controller
 
                 $data = ['activityLogs' => $activityLogs];
                 break;
+
+            case 'login':
+                // Get login-related activity logs
+                $loginLogs = ActivityLog::with(['causer'])
+                    ->where('log_name', ActivityLog::NAME_USER)
+                    ->whereIn('description', [
+                        ActivityLog::DESCRIPTION_USER_LOGIN,
+                        ActivityLog::DESCRIPTION_USER_LOGIN_FAILED,
+                        ActivityLog::DESCRIPTION_USER_LOCKED,
+                        ActivityLog::DESCRIPTION_USER_LOGOUT,
+                    ])
+                    ->latest()
+                    ->paginate(50);
+
+                $data = ['loginLogs' => $loginLogs];
+                break;
         }
 
         $data['currentType'] = $type;

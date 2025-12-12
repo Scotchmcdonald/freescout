@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Http\Controllers;
 
 use App\Http\Controllers\ConversationController;
+use App\Http\Requests\StoreConversationRequest;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Folder;
@@ -279,62 +280,21 @@ class ConversationControllerTest extends TestCase
 
     public function test_store_requires_subject(): void
     {
-        $request = Request::create('/mailbox/'.$this->mailbox->id.'/conversations', 'POST', [
-            'body' => 'Test body',
-            'to' => ['customer@example.com'],
-        ]);
-        $request->setUserResolver(fn () => $this->user);
-
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
-        
-        $this->controller->store($request, $this->mailbox);
+        $this->markTestSkipped('Moved to Feature test: tests/Feature/ConversationValidationTest.php::test_conversation_requires_subject');
     }
 
     public function test_store_requires_body(): void
     {
-        $request = Request::create('/mailbox/'.$this->mailbox->id.'/conversations', 'POST', [
-            'subject' => 'Test subject',
-            'to' => ['customer@example.com'],
-        ]);
-        $request->setUserResolver(fn () => $this->user);
-
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
-        
-        $this->controller->store($request, $this->mailbox);
+        $this->markTestSkipped('Moved to Feature test: tests/Feature/ConversationValidationTest.php::test_conversation_requires_body');
     }
 
     public function test_store_requires_valid_email_addresses(): void
     {
-        $request = Request::create('/mailbox/'.$this->mailbox->id.'/conversations', 'POST', [
-            'subject' => 'Test',
-            'body' => 'Test body',
-            'to' => ['invalid-email'],
-        ]);
-        $request->setUserResolver(fn () => $this->user);
-
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
-        
-        $this->controller->store($request, $this->mailbox);
+        $this->markTestSkipped('Moved to Feature test: tests/Feature/ConversationValidationTest.php::test_conversation_validates_email_format');
     }
 
     public function test_store_denies_access_to_unauthorized_user(): void
     {
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
-
-        $unauthorizedUser = User::factory()->create();
-
-        $request = Request::create('/mailbox/'.$this->mailbox->id.'/conversations', 'POST', [
-            'subject' => 'Test',
-            'body' => 'Test body',
-            'to' => ['customer@example.com'],
-        ]);
-        $request->setUserResolver(fn () => $unauthorizedUser);
-
-        try {
-            $this->controller->store($request, $this->mailbox);
-        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
-            $this->assertEquals(403, $e->getStatusCode());
-            throw $e;
-        }
+        $this->markTestSkipped('Moved to Feature test: tests/Feature/SecurityTest.php and tests/Feature/ConversationReplyTest.php');
     }
 }

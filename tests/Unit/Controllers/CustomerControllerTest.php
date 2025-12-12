@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Controllers;
 
 use App\Http\Controllers\CustomerController;
+use App\Http\Requests\UpdateCustomerRequest;
 use App\Models\Conversation;
 use App\Models\Customer;
 use Illuminate\Http\Request;
@@ -110,8 +111,8 @@ class CustomerControllerTest extends UnitTestCase
         $customer = Customer::factory()->create();
 
         $controller = new CustomerController;
-        $request = Request::create('/customers/'.$customer->id, 'PUT');
-        $request->merge([
+        $request = \Mockery::mock(UpdateCustomerRequest::class);
+        $request->shouldReceive('validated')->andReturn([
             'first_name' => 'Updated',
             'last_name' => 'Name',
         ]);
@@ -129,8 +130,8 @@ class CustomerControllerTest extends UnitTestCase
         $customer = Customer::factory()->create();
 
         $controller = new CustomerController;
-        $request = Request::create('/customers/'.$customer->id, 'PUT');
-        $request->merge([
+        $request = \Mockery::mock(UpdateCustomerRequest::class);
+        $request->shouldReceive('validated')->andReturn([
             'first_name' => 'John',
             'last_name' => 'Doe',
             'company' => 'Acme Inc',

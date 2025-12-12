@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\CustomerController;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Email;
 use App\Models\Mailbox;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use Tests\TestCase;
 
 /**
  * Tests for customer email migration functionality.
- *
- * @covers \App\Http\Controllers\CustomerController::ajaxMigrateEmail
  */
+#[CoversMethod(CustomerController::class, 'ajaxMigrateEmail')]
 class CustomerEmailMigrationTest extends TestCase
 {
     use RefreshDatabase;

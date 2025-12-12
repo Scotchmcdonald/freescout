@@ -14,7 +14,25 @@ class StoreConversationRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Authorization handled in controller
+        /** @var \App\Models\User|null $user */
+        $user = $this->user();
+        
+        if (!$user) {
+            return false;
+        }
+
+        // Get mailbox from route
+        $mailbox = $this->route('mailbox');
+        if (!($mailbox instanceof \App\Models\Mailbox)) {
+            $mailbox = \App\Models\Mailbox::find($mailbox);
+        }
+        
+        if (!$mailbox instanceof \App\Models\Mailbox) {
+            return false;
+        }
+
+        // Check access: must be admin or have access to mailbox
+        return $user->isAdmin() || $user->mailboxes->contains($mailbox->id);
     }
 
     /**

@@ -157,10 +157,7 @@ class ConversationController extends Controller
             abort(401);
         }
 
-        // Check access
-        if (! $user->isAdmin() && ! $user->mailboxes->contains($mailbox->id)) {
-            abort(403);
-        }
+        // Authorization now handled in StoreConversationRequest::authorize()
 
         $validated = $request->validated();
 

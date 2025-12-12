@@ -43,7 +43,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request): RedirectResponse
     {
-        $this->authorize('create', User::class);
+        // Authorization now handled in StoreUserRequest::authorize()
 
         $validated = $request->validated();
 
@@ -106,7 +106,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        $this->authorize('update', $user);
+        // Authorization now handled in UpdateUserRequest::authorize()
 
         $validated = $request->validated();
 

@@ -13,12 +13,14 @@ class ThreadObserver
      */
     public function created(Thread $thread): void
     {
-        $thread->conversation->increment('threads_count');
+        $conversation = $thread->conversation;
+
+        $conversation->increment('threads_count');
     
         // Update preview
         if ($thread->body && $thread->type !== Thread::TYPE_DRAFT) {
-            $thread->conversation->preview = substr(strip_tags($thread->body), 0, 100);
-            $thread->conversation->saveQuietly();
+            $conversation->preview = substr(strip_tags($thread->body), 0, 100);
+            $conversation->saveQuietly();
         }
     }
 

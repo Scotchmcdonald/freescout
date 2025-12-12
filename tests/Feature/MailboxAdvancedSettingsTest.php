@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\MailboxController;
 use App\Models\Mailbox;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use Tests\TestCase;
 
 /**
  * Tests for mailbox advanced settings functionality.
- *
- * @covers \App\Http\Controllers\MailboxController::advancedSettings
- * @covers \App\Http\Controllers\MailboxController::saveAdvancedSettings
  */
+#[CoversMethod(MailboxController::class, 'advancedSettings')]
+#[CoversMethod(MailboxController::class, 'saveAdvancedSettings')]
 class MailboxAdvancedSettingsTest extends TestCase
 {
     use RefreshDatabase;

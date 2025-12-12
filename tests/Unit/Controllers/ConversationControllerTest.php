@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Controllers;
 
 use App\Http\Controllers\ConversationController;
+use App\Http\Requests\StoreConversationRequest;
+use App\Http\Requests\UpdateConversationRequest;
+use App\Http\Requests\ReplyConversationRequest;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Folder;
@@ -173,16 +176,27 @@ class ConversationControllerTest extends UnitTestCase
         $user->mailboxes()->attach($mailbox->id);
         $customer = Customer::factory()->create();
 
-        $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations', 'POST');
+        $request = StoreConversationRequest::create(
+            '/mailboxes/'.$mailbox->id.'/conversations',
+            'POST',
+            ['customer_id' => $customer->id]
+        );
         $request->setUserResolver(fn () => $user);
-        $request->merge([
-            'customer_id' => $customer->id,
-        ]);
+        $request->setRouteResolver(fn () => \Illuminate\Routing\Route::match(
+            ['POST'],
+            '/mailboxes/{mailbox}/conversations',
+            []
+        )->bind($request)->setParameter('mailbox', $mailbox));
 
-        $controller = new ConversationController;
+        // Test validation directly
+        $validator = \Illuminate\Support\Facades\Validator::make(
+            $request->all(),
+            $request->rules()
+        );
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
-        $controller->store($request, $mailbox);
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('subject', $validator->errors()->messages());
+        $this->assertArrayHasKey('body', $validator->errors()->messages());
     }
 
     public function test_store_requires_valid_customer(): void
@@ -191,18 +205,30 @@ class ConversationControllerTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $user->mailboxes()->attach($mailbox->id);
 
-        $request = Request::create('/mailboxes/'.$mailbox->id.'/conversations', 'POST');
+        $request = StoreConversationRequest::create(
+            '/mailboxes/'.$mailbox->id.'/conversations',
+            'POST',
+            [
+                'customer_id' => 99999, // Non-existent
+                'subject' => 'Test',
+                'body' => 'Test',
+            ]
+        );
         $request->setUserResolver(fn () => $user);
-        $request->merge([
-            'customer_id' => 99999, // Non-existent
-            'subject' => 'Test',
-            'body' => 'Test',
-        ]);
+        $request->setRouteResolver(fn () => \Illuminate\Routing\Route::match(
+            ['POST'],
+            '/mailboxes/{mailbox}/conversations',
+            []
+        )->bind($request)->setParameter('mailbox', $mailbox));
 
-        $controller = new ConversationController;
+        // Test validation directly
+        $validator = \Illuminate\Support\Facades\Validator::make(
+            $request->all(),
+            $request->rules()
+        );
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
-        $controller->store($request, $mailbox);
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('customer_id', $validator->errors()->messages());
     }
 
     public function test_update_requires_authorization(): void
@@ -211,9 +237,17 @@ class ConversationControllerTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-        $request = Request::create('/conversations/'.$conversation->id, 'PUT');
+        $request = UpdateConversationRequest::create(
+            '/conversations/'.$conversation->id,
+            'PUT',
+            ['status' => 2]
+        );
         $request->setUserResolver(fn () => $user);
-        $request->merge(['status' => 2]);
+        $request->setRouteResolver(fn () => \Illuminate\Routing\Route::match(
+            ['PUT'],
+            '/conversations/{conversation}',
+            []
+        )->bind($request)->setParameter('conversation', $conversation));
 
         $controller = new ConversationController;
 
@@ -229,9 +263,10 @@ class ConversationControllerTest extends UnitTestCase
         $user->mailboxes()->attach($mailbox->id);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-        $request = Request::create('/conversations/'.$conversation->id, 'PUT');
-        $request->setUserResolver(fn () => $user);
-        $request->merge(['user_id' => $assignee->id]);
+        $request = \Mockery::mock(UpdateConversationRequest::class);
+        $request->shouldReceive('user')->andReturn($user);
+        $request->shouldReceive('validated')->andReturn(['user_id' => $assignee->id]);
+        $request->shouldReceive('expectsJson')->andReturn(false);
 
         $controller = new ConversationController;
         $controller->update($request, $conversation);
@@ -248,9 +283,10 @@ class ConversationControllerTest extends UnitTestCase
         $folder2 = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id, 'folder_id' => $folder1->id]);
 
-        $request = Request::create('/conversations/'.$conversation->id, 'PUT');
-        $request->setUserResolver(fn () => $user);
-        $request->merge(['folder_id' => $folder2->id]);
+        $request = \Mockery::mock(UpdateConversationRequest::class);
+        $request->shouldReceive('user')->andReturn($user);
+        $request->shouldReceive('validated')->andReturn(['folder_id' => $folder2->id]);
+        $request->shouldReceive('expectsJson')->andReturn(false);
 
         $controller = new ConversationController;
         $controller->update($request, $conversation);
@@ -265,9 +301,10 @@ class ConversationControllerTest extends UnitTestCase
         $user->mailboxes()->attach($mailbox->id);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-        $request = Request::create('/conversations/'.$conversation->id.'/reply', 'POST');
-        $request->setUserResolver(fn () => $user);
-        $request->merge(['body' => 'This is a reply']);
+        $request = \Mockery::mock(ReplyConversationRequest::class);
+        $request->shouldReceive('user')->andReturn($user);
+        $request->shouldReceive('validated')->andReturn(['body' => 'This is a reply']);
+        $request->shouldReceive('expectsJson')->andReturn(false);
 
         $controller = new ConversationController;
         $response = $controller->reply($request, $conversation);
@@ -283,14 +320,26 @@ class ConversationControllerTest extends UnitTestCase
         $user->mailboxes()->attach($mailbox->id);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-        $request = Request::create('/conversations/'.$conversation->id.'/reply', 'POST');
+        $request = ReplyConversationRequest::create(
+            '/conversations/'.$conversation->id.'/reply',
+            'POST',
+            []
+        );
         $request->setUserResolver(fn () => $user);
-        $request->merge([]);
+        $request->setRouteResolver(fn () => \Illuminate\Routing\Route::match(
+            ['POST'],
+            '/conversations/{conversation}/reply',
+            []
+        )->bind($request)->setParameter('conversation', $conversation));
 
-        $controller = new ConversationController;
+        // Test validation directly
+        $validator = \Illuminate\Support\Facades\Validator::make(
+            $request->all(),
+            $request->rules()
+        );
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
-        $controller->reply($request, $conversation);
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('body', $validator->errors()->messages());
     }
 
     public function test_destroy_requires_mailbox_access(): void

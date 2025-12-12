@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\UserController;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use Tests\TestCase;
 
 /**
  * Tests for enhanced user deletion with conversation reassignment.
- *
- * @covers \App\Http\Controllers\UserController::destroy
  */
+#[CoversMethod(UserController::class, 'destroy')]
 class UserDeletionWithReassignmentTest extends TestCase
 {
     use RefreshDatabase;

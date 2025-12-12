@@ -459,7 +459,7 @@ $io->section('Running Batches');
 $progressBar = $io->createProgressBar(count($batchesToRun));
 $progressBar->setFormat(" %current%/%max% [%custom_bar%] %percent:3s%% | %elapsed:6s%/%remaining:-6s% | Mem: %memory:6s%%message%");
 $progressBar->setMessage('', 'custom_bar');
-$progressBar->setMessage('Starting batches...');
+$progressBar->setMessage("\nStarting batches...");
 $progressBar->start();
 
 $runningStats = ['Tests' => 0, 'Assertions' => 0, 'Errors' => 0, 'Failures' => 0, 'Skipped' => 0, 'Incomplete' => 0, 'TimedOut' => 0];

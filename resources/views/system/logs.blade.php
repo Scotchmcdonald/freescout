@@ -23,6 +23,10 @@
                            class="px-6 py-3 border-b-2 font-medium text-sm {{ $currentType === 'activity' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             Activity Logs
                         </a>
+                        <a href="{{ route('system.logs', ['type' => 'login']) }}" 
+                           class="px-6 py-3 border-b-2 font-medium text-sm {{ $currentType === 'login' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                            Login Logs
+                        </a>
                     </nav>
                 </div>
             </div>
@@ -125,12 +129,18 @@
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach($activityLogs as $log)
                                             <tr class="hover:bg-gray-50">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">{{ $log->event }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded">{{ $log->description }}</span>
+                                                </td>
                                                 <td class="px-6 py-4 text-sm text-gray-600">
                                                     {{ $log->causer?->getFullName() ?? 'System' }}
                                                 </td>
                                                 <td class="px-6 py-4 text-sm text-gray-600">
-                                                    {{ $log->subject_type }} #{{ $log->subject_id }}
+                                                    @if($log->subject)
+                                                        {{ class_basename($log->subject_type) }} #{{ $log->subject_id }}
+                                                    @else
+                                                        <span class="text-gray-400">N/A</span>
+                                                    @endif
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                                     {{ $log->created_at->format('Y-m-d H:i:s') }}
@@ -143,6 +153,66 @@
                             
                             <div class="mt-6">
                                 {{ $activityLogs->appends(['type' => 'activity'])->links() }}
+                            </div>
+                        @endif
+
+                    @elseif($currentType === 'login')
+                        <!-- Login Logs -->
+                        <h3 class="text-lg font-semibold mb-4">{{ __('Login Activity') }}</h3>
+                        <p class="text-sm text-gray-600 mb-4">Note: Failed login attempts are rate-limited to 5 attempts per email+IP combination before lockout.</p>
+                        
+                        @if($loginLogs->isEmpty())
+                            <div class="text-center py-12 text-gray-500">
+                                <p>No login activity found</p>
+                            </div>
+                        @else
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP Address</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @foreach($loginLogs as $log)
+                                            <tr class="hover:bg-gray-50">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    @if($log->description === 'login')
+                                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">✓ Login Success</span>
+                                                    @elseif($log->description === 'login_failed')
+                                                        <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">✗ Login Failed</span>
+                                                    @elseif($log->description === 'locked')
+                                                        <span class="px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded">⚠ Locked Out</span>
+                                                    @elseif($log->description === 'logout')
+                                                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded">← Logout</span>
+                                                    @else
+                                                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded">{{ $log->description }}</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-6 py-4 text-sm text-gray-600">{{ $log->properties['email'] ?? 'N/A' }}</td>
+                                                <td class="px-6 py-4 text-sm text-gray-600 font-mono">{{ $log->properties['ip'] ?? 'N/A' }}</td>
+                                                <td class="px-6 py-4 text-sm text-gray-600">
+                                                    @if($log->causer)
+                                                        {{ $log->causer->getFullName() }}
+                                                    @else
+                                                        <span class="text-gray-400">—</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                    {{ $log->created_at->format('Y-m-d H:i:s') }}
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="mt-6">
+                                {{ $loginLogs->appends(['type' => 'login'])->links() }}
                             </div>
                         @endif
                     @endif

@@ -35,12 +35,12 @@ class SettingsController extends Controller
                 'icon' => 'cog',
                 'order' => 100
             ],
-            // 'email' => [
-            //     'title' => __('Email Settings'),
-            //     'route' => 'settings.email',
-            //     'icon' => 'mail',
-            //     'order' => 200
-            // ],
+            'email' => [
+                'title' => __('Email Settings'),
+                'route' => 'settings.email',
+                'icon' => 'mail',
+                'order' => 200
+            ],
             'alerts' => [
                 'title' => __('Alerts'),
                 'route' => 'settings.alerts',
@@ -497,8 +497,11 @@ class SettingsController extends Controller
         $currentSection = 'security';
 
         // Use security view if it exists, otherwise fall back to index
+        $viewName = \Illuminate\Support\Facades\View::exists('settings.security') 
+            ? 'settings.security' 
+            : 'settings.index';
+        
         /** @var view-string $viewName */
-        $viewName = 'settings.security';
         return view($viewName, compact('settings', 'sections', 'currentSection'));
     }
 }

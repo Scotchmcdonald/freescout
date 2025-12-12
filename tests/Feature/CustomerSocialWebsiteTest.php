@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\CustomerController;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use Tests\TestCase;
 
 /**
  * Tests for customer social profiles and website management.
- *
- * @covers \App\Http\Controllers\CustomerController::ajaxAddSocialProfile
- * @covers \App\Http\Controllers\CustomerController::ajaxDeleteSocialProfile
- * @covers \App\Http\Controllers\CustomerController::ajaxAddWebsite
- * @covers \App\Http\Controllers\CustomerController::ajaxDeleteWebsite
  */
+#[CoversMethod(CustomerController::class, 'ajaxAddSocialProfile')]
+#[CoversMethod(CustomerController::class, 'ajaxDeleteSocialProfile')]
+#[CoversMethod(CustomerController::class, 'ajaxAddWebsite')]
+#[CoversMethod(CustomerController::class, 'ajaxDeleteWebsite')]
 class CustomerSocialWebsiteTest extends TestCase
 {
     use RefreshDatabase;

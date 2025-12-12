@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use Tests\TestCase;
 
 /**
  * Tests for user password change functionality.
- *
- * @covers \App\Http\Controllers\UserController::passwordForm
- * @covers \App\Http\Controllers\UserController::updatePassword
  */
+#[CoversMethod(UserController::class, 'passwordForm')]
+#[CoversMethod(UserController::class, 'updatePassword')]
 class UserPasswordChangeTest extends TestCase
 {
     use RefreshDatabase;

@@ -473,6 +473,10 @@ class SystemControllerTest extends UnitTestCase
     {
         \Artisan::shouldReceive('call')->with('optimize')
             ->andThrow(new \Exception('Optimize failed'));
+        
+        \Illuminate\Support\Facades\Log::shouldReceive('error')
+            ->twice()
+            ->andReturn(null);
 
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $request = Request::create('/system/ajax', 'POST');
