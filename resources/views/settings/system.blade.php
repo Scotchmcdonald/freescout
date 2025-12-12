@@ -17,6 +17,26 @@
                         
                         <dl class="space-y-3 text-sm">
                         <div class="flex justify-between py-2 border-b border-gray-200">
+                            <dt class="font-medium text-gray-700">App Version</dt>
+                            <dd class="text-gray-900">{{ config('app.version', '1.0.0') }}</dd>
+                        </div>
+                        @if($updateInfo)
+                        <div class="flex justify-between py-2 border-b border-gray-200">
+                            <dt class="font-medium text-gray-700">Current Commit</dt>
+                            <dd class="text-gray-900 font-mono">{{ $updateInfo['current_commit'] }}</dd>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-200">
+                            <dt class="font-medium text-gray-700">Branch</dt>
+                            <dd class="text-gray-900">{{ $updateInfo['branch'] }}</dd>
+                        </div>
+                        @if($updateInfo['has_update'])
+                        <div class="flex justify-between py-2 border-b border-gray-200">
+                            <dt class="font-medium text-gray-700">Update Status</dt>
+                            <dd class="text-yellow-600 font-medium">{{ $updateInfo['commits_behind'] }} commits behind</dd>
+                        </div>
+                        @endif
+                        @endif
+                        <div class="flex justify-between py-2 border-b border-gray-200">
                             <dt class="font-medium text-gray-700">PHP Version</dt>
                             <dd class="text-gray-900">{{ $settings['php_version'] }}</dd>
                         </div>
@@ -48,6 +68,19 @@
                     <h3 class="text-lg font-semibold mb-4">{{ __('System Tools') }}</h3>
                     
                     <div class="space-y-3">
+                        @if($updateInfo && $updateInfo['has_update'])
+                        <a href="{{ route('system.update') }}" 
+                           class="block w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-left flex justify-between items-center">
+                            <div>
+                                <span class="font-medium">{{ __('Update Application') }}</span>
+                                <span class="block text-xs mt-1 opacity-90">{{ $updateInfo['commits_behind'] }} commits behind</span>
+                            </div>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                        </a>
+                        @endif
+                        
                         <button @click="clearCache()" 
                                 :disabled="loading"
                                 class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-left flex justify-between items-center disabled:opacity-50">

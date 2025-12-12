@@ -85,9 +85,12 @@ class SystemController extends Controller
             'public_symlink_exists' => $publicSymlinkExists,
         ];
 
+        // Get application update info
+        $updateInfo = $this->checkForAppUpdates();
+
         $viewName = 'system.index';
 
-        return view($viewName, compact('stats', 'systemInfo'));
+        return view($viewName, compact('stats', 'systemInfo', 'updateInfo'));
     }
 
     /**

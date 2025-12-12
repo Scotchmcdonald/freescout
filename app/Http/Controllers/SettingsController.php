@@ -193,10 +193,83 @@ class SettingsController extends Controller
             'session_driver' => config('session.driver'),
         ];
 
+        // Get application update info
+        $updateInfo = $this->checkForAppUpdates();
+
         $sections = $this->getSections();
         $currentSection = 'system';
 
-        return view('settings.system', compact('settings', 'sections', 'currentSection'));
+        return view('settings.system', compact('settings', 'sections', 'currentSection', 'updateInfo'));
+    }
+
+    /**
+     * Check for application updates from git repository.
+     */
+    private function checkForAppUpdates(): ?array
+    {
+        try {
+            $appPath = base_path();
+            
+            // Get current branch
+            $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $appPath);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+            $branch = trim($process->getOutput());
+
+            // Get current commit hash
+            $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', 'HEAD'], $appPath);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+            $localHash = trim($process->getOutput());
+            $localHashShort = substr($localHash, 0, 7);
+
+            // Fetch latest from remote (without pulling)
+            $process = new \Symfony\Component\Process\Process(['git', 'fetch', 'origin', $branch], $appPath);
+            $process->setTimeout(30);
+            $process->run();
+
+            // Get remote commit hash
+            $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', "origin/$branch"], $appPath);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return [
+                    'current_commit' => $localHashShort,
+                    'branch' => $branch,
+                    'has_update' => false,
+                ];
+            }
+            $remoteHash = trim($process->getOutput());
+            $remoteHashShort = substr($remoteHash, 0, 7);
+
+            // Compare hashes
+            $hasUpdate = $localHash !== $remoteHash;
+            $commitsBehind = 0;
+            
+            if ($hasUpdate) {
+                // Count commits behind
+                $process = new \Symfony\Component\Process\Process(
+                    ['git', 'rev-list', '--count', "$localHash..origin/$branch"],
+                    $appPath
+                );
+                $process->run();
+                $commitsBehind = (int) trim($process->getOutput());
+            }
+
+            return [
+                'current_commit' => $localHashShort,
+                'remote_commit' => $remoteHashShort,
+                'commits_behind' => $commitsBehind,
+                'branch' => $branch,
+                'has_update' => $hasUpdate,
+            ];
+            
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**

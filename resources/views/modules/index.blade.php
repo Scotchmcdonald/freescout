@@ -190,12 +190,23 @@
                                                                 // Update the commit hash display if provided
                                                                 if (data.new_commit) {
                                                                     const commitWrapper = $el.closest('.module-item').querySelector('.module-commit-wrapper');
-                                                                    if (commitWrapper) {
-                                                                        if (data.new_commit_url) {
-                                                                            commitWrapper.innerHTML = '<a href="' + data.new_commit_url + '" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline"><code class="bg-gray-100 px-1 py-0.5 rounded font-mono">' + data.new_commit + '</code></a>';
-                                                                        } else {
-                                                                            commitWrapper.innerHTML = '<code class="bg-gray-100 px-1 py-0.5 rounded font-mono">' + data.new_commit + '</code>';
-                                                                        }
+                                                                    if (commitWrapper && data.new_commit_url) {
+                                                                        const link = document.createElement('a');
+                                                                        link.href = data.new_commit_url;
+                                                                        link.target = '_blank';
+                                                                        link.className = 'text-blue-600 hover:text-blue-800 hover:underline';
+                                                                        const code = document.createElement('code');
+                                                                        code.className = 'bg-gray-100 px-1 py-0.5 rounded font-mono';
+                                                                        code.textContent = data.new_commit;
+                                                                        link.appendChild(code);
+                                                                        commitWrapper.innerHTML = '';
+                                                                        commitWrapper.appendChild(link);
+                                                                    } else if (commitWrapper) {
+                                                                        const code = document.createElement('code');
+                                                                        code.className = 'bg-gray-100 px-1 py-0.5 rounded font-mono';
+                                                                        code.textContent = data.new_commit;
+                                                                        commitWrapper.innerHTML = '';
+                                                                        commitWrapper.appendChild(code);
                                                                     }
                                                                 }
                                                                 
@@ -321,9 +332,10 @@
 
                                             @if(File::isDirectory($module['path'] . '/.git'))
                                                 <button 
+                                                    x-data="{ resetting: false }"
                                                     @click="
-                                                        if (confirm('{{ __('This will DELETE the module and re-clone from GitHub. All local changes will be lost. Continue?') }}')) {
-                                                            processing = true;
+                                                        if (confirm('This will DELETE the module and re-clone from GitHub. All local changes will be lost. Continue?')) {
+                                                            resetting = true;
                                                             const btn = $el;
                                                             fetch('{{ route('modules.ajax') }}', {
                                                                 method: 'POST',
@@ -340,34 +352,44 @@
                                                             .then(response => response.json())
                                                             .then(data => {
                                                                 if (data.success) {
-                                                                    // Update commit hash if provided
                                                                     if (data.new_commit) {
                                                                         const commitWrapper = btn.closest('.module-item').querySelector('.module-commit-wrapper');
-                                                                        if (commitWrapper) {
-                                                                            if (data.new_commit_url) {
-                                                                                commitWrapper.innerHTML = '<a href=\"' + data.new_commit_url + '\" target=\"_blank\" class=\"text-blue-600 hover:text-blue-800 hover:underline\"><code class=\"bg-gray-100 px-1 py-0.5 rounded font-mono\">' + data.new_commit + '</code></a>';
-                                                                            } else {
-                                                                                commitWrapper.innerHTML = '<code class=\"bg-gray-100 px-1 py-0.5 rounded font-mono\">' + data.new_commit + '</code>';
-                                                                            }
+                                                                        if (commitWrapper && data.new_commit_url) {
+                                                                            const link = document.createElement('a');
+                                                                            link.href = data.new_commit_url;
+                                                                            link.target = '_blank';
+                                                                            link.className = 'text-blue-600 hover:text-blue-800 hover:underline';
+                                                                            const code = document.createElement('code');
+                                                                            code.className = 'bg-gray-100 px-1 py-0.5 rounded font-mono';
+                                                                            code.textContent = data.new_commit;
+                                                                            link.appendChild(code);
+                                                                            commitWrapper.innerHTML = '';
+                                                                            commitWrapper.appendChild(link);
+                                                                        } else if (commitWrapper) {
+                                                                            const code = document.createElement('code');
+                                                                            code.className = 'bg-gray-100 px-1 py-0.5 rounded font-mono';
+                                                                            code.textContent = data.new_commit;
+                                                                            commitWrapper.innerHTML = '';
+                                                                            commitWrapper.appendChild(code);
                                                                         }
                                                                     }
                                                                     alert(data.message);
-                                                                    processing = false;
+                                                                    window.location.reload();
                                                                 } else {
                                                                     alert(data.message);
-                                                                    processing = false;
+                                                                    resetting = false;
                                                                 }
                                                             })
                                                             .catch(error => {
-                                                                alert('{{ __('An error occurred') }}');
-                                                                processing = false;
+                                                                alert('An error occurred');
+                                                                resetting = false;
                                                             });
                                                         }
                                                     "
-                                                    :disabled="processing"
+                                                    :disabled="resetting"
                                                     class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                                                    <span x-show="!processing">{{ __('Reset') }}</span>
-                                                    <span x-show="processing">{{ __('Resetting...') }}</span>
+                                                    <span x-show="!resetting">{{ __('Reset') }}</span>
+                                                    <span x-show="resetting">{{ __('Resetting...') }}</span>
                                                 </button>
                                             @endif
 

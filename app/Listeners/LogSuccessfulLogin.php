@@ -17,9 +17,16 @@ class LogSuccessfulLogin
         /** @var \App\Models\User $user */
         $user = $event->user;
 
+        $properties = ['ip' => request()->ip()];
+        
+        // For OAuth logins, include the email in the log
+        if ($user->email) {
+            $properties['email'] = 'OAuth: ' . $user->email;
+        }
+
         activity()
             ->causedBy($user)
-            ->withProperties(['ip' => request()->ip()])
+            ->withProperties($properties)
             ->useLog(ActivityLog::NAME_USER)
             ->log(ActivityLog::DESCRIPTION_USER_LOGIN);
     }

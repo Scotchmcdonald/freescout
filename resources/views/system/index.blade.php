@@ -49,6 +49,26 @@
                     <h3 class="text-lg font-semibold mb-4">{{ __('System Information') }}</h3>
                     <dl class="space-y-2 text-sm">
                         <div class="flex justify-between">
+                            <dt class="text-gray-600">App Version</dt>
+                            <dd class="font-medium">{{ config('app.version', '1.0.0') }}</dd>
+                        </div>
+                        @if($updateInfo)
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600">Current Commit</dt>
+                            <dd class="font-medium font-mono">{{ $updateInfo['current_commit'] }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600">Branch</dt>
+                            <dd class="font-medium">{{ $updateInfo['branch'] }}</dd>
+                        </div>
+                        @if($updateInfo['has_update'])
+                        <div class="flex justify-between">
+                            <dt class="text-gray-600">Update Available</dt>
+                            <dd class="font-medium text-yellow-600">{{ $updateInfo['commits_behind'] }} commits behind</dd>
+                        </div>
+                        @endif
+                        @endif
+                        <div class="flex justify-between">
                             <dt class="text-gray-600">PHP Version</dt>
                             <dd class="font-medium">{{ $systemInfo['php_version'] }}</dd>
                         </div>
@@ -73,6 +93,13 @@
                 <h3 class="text-lg font-semibold mb-4">{{ __('System Tools') }}</h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    @if($updateInfo && $updateInfo['has_update'])
+                    <a href="{{ route('system.update') }}" 
+                       class="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-center">
+                        {{ __('Update Application') }}
+                    </a>
+                    @endif
+                    
                     <button @click="clearCache()" 
                             :disabled="loading"
                             class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium disabled:opacity-50">
