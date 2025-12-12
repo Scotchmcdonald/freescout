@@ -516,7 +516,7 @@
                                             
                                             if (infoSpan) {
                                                 let msg = updates[alias].commits_behind 
-                                                    ? '{{ __(':count commits behind', ['count' => '']) }}'.replace(':count', updates[alias].commits_behind)
+                                                    ? updates[alias].commits_behind + ' {{ __('commits behind') }}'
                                                     : '{{ __('New version:') }} ' + updates[alias].available;
                                                 
                                                 // Add commit link if available
