@@ -168,6 +168,7 @@ class ActivityLog extends SpatieActivity
      */
     public static function getLogNames(): array
     {
+        /** @var array<string> */
         return self::select('log_name')->distinct()->pluck('log_name')->toArray();
     }
 

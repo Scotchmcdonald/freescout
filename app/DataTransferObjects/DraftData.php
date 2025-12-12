@@ -40,14 +40,19 @@ readonly class DraftData
      */
     public static function fromRequest(array $data, int $conversationId, int $userId): self
     {
+        $body = $data['body'] ?? '';
+        if (!is_string($body) && !is_int($body) && !is_float($body)) {
+            $body = '';
+        }
+
         return new self(
             conversationId: $conversationId,
             userId: $userId,
-            body: $data['body'] ?? '',
-            to: $data['to'] ?? null,
-            cc: $data['cc'] ?? null,
-            bcc: $data['bcc'] ?? null,
-            attachmentIds: $data['attachment_ids'] ?? [],
+            body: (string) $body,
+            to: isset($data['to']) && (is_string($data['to']) || is_int($data['to']) || is_float($data['to'])) ? (string) $data['to'] : null,
+            cc: isset($data['cc']) && (is_string($data['cc']) || is_int($data['cc']) || is_float($data['cc'])) ? (string) $data['cc'] : null,
+            bcc: isset($data['bcc']) && (is_string($data['bcc']) || is_int($data['bcc']) || is_float($data['bcc'])) ? (string) $data['bcc'] : null,
+            attachmentIds: isset($data['attachment_ids']) && is_array($data['attachment_ids']) ? array_map(fn ($id) => is_numeric($id) ? intval($id) : 0, $data['attachment_ids']) : [],
         );
     }
 

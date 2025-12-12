@@ -13,9 +13,16 @@ class DraftController extends Controller
     /**
      * Save a draft.
      */
-    public function save(Request $request)
+    public function save(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = Auth::user();
+        if (!($user instanceof \App\Models\User)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('Unauthorized'),
+            ], 401);
+        }
+        
         $data = $request->all();
         
         $thread = Draft::save($data, $user);
@@ -37,12 +44,20 @@ class DraftController extends Controller
     /**
      * Discard a draft.
      */
-    public function discard(Request $request)
+    public function discard(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = Auth::user();
-        $threadId = $request->input('thread_id');
+        if (!($user instanceof \App\Models\User)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('Unauthorized'),
+            ], 401);
+        }
         
-        if (Draft::discard($threadId, $user)) {
+        $threadId = $request->input('thread_id');
+        $threadIdInt = is_numeric($threadId) ? intval($threadId) : 0;
+        
+        if (Draft::discard($threadIdInt, $user)) {
             return response()->json([
                 'status' => 'success',
                 'message' => __('Draft discarded'),

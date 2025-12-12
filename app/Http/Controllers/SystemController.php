@@ -136,11 +136,12 @@ class SystemController extends Controller
             'symlink',
         ];
 
+        /** @var array<string> $disabledFunctions */
         $disabledFunctions = array_map('trim', explode(',', ini_get('disable_functions') ?: ''));
 
         $result = [];
         foreach ($required as $func) {
-            $result[$func] = function_exists($func) && ! in_array($func, $disabledFunctions);
+            $result[$func] = ! in_array($func, $disabledFunctions, true);
         }
 
         return $result;
@@ -216,7 +217,8 @@ class SystemController extends Controller
             case 'fetch_emails':
                 $params = [];
                 if ($request->filled('days')) {
-                    $params['--days'] = (int) $request->input('days');
+                    $daysInput = $request->input('days');
+                    $params['--days'] = is_numeric($daysInput) ? intval($daysInput) : 0;
                 }
                 Artisan::call('freescout:fetch-emails', $params, $outputLog);
                 break;
@@ -690,6 +692,8 @@ class SystemController extends Controller
      */
     public static function getWebCronHash(): string
     {
-        return hash_hmac('sha256', 'cron', config('app.key'));
+        $appKey = config('app.key');
+        $appKeyStr = is_string($appKey) || is_int($appKey) || is_float($appKey) ? (string) $appKey : '';
+        return hash_hmac('sha256', 'cron', $appKeyStr);
     }
 }

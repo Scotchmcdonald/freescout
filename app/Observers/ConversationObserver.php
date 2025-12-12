@@ -54,10 +54,13 @@ class ConversationObserver
             // Auto-move to appropriate folder
             $conversation->updateFolder();
             
+            $oldStatus = $conversation->getOriginal('status');
+            $oldStatusInt = is_numeric($oldStatus) ? (int) $oldStatus : 0;
+            
             ConversationStatusChanged::dispatch(
                 $conversation,
                 auth()->user(),
-                (int) $conversation->getOriginal('status'),
+                $oldStatusInt,
                 (int) $conversation->status
             );
         }
@@ -87,7 +90,13 @@ class ConversationObserver
 
         if ($conversation->wasChanged('user_id') && $conversation->user) {
             $oldUserId = $conversation->getOriginal('user_id');
-            $oldUser = $oldUserId ? \App\Models\User::find($oldUserId) : null;
+            $oldUser = null;
+            if ($oldUserId && is_numeric($oldUserId)) {
+                $found = \App\Models\User::find((int) $oldUserId);
+                if ($found instanceof \App\Models\User) {
+                    $oldUser = $found;
+                }
+            }
             ConversationUserChanged::dispatch($conversation, $oldUser, $conversation->user, auth()->user());
         }
     }

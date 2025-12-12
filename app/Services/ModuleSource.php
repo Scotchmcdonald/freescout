@@ -13,15 +13,18 @@ class ModuleSource
      */
     protected function getSourceUrl(): string
     {
-        return config('modules.source_url', env('MODULE_SOURCE_URL', 'https://raw.githubusercontent.com/freescout-helpdesk/modules/main/modules.json'));
+        $url = config('modules.source_url');
+        return is_string($url) ? $url : 'https://raw.githubusercontent.com/freescout-helpdesk/modules/main/modules.json';
     }
 
     /**
      * Fetch the list of available modules.
+     *
+     * @return array<int, array<string, mixed>>
      */
     public function getModules(): array
     {
-        return Cache::remember('available_modules', 3600, function () {
+        $result = Cache::remember('available_modules', 3600, function (): array {
             try {
                 $url = $this->getSourceUrl();
                 // For testing purposes, if the URL is the default placeholder and it doesn't exist, return empty array
@@ -35,7 +38,8 @@ class ModuleSource
                 $response = Http::timeout(10)->get($url);
 
                 if ($response->successful()) {
-                    return $response->json('modules') ?? [];
+                    $modules = $response->json('modules');
+                    return is_array($modules) ? $modules : [];
                 }
                 
                 Log::warning('Failed to fetch modules from source: ' . $response->status());
@@ -45,10 +49,15 @@ class ModuleSource
                 return [];
             }
         });
+        
+        /** @var array<int, array<string, mixed>> $result */
+        return $result;
     }
 
     /**
      * Get module details by alias.
+     *
+     * @return array<string, mixed>|null
      */
     public function getModule(string $alias): ?array
     {
@@ -58,6 +67,8 @@ class ModuleSource
 
     /**
      * Get sample modules for testing/dev.
+     *
+     * @return array<int, array<string, mixed>>
      */
     protected function getSampleModules(): array
     {

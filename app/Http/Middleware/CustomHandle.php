@@ -23,7 +23,8 @@ class CustomHandle
     {
         // Enable/disable chat mode based on request parameter (0 or 1)
         if ($request->exists('chat_mode')) {
-            $chatMode = (int) $request->input('chat_mode');
+            $chatModeInput = $request->input('chat_mode');
+            $chatMode = is_numeric($chatModeInput) ? intval($chatModeInput) : 0;
             // Validate to ensure it's a boolean-like value
             if ($chatMode === 0 || $chatMode === 1) {
                 session()->put('chat_mode', $chatMode);
@@ -36,6 +37,7 @@ class CustomHandle
         // Allow modules to filter the response
         $response = $next($request);
         
-        return Eventy::filter('middleware.web.custom_handle.response', $response, $request, $next);
+        Eventy::filter('middleware.web.custom_handle.response', $response, $request, $next);
+        return $response;
     }
 }

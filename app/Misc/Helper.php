@@ -272,11 +272,17 @@ class Helper
      */
     public static function getWebCronHash(): string
     {
-        return hash_hmac('sha256', 'cron', config('app.key'));
+        $key = config('app.key');
+        if (!is_string($key)) {
+            $key = '';
+        }
+        return hash_hmac('sha256', 'cron', $key);
     }
 
     /**
      * Run artisan command.
+     * 
+     * @param array<string, mixed> $params
      */
     public static function runCommand(string $command, array $params = []): string
     {
@@ -311,10 +317,15 @@ class Helper
         if (is_string($json)) {
             $decoded = json_decode($json, true);
 
-            return is_array($decoded) ? $decoded : [];
+            if (is_array($decoded)) {
+                /** @var array<string, mixed> $decoded */
+                return $decoded;
+            }
+            return [];
         }
 
         if (is_array($json)) {
+            /** @var array<string, mixed> $json */
             return $json;
         }
 
@@ -363,8 +374,8 @@ class Helper
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
         $pow = min($pow, count($units) - 1);
 
-        $bytes /= (1 << (10 * $pow));
+        $bytes /= (1 << (10 * (int) $pow));
 
-        return round($bytes, $precision).' '.$units[$pow];
+        return round($bytes, $precision).' '.$units[(int) $pow];
     }
 }

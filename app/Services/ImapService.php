@@ -115,8 +115,8 @@ class ImapService
                         ->since(now()->subDays(3))
                         ->unseen()
                         ->leaveUnread();
-                    // @phpstan-ignore-next-line
-                    $messages = $query->setCharset(null)->get();
+                    /** @var \Illuminate\Support\Collection<int, mixed> $messages */
+                    $messages = $query->get();
                 }
 
                 $stats['fetched'] += $messages->count();
@@ -219,24 +219,27 @@ class ImapService
         ];
 
         // Check for OAuth
-        $meta = $mailbox->meta ?? [];
-        if (!empty($meta['oauth']) && !empty($meta['oauth']['a_token'])) {
+        $meta = is_array($mailbox->meta) ? $mailbox->meta : [];
+        $oauth = $meta['oauth'] ?? null;
+        if (is_array($oauth) && !empty($oauth['a_token'])) {
             // Check if token is expired
-            $issuedOn = $meta['oauth']['issued_on'] ?? null;
-            $expiresIn = $meta['oauth']['expires_in'] ?? 0;
+            $issuedOn = $oauth['issued_on'] ?? null;
+            $expiresIn = $oauth['expires_in'] ?? 0;
             
             if ($issuedOn && (strtotime($issuedOn) + $expiresIn) < time()) {
                 // Refresh token
-                $provider = $meta['oauth']['provider'] ?? \App\Misc\OAuth::PROVIDER_MICROSOFT;
+                $provider = $oauth['provider'] ?? \App\Misc\OAuth::PROVIDER_MICROSOFT;
                 $params = [
                     'client_id' => $mailbox->in_username, // Assuming incoming username is client ID
-                    'client_secret' => $mailbox->in_password, // Assuming incoming password is client secret
-                    'refresh_token' => $meta['oauth']['r_token'] ?? null,
+                    'client_secret' => $mailbox->in_password ?? '', // Assuming incoming password is client secret
+                    'refresh_token' => $oauth['r_token'] ?? null,
                 ];
                 
                 // Decrypt secret if needed
                 try {
-                    $params['client_secret'] = decrypt($params['client_secret']);
+                    if ($params['client_secret']) {
+                        $params['client_secret'] = decrypt($params['client_secret']);
+                    }
                 } catch (\Exception $e) {}
                 
                 $tokenData = \App\Misc\OAuth::getAccessToken($provider, $params);
@@ -245,17 +248,16 @@ class ImapService
                     $meta['oauth'] = $tokenData;
                     $mailbox->meta = $meta;
                     $mailbox->save();
+                    $oauth = $tokenData;
                 } else {
                     Log::error('Failed to refresh OAuth token', ['mailbox_id' => $mailbox->id, 'error' => $tokenData['error'] ?? 'Unknown']);
                 }
             }
             
-            // Use OAuth token
-            if (!empty($meta['oauth']['a_token'])) {
-                $config['username'] = $mailbox->email; // Username is email for OAuth
-                $config['password'] = $meta['oauth']['a_token'];
-                $config['authentication'] = 'oauth';
-            }
+            // Use OAuth token - already validated in outer if block
+            $config['username'] = $mailbox->email;
+            $config['password'] = $oauth['a_token'];
+            $config['authentication'] = 'oauth';
         }
 
         $cm = new ClientManager;
@@ -282,14 +284,17 @@ class ImapService
 
     /**
      * Decrypt password safely.
+     *
+     * @return string
      */
-    protected function decryptPassword(?string $password): ?string
+    protected function decryptPassword(?string $password): string
     {
         if (empty($password)) {
-            return $password;
+            return '';
         }
         try {
-            return decrypt($password);
+            $decrypted = decrypt($password);
+            return is_string($decrypted) ? $decrypted : '';
         } catch (\Exception $e) {
             return $password;
         }
@@ -302,25 +307,18 @@ class ImapService
      */
     protected function extractSenderInfo(\Webklex\PHPIMAP\Message $message): array
     {
+        /** @var mixed $from - Can be Attribute object or array depending on library version */
         $from = $message->getFrom();
 
         // Convert to array if it's an Attribute object
-        /** @phpstan-ignore-next-line */
-        if (is_object($from)) {
+        if (is_object($from) && method_exists($from, 'get')) {
             try {
-                /** @phpstan-ignore-next-line */
-                if (method_exists($from, 'toArray')) {
-                    $from = $from->toArray();
-                } else {
-                    // Try get() for both cases - when method_exists returns true or false
-                    // (method_exists may return false for mocked objects)
-                    $from = $from->get();
-                }
+                // Try get() for both cases - when method_exists returns true or false
+                // (method_exists may return false for mocked objects)
+                $from = $from->get();
             } catch (\Throwable $e) {
-                // @phpstan-ignore-next-line
-                if (! is_array($from) && ! ($from instanceof \Traversable)) {
-                    $from = [];
-                }
+                // If get() fails, set empty array
+                $from = [];
             }
         }
 
@@ -373,20 +371,16 @@ class ImapService
         if (is_object($fromAddress)) {
             // Try to access object properties
             try {
-                // @phpstan-ignore-next-line
-                $mail = $fromAddress->mail;
+                /** @var object{mail?: string, personal?: string} $fromAddress */
+                $mail = $fromAddress->mail ?? null;
                 $fromEmail = is_string($mail) && $mail !== '' ? $mail : null;
             } catch (\Throwable $e) {
                 $fromEmail = null;
             }
             
-            try {
-                /** @var mixed $personal */
-                $personal = $fromAddress->personal ?? '';
-                $fromName = is_string($personal) ? $personal : '';
-            } catch (\Throwable $e) {
-                $fromName = '';
-            }
+            /** @var object{mail?: string, personal?: string} $fromAddress */
+            $personal = $fromAddress->personal ?? '';
+            $fromName = $personal;
 
             // Try string conversion if needed
             if (! $fromEmail && method_exists($fromAddress, '__toString')) {
@@ -1047,13 +1041,13 @@ class ImapService
                     $query = $folder->query()
                         ->since(now()->subDays(1))
                         ->leaveUnread();
-                    // @phpstan-ignore-next-line
-                    $messages = $query->setCharset(null)->get();
+                    /** @var \Illuminate\Support\Collection<int, mixed> $messages */
+                    $messages = $query->get();
 
                     $messageCount = $messages->count();
                     $unseenCount = 0;
                     foreach ($messages as $message) {
-                        if (! $message->hasFlag('Seen')) {
+                        if (is_object($message) && method_exists($message, 'hasFlag') && ! $message->hasFlag('Seen')) {
                             $unseenCount++;
                         }
                     }
@@ -1119,16 +1113,23 @@ class ImapService
 
     /**
      * Get message headers as a string for storage.
+     * 
+     * @param mixed $message Message object (dynamic type from IMAP library)
      */
     protected function getMessageHeaders(mixed $message): string
     {
+        if (!is_object($message)) {
+            return '';
+        }
+
         // Try getRawHeader() - don't check method_exists as Mockery mocks won't report it correctly
         try {
-            // @phpstan-ignore-next-line
-            $rawHeader = $message->getRawHeader();
-            // Ensure it's actually a string, not a mock object or empty
-            if (is_string($rawHeader) && $rawHeader !== '') {
-                return $rawHeader;
+            if (method_exists($message, 'getRawHeader')) {
+                $rawHeader = $message->getRawHeader();
+                // Ensure it's actually a string, not a mock object or empty
+                if (is_string($rawHeader) && $rawHeader !== '') {
+                    return $rawHeader;
+                }
             }
         } catch (\Throwable $e) {
             // getRawHeader() not available or failed
@@ -1136,16 +1137,17 @@ class ImapService
         
         // Fallback to getHeader() if available
         try {
-            // @phpstan-ignore-next-line
-            $header = $message->getHeader();
-            if (is_string($header) && $header !== '') {
-                return $header;
-            }
-            if (is_object($header) && method_exists($header, '__toString')) {
-                $headerString = (string) $header;
-                // Check if it's actually a string representation, not a mock object
-                if ($headerString !== '' && ! str_contains($headerString, 'Mockery_')) {
-                    return $headerString;
+            if (method_exists($message, 'getHeader')) {
+                $header = $message->getHeader();
+                if (is_string($header) && $header !== '') {
+                    return $header;
+                }
+                if (is_object($header) && method_exists($header, '__toString')) {
+                    $headerString = (string) $header;
+                    // Check if it's actually a string representation, not a mock object
+                    if ($headerString !== '' && ! str_contains($headerString, 'Mockery_')) {
+                        return $headerString;
+                    }
                 }
             }
         } catch (\Throwable $e) {
@@ -1301,9 +1303,8 @@ class ImapService
             // Only add if we have a valid, non-empty email
             if (is_string($email) && ! empty(trim($email))) {
                 $nameParts = explode(' ', $name, 2);
-                /** @phpstan-ignore-next-line */
-                $firstName = isset($nameParts[0]) ? $nameParts[0] : '';
-                $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
+                $firstName = $nameParts[0];
+                $lastName = $nameParts[1] ?? '';
                 $result[] = [
                     'email' => $email,
                     'first_name' => strlen($firstName) <= 20 ? $firstName : mb_substr($firstName, 0, 20),

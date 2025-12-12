@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -14,9 +15,14 @@ class Kernel extends ConsoleKernel
     {
         // Send follow-up reminders daily at 9:00 AM
         // Checks for conversations with due follow-ups and sends email/database notifications
+        $timezone = config('app.timezone') ?? 'UTC';
+        if (!is_string($timezone)) {
+            $timezone = 'UTC';
+        }
+        
         $schedule->command('followup:send-reminders')
             ->dailyAt('09:00')
-            ->timezone(config('app.timezone', 'UTC'))
+            ->timezone($timezone)
             ->onSuccess(function () {
                 Log::info('Follow-up reminders scheduled task completed successfully');
             })

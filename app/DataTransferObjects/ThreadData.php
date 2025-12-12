@@ -43,14 +43,18 @@ final readonly class ThreadData
      */
     public static function fromArray(array $data): self
     {
+        $body = $data['body'] ?? '';
+        $type = $data['type'] ?? 1;
+        $status = $data['status'] ?? null;
+        
         return new self(
-            body: $data['body'] ?? '',
-            type: (int) ($data['type'] ?? 1),
-            status: isset($data['status']) ? (int) $data['status'] : null,
-            to: (array) ($data['to'] ?? []),
-            cc: (array) ($data['cc'] ?? []),
-            bcc: (array) ($data['bcc'] ?? []),
-            attachmentPaths: (array) ($data['attachments'] ?? []),
+            body: is_string($body) || is_int($body) || is_float($body) ? (string) $body : '',
+            type: is_numeric($type) ? intval($type) : 1,
+            status: isset($status) && is_numeric($status) ? intval($status) : null,
+            to: isset($data['to']) && is_array($data['to']) ? array_map(fn ($v) => is_string($v) || is_int($v) || is_float($v) ? (string) $v : '', $data['to']) : [],
+            cc: isset($data['cc']) && is_array($data['cc']) ? array_map(fn ($v) => is_string($v) || is_int($v) || is_float($v) ? (string) $v : '', $data['cc']) : [],
+            bcc: isset($data['bcc']) && is_array($data['bcc']) ? array_map(fn ($v) => is_string($v) || is_int($v) || is_float($v) ? (string) $v : '', $data['bcc']) : [],
+            attachmentPaths: isset($data['attachments']) && is_array($data['attachments']) ? array_map(fn ($v) => is_string($v) || is_int($v) || is_float($v) ? (string) $v : '', $data['attachments']) : [],
             isDraft: (bool) ($data['is_draft'] ?? false),
         );
     }

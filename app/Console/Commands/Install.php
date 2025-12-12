@@ -31,7 +31,7 @@ class Install extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('Installing FreeScout...');
 
@@ -42,10 +42,23 @@ class Install extends Command
         // Create Admin User
         $this->info('Creating admin user...');
 
-        $email = $this->option('email') ?? env('ADMIN_EMAIL');
-        $password = $this->option('password') ?? env('ADMIN_PASSWORD');
-        $firstName = $this->option('first_name') ?? env('ADMIN_FIRST_NAME', 'Admin');
-        $lastName = $this->option('last_name') ?? env('ADMIN_LAST_NAME', 'User');
+        $email = $this->option('email');
+        $password = $this->option('password');
+        $firstName = $this->option('first_name');
+        $lastName = $this->option('last_name');
+
+        if (!is_string($email)) {
+            $email = null;
+        }
+        if (!is_string($password)) {
+            $password = null;
+        }
+        if (!is_string($firstName)) {
+            $firstName = 'Admin';
+        }
+        if (!is_string($lastName)) {
+            $lastName = 'User';
+        }
 
         if (!$email) {
             if ($this->confirm('Do you want to create an admin user?', true)) {
@@ -55,13 +68,15 @@ class Install extends Command
                 $password = $this->secret('Admin Password');
             } else {
                 $this->info('Skipping admin user creation.');
-                return;
+                return 0;
             }
         }
 
         if (!$password) {
              $password = User::generateRandomPassword();
-             $this->info("Generated password for {$email}: {$password}");
+             if (is_string($email)) {
+                 $this->info("Generated password for {$email}: {$password}");
+             }
         }
 
         $validator = Validator::make([
@@ -83,8 +98,12 @@ class Install extends Command
         $user = User::where('email', $email)->first();
 
         if ($user) {
-            $this->warn("User with email {$email} already exists. Updating password and role.");
-            $user->password = Hash::make($password);
+            if (is_string($email)) {
+                $this->warn("User with email {$email} already exists. Updating password and role.");
+            }
+            if (is_string($password)) {
+                $user->password = Hash::make($password);
+            }
             $user->role = User::ROLE_ADMIN;
             $user->status = User::STATUS_ACTIVE;
             $user->email_verified_at = now();
@@ -92,7 +111,7 @@ class Install extends Command
         } else {
             User::create([
                 'email' => $email,
-                'password' => Hash::make($password),
+                'password' => is_string($password) ? Hash::make($password) : '',
                 'first_name' => $firstName,
                 'last_name' => $lastName,
                 'role' => User::ROLE_ADMIN,
@@ -103,5 +122,7 @@ class Install extends Command
 
         $this->info('✓ Admin user ready');
         $this->info('✓ FreeScout installed successfully!');
+
+        return 0;
     }
 }

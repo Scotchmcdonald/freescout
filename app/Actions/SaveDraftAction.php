@@ -66,9 +66,14 @@ class SaveDraftAction
 
         $draft->update($updateData);
 
+        $freshDraft = $draft->fresh();
+        if (!($freshDraft instanceof Thread)) {
+            throw new \Exception('Failed to refresh draft');
+        }
+
         return [
             'success' => true,
-            'draft' => $draft->fresh(),
+            'draft' => $freshDraft,
             'message' => 'Draft updated',
         ];
     }
@@ -87,7 +92,7 @@ class SaveDraftAction
             'status' => 1,
             'state' => Thread::STATE_DRAFT,
             'body' => $data->body,
-            'from' => $conversation->mailbox?->email ?? '',
+            'from' => $conversation->mailbox ? $conversation->mailbox->email : '',
             'to' => $data->to ?? json_encode([$conversation->customer_email ?? '']),
             'cc' => $data->cc,
             'bcc' => $data->bcc,

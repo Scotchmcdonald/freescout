@@ -45,6 +45,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $auto_reply_message
  * @property bool $office_hours_enabled
  * @property bool $ratings
+ * @property array<string, mixed>|null $meta
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
@@ -249,6 +250,9 @@ class Mailbox extends Model
 
         if ($this->aliases) {
             $aliasesList = is_array($this->aliases) ? $this->aliases : preg_split('/[,\n\r]+/', (string)$this->aliases);
+            if ($aliasesList === false) {
+                $aliasesList = [];
+            }
             foreach ($aliasesList as $alias) {
                 $name = '';
                 $alias = trim($alias);
@@ -264,7 +268,7 @@ class Mailbox extends Model
                 // Parse alias format: email(Name)
                 elseif (preg_match('/^([^(]+)\(([^)]*)\)$/', $alias, $m)) {
                     $alias = trim($m[1]);
-                    $name = $m[2] ?? '';
+                    $name = $m[2];
                 }
 
                 $alias = filter_var(trim($alias), FILTER_VALIDATE_EMAIL);

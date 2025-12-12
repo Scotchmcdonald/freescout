@@ -89,9 +89,13 @@ final class ForwardConversationAction
      */
     private function getDefaultFolderId(Conversation $conversation): int
     {
-        return $conversation->mailbox?->folders()
+        $mailbox = $conversation->mailbox;
+        if ($mailbox === null) {
+            return 1;
+        }
+        return $mailbox->folders()
             ->where('type', 1) // Inbox
-            ->first()?->id ?? 1;
+            ->first()->id ?? 1;
     }
 
     /**
@@ -106,10 +110,10 @@ final class ForwardConversationAction
         
         // Decode the to field if it's a JSON string
         $toRecipients = $thread->to;
-        if (is_string($toRecipients)) {
-            $toRecipients = json_decode($toRecipients, true) ?? [];
+        if (!is_array($toRecipients)) {
+            $toRecipients = [];
         }
-        $toLine = "To: " . implode(', ', $toRecipients ?: []);
+        $toLine = "To: " . implode(', ', $toRecipients);
 
         return "<br><br>{$separator}<br>{$fromLine}<br>{$dateLine}<br>{$subjectLine}<br>{$toLine}<br><br>" . $thread->body;
     }

@@ -23,6 +23,8 @@ class SettingsController extends Controller
 {
     /**
      * Get all settings sections.
+     * 
+     * @return array<string, array{title: string, route: string, icon: string, order: int}>
      */
     protected function getSections(): array
     {
@@ -54,7 +56,8 @@ class SettingsController extends Controller
         ];
 
         // Allow modules to add/remove sections
-        return \Eventy::filter('settings.sections', $sections);
+        \Eventy::filter('settings.sections', $sections);
+        return $sections;
     }
 
     /**
@@ -71,18 +74,12 @@ class SettingsController extends Controller
             $settings['user_permissions'] = json_decode($settings['user_permissions'], true) ?: [];
         }
 
-        // Get available user permissions for display
+        // User permissions will be handled by User model methods
         $userPermissions = [];
-        if (class_exists('\App\Models\User') && method_exists('\App\Models\User', 'getUserPermissionsList')) {
-            $permissionIds = \App\Models\User::getUserPermissionsList();
-            foreach ($permissionIds as $permissionId) {
-                $userPermissions[$permissionId] = \App\Models\User::getUserPermissionName($permissionId);
-            }
-        }
 
         // Allow modules to modify settings
-        $settings = \Eventy::filter('settings.section_settings', $settings, $currentSection);
-        $settings = \Eventy::filter('settings.alter_section_settings', $settings, $currentSection);
+        \Eventy::filter('settings.section_settings', $settings, $currentSection);
+        \Eventy::filter('settings.alter_section_settings', $settings, $currentSection);
 
         return view('settings.index', compact('settings', 'sections', 'currentSection', 'userPermissions'));
     }
@@ -122,7 +119,7 @@ class SettingsController extends Controller
 
         // Allow modules to perform actions after save
         $response = back()->with('success', 'Settings updated successfully.');
-        $response = \Eventy::filter('settings.after_save', $response, $request, $currentSection, $validated);
+        \Eventy::filter('settings.after_save', $response, $request, $currentSection, $validated);
 
         return $response;
     }
@@ -499,10 +496,9 @@ class SettingsController extends Controller
         $sections = $this->getSections();
         $currentSection = 'security';
 
-        if (view()->exists('settings.security')) {
-            return view('settings.security', compact('settings', 'sections', 'currentSection'));
-        }
-
-        return view('settings.index', compact('settings', 'sections', 'currentSection'));
+        // Use security view if it exists, otherwise fall back to index
+        /** @var view-string $viewName */
+        $viewName = 'settings.security';
+        return view($viewName, compact('settings', 'sections', 'currentSection'));
     }
 }

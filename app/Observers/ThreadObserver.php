@@ -13,15 +13,12 @@ class ThreadObserver
      */
     public function created(Thread $thread): void
     {
-        /** @phpstan-ignore-next-line */
-        if ($thread->conversation) {
-            $thread->conversation->increment('threads_count');
-        
-            // Update preview
-            if ($thread->body && $thread->type !== Thread::TYPE_DRAFT) {
-                $thread->conversation->preview = substr(strip_tags($thread->body), 0, 100);
-                $thread->conversation->saveQuietly();
-            }
+        $thread->conversation->increment('threads_count');
+    
+        // Update preview
+        if ($thread->body && $thread->type !== Thread::TYPE_DRAFT) {
+            $thread->conversation->preview = substr(strip_tags($thread->body), 0, 100);
+            $thread->conversation->saveQuietly();
         }
     }
 

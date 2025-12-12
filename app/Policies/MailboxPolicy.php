@@ -34,12 +34,10 @@ class MailboxPolicy
             return true;
         }
 
-        /** @var Mailbox|null $mailboxWithPivot */
+        /** @var (Mailbox&object{pivot: \App\Models\MailboxUser})|null $mailboxWithPivot */
         $mailboxWithPivot = $user->mailboxes->find($mailbox->id);
-        // @phpstan-ignore-next-line - Pivot property exists on BelongsToMany relationship models
-        $pivot = $mailboxWithPivot?->pivot;
-
-        return $pivot && $pivot->access >= self::ACCESS_VIEW;
+        
+        return $mailboxWithPivot && $mailboxWithPivot->pivot->access >= self::ACCESS_VIEW;
     }
 
     /**
@@ -63,12 +61,10 @@ class MailboxPolicy
             return true;
         }
 
-        /** @var Mailbox|null $mailboxWithPivot */
+        /** @var (Mailbox&object{pivot: \App\Models\MailboxUser})|null $mailboxWithPivot */
         $mailboxWithPivot = $user->mailboxes->find($mailbox->id);
-        // @phpstan-ignore-next-line - Pivot property exists on BelongsToMany relationship models
-        $pivot = $mailboxWithPivot?->pivot;
 
-        return $pivot && $pivot->access >= self::ACCESS_ADMIN;
+        return $mailboxWithPivot && $mailboxWithPivot->pivot->access >= self::ACCESS_ADMIN;
     }
 
     /**
@@ -108,12 +104,10 @@ class MailboxPolicy
             return true;
         }
 
-        /** @var Mailbox|null $mailboxWithPivot */
+        /** @var (Mailbox&object{pivot: \App\Models\MailboxUser})|null $mailboxWithPivot */
         $mailboxWithPivot = $user->mailboxes->find($mailbox->id);
-        // @phpstan-ignore-next-line - Pivot property exists on BelongsToMany relationship models
-        $pivot = $mailboxWithPivot?->pivot;
 
-        return $pivot && $pivot->access >= self::ACCESS_REPLY;
+        return $mailboxWithPivot && $mailboxWithPivot->pivot->access >= self::ACCESS_REPLY;
     }
 
     /**
@@ -130,11 +124,9 @@ class MailboxPolicy
             return true;
         }
 
-        /** @var Mailbox|null $mailboxWithPivot */
+        /** @var (Mailbox&object{pivot: \App\Models\MailboxUser})|null $mailboxWithPivot */
         $mailboxWithPivot = $user->mailboxes->find($mailbox->id);
-        // @phpstan-ignore-next-line - Pivot property exists on BelongsToMany relationship models
-        $pivot = $mailboxWithPivot?->pivot;
 
-        return $pivot && $pivot->access >= self::ACCESS_ADMIN;
+        return $mailboxWithPivot && $mailboxWithPivot->pivot->access >= self::ACCESS_ADMIN;
     }
 }

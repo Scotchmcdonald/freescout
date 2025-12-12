@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $user_id
  * @property string $name
  * @property string|null $query
- * @property array|null $filters
+ * @property array<string, mixed>|null $filters
  * @property bool $is_default
  * @property int $sort_order
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class SavedSearch extends Model
 {
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<static>> */
     use HasFactory;
 
     /**
@@ -35,7 +36,7 @@ class SavedSearch extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'user_id',
@@ -59,6 +60,8 @@ class SavedSearch extends Model
 
     /**
      * Get the user that owns the saved search.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -68,9 +71,9 @@ class SavedSearch extends Model
     /**
      * Scope a query to only include searches for a specific user.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \Illuminate\Database\Eloquent\Builder<SavedSearch> $query
      * @param int $userId
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Builder<SavedSearch>
      */
     public function scopeForUser($query, int $userId)
     {
@@ -80,8 +83,8 @@ class SavedSearch extends Model
     /**
      * Scope a query to order by sort order.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param \Illuminate\Database\Eloquent\Builder<SavedSearch> $query
+     * @return \Illuminate\Database\Eloquent\Builder<SavedSearch>
      */
     public function scopeOrdered($query)
     {
@@ -154,27 +157,33 @@ class SavedSearch extends Model
         $parts = [];
 
         if (!empty($this->filters['mailbox'])) {
-            $parts[] = __('Mailbox: :id', ['id' => $this->filters['mailbox']]);
+            $mailboxId = $this->filters['mailbox'];
+            $parts[] = __('Mailbox: :id', ['id' => is_scalar($mailboxId) ? $mailboxId : '']);
         }
 
         if (!empty($this->filters['assigned'])) {
-            $parts[] = __('Assigned: :id', ['id' => $this->filters['assigned']]);
+            $assignedId = $this->filters['assigned'];
+            $parts[] = __('Assigned: :id', ['id' => is_scalar($assignedId) ? $assignedId : '']);
         }
 
         if (!empty($this->filters['status'])) {
-            $parts[] = __('Status: :status', ['status' => $this->filters['status']]);
+            $statusVal = $this->filters['status'];
+            $parts[] = __('Status: :status', ['status' => is_scalar($statusVal) ? $statusVal : '']);
         }
 
         if (!empty($this->filters['type'])) {
-            $parts[] = __('Type: :type', ['type' => $this->filters['type']]);
+            $typeVal = $this->filters['type'];
+            $parts[] = __('Type: :type', ['type' => is_scalar($typeVal) ? $typeVal : '']);
         }
 
         if (!empty($this->filters['date_from'])) {
-            $parts[] = __('From: :date', ['date' => $this->filters['date_from']]);
+            $dateFrom = $this->filters['date_from'];
+            $parts[] = __('From: :date', ['date' => is_scalar($dateFrom) ? $dateFrom : '']);
         }
 
         if (!empty($this->filters['date_to'])) {
-            $parts[] = __('To: :date', ['date' => $this->filters['date_to']]);
+            $dateTo = $this->filters['date_to'];
+            $parts[] = __('To: :date', ['date' => is_scalar($dateTo) ? $dateTo : '']);
         }
 
         return implode(', ', $parts);

@@ -55,7 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasVerifiedEmail(): bool
     {
         // Allow the deployment admin to bypass verification
-        $deploymentAdminEmail = env('ADMIN_EMAIL');
+        $deploymentAdminEmail = config('app.admin_email');
         if ($deploymentAdminEmail && $this->email === $deploymentAdminEmail && $this->role === self::ROLE_ADMIN) {
             return true;
         }
@@ -307,8 +307,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $mailbox = $this->mailboxes()->find($mailboxId);
         
-        /** @phpstan-ignore-next-line */
-        if (!$mailbox || !$mailbox->pivot) {
+        if ($mailbox === null) {
             return false;
         }
 
@@ -391,7 +390,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $globalPermissions = self::getGlobalUserPermissions();
 
-        if (!empty($globalPermissions) && is_array($globalPermissions) && in_array($permission, $globalPermissions)) {
+        if (!empty($globalPermissions) && in_array($permission, $globalPermissions)) {
             $hasPermission = true;
         }
 
@@ -412,19 +411,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public static function getGlobalUserPermissions(): array
     {
         $permissions = [];
-        $permissionsJson = config('app.user_permissions');
+        $permissionsConfig = config('app.user_permissions');
 
-        if ($permissionsJson) {
-            $permissionsJson = base64_decode($permissionsJson);
-            try {
-                $permissions = json_decode($permissionsJson, true);
-            } catch (\Exception $e) {
-                // Do nothing.
+        if ($permissionsConfig && is_string($permissionsConfig)) {
+            $permissionsJson = base64_decode($permissionsConfig);
+            $decoded = json_decode($permissionsJson, true);
+            if (is_array($decoded)) {
+                $permissions = array_filter($decoded, 'is_int');
             }
-        }
-
-        if (!is_array($permissions)) {
-            $permissions = [];
         }
 
         return $permissions;
@@ -446,7 +440,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function followConversation(Conversation $conversation): void
     {
-        if (! $this->followedConversations()->where('conversation_id', $conversation->id)->exists()) {
+        if (! $this->followedConversations()->wherePivot('conversation_id', $conversation->id)->exists()) {
             $this->followedConversations()->attach($conversation->id);
         }
     }
@@ -464,7 +458,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isFollowingConversation(Conversation $conversation): bool
     {
-        return $this->followedConversations()->where('conversation_id', $conversation->id)->exists();
+        return $this->followedConversations()->wherePivot('conversation_id', $conversation->id)->exists();
     }
 
     /**

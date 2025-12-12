@@ -305,4 +305,63 @@ class Customer extends Model
 
         return $result;
     }
+
+    /**
+     * Sync customer emails from array.
+     *
+     * @param array<int, string> $emails
+     */
+    public function syncEmails(array $emails): void
+    {
+        // Remove empty emails
+        $emails = array_filter($emails, fn($email) => !empty($email));
+        
+        // Get existing emails
+        $existing = $this->emails->pluck('email')->toArray();
+        
+        // Add new emails
+        foreach ($emails as $index => $email) {
+            $sanitized = Email::sanitizeEmail($email);
+            if ($sanitized && !in_array($sanitized, $existing)) {
+                Email::create([
+                    'customer_id' => $this->id,
+                    'email' => $sanitized,
+                    'type' => $index === 0 ? Email::TYPE_PRIMARY : Email::TYPE_SECONDARY,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Find customer by email address.
+     */
+    public static function getByEmail(string $email): ?Customer
+    {
+        $sanitized = Email::sanitizeEmail($email);
+        if (!$sanitized) {
+            return null;
+        }
+
+        $emailModel = Email::where('email', $sanitized)->first();
+        if ($emailModel) {
+            return $emailModel->customer;
+        }
+
+        return null;
+    }
+
+    /**
+     * Create customer without email.
+     *
+     * @param array<string, mixed> $data
+     */
+    public static function createWithoutEmail(array $data): ?Customer
+    {
+        $customer = new Customer();
+        $customer->fill($data);
+        $customer->save();
+
+        return $customer;
+    }
 }
+

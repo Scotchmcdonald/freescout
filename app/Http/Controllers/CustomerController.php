@@ -32,9 +32,8 @@ class CustomerController extends Controller
                 $q->where('first_name', 'like', "%{$searchTerm}%")
                     ->orWhere('last_name', 'like', "%{$searchTerm}%")
                     ->orWhere('phones', 'like', "%{$searchTerm}%")
-                    ->orWhereHas('emails', function ($q) use ($searchTerm) {
-                        /** @phpstan-ignore-next-line */
-                        $q->where('email', 'like', "%{$searchTerm}%");
+                    ->orWhereHas('emails', function ($emailQuery) use ($searchTerm) {
+                        $emailQuery->whereRaw('email like ?', ["%{$searchTerm}%"]);
                     });
             });
         }
@@ -51,7 +50,12 @@ class CustomerController extends Controller
     {
         $validated = $request->validated();
 
-        $customer = Customer::create($validated['email'], [
+        $email = $validated['email'];
+        if (!is_string($email)) {
+            return back()->withErrors(['email' => 'Invalid email address']);
+        }
+
+        $customer = Customer::create($email, [
             'first_name' => $validated['first_name'],
             'last_name' => $validated['last_name'] ?? '',
         ]);
@@ -166,8 +170,7 @@ class CustomerController extends Controller
                             ->orWhere('last_name', 'like', "%{$searchQuery}%")
                             ->orWhere('phones', 'like', "%{$searchQuery}%")
                             ->orWhereHas('emails', function ($q) use ($searchQuery) {
-                                /** @phpstan-ignore-next-line */
-                                $q->where('email', 'like', "%{$searchQuery}%");
+                                $q->whereRaw('email like ?', ["%{$searchQuery}%"]);
                             });
                     })
                     ->with('emails')
@@ -408,10 +411,7 @@ class CustomerController extends Controller
         $customer = Customer::findOrFail($validated['customer_id']);
 
         // Get current phones and add new one
-        $phones = $customer->phones ?? [];
-        if (! is_array($phones)) {
-            $phones = [];
-        }
+        $phones = (array) ($customer->phones ?? []);
 
         $phones[] = $validated['phone'];
 
@@ -436,10 +436,7 @@ class CustomerController extends Controller
         /** @var \App\Models\Customer $customer */
         $customer = Customer::findOrFail($validated['customer_id']);
 
-        $phones = $customer->phones ?? [];
-        if (! is_array($phones)) {
-            $phones = [];
-        }
+        $phones = (array) ($customer->phones ?? []);
 
         if (isset($phones[$validated['phone_index']])) {
             unset($phones[$validated['phone_index']]);
@@ -479,6 +476,7 @@ class CustomerController extends Controller
                 'message' => __('Email not found for source customer'),
             ]);
         }
+        /** @var \App\Models\Email $email */
 
         // Ensure source customer has at least one other email
         if ($sourceCustomer->emails()->count() <= 1) {
@@ -489,19 +487,20 @@ class CustomerController extends Controller
         }
 
         // Move the email to target customer
-        $updated = $email->update(['customer_id' => $targetCustomer->id]);
+        $email->update(['customer_id' => $targetCustomer->id]);
 
         // If this was the main email, set a new main for source customer
         if ($email->type === \App\Models\Email::TYPE_PRIMARY) {
             $newMain = $sourceCustomer->emails()->first();
-            if ($newMain) {
+            if ($newMain instanceof \App\Models\Email) {
                 $newMain->update(['type' => \App\Models\Email::TYPE_PRIMARY]);
             }
         }
 
         // Also migrate any conversations associated with this email
+        $emailAddress = $email->email;
         Conversation::where('customer_id', $sourceCustomer->id)
-            ->where('customer_email', $email->email)
+            ->where('customer_email', $emailAddress)
             ->update(['customer_id' => $targetCustomer->id]);
 
         return response()->json([
@@ -569,8 +568,7 @@ class CustomerController extends Controller
                     ->orWhere('last_name', 'like', "%{$searchQuery}%")
                     ->orWhere('phones', 'like', "%{$searchQuery}%")
                     ->orWhereHas('emails', function ($q) use ($searchQuery) {
-                        /** @phpstan-ignore-next-line */
-                        $q->where('email', 'like', "%{$searchQuery}%");
+                        $q->whereRaw('email like ?', ["%{$searchQuery}%"]);
                     });
             })
             ->orderBy('created_at', 'desc')
@@ -594,10 +592,7 @@ class CustomerController extends Controller
         $customer = Customer::findOrFail($validated['customer_id']);
 
         // Get current social profiles
-        $profiles = $customer->social_profiles ?? [];
-        if (!is_array($profiles)) {
-            $profiles = [];
-        }
+        $profiles = (array) ($customer->social_profiles ?? []);
 
         // Add new profile (overwrite if same type exists)
         $profiles[$validated['type']] = $validated['value'];
@@ -623,10 +618,7 @@ class CustomerController extends Controller
         /** @var \App\Models\Customer $customer */
         $customer = Customer::findOrFail($validated['customer_id']);
 
-        $profiles = $customer->social_profiles ?? [];
-        if (!is_array($profiles)) {
-            $profiles = [];
-        }
+        $profiles = (array) ($customer->social_profiles ?? []);
 
         unset($profiles[$validated['type']]);
 
@@ -652,10 +644,7 @@ class CustomerController extends Controller
         $customer = Customer::findOrFail($validated['customer_id']);
 
         // Get current websites
-        $websites = $customer->websites ?? [];
-        if (!is_array($websites)) {
-            $websites = [];
-        }
+        $websites = (array) ($customer->websites ?? []);
 
         // Add new website if not already present
         if (!in_array($validated['url'], $websites)) {
@@ -683,10 +672,7 @@ class CustomerController extends Controller
         /** @var \App\Models\Customer $customer */
         $customer = Customer::findOrFail($validated['customer_id']);
 
-        $websites = $customer->websites ?? [];
-        if (!is_array($websites)) {
-            $websites = [];
-        }
+        $websites = (array) ($customer->websites ?? []);
 
         if (isset($websites[$validated['website_index']])) {
             unset($websites[$validated['website_index']]);

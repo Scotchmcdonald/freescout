@@ -15,9 +15,8 @@ class SendPasswordChanged
      */
     public function handle(PasswordReset $event): void
     {
-        /** @phpstan-ignore-next-line */
-        if (method_exists($event->user, 'sendPasswordChanged')) {
-            $event->user->sendPasswordChanged();
-        }
+        /** @var \App\Models\User $user */
+        $user = $event->user;
+        $user->sendPasswordChanged();
     }
 }

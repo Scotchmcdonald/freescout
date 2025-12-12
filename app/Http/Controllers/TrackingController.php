@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class TrackingController extends Controller
 {
-    public function pixel(Request $request, int $id)
+    public function pixel(Request $request, int $id): \Illuminate\Http\Response
     {
         if (!$request->hasValidSignature()) {
             abort(403);

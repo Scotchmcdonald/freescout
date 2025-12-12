@@ -170,10 +170,17 @@ class ConversationController extends Controller
                 if (! empty($validated['customer_id'])) {
                     /** @var \App\Models\Customer $customer */
                     $customer = Customer::findOrFail($validated['customer_id']);
-                    $customerEmail = $customer->getMainEmail() ?? $validated['customer_email'];
+                    $mainEmail = $customer->getMainEmail();
+                    if ($mainEmail !== null) {
+                        $customerEmail = $mainEmail;
+                    } else {
+                        $emailVal = $validated['customer_email'] ?? '';
+                        $customerEmail = is_string($emailVal) || is_int($emailVal) || is_float($emailVal) ? (string) $emailVal : '';
+                    }
                 } else {
                     // Create or find customer by email using the Customer::create() method
-                    $customerEmail = $validated['customer_email'];
+                    $emailVal = $validated['customer_email'] ?? '';
+                    $customerEmail = is_string($emailVal) || is_int($emailVal) || is_float($emailVal) ? (string) $emailVal : '';
                     $customer = Customer::create($customerEmail, [
                         'first_name' => $validated['customer_first_name'] ?? '',
                         'last_name' => $validated['customer_last_name'] ?? '',
@@ -196,7 +203,9 @@ class ConversationController extends Controller
                 }
 
                 // Create conversation
-                /** @var \App\Models\Conversation $conversation */
+                $bodyVal = $validated['body'] ?? '';
+                /** @var string $bodyStr */
+                $bodyStr = is_string($bodyVal) || is_int($bodyVal) || is_float($bodyVal) ? (string) $bodyVal : '';
                 $conversation = Conversation::create([
                     'mailbox_id' => $mailbox->id,
                     'customer_id' => $customer->id,
@@ -210,7 +219,7 @@ class ConversationController extends Controller
                     'source_via' => 1, // User
                     'source_type' => 2, // Web
                     'customer_email' => $customerEmail,
-                    'preview' => mb_substr(strip_tags($validated['body']), 0, 255),
+                    'preview' => mb_substr(strip_tags($bodyStr), 0, 255),
                     'created_by_user_id' => $user->id,
                     'last_reply_at' => now(),
                 ]);
@@ -264,7 +273,8 @@ class ConversationController extends Controller
         $validated = $request->validated();
 
         // Reporters cannot close tickets
-        if (isset($validated['status']) && (int)$validated['status'] === Conversation::STATUS_CLOSED && $user->isReporter()) {
+        $statusVal = $validated['status'] ?? null;
+        if ($statusVal !== null && is_numeric($statusVal) && intval($statusVal) === Conversation::STATUS_CLOSED && $user->isReporter()) {
             abort(403, 'Reporters cannot close tickets');
         }
 
@@ -302,7 +312,8 @@ class ConversationController extends Controller
         $validated = $request->validated();
 
         // Reporters cannot close tickets
-        if (isset($validated['status']) && (int)$validated['status'] === Conversation::STATUS_CLOSED && $user->isReporter()) {
+        $statusVal = $validated['status'] ?? null;
+        if ($statusVal !== null && is_numeric($statusVal) && intval($statusVal) === Conversation::STATUS_CLOSED && $user->isReporter()) {
             $message = 'Reporters cannot close tickets';
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => $message], 403);
@@ -347,22 +358,25 @@ class ConversationController extends Controller
                 }
 
                 // Handle follow-up date logic
-                $isClosing = isset($validated['status']) && (int)$validated['status'] === Conversation::STATUS_CLOSED;
-                $isNote = isset($validated['type']) && (int)$validated['type'] === 2;
-                
+                $statusVal = $validated['status'] ?? null;
+                $typeVal = $validated['type'] ?? null;
+                $isClosing = $statusVal !== null && is_numeric($statusVal) && intval($statusVal) === Conversation::STATUS_CLOSED;
+                $isNote = $typeVal !== null && is_numeric($typeVal) && intval($typeVal) === 2;
+
                 if ($isClosing) {
                     // Clear follow-up when closing conversation
                     $updateData['follow_up_date'] = null;
                     $updateData['follow_up_reminded_at'] = null;
-                } elseif (!$isNote) {
+                } elseif (! $isNote) {
                     // Only set follow-up for replies, not internal notes
-                    if (!empty($validated['follow_up_date'])) {
+                    if (! empty($validated['follow_up_date'])) {
                         // User explicitly set a follow-up date
                         $updateData['follow_up_date'] = $validated['follow_up_date'];
                         $updateData['follow_up_reminded_at'] = null; // Reset reminder
                     } else {
                         // Auto-set follow-up based on default interval
-                        $defaultDays = config('app.default_follow_up_days', 3);
+                        $defaultDaysConfig = config('app.default_follow_up_days', 3);
+                        $defaultDays = is_numeric($defaultDaysConfig) ? intval($defaultDaysConfig) : 3;
                         $updateData['follow_up_date'] = now()->addDays($defaultDays)->startOfDay();
                         $updateData['follow_up_reminded_at'] = null;
                     }
@@ -442,7 +456,7 @@ class ConversationController extends Controller
 
         // Store recent search queries in session
         if ($searchQuery) {
-            $recentSearches = session('recent_search_queries', []);
+            $recentSearches = (array) session('recent_search_queries', []);
             if (! in_array($searchQuery, $recentSearches)) {
                 array_unshift($recentSearches, $searchQuery);
                 $recentSearches = array_slice($recentSearches, 0, 4);
@@ -451,22 +465,20 @@ class ConversationController extends Controller
         }
 
         // Allow modules to modify search
-        $shouldSearch = \Eventy::filter('search.is_needed', true, 'conversations');
+        $shouldSearch = true;
+        \Eventy::filter('search.is_needed', $shouldSearch, 'conversations');
 
-        if ($shouldSearch) {
-            $queryBuilder = Conversation::search($searchQuery, $filters, $user);
-        } else {
-            // Fallback to basic query
-            /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Conversation> $queryBuilder */
-            $queryBuilder = Conversation::query()->whereRaw('1 = 0');
-        }
+        // Use search functionality
+        $queryBuilder = Conversation::search($searchQuery, $filters, $user);
 
         // Get available mailboxes and users for filters
         $mailboxes = $user->isAdmin() ? Mailbox::all() : $user->mailboxes;
-        $assignees = \Eventy::filter('search.assignees', User::where('status', 1)->get(), $user, $mailboxes);
+        $assignees = User::where('status', 1)->get();
+        \Eventy::filter('search.assignees', $assignees, $user, $mailboxes);
 
         // Allow modules to modify filters list
-        $filtersList = \Eventy::filter('search.filters_list', Conversation::$search_filters, 'conversations', $filters, $searchQuery);
+        $filtersList = Conversation::$search_filters;
+        \Eventy::filter('search.filters_list', $filtersList, 'conversations', $filters, $searchQuery);
 
         $conversations = $queryBuilder
             ->with(['mailbox', 'customer', 'user', 'folder'])
@@ -498,8 +510,10 @@ class ConversationController extends Controller
         }
 
         // Handle bulk operations separately
-        if (str_starts_with($action ?? '', 'bulk_')) {
-            return $this->handleBulkAction($request, $user, $action ?? '');
+        $actionVal = $action ?? '';
+        $actionStr = is_string($actionVal) || is_int($actionVal) || is_float($actionVal) ? (string) $actionVal : '';
+        if (str_starts_with($actionStr, 'bulk_')) {
+            return $this->handleBulkAction($request, $user, $actionStr);
         }
 
         // Handle following operations
@@ -509,7 +523,8 @@ class ConversationController extends Controller
 
         // Handle viewer operations (no conversation_id required for cleanup)
         if ($action === 'set_viewer') {
-            $conversationId = (int) $request->input('conversation_id');
+            $convIdVal = $request->input('conversation_id');
+            $conversationId = is_numeric($convIdVal) ? intval($convIdVal) : 0;
             $replying = (bool) $request->input('replying', false);
 
             if ($conversationId) {
@@ -524,7 +539,8 @@ class ConversationController extends Controller
         }
 
         if ($action === 'remove_viewer') {
-            $conversationId = (int) $request->input('conversation_id');
+            $convIdVal = $request->input('conversation_id');
+            $conversationId = is_numeric($convIdVal) ? intval($convIdVal) : 0;
 
             if ($conversationId) {
                 // No need to validate - user can always remove themselves as viewer
@@ -583,7 +599,8 @@ class ConversationController extends Controller
         }
 
         if ($action === 'set_default_search') {
-            $searchId = (int) $request->input('search_id');
+            $searchIdVal = $request->input('search_id');
+            $searchId = is_numeric($searchIdVal) ? intval($searchIdVal) : 0;
             $search = SavedSearch::forUser($user->id)->find($searchId);
 
             if (! $search) {
@@ -615,7 +632,8 @@ class ConversationController extends Controller
 
         switch ($action) {
             case 'change_status':
-                $newStatus = (int) $request->input('status');
+                $statusVal = $request->input('status');
+                $newStatus = is_numeric($statusVal) ? intval($statusVal) : 0;
 
                 // Reporters cannot close tickets
                 if ($user->isReporter() && $newStatus === Conversation::STATUS_CLOSED) {
@@ -631,7 +649,8 @@ class ConversationController extends Controller
                 return response()->json(['success' => true]);
 
             case 'change_user':
-                $newUserId = $request->input('user_id') ? (int) $request->input('user_id') : null;
+                $userIdVal = $request->input('user_id');
+                $newUserId = $userIdVal && is_numeric($userIdVal) ? intval($userIdVal) : null;
                 $prevUserId = $conversation->user_id;
                 $conversation->changeUser($newUserId, $user);
                 
@@ -681,6 +700,7 @@ class ConversationController extends Controller
                 // Find the failed thread and retry sending
                 $threadId = $request->input('thread_id');
                 if ($threadId) {
+                    /** @var \App\Models\Thread $thread */
                     $thread = Thread::findOrFail($threadId);
                     // Re-dispatch the send job
                     \App\Jobs\SendConversationReply::dispatch($conversation, $thread);
@@ -698,15 +718,17 @@ class ConversationController extends Controller
 
             case 'change_customer':
                 $customerEmail = $request->input('customer_email');
-                if (!$customerEmail) {
+                if (! $customerEmail) {
                     return response()->json(['success' => false, 'message' => 'Customer email required'], 400);
                 }
-                
-                if (!filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+
+                $emailStr = is_string($customerEmail) || is_int($customerEmail) || is_float($customerEmail) ? (string) $customerEmail : '';
+                if (! filter_var($emailStr, FILTER_VALIDATE_EMAIL)) {
                     return response()->json(['success' => false, 'message' => 'Invalid email format'], 400);
                 }
 
-                $conversation->changeCustomer($customerEmail, null, $user);
+                $conversation->changeCustomer($emailStr, null, $user);
+
                 return response()->json(['success' => true, 'message' => 'Customer changed']);
 
             case 'merge':
@@ -745,7 +767,8 @@ class ConversationController extends Controller
 
         switch ($action) {
             case 'bulk_change_status':
-                $newStatus = (int) $request->input('status');
+                $statusVal = $request->input('status');
+                $newStatus = is_numeric($statusVal) ? intval($statusVal) : 0;
                 if (!in_array($newStatus, [Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED, Conversation::STATUS_PENDING])) {
                     return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
                 }
@@ -762,7 +785,8 @@ class ConversationController extends Controller
                 return response()->json(['success' => true, 'count' => $conversations->count()]);
 
             case 'bulk_change_user':
-                $newUserId = $request->input('user_id') ? (int) $request->input('user_id') : null;
+                $userIdVal = $request->input('user_id');
+                $newUserId = $userIdVal && is_numeric($userIdVal) ? intval($userIdVal) : null;
                 foreach ($conversations as $conversation) {
                     $conversation->changeUser($newUserId, $user);
                 }
@@ -791,7 +815,8 @@ class ConversationController extends Controller
                 return response()->json(['success' => true, 'count' => $conversations->count()]);
 
             case 'bulk_move':
-                $mailboxId = (int) $request->input('mailbox_id');
+                $mailboxIdVal = $request->input('mailbox_id');
+                $mailboxId = is_numeric($mailboxIdVal) ? intval($mailboxIdVal) : 0;
                 
                 // Validate mailbox exists
                 if (! Mailbox::where('id', $mailboxId)->exists()) {
@@ -829,7 +854,7 @@ class ConversationController extends Controller
         }
 
         if ($action === 'follow') {
-            if (! $conversation->followers()->where('user_id', $user->id)->exists()) {
+            if (! $conversation->followers()->where('users.id', $user->id)->exists()) {
                 $conversation->followers()->attach($user->id);
             }
 
@@ -858,6 +883,7 @@ class ConversationController extends Controller
         if ($draft) {
             $draft->update(['body' => $body]);
         } else {
+            $mailboxEmail = $conversation->mailbox?->email;
             Thread::create([
                 'conversation_id' => $conversation->id,
                 'user_id' => $user->id,
@@ -865,7 +891,7 @@ class ConversationController extends Controller
                 'status' => 1,
                 'state' => Thread::STATE_DRAFT,
                 'body' => $body,
-                'from' => $conversation->mailbox?->email ?? '',
+                'from' => $mailboxEmail ?? '',
                 'to' => json_encode([$conversation->customer_email ?? '']),
                 'source_via' => 1,
                 'source_type' => 2,
@@ -1476,7 +1502,8 @@ class ConversationController extends Controller
         ]);
 
         // Reporters cannot close tickets
-        if (isset($validated['status']) && (int)$validated['status'] === Conversation::STATUS_CLOSED && $user->isReporter()) {
+        $statusVal = $validated['status'] ?? null;
+        if ($statusVal !== null && is_numeric($statusVal) && intval($statusVal) === Conversation::STATUS_CLOSED && $user->isReporter()) {
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => 'Reporters cannot close tickets'], 403);
             }
@@ -1541,7 +1568,8 @@ class ConversationController extends Controller
         $newConversation->type = 1; // Email
         $newConversation->subject = 'Fwd: ' . $conversation->subject;
         $newConversation->mailbox_id = $conversation->mailbox_id;
-        $newConversation->folder_id = $conversation->mailbox->folders()->where('type', 1)->first()->id ?? 1;
+        $inboxFolder = $conversation->mailbox?->folders()->where('type', 1)->first();
+        $newConversation->folder_id = $inboxFolder->id ?? 1;
         $newConversation->source_via = 1; // User
         $newConversation->source_type = 2; // Web
         $newConversation->status = 1; // Active
@@ -1558,8 +1586,8 @@ class ConversationController extends Controller
         $newThread->type = 5; // Draft
         $newThread->status = 1;
         $newThread->state = 1; // Draft
-        $newThread->body = "<br><br>---------- Forwarded message ---------<br>From: {$thread->from}<br>Date: {$thread->created_at}<br>Subject: {$conversation->subject}<br>To: " . implode(', ', $thread->to ?? []) . "<br><br>" . $thread->body;
-        $newThread->from = $conversation->mailbox->email;
+        $newThread->body = "<br><br>---------- Forwarded message ---------<br>From: {$thread->from}<br>Date: {$thread->created_at}<br>Subject: {$conversation->subject}<br>To: ".implode(', ', $thread->to ?? [])."<br><br>".$thread->body;
+        $newThread->from = $conversation->mailbox?->email;
         $newThread->created_by_user_id = $user->id;
         $newThread->source_via = 1; // User
         $newThread->source_type = 2; // Web
@@ -1668,12 +1696,13 @@ class ConversationController extends Controller
             $maxNumber = Conversation::max('number');
             $currentNumber = is_numeric($maxNumber) ? (int) $maxNumber : 0;
 
+            $inboxFolder = $mailbox->folders()->where('type', Folder::TYPE_INBOX)->first();
             $conversation = Conversation::query()->create([
                 'number' => $currentNumber + 1,
                 'type' => Conversation::TYPE_PHONE,
                 'subject' => $validated['subject'],
                 'mailbox_id' => $mailbox->id,
-                'folder_id' => $mailbox->folders()->where('type', Folder::TYPE_INBOX)->first()?->id ?? 1,
+                'folder_id' => $inboxFolder->id ?? 1,
                 'customer_id' => $customer->id,
                 'customer_email' => $customer->getMainEmail() ?? '',
                 'user_id' => $user->id, // Assign to creator
@@ -1727,7 +1756,7 @@ class ConversationController extends Controller
         }
 
         /** @var \App\Models\Conversation|null $targetConversation */
-        $targetConversation = Conversation::find((int) $targetConversationId);
+        $targetConversation = Conversation::find(intval($targetConversationId));
 
         if (! $targetConversation) {
             return response()->json(['success' => false, 'message' => 'Target conversation not found'], 404);
@@ -1819,7 +1848,8 @@ class ConversationController extends Controller
             return response()->json(['success' => false, 'message' => 'Search name is required'], 400);
         }
 
-        if (strlen($name) > SavedSearch::NAME_MAX_LENGTH) {
+        $nameStr = is_string($name) || is_int($name) || is_float($name) ? (string) $name : '';
+        if (strlen($nameStr) > SavedSearch::NAME_MAX_LENGTH) {
             return response()->json(['success' => false, 'message' => 'Search name is too long'], 400);
         }
 
@@ -1835,12 +1865,13 @@ class ConversationController extends Controller
         // Get next sort order
         $maxSortOrder = SavedSearch::forUser($user->id)->max('sort_order') ?? 0;
 
+        $nameStr = is_string($name) || is_int($name) || is_float($name) ? (string) $name : '';
         $search = SavedSearch::create([
             'user_id' => $user->id,
-            'name' => substr($name, 0, SavedSearch::NAME_MAX_LENGTH),
+            'name' => substr($nameStr, 0, SavedSearch::NAME_MAX_LENGTH),
             'query' => $query,
             'filters' => ! empty($filters) ? $filters : null,
-            'sort_order' => $maxSortOrder + 1,
+            'sort_order' => (is_int($maxSortOrder) ? $maxSortOrder : (is_numeric($maxSortOrder) ? intval($maxSortOrder) : 0)) + 1,
         ]);
 
         return response()->json([
@@ -1858,7 +1889,7 @@ class ConversationController extends Controller
      */
     protected function handleDeleteSearch(Request $request, User $user): JsonResponse
     {
-        $searchId = (int) $request->input('search_id');
+        $searchId = is_numeric($request->input('search_id')) ? intval($request->input('search_id')) : 0;
 
         $search = SavedSearch::forUser($user->id)->find($searchId);
 

@@ -19,7 +19,8 @@ class ThemeController extends Controller
     public function index(Request $request): View|ViewFactory
     {
         $themes = Theme::all();
-        $currentTheme = Auth::user()?->theme ?? 'default';
+        $user = Auth::user();
+        $currentTheme = $user instanceof \App\Models\User ? ($user->theme ?? 'default') : 'default';
         
         return view('themes.index', compact('themes', 'currentTheme'));
     }
@@ -27,7 +28,7 @@ class ThemeController extends Controller
     /**
      * Update the user's theme preference.
      */
-    public function update(Request $request)
+    public function update(Request $request): \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'theme' => ['nullable', 'string', 'max:50', 'exists:themes,name'],

@@ -20,9 +20,8 @@ class OptionFactory extends Factory
     /**
      * Define the model's default state.
      *
-     * @return array<string, mixed>
+     * @return array<'name'|'value', mixed>
      */
-    // @phpstan-ignore-next-line
     public function definition(): array
     {
         return [

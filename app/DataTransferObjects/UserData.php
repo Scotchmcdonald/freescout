@@ -16,8 +16,8 @@ readonly class UserData
 {
     public function __construct(
         public string $firstName,
-        public ?string $lastName = null,
         public string $email,
+        public ?string $lastName = null,
         public ?string $password = null,
         public UserRole $role = UserRole::User,
         public UserStatus $status = UserStatus::Active,
@@ -36,18 +36,21 @@ readonly class UserData
      */
     public static function fromArray(array $validated): self
     {
+        $firstName = $validated['first_name'] ?? '';
+        $email = $validated['email'] ?? '';
+        
         return new self(
-            firstName: $validated['first_name'],
-            lastName: $validated['last_name'] ?? null,
-            email: $validated['email'],
-            password: $validated['password'] ?? null,
-            role: UserRole::tryFrom((int) ($validated['role'] ?? UserRole::User->value)) ?? UserRole::User,
-            status: UserStatus::tryFrom((int) ($validated['status'] ?? UserStatus::Active->value)) ?? UserStatus::Active,
-            jobTitle: $validated['job_title'] ?? null,
-            phone: $validated['phone'] ?? null,
-            timezone: $validated['timezone'] ?? null,
-            locale: $validated['locale'] ?? null,
-            mailboxes: $validated['mailboxes'] ?? null,
+            firstName: is_string($firstName) || is_int($firstName) || is_float($firstName) ? (string) $firstName : '',
+            email: is_string($email) || is_int($email) || is_float($email) ? (string) $email : '',
+            lastName: isset($validated['last_name']) && (is_string($validated['last_name']) || is_int($validated['last_name']) || is_float($validated['last_name'])) ? (string) $validated['last_name'] : null,
+            password: isset($validated['password']) && (is_string($validated['password']) || is_int($validated['password']) || is_float($validated['password'])) ? (string) $validated['password'] : null,
+            role: UserRole::tryFrom(is_numeric($validated['role'] ?? null) ? intval($validated['role']) : UserRole::User->value) ?? UserRole::User,
+            status: UserStatus::tryFrom(is_numeric($validated['status'] ?? null) ? intval($validated['status']) : UserStatus::Active->value) ?? UserStatus::Active,
+            jobTitle: isset($validated['job_title']) && (is_string($validated['job_title']) || is_int($validated['job_title']) || is_float($validated['job_title'])) ? (string) $validated['job_title'] : null,
+            phone: isset($validated['phone']) && (is_string($validated['phone']) || is_int($validated['phone']) || is_float($validated['phone'])) ? (string) $validated['phone'] : null,
+            timezone: isset($validated['timezone']) && (is_string($validated['timezone']) || is_int($validated['timezone']) || is_float($validated['timezone'])) ? (string) $validated['timezone'] : null,
+            locale: isset($validated['locale']) && (is_string($validated['locale']) || is_int($validated['locale']) || is_float($validated['locale'])) ? (string) $validated['locale'] : null,
+            mailboxes: isset($validated['mailboxes']) && is_array($validated['mailboxes']) ? array_map(fn ($id) => is_numeric($id) ? intval($id) : 0, $validated['mailboxes']) : null,
         );
     }
 

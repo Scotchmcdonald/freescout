@@ -23,13 +23,13 @@ class UpdateCustomerAction
      */
     public function execute(Customer $customer, array $data): Customer
     {
-        return DB::transaction(function () use ($customer, $data) {
+        /** @var Customer $updatedCustomer */
+        $updatedCustomer = DB::transaction(function () use ($customer, $data): Customer {
             $customer->fill([
                 'first_name' => $data['first_name'] ?? $customer->first_name,
                 'last_name' => $data['last_name'] ?? $customer->last_name,
                 'company' => $data['company'] ?? $customer->company,
                 'job_title' => $data['job_title'] ?? $customer->job_title,
-                'timezone' => $data['timezone'] ?? $customer->timezone,
                 'address' => $data['address'] ?? $customer->address,
                 'city' => $data['city'] ?? $customer->city,
                 'state' => $data['state'] ?? $customer->state,
@@ -39,32 +39,39 @@ class UpdateCustomerAction
             ]);
 
             // Handle phones array
-            if (isset($data['phone'])) {
+            if (isset($data['phone']) && is_string($data['phone'])) {
                 $this->updatePhones($customer, $data['phone']);
             }
 
             // Handle emails array if provided
-            if (isset($data['emails'])) {
-                $this->updateEmails($customer, $data['emails']);
+            if (isset($data['emails']) && is_array($data['emails'])) {
+                /** @var array<array{email: string, type: string}> $emails */
+                $emails = $data['emails'];
+                $this->updateEmails($customer, $emails);
             }
 
             // Handle social profiles if provided
-            if (isset($data['social_profiles'])) {
-                $customer->social_profiles = $data['social_profiles'];
+            if (isset($data['social_profiles']) && is_array($data['social_profiles'])) {
+                /** @var array<string, mixed> $socialProfiles */
+                $socialProfiles = $data['social_profiles'];
+                $customer->social_profiles = $socialProfiles;
             }
 
             // Handle websites if provided
-            if (isset($data['websites'])) {
-                $customer->websites = $data['websites'];
+            if (isset($data['websites']) && is_array($data['websites'])) {
+                /** @var array<string, mixed> $websites */
+                $websites = $data['websites'];
+                $customer->websites = $websites;
             }
 
             $customer->save();
 
             // Allow modules to modify customer after update
-            $customer = \Eventy::filter('customer.update', $customer);
-
+            \Eventy::filter('customer.update', $customer);
             return $customer;
         });
+
+        return $updatedCustomer;
     }
 
     /**
@@ -81,7 +88,7 @@ class UpdateCustomerAction
         // Check if phone already exists
         $phoneExists = false;
         foreach ($phones as $existingPhone) {
-            if (($existingPhone['number'] ?? '') === $phone) {
+            if (is_array($existingPhone) && isset($existingPhone['number']) && $existingPhone['number'] === $phone) {
                 $phoneExists = true;
                 break;
             }
@@ -90,6 +97,7 @@ class UpdateCustomerAction
         // Add phone if not exists
         if (! $phoneExists) {
             $phones[] = ['number' => $phone, 'type' => 'work'];
+            /** @var array<string, mixed> $phones */
             $customer->phones = $phones;
         }
     }
@@ -101,15 +109,16 @@ class UpdateCustomerAction
      */
     private function updateEmails(Customer $customer, array $emails): void
     {
-        $existingEmails = $customer->emails?->pluck('email')->toArray() ?? [];
+        $emailsRelation = $customer->emails;
+        $existingEmails = $emailsRelation->pluck('email')->toArray();
 
         foreach ($emails as $emailData) {
-            $email = $emailData['email'] ?? '';
+            $email = $emailData['email'];
             if (! empty($email) && ! in_array($email, $existingEmails)) {
                 // Create new email relationship
                 $customer->emails()->create([
                     'email' => $email,
-                    'type' => $emailData['type'] ?? 1,
+                    'type' => $emailData['type'],
                 ]);
             }
         }

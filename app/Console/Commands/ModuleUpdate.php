@@ -24,7 +24,7 @@ class ModuleUpdate extends Command
      */
     protected $description = 'Update all modules or a single module (if module_alias is set)';
 
-    protected $moduleSource;
+    protected ModuleSource $moduleSource;
 
     /**
      * Create a new command instance.
@@ -72,9 +72,13 @@ class ModuleUpdate extends Command
                 if ($module->getAlias() != $dir_module['alias'] /*|| !$module->active()*/) {
                     continue;
                 }
-                if (!empty($dir_module['version']) && version_compare((string)$dir_module['version'], $module->get('version'), '>')) {
+                $dirVersion = $dir_module['version'] ?? '';
+                $dirVersionStr = is_string($dirVersion) || is_int($dirVersion) || is_float($dirVersion) ? (string) $dirVersion : '';
+                if (!empty($dirVersion) && version_compare($dirVersionStr, $module->get('version'), '>')) {
 
-                    $update_result = \App\Module::updateModule((string)$dir_module['alias']);
+                    $dirAlias = $dir_module['alias'] ?? '';
+                    $dirAliasStr = is_string($dirAlias) || is_int($dirAlias) || is_float($dirAlias) ? (string) $dirAlias : '';
+                    $update_result = \App\Module::updateModule($dirAliasStr);
 
                     $this->info('['.$update_result['module_name'].' Module'.']');
                     if ($update_result['status'] == 'success') {

@@ -35,10 +35,18 @@ class WpApi
     public static function url(string $path, bool $alternative = false): string
     {
         if ($alternative) {
-            return config('app.freescout_alt_api', 'https://api.freescout.net/').$path;
+            $api = config('app.freescout_alt_api', 'https://api.freescout.net/');
+            if (!is_string($api)) {
+                $api = 'https://api.freescout.net/';
+            }
+            return $api.$path;
         }
 
-        return config('app.freescout_api', 'https://freescout.net/wp-json/').$path;
+        $api = config('app.freescout_api', 'https://freescout.net/wp-json/');
+        if (!is_string($api)) {
+            $api = 'https://freescout.net/wp-json/';
+        }
+        return $api.$path;
     }
 
     /**
@@ -54,6 +62,11 @@ class WpApi
         ]);
 
         $http = \Illuminate\Support\Facades\Http::withOptions($options);
+        
+        $version = config('app.version', '1.0.0');
+        if (!is_string($version)) {
+            $version = '1.0.0';
+        }
 
         if ($method === self::METHOD_POST) {
             if (str_contains($url, '?')) {
@@ -61,12 +74,12 @@ class WpApi
             } else {
                 $url .= '?';
             }
-            $url .= 'v='.config('app.version', '1.0.0');
+            $url .= 'v='.$version;
             
             return $http->asForm()->post($url, $params);
         }
 
-        $params['v'] = config('app.version', '1.0.0');
+        $params['v'] = $version;
         
         return $http->get($url, $params);
     }
@@ -141,7 +154,7 @@ class WpApi
 
         $endpoint = self::ENDPOINT_MODULES;
 
-        if (! empty($params['module_alias'])) {
+        if (! empty($params['module_alias']) && is_string($params['module_alias'])) {
             $endpoint .= '/'.$params['module_alias'];
         }
 
@@ -173,7 +186,7 @@ class WpApi
 
         $endpoint = self::ENDPOINT_MODULES;
 
-        if (! empty($params['module_alias'])) {
+        if (! empty($params['module_alias']) && is_string($params['module_alias'])) {
             $endpoint .= '/'.$params['module_alias'];
         }
 
@@ -192,7 +205,7 @@ class WpApi
 
         $endpoint = self::ENDPOINT_MODULES;
 
-        if (! empty($params['module_alias'])) {
+        if (! empty($params['module_alias']) && is_string($params['module_alias'])) {
             $endpoint .= '/'.$params['module_alias'];
         }
 
@@ -211,7 +224,7 @@ class WpApi
 
         $endpoint = self::ENDPOINT_MODULES;
 
-        if (! empty($params['module_alias'])) {
+        if (! empty($params['module_alias']) && is_string($params['module_alias'])) {
             $endpoint .= '/'.$params['module_alias'];
         }
 

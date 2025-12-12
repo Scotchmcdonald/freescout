@@ -35,6 +35,7 @@ class FollowUpReminderNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $firstName = ($notifiable instanceof \App\Models\User) ? $notifiable->first_name : 'User';
         $subject = $this->conversation->subject ?: '(No Subject)';
         $customerName = $this->conversation->customer?->getFullName() ?: 'Unknown Customer';
         $customerEmail = $this->conversation->customer_email;
@@ -43,7 +44,7 @@ class FollowUpReminderNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject("⏰ Follow-up Reminder: #{$this->conversation->number}")
-            ->greeting("Hello {$notifiable->first_name}!")
+            ->greeting("Hello {$firstName}!")
             ->line("This is a reminder to follow up on a conversation that requires your attention.")
             ->line('')
             ->line("**Conversation #:** {$this->conversation->number}")

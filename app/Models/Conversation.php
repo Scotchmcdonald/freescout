@@ -84,6 +84,10 @@ class Conversation extends Model
     public const PERSON_CUSTOMER = 1;
     public const PERSON_USER = 2;
 
+    public const SOURCE_VIA_USER = 2;
+
+    public const SOURCE_VIA_CUSTOMER = 1;
+
     // Source type constants
     public const SOURCE_TYPE_WEB = 1;
     public const SOURCE_TYPE_EMAIL = 2;
@@ -437,14 +441,25 @@ class Conversation extends Model
         }
 
         if ($this->hasFollowUpBeenReminded()) {
-            return __('Reminded on :date', ['date' => $this->follow_up_reminded_at->format('M j, Y')]);
+            $remindedAt = $this->follow_up_reminded_at;
+            if ($remindedAt) {
+                return __('Reminded on :date', ['date' => $remindedAt->format('M j, Y')]);
+            }
         }
 
         if ($this->isFollowUpOverdue()) {
-            return __('Overdue since :date', ['date' => $this->follow_up_date->format('M j, Y')]);
+            $followUpDate = $this->follow_up_date;
+            if ($followUpDate) {
+                return __('Overdue since :date', ['date' => $followUpDate->format('M j, Y')]);
+            }
         }
 
-        return __('Scheduled for :date', ['date' => $this->follow_up_date->format('M j, Y')]);
+        $followUpDate = $this->follow_up_date;
+        if ($followUpDate) {
+            return __('Scheduled for :date', ['date' => $followUpDate->format('M j, Y')]);
+        }
+
+        return null;
     }
 
     /**
@@ -467,7 +482,11 @@ class Conversation extends Model
     {
         if ($date === null) {
             $defaultDays = config('app.default_follow_up_days', 3);
-            $date = now()->addDays($defaultDays)->startOfDay();
+            if (is_int($defaultDays) || (is_string($defaultDays) && is_numeric($defaultDays))) {
+                $date = now()->addDays((int)$defaultDays)->startOfDay();
+            } else {
+                $date = now()->addDays(3)->startOfDay();
+            }
         }
 
         $this->update([
@@ -665,7 +684,7 @@ class Conversation extends Model
      */
     public function star(User $user): void
     {
-        if (! $this->starredByUsers()->where('user_id', $user->id)->exists()) {
+        if (! $this->starredByUsers()->wherePivot('user_id', $user->id)->exists()) {
             $this->starredByUsers()->attach($user->id);
         }
     }
@@ -683,7 +702,7 @@ class Conversation extends Model
      */
     public function isStarredBy(User $user): bool
     {
-        return $this->starredByUsers()->where('user_id', $user->id)->exists();
+        return $this->starredByUsers()->wherePivot('user_id', $user->id)->exists();
     }
 
     /**
@@ -708,7 +727,10 @@ class Conversation extends Model
             $customer = Customer::find($customerId);
             if ($customer) {
                 $this->customer_id = $customerId;
-                $this->customer_email = $customer->getMainEmail();
+                $mainEmail = $customer->getMainEmail();
+                if ($mainEmail !== null) {
+                    $this->customer_email = $mainEmail;
+                }
             }
         } elseif ($email) {
             // Find or create customer by email
@@ -743,7 +765,7 @@ class Conversation extends Model
      * @param string $query Search query
      * @param array<string, mixed> $filters Search filters
      * @param User|null $user User performing the search
-     * @return \Illuminate\Database\Eloquent\Builder<Conversation>
+     * @return \Illuminate\Database\Eloquent\Builder<static>
      */
     public static function search(string $query, array $filters = [], ?User $user = null)
     {
@@ -755,8 +777,9 @@ class Conversation extends Model
             $mailboxIds = [];
             if (! empty($filters['mailbox'])) {
                 // Verify user has access to the mailbox
-                if ($user->isAdmin() || $user->mailboxes->contains($filters['mailbox'])) {
-                    $builder->where('conversations.mailbox_id', $filters['mailbox']);
+                $mailboxFilter = is_numeric($filters['mailbox']) ? (int) $filters['mailbox'] : $filters['mailbox'];
+                if ($user->isAdmin() || (is_int($mailboxFilter) && $user->mailboxes->contains($mailboxFilter))) {
+                    $builder->where('conversations.mailbox_id', $mailboxFilter);
                 } elseif (! $user->isAdmin()) {
                     $mailboxIds = $user->mailboxes->pluck('id')->toArray();
                     if (! empty($mailboxIds)) {
@@ -836,7 +859,7 @@ class Conversation extends Model
         }
 
         // Allow modules to modify search query
-        $builder = \Eventy::filter('search.conversations.query', $builder, $query, $filters, $user);
+        \Eventy::filter('search.conversations.query', $builder, $query, $filters, $user);
 
         return $builder->orderBy('conversations.created_at', 'desc');
     }
@@ -879,7 +902,9 @@ class Conversation extends Model
      */
     public static function getViewersInfo($conversations, array $fields = ['id', 'first_name', 'last_name'], array $excludeUserIds = []): array
     {
+        /** @var array<int, array<int, array{r: bool, t: int}>> $viewersCache */
         $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
+        
         $viewers = [];
         $userIds = [];
 
@@ -893,7 +918,7 @@ class Conversation extends Model
                         $firstUserId = $userId;
                     }
 
-                    if (! empty($viewer['r']) && ! in_array($userId, $excludeUserIds)) {
+                    if ($viewer['r'] && ! in_array($userId, $excludeUserIds)) {
                         $viewers[$conversation->id] = [
                             'user' => null,
                             'user_id' => $userId,
@@ -938,6 +963,7 @@ class Conversation extends Model
      */
     public static function setViewer(int $conversationId, int $userId, bool $replying = false): void
     {
+        /** @var array<int, array<int, array{r: bool, t: int}>> $viewersCache */
         $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
 
         $viewersCache[$conversationId][$userId] = [
@@ -953,6 +979,7 @@ class Conversation extends Model
      */
     public static function removeViewer(int $conversationId, int $userId): void
     {
+        /** @var array<int, array<int, array{r: bool, t: int}>> $viewersCache */
         $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
 
         if (isset($viewersCache[$conversationId][$userId])) {
@@ -971,12 +998,14 @@ class Conversation extends Model
      */
     public static function cleanupViewers(): void
     {
+        /** @var array<int, array<int, array{r: bool, t: int}>> $viewersCache */
         $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
+        
         $staleTime = time() - self::VIEWER_STALE_TIMEOUT;
 
         foreach ($viewersCache as $convId => $viewers) {
             foreach ($viewers as $userId => $data) {
-                if (($data['t'] ?? 0) < $staleTime) {
+                if ($data['t'] < $staleTime) {
                     unset($viewersCache[$convId][$userId]);
                 }
             }

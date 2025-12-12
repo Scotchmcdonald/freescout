@@ -39,17 +39,28 @@ readonly class BulkConversationData
     public static function fromArray(array $data): self
     {
         $status = null;
-        if (isset($data['status'])) {
+        if (isset($data['status']) && (is_int($data['status']) || is_string($data['status']))) {
             $status = ConversationStatus::tryFrom((int) $data['status']);
         }
 
+        $conversationIds = $data['conversation_ids'] ?? [];
+        if (!is_array($conversationIds)) {
+            $conversationIds = [];
+        }
+        $conversationIds = array_map(fn ($id) => is_numeric($id) ? intval($id) : 0, $conversationIds);
+
+        $action = $data['action'] ?? '';
+        if (!is_string($action)) {
+            $action = '';
+        }
+
         return new self(
-            conversationIds: $data['conversation_ids'] ?? [],
-            action: $data['action'] ?? '',
+            conversationIds: $conversationIds,
+            action: $action,
             status: $status,
-            userId: isset($data['user_id']) ? (int) $data['user_id'] : null,
-            mailboxId: isset($data['mailbox_id']) ? (int) $data['mailbox_id'] : null,
-            folderId: isset($data['folder_id']) ? (int) $data['folder_id'] : null,
+            userId: isset($data['user_id']) && (is_int($data['user_id']) || is_string($data['user_id'])) ? (int) $data['user_id'] : null,
+            mailboxId: isset($data['mailbox_id']) && (is_int($data['mailbox_id']) || is_string($data['mailbox_id'])) ? (int) $data['mailbox_id'] : null,
+            folderId: isset($data['folder_id']) && (is_int($data['folder_id']) || is_string($data['folder_id'])) ? (int) $data['folder_id'] : null,
         );
     }
 

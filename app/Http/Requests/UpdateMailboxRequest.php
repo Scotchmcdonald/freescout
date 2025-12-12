@@ -23,7 +23,8 @@ class UpdateMailboxRequest extends FormRequest
      */
     public function rules(): array
     {
-        $mailboxId = $this->route('mailbox')?->id ?? $this->route('mailbox');
+        $routeMailbox = $this->route('mailbox');
+        $mailboxId = $routeMailbox instanceof \App\Models\Mailbox ? $routeMailbox->id : (int) $routeMailbox;
 
         return [
             'name' => 'sometimes|required|string|max:255',

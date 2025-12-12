@@ -61,24 +61,27 @@ final readonly class MailboxData
      */
     public static function fromArray(array $data): self
     {
+        $name = $data['name'] ?? '';
+        $email = $data['email'] ?? '';
+        
         return new self(
-            name: $data['name'] ?? '',
-            email: $data['email'] ?? '',
-            inServer: $data['in_server'] ?? null,
-            inPort: isset($data['in_port']) ? (int) $data['in_port'] : null,
-            inUsername: $data['in_username'] ?? null,
-            inPassword: $data['in_password'] ?? null,
-            inProtocol: $data['in_protocol'] ?? 'imap',
-            inEncryption: $data['in_encryption'] ?? 'ssl',
-            outServer: $data['out_server'] ?? null,
-            outPort: isset($data['out_port']) ? (int) $data['out_port'] : null,
-            outUsername: $data['out_username'] ?? null,
-            outPassword: $data['out_password'] ?? null,
-            outEncryption: $data['out_encryption'] ?? 'ssl',
-            outMethod: $data['out_method'] ?? 'smtp',
+            name: is_string($name) || is_int($name) || is_float($name) ? (string) $name : '',
+            email: is_string($email) || is_int($email) || is_float($email) ? (string) $email : '',
+            inServer: isset($data['in_server']) && (is_string($data['in_server']) || is_int($data['in_server']) || is_float($data['in_server'])) ? (string) $data['in_server'] : null,
+            inPort: isset($data['in_port']) && is_numeric($data['in_port']) ? intval($data['in_port']) : null,
+            inUsername: isset($data['in_username']) && (is_string($data['in_username']) || is_int($data['in_username']) || is_float($data['in_username'])) ? (string) $data['in_username'] : null,
+            inPassword: isset($data['in_password']) && (is_string($data['in_password']) || is_int($data['in_password']) || is_float($data['in_password'])) ? (string) $data['in_password'] : null,
+            inProtocol: isset($data['in_protocol']) && (is_string($data['in_protocol']) || is_int($data['in_protocol']) || is_float($data['in_protocol'])) ? (string) $data['in_protocol'] : 'imap',
+            inEncryption: isset($data['in_encryption']) && (is_string($data['in_encryption']) || is_int($data['in_encryption']) || is_float($data['in_encryption'])) ? (string) $data['in_encryption'] : 'ssl',
+            outServer: isset($data['out_server']) && (is_string($data['out_server']) || is_int($data['out_server']) || is_float($data['out_server'])) ? (string) $data['out_server'] : null,
+            outPort: isset($data['out_port']) && is_numeric($data['out_port']) ? intval($data['out_port']) : null,
+            outUsername: isset($data['out_username']) && (is_string($data['out_username']) || is_int($data['out_username']) || is_float($data['out_username'])) ? (string) $data['out_username'] : null,
+            outPassword: isset($data['out_password']) && (is_string($data['out_password']) || is_int($data['out_password']) || is_float($data['out_password'])) ? (string) $data['out_password'] : null,
+            outEncryption: isset($data['out_encryption']) && (is_string($data['out_encryption']) || is_int($data['out_encryption']) || is_float($data['out_encryption'])) ? (string) $data['out_encryption'] : 'ssl',
+            outMethod: isset($data['out_method']) && (is_string($data['out_method']) || is_int($data['out_method']) || is_float($data['out_method'])) ? (string) $data['out_method'] : 'smtp',
             autoReplyEnabled: (bool) ($data['auto_reply_enabled'] ?? false),
-            autoReplySubject: $data['auto_reply_subject'] ?? null,
-            autoReplyMessage: $data['auto_reply_message'] ?? null,
+            autoReplySubject: isset($data['auto_reply_subject']) && (is_string($data['auto_reply_subject']) || is_int($data['auto_reply_subject']) || is_float($data['auto_reply_subject'])) ? (string) $data['auto_reply_subject'] : null,
+            autoReplyMessage: isset($data['auto_reply_message']) && (is_string($data['auto_reply_message']) || is_int($data['auto_reply_message']) || is_float($data['auto_reply_message'])) ? (string) $data['auto_reply_message'] : null,
         );
     }
 

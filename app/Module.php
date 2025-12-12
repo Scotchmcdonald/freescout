@@ -58,7 +58,8 @@ class Module
             return $result;
         }
 
-        $result['module_name'] = $moduleInfo['name'] ?? $alias;
+        $moduleName = $moduleInfo['name'] ?? $alias;
+        $result['module_name'] = is_string($moduleName) ? $moduleName : $alias;
         $downloadUrl = $moduleInfo['download_url'] ?? null;
 
         if (!$downloadUrl) {
@@ -70,7 +71,8 @@ class Module
 
         try {
             // Download the file
-            $response = Http::timeout(120)->sink($tempFile)->get($downloadUrl);
+            $downloadUrlStr = is_string($downloadUrl) ? $downloadUrl : '';
+            $response = Http::timeout(120)->sink($tempFile)->get($downloadUrlStr);
 
             if (!$response->successful()) {
                 throw new \Exception('Failed to download module');

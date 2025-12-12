@@ -45,16 +45,26 @@ class MergeConversationsAction
                 // STATE_DELETED = 3 (defined in Conversation model)
                 $source->update([
                     'state' => Conversation::STATE_DELETED,
-                    'merged_into_id' => $target->id,
                 ]);
+
+                // Store merge info in meta
+                $sourceMeta = $source->meta ?? [];
+                $sourceMeta['merged_into_id'] = $target->id;
+                $source->meta = $sourceMeta;
+                $source->save();
 
                 // Fire event
                 \Eventy::action('conversation.merged', $target, $source, $user);
 
+                $freshTarget = $target->fresh();
+                if (!($freshTarget instanceof Conversation)) {
+                    throw new \Exception('Failed to refresh target conversation');
+                }
+
                 return [
                     'success' => true,
                     'message' => "Conversation #{$source->number} merged into #{$target->number}",
-                    'conversation' => $target->fresh(),
+                    'conversation' => $freshTarget,
                 ];
             });
         } catch (\Exception $e) {
@@ -116,7 +126,7 @@ class MergeConversationsAction
 
         $target->update([
             'threads_count' => $threadCount,
-            'last_reply_at' => $latestReply?->created_at ?? $target->last_reply_at,
+            'last_reply_at' => $latestReply ? $latestReply->created_at : $target->last_reply_at,
         ]);
     }
 

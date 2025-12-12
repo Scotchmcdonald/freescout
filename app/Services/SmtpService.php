@@ -142,24 +142,27 @@ class SmtpService
         ];
         
         // Check for OAuth
-        $meta = $mailbox->meta ?? [];
-        if (!empty($meta['oauth']) && !empty($meta['oauth']['a_token'])) {
+        $meta = is_array($mailbox->meta) ? $mailbox->meta : [];
+        $oauth = $meta['oauth'] ?? null;
+        if (is_array($oauth) && !empty($oauth['a_token'])) {
             // Check if token is expired
-            $issuedOn = $meta['oauth']['issued_on'] ?? null;
-            $expiresIn = $meta['oauth']['expires_in'] ?? 0;
+            $issuedOn = $oauth['issued_on'] ?? null;
+            $expiresIn = $oauth['expires_in'] ?? 0;
             
             if ($issuedOn && (strtotime($issuedOn) + $expiresIn) < time()) {
                 // Refresh token
-                $provider = $meta['oauth']['provider'] ?? \App\Misc\OAuth::PROVIDER_MICROSOFT;
+                $provider = $oauth['provider'] ?? \App\Misc\OAuth::PROVIDER_MICROSOFT;
                 $params = [
                     'client_id' => $mailbox->out_username, // Assuming outgoing username is client ID
-                    'client_secret' => $mailbox->out_password, // Assuming outgoing password is client secret
-                    'refresh_token' => $meta['oauth']['r_token'] ?? null,
+                    'client_secret' => $mailbox->out_password ?? '', // Assuming outgoing password is client secret
+                    'refresh_token' => $oauth['r_token'] ?? null,
                 ];
                 
                 // Decrypt secret if needed
                 try {
-                    $params['client_secret'] = decrypt($params['client_secret']);
+                    if ($params['client_secret']) {
+                        $params['client_secret'] = decrypt($params['client_secret']);
+                    }
                 } catch (\Exception $e) {}
                 
                 $tokenData = \App\Misc\OAuth::getAccessToken($provider, $params);
@@ -168,17 +171,16 @@ class SmtpService
                     $meta['oauth'] = $tokenData;
                     $mailbox->meta = $meta;
                     $mailbox->save();
+                    $oauth = $tokenData;
                 } else {
                     Log::error('Failed to refresh OAuth token for SMTP', ['mailbox_id' => $mailbox->id, 'error' => $tokenData['error'] ?? 'Unknown']);
                 }
             }
             
             // Use OAuth token
-            if (!empty($meta['oauth']['a_token'])) {
-                $config['username'] = $mailbox->email; // Username is email for OAuth
-                $config['password'] = $meta['oauth']['a_token'];
-                $config['auth_mode'] = 'XOAUTH2';
-            }
+            $config['username'] = $mailbox->email; // Username is email for OAuth
+            $config['password'] = $oauth['a_token'];
+            $config['auth_mode'] = 'XOAUTH2';
         }
 
         Config::set('mail.default', 'smtp');
@@ -207,14 +209,17 @@ class SmtpService
 
     /**
      * Decrypt password safely.
+     *
+     * @return string
      */
-    protected function decryptPassword(?string $password): ?string
+    protected function decryptPassword(?string $password): string
     {
         if (empty($password)) {
-            return $password;
+            return '';
         }
         try {
-            return decrypt($password);
+            $decrypted = decrypt($password);
+            return is_string($decrypted) ? $decrypted : '';
         } catch (\Exception $e) {
             return $password;
         }

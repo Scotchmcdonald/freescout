@@ -77,6 +77,25 @@ class Thread extends Model
 
     public const STATE_REVIEW = 4;
 
+    // Thread status constants
+    public const STATUS_ACTIVE = 1;
+
+    public const STATUS_PENDING = 2;
+
+    public const STATUS_CLOSED = 3;
+
+    // Source via constants (who performed the action)
+    public const SOURCE_VIA_USER = 2;
+
+    public const SOURCE_VIA_CUSTOMER = 1;
+
+    // Source type constants (how it was created)
+    public const SOURCE_TYPE_WEB = 1;
+
+    public const SOURCE_TYPE_EMAIL = 2;
+
+    public const SOURCE_TYPE_API = 3;
+
     protected $fillable = [
         'conversation_id',
         'user_id',

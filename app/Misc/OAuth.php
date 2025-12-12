@@ -12,8 +12,11 @@ class OAuth
 
     /**
      * Get authorization URL.
+     * 
+     * @param string $provider_code
+     * @param array<string, mixed> $params
      */
-    public static function getAuthorizationUrl($provider_code, $params)
+    public static function getAuthorizationUrl(string $provider_code, array $params): string
     {
         $url = '';
         $args = [];
@@ -37,8 +40,12 @@ class OAuth
 
     /**
      * Get access token.
+     * 
+     * @param string $provider_code
+     * @param array<string, mixed> $params
+     * @return array<string, mixed>
      */
-    public static function getAccessToken($provider_code, $params)
+    public static function getAccessToken(string $provider_code, array $params): array
     {
         $token_data = [];
         $post_params = [];
@@ -66,12 +73,12 @@ class OAuth
                     if ($response->successful()) {
                         $result = $response->json();
 
-                        if (!empty($result['access_token'])) {
+                        if (is_array($result) && !empty($result['access_token'])) {
                             $token_data['provider'] = self::PROVIDER_MICROSOFT;
                             $token_data['a_token'] = $result['access_token'];
                             $token_data['r_token'] = $result['refresh_token'] ?? ($params['refresh_token'] ?? null); // Keep old refresh token if not returned? Usually it returns a new one.
                             $token_data['issued_on'] = now()->toDateTimeString();
-                            $token_data['expires_in'] = $result['expires_in'];
+                            $token_data['expires_in'] = $result['expires_in'] ?? 0;
                         } else {
                             $token_data['error'] = 'No access token in response';
                         }
@@ -90,15 +97,17 @@ class OAuth
 
     /**
      * Disconnect.
+     * 
+     * @param string $provider_code
+     * @param string $redirect_uri
      */
-    public static function disconnect($provider_code, $redirect_uri)
+    public static function disconnect(string $provider_code, string $redirect_uri): \Illuminate\Http\RedirectResponse
     {
         switch ($provider_code) {
             case self::PROVIDER_MICROSOFT:
                 return redirect()->away('https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri='.urlencode($redirect_uri));
-            break;
         }
         
-        return redirect($redirect_uri);
+        return redirect()->to($redirect_uri);
     }
 }

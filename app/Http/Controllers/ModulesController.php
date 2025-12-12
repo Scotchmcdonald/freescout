@@ -59,7 +59,7 @@ class ModulesController extends Controller
 
         if (empty($remoteModules)) {
             $remoteModules = WpApi::getModules();
-            if (! empty($remoteModules) && is_array($remoteModules)) {
+            if (! empty($remoteModules)) {
                 Cache::put('modules_directory', $remoteModules, now()->addMinutes(15));
             }
         }
@@ -218,7 +218,9 @@ class ModulesController extends Controller
 
         if ($githubUrl) {
             $githubToken = $request->input('github_token');
-            return $this->installFromGithub($githubUrl, $githubToken);
+            $githubUrlStr = is_string($githubUrl) || is_int($githubUrl) || is_float($githubUrl) ? (string) $githubUrl : '';
+            $githubTokenStr = ($githubToken && (is_string($githubToken) || is_int($githubToken) || is_float($githubToken))) ? (string) $githubToken : null;
+            return $this->installFromGithub($githubUrlStr, $githubTokenStr);
         }
 
         $alias = $request->input('alias');
@@ -231,26 +233,25 @@ class ModulesController extends Controller
         $remoteModules = WpApi::getModules();
         $moduleInfo = null;
 
-        if (is_array($remoteModules)) {
-            foreach ($remoteModules as $module) {
-                if (($module['alias'] ?? '') === $alias) {
+        foreach ($remoteModules as $module) {
+            if (is_array($module) && isset($module['alias']) && $module['alias'] === $alias) {
                     $moduleInfo = $module;
                     break;
                 }
-            }
         }
 
-        if (! $moduleInfo) {
+        if (! is_array($moduleInfo)) {
             return redirect()->back()->with('error', __('Module not found in marketplace'));
         }
 
-        $downloadUrl = $moduleInfo['download_url'] ?? null;
+        $downloadUrl = isset($moduleInfo['download_url']) && is_string($moduleInfo['download_url']) ? $moduleInfo['download_url'] : null;
 
         if (! $downloadUrl) {
             return redirect()->back()->with('error', __('Could not determine download URL for this module'));
         }
 
-        return $this->installFromUrl($downloadUrl, $alias);
+        $aliasStr = is_string($alias) || is_int($alias) || is_float($alias) ? (string) $alias : '';
+        return $this->installFromUrl($downloadUrl, $aliasStr);
     }
 
     private function installFromGithub(string $url, ?string $token = null): \Illuminate\Http\RedirectResponse
@@ -261,18 +262,24 @@ class ModulesController extends Controller
 
         // Extract repo name
         $path = parse_url($url, PHP_URL_PATH);
+        if (!is_string($path)) {
+             return redirect()->back()->with('error', __('Invalid GitHub URL path'));
+        }
         $parts = explode('/', trim($path, '/'));
         if (count($parts) < 2) {
             return redirect()->back()->with('error', __('Invalid GitHub URL format'));
         }
         $repoName = end($parts);
-        $repoName = preg_replace('/\.git$/', '', $repoName);
+        $repoName = preg_replace('/\.git$/', '', strval($repoName));
         
         // Build authenticated URL if token provided
         if ($token) {
             $parsedUrl = parse_url($url);
+            if (!is_array($parsedUrl)) {
+                 return redirect()->back()->with('error', __('Invalid GitHub URL'));
+            }
             // Ensure .git suffix for authenticated clone
-            $path = $parsedUrl['path'];
+            $path = $parsedUrl['path'] ?? '';
             if (!str_ends_with($path, '.git')) {
                 $path .= '.git';
             }
@@ -280,7 +287,7 @@ class ModulesController extends Controller
                 '%s://%s@%s%s',
                 $parsedUrl['scheme'] ?? 'https',
                 urlencode($token),
-                $parsedUrl['host'],
+                $parsedUrl['host'] ?? '',
                 $path
             );
         }
@@ -292,7 +299,7 @@ class ModulesController extends Controller
         // Or just clone into Modules/$repoName and hope for the best.
         // Let's try to be smart and convert "crm-module" to "Crm".
         
-        $moduleName = \Illuminate\Support\Str::studly($repoName);
+        $moduleName = \Illuminate\Support\Str::studly(strval($repoName));
         // Remove "Module" suffix if present to avoid "CrmModuleModule" but keep if it's just "Module"
         if (str_ends_with($moduleName, 'Module') && strlen($moduleName) > 6) {
             $moduleName = substr($moduleName, 0, -6);
@@ -339,28 +346,16 @@ class ModulesController extends Controller
 
             // Try to find the module
             $module = Module::find($moduleName);
-            
-            // If not found by folder name, maybe the module.json name is different.
-            // We can scan all modules again.
-            if (!$module) {
-                $modules = Module::all();
-                // This might be tricky if we don't know the alias.
-                // But usually StudlyCase folder name is the standard.
-            }
 
-            if ($module) {
-                $module->enable();
-                
-                // Run install command
-                $outputLog = new BufferedOutput;
-                Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
-                
-                Artisan::call('cache:clear');
-                
-                return redirect()->back()->with('success', __('Module installed from GitHub successfully'));
-            }
+            $module->enable();
             
-            return redirect()->back()->with('warning', __('Module cloned but could not be detected. Please check the Modules directory.'));
+            // Run install command
+            $outputLog = new BufferedOutput;
+            Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
+            
+            Artisan::call('cache:clear');
+            
+            return redirect()->back()->with('success', __('Module installed from GitHub successfully'));
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -407,21 +402,16 @@ class ModulesController extends Controller
                 // Try to find and enable the module
                 $module = Module::find($alias);
 
-                if ($module) {
-                    $module->enable();
+                $module->enable();
 
-                    // Run install command
-                    $outputLog = new BufferedOutput;
-                    Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
+                // Run install command
+                $outputLog = new BufferedOutput;
+                Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
 
-                    // Clear cache again
-                    Artisan::call('cache:clear');
+                // Clear cache again
+                Artisan::call('cache:clear');
 
-                    return redirect()->back()->with('success', __('Module installed and enabled successfully'));
-                }
-
-                return redirect()->back()->with('success', __('Module installed but could not be enabled automatically. Please check the list.'));
-
+                return redirect()->back()->with('success', __('Module installed and enabled successfully'));
             } else {
                 throw new \Exception(__('Failed to open zip file'));
             }
@@ -490,16 +480,19 @@ class ModulesController extends Controller
         if (! $alias || ! $license) {
             return response()->json(['success' => false, 'message' => __('Module alias and license are required')]);
         }
+        
+        $aliasStr = is_string($alias) || is_int($alias) || is_float($alias) ? (string) $alias : '';
+        $licenseStr = is_string($license) || is_int($license) || is_float($license) ? (string) $license : '';
 
         $result = WpApi::activateLicense([
-            'module_alias' => $alias,
-            'license' => $license,
+            'module_alias' => $aliasStr,
+            'license' => $licenseStr,
             'url' => url('/'),
         ]);
 
         if (! empty($result['license']) && $result['license'] === 'valid') {
             // Store the license
-            $this->saveModuleLicense($alias, $license);
+            $this->saveModuleLicense($aliasStr, $licenseStr);
 
             return response()->json([
                 'success' => true,
@@ -526,21 +519,23 @@ class ModulesController extends Controller
         if (! $alias) {
             return response()->json(['success' => false, 'message' => __('Module alias is required')]);
         }
+        
+        $aliasStr = is_string($alias) || is_int($alias) || is_float($alias) ? (string) $alias : '';
 
-        $license = $this->getModuleLicense($alias);
+        $license = $this->getModuleLicense($aliasStr);
 
         if (! $license) {
             return response()->json(['success' => false, 'message' => __('No license found for this module')]);
         }
 
         $result = WpApi::deactivateLicense([
-            'module_alias' => $alias,
+            'module_alias' => $aliasStr,
             'license' => $license,
             'url' => url('/'),
         ]);
 
         // Remove license from storage
-        $this->removeModuleLicense($alias);
+        $this->removeModuleLicense($aliasStr);
 
         return response()->json([
             'success' => true,
@@ -558,8 +553,10 @@ class ModulesController extends Controller
         if (! $alias) {
             return response()->json(['success' => false, 'message' => __('Module alias is required')]);
         }
+        
+        $aliasStr = is_string($alias) || is_int($alias) || is_float($alias) ? (string) $alias : '';
 
-        $license = $this->getModuleLicense($alias);
+        $license = $this->getModuleLicense($aliasStr);
 
         if (! $license) {
             return response()->json([
@@ -570,7 +567,7 @@ class ModulesController extends Controller
         }
 
         $result = WpApi::checkLicense([
-            'module_alias' => $alias,
+            'module_alias' => $aliasStr,
             'license' => $license,
             'url' => url('/'),
         ]);
@@ -610,13 +607,16 @@ class ModulesController extends Controller
                 'module_alias' => $alias,
             ]);
 
-            if (! empty($result['version']) && version_compare($result['version'], $currentVersion, '>')) {
-                $updates[$alias] = [
-                    'current' => $currentVersion,
-                    'available' => $result['version'],
-                    'download_url' => $result['download_url'] ?? null,
-                    'type' => 'marketplace',
-                ];
+            if (! empty($result['version'])) {
+                $resultVersion = is_string($result['version']) || is_int($result['version']) || is_float($result['version']) ? (string) $result['version'] : '0.0.0';
+                if (version_compare($resultVersion, $currentVersion, '>')) {
+                    $updates[$alias] = [
+                        'current' => $currentVersion,
+                        'available' => $result['version'],
+                        'download_url' => $result['download_url'] ?? null,
+                        'type' => 'marketplace',
+                    ];
+                }
             }
         }
 
@@ -629,6 +629,8 @@ class ModulesController extends Controller
 
     /**
      * Check for updates from GitHub.
+     * 
+     * @return array{current: string, available: string, commits_behind: int, type: string, branch: string}|null
      */
     private function checkGithubUpdate(string $modulePath, string $currentVersion): ?array
     {
@@ -705,10 +707,8 @@ class ModulesController extends Controller
             return response()->json(['success' => false, 'message' => __('Module alias is required')]);
         }
 
-        $module = Module::find($alias);
-        if (!$module) {
-            return response()->json(['success' => false, 'message' => __('Module not found')]);
-        }
+        $aliasStr = is_string($alias) || is_int($alias) || is_float($alias) ? (string) $alias : '';
+        $module = Module::find($aliasStr);
 
         // Check if it's a git repo
         if (File::isDirectory($module->getPath() . '/.git')) {
@@ -723,10 +723,11 @@ class ModulesController extends Controller
             return response()->json(['success' => false, 'message' => __('Update URL not available')]);
         }
 
+        $downloadUrl = is_string($result['download_url']) || is_int($result['download_url']) || is_float($result['download_url']) ? (string) $result['download_url'] : '';
         $tempFile = tempnam(sys_get_temp_dir(), 'mod_update_');
 
         try {
-            $response = Http::timeout(120)->sink($tempFile)->get($result['download_url']);
+            $response = Http::timeout(120)->sink($tempFile)->get($downloadUrl);
 
             if (! $response->successful()) {
                 throw new \Exception(__('Failed to download update'));
@@ -741,7 +742,7 @@ class ModulesController extends Controller
             }
 
             // Backup current module
-            $backupPath = storage_path('app/module_backups/'.$alias.'_'.date('Y-m-d_His'));
+            $backupPath = storage_path('app/module_backups/'.$aliasStr.'_'.date('Y-m-d_His'));
             if (! File::isDirectory(dirname($backupPath))) {
                 File::makeDirectory(dirname($backupPath), 0755, true);
             }
@@ -765,9 +766,9 @@ class ModulesController extends Controller
 
             // Re-enable module if it was enabled
             if ($wasEnabled) {
-                $module = Module::find($alias);
-                if ($module) {
-                    $module->enable();
+                $refoundModule = ($aliasStr !== '') ? Module::find($aliasStr) : null;
+                if ($refoundModule !== null) {
+                    $refoundModule->enable();
 
                     // Run module install for migrations
                     $outputLog = new BufferedOutput;
@@ -888,9 +889,18 @@ class ModulesController extends Controller
     {
         $licensesJson = \App\Models\Option::get('module_licenses');
         if ($licensesJson) {
-            $decoded = json_decode($licensesJson, true);
+            $licensesJsonStr = is_string($licensesJson) || is_int($licensesJson) || is_float($licensesJson) ? (string) $licensesJson : '';
+            $decoded = json_decode($licensesJsonStr, true);
 
-            return is_array($decoded) ? $decoded : [];
+            if (is_array($decoded)) {
+                $result = [];
+                foreach ($decoded as $key => $value) {
+                    if (is_string($value) || is_int($value) || is_float($value)) {
+                        $result[$key] = (string) $value;
+                    }
+                }
+                return $result;
+            }
         }
 
         return [];

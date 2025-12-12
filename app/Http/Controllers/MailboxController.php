@@ -138,12 +138,14 @@ class MailboxController extends Controller
         unset($validated['users']);
 
         // Sanitize name
-        $validated['name'] = strip_tags($validated['name']);
+        if (isset($validated['name']) && is_string($validated['name'])) {
+            $validated['name'] = strip_tags($validated['name']);
+        }
 
         $mailbox = Mailbox::create($validated);
 
         // Sync users to mailbox
-        if (! empty($users)) {
+        if (! empty($users) && is_array($users)) {
             $mailbox->users()->sync($users);
         }
 
@@ -192,7 +194,7 @@ class MailboxController extends Controller
         }
 
         // Sanitize name if present
-        if (isset($validated['name'])) {
+        if (isset($validated['name']) && is_string($validated['name'])) {
             $validated['name'] = strip_tags($validated['name']);
         }
 
@@ -555,6 +557,9 @@ class MailboxController extends Controller
         // Process aliases (convert newlines to commas)
         if (!empty($validated['aliases'])) {
             $aliasLines = preg_split('/[\r\n,]+/', $validated['aliases']);
+            if ($aliasLines === false) {
+                $aliasLines = [];
+            }
             $cleanAliases = [];
             foreach ($aliasLines as $alias) {
                 $alias = trim($alias);
@@ -574,7 +579,7 @@ class MailboxController extends Controller
     /**
      * Connect to OAuth provider.
      */
-    public function oauthConnect(Request $request, $provider)
+    public function oauthConnect(Request $request, string $provider): \Illuminate\Http\RedirectResponse
     {
         $mailboxId = $request->input('mailbox_id');
         if (!$mailboxId) {
@@ -582,6 +587,9 @@ class MailboxController extends Controller
         }
         
         $mailbox = Mailbox::findOrFail($mailboxId);
+        if (!($mailbox instanceof Mailbox)) {
+            return redirect()->back()->with('error', 'Mailbox not found');
+        }
         $this->authorize('update', $mailbox);
         
         session(['oauth_mailbox_id' => $mailbox->id]);
@@ -612,14 +620,15 @@ class MailboxController extends Controller
     /**
      * OAuth Callback.
      */
-    public function oauthCallback(Request $request)
+    public function oauthCallback(Request $request): \Illuminate\Http\RedirectResponse
     {
         $code = $request->input('code');
         $state = $request->input('state');
         $error = $request->input('error');
         
         if ($error) {
-            return redirect()->route('mailboxes.index')->with('error', 'OAuth Error: ' . $error);
+            $errorMessage = is_string($error) ? $error : 'Unknown error';
+            return redirect()->route('mailboxes.index')->with('error', 'OAuth Error: ' . $errorMessage);
         }
         
         if (!$state) {
@@ -631,21 +640,27 @@ class MailboxController extends Controller
         }
         
         $mailbox = Mailbox::findOrFail($state);
+        if (!($mailbox instanceof Mailbox)) {
+            return redirect()->route('mailboxes.index')->with('error', 'Mailbox not found');
+        }
         $this->authorize('update', $mailbox);
         
-        $type = session('oauth_type', 'incoming');
+        $sessionType = session('oauth_type', 'incoming');
+        $type = is_string($sessionType) || is_int($sessionType) || is_float($sessionType) ? (string) $sessionType : 'incoming';
         
         if ($type == 'incoming') {
             $clientId = $mailbox->in_username;
+            $encryptedPassword = $mailbox->in_password;
             try {
-                $clientSecret = decrypt($mailbox->in_password);
+                $clientSecret = is_string($encryptedPassword) ? decrypt($encryptedPassword) : '';
             } catch (\Exception $e) {
-                $clientSecret = $mailbox->in_password;
+                $clientSecret = $encryptedPassword;
             }
         } else {
             $clientId = $mailbox->out_username;
+            $encryptedPassword = $mailbox->out_password;
             try {
-                $clientSecret = decrypt($mailbox->out_password);
+                $clientSecret = is_string($encryptedPassword) ? decrypt($encryptedPassword) : '';
             } catch (\Exception $e) {
                 $clientSecret = $mailbox->out_password;
             }
@@ -662,10 +677,11 @@ class MailboxController extends Controller
         $tokenData = \App\Misc\OAuth::getAccessToken($provider, $params);
         
         if (!empty($tokenData['error'])) {
-            return redirect()->route('mailboxes.connection.'.$type, $mailbox)->with('error', 'Failed to get access token: ' . $tokenData['error']);
+            $errorMsg = is_string($tokenData['error']) || is_int($tokenData['error']) || is_float($tokenData['error']) ? (string) $tokenData['error'] : 'Unknown error';
+            return redirect()->route('mailboxes.connection.'.$type, $mailbox)->with('error', 'Failed to get access token: ' . $errorMsg);
         }
         
-        $meta = $mailbox->meta ?? [];
+        $meta = (array) ($mailbox->meta ?? []);
         $meta['oauth'] = $tokenData;
         $mailbox->meta = $meta;
         $mailbox->save();
@@ -676,12 +692,16 @@ class MailboxController extends Controller
     /**
      * Disconnect OAuth.
      */
-    public function oauthDisconnect(Request $request, Mailbox $mailbox)
+    public function oauthDisconnect(Request $request, Mailbox $mailbox): \Illuminate\Http\RedirectResponse
     {
         $this->authorize('update', $mailbox);
         
-        $meta = $mailbox->meta ?? [];
-        unset($meta['oauth']);
+        // Meta is stored as array or null
+        $meta = is_array($mailbox->meta) ? $mailbox->meta : [];
+        
+        if (isset($meta['oauth'])) {
+            unset($meta['oauth']);
+        }
         $mailbox->meta = $meta;
         $mailbox->save();
         
@@ -699,7 +719,8 @@ class MailboxController extends Controller
             'test_email' => 'required|email',
         ]);
 
-        $testEmail = $request->input('test_email');
+        $testEmailInput = $request->input('test_email');
+        $testEmail = is_string($testEmailInput) || is_int($testEmailInput) || is_float($testEmailInput) ? (string) $testEmailInput : '';
 
         try {
             $result = $smtpService->testConnection($mailbox, $testEmail);

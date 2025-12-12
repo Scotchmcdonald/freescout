@@ -31,7 +31,8 @@ class CreateConversationAction
      */
     public function execute(Mailbox $mailbox, User $user, array $data): Conversation
     {
-        return DB::transaction(function () use ($mailbox, $user, $data) {
+        /** @var Conversation $conversation */
+        $conversation = DB::transaction(function () use ($mailbox, $user, $data): Conversation {
             $customer = $this->resolveCustomer($data);
             $customerEmail = $this->getCustomerEmail($customer, $data);
             $folder = $this->getInboxFolder($mailbox);
@@ -50,28 +51,41 @@ class CreateConversationAction
             $this->createInitialThread($conversation, $user, $mailbox, $customerEmail, $data);
 
             // Allow modules to modify conversation after creation
-            $conversation = \Eventy::filter('conversation.create', $conversation);
-
+            \Eventy::filter('conversation.create', $conversation);
             return $conversation;
         });
+
+        return $conversation;
     }
 
     /**
      * Resolve or create a customer from the provided data.
+     *
+     * @param array<string, mixed> $data
      */
     private function resolveCustomer(array $data): Customer
     {
         if (! empty($data['customer_id'])) {
-            return Customer::findOrFail($data['customer_id']);
+            $customerId = $data['customer_id'];
+            if (!is_int($customerId) && !is_numeric($customerId)) {
+                throw new \Exception('Invalid customer_id');
+            }
+            /** @var Customer */
+            return Customer::findOrFail(intval($customerId));
         }
 
-        $customer = Customer::create($data['customer_email'], [
+        $email = $data['customer_email'] ?? '';
+        if (!is_string($email) && !is_int($email) && !is_float($email)) {
+            throw new \Exception('Invalid customer_email');
+        }
+
+        $customer = Customer::create((string) $email, [
             'first_name' => $data['customer_first_name'] ?? '',
             'last_name' => $data['customer_last_name'] ?? '',
         ]);
 
-        if (! $customer) {
-            throw new \Exception('Failed to create customer with email: '.$data['customer_email']);
+        if (! ($customer instanceof Customer)) {
+            throw new \Exception('Failed to create customer with email: '.(string) $email);
         }
 
         return $customer;
@@ -79,10 +93,21 @@ class CreateConversationAction
 
     /**
      * Get the customer email address.
+     *
+     * @param array<string, mixed> $data
      */
     private function getCustomerEmail(Customer $customer, array $data): string
     {
-        return $customer->getMainEmail() ?? $data['customer_email'];
+        $mainEmail = $customer->getMainEmail();
+        if ($mainEmail !== null) {
+            return $mainEmail;
+        }
+        
+        $email = $data['customer_email'] ?? '';
+        if (!is_string($email) && !is_int($email) && !is_float($email)) {
+            return '';
+        }
+        return (string) $email;
     }
 
     /**
@@ -111,6 +136,8 @@ class CreateConversationAction
 
     /**
      * Create the conversation record.
+     *
+     * @param array<string, mixed> $data
      */
     private function createConversation(
         Mailbox $mailbox,
@@ -121,6 +148,11 @@ class CreateConversationAction
         int $number,
         array $data
     ): Conversation {
+        $body = $data['body'] ?? '';
+        if (!is_string($body) && !is_int($body) && !is_float($body)) {
+            $body = '';
+        }
+        
         return Conversation::create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
@@ -134,7 +166,7 @@ class CreateConversationAction
             'source_via' => Conversation::SOURCE_VIA_USER,
             'source_type' => Conversation::SOURCE_TYPE_WEB,
             'customer_email' => $customerEmail,
-            'preview' => mb_substr(strip_tags($data['body']), 0, 255),
+            'preview' => mb_substr(strip_tags((string) $body), 0, 255),
             'created_by_user_id' => $user->id,
             'last_reply_at' => now(),
         ]);
@@ -142,6 +174,8 @@ class CreateConversationAction
 
     /**
      * Create the initial thread for the conversation.
+     *
+     * @param array<string, mixed> $data
      */
     private function createInitialThread(
         Conversation $conversation,

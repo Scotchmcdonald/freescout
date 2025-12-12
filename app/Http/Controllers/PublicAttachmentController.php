@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PublicAttachmentController extends Controller
 {
-    public function download(Request $request, int $id)
+    public function download(Request $request, int $id): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Symfony\Component\HttpFoundation\StreamedResponse
     {
         if (!$request->hasValidSignature()) {
             abort(403);

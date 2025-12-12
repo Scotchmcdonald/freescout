@@ -80,7 +80,7 @@ class MergeCustomersAction
         $targetPhoneNumbers = collect($targetPhones)->pluck('number')->toArray();
 
         foreach ($sourcePhones as $phone) {
-            if (! in_array($phone['number'] ?? '', $targetPhoneNumbers)) {
+            if (is_array($phone) && isset($phone['number']) && ! in_array($phone['number'], $targetPhoneNumbers)) {
                 $targetPhones[] = $phone;
             }
         }

@@ -27,16 +27,22 @@ class DashboardController extends Controller
             : $user->mailboxes;
 
         // Filter mailboxes (Eventy hook)
-        $mailboxes = \Eventy::filter('dashboard.mailboxes', $mailboxes);
+        // Note: Eventy::filter returns void but modifies by reference
+        \Eventy::filter('dashboard.mailboxes', $mailboxes);
+
+        $mailboxIds = $mailboxes->pluck('id')->filter()->toArray();
+        if (empty($mailboxIds)) {
+            $mailboxIds = [0]; // Prevent SQL errors with empty arrays
+        }
 
         // Get active conversations count
-        $activeConversations = Conversation::whereIn('mailbox_id', $mailboxes->pluck('id'))
+        $activeConversations = Conversation::whereIn('mailbox_id', $mailboxIds)
             ->where('status', Conversation::STATUS_ACTIVE)
             ->where('state', Conversation::STATE_PUBLISHED)
             ->count();
 
         // Get unassigned conversations count
-        $unassignedConversations = Conversation::whereIn('mailbox_id', $mailboxes->pluck('id'))
+        $unassignedConversations = Conversation::whereIn('mailbox_id', $mailboxIds)
             ->whereNull('user_id')
             ->where('status', Conversation::STATUS_ACTIVE)
             ->where('state', Conversation::STATE_PUBLISHED)

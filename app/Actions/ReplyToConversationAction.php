@@ -113,9 +113,9 @@ final class ReplyToConversationAction
             // file metadata and storage
             $thread->attachments()->create([
                 'file_name' => basename($path),
-                'file_path' => $path,
+                'file_dir' => dirname($path),
+                'file_size' => file_exists($path) ? filesize($path) : 0,
                 'mime_type' => 'application/octet-stream',
-                'size' => 0,
             ]);
         }
     }

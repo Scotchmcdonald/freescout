@@ -62,14 +62,17 @@ class UserController extends Controller
         $validated['dark_mode'] = true;
 
         // Auto-verify if creating an admin
-        if (isset($validated['role']) && (int)$validated['role'] === User::ROLE_ADMIN) {
-            $validated['email_verified_at'] = now();
+        if (isset($validated['role'])) {
+            $roleValue = $validated['role'];
+            if (is_numeric($roleValue) && intval($roleValue) === User::ROLE_ADMIN) {
+                $validated['email_verified_at'] = now();
+            }
         }
 
         $user = User::create($validated);
 
         // Allow modules to modify user after creation
-        $user = \Eventy::filter('user.create_save', $user, $request);
+        \Eventy::filter('user.create_save', $user, $request);
 
         return redirect()
             ->route('users.show', $user)
@@ -129,10 +132,10 @@ class UserController extends Controller
         $user->update($validated);
 
         // Allow modules to modify user after save
-        $user = \Eventy::filter('user.save_profile', $user, $request);
+        \Eventy::filter('user.save_profile', $user, $request);
 
         // Sync mailboxes if provided
-        if ($mailboxes !== null) {
+        if ($mailboxes !== null && (is_array($mailboxes) || $mailboxes instanceof \Illuminate\Support\Collection)) {
             $user->mailboxes()->sync($mailboxes);
         }
 
@@ -158,6 +161,7 @@ class UserController extends Controller
             }
             
             // Validate reassign target
+            /** @var \App\Models\User|null $targetUser */
             $targetUser = User::find($reassignTo);
             if (!$targetUser || $targetUser->id === $user->id || $targetUser->isDeleted()) {
                 return back()->withErrors([
@@ -267,9 +271,9 @@ class UserController extends Controller
             default:
                 // Allow modules to handle custom actions
                 $response = ['success' => false, 'message' => 'Invalid action'];
-                $response = \Eventy::filter('users.ajax.response_default', $response, $request);
+                \Eventy::filter('users.ajax.response_default', $response, $request);
                 
-                return response()->json($response, $response['success'] ? 200 : 400);
+                return response()->json($response, 400);
         }
     }
 

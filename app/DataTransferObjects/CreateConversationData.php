@@ -33,18 +33,63 @@ readonly class CreateConversationData
      */
     public static function fromArray(array $validated): self
     {
+        $subject = $validated['subject'];
+        if (!is_string($subject)) {
+            $subject = '';
+        }
+
+        $body = $validated['body'];
+        if (!is_string($body)) {
+            $body = '';
+        }
+
+        $to = $validated['to'];
+        if (!is_array($to)) {
+            $to = [];
+        }
+        $to = array_filter($to, 'is_string');
+
+        $customerId = $validated['customer_id'] ?? null;
+        if ($customerId !== null && !is_int($customerId)) {
+            $customerId = is_numeric($customerId) ? (int) $customerId : null;
+        }
+
+        $customerEmail = $validated['customer_email'] ?? null;
+        if ($customerEmail !== null && !is_string($customerEmail)) {
+            $customerEmail = null;
+        }
+
+        $customerFirstName = $validated['customer_first_name'] ?? null;
+        if ($customerFirstName !== null && !is_string($customerFirstName)) {
+            $customerFirstName = null;
+        }
+
+        $customerLastName = $validated['customer_last_name'] ?? null;
+        if ($customerLastName !== null && !is_string($customerLastName)) {
+            $customerLastName = null;
+        }
+
+        $assignTo = $validated['assign_to'] ?? null;
+        if ($assignTo !== null && !is_int($assignTo)) {
+            $assignTo = is_numeric($assignTo) ? (int) $assignTo : null;
+        }
+
+        $statusValue = $validated['status'] ?? null;
+        $status = null;
+        if ($statusValue !== null && (is_int($statusValue) || is_string($statusValue) || is_float($statusValue))) {
+            $status = ConversationStatus::tryFrom((int) $statusValue);
+        }
+
         return new self(
-            subject: $validated['subject'],
-            body: $validated['body'],
-            to: $validated['to'],
-            customerId: $validated['customer_id'] ?? null,
-            customerEmail: $validated['customer_email'] ?? null,
-            customerFirstName: $validated['customer_first_name'] ?? null,
-            customerLastName: $validated['customer_last_name'] ?? null,
-            status: isset($validated['status'])
-                ? ConversationStatus::tryFrom((int) $validated['status'])
-                : null,
-            assignTo: $validated['assign_to'] ?? null,
+            subject: $subject,
+            body: $body,
+            to: $to,
+            customerId: $customerId,
+            customerEmail: $customerEmail,
+            customerFirstName: $customerFirstName,
+            customerLastName: $customerLastName,
+            status: $status,
+            assignTo: $assignTo,
         );
     }
 

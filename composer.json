@@ -20,6 +20,7 @@
         "qirolab/laravel-themer": "^2.4",
         "spatie/laravel-activitylog": "^4.8",
         "tormjens/eventy": "^0.8.0",
+        "watson/rememberable": "^7.0",
         "webklex/php-imap": "^6.2",
         "wikimedia/composer-merge-plugin": "^2.1"
     },

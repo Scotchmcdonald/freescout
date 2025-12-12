@@ -12,6 +12,8 @@ class CollisionController extends Controller
 {
     /**
      * Handle collision detection (who is viewing the conversation).
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function viewing(Request $request, int $id)
     {
@@ -33,10 +35,11 @@ class CollisionController extends Controller
         }
 
         $key = "conversation:{$id}:viewers";
-        
+
         // Get current viewers
-        $viewers = Cache::get($key, []);
-        
+        $viewers = (array) Cache::get($key, []);
+        /** @var array<int, array{id: int, name: string, photo_url: string|null, timestamp: int}> $viewers */
+
         // Add/Update current user
         $viewers[$user->id] = [
             'id' => $user->id,
@@ -44,19 +47,19 @@ class CollisionController extends Controller
             'photo_url' => $user->photo_url, // Assuming this accessor exists
             'timestamp' => now()->timestamp,
         ];
-        
+
         // Remove stale viewers (older than 45 seconds)
         // Frontend should poll every 15-30 seconds
         $viewers = array_filter($viewers, function ($viewer) {
             return $viewer['timestamp'] > now()->subSeconds(45)->timestamp;
         });
-        
+
         // Save back to cache (expires in 1 minute to auto-cleanup if abandoned)
         Cache::put($key, $viewers, 60);
-        
+
         // Return other viewers
-        $others = array_filter($viewers, fn($v) => $v['id'] !== $user->id);
-        
+        $others = array_filter($viewers, fn ($v) => $v['id'] !== $user->id);
+
         return response()->json(array_values($others));
     }
 }
