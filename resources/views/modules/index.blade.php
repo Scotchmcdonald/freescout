@@ -409,8 +409,17 @@
             const checkUpdatesBtn = document.getElementById('check-updates-btn');
             
             if (checkUpdatesBtn) {
-                checkUpdatesBtn.addEventListener('click', function() {
+                checkUpdatesBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     const btn = this;
+                    
+                    // Prevent multiple simultaneous requests
+                    if (btn.disabled) {
+                        return;
+                    }
+                    
                     const originalText = btn.innerText;
                     btn.innerText = '{{ __('Checking...') }}';
                     btn.disabled = true;
@@ -437,7 +446,7 @@
                             document.querySelectorAll('.update-btn').forEach(el => el.classList.add('hidden'));
                             document.querySelectorAll('.update-status-badge').forEach(el => {
                                 el.classList.add('hidden');
-                                el.classList.remove('bg-blue-100', 'text-blue-800', 'bg-green-100', 'text-green-800');
+                                el.classList.remove('bg-blue-100', 'text-blue-800', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
                             });
                             
                             // First show "Checking..." on all modules
@@ -445,7 +454,7 @@
                                 const badge = item.querySelector('.update-status-badge');
                                 if (badge) {
                                     badge.innerText = '{{ __('Checking...') }}';
-                                    badge.classList.remove('hidden', 'bg-green-100', 'text-green-800');
+                                    badge.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
                                     badge.classList.add('bg-blue-100', 'text-blue-800');
                                 }
                             });
@@ -491,16 +500,20 @@
                                         }, 3000);
                                     }
                                 });
+                                
+                                // Re-enable button after showing results
+                                btn.innerText = originalText;
+                                btn.disabled = false;
                             }, 500);
                         } else {
                             alert(data.message || '{{ __('Failed to check for updates') }}');
+                            btn.innerText = originalText;
+                            btn.disabled = false;
                         }
                     })
                     .catch(error => {
                         console.error(error);
                         alert('{{ __('An error occurred while checking for updates') }}');
-                    })
-                    .finally(() => {
                         btn.innerText = originalText;
                         btn.disabled = false;
                     });

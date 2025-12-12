@@ -809,13 +809,36 @@ class ModulesController extends Controller
         try {
             $path = $module->getPath();
             
+            // Stash any local changes to avoid merge conflicts
+            $stashProcess = new \Symfony\Component\Process\Process(['git', 'stash'], $path);
+            $stashProcess->setTimeout(30);
+            $stashProcess->run();
+            $hasStash = str_contains($stashProcess->getOutput(), 'Saved working directory');
+            
             // Fetch and pull
             $process = new \Symfony\Component\Process\Process(['git', 'pull'], $path);
             $process->setTimeout(120);
             $process->run();
             
             if (!$process->isSuccessful()) {
+                // Try to restore stashed changes even on failure
+                if ($hasStash) {
+                    $restoreProcess = new \Symfony\Component\Process\Process(['git', 'stash', 'pop'], $path);
+                    $restoreProcess->run();
+                }
                 throw new \Exception(__('Git pull failed: :error', ['error' => $process->getErrorOutput()]));
+            }
+            
+            // Restore stashed changes if any
+            if ($hasStash) {
+                $restoreProcess = new \Symfony\Component\Process\Process(['git', 'stash', 'pop'], $path);
+                $restoreProcess->run();
+                
+                // If stash pop fails (conflicts), provide helpful message
+                if (!$restoreProcess->isSuccessful()) {
+                    $message = __('Module updated, but your local changes conflicted. Please resolve conflicts in: :path', ['path' => $path]);
+                    return response()->json(['success' => true, 'message' => $message, 'warning' => true]);
+                }
             }
             
             // Check for pending migrations
@@ -830,6 +853,9 @@ class ModulesController extends Controller
             $message = __('Module updated from GitHub successfully');
             if ($hasMigrations) {
                 $message .= '. ' . __('Database migrations have been run.');
+            }
+            if ($hasStash) {
+                $message .= ' ' . __('Your local changes were preserved.');
             }
             
             return response()->json([
