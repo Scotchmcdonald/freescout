@@ -156,8 +156,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // System (admin only)
     Route::middleware(['admin'])->group(function () {
         Route::get('/system', [SystemController::class, 'index'])->name('system');
-        Route::get('/system/update', [SystemController::class, 'update'])->name('system.update'); // New route for tests
+        Route::get('/system/update', [SystemController::class, 'update'])->name('system.update');
         Route::post('/system/update', [SystemController::class, 'performUpdate'])->name('system.perform_update');
+        Route::post('/system/update/pull', [SystemController::class, 'pullUpdate'])->name('system.pull_update');
+        Route::get('/system/update/check-banner', [SystemController::class, 'checkUpdateBanner'])->name('system.check_update_banner');
         Route::post('/system/ajax', [SystemController::class, 'ajax'])->name('system.ajax');
         Route::get('/system/diagnostics', [SystemController::class, 'diagnostics'])->name('system.diagnostics');
         Route::get('/system/logs', [SystemController::class, 'logs'])->name('system.logs');

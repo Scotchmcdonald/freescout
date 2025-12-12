@@ -30,6 +30,9 @@
         @action('layout.body_start')
         <div class="min-h-screen bg-gray-100">
             <x-layouts.navigation />
+            
+            <!-- Update Banner for Admins -->
+            @include('partials.update-banner')
 
             <!-- Page Heading -->
             @isset($header)

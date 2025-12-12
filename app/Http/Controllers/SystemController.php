@@ -552,9 +552,181 @@ class SystemController extends Controller
      */
     public function update(): View|Factory
     {
-        // This is a placeholder for the update check functionality.
-        // In a real application, this would check for updates and return the result.
-        return view('system.update', ['update_available' => false]);
+        $updateInfo = $this->checkForAppUpdates();
+        
+        return view('system.update', [
+            'update_available' => !empty($updateInfo),
+            'update_info' => $updateInfo,
+        ]);
+    }
+    
+    /**
+     * Check for application updates from git repository.
+     */
+    private function checkForAppUpdates(): ?array
+    {
+        try {
+            $appPath = base_path();
+            
+            // Get current version from config
+            $currentVersion = config('app.version', '1.0.0');
+            
+            // Get current branch
+            $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $appPath);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+            $branch = trim($process->getOutput());
+
+            // Get current commit hash
+            $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', 'HEAD'], $appPath);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+            $localHash = trim($process->getOutput());
+            $localHashShort = substr($localHash, 0, 7);
+
+            // Fetch latest from remote (without pulling)
+            $process = new \Symfony\Component\Process\Process(['git', 'fetch', 'origin', $branch], $appPath);
+            $process->setTimeout(30);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+
+            // Get remote commit hash
+            $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', "origin/$branch"], $appPath);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+            $remoteHash = trim($process->getOutput());
+            $remoteHashShort = substr($remoteHash, 0, 7);
+
+            // Compare hashes
+            if ($localHash !== $remoteHash) {
+                // Count commits behind
+                $process = new \Symfony\Component\Process\Process(
+                    ['git', 'rev-list', '--count', "$localHash..origin/$branch"],
+                    $appPath
+                );
+                $process->run();
+                $commitsBehind = (int) trim($process->getOutput());
+
+                // Get latest commit message
+                $process = new \Symfony\Component\Process\Process(
+                    ['git', 'log', '--format=%s', '-n', '1', "origin/$branch"],
+                    $appPath
+                );
+                $process->run();
+                $latestCommitMessage = trim($process->getOutput());
+
+                return [
+                    'current_version' => $currentVersion,
+                    'current_commit' => $localHashShort,
+                    'remote_commit' => $remoteHashShort,
+                    'commits_behind' => $commitsBehind,
+                    'branch' => $branch,
+                    'latest_message' => $latestCommitMessage,
+                ];
+            }
+            
+            // Store the checked state in cache
+            Cache::put('app_update_checked', now(), now()->addHours(1));
+            
+        } catch (\Exception $e) {
+            \Log::error('App update check failed', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get app update banner data for admins.
+     */
+    public function checkUpdateBanner(Request $request): JsonResponse
+    {
+        // Only check once per hour
+        if (Cache::has('app_update_banner')) {
+            $cached = Cache::get('app_update_banner');
+            return response()->json($cached);
+        }
+        
+        $updateInfo = $this->checkForAppUpdates();
+        
+        $result = [
+            'has_update' => !empty($updateInfo),
+            'update_info' => $updateInfo,
+        ];
+        
+        Cache::put('app_update_banner', $result, now()->addHour());
+        
+        return response()->json($result);
+    }
+    
+    /**
+     * Perform git pull to update application.
+     */
+    public function pullUpdate(Request $request): JsonResponse
+    {
+        try {
+            $appPath = base_path();
+            
+            // Stash any local changes
+            $stashProcess = new \Symfony\Component\Process\Process(['git', 'stash'], $appPath);
+            $stashProcess->setTimeout(30);
+            $stashProcess->run();
+            $hasStash = str_contains($stashProcess->getOutput(), 'Saved working directory');
+            
+            // Pull latest changes
+            $process = new \Symfony\Component\Process\Process(['git', 'pull'], $appPath);
+            $process->setTimeout(120);
+            $process->run();
+            
+            if (!$process->isSuccessful()) {
+                // Try to restore stashed changes even on failure
+                if ($hasStash) {
+                    $restoreProcess = new \Symfony\Component\Process\Process(['git', 'stash', 'pop'], $appPath);
+                    $restoreProcess->run();
+                }
+                throw new \Exception('Git pull failed: ' . $process->getErrorOutput());
+            }
+            
+            // Restore stashed changes if any
+            if ($hasStash) {
+                $restoreProcess = new \Symfony\Component\Process\Process(['git', 'stash', 'pop'], $appPath);
+                $restoreProcess->run();
+                
+                if (!$restoreProcess->isSuccessful()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Update downloaded, but local changes conflicted. Please resolve conflicts manually.',
+                        'warning' => true,
+                        'needs_migration' => true,
+                    ]);
+                }
+            }
+            
+            // Clear update cache
+            Cache::forget('app_update_banner');
+            Cache::forget('app_update_checked');
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Application updated successfully. Please run migrations if needed.',
+                'needs_migration' => true,
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

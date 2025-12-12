@@ -55,16 +55,18 @@
 
                     <form action="{{ route('modules.install') }}" method="POST" class="space-y-4">
                         @csrf
-                        <div class="flex gap-4">
-                            <div class="flex-grow">
-                                <x-text-input id="github_url" class="block w-full" type="url" name="github_url" placeholder="https://github.com/username/repo" required />
-                            </div>
-                            <button type="submit" class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors whitespace-nowrap">
-                                {{ __('Install') }}
-                            </button>
-                        </div>
                         <div>
-                            <x-text-input id="github_token" class="block w-full" type="password" name="github_token" placeholder="{{ __('GitHub Personal Access Token (optional, for private repos)') }}" />
+                            <label for="github_url" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ __('GitHub Repository URL') }}
+                            </label>
+                            <x-text-input id="github_url" class="block w-full" type="url" name="github_url" placeholder="https://github.com/username/repo" required />
+                        </div>
+                        
+                        <div>
+                            <label for="github_token" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ __('GitHub Personal Access Token (optional)') }}
+                            </label>
+                            <x-text-input id="github_token" class="block w-full" type="password" name="github_token" placeholder="{{ __('For private repositories only') }}" />
                             <div class="mt-2 text-xs text-gray-600 space-y-1">
                                 <p class="font-medium text-gray-700">{{ __('For Private Repositories:') }}</p>
                                 <ol class="list-decimal list-inside space-y-1 ml-2">
@@ -76,6 +78,22 @@
                                 </ol>
                                 <p class="text-gray-500 italic mt-2">{{ __('Note: Public repositories do not require a token.') }}</p>
                             </div>
+                        </div>
+                        
+                        <div>
+                            <label for="github_commit" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ __('Commit / Tag / Branch (optional)') }}
+                            </label>
+                            <x-text-input id="github_commit" class="block w-full" type="text" name="github_commit" placeholder="{{ __('e.g., v1.2.3 or abc1234 (leave blank for latest)') }}" />
+                            <p class="mt-1 text-xs text-gray-500">
+                                {{ __('Specify a commit hash, tag, or branch name to install a specific version. Leave blank to install the latest from the default branch.') }}
+                            </p>
+                        </div>
+                        
+                        <div class="pt-2">
+                            <button type="submit" class="w-full px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors">
+                                {{ __('Install Module from GitHub') }}
+                            </button>
                         </div>
                     </form>
                             </p>
@@ -127,6 +145,17 @@
                                             <div class="mt-2 flex items-center space-x-4 text-xs text-gray-500">
                                                 <span>{{ __('Alias') }}: <code class="bg-gray-100 px-1 py-0.5 rounded">{{ $module['alias'] }}</code></span>
                                                 <span>{{ __('Version') }}: {{ $module['version'] }}</span>
+                                                @if($module['commit'])
+                                                    <span>{{ __('Commit') }}: 
+                                                        @if($module['commit_url'])
+                                                            <a href="{{ $module['commit_url'] }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">
+                                                                <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">{{ $module['commit'] }}</code>
+                                                            </a>
+                                                        @else
+                                                            <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">{{ $module['commit'] }}</code>
+                                                        @endif
+                                                    </span>
+                                                @endif
                                                 <span class="update-info hidden text-indigo-600 font-bold ml-2"></span>
                                                 <button class="update-btn hidden ml-2 inline-flex items-center px-2 py-1 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150"
                                                     @click="
@@ -472,10 +501,16 @@
                                             const updateBtn = item.querySelector('.update-btn');
                                             
                                             if (infoSpan) {
-                                                const msg = updates[alias].commits_behind 
+                                                let msg = updates[alias].commits_behind 
                                                     ? '{{ __(':count commits behind', ['count' => '']) }}'.replace(':count', updates[alias].commits_behind)
                                                     : '{{ __('New version:') }} ' + updates[alias].available;
-                                                infoSpan.innerText = msg;
+                                                
+                                                // Add commit link if available
+                                                if (updates[alias].remote_commit_url && updates[alias].remote_commit) {
+                                                    msg += ' → <a href="' + updates[alias].remote_commit_url + '" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-mono">' + updates[alias].remote_commit + '</a>';
+                                                }
+                                                
+                                                infoSpan.innerHTML = msg;
                                                 infoSpan.classList.remove('hidden');
                                             }
                                             

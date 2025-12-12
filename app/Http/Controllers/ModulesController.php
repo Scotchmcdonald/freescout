@@ -39,12 +39,18 @@ class ModulesController extends Controller
         $modulesData = [];
 
         foreach ($modules as $module) {
+            $commitHash = $this->getModuleCommitHash($module->getPath());
+            $githubUrl = $this->getModuleGithubUrl($module->getPath());
+            $commitUrl = $githubUrl && $commitHash ? $githubUrl . '/commit/' . $commitHash : null;
+            
             $modulesData[] = [
                 'name' => $module->getName(),
                 'alias' => $module->getLowerName(),
                 'description' => $module->getDescription(),
                 'enabled' => $module->isEnabled(),
                 'version' => $module->get('version', '1.0.0'),
+                'commit' => $commitHash,
+                'commit_url' => $commitUrl,
                 'path' => $module->getPath(),
                 'license' => $this->getModuleLicense($module->getLowerName()),
                 'activated' => $this->isLicenseActivated($module->getLowerName()),
@@ -218,9 +224,11 @@ class ModulesController extends Controller
 
         if ($githubUrl) {
             $githubToken = $request->input('github_token');
+            $githubCommit = $request->input('github_commit');
             $githubUrlStr = is_string($githubUrl) || is_int($githubUrl) || is_float($githubUrl) ? (string) $githubUrl : '';
             $githubTokenStr = ($githubToken && (is_string($githubToken) || is_int($githubToken) || is_float($githubToken))) ? (string) $githubToken : null;
-            return $this->installFromGithub($githubUrlStr, $githubTokenStr);
+            $githubCommitStr = ($githubCommit && (is_string($githubCommit) || is_int($githubCommit) || is_float($githubCommit))) ? (string) $githubCommit : null;
+            return $this->installFromGithub($githubUrlStr, $githubTokenStr, $githubCommitStr);
         }
 
         $alias = $request->input('alias');
@@ -254,7 +262,7 @@ class ModulesController extends Controller
         return $this->installFromUrl($downloadUrl, $aliasStr);
     }
 
-    private function installFromGithub(string $url, ?string $token = null): \Illuminate\Http\RedirectResponse
+    private function installFromGithub(string $url, ?string $token = null, ?string $commit = null): \Illuminate\Http\RedirectResponse
     {
         if (! filter_var($url, FILTER_VALIDATE_URL)) {
             return redirect()->back()->with('error', __('Invalid GitHub URL'));
@@ -338,6 +346,22 @@ class ModulesController extends Controller
                 }
                 
                 throw new \Exception(__('Git clone failed: :error', ['error' => $sanitizedError]));
+            }
+            
+            // Checkout specific commit if provided
+            if ($commit) {
+                $checkoutProcess = new \Symfony\Component\Process\Process(['git', 'checkout', $commit], $targetPath);
+                $checkoutProcess->setTimeout(30);
+                $checkoutProcess->run();
+                
+                if (!$checkoutProcess->isSuccessful()) {
+                    // Clean up the cloned directory on checkout failure
+                    File::deleteDirectory($targetPath);
+                    throw new \Exception(__('Git checkout to commit :commit failed: :error', [
+                        'commit' => $commit,
+                        'error' => $checkoutProcess->getErrorOutput()
+                    ]));
+                }
             }
 
             // Clear cache
@@ -677,9 +701,15 @@ class ModulesController extends Controller
                 $process->run();
                 $commitsBehind = (int) trim($process->getOutput());
 
+                // Get GitHub URL for commit links
+                $githubUrl = $this->getModuleGithubUrl($modulePath);
+                
                 return [
                     'current' => $currentVersion . ' (' . substr($localHash, 0, 7) . ')',
                     'available' => $currentVersion . ' (' . substr($remoteHash, 0, 7) . ')',
+                    'current_commit' => substr($localHash, 0, 7),
+                    'remote_commit' => substr($remoteHash, 0, 7),
+                    'remote_commit_url' => $githubUrl ? $githubUrl . '/commit/' . substr($remoteHash, 0, 7) : null,
                     'commits_behind' => $commitsBehind,
                     'type' => 'github',
                     'branch' => $branch,
@@ -809,36 +839,27 @@ class ModulesController extends Controller
         try {
             $path = $module->getPath();
             
-            // Stash any local changes to avoid merge conflicts
-            $stashProcess = new \Symfony\Component\Process\Process(['git', 'stash'], $path);
-            $stashProcess->setTimeout(30);
-            $stashProcess->run();
-            $hasStash = str_contains($stashProcess->getOutput(), 'Saved working directory');
+            // Get current branch
+            $branchProcess = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $path);
+            $branchProcess->run();
+            $branch = $branchProcess->isSuccessful() ? trim($branchProcess->getOutput()) : 'master';
             
-            // Fetch and pull
-            $process = new \Symfony\Component\Process\Process(['git', 'pull'], $path);
-            $process->setTimeout(120);
-            $process->run();
+            // Fetch latest changes
+            $fetchProcess = new \Symfony\Component\Process\Process(['git', 'fetch', 'origin', $branch], $path);
+            $fetchProcess->setTimeout(60);
+            $fetchProcess->run();
             
-            if (!$process->isSuccessful()) {
-                // Try to restore stashed changes even on failure
-                if ($hasStash) {
-                    $restoreProcess = new \Symfony\Component\Process\Process(['git', 'stash', 'pop'], $path);
-                    $restoreProcess->run();
-                }
-                throw new \Exception(__('Git pull failed: :error', ['error' => $process->getErrorOutput()]));
+            if (!$fetchProcess->isSuccessful()) {
+                throw new \Exception(__('Git fetch failed: :error', ['error' => $fetchProcess->getErrorOutput()]));
             }
             
-            // Restore stashed changes if any
-            if ($hasStash) {
-                $restoreProcess = new \Symfony\Component\Process\Process(['git', 'stash', 'pop'], $path);
-                $restoreProcess->run();
-                
-                // If stash pop fails (conflicts), provide helpful message
-                if (!$restoreProcess->isSuccessful()) {
-                    $message = __('Module updated, but your local changes conflicted. Please resolve conflicts in: :path', ['path' => $path]);
-                    return response()->json(['success' => true, 'message' => $message, 'warning' => true]);
-                }
+            // Reset hard to origin branch - this will discard all local changes and always succeed
+            $resetProcess = new \Symfony\Component\Process\Process(['git', 'reset', '--hard', "origin/$branch"], $path);
+            $resetProcess->setTimeout(30);
+            $resetProcess->run();
+            
+            if (!$resetProcess->isSuccessful()) {
+                throw new \Exception(__('Git reset failed: :error', ['error' => $resetProcess->getErrorOutput()]));
             }
             
             // Check for pending migrations
@@ -854,9 +875,7 @@ class ModulesController extends Controller
             if ($hasMigrations) {
                 $message .= '. ' . __('Database migrations have been run.');
             }
-            if ($hasStash) {
-                $message .= ' ' . __('Your local changes were preserved.');
-            }
+            $message .= ' ' . __('All local changes were discarded to ensure a clean update.');
             
             return response()->json([
                 'success' => true,
@@ -876,6 +895,51 @@ class ModulesController extends Controller
         $licenses = $this->getAllLicenses();
 
         return $licenses[$alias] ?? null;
+    }
+    
+    /**
+     * Get the git commit hash for a module.
+     */
+    protected function getModuleCommitHash(string $modulePath): ?string
+    {
+        try {
+            $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--short', 'HEAD'], $modulePath);
+            $process->run();
+            
+            if ($process->isSuccessful()) {
+                return trim($process->getOutput());
+            }
+        } catch (\Exception $e) {
+            // Module might not be a git repository
+            return null;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get the GitHub URL for a module from git remote.
+     */
+    protected function getModuleGithubUrl(string $modulePath): ?string
+    {
+        try {
+            $process = new \Symfony\Component\Process\Process(['git', 'remote', 'get-url', 'origin'], $modulePath);
+            $process->run();
+            
+            if ($process->isSuccessful()) {
+                $remoteUrl = trim($process->getOutput());
+                
+                // Convert git URL to HTTPS GitHub URL
+                // Handle: git@github.com:user/repo.git or https://github.com/user/repo.git
+                if (preg_match('/github\.com[:\/]([^\/]+\/[^\/]+?)(\.git)?$/', $remoteUrl, $matches)) {
+                    return 'https://github.com/' . $matches[1];
+                }
+            }
+        } catch (\Exception $e) {
+            return null;
+        }
+        
+        return null;
     }
 
     /**
