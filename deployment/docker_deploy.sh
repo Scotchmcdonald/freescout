@@ -410,54 +410,43 @@ decommission_existing() {
         
         cd "$DEFAULT_INSTALL_DIR"
         
-        # Interactive prompt for what to do with existing deployment
-        if [ "$INTERACTIVE" = true ]; then
-            log_warning "Existing deployment detected!"
-            echo ""
-            echo -e "${YELLOW}What would you like to do?${NC}"
-            echo "  1) Reuse existing data (keep database and volumes)"
-            echo "  2) Nuke everything (fresh install, all data lost)"
-            echo "  3) Cancel deployment"
-            echo ""
-            read -p "Enter choice [1-3]: " choice
-            
-            case $choice in
-                1)
-                    REUSE_DB=true
-                    log_info "Reusing existing data - stopping containers only..."
-                    sudo docker compose down 2>/dev/null || true
-                    ;;
-                2)
-                    log_warning "Nuking everything - all data will be lost!"
-                    read -p "Type 'yes' to confirm: " confirm
-                    if [ "$confirm" = "yes" ]; then
-                        REUSE_DB=false
-                        sudo docker compose down -v 2>/dev/null || true
-                        log_success "Everything nuked"
-                    else
-                        log_error "Nuke cancelled"
-                        exit 1
-                    fi
-                    ;;
-                3)
-                    log_info "Deployment cancelled by user"
-                    exit 0
-                    ;;
-                *)
-                    log_error "Invalid choice"
-                    exit 1
-                    ;;
-            esac
-        else
-            # Non-interactive mode: use existing REUSE_DB setting
-            if [ "$REUSE_DB" = true ]; then
-                log_info "Stopping containers (preserving volumes)..."
+        # Always prompt for what to do with existing deployment
+        log_warning "Existing deployment detected!"
+        echo ""
+        echo -e "${YELLOW}What would you like to do?${NC}"
+        echo "  1) Reuse existing data (keep database and volumes)"
+        echo "  2) Nuke everything (fresh install, all data lost)"
+        echo "  3) Cancel deployment"
+        echo ""
+        read -p "Enter choice [1-3]: " choice
+        
+        case $choice in
+            1)
+                REUSE_DB=true
+                log_info "Reusing existing data - stopping containers only..."
                 sudo docker compose down 2>/dev/null || true
-            else
-                log_warning "Destroying containers and volumes..."
-                sudo docker compose down -v 2>/dev/null || true
-            fi
-        fi
+                ;;
+            2)
+                log_warning "Nuking everything - all data will be lost!"
+                read -p "Type 'yes' to confirm: " confirm
+                if [ "$confirm" = "yes" ]; then
+                    REUSE_DB=false
+                    sudo docker compose down -v 2>/dev/null || true
+                    log_success "Everything nuked"
+                else
+                    log_error "Nuke cancelled"
+                    exit 1
+                fi
+                ;;
+            3)
+                log_info "Deployment cancelled by user"
+                exit 0
+                ;;
+            *)
+                log_error "Invalid choice"
+                exit 1
+                ;;
+        esac
         
         log_info "Pruning unused networks..."
         sudo docker network prune -f >/dev/null 2>&1 || true

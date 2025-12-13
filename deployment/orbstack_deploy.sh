@@ -282,48 +282,40 @@ setup_directories() {
     if [ -f "docker-compose.yml" ]; then
         log_warning "Existing deployment detected!"
         
-        # Check if in interactive mode
-        if [ "$INTERACTIVE" = true ]; then
-            echo ""
-            echo -e "${YELLOW}What would you like to do?${NC}"
-            echo "  1) Reuse existing data (keep database and volumes)"
-            echo "  2) Nuke everything (fresh install, all data lost)"
-            echo "  3) Cancel deployment"
-            echo ""
-            read -p "Enter choice [1-3]: " choice
-            
-            case $choice in
-                1)
-                    log_info "Reusing existing data - stopping containers only..."
-                    docker compose down 2>/dev/null || true
-                    log_success "Containers stopped, data preserved"
-                    ;;
-                2)
-                    log_warning "Nuking everything - all data will be lost!"
-                    read -p "Type 'yes' to confirm: " confirm
-                    if [ "$confirm" = "yes" ]; then
-                        docker compose down -v --remove-orphans 2>/dev/null || true
-                        log_success "Everything nuked"
-                    else
-                        log_error "Nuke cancelled"
-                        exit 1
-                    fi
-                    ;;
-                3)
-                    log_info "Deployment cancelled by user"
-                    exit 0
-                    ;;
-                *)
-                    log_error "Invalid choice"
+        echo ""
+        echo -e "${YELLOW}What would you like to do?${NC}"
+        echo "  1) Reuse existing data (keep database and volumes)"
+        echo "  2) Nuke everything (fresh install, all data lost)"
+        echo "  3) Cancel deployment"
+        echo ""
+        read -p "Enter choice [1-3]: " choice
+        
+        case $choice in
+            1)
+                log_info "Reusing existing data - stopping containers only..."
+                docker compose down 2>/dev/null || true
+                log_success "Containers stopped, data preserved"
+                ;;
+            2)
+                log_warning "Nuking everything - all data will be lost!"
+                read -p "Type 'yes' to confirm: " confirm
+                if [ "$confirm" = "yes" ]; then
+                    docker compose down -v --remove-orphans 2>/dev/null || true
+                    log_success "Everything nuked"
+                else
+                    log_error "Nuke cancelled"
                     exit 1
-                    ;;
-            esac
-        else
-            # Non-interactive mode: stop containers but keep data by default
-            log_info "Non-interactive mode - stopping containers, preserving data..."
-            docker compose down 2>/dev/null || true
-            log_success "Containers stopped"
-        fi
+                fi
+                ;;
+            3)
+                log_info "Deployment cancelled by user"
+                exit 0
+                ;;
+            *)
+                log_error "Invalid choice"
+                exit 1
+                ;;
+        esac
     fi
     
     log_success "Directories created"
