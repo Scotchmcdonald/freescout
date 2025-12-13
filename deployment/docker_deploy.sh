@@ -431,7 +431,10 @@ decommission_existing() {
                 read -p "Type 'yes' to confirm: " confirm
                 if [ "$confirm" = "yes" ]; then
                     REUSE_DB=false
+                    log_info "Stopping and removing containers and volumes..."
                     sudo docker compose down -v 2>/dev/null || true
+                    log_info "Removing source code directory..."
+                    sudo rm -rf src
                     log_success "Everything nuked"
                 else
                     log_error "Nuke cancelled"

@@ -300,7 +300,10 @@ setup_directories() {
                 log_warning "Nuking everything - all data will be lost!"
                 read -p "Type 'yes' to confirm: " confirm
                 if [ "$confirm" = "yes" ]; then
+                    log_info "Stopping and removing containers and volumes..."
                     docker compose down -v --remove-orphans 2>/dev/null || true
+                    log_info "Removing source code directory..."
+                    rm -rf src
                     log_success "Everything nuked"
                 else
                     log_error "Nuke cancelled"
