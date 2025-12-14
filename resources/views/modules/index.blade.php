@@ -485,6 +485,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const checkUpdatesBtn = document.getElementById('check-updates-btn');
+            let hideTimeouts = []; // Track timeouts for cleanup
             
             if (checkUpdatesBtn) {
                 checkUpdatesBtn.addEventListener('click', function(e) {
@@ -498,9 +499,27 @@
                         return;
                     }
                     
+                    // Clear any existing auto-hide timeouts
+                    hideTimeouts.forEach(timeout => clearTimeout(timeout));
+                    hideTimeouts = [];
+                    
                     const originalText = btn.innerText;
                     btn.innerText = '{{ __('Checking...') }}';
                     btn.disabled = true;
+                    
+                    // Reset all update indicators and badges
+                    document.querySelectorAll('.update-info').forEach(el => el.classList.add('hidden'));
+                    document.querySelectorAll('.update-btn').forEach(el => el.classList.add('hidden'));
+                    
+                    // Show "Checking..." on all modules immediately
+                    document.querySelectorAll('.module-item').forEach(item => {
+                        const badge = item.querySelector('.update-status-badge');
+                        if (badge) {
+                            badge.innerText = '{{ __('Checking...') }}';
+                            badge.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
+                            badge.classList.add('bg-blue-100', 'text-blue-800');
+                        }
+                    });
                     
                     fetch('{{ route('modules.ajax') }}', {
                         method: 'POST',
@@ -519,24 +538,6 @@
                             const updates = data.updates;
                             let count = 0;
                             
-                            // Reset all update indicators and badges
-                            document.querySelectorAll('.update-info').forEach(el => el.classList.add('hidden'));
-                            document.querySelectorAll('.update-btn').forEach(el => el.classList.add('hidden'));
-                            document.querySelectorAll('.update-status-badge').forEach(el => {
-                                el.classList.add('hidden');
-                                el.classList.remove('bg-blue-100', 'text-blue-800', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
-                            });
-                            
-                            // First show "Checking..." on all modules
-                            document.querySelectorAll('.module-item').forEach(item => {
-                                const badge = item.querySelector('.update-status-badge');
-                                if (badge) {
-                                    badge.innerText = '{{ __('Checking...') }}';
-                                    badge.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
-                                    badge.classList.add('bg-blue-100', 'text-blue-800');
-                                }
-                            });
-                            
                             // After a brief delay, update with results
                             setTimeout(() => {
                                 document.querySelectorAll('.module-item').forEach(item => {
@@ -544,6 +545,9 @@
                                     const badge = item.querySelector('.update-status-badge');
                                     
                                     if (badge) {
+                                        // Clear existing classes
+                                        badge.classList.remove('bg-blue-100', 'text-blue-800', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
+                                        
                                         if (updates[alias]) {
                                             // Has update
                                             const infoSpan = item.querySelector('.update-info');
@@ -568,20 +572,21 @@
                                             }
                                             
                                             badge.innerText = '{{ __('Update Available') }}';
-                                            badge.classList.remove('bg-blue-100', 'text-blue-800');
+                                            badge.classList.remove('hidden');
                                             badge.classList.add('bg-yellow-100', 'text-yellow-800');
                                             count++;
                                         } else {
                                             // Up to date
                                             badge.innerText = '{{ __('Up to Date') }}';
-                                            badge.classList.remove('bg-blue-100', 'text-blue-800');
+                                            badge.classList.remove('hidden');
                                             badge.classList.add('bg-green-100', 'text-green-800');
+                                            
+                                            // Auto-hide "Up to Date" after 3 seconds
+                                            const timeout = setTimeout(() => {
+                                                badge.classList.add('hidden');
+                                            }, 3000);
+                                            hideTimeouts.push(timeout);
                                         }
-                                        
-                                        // Auto-hide after 3 seconds
-                                        setTimeout(() => {
-                                            badge.classList.add('hidden');
-                                        }, 3000);
                                     }
                                 });
                                 
@@ -593,6 +598,11 @@
                             alert(data.message || '{{ __('Failed to check for updates') }}');
                             btn.innerText = originalText;
                             btn.disabled = false;
+                            
+                            // Hide all badges on error
+                            document.querySelectorAll('.update-status-badge').forEach(el => {
+                                el.classList.add('hidden');
+                            });
                         }
                     })
                     .catch(error => {
@@ -600,6 +610,11 @@
                         alert('{{ __('An error occurred while checking for updates') }}');
                         btn.innerText = originalText;
                         btn.disabled = false;
+                        
+                        // Hide all badges on error
+                        document.querySelectorAll('.update-status-badge').forEach(el => {
+                            el.classList.add('hidden');
+                        });
                     });
                 });
             }

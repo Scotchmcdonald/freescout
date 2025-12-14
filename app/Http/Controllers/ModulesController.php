@@ -220,8 +220,45 @@ class ModulesController extends Controller
      */
     public function showInstallForm(): \Illuminate\Contracts\View\View
     {
-        return view('modules.install');
+        $repositories = config('modules_catalog.repositories', []);
+        $savedToken = auth()->user()->getSetting('github_personal_access_token');
+        
+        return view('modules.install', [
+            'repositories' => $repositories,
+            'savedToken' => $savedToken,
+        ]);
     }
+
+    /**
+     * Save GitHub Personal Access Token.
+     */
+    public function saveGithubToken(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'token' => 'required|string',
+        ]);
+
+        auth()->user()->setSetting('github_personal_access_token', $request->token);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('GitHub token saved successfully'),
+        ]);
+    }
+
+    /**
+     * Clear saved GitHub Personal Access Token.
+     */
+    public function clearGithubToken(): \Illuminate\Http\JsonResponse
+    {
+        auth()->user()->setSetting('github_personal_access_token', null);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('GitHub token cleared'),
+        ]);
+    }
+
 
     /**
      * Install a module from the marketplace or GitHub.

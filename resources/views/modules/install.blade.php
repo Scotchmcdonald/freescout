@@ -10,7 +10,7 @@
         </div>
     </x-slot>
 
-    <div class="py-12" x-data="githubModuleInstaller()">
+    <div class="py-12" x-data="githubModuleInstaller({{ json_encode($repositories) }}, {{ json_encode($savedToken) }})">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
@@ -25,8 +25,44 @@
 
                     <form @submit.prevent="installModule" class="space-y-6">
 
-                        <!-- GitHub URL -->
+                        <!-- Repository Selection -->
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ __('Repository') }} <span class="text-red-500">*</span>
+                            </label>
+                            
+                            <div class="flex items-center space-x-3">
+                                <select 
+                                    x-model="selectedRepo"
+                                    @change="onRepoChange"
+                                    :disabled="useCustomUrl"
+                                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:bg-gray-100"
+                                >
+                                    <option value="">{{ __('Select a repository...') }}</option>
+                                    <template x-for="repo in knownRepos" :key="repo.url">
+                                        <option :value="repo.url" x-text="repo.name"></option>
+                                    </template>
+                                </select>
+                                
+                                <button 
+                                    type="button"
+                                    @click="toggleCustomUrl"
+                                    class="px-4 py-2 text-sm font-medium rounded-md transition-colors"
+                                    :class="useCustomUrl 
+                                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+                                >
+                                    <span x-text="useCustomUrl ? 'Catalog' : 'Custom'"></span>
+                                </button>
+                            </div>
+                            
+                            <p class="mt-1 text-xs text-gray-500" x-show="selectedRepo && !useCustomUrl">
+                                <span x-text="selectedRepoDescription"></span>
+                            </p>
+                        </div>
+
+                        <!-- GitHub URL (shown only for custom) -->
+                        <div x-show="useCustomUrl" x-transition>
                             <label for="github_url" class="block text-sm font-medium text-gray-700 mb-2">
                                 {{ __('GitHub Repository URL') }} <span class="text-red-500">*</span>
                             </label>
@@ -51,14 +87,44 @@
                                 {{ __('Personal Access Token') }}
                                 <span class="text-gray-500 text-xs font-normal">{{ __('(Optional - for private repos)') }}</span>
                             </label>
-                            <x-text-input 
-                                id="github_token" 
-                                class="block w-full" 
-                                type="password" 
-                                name="github_token"
-                                x-model="accessToken"
-                                placeholder="{{ __('ghp_xxxxxxxxxxxx') }}" 
-                            />
+                            
+                            <div class="flex items-center space-x-2">
+                                <x-text-input 
+                                    id="github_token" 
+                                    class="block flex-1" 
+                                    type="password" 
+                                    name="github_token"
+                                    x-model="accessToken"
+                                    placeholder="{{ __('ghp_xxxxxxxxxxxx') }}" 
+                                />
+                                
+                                <button 
+                                    type="button"
+                                    @click="saveToken"
+                                    :disabled="!accessToken || savingToken"
+                                    class="px-3 py-2 text-sm font-medium bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    title="{{ __('Save token for future use') }}"
+                                >
+                                    <span x-show="!savingToken">{{ __('Save') }}</span>
+                                    <span x-show="savingToken">...</span>
+                                </button>
+                                
+                                <button 
+                                    type="button"
+                                    @click="clearToken"
+                                    x-show="hasSavedToken"
+                                    :disabled="clearingToken"
+                                    class="px-3 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    title="{{ __('Clear saved token') }}"
+                                >
+                                    <span x-show="!clearingToken">{{ __('Clear') }}</span>
+                                    <span x-show="clearingToken">...</span>
+                                </button>
+                            </div>
+                            
+                            <p class="mt-1 text-xs text-green-600" x-show="hasSavedToken">
+                                ✓ {{ __('Using saved token') }}
+                            </p>
                             
                             <!-- Token Instructions (Collapsible) -->
                             <div x-data="{ expanded: false }" class="mt-3">
@@ -189,10 +255,16 @@
 
     @push('scripts')
     <script>
-        function githubModuleInstaller() {
+        function githubModuleInstaller(repositories, savedToken) {
             return {
+                knownRepos: repositories || [],
+                selectedRepo: '',
+                useCustomUrl: false,
                 repoUrl: '',
-                accessToken: '',
+                accessToken: savedToken || '',
+                hasSavedToken: !!savedToken,
+                savingToken: false,
+                clearingToken: false,
                 owner: '',
                 repo: '',
                 branches: [],
@@ -207,6 +279,83 @@
 
                 get canLoadBranches() {
                     return this.repoUrl && this.owner && this.repo;
+                },
+
+                get selectedRepoDescription() {
+                    const repo = this.knownRepos.find(r => r.url === this.selectedRepo);
+                    return repo?.description || '';
+                },
+
+                toggleCustomUrl() {
+                    this.useCustomUrl = !this.useCustomUrl;
+                    if (!this.useCustomUrl) {
+                        // Switching back to dropdown
+                        if (this.selectedRepo) {
+                            this.repoUrl = this.selectedRepo;
+                            this.parseRepoUrl();
+                        }
+                    } else {
+                        // Switching to custom
+                        this.selectedRepo = '';
+                        this.repoUrl = '';
+                        this.branches = [];
+                        this.commits = [];
+                        this.error = '';
+                    }
+                },
+
+                onRepoChange() {
+                    if (this.selectedRepo) {
+                        this.repoUrl = this.selectedRepo;
+                        this.parseRepoUrl();
+                    }
+                },
+
+                async saveToken() {
+                    if (!this.accessToken) return;
+
+                    this.savingToken = true;
+                    try {
+                        const response = await fetch('{{ route('modules.github-token.save') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ token: this.accessToken })
+                        });
+
+                        if (response.ok) {
+                            this.hasSavedToken = true;
+                        }
+                    } catch (err) {
+                        console.error('Error saving token:', err);
+                    } finally {
+                        this.savingToken = false;
+                    }
+                },
+
+                async clearToken() {
+                    this.clearingToken = true;
+                    try {
+                        const response = await fetch('{{ route('modules.github-token.clear') }}', {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (response.ok) {
+                            this.accessToken = '';
+                            this.hasSavedToken = false;
+                        }
+                    } catch (err) {
+                        console.error('Error clearing token:', err);
+                    } finally {
+                        this.clearingToken = false;
+                    }
                 },
 
                 parseRepoUrl() {
