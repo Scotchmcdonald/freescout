@@ -928,9 +928,16 @@ export function systemTools(ajaxUrl, diagnosticsUrl, csrfToken) {
                     },
                     body: JSON.stringify({ action: action })
                 });
+                
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${text.substring(0, 100)}`);
+                }
+                
                 const data = await response.json();
                 this.showMessage(data.success ? 'success' : 'error', data.message);
             } catch (error) {
+                console.error('Action failed:', error);
                 this.showMessage('error', 'Operation failed: ' + error.message);
             } finally {
                 this.loading = false;

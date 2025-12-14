@@ -216,6 +216,14 @@ class ModulesController extends Controller
     }
 
     /**
+     * Show the install module form.
+     */
+    public function showInstallForm(): \Illuminate\Contracts\View\View
+    {
+        return view('modules.install');
+    }
+
+    /**
      * Install a module from the marketplace or GitHub.
      */
     public function install(Request $request): \Illuminate\Http\RedirectResponse
@@ -225,10 +233,12 @@ class ModulesController extends Controller
         if ($githubUrl) {
             $githubToken = $request->input('github_token');
             $githubCommit = $request->input('github_commit');
+            $githubBranch = $request->input('github_branch');
             $githubUrlStr = is_string($githubUrl) || is_int($githubUrl) || is_float($githubUrl) ? (string) $githubUrl : '';
             $githubTokenStr = ($githubToken && (is_string($githubToken) || is_int($githubToken) || is_float($githubToken))) ? (string) $githubToken : null;
             $githubCommitStr = ($githubCommit && (is_string($githubCommit) || is_int($githubCommit) || is_float($githubCommit))) ? (string) $githubCommit : null;
-            return $this->installFromGithub($githubUrlStr, $githubTokenStr, $githubCommitStr);
+            $githubBranchStr = ($githubBranch && (is_string($githubBranch) || is_int($githubBranch) || is_float($githubBranch))) ? (string) $githubBranch : null;
+            return $this->installFromGithub($githubUrlStr, $githubTokenStr, $githubCommitStr, $githubBranchStr);
         }
 
         $alias = $request->input('alias');
@@ -262,7 +272,7 @@ class ModulesController extends Controller
         return $this->installFromUrl($downloadUrl, $aliasStr);
     }
 
-    private function installFromGithub(string $url, ?string $token = null, ?string $commit = null): \Illuminate\Http\RedirectResponse
+    private function installFromGithub(string $url, ?string $token = null, ?string $commit = null, ?string $branch = null): \Illuminate\Http\RedirectResponse
     {
         if (! filter_var($url, FILTER_VALIDATE_URL)) {
             return redirect()->back()->with('error', __('Invalid GitHub URL'));
@@ -320,8 +330,17 @@ class ModulesController extends Controller
         }
 
         try {
+            // Build clone command with optional branch
+            $cloneCmd = ['git', 'clone'];
+            if ($branch) {
+                $cloneCmd[] = '--branch';
+                $cloneCmd[] = $branch;
+            }
+            $cloneCmd[] = $url;
+            $cloneCmd[] = $targetPath;
+            
             // Use git clone
-            $process = new \Symfony\Component\Process\Process(['git', 'clone', $url, $targetPath]);
+            $process = new \Symfony\Component\Process\Process($cloneCmd);
             $process->setTimeout(120); // 2 minutes timeout
             $process->run();
 
@@ -923,11 +942,13 @@ class ModulesController extends Controller
      */
     private function resetFromGithub(\Nwidart\Modules\Module $module): JsonResponse
     {
+        $tempPath = null;
+        
         try {
             $path = $module->getPath();
             $moduleName = $module->getName();
             
-            // Get GitHub URL before deleting
+            // Get GitHub URL before moving
             $githubUrl = $this->getModuleGithubUrl($path);
             if (!$githubUrl) {
                 throw new \Exception(__('Cannot determine GitHub URL for this module'));
@@ -938,24 +959,65 @@ class ModulesController extends Controller
             $branchProcess->run();
             $branch = $branchProcess->isSuccessful() ? trim($branchProcess->getOutput()) : 'master';
             
-            // Delete the entire module directory
+            // Check if we need authentication (stored token)
+            $hasToken = false;
+            $token = null;
+            
+            // Try to extract token from git config
+            $configProcess = new \Symfony\Component\Process\Process(['git', 'config', '--get', 'credential.helper'], $path);
+            $configProcess->run();
+            if ($configProcess->isSuccessful()) {
+                // Check for stored credentials
+                $urlProcess = new \Symfony\Component\Process\Process(['git', 'config', '--get', 'remote.origin.url'], $path);
+                $urlProcess->run();
+                if ($urlProcess->isSuccessful()) {
+                    $remoteUrl = trim($urlProcess->getOutput());
+                    // Extract token if it's in the URL (https://token@github.com/...)
+                    if (preg_match('/https:\/\/([^@]+)@github\.com/', $remoteUrl, $matches)) {
+                        $token = $matches[1];
+                        $hasToken = true;
+                    }
+                }
+            }
+            
+            // Move module to temporary location instead of deleting
+            $tempPath = sys_get_temp_dir() . '/module_backup_' . $moduleName . '_' . time();
             if (File::isDirectory($path)) {
-                File::deleteDirectory($path);
+                if (!File::moveDirectory($path, $tempPath)) {
+                    throw new \Exception(__('Failed to backup module to temporary directory'));
+                }
             }
             
             // Get parent directory (Modules/)
             $modulesDir = dirname($path);
             
+            // Prepare clone URL with token if available
+            $cloneUrl = $githubUrl;
+            if ($hasToken && $token) {
+                $cloneUrl = str_replace('https://github.com/', "https://{$token}@github.com/", $githubUrl);
+            }
+            
             // Clone fresh from GitHub
             $cloneProcess = new \Symfony\Component\Process\Process(
-                ['git', 'clone', '-b', $branch, $githubUrl, $moduleName],
+                ['git', 'clone', '-b', $branch, $cloneUrl, $moduleName],
                 $modulesDir
             );
             $cloneProcess->setTimeout(120);
             $cloneProcess->run();
             
             if (!$cloneProcess->isSuccessful()) {
+                // Restore backup on failure
+                if ($tempPath && File::isDirectory($tempPath)) {
+                    File::moveDirectory($tempPath, $path);
+                    $tempPath = null;
+                }
                 throw new \Exception(__('Git clone failed: :error', ['error' => $cloneProcess->getErrorOutput()]));
+            }
+            
+            // Successfully cloned, safe to delete backup
+            if ($tempPath && File::isDirectory($tempPath)) {
+                File::deleteDirectory($tempPath);
+                $tempPath = null;
             }
             
             // Run install command

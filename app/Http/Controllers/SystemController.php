@@ -17,8 +17,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class SystemController extends Controller
@@ -356,8 +358,8 @@ class SystemController extends Controller
                         'output' => Artisan::output(),
                     ]);
                 } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('Optimization failed: ' . $e->getMessage());
-                    \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
+                    Log::error('Optimization failed: ' . $e->getMessage());
+                    Log::error($e->getTraceAsString());
                     return response()->json([
                         'success' => false,
                         'message' => 'Optimization failed: '.$e->getMessage(),
@@ -633,14 +635,20 @@ class SystemController extends Controller
                     'commits_behind' => $commitsBehind,
                     'branch' => $branch,
                     'latest_message' => $latestCommitMessage,
+                    'has_update' => true,
                 ];
             }
             
-            // Store the checked state in cache
-            Cache::put('app_update_checked', now(), now()->addHours(1));
+            // No updates available - return current info without updates
+            return [
+                'current_version' => $currentVersion,
+                'current_commit' => $localHashShort,
+                'branch' => $branch,
+                'has_update' => false,
+            ];
             
         } catch (\Exception $e) {
-            \Log::error('App update check failed', [
+            Log::error('App update check failed', [
                 'error' => $e->getMessage(),
             ]);
         }
@@ -661,9 +669,12 @@ class SystemController extends Controller
         
         $updateInfo = $this->checkForAppUpdates();
         
+        // Only show banner if there's an actual update (not just info)
+        $hasUpdate = $updateInfo && isset($updateInfo['has_update']) && $updateInfo['has_update'] === true;
+        
         $result = [
-            'has_update' => !empty($updateInfo),
-            'update_info' => $updateInfo,
+            'has_update' => $hasUpdate,
+            'update_info' => $hasUpdate ? $updateInfo : null,
         ];
         
         Cache::put('app_update_banner', $result, now()->addHour());

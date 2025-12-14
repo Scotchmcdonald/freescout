@@ -200,11 +200,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Modules (admin only)
     Route::middleware(['admin'])->group(function () {
         Route::get('/modules/list', [ModulesController::class, 'index'])->name('modules');
+        Route::get('/modules/install', [ModulesController::class, 'showInstallForm'])->name('modules.install.form');
+        Route::post('/modules/install', [ModulesController::class, 'install'])->name('modules.install');
         Route::post('/modules/{alias}/enable', [ModulesController::class, 'enable'])->name('modules.enable');
         Route::post('/modules/{alias}/activate', [ModulesController::class, 'enable'])->name('modules.activate'); // Alias for tests
         Route::post('/modules/{alias}/disable', [ModulesController::class, 'disable'])->name('modules.disable');
         Route::delete('/modules/{alias}', [ModulesController::class, 'delete'])->name('modules.delete');
-        Route::post('/modules/install', [ModulesController::class, 'install'])->name('modules.install');
         Route::post('/modules/ajax', [ModulesController::class, 'ajax'])->name('modules.ajax');
     });
 

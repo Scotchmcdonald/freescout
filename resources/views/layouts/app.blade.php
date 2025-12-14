@@ -53,5 +53,6 @@
             </main>
         </div>
         @action('layout.body_end')
+        @stack('scripts')
     </body>
 </html>

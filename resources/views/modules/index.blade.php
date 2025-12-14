@@ -44,61 +44,22 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-medium text-gray-900">
-                            {{ __('Install from GitHub') }}
-                        </h3>
-                        <p class="mt-1 text-sm text-gray-600">
-                            {{ __('Install a module directly from a GitHub repository.') }}
-                        </p>
-                    </div>
-
-                    <form action="{{ route('modules.install') }}" method="POST" class="space-y-4">
-                        @csrf
+                    <div class="flex items-center justify-between">
                         <div>
-                            <label for="github_url" class="block text-sm font-medium text-gray-700 mb-1">
-                                {{ __('GitHub Repository URL') }}
-                            </label>
-                            <x-text-input id="github_url" class="block w-full" type="url" name="github_url" placeholder="https://github.com/username/repo" required />
-                        </div>
-                        
-                        <div>
-                            <label for="github_token" class="block text-sm font-medium text-gray-700 mb-1">
-                                {{ __('GitHub Personal Access Token (optional)') }}
-                            </label>
-                            <x-text-input id="github_token" class="block w-full" type="password" name="github_token" placeholder="{{ __('For private repositories only') }}" />
-                            <div class="mt-2 text-xs text-gray-600 space-y-1">
-                                <p class="font-medium text-gray-700">{{ __('For Private Repositories:') }}</p>
-                                <ol class="list-decimal list-inside space-y-1 ml-2">
-                                    <li>{{ __('Go to') }} <a href="https://github.com/settings/tokens/new" target="_blank" class="text-blue-600 hover:underline">{{ __('GitHub Settings → Tokens → New Token (Classic)') }}</a></li>
-                                    <li>{{ __('Set a descriptive name (e.g., "Freescout Module Installer")') }}</li>
-                                    <li>{{ __('Under "Select scopes", check:') }} <code class="bg-gray-100 px-1 rounded text-red-600">repo</code> {{ __('(Full control of private repositories)') }}</li>
-                                    <li>{{ __('Click "Generate token" and copy it immediately') }}</li>
-                                    <li>{{ __('Paste the token in the field above') }}</li>
-                                </ol>
-                                <p class="text-gray-500 italic mt-2">{{ __('Note: Public repositories do not require a token.') }}</p>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label for="github_commit" class="block text-sm font-medium text-gray-700 mb-1">
-                                {{ __('Commit / Tag / Branch (optional)') }}
-                            </label>
-                            <x-text-input id="github_commit" class="block w-full" type="text" name="github_commit" placeholder="{{ __('e.g., v1.2.3 or abc1234 (leave blank for latest)') }}" />
-                            <p class="mt-1 text-xs text-gray-500">
-                                {{ __('Specify a commit hash, tag, or branch name to install a specific version. Leave blank to install the latest from the default branch.') }}
-                            </p>
-                        </div>
-                        
-                        <div class="pt-2">
-                            <button type="submit" class="w-full px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors">
+                            <h3 class="text-lg font-medium text-gray-900">
                                 {{ __('Install Module from GitHub') }}
-                            </button>
-                        </div>
-                    </form>
+                            </h3>
+                            <p class="mt-1 text-sm text-gray-600">
+                                {{ __('Install a module directly from a GitHub repository with advanced options.') }}
                             </p>
                         </div>
-                    </form>
+                        <a href="{{ route('modules.install.form') }}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            {{ __('Install from GitHub') }}
+                        </a>
+                    </div>
                 </div>
             </div>
 
