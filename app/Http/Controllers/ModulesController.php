@@ -461,6 +461,229 @@ class ModulesController extends Controller
     }
 
     /**
+     * Stream installation progress via Server-Sent Events.
+     */
+    public function installWithProgress(\Illuminate\Http\Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'url' => 'required|string',
+            'token' => 'nullable|string',
+            'commit' => 'nullable|string',
+            'branch' => 'nullable|string',
+        ]);
+
+        // Set up SSE headers
+        return response()->stream(function () use ($request) {
+            // Disable time limit for long operations
+            set_time_limit(0);
+            
+            $url = $request->input('url');
+            $token = $request->input('token');
+            $commit = $request->input('commit');
+            $branch = $request->input('branch');
+            
+            try {
+                // Helper to send SSE event
+                $sendEvent = function ($stage, $percentage, $message) {
+                    echo "data: " . json_encode([
+                        'stage' => $stage,
+                        'percentage' => $percentage,
+                        'message' => $message,
+                        'timestamp' => now()->toIso8601String(),
+                    ]) . "\n\n";
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
+                    flush();
+                };
+
+                $sendEvent('validating', 5, __('Validating repository URL...'));
+
+                // Validate URL
+                if (! filter_var($url, FILTER_VALIDATE_URL)) {
+                    $sendEvent('error', 0, __('Invalid GitHub URL'));
+                    return;
+                }
+
+                // Extract repo name
+                $path = parse_url($url, PHP_URL_PATH);
+                if (!is_string($path)) {
+                    $sendEvent('error', 0, __('Invalid GitHub URL path'));
+                    return;
+                }
+
+                $pathParts = explode('/', trim($path, '/'));
+                if (count($pathParts) < 2) {
+                    $sendEvent('error', 0, __('Invalid GitHub repository URL'));
+                    return;
+                }
+
+                $moduleName = end($pathParts);
+                $moduleName = str_replace(['.git', '-'], ['', ''], $moduleName);
+                $moduleName = ucfirst($moduleName);
+
+                $sendEvent('connecting', 15, __('Connecting to GitHub...'));
+
+                // Prepare clone URL with token if SSH
+                $cloneUrl = $url;
+                $sshKeyFile = null;
+                $envVars = [];
+
+                if (str_starts_with($url, 'git@') || str_contains($url, 'ssh://')) {
+                    $sendEvent('connecting', 20, __('Using SSH authentication...'));
+                    
+                    $deployKey = \App\Models\Option::get('ssh_deploy_key');
+                    if ($deployKey) {
+                        try {
+                            $decryptedKey = \Illuminate\Support\Facades\Crypt::decryptString($deployKey);
+                            $sshKeyFile = tempnam(sys_get_temp_dir(), 'ssh_key_');
+                            File::put($sshKeyFile, $decryptedKey);
+                            chmod($sshKeyFile, 0600);
+                            $envVars['GIT_SSH_COMMAND'] = "ssh -i {$sshKeyFile} -o StrictHostKeyChecking=no";
+                        } catch (\Exception $e) {
+                            $sendEvent('error', 0, __('Failed to decrypt SSH key'));
+                            return;
+                        }
+                    }
+                } elseif ($token) {
+                    $sendEvent('connecting', 20, __('Using token authentication...'));
+                    $cloneUrl = preg_replace('#^https://github\.com/#', "https://{$token}@github.com/", $url);
+                }
+
+                $sendEvent('cloning', 30, __('Cloning repository...'));
+
+                // Clone repository
+                $modulesPath = base_path('Modules');
+                $targetPath = $modulesPath . '/' . $moduleName;
+
+                if (File::exists($targetPath)) {
+                    if ($sshKeyFile) {
+                        @unlink($sshKeyFile);
+                    }
+                    $sendEvent('error', 0, __('Module directory already exists'));
+                    return;
+                }
+
+                $cloneProcess = new \Symfony\Component\Process\Process(
+                    ['git', 'clone', $cloneUrl, $targetPath],
+                    null,
+                    $envVars
+                );
+                $cloneProcess->setTimeout(300);
+                $cloneProcess->run();
+
+                // Clean up SSH key file
+                if ($sshKeyFile) {
+                    @unlink($sshKeyFile);
+                }
+
+                if (!$cloneProcess->isSuccessful()) {
+                    $sendEvent('error', 0, __('Git clone failed: :error', ['error' => $cloneProcess->getErrorOutput()]));
+                    return;
+                }
+
+                $sendEvent('cloning', 45, __('Repository cloned successfully'));
+
+                // Checkout specific commit if provided
+                if ($commit) {
+                    $sendEvent('checkout', 50, __('Checking out commit...'));
+                    
+                    $checkoutProcess = new \Symfony\Component\Process\Process(['git', 'checkout', $commit], $targetPath);
+                    $checkoutProcess->setTimeout(30);
+                    $checkoutProcess->run();
+                    
+                    if (!$checkoutProcess->isSuccessful()) {
+                        File::deleteDirectory($targetPath);
+                        $sendEvent('error', 0, __('Git checkout failed'));
+                        return;
+                    }
+                }
+
+                $sendEvent('validating', 55, __('Validating module structure...'));
+
+                // Health check
+                $healthCheck = $this->validateModuleHealth($targetPath);
+                if (!$healthCheck['success']) {
+                    File::deleteDirectory($targetPath);
+                    $sendEvent('error', 0, __('Health check failed: :errors', ['errors' => implode(', ', $healthCheck['errors'])]));
+                    return;
+                }
+
+                $sendEvent('installing', 65, __('Clearing cache...'));
+
+                // Clear cache
+                Artisan::call('cache:clear');
+                Artisan::call('config:clear');
+
+                $sendEvent('installing', 75, __('Enabling module...'));
+
+                // Find and enable module
+                $module = Module::find($moduleName);
+                if (!$module) {
+                    File::deleteDirectory($targetPath);
+                    $sendEvent('error', 0, __('Module not found after installation'));
+                    return;
+                }
+
+                $module->enable();
+
+                $sendEvent('installing', 85, __('Running module installation...'));
+
+                // Run install command
+                $outputLog = new BufferedOutput;
+                Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
+                
+                Artisan::call('cache:clear');
+
+                $sendEvent('complete', 100, __('Module installed successfully!'));
+
+                // Log activity
+                $this->logActivity($moduleName, 'install', [
+                    'repo_url' => $url,
+                    'branch' => $branch,
+                    'commit' => $commit,
+                    'method' => 'streaming',
+                ]);
+
+                // Send final success event
+                echo "data: " . json_encode([
+                    'stage' => 'done',
+                    'percentage' => 100,
+                    'message' => __('Installation complete'),
+                    'success' => true,
+                    'redirect' => route('modules'),
+                ]) . "\n\n";
+
+            } catch (\Exception $e) {
+                // Log failed installation
+                $this->logActivity($moduleName ?? 'unknown', 'install', [
+                    'repo_url' => $url ?? '',
+                    'error' => $e->getMessage(),
+                    'failed' => true,
+                    'method' => 'streaming',
+                ]);
+
+                echo "data: " . json_encode([
+                    'stage' => 'error',
+                    'percentage' => 0,
+                    'message' => $e->getMessage(),
+                    'error' => true,
+                ]) . "\n\n";
+            }
+
+            if (ob_get_level() > 0) {
+                ob_flush();
+            }
+            flush();
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+        ]);
+    }
+
+    /**
      * Check if global deploy key exists.
      */
     public function checkDeployKey(): \Illuminate\Http\JsonResponse

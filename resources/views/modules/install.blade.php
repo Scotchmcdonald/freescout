@@ -275,6 +275,19 @@
 
                         <!-- Submit Button -->
                         <div class="pt-4 border-t">
+                            <!-- Progress Display -->
+                            <div x-show="installing && installProgress > 0" class="mb-4" x-transition>
+                                <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                                    <span x-text="installMessage"></span>
+                                    <span x-text="installProgress + '%'"></span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                                    <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+                                         :style="'width: ' + installProgress + '%'"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1 capitalize" x-text="installStage"></p>
+                            </div>
+
                             <button 
                                 type="submit" 
                                 :disabled="installing"
@@ -285,7 +298,7 @@
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    <span x-text="installing ? 'Installing Module...' : 'Install Module'"></span>
+                                    <span x-text="installing ? (installProgress > 0 ? '{{ __('Installing...') }}' : '{{ __('Starting...') }}') : '{{ __('Install Module') }}'"></span>
                                 </span>
                             </button>
                         </div>
@@ -422,6 +435,9 @@
                 error: '',
                 installing: false,
                 installError: '',
+                installProgress: 0,
+                installStage: '',
+                installMessage: '',
 
                 get canLoadBranches() {
                     return this.repoUrl && this.owner && this.repo && !this.isSSHUrl;
@@ -699,35 +715,54 @@
 
                     this.installing = true;
                     this.installError = '';
+                    this.installProgress = 0;
+                    this.installStage = 'starting';
+                    this.installMessage = '{{ __('Starting installation...') }}';
 
                     try {
-                        const formData = new FormData();
-                        formData.append('github_url', this.repoUrl);
-                        if (this.accessToken) formData.append('github_token', this.accessToken);
-                        if (this.selectedBranch) formData.append('github_branch', this.selectedBranch);
-                        if (this.selectedCommit) formData.append('github_commit', this.selectedCommit);
-
-                        const response = await fetch('{{ route('modules.install') }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                'Accept': 'application/json'
-                            },
-                            body: formData
+                        const url = new URL('{{ route('modules.install.stream') }}');
+                        const params = new URLSearchParams({
+                            url: this.repoUrl,
+                            token: this.accessToken || '',
+                            branch: this.selectedBranch || '',
+                            commit: this.selectedCommit || ''
                         });
 
-                        const data = await response.json();
+                        const eventSource = new EventSource(url + '?' + params);
 
-                        if (!response.ok) {
-                            throw new Error(data.message || 'Installation failed');
-                        }
+                        eventSource.onmessage = (event) => {
+                            const data = JSON.parse(event.data);
+                            
+                            this.installProgress = data.percentage || 0;
+                            this.installStage = data.stage || '';
+                            this.installMessage = data.message || '';
 
-                        // Success - redirect to modules page
-                        window.location.href = '{{ route('modules') }}';
+                            if (data.stage === 'done' || data.success) {
+                                eventSource.close();
+                                // Redirect after a short delay
+                                setTimeout(() => {
+                                    window.location.href = data.redirect || '{{ route('modules') }}';
+                                }, 1000);
+                            } else if (data.stage === 'error' || data.error) {
+                                eventSource.close();
+                                this.installError = data.message || '{{ __('Installation failed') }}';
+                                this.installing = false;
+                            }
+                        };
+
+                        eventSource.onerror = (error) => {
+                            console.error('EventSource error:', error);
+                            eventSource.close();
+                            
+                            if (!this.installError) {
+                                this.installError = '{{ __('Connection lost during installation') }}';
+                            }
+                            this.installing = false;
+                        };
+
                     } catch (err) {
-                        this.installError = err.message;
+                        this.installError = err.message || '{{ __('Installation failed') }}';
                         console.error('Installation error:', err);
-                    } finally {
                         this.installing = false;
                     }
                 }
