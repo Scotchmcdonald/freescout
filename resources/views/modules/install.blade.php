@@ -377,6 +377,32 @@
                                         </div>
                                     </div>
 
+                                    <!-- PHP Version Requirements -->
+                                    <div x-show="previewData?.composer_info?.require?.php" 
+                                         class="border rounded-lg p-4"
+                                         :class="previewData?.php_version_compatible ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-300'">
+                                        <h4 class="font-semibold mb-2" 
+                                            :class="previewData?.php_version_compatible ? 'text-green-900' : 'text-yellow-900'">
+                                            {{ __('PHP Version') }}
+                                        </h4>
+                                        <div class="text-sm space-y-1">
+                                            <p :class="previewData?.php_version_compatible ? 'text-green-700' : 'text-yellow-700'">
+                                                <strong>{{ __('Required:') }}</strong> 
+                                                <span x-text="previewData?.composer_info?.require?.php"></span>
+                                            </p>
+                                            <p :class="previewData?.php_version_compatible ? 'text-green-700' : 'text-yellow-700'">
+                                                <strong>{{ __('Current:') }}</strong> 
+                                                <span x-text="previewData?.current_php_version || '{{ PHP_VERSION }}'"></span>
+                                            </p>
+                                            <p x-show="!previewData?.php_version_compatible" class="text-yellow-800 mt-2">
+                                                <svg class="inline w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                                </svg>
+                                                {{ __('Warning: PHP version may not be compatible') }}
+                                            </p>
+                                        </div>
+                                    </div>
+
                                     <!-- README -->
                                     <div x-show="previewData?.readme" class="bg-white border rounded-lg p-4 max-h-96 overflow-y-auto">
                                         <h4 class="font-semibold text-gray-900 mb-2">{{ __('README') }}</h4>
@@ -720,15 +746,33 @@
                     this.installMessage = '{{ __('Starting installation...') }}';
 
                     try {
-                        const url = new URL('{{ route('modules.install.stream') }}');
-                        const params = new URLSearchParams({
-                            url: this.repoUrl,
-                            token: this.accessToken || '',
-                            branch: this.selectedBranch || '',
-                            commit: this.selectedCommit || ''
+                        // Step 1: Initiate installation and get session ID
+                        const initiateResponse = await fetch('{{ route('modules.install.initiate') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                url: this.repoUrl,
+                                token: this.accessToken || '',
+                                branch: this.selectedBranch || '',
+                                commit: this.selectedCommit || ''
+                            })
                         });
 
-                        const eventSource = new EventSource(url + '?' + params);
+                        const initiateData = await initiateResponse.json();
+                        
+                        if (!initiateResponse.ok || initiateData.error) {
+                            throw new Error(initiateData.message || '{{ __('Failed to initiate installation') }}');
+                        }
+
+                        // Step 2: Connect to SSE stream with session ID
+                        const url = new URL('{{ route('modules.install.stream') }}');
+                        url.searchParams.set('session_id', initiateData.session_id);
+
+                        const eventSource = new EventSource(url);
 
                         eventSource.onmessage = (event) => {
                             const data = JSON.parse(event.data);

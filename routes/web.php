@@ -203,7 +203,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/modules/activity', [ModulesController::class, 'activityLog'])->name('modules.activity');
         Route::get('/modules/install', [ModulesController::class, 'showInstallForm'])->name('modules.install.form');
         Route::post('/modules/install', [ModulesController::class, 'install'])->name('modules.install');
-        Route::post('/modules/install-stream', [ModulesController::class, 'installWithProgress'])->name('modules.install.stream');
+        Route::post('/modules/install-initiate', [ModulesController::class, 'initiateInstall'])->name('modules.install.initiate');
+        Route::get('/modules/install-stream', [ModulesController::class, 'installWithProgress'])->name('modules.install.stream');
         Route::post('/modules/preview', [ModulesController::class, 'previewModule'])->name('modules.preview');
         Route::post('/modules/test-connection', [ModulesController::class, 'testConnection'])->name('modules.test-connection');
         Route::post('/modules/github-token/save', [ModulesController::class, 'saveGithubToken'])->name('modules.github-token.save');

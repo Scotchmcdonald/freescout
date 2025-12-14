@@ -450,6 +450,8 @@ class ModulesController extends Controller
                 'module_info' => $moduleInfo,
                 'readme' => $readmeContent,
                 'composer_info' => $composerInfo,
+                'current_php_version' => PHP_VERSION,
+                'php_version_compatible' => $this->checkPhpVersionCompatibility(is_array($composerInfo) ? $composerInfo : null),
             ]);
 
         } catch (\Exception $e) {
@@ -461,11 +463,107 @@ class ModulesController extends Controller
     }
 
     /**
-     * Stream installation progress via Server-Sent Events.
+     * Check if current PHP version is compatible with module requirements.
+     * Handles Composer version constraints: ^, ~, >=, <=, >, <, ||, |, ,
+     *
+     * @param array<string, mixed>|null $composerInfo
      */
-    public function installWithProgress(\Illuminate\Http\Request $request)
+    private function checkPhpVersionCompatibility(?array $composerInfo): bool
     {
-        // Validate request
+        if (!$composerInfo || !isset($composerInfo['require'])) {
+            return true; // No specific requirement
+        }
+        
+        $require = $composerInfo['require'];
+        if (!is_array($require) || !isset($require['php'])) {
+            return true; // No PHP requirement
+        }
+
+        $required = $require['php'];
+        if (!is_string($required)) {
+            return true; // Invalid requirement format
+        }
+        $current = PHP_VERSION;
+
+        // Handle OR conditions (||, |)
+        $orParts = preg_split('/\\|\\|?/', $required);
+        if ($orParts === false) {
+            return true; // Cannot parse, assume compatible
+        }
+        
+        foreach ($orParts as $orPart) {
+            // Handle AND conditions (comma or space)
+            $andParts = preg_split('/[,\\s]+/', trim($orPart));
+            if ($andParts === false) {
+                continue;
+            }
+            $allAndsSatisfied = true;
+            
+            foreach ($andParts as $constraint) {
+                $constraint = trim($constraint);
+                if (empty($constraint)) continue;
+                
+                if (!$this->satisfiesPhpConstraint($current, $constraint)) {
+                    $allAndsSatisfied = false;
+                    break;
+                }
+            }
+            
+            if ($allAndsSatisfied) {
+                return true; // At least one OR branch satisfied
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if PHP version satisfies a single constraint.
+     */
+    private function satisfiesPhpConstraint(string $version, string $constraint): bool
+    {
+        // Caret (^8.1 = >=8.1.0 <9.0.0)
+        if (str_starts_with($constraint, '^')) {
+            $minVersion = ltrim($constraint, '^');
+            $parts = explode('.', $minVersion);
+            $maxVersion = ((int)$parts[0] + 1) . '.0.0';
+            return version_compare($version, $minVersion, '>=') && version_compare($version, $maxVersion, '<');
+        }
+        
+        // Tilde (~8.1.0 = >=8.1.0 <8.2.0)
+        if (str_starts_with($constraint, '~')) {
+            $minVersion = ltrim($constraint, '~');
+            $parts = explode('.', $minVersion);
+            if (count($parts) >= 2) {
+                $maxVersion = $parts[0] . '.' . ((int)$parts[1] + 1) . '.0';
+            } else {
+                $maxVersion = ((int)$parts[0] + 1) . '.0.0';
+            }
+            return version_compare($version, $minVersion, '>=') && version_compare($version, $maxVersion, '<');
+        }
+        
+        // Operators (>=, <=, >, <, =)
+        if (preg_match('/^(>=|<=|>|<|=)(.+)$/', $constraint, $matches)) {
+            $operator = $matches[1];
+            $compareVersion = $matches[2];
+            return version_compare($version, $compareVersion, $operator);
+        }
+        
+        // Exact version or wildcard
+        if (str_contains($constraint, '*')) {
+            $pattern = str_replace(['*', '.'], ['[0-9]+', '\\.'], $constraint);
+            return (bool) preg_match('/^' . $pattern . '/', $version);
+        }
+        
+        // Default: exact match or minimum version
+        return version_compare($version, $constraint, '>=');
+    }
+
+    /**
+     * Initiate module installation and return session ID for progress tracking.
+     */
+    public function initiateInstall(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
         $request->validate([
             'url' => 'required|string',
             'token' => 'nullable|string',
@@ -473,31 +571,102 @@ class ModulesController extends Controller
             'branch' => 'nullable|string',
         ]);
 
+        // Check for existing installation in progress
+        $lockKey = 'module_install_lock';
+        if (Cache::has($lockKey)) {
+            return response()->json([
+                'error' => true,
+                'message' => __('Another module installation is already in progress. Please wait for it to complete.')
+            ], 409);
+        }
+
+        // Create cryptographically secure session ID
+        $sessionId = 'install_' . bin2hex(random_bytes(16)) . '_' . time();
+        
+        // Store installation parameters in session (not in URL)
+        session([
+            $sessionId => [
+                'url' => $request->input('url'),
+                'token' => $request->input('token'),
+                'commit' => $request->input('commit'),
+                'branch' => $request->input('branch'),
+                'user_id' => auth()->id(),
+                'initiated_at' => now()->toIso8601String(),
+            ]
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'session_id' => $sessionId,
+        ]);
+    }
+
+    /**
+     * Stream installation progress via Server-Sent Events.
+     *
+     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function installWithProgress(\Illuminate\Http\Request $request)
+    {
+        $sessionId = $request->input('session_id');
+        
+        if (!is_string($sessionId) || !session()->has($sessionId)) {
+            return response()->json([
+                'error' => true,
+                'message' => __('Invalid or expired installation session'),
+                'suggestions' => [
+                    __('Your session may have expired. Please start the installation again.'),
+                    __('Ensure cookies are enabled in your browser.'),
+                ]
+            ], 403);
+        }
+        
+        // Check session expiration (max 2 hours)
+        $params = session($sessionId);
+        $initiatedAt = \Carbon\Carbon::parse($params['initiated_at'] ?? now());
+        if ($initiatedAt->diffInHours(now()) > 2) {
+            session()->forget($sessionId);
+            return response()->json([
+                'error' => true,
+                'message' => __('Installation session expired'),
+                'suggestions' => [__('Sessions expire after 2 hours. Please start the installation again.')]
+            ], 403);
+        }
+        
+        // Set installation lock
+        $lockKey = 'module_install_lock';
+        Cache::put($lockKey, $sessionId, now()->addMinutes(30));
+
         // Set up SSE headers
-        return response()->stream(function () use ($request) {
+        return response()->stream(function () use ($params, $sessionId, $lockKey) {
             // Disable time limit for long operations
             set_time_limit(0);
             
-            $url = $request->input('url');
-            $token = $request->input('token');
-            $commit = $request->input('commit');
-            $branch = $request->input('branch');
+            // Helper to send SSE event
+            $sendEvent = function ($stage, $percentage, $message) {
+                echo "data: " . json_encode([
+                    'stage' => $stage,
+                    'percentage' => $percentage,
+                    'message' => $message,
+                    'timestamp' => now()->toIso8601String(),
+                ]) . "\n\n";
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+            };
+            
+            $url = is_string($params['url'] ?? null) ? $params['url'] : '';
+            $token = isset($params['token']) && is_string($params['token']) ? $params['token'] : null;
+            $commit = isset($params['commit']) && is_string($params['commit']) ? $params['commit'] : null;
+            $branch = isset($params['branch']) && is_string($params['branch']) ? $params['branch'] : null;
+            
+            if (empty($url)) {
+                $sendEvent('error', 0, __('Invalid repository URL in session'));
+                return;
+            }
             
             try {
-                // Helper to send SSE event
-                $sendEvent = function ($stage, $percentage, $message) {
-                    echo "data: " . json_encode([
-                        'stage' => $stage,
-                        'percentage' => $percentage,
-                        'message' => $message,
-                        'timestamp' => now()->toIso8601String(),
-                    ]) . "\n\n";
-                    if (ob_get_level() > 0) {
-                        ob_flush();
-                    }
-                    flush();
-                };
-
                 $sendEvent('validating', 5, __('Validating repository URL...'));
 
                 // Validate URL
@@ -521,6 +690,12 @@ class ModulesController extends Controller
 
                 $moduleName = end($pathParts);
                 $moduleName = str_replace(['.git', '-'], ['', ''], $moduleName);
+                // Sanitize module name: alphanumeric only, prevent path traversal
+                $moduleName = preg_replace('/[^a-zA-Z0-9_]/', '', $moduleName);
+                if (empty($moduleName)) {
+                    $sendEvent('error', 0, __('Invalid module name derived from URL'));
+                    return;
+                }
                 $moduleName = ucfirst($moduleName);
 
                 $sendEvent('connecting', 15, __('Connecting to GitHub...'));
@@ -574,12 +749,22 @@ class ModulesController extends Controller
                 $cloneProcess->run();
 
                 // Clean up SSH key file
-                if ($sshKeyFile) {
-                    @unlink($sshKeyFile);
+                if ($sshKeyFile && File::exists($sshKeyFile)) {
+                    try {
+                        File::delete($sshKeyFile);
+                    } catch (\Exception $e) {
+                        \Log::warning('Failed to delete SSH key file: ' . $e->getMessage());
+                    }
                 }
 
                 if (!$cloneProcess->isSuccessful()) {
-                    $sendEvent('error', 0, __('Git clone failed: :error', ['error' => $cloneProcess->getErrorOutput()]));
+                    $errorOutput = $cloneProcess->getErrorOutput();
+                    $suggestions = $this->getGitCloneErrorSuggestions($errorOutput);
+                    $sendEvent('error', 0, __('Git clone failed: :error', ['error' => $errorOutput]));
+                    
+                    if (!empty($suggestions)) {
+                        $sendEvent('error', 0, __('Suggestions: ') . implode(' ', $suggestions));
+                    }
                     return;
                 }
 
@@ -657,8 +842,9 @@ class ModulesController extends Controller
 
             } catch (\Exception $e) {
                 // Log failed installation
-                $this->logActivity($moduleName ?? 'unknown', 'install', [
-                    'repo_url' => $url ?? '',
+                $moduleName = $moduleName ?? 'unknown';
+                $this->logActivity($moduleName, 'install', [
+                    'repo_url' => $url,
                     'error' => $e->getMessage(),
                     'failed' => true,
                     'method' => 'streaming',
@@ -670,6 +856,10 @@ class ModulesController extends Controller
                     'message' => $e->getMessage(),
                     'error' => true,
                 ]) . "\n\n";
+            } finally {
+                // Cleanup: remove lock and session data
+                Cache::forget($lockKey);
+                session()->forget($sessionId);
             }
 
             if (ob_get_level() > 0) {
@@ -1813,6 +2003,54 @@ class ModulesController extends Controller
             'success' => empty($errors),
             'errors' => $errors,
         ];
+    }
+
+    /**
+     * Generate helpful error suggestions based on git clone error output.
+     *
+     * @param  string  $errorOutput
+     * @return array<string>
+     */
+    protected function getGitCloneErrorSuggestions(string $errorOutput): array
+    {
+        $suggestions = [];
+
+        if (str_contains($errorOutput, 'Repository not found') || str_contains($errorOutput, '404')) {
+            $suggestions[] = __('Verify the repository exists and URL is correct.');
+            $suggestions[] = __('For private repositories, ensure authentication is configured.');
+        }
+
+        if (str_contains($errorOutput, 'authentication') || str_contains($errorOutput, 'Permission denied') || str_contains($errorOutput, '403')) {
+            $suggestions[] = __('For HTTPS: Verify your Personal Access Token has "repo" scope.');
+            $suggestions[] = __('For SSH: Ensure your deploy key has been added to the repository with read access.');
+            $suggestions[] = __('Check that your token hasn\'t expired.');
+        }
+
+        if (str_contains($errorOutput, 'Could not resolve host') || str_contains($errorOutput, 'Connection timed out')) {
+            $suggestions[] = __('Check your internet connection and DNS settings.');
+            $suggestions[] = __('Verify GitHub.com is accessible from your server.');
+            $suggestions[] = __('Check firewall rules if on a restricted network.');
+        }
+
+        if (str_contains($errorOutput, 'timeout') || str_contains($errorOutput, 'timed out')) {
+            $suggestions[] = __('Repository may be very large. Try again or use a faster connection.');
+            $suggestions[] = __('Consider using a shallow clone or specific branch.');
+        }
+
+        if (str_contains($errorOutput, 'fatal: destination path') && str_contains($errorOutput, 'already exists')) {
+            $suggestions[] = __('Module directory already exists. Remove it first or choose a different module.');
+        }
+
+        if (str_contains($errorOutput, 'rate limit')) {
+            $suggestions[] = __('GitHub API rate limit exceeded. Wait an hour or provide a Personal Access Token for higher limits.');
+        }
+
+        if (empty($suggestions)) {
+            $suggestions[] = __('Check the GitHub repository URL and your authentication credentials.');
+            $suggestions[] = __('Review the error message above for specific details.');
+        }
+
+        return $suggestions;
     }
 }
 
