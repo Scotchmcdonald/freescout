@@ -146,7 +146,24 @@
                         </div>
 
                         <!-- Connection Test & Load Branches -->
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-3 flex-wrap">
+                            <button 
+                                type="button"
+                                @click="previewModule"
+                                :disabled="!repoUrl || previewing"
+                                class="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <span class="flex items-center">
+                                    <svg x-show="previewing" class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span x-text="previewing ? '{{ __('Loading...') }}' : '{{ __('Preview Module') }}'"></span>
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3 flex-wrap mt-3"
                             <button 
                                 type="button"
                                 @click="testConnection"
@@ -275,6 +292,102 @@
                     </form>
                 </div>
             </div>
+            
+            <!-- Preview Modal -->
+            <div x-show="showPreviewModal" 
+                 x-cloak
+                 @keydown.escape.window="showPreviewModal = false"
+                 class="fixed inset-0 z-50 overflow-y-auto"
+                 style="display: none;">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                    <!-- Background overlay -->
+                    <div x-show="showPreviewModal"
+                         x-transition:enter="ease-out duration-300"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="ease-in duration-200"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+                         @click="showPreviewModal = false"></div>
+
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+
+                    <!-- Modal panel -->
+                    <div x-show="showPreviewModal"
+                         x-transition:enter="ease-out duration-300"
+                         x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                         x-transition:leave="ease-in duration-200"
+                         x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                         class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full sm:p-6">
+                        
+                        <div class="absolute top-0 right-0 pt-4 pr-4">
+                            <button type="button" 
+                                    @click="showPreviewModal = false"
+                                    class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none">
+                                <span class="sr-only">Close</span>
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="sm:flex sm:items-start">
+                            <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                    {{ __('Module Preview') }}
+                                </h3>
+
+                                <div x-show="previewData" class="space-y-4">
+                                    <!-- Module Info -->
+                                    <div x-show="previewData?.module_info" class="bg-gray-50 rounded-lg p-4">
+                                        <h4 class="font-semibold text-gray-900 mb-2" x-text="previewData?.module_info?.name || '{{ __('Module') }}'"></h4>
+                                        <div class="text-sm space-y-1 text-gray-600">
+                                            <p><strong>{{ __('Version:') }}</strong> <span x-text="previewData?.module_info?.version"></span></p>
+                                            <p x-show="previewData?.module_info?.description"><strong>{{ __('Description:') }}</strong> <span x-text="previewData?.module_info?.description"></span></p>
+                                            <p x-show="previewData?.module_info?.author"><strong>{{ __('Author:') }}</strong> <span x-text="previewData?.module_info?.author"></span></p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Composer Dependencies -->
+                                    <div x-show="previewData?.composer_info?.require" class="bg-blue-50 rounded-lg p-4">
+                                        <h4 class="font-semibold text-gray-900 mb-2">{{ __('Dependencies') }}</h4>
+                                        <div class="text-sm space-y-1">
+                                            <template x-for="(version, package) in previewData?.composer_info?.require" :key="package">
+                                                <p class="text-gray-700">
+                                                    <code class="text-xs bg-white px-2 py-1 rounded" x-text="package"></code>
+                                                    <span class="text-gray-500" x-text="': ' + version"></span>
+                                                </p>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <!-- README -->
+                                    <div x-show="previewData?.readme" class="bg-white border rounded-lg p-4 max-h-96 overflow-y-auto">
+                                        <h4 class="font-semibold text-gray-900 mb-2">{{ __('README') }}</h4>
+                                        <div class="prose prose-sm max-w-none text-left" x-html="previewData?.readme ? previewData.readme.replace(/\n/g, '<br>') : ''"></div>
+                                    </div>
+
+                                    <!-- No data available -->
+                                    <div x-show="!previewData?.module_info && !previewData?.readme && !previewData?.composer_info" class="text-center text-gray-500 py-8">
+                                        <p>{{ __('No preview data available') }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                                    <button type="button"
+                                            @click="showPreviewModal = false"
+                                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-800 text-base font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                        {{ __('Close') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -295,6 +408,9 @@
                 connectionSuccess: false,
                 connectionMessage: '',
                 connectionSuggestions: [],
+                previewing: false,
+                previewData: null,
+                showPreviewModal: false,
                 owner: '',
                 repo: '',
                 branches: [],
@@ -375,6 +491,41 @@
                         this.connectionSuggestions = [err.message];
                     } finally {
                         this.testing = false;
+                    }
+                },
+
+                async previewModule() {
+                    if (!this.repoUrl) return;
+
+                    this.previewing = true;
+                    this.error = '';
+
+                    try {
+                        const response = await fetch('{{ route('modules.preview') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').content,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                repo_url: this.repoUrl,
+                                branch: this.selectedBranch || this.defaultBranch || 'main'
+                            })
+                        });
+
+                        const data = await response.json();
+                        
+                        if (response.ok) {
+                            this.previewData = data;
+                            this.showPreviewModal = true;
+                        } else {
+                            this.error = data.message || '{{ __('Failed to load module preview') }}';
+                        }
+                    } catch (err) {
+                        this.error = err.message || '{{ __('Failed to load module preview') }}';
+                    } finally {
+                        this.previewing = false;
                     }
                 },
 

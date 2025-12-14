@@ -200,8 +200,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Modules (admin only)
     Route::middleware(['admin'])->group(function () {
         Route::get('/modules/list', [ModulesController::class, 'index'])->name('modules');
+        Route::get('/modules/activity', [ModulesController::class, 'activityLog'])->name('modules.activity');
         Route::get('/modules/install', [ModulesController::class, 'showInstallForm'])->name('modules.install.form');
         Route::post('/modules/install', [ModulesController::class, 'install'])->name('modules.install');
+        Route::post('/modules/preview', [ModulesController::class, 'previewModule'])->name('modules.preview');
         Route::post('/modules/test-connection', [ModulesController::class, 'testConnection'])->name('modules.test-connection');
         Route::post('/modules/github-token/save', [ModulesController::class, 'saveGithubToken'])->name('modules.github-token.save');
         Route::delete('/modules/github-token', [ModulesController::class, 'clearGithubToken'])->name('modules.github-token.clear');

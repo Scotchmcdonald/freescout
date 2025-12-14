@@ -19,6 +19,18 @@ use Symfony\Component\Console\Output\BufferedOutput;
 class ModulesController extends Controller
 {
     /**
+     * Display module activity logs.
+     */
+    public function activityLog(): View|ViewFactory
+    {
+        $logs = \App\Models\ModuleActivityLog::with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
+
+        return view('modules.activity', compact('logs'));
+    }
+
+    /**
      * Display a listing of modules.
      */
     public function index(): View|ViewFactory
@@ -107,6 +119,9 @@ class ModulesController extends Controller
             Artisan::call('cache:clear');
             Artisan::call('config:clear');
 
+            // Log activity
+            $this->logActivity($module->getName(), 'enable');
+
             $msg = __(':name module enabled successfully', ['name' => $module->getName()]);
 
             // Store flash message for the next request
@@ -153,6 +168,9 @@ class ModulesController extends Controller
             Artisan::call('freescout:clear-cache', [], $outputLog);
             $output = $outputLog->fetch();
 
+            // Log activity
+            $this->logActivity($module->getName(), 'disable');
+
             $msg = __(':name module disabled successfully', ['name' => $module->getName()]);
 
             // Store flash message for the next request
@@ -191,6 +209,8 @@ class ModulesController extends Controller
         }
 
         try {
+            $moduleName = $module->getName();
+            
             // Disable module first
             if ($module->isEnabled()) {
                 $module->disable();
@@ -203,9 +223,12 @@ class ModulesController extends Controller
             Artisan::call('cache:clear');
             Artisan::call('config:clear');
 
+            // Log activity
+            $this->logActivity($moduleName, 'delete');
+
             return response()->json([
                 'status' => 'success',
-                'message' => __(':name module deleted successfully', ['name' => $module->getName()]),
+                'message' => __(':name module deleted successfully', ['name' => $moduleName]),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -342,6 +365,97 @@ class ModulesController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => __('Connection test failed: :error', ['error' => $e->getMessage()])
+            ], 500);
+        }
+    }
+
+    /**
+     * Preview a module from GitHub repository.
+     * Fetches module.json and README.md to display metadata and documentation.
+     */
+    public function previewModule(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'repo_url' => 'required|string',
+            'branch' => 'nullable|string',
+        ]);
+
+        try {
+            $repoUrl = $request->input('repo_url');
+            $branch = $request->input('branch', 'main');
+
+            // Parse GitHub URL to extract owner/repo
+            if (preg_match('#github\.com[:/]([^/]+)/([^/\.]+)#', $repoUrl, $matches)) {
+                $owner = $matches[1];
+                $repo = $matches[2];
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Invalid GitHub repository URL')
+                ], 400);
+            }
+
+            // Build GitHub API headers
+            $headers = ['Accept' => 'application/vnd.github.v3+json'];
+            $token = \App\Models\Option::get('github_personal_access_token');
+            if ($token) {
+                try {
+                    $decryptedToken = \Illuminate\Support\Facades\Crypt::decryptString($token);
+                    $headers['Authorization'] = 'token ' . $decryptedToken;
+                } catch (\Exception $e) {
+                    // Token decryption failed, proceed without auth
+                }
+            }
+
+            // Fetch module.json
+            $moduleJsonUrl = "https://api.github.com/repos/{$owner}/{$repo}/contents/module.json?ref={$branch}";
+            $moduleJsonResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)->get($moduleJsonUrl);
+
+            $moduleInfo = null;
+            if ($moduleJsonResponse->successful()) {
+                $content = $moduleJsonResponse->json();
+                if (isset($content['content'])) {
+                    $decoded = base64_decode($content['content']);
+                    $moduleInfo = json_decode($decoded, true);
+                }
+            }
+
+            // Fetch README.md
+            $readmeUrl = "https://api.github.com/repos/{$owner}/{$repo}/readme?ref={$branch}";
+            $readmeResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)->get($readmeUrl);
+
+            $readmeContent = null;
+            if ($readmeResponse->successful()) {
+                $content = $readmeResponse->json();
+                if (isset($content['content'])) {
+                    $readmeContent = base64_decode($content['content']);
+                }
+            }
+
+            // Fetch composer.json for dependencies
+            $composerUrl = "https://api.github.com/repos/{$owner}/{$repo}/contents/composer.json?ref={$branch}";
+            $composerResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)->get($composerUrl);
+
+            $composerInfo = null;
+            if ($composerResponse->successful()) {
+                $content = $composerResponse->json();
+                if (isset($content['content'])) {
+                    $decoded = base64_decode($content['content']);
+                    $composerInfo = json_decode($decoded, true);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'module_info' => $moduleInfo,
+                'readme' => $readmeContent,
+                'composer_info' => $composerInfo,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Failed to fetch module preview: :error', ['error' => $e->getMessage()])
             ], 500);
         }
     }
@@ -607,6 +721,15 @@ class ModulesController extends Controller
                 }
             }
 
+            // Validate module health
+            $healthCheck = $this->validateModuleHealth($targetPath);
+            if (!$healthCheck['success']) {
+                // Clean up on health check failure
+                File::deleteDirectory($targetPath);
+                $errorMsg = __('Module health check failed:') . "\n• " . implode("\n• ", $healthCheck['errors']);
+                throw new \Exception($errorMsg);
+            }
+
             // Clear cache
             Artisan::call('cache:clear');
             Artisan::call('config:clear');
@@ -622,12 +745,27 @@ class ModulesController extends Controller
             
             Artisan::call('cache:clear');
             
+            // Log successful installation
+            $this->logActivity($moduleName, 'install', [
+                'repo_url' => $url,
+                'branch' => $branch,
+                'commit' => $commit,
+                'method' => 'github',
+            ]);
+            
             $message = __('Module installed from GitHub successfully');
             return $isAjax 
                 ? response()->json(['message' => $message, 'success' => true])
                 : redirect()->back()->with('success', $message);
 
         } catch (\Exception $e) {
+            // Log failed installation
+            $this->logActivity($moduleName ?? 'unknown', 'install', [
+                'repo_url' => $url,
+                'error' => $e->getMessage(),
+                'failed' => true,
+            ]);
+            
             $message = $e->getMessage();
             return $isAjax 
                 ? response()->json(['message' => $message], 500)
@@ -1389,6 +1527,69 @@ class ModulesController extends Controller
     protected function saveLicenses(array $licenses): void
     {
         \App\Models\Option::set('module_licenses', json_encode($licenses));
+    }
+
+    /**
+     * Log a module activity to the database.
+     *
+     * @param  string  $moduleName
+     * @param  string  $action  One of: install, update, enable, disable, delete
+     * @param  array<string, mixed>  $metadata  Additional context (repo_url, version, error, etc.)
+     */
+    protected function logActivity(string $moduleName, string $action, array $metadata = []): void
+    {
+        try {
+            \App\Models\ModuleActivityLog::create([
+                'user_id' => auth()->id(),
+                'module_name' => $moduleName,
+                'action' => $action,
+                'metadata' => $metadata,
+                'ip_address' => request()->ip(),
+            ]);
+        } catch (\Exception $e) {
+            // Log silently to avoid breaking the main operation
+            \Illuminate\Support\Facades\Log::warning('Failed to log module activity', [
+                'module' => $moduleName,
+                'action' => $action,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Validate module health after installation.
+     * Checks for required files and basic structure.
+     *
+     * @param  string  $modulePath
+     * @return array{success: bool, errors: array<string>}
+     */
+    protected function validateModuleHealth(string $modulePath): array
+    {
+        $errors = [];
+
+        // Check if module.json exists
+        $moduleJsonPath = $modulePath . '/module.json';
+        if (!File::exists($moduleJsonPath)) {
+            $errors[] = 'module.json file is missing';
+        } else {
+            // Validate JSON
+            $content = File::get($moduleJsonPath);
+            $decoded = json_decode($content, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $errors[] = 'module.json contains invalid JSON: ' . json_last_error_msg();
+            }
+        }
+
+        // Check if composer.json exists (optional but recommended)
+        $composerJsonPath = $modulePath . '/composer.json';
+        if (!File::exists($composerJsonPath)) {
+            \Illuminate\Support\Facades\Log::info("Module at {$modulePath} does not have composer.json (optional)");
+        }
+
+        return [
+            'success' => empty($errors),
+            'errors' => $errors,
+        ];
     }
 }
 
