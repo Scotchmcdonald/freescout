@@ -23,8 +23,7 @@
                         </p>
                     </div>
 
-                    <form action="{{ route('modules.install') }}" method="POST" class="space-y-6">
-                        @csrf
+                    <form @submit.prevent="installModule" class="space-y-6">
 
                         <!-- GitHub URL -->
                         <div>
@@ -116,6 +115,11 @@
                             <p class="text-sm text-red-700" x-text="error"></p>
                         </div>
 
+                        <!-- Installation Error -->
+                        <div x-show="installError" x-transition class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <p class="text-sm text-red-700" x-text="installError"></p>
+                        </div>
+
                         <!-- Branch Selection -->
                         <div x-show="branches.length > 0" x-transition>
                             <label for="github_branch" class="block text-sm font-medium text-gray-700 mb-2">
@@ -165,9 +169,16 @@
                         <div class="pt-4 border-t">
                             <button 
                                 type="submit" 
-                                class="w-full px-4 py-3 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors"
+                                :disabled="installing"
+                                class="w-full px-4 py-3 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                {{ __('Install Module') }}
+                                <span class="flex items-center justify-center">
+                                    <svg x-show="installing" class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span x-text="installing ? 'Installing Module...' : 'Install Module'"></span>
+                                </span>
                             </button>
                         </div>
                     </form>
@@ -191,6 +202,8 @@
                 defaultBranch: '',
                 loading: false,
                 error: '',
+                installing: false,
+                installError: '',
 
                 get canLoadBranches() {
                     return this.repoUrl && this.owner && this.repo;
@@ -311,6 +324,44 @@
                         console.error('Error loading commits:', err);
                     } finally {
                         this.loading = false;
+                    }
+                },
+
+                async installModule() {
+                    if (this.installing) return;
+
+                    this.installing = true;
+                    this.installError = '';
+
+                    try {
+                        const formData = new FormData();
+                        formData.append('github_url', this.repoUrl);
+                        if (this.accessToken) formData.append('github_token', this.accessToken);
+                        if (this.selectedBranch) formData.append('github_branch', this.selectedBranch);
+                        if (this.selectedCommit) formData.append('github_commit', this.selectedCommit);
+
+                        const response = await fetch('{{ route('modules.install') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: formData
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Installation failed');
+                        }
+
+                        // Success - redirect to modules page
+                        window.location.href = '{{ route('modules') }}';
+                    } catch (err) {
+                        this.installError = err.message;
+                        console.error('Installation error:', err);
+                    } finally {
+                        this.installing = false;
                     }
                 }
             };

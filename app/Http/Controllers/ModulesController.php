@@ -272,20 +272,31 @@ class ModulesController extends Controller
         return $this->installFromUrl($downloadUrl, $aliasStr);
     }
 
-    private function installFromGithub(string $url, ?string $token = null, ?string $commit = null, ?string $branch = null): \Illuminate\Http\RedirectResponse
+    private function installFromGithub(string $url, ?string $token = null, ?string $commit = null, ?string $branch = null): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
+        $isAjax = request()->wantsJson() || request()->ajax();
+        
         if (! filter_var($url, FILTER_VALIDATE_URL)) {
-            return redirect()->back()->with('error', __('Invalid GitHub URL'));
+            $message = __('Invalid GitHub URL');
+            return $isAjax 
+                ? response()->json(['message' => $message], 400)
+                : redirect()->back()->with('error', $message);
         }
 
         // Extract repo name
         $path = parse_url($url, PHP_URL_PATH);
         if (!is_string($path)) {
-             return redirect()->back()->with('error', __('Invalid GitHub URL path'));
+            $message = __('Invalid GitHub URL path');
+            return $isAjax 
+                ? response()->json(['message' => $message], 400)
+                : redirect()->back()->with('error', $message);
         }
         $parts = explode('/', trim($path, '/'));
         if (count($parts) < 2) {
-            return redirect()->back()->with('error', __('Invalid GitHub URL format'));
+            $message = __('Invalid GitHub URL format');
+            return $isAjax 
+                ? response()->json(['message' => $message], 400)
+                : redirect()->back()->with('error', $message);
         }
         $repoName = end($parts);
         $repoName = preg_replace('/\.git$/', '', strval($repoName));
@@ -294,7 +305,10 @@ class ModulesController extends Controller
         if ($token) {
             $parsedUrl = parse_url($url);
             if (!is_array($parsedUrl)) {
-                 return redirect()->back()->with('error', __('Invalid GitHub URL'));
+                $message = __('Invalid GitHub URL');
+                return $isAjax 
+                    ? response()->json(['message' => $message], 400)
+                    : redirect()->back()->with('error', $message);
             }
             // Ensure .git suffix for authenticated clone
             $path = $parsedUrl['path'] ?? '';
@@ -326,7 +340,10 @@ class ModulesController extends Controller
         $targetPath = base_path("Modules/$moduleName");
 
         if (File::exists($targetPath)) {
-            return redirect()->back()->with('error', __('Module directory already exists: :path', ['path' => $targetPath]));
+            $message = __('Module directory already exists: :path', ['path' => $targetPath]);
+            return $isAjax 
+                ? response()->json(['message' => $message], 400)
+                : redirect()->back()->with('error', $message);
         }
 
         try {
@@ -398,10 +415,16 @@ class ModulesController extends Controller
             
             Artisan::call('cache:clear');
             
-            return redirect()->back()->with('success', __('Module installed from GitHub successfully'));
+            $message = __('Module installed from GitHub successfully');
+            return $isAjax 
+                ? response()->json(['message' => $message, 'success' => true])
+                : redirect()->back()->with('success', $message);
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            $message = $e->getMessage();
+            return $isAjax 
+                ? response()->json(['message' => $message], 500)
+                : redirect()->back()->with('error', $message);
         }
     }
 
