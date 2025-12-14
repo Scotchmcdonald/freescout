@@ -202,8 +202,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/modules/list', [ModulesController::class, 'index'])->name('modules');
         Route::get('/modules/install', [ModulesController::class, 'showInstallForm'])->name('modules.install.form');
         Route::post('/modules/install', [ModulesController::class, 'install'])->name('modules.install');
+        Route::post('/modules/test-connection', [ModulesController::class, 'testConnection'])->name('modules.test-connection');
         Route::post('/modules/github-token/save', [ModulesController::class, 'saveGithubToken'])->name('modules.github-token.save');
         Route::delete('/modules/github-token', [ModulesController::class, 'clearGithubToken'])->name('modules.github-token.clear');
+        Route::get('/modules/deploy-key/check', [ModulesController::class, 'checkDeployKey'])->name('modules.deploy-key.check');
+        Route::post('/modules/deploy-key/save', [ModulesController::class, 'saveDeployKey'])->name('modules.deploy-key.save');
         Route::post('/modules/{alias}/enable', [ModulesController::class, 'enable'])->name('modules.enable');
         Route::post('/modules/{alias}/activate', [ModulesController::class, 'enable'])->name('modules.activate'); // Alias for tests
         Route::post('/modules/{alias}/disable', [ModulesController::class, 'disable'])->name('modules.disable');

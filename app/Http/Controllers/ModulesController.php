@@ -221,7 +221,8 @@ class ModulesController extends Controller
     public function showInstallForm(): \Illuminate\Contracts\View\View
     {
         $repositories = config('modules_catalog.repositories', []);
-        $savedToken = auth()->user()->getSetting('github_personal_access_token');
+        $encryptedToken = \App\Models\Option::get('github_personal_access_token');
+        $savedToken = $encryptedToken ? \Illuminate\Support\Facades\Crypt::decryptString($encryptedToken) : null;
         
         return view('modules.install', [
             'repositories' => $repositories,
@@ -230,7 +231,7 @@ class ModulesController extends Controller
     }
 
     /**
-     * Save GitHub Personal Access Token.
+     * Save GitHub Personal Access Token (encrypted).
      */
     public function saveGithubToken(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
@@ -238,11 +239,12 @@ class ModulesController extends Controller
             'token' => 'required|string',
         ]);
 
-        auth()->user()->setSetting('github_personal_access_token', $request->token);
+        $encrypted = \Illuminate\Support\Facades\Crypt::encryptString($request->token);
+        \App\Models\Option::set('github_personal_access_token', $encrypted);
 
         return response()->json([
             'success' => true,
-            'message' => __('GitHub token saved successfully'),
+            'message' => __('GitHub token saved securely'),
         ]);
     }
 
@@ -251,11 +253,130 @@ class ModulesController extends Controller
      */
     public function clearGithubToken(): \Illuminate\Http\JsonResponse
     {
-        auth()->user()->setSetting('github_personal_access_token', null);
+        \App\Models\Option::remove('github_personal_access_token');
 
         return response()->json([
             'success' => true,
             'message' => __('GitHub token cleared'),
+        ]);
+    }
+
+    /**
+     * Test connection to a repository.
+     */
+    public function testConnection(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        $url = $request->input('url');
+        $token = $request->input('token');
+        
+        if (!$url) {
+            return response()->json(['message' => __('Repository URL is required')], 400);
+        }
+
+        try {
+            // Parse repo info
+            if (preg_match('/github\.com[\/:]([^\/]+)\/([^\/\.]+)/', $url, $matches)) {
+                $owner = $matches[1];
+                $repo = preg_replace('/\.git$/', '', $matches[2]);
+                
+                // Test API access
+                $headers = ['Accept' => 'application/vnd.github.v3+json'];
+                if ($token) {
+                    $headers['Authorization'] = 'Bearer ' . $token;
+                }
+                
+                $response = \Illuminate\Support\Facades\Http::withHeaders($headers)
+                    ->timeout(10)
+                    ->get("https://api.github.com/repos/{$owner}/{$repo}");
+                
+                if ($response->status() === 404) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => __("Repository ':repo' not found. Please check:", ['repo' => "{$owner}/{$repo}"]),
+                        'suggestions' => [
+                            __('Verify the repository exists and is spelled correctly'),
+                            __('Check that you have access permissions'),
+                            __('For private repos, provide a valid Personal Access Token'),
+                        ]
+                    ], 404);
+                }
+                
+                if ($response->status() === 401 || $response->status() === 403) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => __('Authentication failed'),
+                        'suggestions' => [
+                            __('This appears to be a private repository'),
+                            __('Provide a Personal Access Token with repo access'),
+                            __('Verify your token has not expired'),
+                        ]
+                    ], 403);
+                }
+                
+                if (!$response->successful()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => __('Connection failed: :error', ['error' => $response->status()])
+                    ], 500);
+                }
+                
+                $data = $response->json();
+                return response()->json([
+                    'success' => true,
+                    'message' => __('✓ Connection successful'),
+                    'repo_info' => [
+                        'name' => $data['full_name'] ?? '',
+                        'description' => $data['description'] ?? '',
+                        'default_branch' => $data['default_branch'] ?? 'main',
+                        'private' => $data['private'] ?? false,
+                    ]
+                ]);
+            }
+            
+            return response()->json([
+                'success' => false,
+                'message' => __('Invalid repository URL format')
+            ], 400);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Connection test failed: :error', ['error' => $e->getMessage()])
+            ], 500);
+        }
+    }
+
+    /**
+     * Check if global deploy key exists.
+     */
+    public function checkDeployKey(): \Illuminate\Http\JsonResponse
+    {
+        $key = \App\Models\Option::get('ssh_deploy_key');
+        return response()->json(['exists' => !empty($key)]);
+    }
+
+    /**
+     * Save SSH deploy key (encrypted).
+     */
+    public function saveDeployKey(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'key' => 'required|string',
+        ]);
+
+        // Basic validation of SSH key format
+        if (!str_contains($request->key, 'BEGIN') || !str_contains($request->key, 'PRIVATE KEY')) {
+            return response()->json([
+                'message' => __('Invalid SSH private key format')
+            ], 400);
+        }
+
+        $encrypted = \Illuminate\Support\Facades\Crypt::encryptString($request->key);
+        \App\Models\Option::set('ssh_deploy_key', $encrypted);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Deploy key saved securely'),
         ]);
     }
 
@@ -384,6 +505,26 @@ class ModulesController extends Controller
         }
 
         try {
+            // Check if SSH URL and handle deploy key
+            $sshKeyFile = null;
+            if (preg_match('/^git@|^ssh:\/\//', $url)) {
+                // Get deploy key from options
+                $encryptedKey = \App\Models\Option::get('ssh_deploy_key');
+                if (!$encryptedKey) {
+                    $message = __('SSH URL detected but no deploy key is configured. Please add a deploy key in the settings.');
+                    return $isAjax 
+                        ? response()->json(['message' => $message], 400)
+                        : redirect()->back()->with('error', $message);
+                }
+                
+                $deployKey = \Illuminate\Support\Facades\Crypt::decryptString($encryptedKey);
+                
+                // Create temporary key file
+                $sshKeyFile = tempnam(sys_get_temp_dir(), 'git_key_');
+                file_put_contents($sshKeyFile, $deployKey);
+                chmod($sshKeyFile, 0600);
+            }
+            
             // Build clone command with optional branch
             $cloneCmd = ['git', 'clone'];
             if ($branch) {
@@ -396,7 +537,20 @@ class ModulesController extends Controller
             // Use git clone
             $process = new \Symfony\Component\Process\Process($cloneCmd);
             $process->setTimeout(120); // 2 minutes timeout
+            
+            // Set SSH key if needed
+            if ($sshKeyFile) {
+                $process->setEnv([
+                    'GIT_SSH_COMMAND' => "ssh -i {$sshKeyFile} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+                ]);
+            }
+            
             $process->run();
+
+            // Clean up SSH key file
+            if ($sshKeyFile && file_exists($sshKeyFile)) {
+                unlink($sshKeyFile);
+            }
 
             if (! $process->isSuccessful()) {
                 $errorOutput = $process->getErrorOutput();
@@ -412,13 +566,29 @@ class ModulesController extends Controller
                 ]);
                 
                 // Remove token from error message if present
-                $sanitizedError = preg_replace('/https:\/\/[^@]+@/', 'https://*****@', $fullError);
+                $sanitizedError = preg_replace('/https:\/\/[^@]+@/', 'https://*****@/', $fullError);
                 
-                if (empty($sanitizedError)) {
-                    $sanitizedError = __('Git clone failed with exit code :code', ['code' => $process->getExitCode()]);
+                // Provide helpful error messages
+                $suggestions = [];
+                if (str_contains($fullError, 'Repository not found') || str_contains($fullError, '404')) {
+                    $suggestions[] = __('Verify the repository exists and is spelled correctly');
+                    $suggestions[] = __('Check that you have access permissions');
+                }
+                if (str_contains($fullError, 'authentication') || str_contains($fullError, 'Permission denied')) {
+                    $suggestions[] = __('For private repositories, ensure your credentials are correct');
+                    $suggestions[] = __('For SSH URLs, verify your deploy key has been added to the repository');
+                }
+                if (str_contains($fullError, 'timeout') || str_contains($fullError, 'timed out')) {
+                    $suggestions[] = __('Network timeout - check your internet connection');
+                    $suggestions[] = __('Try again in a few moments');
                 }
                 
-                throw new \Exception(__('Git clone failed: :error', ['error' => $sanitizedError]));
+                $errorMsg = __('❌ Git clone failed: :error', ['error' => $sanitizedError ?: __('Unknown error')]);
+                if (!empty($suggestions)) {
+                    $errorMsg .= "\n\n" . __('Suggestions:') . "\n• " . implode("\n• ", $suggestions);
+                }
+                
+                throw new \Exception($errorMsg);
             }
             
             // Checkout specific commit if provided

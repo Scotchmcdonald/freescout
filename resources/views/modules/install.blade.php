@@ -31,54 +31,46 @@
                                 {{ __('Repository') }} <span class="text-red-500">*</span>
                             </label>
                             
-                            <div class="flex items-center space-x-3">
-                                <select 
-                                    x-model="selectedRepo"
-                                    @change="onRepoChange"
-                                    :disabled="useCustomUrl"
-                                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:bg-gray-100"
-                                >
-                                    <option value="">{{ __('Select a repository...') }}</option>
-                                    <template x-for="repo in knownRepos" :key="repo.url">
-                                        <option :value="repo.url" x-text="repo.name"></option>
-                                    </template>
-                                </select>
+                            <div class="space-y-3">
+                                <!-- Catalog Dropdown -->
+                                <div>
+                                    <select 
+                                        x-model="selectedRepo"
+                                        @change="onRepoChange"
+                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    >
+                                        <option value="">{{ __('Select from catalog...') }}</option>
+                                        <template x-for="repo in knownRepos" :key="repo.url">
+                                            <option :value="repo.url" x-text="repo.name"></option>
+                                        </template>
+                                    </select>
+                                    <p class="mt-1 text-xs text-gray-500" x-show="selectedRepo" x-transition>
+                                        <span x-text="selectedRepoDescription"></span>
+                                    </p>
+                                </div>
                                 
-                                <button 
-                                    type="button"
-                                    @click="toggleCustomUrl"
-                                    class="px-4 py-2 text-sm font-medium rounded-md transition-colors"
-                                    :class="useCustomUrl 
-                                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
-                                >
-                                    <span x-text="useCustomUrl ? 'Catalog' : 'Custom'"></span>
-                                </button>
+                                <!-- OR Divider -->
+                                <div class="flex items-center">
+                                    <div class="flex-1 border-t border-gray-300"></div>
+                                    <span class="px-3 text-xs text-gray-500 uppercase font-medium">{{ __('or enter custom url') }}</span>
+                                    <div class="flex-1 border-t border-gray-300"></div>
+                                </div>
+                                
+                                <!-- Custom URL -->
+                                <div>
+                                    <x-text-input 
+                                        id="custom_url" 
+                                        class="block w-full" 
+                                        type="text" 
+                                        x-model="customRepoUrl"
+                                        @input="onCustomUrlInput"
+                                        placeholder="https://github.com/username/repository or git@github.com:username/repository.git" 
+                                    />
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        {{ __('Supports HTTPS or SSH URLs') }}
+                                    </p>
+                                </div>
                             </div>
-                            
-                            <p class="mt-1 text-xs text-gray-500" x-show="selectedRepo && !useCustomUrl">
-                                <span x-text="selectedRepoDescription"></span>
-                            </p>
-                        </div>
-
-                        <!-- GitHub URL (shown only for custom) -->
-                        <div x-show="useCustomUrl" x-transition>
-                            <label for="github_url" class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ __('GitHub Repository URL') }} <span class="text-red-500">*</span>
-                            </label>
-                            <x-text-input 
-                                id="github_url" 
-                                class="block w-full" 
-                                type="url" 
-                                name="github_url" 
-                                x-model="repoUrl"
-                                @blur="parseRepoUrl"
-                                placeholder="https://github.com/username/repository" 
-                                required 
-                            />
-                            <p class="mt-1 text-xs text-gray-500">
-                                {{ __('Enter the full GitHub repository URL') }}
-                            </p>
                         </div>
 
                         <!-- Access Token -->
@@ -153,12 +145,28 @@
                             </div>
                         </div>
 
-                        <!-- Load Branches Button -->
+                        <!-- Connection Test & Load Branches -->
                         <div class="flex items-center space-x-3">
+                            <button 
+                                type="button"
+                                @click="testConnection"
+                                :disabled="!repoUrl || testing"
+                                class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <span class="flex items-center">
+                                    <svg x-show="testing" class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span x-text="testing ? '{{ __('Testing...') }}' : '{{ __('Test Connection') }}'"></span>
+                                </span>
+                            </button>
+                            
                             <button 
                                 type="button"
                                 @click="loadBranches"
                                 :disabled="!canLoadBranches || loading"
+                                x-show="!isSSHUrl"
                                 class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 <span class="flex items-center">
@@ -171,9 +179,26 @@
                                 </span>
                             </button>
                             
-                            <p class="text-xs text-gray-500" x-show="!canLoadBranches && !loading">
-                                Enter a repository URL first
+                            <p class="text-xs text-gray-500" x-show="!repoUrl">
+                                {{ __('Enter a repository URL first') }}
                             </p>
+                        </div>
+
+                        <!-- Connection Test Results -->
+                        <div x-show="connectionResult" x-transition>
+                            <div class="p-4 rounded-lg border" :class="connectionSuccess ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
+                                <p class="text-sm font-medium" :class="connectionSuccess ? 'text-green-800' : 'text-red-800'" x-text="connectionMessage"></p>
+                                <div x-show="connectionSuggestions.length > 0" class="mt-2">
+                                    <ul class="text-xs space-y-1" :class="connectionSuccess ? 'text-green-700' : 'text-red-700'">
+                                        <template x-for="suggestion in connectionSuggestions" :key="suggestion">
+                                            <li class="flex items-start">
+                                                <span class="mr-1">•</span>
+                                                <span x-text="suggestion"></span>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Error Message -->
@@ -259,12 +284,17 @@
             return {
                 knownRepos: repositories || [],
                 selectedRepo: '',
-                useCustomUrl: false,
+                customRepoUrl: '',
                 repoUrl: '',
                 accessToken: savedToken || '',
                 hasSavedToken: !!savedToken,
                 savingToken: false,
                 clearingToken: false,
+                testing: false,
+                connectionResult: false,
+                connectionSuccess: false,
+                connectionMessage: '',
+                connectionSuggestions: [],
                 owner: '',
                 repo: '',
                 branches: [],
@@ -278,7 +308,7 @@
                 installError: '',
 
                 get canLoadBranches() {
-                    return this.repoUrl && this.owner && this.repo;
+                    return this.repoUrl && this.owner && this.repo && !this.isSSHUrl;
                 },
 
                 get selectedRepoDescription() {
@@ -286,28 +316,65 @@
                     return repo?.description || '';
                 },
 
-                toggleCustomUrl() {
-                    this.useCustomUrl = !this.useCustomUrl;
-                    if (!this.useCustomUrl) {
-                        // Switching back to dropdown
-                        if (this.selectedRepo) {
-                            this.repoUrl = this.selectedRepo;
-                            this.parseRepoUrl();
-                        }
-                    } else {
-                        // Switching to custom
-                        this.selectedRepo = '';
-                        this.repoUrl = '';
-                        this.branches = [];
-                        this.commits = [];
-                        this.error = '';
-                    }
+                get isSSHUrl() {
+                    return this.repoUrl.startsWith('git@') || this.repoUrl.includes('ssh://');
                 },
 
                 onRepoChange() {
                     if (this.selectedRepo) {
+                        this.customRepoUrl = '';
                         this.repoUrl = this.selectedRepo;
                         this.parseRepoUrl();
+                        this.connectionResult = false;
+                    }
+                },
+
+                onCustomUrlInput() {
+                    if (this.customRepoUrl) {
+                        this.selectedRepo = '';
+                        this.repoUrl = this.customRepoUrl;
+                        this.parseRepoUrl();
+                        this.connectionResult = false;
+                    }
+                },
+
+                async testConnection() {
+                    if (!this.repoUrl) return;
+
+                    this.testing = true;
+                    this.connectionResult = false;
+                    this.error = '';
+
+                    try {
+                        const response = await fetch('{{ route('modules.test-connection') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').content,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                url: this.repoUrl,
+                                token: this.accessToken
+                            })
+                        });
+
+                        const data = await response.json();
+                        this.connectionResult = true;
+                        this.connectionSuccess = response.ok;
+                        this.connectionMessage = data.message || '';
+                        this.connectionSuggestions = data.suggestions || [];
+
+                        if (response.ok && data.repo_info) {
+                            this.defaultBranch = data.repo_info.default_branch;
+                        }
+                    } catch (err) {
+                        this.connectionResult = true;
+                        this.connectionSuccess = false;
+                        this.connectionMessage = '{{ __('Connection test failed') }}';
+                        this.connectionSuggestions = [err.message];
+                    } finally {
+                        this.testing = false;
                     }
                 },
 
