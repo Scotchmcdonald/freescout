@@ -52,7 +52,7 @@
                                 <div class="flex-1">
                                     <h4 class="text-blue-900 font-medium">{{ __('Update Available') }}</h4>
                                     <p class="mt-1 text-sm text-blue-700">
-                                        {{ __('Your application is :count commits behind', ['count' => $update_info['commits_behind']]) }}
+                                        {{ __('Your application is :count commits behind', ['count' => $update_info['commits_behind'] ?? 0]) }}
                                     </p>
                                     <p class="mt-2 text-sm text-blue-600">
                                         <strong>{{ __('Latest commit') }}:</strong> {{ $update_info['remote_commit'] }} - {{ $update_info['latest_message'] }}

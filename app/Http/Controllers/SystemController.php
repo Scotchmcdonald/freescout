@@ -595,6 +595,24 @@ class SystemController extends Controller
             }
             $localHash = trim($process->getOutput());
             $localHashShort = substr($localHash, 0, 7);
+            
+            // Get repository URL
+            $process = new \Symfony\Component\Process\Process(['git', 'config', '--get', 'remote.origin.url'], $appPath);
+            $process->run();
+            $repoUrl = trim($process->getOutput());
+            
+            // Convert git URL to web URL for commit links
+            $commitBaseUrl = null;
+            if (preg_match('/github\.com[:\/](.+?)(\.git)?$/', $repoUrl, $matches)) {
+                $repoPath = rtrim($matches[1], '.git');
+                $commitBaseUrl = "https://github.com/{$repoPath}/commit";
+            } elseif (preg_match('/gitlab\.com[:\/](.+?)(\.git)?$/', $repoUrl, $matches)) {
+                $repoPath = rtrim($matches[1], '.git');
+                $commitBaseUrl = "https://gitlab.com/{$repoPath}/-/commit";
+            } elseif (preg_match('/bitbucket\.org[:\/](.+?)(\.git)?$/', $repoUrl, $matches)) {
+                $repoPath = rtrim($matches[1], '.git');
+                $commitBaseUrl = "https://bitbucket.org/{$repoPath}/commits";
+            }
 
             // Fetch latest from remote (without pulling)
             $process = new \Symfony\Component\Process\Process(['git', 'fetch', 'origin', $branch], $appPath);
@@ -634,7 +652,9 @@ class SystemController extends Controller
                 return [
                     'current_version' => $currentVersion,
                     'current_commit' => $localHashShort,
+                    'current_commit_url' => $commitBaseUrl ? "{$commitBaseUrl}/{$localHash}" : null,
                     'remote_commit' => $remoteHashShort,
+                    'remote_commit_url' => $commitBaseUrl ? "{$commitBaseUrl}/{$remoteHash}" : null,
                     'commits_behind' => $commitsBehind,
                     'branch' => $branch,
                     'latest_message' => $latestCommitMessage,
@@ -646,7 +666,9 @@ class SystemController extends Controller
             return [
                 'current_version' => $currentVersion,
                 'current_commit' => $localHashShort,
+                'current_commit_url' => $commitBaseUrl ? "{$commitBaseUrl}/{$localHash}" : null,
                 'branch' => $branch,
+                'commits_behind' => 0,
                 'has_update' => false,
             ];
             

@@ -55,7 +55,13 @@
                         @if($updateInfo)
                         <div class="flex justify-between">
                             <dt class="text-gray-600">Current Commit</dt>
-                            <dd class="font-medium font-mono">{{ $updateInfo['current_commit'] }}</dd>
+                            <dd class="font-medium font-mono">
+                                @if(!empty($updateInfo['current_commit_url']))
+                                    <a href="{{ $updateInfo['current_commit_url'] }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $updateInfo['current_commit'] }}</a>
+                                @else
+                                    {{ $updateInfo['current_commit'] }}
+                                @endif
+                            </dd>
                         </div>
                         <div class="flex justify-between">
                             <dt class="text-gray-600">Branch</dt>
@@ -64,7 +70,7 @@
                         @if($updateInfo['has_update'])
                         <div class="flex justify-between">
                             <dt class="text-gray-600">Update Available</dt>
-                            <dd class="font-medium text-yellow-600">{{ $updateInfo['commits_behind'] }} commits behind</dd>
+                            <dd class="font-medium text-yellow-600">{{ $updateInfo['commits_behind'] ?? 0 }} commits behind</dd>
                         </div>
                         @endif
                         @endif

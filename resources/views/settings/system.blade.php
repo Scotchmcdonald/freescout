@@ -23,7 +23,13 @@
                         @if($updateInfo)
                         <div class="flex justify-between py-2 border-b border-gray-200">
                             <dt class="font-medium text-gray-700">Current Commit</dt>
-                            <dd class="text-gray-900 font-mono">{{ $updateInfo['current_commit'] }}</dd>
+                            <dd class="text-gray-900 font-mono">
+                                @if(!empty($updateInfo['current_commit_url']))
+                                    <a href="{{ $updateInfo['current_commit_url'] }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $updateInfo['current_commit'] }}</a>
+                                @else
+                                    {{ $updateInfo['current_commit'] }}
+                                @endif
+                            </dd>
                         </div>
                         <div class="flex justify-between py-2 border-b border-gray-200">
                             <dt class="font-medium text-gray-700">Branch</dt>
@@ -32,7 +38,7 @@
                         @if($updateInfo['has_update'])
                         <div class="flex justify-between py-2 border-b border-gray-200">
                             <dt class="font-medium text-gray-700">Update Status</dt>
-                            <dd class="text-yellow-600 font-medium">{{ $updateInfo['commits_behind'] }} commits behind</dd>
+                            <dd class="text-yellow-600 font-medium">{{ $updateInfo['commits_behind'] ?? 0 }} commits behind</dd>
                         </div>
                         @endif
                         @endif
@@ -73,7 +79,7 @@
                            class="block w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-left flex justify-between items-center">
                             <div>
                                 <span class="font-medium">{{ __('Update Application') }}</span>
-                                <span class="block text-xs mt-1 opacity-90">{{ $updateInfo['commits_behind'] }} commits behind</span>
+                                <span class="block text-xs mt-1 opacity-90">{{ $updateInfo['commits_behind'] ?? 0 }} commits behind</span>
                             </div>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
