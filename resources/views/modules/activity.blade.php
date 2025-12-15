@@ -67,24 +67,50 @@
                                             {{ ucfirst($log->action) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-500">
+                                    <td class="px-6 py-4 text-sm text-gray-500 max-w-md">
                                         @if($log->metadata)
-                                            @if(isset($log->metadata['repo_url']))
-                                                <div class="text-xs">
-                                                    <strong>{{ __('Repo:') }}</strong> 
-                                                    <span class="font-mono text-xs">{{ Str::limit($log->metadata['repo_url'], 40) }}</span>
-                                                </div>
-                                            @endif
-                                            @if(isset($log->metadata['error']))
-                                                <div class="text-xs text-red-600 mt-1">
-                                                    <strong>{{ __('Error:') }}</strong> {{ Str::limit($log->metadata['error'], 60) }}
-                                                </div>
-                                            @endif
-                                            @if(isset($log->metadata['failed']) && $log->metadata['failed'])
-                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 mt-1">
-                                                    {{ __('Failed') }}
-                                                </span>
-                                            @endif
+                                            <div class="space-y-1">
+                                                @if(isset($log->metadata['repo_url']))
+                                                    <div class="text-xs">
+                                                        <strong class="text-gray-700">{{ __('Repo:') }}</strong> 
+                                                        <a href="{{ $log->metadata['repo_url'] }}" 
+                                                           target="_blank" 
+                                                           class="font-mono text-xs text-blue-600 hover:text-blue-800 hover:underline break-all"
+                                                           title="{{ $log->metadata['repo_url'] }}">
+                                                            {{ $log->metadata['repo_url'] }}
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                                @if(isset($log->metadata['commit']))
+                                                    <div class="text-xs">
+                                                        <strong class="text-gray-700">{{ __('Commit:') }}</strong> 
+                                                        <span class="font-mono text-xs text-gray-600">{{ $log->metadata['commit'] }}</span>
+                                                    </div>
+                                                @endif
+                                                @if(isset($log->metadata['branch']))
+                                                    <div class="text-xs">
+                                                        <strong class="text-gray-700">{{ __('Branch:') }}</strong> 
+                                                        <span class="font-mono text-xs text-gray-600">{{ $log->metadata['branch'] }}</span>
+                                                    </div>
+                                                @endif
+                                                @if(isset($log->metadata['method']))
+                                                    <div class="text-xs">
+                                                        <strong class="text-gray-700">{{ __('Method:') }}</strong> 
+                                                        <span class="text-xs text-gray-600">{{ ucfirst($log->metadata['method']) }}</span>
+                                                    </div>
+                                                @endif
+                                                @if(isset($log->metadata['error']))
+                                                    <div class="text-xs text-red-600 mt-1">
+                                                        <strong>{{ __('Error:') }}</strong> 
+                                                        <span class="break-words">{{ $log->metadata['error'] }}</span>
+                                                    </div>
+                                                @endif
+                                                @if(isset($log->metadata['failed']) && $log->metadata['failed'])
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 mt-1">
+                                                        {{ __('Failed') }}
+                                                    </span>
+                                                @endif
+                                            </div>
                                         @else
                                             <span class="text-gray-400">—</span>
                                         @endif

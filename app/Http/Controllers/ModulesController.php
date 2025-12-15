@@ -1639,6 +1639,12 @@ class ModulesController extends Controller
             // Clear cache
             Artisan::call('cache:clear');
 
+            // Log successful update
+            $this->logActivity($module->getName(), 'update', [
+                'version' => $result['version'] ?? 'unknown',
+                'method' => 'download',
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => __('Module updated successfully'),
@@ -1653,6 +1659,13 @@ class ModulesController extends Controller
                     \Illuminate\Support\Facades\Log::warning('Failed to cleanup temp file: '.$unlinkError->getMessage());
                 }
             }
+
+            // Log failed update
+            $this->logActivity($module->getName(), 'update', [
+                'error' => $e->getMessage(),
+                'failed' => true,
+                'method' => 'download',
+            ]);
 
             return response()->json([
                 'success' => false,
@@ -1733,6 +1746,14 @@ class ModulesController extends Controller
             $newCommit = $this->getModuleCommitHash($path);
             $githubUrl = $this->getModuleGithubUrl($path);
             
+            // Log successful update
+            $this->logActivity($module->getName(), 'update', [
+                'repo_url' => $githubUrl,
+                'commit' => $newCommit,
+                'branch' => $branch,
+                'method' => 'github',
+            ]);
+            
             return response()->json([
                 'success' => true,
                 'message' => $message,
@@ -1741,6 +1762,13 @@ class ModulesController extends Controller
             ]);
             
         } catch (\Exception $e) {
+            // Log failed update
+            $this->logActivity($module->getName(), 'update', [
+                'error' => $e->getMessage(),
+                'failed' => true,
+                'method' => 'github',
+            ]);
+            
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
