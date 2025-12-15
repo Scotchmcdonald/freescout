@@ -70,6 +70,7 @@ class SystemController extends Controller
         // Check public symlink
         $publicSymlinkExists = file_exists(public_path('storage'));
 
+        /** @var array<string, mixed> $systemInfo */
         $systemInfo = [
             'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
@@ -567,6 +568,8 @@ class SystemController extends Controller
     
     /**
      * Check for application updates from git repository.
+     * 
+     * @return array{current_version: mixed, current_commit: string, remote_commit?: string, commits_behind?: int, branch: string, latest_message?: string, has_update: bool}|null
      */
     private function checkForAppUpdates(): ?array
     {
@@ -670,7 +673,7 @@ class SystemController extends Controller
         $updateInfo = $this->checkForAppUpdates();
         
         // Only show banner if there's an actual update (not just info)
-        $hasUpdate = $updateInfo && isset($updateInfo['has_update']) && $updateInfo['has_update'] === true;
+        $hasUpdate = $updateInfo && $updateInfo['has_update'] === true;
         
         $result = [
             'has_update' => $hasUpdate,

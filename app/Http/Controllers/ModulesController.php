@@ -245,7 +245,7 @@ class ModulesController extends Controller
     {
         $repositories = config('modules_catalog.repositories', []);
         $encryptedToken = \App\Models\Option::get('github_personal_access_token');
-        $savedToken = $encryptedToken ? \Illuminate\Support\Facades\Crypt::decryptString($encryptedToken) : null;
+        $savedToken = ($encryptedToken && is_string($encryptedToken)) ? \Illuminate\Support\Facades\Crypt::decryptString($encryptedToken) : null;
         
         return view('modules.install', [
             'repositories' => $repositories,
@@ -262,7 +262,12 @@ class ModulesController extends Controller
             'token' => 'required|string',
         ]);
 
-        $encrypted = \Illuminate\Support\Facades\Crypt::encryptString($request->token);
+        $token = $request->token;
+        if (!is_string($token)) {
+            return response()->json(['message' => __('Invalid token format')], 400);
+        }
+
+        $encrypted = \Illuminate\Support\Facades\Crypt::encryptString($token);
         \App\Models\Option::set('github_personal_access_token', $encrypted);
 
         return response()->json([
@@ -276,7 +281,7 @@ class ModulesController extends Controller
      */
     public function clearGithubToken(): \Illuminate\Http\JsonResponse
     {
-        \App\Models\Option::remove('github_personal_access_token');
+        \App\Models\Option::deleteOption('github_personal_access_token');
 
         return response()->json([
             'success' => true,
@@ -298,13 +303,14 @@ class ModulesController extends Controller
 
         try {
             // Parse repo info
-            if (preg_match('/github\.com[\/:]([^\/]+)\/([^\/\.]+)/', $url, $matches)) {
+            $urlStr = is_string($url) ? $url : '';
+            if (preg_match('/github\.com[\/:]([^\/]+)\/([^\/\.]+)/', $urlStr, $matches)) {
                 $owner = $matches[1];
                 $repo = preg_replace('/\.git$/', '', $matches[2]);
                 
                 // Test API access
                 $headers = ['Accept' => 'application/vnd.github.v3+json'];
-                if ($token) {
+                if ($token && is_string($token)) {
                     $headers['Authorization'] = 'Bearer ' . $token;
                 }
                 
@@ -344,6 +350,9 @@ class ModulesController extends Controller
                 }
                 
                 $data = $response->json();
+                if (!is_array($data)) {
+                    $data = [];
+                }
                 return response()->json([
                     'success' => true,
                     'message' => __('✓ Connection successful'),
@@ -385,7 +394,8 @@ class ModulesController extends Controller
             $branch = $request->input('branch', 'main');
 
             // Parse GitHub URL to extract owner/repo
-            if (preg_match('#github\.com[:/]([^/]+)/([^/\.]+)#', $repoUrl, $matches)) {
+            $repoUrlStr = is_string($repoUrl) ? $repoUrl : '';
+            if (preg_match('#github\.com[:/]([^/]+)/([^/\.]+)#', $repoUrlStr, $matches)) {
                 $owner = $matches[1];
                 $repo = $matches[2];
             } else {
@@ -398,7 +408,7 @@ class ModulesController extends Controller
             // Build GitHub API headers
             $headers = ['Accept' => 'application/vnd.github.v3+json'];
             $token = \App\Models\Option::get('github_personal_access_token');
-            if ($token) {
+            if ($token && is_string($token)) {
                 try {
                     $decryptedToken = \Illuminate\Support\Facades\Crypt::decryptString($token);
                     $headers['Authorization'] = 'token ' . $decryptedToken;
@@ -408,40 +418,46 @@ class ModulesController extends Controller
             }
 
             // Fetch module.json
-            $moduleJsonUrl = "https://api.github.com/repos/{$owner}/{$repo}/contents/module.json?ref={$branch}";
+            $branchStr = is_string($branch) ? $branch : 'main';
+            $moduleJsonUrl = "https://api.github.com/repos/{$owner}/{$repo}/contents/module.json?ref={$branchStr}";
             $moduleJsonResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)->get($moduleJsonUrl);
 
             $moduleInfo = null;
             if ($moduleJsonResponse->successful()) {
                 $content = $moduleJsonResponse->json();
-                if (isset($content['content'])) {
+                if (is_array($content) && isset($content['content']) && is_string($content['content'])) {
                     $decoded = base64_decode($content['content']);
                     $moduleInfo = json_decode($decoded, true);
                 }
             }
 
             // Fetch README.md
-            $readmeUrl = "https://api.github.com/repos/{$owner}/{$repo}/readme?ref={$branch}";
+            $readmeUrl = "https://api.github.com/repos/{$owner}/{$repo}/readme?ref={$branchStr}";
             $readmeResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)->get($readmeUrl);
 
             $readmeContent = null;
             if ($readmeResponse->successful()) {
                 $content = $readmeResponse->json();
-                if (isset($content['content'])) {
+                if (is_array($content) && isset($content['content']) && is_string($content['content'])) {
                     $readmeContent = base64_decode($content['content']);
                 }
             }
 
             // Fetch composer.json for dependencies
-            $composerUrl = "https://api.github.com/repos/{$owner}/{$repo}/contents/composer.json?ref={$branch}";
+            $composerUrl = "https://api.github.com/repos/{$owner}/{$repo}/contents/composer.json?ref={$branchStr}";
             $composerResponse = \Illuminate\Support\Facades\Http::withHeaders($headers)->get($composerUrl);
 
             $composerInfo = null;
             if ($composerResponse->successful()) {
                 $content = $composerResponse->json();
-                if (isset($content['content'])) {
+                if (is_array($content) && isset($content['content']) && is_string($content['content'])) {
                     $decoded = base64_decode($content['content']);
-                    $composerInfo = json_decode($decoded, true);
+                    $composerData = json_decode($decoded, true);
+                    // Ensure associative array (not list) for composer.json structure
+                    if (is_array($composerData) && !array_is_list($composerData)) {
+                        /** @var array<string, mixed> $composerInfo */
+                        $composerInfo = $composerData;
+                    }
                 }
             }
 
@@ -451,7 +467,7 @@ class ModulesController extends Controller
                 'readme' => $readmeContent,
                 'composer_info' => $composerInfo,
                 'current_php_version' => PHP_VERSION,
-                'php_version_compatible' => $this->checkPhpVersionCompatibility(is_array($composerInfo) ? $composerInfo : null),
+                'php_version_compatible' => $this->checkPhpVersionCompatibility($composerInfo),
             ]);
 
         } catch (\Exception $e) {
@@ -623,7 +639,16 @@ class ModulesController extends Controller
         
         // Check session expiration (max 2 hours)
         $params = session($sessionId);
-        $initiatedAt = \Carbon\Carbon::parse($params['initiated_at'] ?? now());
+        if (!is_array($params) || !isset($params['initiated_at'])) {
+            session()->forget($sessionId);
+            return response()->json([
+                'error' => true,
+                'message' => __('Invalid installation session'),
+                'suggestions' => [__('Please start the installation again.')]
+            ], 403);
+        }
+        $initiatedAtValue = $params['initiated_at'];
+        $initiatedAt = \Carbon\Carbon::parse(is_string($initiatedAtValue) || $initiatedAtValue instanceof \DateTimeInterface ? $initiatedAtValue : now());
         if ($initiatedAt->diffInHours(now()) > 2) {
             session()->forget($sessionId);
             return response()->json([
@@ -709,7 +734,7 @@ class ModulesController extends Controller
                     $sendEvent('connecting', 20, __('Using SSH authentication...'));
                     
                     $deployKey = \App\Models\Option::get('ssh_deploy_key');
-                    if ($deployKey) {
+                    if ($deployKey && is_string($deployKey)) {
                         try {
                             $decryptedKey = \Illuminate\Support\Facades\Crypt::decryptString($deployKey);
                             $sshKeyFile = tempnam(sys_get_temp_dir(), 'ssh_key_');
@@ -805,6 +830,7 @@ class ModulesController extends Controller
 
                 // Find and enable module
                 $module = Module::find($moduleName);
+                /** @phpstan-ignore-next-line - Runtime safety check */
                 if (!$module) {
                     File::deleteDirectory($targetPath);
                     $sendEvent('error', 0, __('Module not found after installation'));
@@ -842,7 +868,6 @@ class ModulesController extends Controller
 
             } catch (\Exception $e) {
                 // Log failed installation
-                $moduleName = $moduleName ?? 'unknown';
                 $this->logActivity($moduleName, 'install', [
                     'repo_url' => $url,
                     'error' => $e->getMessage(),
@@ -892,13 +917,14 @@ class ModulesController extends Controller
         ]);
 
         // Basic validation of SSH key format
-        if (!str_contains($request->key, 'BEGIN') || !str_contains($request->key, 'PRIVATE KEY')) {
+        $key = $request->key;
+        if (!is_string($key) || !str_contains($key, 'BEGIN') || !str_contains($key, 'PRIVATE KEY')) {
             return response()->json([
                 'message' => __('Invalid SSH private key format')
             ], 400);
         }
 
-        $encrypted = \Illuminate\Support\Facades\Crypt::encryptString($request->key);
+        $encrypted = \Illuminate\Support\Facades\Crypt::encryptString($key);
         \App\Models\Option::set('ssh_deploy_key', $encrypted);
 
         return response()->json([
@@ -923,7 +949,8 @@ class ModulesController extends Controller
             $githubTokenStr = ($githubToken && (is_string($githubToken) || is_int($githubToken) || is_float($githubToken))) ? (string) $githubToken : null;
             $githubCommitStr = ($githubCommit && (is_string($githubCommit) || is_int($githubCommit) || is_float($githubCommit))) ? (string) $githubCommit : null;
             $githubBranchStr = ($githubBranch && (is_string($githubBranch) || is_int($githubBranch) || is_float($githubBranch))) ? (string) $githubBranch : null;
-            return $this->installFromGithub($githubUrlStr, $githubTokenStr, $githubCommitStr, $githubBranchStr);
+            $result = $this->installFromGithub($githubUrlStr, $githubTokenStr, $githubCommitStr, $githubBranchStr);
+            return $result instanceof \Illuminate\Http\RedirectResponse ? $result : redirect()->back()->with('error', __('Installation failed'));
         }
 
         $alias = $request->input('alias');
@@ -1037,7 +1064,7 @@ class ModulesController extends Controller
             if (preg_match('/^git@|^ssh:\/\//', $url)) {
                 // Get deploy key from options
                 $encryptedKey = \App\Models\Option::get('ssh_deploy_key');
-                if (!$encryptedKey) {
+                if (!$encryptedKey || !is_string($encryptedKey)) {
                     $message = __('SSH URL detected but no deploy key is configured. Please add a deploy key in the settings.');
                     return $isAjax 
                         ? response()->json(['message' => $message], 400)
@@ -1173,7 +1200,7 @@ class ModulesController extends Controller
 
         } catch (\Exception $e) {
             // Log failed installation
-            $this->logActivity($moduleName ?? 'unknown', 'install', [
+            $this->logActivity($moduleName, 'install', [
                 'repo_url' => $url,
                 'error' => $e->getMessage(),
                 'failed' => true,
@@ -1796,8 +1823,13 @@ class ModulesController extends Controller
             }
             
             // Successfully cloned, safe to delete backup
-            if ($tempPath && File::isDirectory($tempPath)) {
-                File::deleteDirectory($tempPath);
+            /** @phpstan-ignore-next-line - Backup cleanup safety check */
+            if ($tempPath) {
+                try {
+                    File::deleteDirectory($tempPath);
+                } catch (\Exception $e) {
+                    // Silently fail backup cleanup
+                }
                 $tempPath = null;
             }
             

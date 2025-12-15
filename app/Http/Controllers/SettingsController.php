@@ -204,6 +204,8 @@ class SettingsController extends Controller
 
     /**
      * Check for application updates from git repository.
+     * 
+     * @return array{current_commit: string, remote_commit?: string, commits_behind?: int, branch: string, has_update: bool}|null
      */
     private function checkForAppUpdates(): ?array
     {
@@ -429,6 +431,7 @@ class SettingsController extends Controller
         }
 
         // Update alert settings
+        /** @var array<string, bool> $alerts */
         $alerts = $validated['alerts'] ?? [];
         
         Option::updateOrCreate(

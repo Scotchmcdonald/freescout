@@ -13,7 +13,7 @@ return new class extends Migration
     {
         // Encrypt existing PAT if it exists
         $pat = DB::table('options')->where('name', 'github_personal_access_token')->first();
-        if ($pat && $pat->value) {
+        if ($pat && isset($pat->value) && is_string($pat->value)) {
             try {
                 // Check if already encrypted by trying to decrypt
                 Crypt::decryptString($pat->value);
@@ -34,7 +34,7 @@ return new class extends Migration
     {
         // Decrypt PAT if it exists
         $pat = DB::table('options')->where('name', 'github_personal_access_token')->first();
-        if ($pat && $pat->value) {
+        if ($pat && isset($pat->value) && is_string($pat->value)) {
             try {
                 $decrypted = Crypt::decryptString($pat->value);
                 DB::table('options')
