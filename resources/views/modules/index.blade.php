@@ -493,139 +493,177 @@
         document.addEventListener('DOMContentLoaded', function() {
             const checkUpdatesBtn = document.getElementById('check-updates-btn');
             let hideTimeouts = []; // Track timeouts for cleanup
+            let isCheckingUpdates = false; // Global flag to prevent concurrent requests
             
-            if (checkUpdatesBtn) {
-                checkUpdatesBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const btn = this;
-                    
-                    // Prevent multiple simultaneous requests
-                    if (btn.disabled) {
-                        return;
-                    }
-                    
-                    // Clear any existing auto-hide timeouts
-                    hideTimeouts.forEach(timeout => clearTimeout(timeout));
-                    hideTimeouts = [];
-                    
-                    const originalText = btn.innerText;
+            // Function to check for updates
+            function checkForUpdates(isAutoCheck = false) {
+                // Prevent multiple simultaneous requests
+                if (isCheckingUpdates) {
+                    return;
+                }
+                
+                isCheckingUpdates = true;
+                
+                // Clear any existing auto-hide timeouts
+                hideTimeouts.forEach(timeout => clearTimeout(timeout));
+                hideTimeouts = [];
+                
+                const btn = checkUpdatesBtn;
+                const originalText = btn ? btn.innerText : '';
+                
+                if (btn && !isAutoCheck) {
                     btn.innerText = '{{ __('Checking...') }}';
                     btn.disabled = true;
-                    
-                    // Reset all update indicators and badges
-                    document.querySelectorAll('.update-info').forEach(el => el.classList.add('hidden'));
-                    document.querySelectorAll('.update-btn').forEach(el => el.classList.add('hidden'));
-                    
-                    // Show "Checking..." on all modules immediately
+                }
+                
+                // Reset all update indicators and badges
+                document.querySelectorAll('.update-info').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.update-btn').forEach(el => el.classList.add('hidden'));
+                
+                // Show "Checking..." on all modules immediately (only if not auto-check)
+                if (!isAutoCheck) {
                     document.querySelectorAll('.module-item').forEach(item => {
                         const badge = item.querySelector('.update-status-badge');
                         if (badge) {
                             badge.innerText = '{{ __('Checking...') }}';
                             badge.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800', 'bg-blue-100', 'text-blue-800');
                             badge.classList.add('bg-blue-100', 'text-blue-800');
-                            badge.classList.remove('hidden'); // Ensure visible
+                            badge.classList.remove('hidden');
                         }
                     });
-                    
-                    fetch('{{ route('modules.ajax') }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            action: 'check_updates'
-                        })
+                }
+                
+                fetch('{{ route('modules.ajax') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'check_updates'
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const updates = data.updates;
-                            let count = 0;
-                            
-                            // After a brief delay, update with results
-                            setTimeout(() => {
-                                document.querySelectorAll('.module-item').forEach(item => {
-                                    const alias = item.dataset.alias;
-                                    const badge = item.querySelector('.update-status-badge');
-                                    
-                                    if (badge) {
-                                        // Clear existing classes
-                                        badge.classList.remove('bg-blue-100', 'text-blue-800', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
-                                        
-                                        if (updates[alias]) {
-                                            // Has update
-                                            const infoSpan = item.querySelector('.update-info');
-                                            const updateBtn = item.querySelector('.update-btn');
-                                            
-                                            if (infoSpan) {
-                                                let msg = updates[alias].commits_behind 
-                                                    ? updates[alias].commits_behind + ' {{ __('commits behind') }}'
-                                                    : '{{ __('New version:') }} ' + updates[alias].available;
-                                                
-                                                // Add commit link if available
-                                                if (updates[alias].remote_commit_url && updates[alias].remote_commit) {
-                                                    msg += ' → <a href="' + updates[alias].remote_commit_url + '" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-mono">' + updates[alias].remote_commit + '</a>';
-                                                }
-                                                
-                                                infoSpan.innerHTML = msg;
-                                                infoSpan.classList.remove('hidden');
-                                            }
-                                            
-                                            if (updateBtn) {
-                                                updateBtn.classList.remove('hidden');
-                                            }
-                                            
-                                            badge.innerText = '{{ __('Update Available') }}';
-                                            badge.classList.remove('hidden');
-                                            badge.classList.add('bg-yellow-100', 'text-yellow-800');
-                                            count++;
-                                        } else {
-                                            // Up to date
-                                            badge.innerText = '{{ __('Up to Date') }}';
-                                            badge.classList.remove('hidden');
-                                            badge.classList.add('bg-green-100', 'text-green-800');
-                                            
-                                            // Auto-hide "Up to Date" after 3 seconds
-                                            const timeout = setTimeout(() => {
-                                                badge.classList.add('hidden');
-                                            }, 3000);
-                                            hideTimeouts.push(timeout);
-                                        }
-                                    }
-                                });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const updates = data.updates;
+                        let count = 0;
+                        
+                        // After a brief delay, update with results
+                        setTimeout(() => {
+                            document.querySelectorAll('.module-item').forEach(item => {
+                                const alias = item.dataset.alias;
+                                const badge = item.querySelector('.update-status-badge');
                                 
-                                // Re-enable button after showing results
+                                if (badge) {
+                                    // Clear existing classes
+                                    badge.classList.remove('bg-blue-100', 'text-blue-800', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
+                                    
+                                    if (updates[alias]) {
+                                        // Has update
+                                        const infoSpan = item.querySelector('.update-info');
+                                        const updateBtn = item.querySelector('.update-btn');
+                                        
+                                        if (infoSpan) {
+                                            let msg = updates[alias].commits_behind 
+                                                ? updates[alias].commits_behind + ' {{ __('commits behind') }}'
+                                                : '{{ __('New version:') }} ' + updates[alias].available;
+                                            
+                                            // Add commit link if available
+                                            if (updates[alias].remote_commit_url && updates[alias].remote_commit) {
+                                                msg += ' → <a href="' + updates[alias].remote_commit_url + '" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-mono">' + updates[alias].remote_commit + '</a>';
+                                            }
+                                            
+                                            infoSpan.innerHTML = msg;
+                                            infoSpan.classList.remove('hidden');
+                                        }
+                                        
+                                        if (updateBtn) {
+                                            updateBtn.classList.remove('hidden');
+                                        }
+                                        
+                                        badge.innerText = '{{ __('Update Available') }}';
+                                        badge.classList.remove('hidden');
+                                        badge.classList.add('bg-yellow-100', 'text-yellow-800');
+                                        count++;
+                                    } else if (!isAutoCheck) {
+                                        // Only show "Up to Date" if manually triggered
+                                        badge.innerText = '{{ __('Up to Date') }}';
+                                        badge.classList.remove('hidden');
+                                        badge.classList.add('bg-green-100', 'text-green-800');
+                                        
+                                        // Auto-hide "Up to Date" after 3 seconds
+                                        const timeout = setTimeout(() => {
+                                            badge.classList.add('hidden');
+                                        }, 3000);
+                                        hideTimeouts.push(timeout);
+                                    }
+                                }
+                            });
+                            
+                            // Re-enable button after showing results
+                            if (btn && !isAutoCheck) {
                                 btn.innerText = originalText;
                                 btn.disabled = false;
-                            }, 500);
-                        } else {
+                            }
+                            
+                            isCheckingUpdates = false;
+                        }, 500);
+                    } else {
+                        if (!isAutoCheck) {
                             alert(data.message || '{{ __('Failed to check for updates') }}');
+                        }
+                        if (btn && !isAutoCheck) {
                             btn.innerText = originalText;
                             btn.disabled = false;
-                            
-                            // Hide all badges on error
-                            document.querySelectorAll('.update-status-badge').forEach(el => {
-                                el.classList.add('hidden');
-                            });
                         }
-                    })
-                    .catch(error => {
-                        console.error(error);
-                        alert('{{ __('An error occurred while checking for updates') }}');
-                        btn.innerText = originalText;
-                        btn.disabled = false;
                         
                         // Hide all badges on error
                         document.querySelectorAll('.update-status-badge').forEach(el => {
                             el.classList.add('hidden');
                         });
+                        
+                        isCheckingUpdates = false;
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    if (!isAutoCheck) {
+                        alert('{{ __('An error occurred while checking for updates') }}');
+                    }
+                    if (btn && !isAutoCheck) {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    }
+                    
+                    // Hide all badges on error
+                    document.querySelectorAll('.update-status-badge').forEach(el => {
+                        el.classList.add('hidden');
                     });
+                    
+                    isCheckingUpdates = false;
                 });
             }
+            
+            // Attach click handler to button
+            if (checkUpdatesBtn) {
+                // Remove any existing event listeners by cloning
+                const newBtn = checkUpdatesBtn.cloneNode(true);
+                checkUpdatesBtn.parentNode.replaceChild(newBtn, checkUpdatesBtn);
+                
+                // Attach new click handler
+                newBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    checkForUpdates(false);
+                });
+            }
+            
+            // Automatically check for updates on page load
+            setTimeout(() => {
+                checkForUpdates(true);
+            }, 500);
         });
     </script>
 </x-app-layout>
