@@ -277,7 +277,7 @@ class SettingsController extends Controller
     /**
      * Clear application cache.
      */
-    public function clearCache(): RedirectResponse
+    public function clearCache(): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         try {
             Artisan::call('cache:clear');
@@ -285,8 +285,24 @@ class SettingsController extends Controller
             Artisan::call('route:clear');
             Artisan::call('view:clear');
 
+            // Return JSON for AJAX requests
+            if (request()->wantsJson() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cache cleared successfully.',
+                ]);
+            }
+
             return back()->with('success', 'Cache cleared successfully.');
         } catch (\Exception $e) {
+            // Return JSON for AJAX requests
+            if (request()->wantsJson() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to clear cache: '.$e->getMessage(),
+                ], 500);
+            }
+
             return back()->with('error', 'Failed to clear cache: '.$e->getMessage());
         }
     }
@@ -294,13 +310,29 @@ class SettingsController extends Controller
     /**
      * Run database migrations.
      */
-    public function migrate(): RedirectResponse
+    public function migrate(): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         try {
             Artisan::call('migrate', ['--force' => true]);
 
+            // Return JSON for AJAX requests
+            if (request()->wantsJson() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Migrations completed successfully.',
+                ]);
+            }
+
             return back()->with('success', 'Migrations completed successfully.');
         } catch (\Exception $e) {
+            // Return JSON for AJAX requests
+            if (request()->wantsJson() || request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Migration failed: '.$e->getMessage(),
+                ], 500);
+            }
+
             return back()->with('error', 'Migration failed: '.$e->getMessage());
         }
     }
