@@ -52,7 +52,8 @@
             .then(response => response.json())
             .then(data => {
                 if (data.has_update && data.update_info) {
-                    const message = `{{ __('Application update available') }}: ${data.update_info.commits_behind} {{ __('commits behind') }} (${data.update_info.remote_commit})`;
+                    const commitInfo = data.update_info.remote_commit ? ` (${data.update_info.remote_commit})` : '';
+                    const message = `{{ __('Application update available') }}: ${data.update_info.commits_behind || 0} {{ __('commits behind') }}${commitInfo}`;
                     document.getElementById('update-message').textContent = message;
                     document.getElementById('update-banner').classList.remove('hidden');
                 }

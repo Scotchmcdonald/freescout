@@ -54,9 +54,19 @@
                                     <p class="mt-1 text-sm text-blue-700">
                                         {{ __('Your application is :count commits behind', ['count' => $update_info['commits_behind'] ?? 0]) }}
                                     </p>
+                                    @if(!empty($update_info['remote_commit']))
                                     <p class="mt-2 text-sm text-blue-600">
-                                        <strong>{{ __('Latest commit') }}:</strong> {{ $update_info['remote_commit'] }} - {{ $update_info['latest_message'] }}
+                                        <strong>{{ __('Latest commit') }}:</strong> 
+                                        @if(!empty($update_info['remote_commit_url']))
+                                            <a href="{{ $update_info['remote_commit_url'] }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-mono">{{ $update_info['remote_commit'] }}</a>
+                                        @else
+                                            <span class="font-mono">{{ $update_info['remote_commit'] }}</span>
+                                        @endif
+                                        @if(!empty($update_info['latest_message']))
+                                            - {{ $update_info['latest_message'] }}
+                                        @endif
                                     </p>
+                                    @endif
                                     <div class="mt-4">
                                         <button type="button" 
                                             onclick="updateApplication()" 

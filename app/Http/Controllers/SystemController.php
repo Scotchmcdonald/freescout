@@ -350,6 +350,27 @@ class SystemController extends Controller
                             File::makeDirectory($themePath, 0755, true);
                         }
                     }
+                    
+                    // Ensure module view directories exist
+                    $modulesPath = base_path('Modules');
+                    if (File::exists($modulesPath)) {
+                        $modules = File::directories($modulesPath);
+                        foreach ($modules as $modulePath) {
+                            $moduleName = basename($modulePath);
+                            
+                            // Create Resources/views directory if it doesn't exist
+                            $moduleViewsPath = $modulePath . '/Resources/views';
+                            if (!File::exists($moduleViewsPath)) {
+                                File::makeDirectory($moduleViewsPath, 0755, true);
+                            }
+                            
+                            // Create resources/views/modules/{module} symlink/directory
+                            $publicModuleViewPath = resource_path('views/modules/' . strtolower($moduleName));
+                            if (!File::exists($publicModuleViewPath)) {
+                                File::makeDirectory($publicModuleViewPath, 0755, true);
+                            }
+                        }
+                    }
 
                     Artisan::call('optimize');
 
