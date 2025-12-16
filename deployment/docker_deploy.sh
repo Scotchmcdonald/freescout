@@ -740,7 +740,15 @@ services:
   reverb:
     image: freescout-app
     restart: unless-stopped
-    command: php artisan reverb:start --host="0.0.0.0" --port=8080
+    command: >
+      sh -c '
+      while [ ! -f /var/www/html/vendor/autoload.php ]; do
+        echo "Waiting for composer dependencies to be installed..."
+        sleep 5
+      done
+      echo "Dependencies ready, starting Reverb..."
+      php artisan reverb:start --host="0.0.0.0" --port=8080
+      '
     ports:
       - "6001:8080"
     volumes:
