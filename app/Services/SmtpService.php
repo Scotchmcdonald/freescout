@@ -52,12 +52,8 @@ class SmtpService
                 'mailbox_id' => $mailbox->id,
             ]);
 
-            // Send test email
-            Mail::raw('This is a test email from FreeScout to verify SMTP configuration.', function ($message) use ($mailbox, $testEmailAddress) {
-                $message->to($testEmailAddress)
-                    ->from($mailbox->email, $mailbox->name)
-                    ->subject('FreeScout SMTP Test - '.date('Y-m-d H:i:s'));
-            });
+            // Send test email using modern Mailable class
+            Mail::to($testEmailAddress)->send(new \App\Mail\SmtpTestMail($mailbox));
 
             $result['success'] = true;
             $result['message'] = "Test email sent successfully to {$testEmailAddress}. Please check your inbox (and spam folder).";

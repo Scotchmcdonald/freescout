@@ -20,6 +20,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Trust proxies - Configure for load balancer deployments
+        // Uncomment and configure if deploying behind nginx, HAProxy, AWS ALB, etc.
+        // $middleware->trustProxies(at: '*');
+        // Or specify trusted proxy IPs:
+        // $middleware->trustProxies(at: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']);
+        
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'theme' => \App\Http\Middleware\ApplyUserTheme::class,

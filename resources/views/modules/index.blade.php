@@ -520,18 +520,16 @@
                 document.querySelectorAll('.update-info').forEach(el => el.classList.add('hidden'));
                 document.querySelectorAll('.update-btn').forEach(el => el.classList.add('hidden'));
                 
-                // Show "Checking..." on all modules immediately (only if not auto-check)
-                if (!isAutoCheck) {
-                    document.querySelectorAll('.module-item').forEach(item => {
-                        const badge = item.querySelector('.update-status-badge');
-                        if (badge) {
-                            badge.innerText = '{{ __('Checking...') }}';
-                            badge.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800', 'bg-blue-100', 'text-blue-800');
-                            badge.classList.add('bg-blue-100', 'text-blue-800');
-                            badge.classList.remove('hidden');
-                        }
-                    });
-                }
+                // Show "Checking..." on all modules immediately (for both auto-check and manual)
+                document.querySelectorAll('.module-item').forEach(item => {
+                    const badge = item.querySelector('.update-status-badge');
+                    if (badge) {
+                        badge.innerText = '{{ __('Checking...') }}';
+                        badge.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800', 'bg-blue-100', 'text-blue-800');
+                        badge.classList.add('bg-blue-100', 'text-blue-800');
+                        badge.classList.remove('hidden');
+                    }
+                });
                 
                 fetch('{{ route('modules.ajax') }}', {
                     method: 'POST',

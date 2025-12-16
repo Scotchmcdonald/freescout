@@ -34,6 +34,22 @@ class ResponseHeaders
 
         // Add security headers
         $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+        $response->headers->set('X-XSS-Protection', '1; mode=block');
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        
+        // Content Security Policy - Configure based on your needs
+        // Adjust this policy if you use inline scripts/styles or external resources
+        $csp = implode('; ', [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Allow inline scripts (required for Laravel/Alpine.js)
+            "style-src 'self' 'unsafe-inline'", // Allow inline styles
+            "img-src 'self' data: https:",
+            "font-src 'self' data:",
+            "connect-src 'self'",
+            "frame-ancestors 'self'",
+        ]);
+        $response->headers->set('Content-Security-Policy', $csp);
 
         // Only disable caching for HTML/dynamic content, not static assets
         $contentType = $response->headers->get('Content-Type', '');

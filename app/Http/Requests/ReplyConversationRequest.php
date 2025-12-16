@@ -42,6 +42,18 @@ class ReplyConversationRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation and sanitize HTML input.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('body')) {
+            $this->merge([
+                'body' => clean($this->input('body'), 'default'),
+            ]);
+        }
+    }
+
+    /**
      * Get custom messages for validator errors.
      *
      * @return array<string, string>

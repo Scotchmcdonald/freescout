@@ -57,6 +57,26 @@ class StoreConversationRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation and sanitize HTML input.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('body')) {
+            $this->merge([
+                'body' => clean($this->input('body'), 'default'),
+            ]);
+        }
+        
+        if ($this->has('subject')) {
+            $subject = $this->input('subject');
+            $subjectStr = is_string($subject) || is_int($subject) || is_float($subject) ? (string) $subject : '';
+            $this->merge([
+                'subject' => strip_tags($subjectStr),
+            ]);
+        }
+    }
+
+    /**
      * Get custom messages for validator errors.
      *
      * @return array<string, string>
