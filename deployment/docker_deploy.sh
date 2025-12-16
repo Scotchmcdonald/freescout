@@ -674,9 +674,9 @@ services:
     # Fix Docker socket permissions at startup by matching host's socket GID
     entrypoint: >
       /bin/sh -c "
-      if [ -S /var/run/docker.sock ] && [ -n \"\$${DOCKER_GID}\" ]; then
-        CURRENT_GID=\$$(stat -c '%g' /var/run/docker.sock 2>/dev/null);
-        if [ -n \"\$$CURRENT_GID\" ]; then
+      if [ -S /var/run/docker.sock ]; then
+        CURRENT_GID=\$$(stat -c '%g' /var/run/docker.sock 2>/dev/null || echo '');
+        if [ ! -z \"\$$CURRENT_GID\" ]; then
           echo \"Docker socket GID: \$$CURRENT_GID\";
           if ! getent group \$$CURRENT_GID > /dev/null 2>&1; then
             groupadd -g \$$CURRENT_GID dockerhost 2>/dev/null || true;

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 #===============================================================================
 # FreeScout OrbStack Deployer (macOS + Cloudflare Tunnel)
 # 
@@ -480,13 +481,12 @@ generate_docker_compose() {
     
     # Detect Docker socket GID for permission handling
     # OrbStack typically uses same socket path as Docker Desktop
-    local DOCKER_GID
+    local DOCKER_GID="999"
     if [ -S "/var/run/docker.sock" ]; then
         # Try GNU stat (Linux) then BSD stat (macOS)
         DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || stat -f '%g' /var/run/docker.sock 2>/dev/null || echo "999")
         log_info "Docker socket GID detected: $DOCKER_GID"
     else
-        DOCKER_GID="999"
         log_warning "Docker socket not found, using default GID: $DOCKER_GID"
     fi
     
@@ -522,9 +522,9 @@ services:
     # Fix Docker socket permissions at startup by matching host's socket GID
     entrypoint: >
       /bin/sh -c "
-      if [ -S /var/run/docker.sock ] && [ -n \"\$${DOCKER_GID}\" ]; then
-        CURRENT_GID=\$$(stat -c '%g' /var/run/docker.sock 2>/dev/null || stat -f '%g' /var/run/docker.sock 2>/dev/null);
-        if [ -n \"\$$CURRENT_GID\" ]; then
+      if [ -S /var/run/docker.sock ]; then
+        CURRENT_GID=\$$(stat -c '%g' /var/run/docker.sock 2>/dev/null || stat -f '%g' /var/run/docker.sock 2>/dev/null || echo '');
+        if [ ! -z \"\$$CURRENT_GID\" ]; then
           echo \"Docker socket GID: \$$CURRENT_GID\";
           if ! getent group \$$CURRENT_GID > /dev/null 2>&1; then
             groupadd -g \$$CURRENT_GID dockerhost 2>/dev/null || true;
