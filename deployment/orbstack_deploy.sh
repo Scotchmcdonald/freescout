@@ -333,7 +333,7 @@ FROM serversideup/php:8.2-fpm-nginx
 USER root
 
 # Install system dependencies and Node.js 24.x LTS
-RUN apt-get update && apt-get install -y gnupg git && \
+RUN apt-get update && apt-get install -y gnupg git docker.io && \
     curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs && \
     curl -sSLf \

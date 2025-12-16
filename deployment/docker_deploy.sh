@@ -483,7 +483,7 @@ FROM serversideup/php:8.2-fpm-nginx
 USER root
 
 # Install system dependencies and Node.js 24.x LTS
-RUN apt-get update && apt-get install -y gnupg && \
+RUN apt-get update && apt-get install -y gnupg docker.io && \
     curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs && \
     curl -sSLf \
@@ -501,16 +501,41 @@ EOF
 }
 
 generate_nginx_config() {
-    log_step "Generating Nginx Configuration"
+    log_step "Generating Nginx Configuration (HTTPS + WebSocket)"
     
     cat > nginx/default.conf <<'EOF'
+upstream reverb_backend {
+    server reverb:8080;
+}
+
 server {
-    listen 8080 default_server;
+    listen 8080 ssl http2 default_server;
     server_name _;
     root /var/www/html/public;
     index index.php index.html;
     client_max_body_size 20M;
     
+    # SSL Configuration
+    ssl_certificate /etc/nginx/ssl/cert.pem;
+    ssl_certificate_key /etc/nginx/ssl/key.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    
+    # Proxy WebSocket requests to Reverb container
+    location /app/ {
+        proxy_pass http://reverb_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 86400;
+    }
+    
+    # PHP Application
     location / {
         try_files $uri $uri/ /index.php?$query_string;
     }
@@ -522,8 +547,10 @@ server {
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_param HTTPS on;
     }
     
+    # Static assets
     location ~* ^/storage/attachment/ {
         expires 1M;
         access_log off;
@@ -536,11 +563,7 @@ server {
         add_header Cache-Control "public, must-revalidate";
     }
     
-    location ~* ^/storage/.*\.((?!(jpg|jpeg|jfif|pjpeg|pjp|apng|bmp|gif|ico|cur|png|tif|tiff|webp|pdf|txt|diff|patch|json|mp3|wav|ogg|wma)).)*$ {
-        add_header Content-disposition "attachment; filename=$2";
-        default_type application/octet-stream;
-    }
-    
+    # Security
     location ~ /\. {
         deny all;
     }
@@ -548,6 +571,26 @@ server {
 EOF
     
     log_success "Nginx config generated"
+}
+
+generate_ssl_certificates() {
+    log_step "Generating Self-Signed SSL Certificates"
+    
+    mkdir -p nginx/ssl
+    
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout nginx/ssl/key.pem \
+        -out nginx/ssl/cert.pem \
+        -subj "/C=US/ST=State/L=City/O=FreeScout/CN=${DOMAIN_NAME}" \
+        2>&1 | grep -v "writing new private key" || true
+    
+    # Verify certificates
+    if [ ! -f "nginx/ssl/cert.pem" ] || [ ! -f "nginx/ssl/key.pem" ]; then
+        log_error "Failed to generate SSL certificates"
+        exit 1
+    fi
+    
+    log_success "SSL certificates generated"
 }
 
 generate_docker_env() {
@@ -558,13 +601,13 @@ DB_ROOT_PASSWORD=${DB_ROOT_PASS}
 DB_DATABASE=${DB_NAME}
 DB_USER=${DB_USER}
 DB_PASSWORD=${DB_PASS}
-APP_URL=http://${DOMAIN_NAME}
+APP_URL=https://${DOMAIN_NAME}
 REDIS_HOST=redis
 REDIS_PASSWORD=null
 REDIS_PORT=6379
 GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
 GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
-GOOGLE_REDIRECT_URI=http://${DOMAIN_NAME}/auth/google/callback
+GOOGLE_REDIRECT_URI=https://${DOMAIN_NAME}/auth/google/callback
 EOF
     
     log_success "Docker .env generated"
@@ -580,7 +623,7 @@ services:
     image: freescout-app
     restart: unless-stopped
     ports:
-      - "80:8080"
+      - "443:8080"  # HTTPS on standard port
     environment:
       - PUID=33
       - PGID=33
@@ -591,6 +634,7 @@ services:
     volumes:
       - ./src:/var/www/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/ssl:/etc/nginx/ssl
     depends_on:
       db:
         condition: service_healthy
@@ -599,7 +643,7 @@ services:
     networks:
       - fs-net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      test: ["CMD", "curl", "-fk", "https://localhost:8080"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -805,8 +849,8 @@ configure_laravel() {
     sed -i "s/# DB_USERNAME=root/DB_USERNAME=$DB_USER/g" "$env_file"
     sed -i "s/# DB_PASSWORD=/DB_PASSWORD=$DB_PASS/g" "$env_file"
     
-    # App URL and caching
-    sed -i "s|APP_URL=http://localhost|APP_URL=http://$DOMAIN_NAME|g" "$env_file"
+    # App URL and caching  
+    sed -i "s|APP_URL=http://localhost|APP_URL=https://$DOMAIN_NAME|g" "$env_file"
     sed -i "s/CACHE_STORE=database/CACHE_STORE=redis/g" "$env_file"
     sed -i "s/SESSION_DRIVER=database/SESSION_DRIVER=redis/g" "$env_file"
     sed -i "s/REDIS_HOST=127.0.0.1/REDIS_HOST=redis/g" "$env_file"
@@ -834,12 +878,12 @@ REVERB_APP_KEY=${reverb_app_key}
 REVERB_APP_SECRET=${reverb_app_secret}
 REVERB_HOST="0.0.0.0"
 REVERB_PORT=8080
-REVERB_SCHEME=http
+REVERB_SCHEME=https
 
 VITE_REVERB_APP_KEY="${reverb_app_key}"
 VITE_REVERB_HOST="${DOMAIN_NAME}"
-VITE_REVERB_PORT=6001
-VITE_REVERB_SCHEME=http
+VITE_REVERB_PORT=443
+VITE_REVERB_SCHEME=https
 EOF
     
     # Google OAuth (if configured)
@@ -849,7 +893,7 @@ EOF
 # Google OAuth
 GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
 GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-GOOGLE_REDIRECT_URI=http://${DOMAIN_NAME}/auth/google/callback
+GOOGLE_REDIRECT_URI=https://${DOMAIN_NAME}/auth/google/callback
 GOOGLE_ADMIN_EMAILS="${GOOGLE_ADMIN_EMAILS:-}"
 GOOGLE_ALLOWED_DOMAINS="${GOOGLE_ALLOWED_DOMAINS:-}"
 EOF
@@ -979,7 +1023,7 @@ show_completion_message() {
     echo -e "${CYAN}╚════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "${CYAN}Access Information:${NC}"
-    echo -e "  URL:   ${GREEN}http://$DOMAIN_NAME${NC}"
+    echo -e "  URL:   ${GREEN}https://$DOMAIN_NAME${NC}"
     echo -e "  Email: ${GREEN}$ADMIN_EMAIL${NC}"
     
     if [ "$REUSE_DB" = true ] && [ "$ADMIN_PASS_PRESERVED" = true ]; then
@@ -1033,6 +1077,7 @@ main() {
     setup_directories
     generate_dockerfile
     generate_nginx_config
+    generate_ssl_certificates
     generate_docker_env
     generate_docker_compose
     generate_update_script
