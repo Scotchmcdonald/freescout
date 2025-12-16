@@ -46,11 +46,11 @@ class ResponseHeaders
         // In production, tighten this based on your specific needs
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Alpine/Vue need unsafe-eval for templates
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com", // Alpine/Vue + Cloudflare
             "style-src 'self' 'unsafe-inline' https://fonts.bunny.net",
             "img-src 'self' data: https:",
             "font-src 'self' data: https://fonts.bunny.net",
-            "connect-src 'self' ws: wss:", // Allow WebSocket for Laravel Reverb/Pusher
+            "connect-src 'self' ws: wss: https://cloudflareinsights.com", // WebSocket + Cloudflare analytics
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",
