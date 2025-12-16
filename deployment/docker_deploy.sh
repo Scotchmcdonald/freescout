@@ -494,6 +494,11 @@ RUN apt-get update && apt-get install -y gnupg docker.io docker-compose-plugin &
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Configure Docker socket access for www-data user
+# This enables the sibling container architecture for EmailMigration lab testing
+RUN groupadd -f docker || true && \
+    usermod -aG docker www-data || true
+
 USER www-data
 EOF
     
