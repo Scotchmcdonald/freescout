@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -228,9 +229,11 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get the user's full name.
      */
-    public function getFullNameAttribute(): string
+    protected function fullName(): Attribute
     {
-        return trim("{$this->first_name} {$this->last_name}");
+        return Attribute::make(
+            get: fn() => trim("{$this->first_name} {$this->last_name}")
+        );
     }
 
     /**
@@ -281,9 +284,11 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get the name attribute (accessor for compatibility).
      */
-    public function getNameAttribute(): string
+    protected function name(): Attribute
     {
-        return $this->getFullName();
+        return Attribute::make(
+            get: fn() => $this->getFullName()
+        );
     }
 
     /**

@@ -28,6 +28,10 @@ class ResponseHeaders
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Generate nonce for CSP
+        $nonce = base64_encode(random_bytes(16));
+        $request->attributes->set('csp_nonce', $nonce);
+
         $this->removeUnwantedHeaders();
 
         $response = $next($request);
@@ -38,18 +42,30 @@ class ResponseHeaders
         $response->headers->set('X-XSS-Protection', '1; mode=block');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         
-        // Content Security Policy - Configure based on your needs
-        // Adjust this policy if you use inline scripts/styles or external resources
+        // Content Security Policy - Development-friendly for Alpine.js/Vue + Laravel Reverb
+        // In production, tighten this based on your specific needs
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Allow inline scripts (required for Laravel/Alpine.js)
-            "style-src 'self' 'unsafe-inline'", // Allow inline styles
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Alpine/Vue need unsafe-eval for templates
+            "style-src 'self' 'unsafe-inline' https://fonts.bunny.net",
             "img-src 'self' data: https:",
-            "font-src 'self' data:",
-            "connect-src 'self'",
-            "frame-ancestors 'self'",
+            "font-src 'self' data: https://fonts.bunny.net",
+            "connect-src 'self' ws: wss:", // Allow WebSocket for Laravel Reverb/Pusher
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
         ]);
+        
+        // Only add upgrade-insecure-requests if we're already on HTTPS
+        if ($request->secure()) {
+            $csp .= "; upgrade-insecure-requests";
+        }
+        
         $response->headers->set('Content-Security-Policy', $csp);
+
+        // Permissions Policy (formerly Feature-Policy)
+        // Disable dangerous browser features
+        $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
 
         // Only disable caching for HTML/dynamic content, not static assets
         $contentType = $response->headers->get('Content-Type', '');

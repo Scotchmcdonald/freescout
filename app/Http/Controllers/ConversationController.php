@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\Conversations\ReplyToConversationAction;
 use App\Http\Requests\ReplyConversationRequest;
 use App\Http\Requests\StoreConversationRequest;
 use App\Http\Requests\UpdateConversationRequest;
@@ -292,24 +293,19 @@ class ConversationController extends Controller
     /**
      * Reply to a conversation.
      */
-    public function reply(ReplyConversationRequest $request, Conversation $conversation): RedirectResponse|JsonResponse
-    {
-        /** @var \App\Models\User|null $user */
+    public function reply(
+        ReplyConversationRequest $request,
+        Conversation $conversation,
+        ReplyToConversationAction $action
+    ): RedirectResponse|JsonResponse {
+        /** @var \App\Models\User $user */
         $user = $request->user();
 
-        if (! $user) {
-            abort(401);
-        }
-
-        // Check access
-        if (! $user->isAdmin() && ! $user->mailboxes->contains($conversation->mailbox_id)) {
-            abort(403);
-        }
-
+        // Authorization is handled in ReplyConversationRequest
+        // Additional role-based check for closing tickets
         $validated = $request->validated();
-
-        // Reporters cannot close tickets
         $statusVal = $validated['status'] ?? null;
+        
         if ($statusVal !== null && is_numeric($statusVal) && intval($statusVal) === Conversation::STATUS_CLOSED && $user->isReporter()) {
             $message = 'Reporters cannot close tickets';
             if ($request->expectsJson()) {
@@ -319,89 +315,23 @@ class ConversationController extends Controller
         }
 
         try {
-            return DB::transaction(function () use ($request, $conversation, $user, $validated) {
-                if (!$conversation->mailbox) {
-                    $conversation->load('mailbox');
-                }
-                if (!$conversation->mailbox) {
-                    throw new \Exception('Mailbox not found');
-                }
+            $thread = $action->execute(
+                conversation: $conversation,
+                user: $user,
+                data: $validated
+            );
 
-                // Create thread
-                /** @var \App\Models\Thread $thread */
-                $thread = Thread::create([
-                    'conversation_id' => $conversation->id,
-                    'user_id' => $user->id,
-                    'type' => $validated['type'] ?? 1,
-                    'status' => 1, // Active
-                    'state' => 2, // Published
-                    'source_via' => 1, // User
-                    'source_type' => 2, // Web
-                    'body' => $validated['body'],
-                    'from' => $conversation->mailbox->email,
-                    'to' => json_encode([$conversation->customer_email]),
-                    'created_by_user_id' => $user->id,
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'thread' => $thread->load('user'),
                 ]);
+            }
 
-                // Update conversation
-                $updateData = [
-                    'threads_count' => $conversation->threads_count + 1,
-                    'last_reply_at' => now(),
-                    'status' => $validated['status'] ?? $conversation->status,
-                ];
-
-                if (is_null($conversation->user_id)) {
-                    $updateData['user_id'] = $user->id;
-                }
-
-                // Handle follow-up date logic
-                $statusVal = $validated['status'] ?? null;
-                $typeVal = $validated['type'] ?? null;
-                $isClosing = $statusVal !== null && is_numeric($statusVal) && intval($statusVal) === Conversation::STATUS_CLOSED;
-                $isNote = $typeVal !== null && is_numeric($typeVal) && intval($typeVal) === 2;
-
-                if ($isClosing) {
-                    // Clear follow-up when closing conversation
-                    $updateData['follow_up_date'] = null;
-                    $updateData['follow_up_reminded_at'] = null;
-                } elseif (! $isNote) {
-                    // Only set follow-up for replies, not internal notes
-                    if (! empty($validated['follow_up_date'])) {
-                        // User explicitly set a follow-up date
-                        $updateData['follow_up_date'] = $validated['follow_up_date'];
-                        $updateData['follow_up_reminded_at'] = null; // Reset reminder
-                    } else {
-                        // Auto-set follow-up based on default interval
-                        $defaultDaysConfig = config('app.default_follow_up_days', 3);
-                        $defaultDays = is_numeric($defaultDaysConfig) ? intval($defaultDaysConfig) : 3;
-                        $updateData['follow_up_date'] = now()->addDays($defaultDays)->startOfDay();
-                        $updateData['follow_up_reminded_at'] = null;
-                    }
-                }
-
-                $conversation->update($updateData);
-
-                // Send email notification if it's a reply (not a note)
-                $type = $validated['type'] ?? 1;
-                if ($type == 1) {
-                    \App\Jobs\SendConversationReply::dispatch(
-                        $conversation,
-                        $thread
-                    )->delay(now()->addSeconds(10));
-                }
-
-                // Return appropriate response based on request expectation
-                if ($request->expectsJson()) {
-                    return response()->json([
-                        'success' => true,
-                        'thread' => $thread->load('user'),
-                    ]);
-                }
-
-                return redirect()
-                    ->route('conversations.show', $conversation)
-                    ->with('success', 'Reply added successfully.');
-            });
+            return redirect()
+                ->route('conversations.show', $conversation)
+                ->with('success', 'Reply added successfully.');
+                
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([

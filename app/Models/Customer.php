@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -132,9 +133,11 @@ class Customer extends Model
     /**
      * Get the customer's full name.
      */
-    public function getFullNameAttribute(): string
+    protected function fullName(): Attribute
     {
-        return trim("{$this->first_name} {$this->last_name}");
+        return Attribute::make(
+            get: fn() => trim("{$this->first_name} {$this->last_name}")
+        );
     }
 
     /**
@@ -161,12 +164,15 @@ class Customer extends Model
     /**
      * Get the customer's primary email.
      */
-    public function getPrimaryEmailAttribute(): ?string
+    protected function primaryEmail(): Attribute
     {
-        /** @var \App\Models\Email|null $email */
-        $email = $this->emails()->where('type', 1)->first();
-
-        return $email?->email;
+        return Attribute::make(
+            get: function(): ?string {
+                /** @var \App\Models\Email|null $email */
+                $email = $this->emails()->where('type', 1)->first();
+                return $email?->email;
+            }
+        );
     }
 
     /**

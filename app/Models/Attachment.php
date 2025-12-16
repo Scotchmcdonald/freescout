@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -63,24 +64,30 @@ class Attachment extends Model
     /**
      * Get the full file path.
      */
-    public function getFullPathAttribute(): string
+    protected function fullPath(): Attribute
     {
-        return storage_path("app/{$this->file_dir}/{$this->file_name}");
+        return Attribute::make(
+            get: fn() => storage_path("app/{$this->file_dir}/{$this->file_name}")
+        );
     }
 
     /**
      * Get the file size in human-readable format.
      */
-    public function getHumanFileSizeAttribute(): string
+    protected function humanFileSize(): Attribute
     {
-        $bytes = $this->file_size;
-        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        return Attribute::make(
+            get: function(): string {
+                $bytes = $this->file_size;
+                $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-        for ($i = 0; $bytes >= 1024 && $i < count($units) - 1; $i++) {
-            $bytes /= 1024;
-        }
+                for ($i = 0; $bytes >= 1024 && $i < count($units) - 1; $i++) {
+                    $bytes /= 1024;
+                }
 
-        return round($bytes, 2).' '.$units[$i];
+                return round($bytes, 2).' '.$units[$i];
+            }
+        );
     }
 
     /**
