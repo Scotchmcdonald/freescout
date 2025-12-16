@@ -356,8 +356,8 @@
                                                     "
                                                     :disabled="resetting"
                                                     class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                                                    <span x-show="!resetting">{{ __('Reset') }}</span>
-                                                    <span x-show="resetting">{{ __('Resetting...') }}</span>
+                                                    <span x-show="!resetting">{{ __('Hard Refresh') }}</span>
+                                                    <span x-show="resetting">{{ __('Refreshing...') }}</span>
                                                 </button>
                                             @endif
 

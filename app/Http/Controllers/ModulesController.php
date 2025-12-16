@@ -1817,10 +1817,24 @@ class ModulesController extends Controller
             }
             
             // Move module to temporary location instead of deleting
-            $tempPath = sys_get_temp_dir() . '/module_backup_' . $moduleName . '_' . time();
+            // Use storage path to avoid cross-device link errors and permission issues
+            $backupDir = storage_path('app/temp/module_backups');
+            if (!File::exists($backupDir)) {
+                File::makeDirectory($backupDir, 0755, true);
+            }
+            $tempPath = $backupDir . '/' . $moduleName . '_' . time();
+
             if (File::isDirectory($path)) {
-                if (!File::moveDirectory($path, $tempPath)) {
-                    throw new \Exception(__('Failed to backup module to temporary directory'));
+                // Try to move first (suppress warnings for cross-device link errors)
+                $moved = @File::moveDirectory($path, $tempPath);
+                
+                if (!$moved) {
+                    // Fallback: Copy and Delete
+                    if (File::copyDirectory($path, $tempPath)) {
+                        File::deleteDirectory($path);
+                    } else {
+                        throw new \Exception(__('Failed to backup module to temporary directory'));
+                    }
                 }
             }
             
@@ -1873,7 +1887,7 @@ class ModulesController extends Controller
             
             return response()->json([
                 'success' => true,
-                'message' => __('Module reset and re-installed from GitHub successfully'),
+                'message' => __('Module hard refreshed and re-installed from GitHub successfully'),
                 'new_commit' => $newCommit,
                 'new_commit_url' => $newGithubUrl ? $newGithubUrl . '/commit/' . $newCommit : null,
             ]);
