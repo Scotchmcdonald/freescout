@@ -519,6 +519,22 @@ services:
       # Used by EmailMigration module for spinning up temporary test mail servers
       # OrbStack: Uses same socket path as standard Docker (/var/run/docker.sock)
       - /var/run/docker.sock:/var/run/docker.sock
+    # Fix Docker socket permissions at startup by matching host's socket GID
+    entrypoint: >
+      /bin/sh -c "
+      if [ -S /var/run/docker.sock ] && [ -n \"\$${DOCKER_GID}\" ]; then
+        CURRENT_GID=\$$(stat -c '%g' /var/run/docker.sock 2>/dev/null || stat -f '%g' /var/run/docker.sock 2>/dev/null);
+        if [ -n \"\$$CURRENT_GID\" ]; then
+          echo \"Docker socket GID: \$$CURRENT_GID\";
+          if ! getent group \$$CURRENT_GID > /dev/null 2>&1; then
+            groupadd -g \$$CURRENT_GID dockerhost 2>/dev/null || true;
+          fi;
+          usermod -aG \$$CURRENT_GID www-data 2>/dev/null || true;
+        fi;
+      fi;
+      exec docker-php-serversideup-entrypoint \"\$$@\"
+      "
+    command: ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
     depends_on:
       db:
         condition: service_healthy
@@ -599,10 +615,10 @@ services:
     command: >
       sh -c '
       while [ ! -f /var/www/html/vendor/autoload.php ]; do
-        echo "Waiting for composer dependencies to be installed..."
-        sleep 5
-      done
-      echo "Dependencies ready, starting Reverb..."
+        echo "Waiting for composer dependencies to be installed...";
+        sleep 5;
+      done;
+      echo "Dependencies ready, starting Reverb...";
       php artisan reverb:start --host="0.0.0.0" --port=8080
       '
     environment:
