@@ -585,8 +585,8 @@
                                         badge.classList.remove('hidden');
                                         badge.classList.add('bg-yellow-100', 'text-yellow-800');
                                         count++;
-                                    } else if (!isAutoCheck) {
-                                        // Only show "Up to Date" if manually triggered
+                                    } else {
+                                        // Show "Up to Date" for all checks (both auto and manual)
                                         badge.innerText = '{{ __('Up to Date') }}';
                                         badge.classList.remove('hidden');
                                         badge.classList.add('bg-green-100', 'text-green-800');
