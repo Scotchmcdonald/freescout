@@ -463,6 +463,17 @@ EOF
 generate_docker_compose() {
     log_step "Generating Docker Compose Configuration"
     
+    # Detect Docker socket GID for permission handling
+    # OrbStack typically uses same socket path as Docker Desktop
+    local DOCKER_GID
+    if [ -S "/var/run/docker.sock" ]; then
+        DOCKER_GID=$(stat -f '%g' /var/run/docker.sock 2>/dev/null || echo "0")
+        log_info "Docker socket GID detected: $DOCKER_GID"
+    else
+        DOCKER_GID="0"
+        log_warning "Docker socket not found, using default GID: $DOCKER_GID"
+    fi
+    
     cat > docker-compose.yml <<EOF
 services:
   app:
@@ -474,6 +485,8 @@ services:
     environment:
       - PUID=$(id -u)
       - PGID=$(id -g)
+      # Docker GID for socket access (enables sibling container spawning)
+      - DOCKER_GID=${DOCKER_GID}
       - PHP_MEMORY_LIMIT=512M
       - PHP_OPCACHE_ENABLE=1
       - PHP_POST_MAX_SIZE=20M
@@ -482,6 +495,10 @@ services:
       - ./src:/var/www/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/ssl:/etc/nginx/ssl
+      # DOCKER-OUTSIDE-OF-DOCKER (Sibling Container Architecture)
+      # Mount Docker socket to allow app container to spawn sibling containers
+      # Used by EmailMigration module for spinning up temporary test mail servers
+      # OrbStack: Uses same socket path as standard Docker (/var/run/docker.sock)
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       db:
@@ -491,7 +508,7 @@ services:
     networks:
       - fs-net
     healthcheck:
-      test: ["CMD", "curl", "-fk", "https://localhost:8080"]
+      test: ["CMD", "curl", "-fk", "http://localhost:8080"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -715,9 +732,9 @@ BROADCAST_CONNECTION=reverb
 REVERB_APP_ID=${reverb_app_id}
 REVERB_APP_KEY=${reverb_app_key}
 REVERB_APP_SECRET=${reverb_app_secret}
-REVERB_HOST="0.0.0.0"
+REVERB_HOST="reverb"
 REVERB_PORT=8080
-REVERB_SCHEME=https
+REVERB_SCHEME=http
 
 VITE_REVERB_APP_KEY="${reverb_app_key}"
 VITE_REVERB_HOST="${DOMAIN_NAME}"
