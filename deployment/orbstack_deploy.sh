@@ -355,7 +355,8 @@ RUN apt-get update && apt-get install -y gnupg git curl ca-certificates && \
 
 # Configure Docker socket access for www-data user
 # This enables the sibling container architecture for EmailMigration lab testing
-RUN groupadd -f docker || true && \
+ARG DOCKER_GID=999
+RUN groupadd -g $DOCKER_GID -f docker || true && \
     usermod -aG docker www-data || true
 
 USER www-data
@@ -481,17 +482,21 @@ generate_docker_compose() {
     # OrbStack typically uses same socket path as Docker Desktop
     local DOCKER_GID
     if [ -S "/var/run/docker.sock" ]; then
-        DOCKER_GID=$(stat -f '%g' /var/run/docker.sock 2>/dev/null || echo "0")
+        # Try GNU stat (Linux) then BSD stat (macOS)
+        DOCKER_GID=$(stat -c '%g' /var/run/docker.sock 2>/dev/null || stat -f '%g' /var/run/docker.sock 2>/dev/null || echo "999")
         log_info "Docker socket GID detected: $DOCKER_GID"
     else
-        DOCKER_GID="0"
+        DOCKER_GID="999"
         log_warning "Docker socket not found, using default GID: $DOCKER_GID"
     fi
     
     cat > docker-compose.yml <<EOF
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        DOCKER_GID: ${DOCKER_GID}
     image: freescout-app
     restart: unless-stopped
     ports:
