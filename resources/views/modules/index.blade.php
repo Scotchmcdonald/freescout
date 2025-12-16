@@ -91,7 +91,7 @@
                             @foreach($modules as $module)
                                 <div class="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors module-item"
                                      data-alias="{{ $module['alias'] }}"
-                                     x-data="{ processing: false, updating: false }">
+                                     x-data="{ processing: false, updating: false, updated: false }">
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1">
                                             <div class="flex items-center">
@@ -127,7 +127,7 @@
                                                     </span>
                                                 @endif
                                                 <span class="update-info hidden text-indigo-600 font-bold ml-2"></span>
-                                                <button class="update-btn hidden ml-2 inline-flex items-center px-2 py-1 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-indigo-700 focus:ring ring-indigo-300 disabled:opacity-25 transition ease-in-out duration-150"
+                                                <button class="update-btn hidden ml-2 inline-flex items-center px-2 py-1 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest focus:outline-none focus:ring disabled:opacity-25 transition ease-in-out duration-150"
                                                     @click="
                                                         updating = true;
                                                         const statusBadge = $el.closest('.module-item').querySelector('.update-status-badge');
@@ -178,6 +178,9 @@
                                                                     }
                                                                 }
                                                                 
+                                                                updated = true;
+                                                                updating = false;
+                                                                
                                                                 if (statusBadge) {
                                                                     statusBadge.innerText = '{{ __('Updated!') }}';
                                                                     statusBadge.classList.remove('bg-blue-100', 'text-blue-800');
@@ -203,7 +206,6 @@
                                                                         }, 1000);
                                                                     }, 2000);
                                                                 }
-                                                                updating = false;
                                                             } else {
                                                                 if (statusBadge) {
                                                                     statusBadge.innerText = '{{ __('Update Failed') }}';
@@ -226,14 +228,21 @@
                                                             updating = false;
                                                         });
                                                     "
-                                                    :disabled="updating">
-                                                    <span x-show="!updating">{{ __('Update') }}</span>
+                                                    :disabled="updating || updated"
+                                                    :class="{ 'bg-green-600 hover:bg-green-500 focus:border-green-700 focus:ring-green-300': updated, 'bg-indigo-600 hover:bg-indigo-500 focus:border-indigo-700 focus:ring-indigo-300': !updated }">
+                                                    <span x-show="!updating && !updated">{{ __('Update') }}</span>
                                                     <span x-show="updating" class="flex items-center">
                                                         <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                         </svg>
                                                         {{ __('Updating...') }}
+                                                    </span>
+                                                    <span x-show="updated" class="flex items-center">
+                                                        <svg class="-ml-1 mr-2 h-3 w-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        {{ __('Updated') }}
                                                     </span>
                                                 </button>
                                             </div>

@@ -69,10 +69,13 @@
                                     @endif
                                     <div class="mt-4">
                                         <button type="button" 
-                                            onclick="updateApplication()" 
-                                            id="update-btn"
+                                            onclick="updateApplication(this)" 
                                             class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
-                                            {{ __('Pull Update') }}
+                                            <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white hidden" id="update-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <span id="update-text">{{ __('Pull Update') }}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -101,10 +104,14 @@
                         {{ __('After pulling updates, run migrations and clear caches to ensure everything works properly.') }}
                     </p>
 
-                    <form action="{{ route('system.perform_update') }}" method="POST" onsubmit="return confirm('{{ __('Run database migrations and clear caches?') }}')">
+                    <form action="{{ route('system.perform_update') }}" method="POST" x-data="{ loading: false }" x-on:submit="if(!confirm('{{ __('Run database migrations and clear caches?') }}')) { $event.preventDefault(); return; } loading = true;">
                         @csrf
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
-                            {{ __('Run Migrations & Clear Cache') }}
+                        <button type="submit" :disabled="loading" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                            <svg x-show="loading" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span x-text="loading ? '{{ __('Processing...') }}' : '{{ __('Run Migrations & Clear Cache') }}'"></span>
                         </button>
                     </form>
                 </div>
@@ -113,10 +120,13 @@
     </div>
 
     <script>
-        function updateApplication() {
-            const btn = document.getElementById('update-btn');
-            const originalText = btn.innerText;
-            btn.innerText = '{{ __('Updating...') }}';
+        function updateApplication(btn) {
+            const spinner = document.getElementById('update-spinner');
+            const textSpan = document.getElementById('update-text');
+            const originalText = textSpan.innerText;
+            
+            textSpan.innerText = '{{ __('Updating...') }}';
+            spinner.classList.remove('hidden');
             btn.disabled = true;
             
             fetch('{{ route('system.pull_update') }}', {
@@ -137,16 +147,20 @@
                     }
                 } else {
                     alert('Error: ' + data.message);
-                    btn.innerText = originalText;
-                    btn.disabled = false;
+                    resetButton();
                 }
             })
             .catch(error => {
                 console.error(error);
                 alert('{{ __('An error occurred while updating') }}');
-                btn.innerText = originalText;
-                btn.disabled = false;
+                resetButton();
             });
+
+            function resetButton() {
+                textSpan.innerText = originalText;
+                spinner.classList.add('hidden');
+                btn.disabled = false;
+            }
         }
     </script>
 </x-app-layout>
