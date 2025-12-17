@@ -877,13 +877,23 @@ export function systemTools(ajaxUrl, diagnosticsUrl, csrfToken) {
         message: '',
         messageType: '',
         diagnosticsResults: null,
+        resultsTitle: '',
         
         async clearCache() {
-            await this.executeAction('clear_cache', 'Clearing cache...');
+            this.diagnosticsResults = null;
+            this.resultsTitle = 'Cache Clearing Status';
+            const data = await this.executeAction('clear_cache', 'Clearing cache...');
+            if (data && data.details) {
+                this.diagnosticsResults = data.details;
+            }
         },
         
         async optimizeApp() {
             await this.executeAction('optimize', 'Optimizing application...');
+        },
+
+        async rebuildNpm() {
+            await this.executeAction('rebuild_npm', 'Rebuilding assets (npm run build)... This may take a few seconds.');
         },
         
         async runDiagnostics() {
@@ -891,6 +901,7 @@ export function systemTools(ajaxUrl, diagnosticsUrl, csrfToken) {
             this.message = 'Running diagnostics...';
             this.messageType = 'info';
             this.diagnosticsResults = null;
+            this.resultsTitle = 'Diagnostics Results';
             
             try {
                 const response = await fetch(diagnosticsUrl, {
@@ -936,9 +947,11 @@ export function systemTools(ajaxUrl, diagnosticsUrl, csrfToken) {
                 
                 const data = await response.json();
                 this.showMessage(data.success ? 'success' : 'error', data.message);
+                return data;
             } catch (error) {
                 console.error('Action failed:', error);
                 this.showMessage('error', 'Operation failed: ' + error.message);
+                return null;
             } finally {
                 this.loading = false;
             }

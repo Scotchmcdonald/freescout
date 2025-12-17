@@ -117,6 +117,12 @@
                             class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium disabled:opacity-50">
                         {{ __('Optimize Application') }}
                     </button>
+
+                    <button @click="rebuildNpm()" 
+                            :disabled="loading"
+                            class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium disabled:opacity-50">
+                        {{ __('Rebuild Assets') }}
+                    </button>
                     
                     <button @click="runDiagnostics()" 
                             :disabled="loading"
@@ -144,7 +150,7 @@
 
                 <!-- Diagnostics Results -->
                 <div x-show="diagnosticsResults" x-transition class="mt-6 border-t pt-6">
-                    <h4 class="text-lg font-semibold mb-4">{{ __('Diagnostics Results') }}</h4>
+                    <h4 class="text-lg font-semibold mb-4" x-text="resultsTitle || '{{ __('Diagnostics Results') }}'"></h4>
                     <div class="overflow-x-auto border rounded-lg">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">

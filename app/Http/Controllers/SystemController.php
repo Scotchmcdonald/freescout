@@ -323,22 +323,39 @@ class SystemController extends Controller
 
         switch ($action) {
             case 'clear_cache':
-                try {
-                    Artisan::call('cache:clear');
-                    Artisan::call('config:clear');
-                    Artisan::call('route:clear');
-                    Artisan::call('view:clear');
+                $results = [];
+                $commands = [
+                    'cache:clear' => 'Application Cache',
+                    'config:clear' => 'Configuration Cache',
+                    'route:clear' => 'Route Cache',
+                    'view:clear' => 'Compiled Views',
+                    'event:clear' => 'Event Cache',
+                    'optimize:clear' => 'Optimization Files',
+                ];
 
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'All caches cleared successfully.',
-                    ]);
-                } catch (\Exception $e) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Failed to clear cache: '.$e->getMessage(),
-                    ], 500);
+                $hasError = false;
+
+                foreach ($commands as $command => $label) {
+                    try {
+                        Artisan::call($command);
+                        $results[$label] = [
+                            'status' => 'ok',
+                            'message' => trim(Artisan::output()) ?: "$label cleared.",
+                        ];
+                    } catch (\Exception $e) {
+                        $hasError = true;
+                        $results[$label] = [
+                            'status' => 'error',
+                            'message' => $e->getMessage(),
+                        ];
+                    }
                 }
+
+                return response()->json([
+                    'success' => !$hasError,
+                    'message' => $hasError ? 'Some caches failed to clear.' : 'All caches cleared successfully.',
+                    'details' => $results,
+                ]);
 
             case 'optimize':
                 try {
@@ -385,6 +402,59 @@ class SystemController extends Controller
                     return response()->json([
                         'success' => false,
                         'message' => 'Optimization failed: '.$e->getMessage(),
+                    ], 500);
+                }
+
+            case 'rebuild_npm':
+                try {
+                    // Increase time limit for build process
+                    set_time_limit(300);
+                    
+                    $basePath = base_path();
+                    $output = [];
+                    $returnVar = 0;
+                    
+                    // Try to find npm
+                    $npm = 'npm';
+                    // Common paths for npm if not in PATH
+                    $possiblePaths = [
+                        '/usr/bin/npm',
+                        '/usr/local/bin/npm',
+                        '/root/.nvm/versions/node/v*/bin/npm', // NVM support
+                    ];
+                    
+                    // Check if npm is in PATH
+                    exec('which npm', $whichOutput, $whichReturn);
+                    if ($whichReturn !== 0) {
+                        foreach ($possiblePaths as $path) {
+                            $glob = glob($path);
+                            if (!empty($glob)) {
+                                $npm = $glob[0];
+                                break;
+                            }
+                        }
+                    }
+
+                    // Run build command
+                    $command = "cd {$basePath} && {$npm} run build 2>&1";
+                    exec($command, $output, $returnVar);
+                    
+                    $outputStr = implode("\n", $output);
+
+                    if ($returnVar !== 0) {
+                        throw new \Exception("Build failed with exit code {$returnVar}. Output: {$outputStr}");
+                    }
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Assets rebuilt successfully.',
+                        'output' => $outputStr,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('NPM Build failed: ' . $e->getMessage());
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Build failed: ' . $e->getMessage(),
                     ], 500);
                 }
 
