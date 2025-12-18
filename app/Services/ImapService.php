@@ -312,19 +312,30 @@ class ImapService
 
         // Convert to array if it's an Attribute object
         if (is_object($from)) {
-            try {
-                // Try get() method first (for Attribute objects)
-                /** @phpstan-ignore-next-line method.notFound - Dynamic IMAP library object */
-                $from = $from->get();
-            } catch (\Throwable $e) {
+            $converted = false;
+            // Try get() method first (for Attribute objects)
+            if (method_exists($from, 'get')) {
+                try {
+                    $from = $from->get();
+                    $converted = true;
+                } catch (\Throwable $e) {
+                    // Ignore and try fallback
+                }
+            }
+
+            if (! $converted && is_object($from) && method_exists($from, 'toArray')) {
                 // Try toArray() as fallback (for some mock setups)
                 try {
-                    /** @phpstan-ignore-next-line method.notFound - Dynamic IMAP library object */
                     $from = $from->toArray();
+                    $converted = true;
                 } catch (\Throwable $e2) {
-                    // If both fail, set empty array
-                    $from = [];
+                    // Ignore
                 }
+            }
+
+            if (! $converted) {
+                // If both fail, set empty array
+                $from = [];
             }
         }
 
@@ -390,17 +401,18 @@ class ImapService
 
             // Try string conversion if needed
             if (! $fromEmail) {
-                try {
-                    /** @phpstan-ignore-next-line cast.string - Dynamic IMAP address object */
-                    $addressString = (string) $fromAddress;
-                    if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
-                        $fromEmail = $matches[1];
-                        $fromName = trim(str_replace('<'.$fromEmail.'>', '', $addressString));
-                    } else {
-                        $fromEmail = $addressString;
+                if (method_exists($fromAddress, '__toString')) {
+                    try {
+                        $addressString = (string) $fromAddress;
+                        if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
+                            $fromEmail = $matches[1];
+                            $fromName = trim(str_replace('<'.$fromEmail.'>', '', $addressString));
+                        } else {
+                            $fromEmail = $addressString;
+                        }
+                    } catch (\Throwable $e) {
+                        // String conversion failed
                     }
-                } catch (\Throwable $e) {
-                    // String conversion failed
                 }
             }
         } elseif (is_array($fromAddress)) {
@@ -1134,38 +1146,41 @@ class ImapService
         }
 
         // Try getRawHeader() first - use try-catch to handle both missing method and exceptions
-        try {
-            /** @phpstan-ignore-next-line method.notFound - Dynamic IMAP Message object */
-            $rawHeader = $message->getRawHeader();
-            // Ensure it's actually a string, not a mock object or empty
-            if (is_string($rawHeader) && $rawHeader !== '') {
-                return $rawHeader;
+        if (method_exists($message, 'getRawHeader')) {
+            try {
+                $rawHeader = $message->getRawHeader();
+                // Ensure it's actually a string, not a mock object or empty
+                if (is_string($rawHeader) && $rawHeader !== '') {
+                    return $rawHeader;
+                }
+            } catch (\Throwable $e) {
+                // getRawHeader() not available or failed, continue to fallback
             }
-        } catch (\Throwable $e) {
-            // getRawHeader() not available or failed, continue to fallback
         }
         
         // Fallback to getHeader() if available
-        try {
-            /** @phpstan-ignore-next-line method.notFound - Dynamic IMAP Message object */
-            $header = $message->getHeader();
-            if (is_string($header) && $header !== '') {
-                return $header;
-            }
-            if (is_object($header)) {
-                try {
-                    /** @phpstan-ignore-next-line cast.string - Dynamic IMAP Header object */
-                    $headerString = (string) $header;
-                    // Check if it's actually a string representation, not a mock object
-                    if ($headerString !== '' && ! str_contains($headerString, 'Mockery_')) {
-                        return $headerString;
-                    }
-                } catch (\Throwable $e) {
-                    // String casting failed
+        if (method_exists($message, 'getHeader')) {
+            try {
+                $header = $message->getHeader();
+                if (is_string($header) && $header !== '') {
+                    return $header;
                 }
+                if (is_object($header)) {
+                    if (method_exists($header, '__toString')) {
+                        try {
+                            $headerString = (string) $header;
+                            // Check if it's actually a string representation, not a mock object
+                            if ($headerString !== '' && ! str_contains($headerString, 'Mockery_')) {
+                                return $headerString;
+                            }
+                        } catch (\Throwable $e) {
+                            // String conversion failed
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                // getHeader() failed
             }
-        } catch (\Throwable $e) {
-            // getHeader() failed, return empty
         }
         
         return '';
@@ -1260,11 +1275,14 @@ class ImapService
 
         // Convert Attribute to array (try-catch for mock compatibility)
         if (is_object($addresses)) {
-            try {
-                /** @phpstan-ignore-next-line method.notFound - Dynamic IMAP Attribute object */
-                $addresses = $addresses->get();
-            } catch (\Throwable $e) {
-                // Mock without expectation or method doesn't exist, return empty array
+            if (method_exists($addresses, 'get')) {
+                try {
+                    $addresses = $addresses->get();
+                } catch (\Throwable $e) {
+                    // Mock without expectation or method doesn't exist, return empty array
+                    return [];
+                }
+            } else {
                 return [];
             }
         }
@@ -1299,17 +1317,18 @@ class ImapService
 
                 // If mail is not a property, try parsing the string representation
                 if (! $email) {
-                    try {
-                        /** @phpstan-ignore-next-line cast.string - Dynamic IMAP Address object */
-                        $addressString = (string) $addr;
-                        if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
-                            $email = $matches[1];
-                            $name = trim(str_replace('<'.$email.'>', '', $addressString));
-                        } else {
-                            $email = $addressString;
+                    if (method_exists($addr, '__toString')) {
+                        try {
+                            $addressString = (string) $addr;
+                            if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
+                                $email = $matches[1];
+                                $name = trim(str_replace('<'.$email.'>', '', $addressString));
+                            } else {
+                                $email = $addressString;
+                            }
+                        } catch (\Throwable $e) {
+                            // String conversion failed
                         }
-                    } catch (\Throwable $e) {
-                        // String conversion failed
                     }
                 }
             } elseif (is_array($addr)) {
@@ -1348,11 +1367,14 @@ class ImapService
 
         // Convert Attribute to array (try-catch for mock compatibility)
         if (is_object($addresses)) {
-            try {
-                /** @phpstan-ignore-next-line method.notFound - Dynamic IMAP Attribute object */
-                $addresses = $addresses->get();
-            } catch (\Throwable $e) {
-                // Mock without expectation or method doesn't exist, return empty array
+            if (method_exists($addresses, 'get')) {
+                try {
+                    $addresses = $addresses->get();
+                } catch (\Throwable $e) {
+                    // Mock without expectation or method doesn't exist, return empty array
+                    return [];
+                }
+            } else {
                 return [];
             }
         }
@@ -1379,16 +1401,17 @@ class ImapService
 
                 // If not a property, try parsing the string representation
                 if (! $email) {
-                    try {
-                        /** @phpstan-ignore-next-line cast.string - Dynamic IMAP Address object */
-                        $addressString = (string) $addr;
-                        if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
-                            $email = $matches[1];
-                        } else {
-                            $email = $addressString;
+                    if (method_exists($addr, '__toString')) {
+                        try {
+                            $addressString = (string) $addr;
+                            if (preg_match('/<([^>]+)>/', $addressString, $matches)) {
+                                $email = $matches[1];
+                            } else {
+                                $email = $addressString;
+                            }
+                        } catch (\Throwable $e) {
+                            // String conversion failed
                         }
-                    } catch (\Throwable $e) {
-                        // String conversion failed
                     }
                 }
 

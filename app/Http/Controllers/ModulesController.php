@@ -829,8 +829,8 @@ class ModulesController extends Controller
                 $sendEvent('installing', 75, __('Enabling module...'));
 
                 // Find and enable module
+                /** @var \Nwidart\Modules\Module|null $module */
                 $module = Module::find($moduleName);
-                /** @phpstan-ignore-next-line - Runtime safety check */
                 if (!$module) {
                     File::deleteDirectory($targetPath);
                     $sendEvent('error', 0, __('Module not found after installation'));
@@ -1865,8 +1865,7 @@ class ModulesController extends Controller
             }
             
             // Successfully cloned, safe to delete backup
-            /** @phpstan-ignore-next-line - Backup cleanup safety check */
-            if ($tempPath) {
+            if (File::isDirectory($tempPath)) {
                 try {
                     File::deleteDirectory($tempPath);
                 } catch (\Exception $e) {
