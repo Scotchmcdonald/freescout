@@ -57,3 +57,53 @@ Moving to MariaDB is a **safe and viable strategy** for both the Email Migration
 
 ## Conclusion
 The entire stack (Module + Core) is "MariaDB Ready". The move aligns with the high-concurrency goals of the migration module and offers potential RAM savings for the core application.
+
+## Implementation Plan
+
+### Phase 1: Preparation & Environment
+- [ ] **Backup:** Create a full `mysqldump` of the current production database.
+- [ ] **Provisioning:** Set up MariaDB 10.6+ instance (Docker or dedicated server).
+- [ ] **Configuration:**
+    - [ ] Ensure `innodb_large_prefix=ON`.
+    - [ ] Ensure `innodb_default_row_format=dynamic`.
+    - [ ] Configure `max_connections` to support expected worker load (e.g., 50 workers + web traffic).
+- [ ] **Driver Check:** Verify `php-mysql` extension is installed (MariaDB uses the same PDO driver).
+
+### Phase 2: Data Migration
+- [ ] **Maintenance Mode:** Run `php artisan down` to stop new writes.
+- [ ] **Export:** Dump data from MySQL:
+    ```bash
+    mysqldump -u [user] -p --opt --single-transaction --routines --events [database_name] > backup.sql
+    ```
+- [ ] **Import:** Import into MariaDB:
+    ```bash
+    mysql -u [user] -p [database_name] < backup.sql
+    ```
+- [ ] **Verification:** Compare row counts for critical tables (`conversations`, `migration_messages`, `users`).
+
+### Phase 3: Application Switchover
+- [ ] **Environment Update:** Update `.env` file:
+    ```ini
+    DB_CONNECTION=mariadb
+    DB_HOST=[mariadb_host]
+    DB_PORT=3306
+    ```
+- [ ] **Cache Clearing:**
+    ```bash
+    php artisan config:clear
+    php artisan cache:clear
+    ```
+- [ ] **Restart Services:** Restart PHP-FPM and Queue Workers (`php artisan queue:restart`).
+
+### Phase 4: Validation
+- [ ] **Automated Tests:** Run full test suite: `php artisan test`.
+- [ ] **Smoke Test:**
+    - [ ] Log in to FreeScout.
+    - [ ] View a conversation.
+    - [ ] Create a new Email Migration job.
+- [ ] **Live:** Bring application back up: `php artisan up`.
+
+### Phase 5: Post-Migration
+- [ ] **Monitor Logs:** Watch `storage/logs/laravel.log` for SQL errors.
+- [ ] **Performance Check:** Monitor database CPU/RAM usage during peak load.
+- [ ] **Cleanup:** Decommission old MySQL instance after 48 hours of stability.
