@@ -27,12 +27,7 @@ class ReplyToConversationAction
     /**
      * Execute the reply action.
      *
-     * @param array{
-     *   body: string,
-     *   type: int,
-     *   status?: int,
-     *   follow_up_date?: string
-     * } $data
+     * @param array<string, mixed> $data
      */
     public function execute(
         Conversation $conversation,
@@ -65,8 +60,16 @@ class ReplyToConversationAction
         });
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function createThread(Conversation $conversation, User $user, array $data): Thread
     {
+        $mailbox = $conversation->mailbox;
+        if (!$mailbox || !$mailbox->email) {
+            throw new \RuntimeException('Conversation mailbox email not found');
+        }
+        
         return Thread::create([
             'conversation_id' => $conversation->id,
             'user_id' => $user->id,
@@ -76,12 +79,15 @@ class ReplyToConversationAction
             'source_via' => 1,
             'source_type' => 2,
             'body' => $data['body'],
-            'from' => $conversation->mailbox->email,
+            'from' => $mailbox->email,
             'to' => json_encode([$conversation->customer_email]),
             'created_by_user_id' => $user->id,
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function updateConversation(Conversation $conversation, User $user, array $data): void
     {
         $updateData = [
@@ -98,6 +104,9 @@ class ReplyToConversationAction
         $conversation->update($updateData);
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function dispatchEmailIfNeeded(Conversation $conversation, Thread $thread, array $data): void
     {
         $isReply = ($data['type'] ?? ThreadType::MESSAGE->value) === ThreadType::MESSAGE->value;

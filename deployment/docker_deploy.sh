@@ -506,8 +506,13 @@ RUN apt-get update && apt-get install -y gnupg curl ca-certificates && \
 # Configure Docker socket access for www-data user
 # This enables the sibling container architecture for EmailMigration lab testing
 ARG DOCKER_GID=999
-RUN groupadd -g $DOCKER_GID -f docker || true && \
-    usermod -aG docker www-data || true
+RUN if getent group ${DOCKER_GID}; then \
+        group_name=$(getent group ${DOCKER_GID} | cut -d: -f1); \
+        usermod -aG $group_name www-data; \
+    else \
+        groupadd -g ${DOCKER_GID} docker_sock; \
+        usermod -aG docker_sock www-data; \
+    fi
 
 USER www-data
 EOF

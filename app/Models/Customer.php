@@ -132,6 +132,8 @@ class Customer extends Model
 
     /**
      * Get the customer's full name.
+     * 
+     * @return Attribute<string, never>
      */
     protected function fullName(): Attribute
     {
@@ -163,6 +165,8 @@ class Customer extends Model
 
     /**
      * Get the customer's primary email.
+     * 
+     * @return Attribute<string|null, never>
      */
     protected function primaryEmail(): Attribute
     {

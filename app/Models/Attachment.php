@@ -63,6 +63,8 @@ class Attachment extends Model
 
     /**
      * Get the full file path.
+     * 
+     * @return Attribute<string, never>
      */
     protected function fullPath(): Attribute
     {
@@ -73,6 +75,8 @@ class Attachment extends Model
 
     /**
      * Get the file size in human-readable format.
+     * 
+     * @return Attribute<string, never>
      */
     protected function humanFileSize(): Attribute
     {

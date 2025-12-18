@@ -228,6 +228,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the user's full name.
+     * 
+     * @return Attribute<string, never>
      */
     protected function fullName(): Attribute
     {
@@ -283,6 +285,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the name attribute (accessor for compatibility).
+     * 
+     * @return Attribute<string, never>
      */
     protected function name(): Attribute
     {

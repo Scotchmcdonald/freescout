@@ -14,3 +14,10 @@ Schedule::command('freescout:fetch-emails')
     ->withoutOverlapping()
     ->onOneServer()
     ->runInBackground();
+
+// Schedule migration secret cleanup (P0: prevent credential leaks)
+Schedule::command('emailmigration:clean-secrets')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->runInBackground();

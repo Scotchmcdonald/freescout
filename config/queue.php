@@ -72,6 +72,24 @@ return [
             'after_commit' => false,
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Long-Running Queue (Email Migration)
+        |--------------------------------------------------------------------------
+        |
+        | This queue is optimized for long-running jobs like email migrations.
+        | Jobs can run up to 24 hours with extended retry windows.
+        |
+        */
+        'long-running' => [
+            'driver' => env('QUEUE_CONNECTION', 'database'),
+            'connection' => env('DB_QUEUE_CONNECTION'),
+            'table' => env('DB_QUEUE_TABLE', 'jobs'),
+            'queue' => 'long-running',
+            'retry_after' => (int) env('MIGRATION_JOB_TIMEOUT', 86400) + 300, // 24h + 5min buffer
+            'after_commit' => false,
+        ],
+
     ],
 
     /*
