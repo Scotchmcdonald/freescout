@@ -523,7 +523,7 @@
                 hideTimeouts.forEach(timeout => clearTimeout(timeout));
                 hideTimeouts = [];
                 
-                const btn = checkUpdatesBtn;
+                const btn = document.getElementById('check-updates-btn');
                 const originalText = btn ? btn.innerText : '';
                 
                 if (btn && !isAutoCheck) {
@@ -565,63 +565,71 @@
                         
                         // After a brief delay, update with results
                         setTimeout(() => {
-                            document.querySelectorAll('.module-item').forEach(item => {
-                                const alias = item.dataset.alias;
-                                const badge = item.querySelector('.update-status-badge');
-                                
-                                if (badge) {
-                                    // Clear existing classes
-                                    badge.classList.remove('bg-blue-100', 'text-blue-800', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
+                            try {
+                                document.querySelectorAll('.module-item').forEach(item => {
+                                    const alias = item.dataset.alias;
+                                    const badge = item.querySelector('.update-status-badge');
                                     
-                                    if (updates[alias]) {
-                                        // Has update
-                                        const infoSpan = item.querySelector('.update-info');
-                                        const updateBtn = item.querySelector('.update-btn');
+                                    if (badge) {
+                                        // Clear existing classes
+                                        badge.classList.remove('bg-blue-100', 'text-blue-800', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
                                         
-                                        if (infoSpan) {
-                                            let msg = updates[alias].commits_behind 
-                                                ? updates[alias].commits_behind + ' {{ __('commits behind') }}'
-                                                : '{{ __('New version:') }} ' + updates[alias].available;
+                                        if (updates[alias]) {
+                                            // Has update
+                                            const infoSpan = item.querySelector('.update-info');
+                                            const updateBtn = item.querySelector('.update-btn');
                                             
-                                            // Add commit link if available
-                                            if (updates[alias].remote_commit_url && updates[alias].remote_commit) {
-                                                msg += ' → <a href="' + updates[alias].remote_commit_url + '" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-mono">' + updates[alias].remote_commit + '</a>';
+                                            if (infoSpan) {
+                                                let msg = updates[alias].commits_behind 
+                                                    ? updates[alias].commits_behind + ' {{ __('commits behind') }}'
+                                                    : '{{ __('New version:') }} ' + updates[alias].available;
+                                                
+                                                // Add commit link if available
+                                                if (updates[alias].remote_commit_url && updates[alias].remote_commit) {
+                                                    msg += ' → <a href="' + updates[alias].remote_commit_url + '" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-mono">' + updates[alias].remote_commit + '</a>';
+                                                }
+                                                
+                                                infoSpan.innerHTML = msg;
+                                                infoSpan.classList.remove('hidden');
                                             }
                                             
-                                            infoSpan.innerHTML = msg;
-                                            infoSpan.classList.remove('hidden');
+                                            if (updateBtn) {
+                                                updateBtn.classList.remove('hidden');
+                                            }
+                                            
+                                            badge.innerText = '{{ __('Update Available') }}';
+                                            badge.classList.remove('hidden');
+                                            badge.classList.add('bg-yellow-100', 'text-yellow-800');
+                                            count++;
+                                        } else {
+                                            // Show "Up to Date" for all checks (both auto and manual)
+                                            badge.innerText = '{{ __('Up to Date') }}';
+                                            badge.classList.remove('hidden');
+                                            badge.classList.add('bg-green-100', 'text-green-800');
+                                            
+                                            // Auto-hide "Up to Date" after 3 seconds
+                                            const timeout = setTimeout(() => {
+                                                badge.classList.add('hidden');
+                                            }, 3000);
+                                            hideTimeouts.push(timeout);
                                         }
-                                        
-                                        if (updateBtn) {
-                                            updateBtn.classList.remove('hidden');
-                                        }
-                                        
-                                        badge.innerText = '{{ __('Update Available') }}';
-                                        badge.classList.remove('hidden');
-                                        badge.classList.add('bg-yellow-100', 'text-yellow-800');
-                                        count++;
-                                    } else {
-                                        // Show "Up to Date" for all checks (both auto and manual)
-                                        badge.innerText = '{{ __('Up to Date') }}';
-                                        badge.classList.remove('hidden');
-                                        badge.classList.add('bg-green-100', 'text-green-800');
-                                        
-                                        // Auto-hide "Up to Date" after 3 seconds
-                                        const timeout = setTimeout(() => {
-                                            badge.classList.add('hidden');
-                                        }, 3000);
-                                        hideTimeouts.push(timeout);
                                     }
+                                });
+                                
+                                // Re-enable button after showing results
+                                if (btn && !isAutoCheck) {
+                                    btn.innerText = originalText;
+                                    btn.disabled = false;
                                 }
-                            });
-                            
-                            // Re-enable button after showing results
-                            if (btn && !isAutoCheck) {
-                                btn.innerText = originalText;
-                                btn.disabled = false;
+                            } catch (e) {
+                                console.error('Error updating UI:', e);
+                                if (btn && !isAutoCheck) {
+                                    btn.innerText = originalText;
+                                    btn.disabled = false;
+                                }
+                            } finally {
+                                isCheckingUpdates = false;
                             }
-                            
-                            isCheckingUpdates = false;
                         }, 500);
                     } else {
                         if (!isAutoCheck) {
