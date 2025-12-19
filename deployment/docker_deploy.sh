@@ -504,17 +504,24 @@ RUN apt-get update && apt-get install -y gnupg curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Configure Docker socket access for www-data user
-# This enables the sibling container architecture for EmailMigration lab testing
-ARG DOCKER_GID=999
-RUN if getent group ${DOCKER_GID}; then \
-        group_name=$(getent group ${DOCKER_GID} | cut -d: -f1); \
-        usermod -aG $group_name www-data; \
-    else \
-        groupadd -g ${DOCKER_GID} docker_sock; \
-        usermod -aG docker_sock www-data; \
-    fi
+# We use a startup script to dynamically assign the group based on the mounted socket
+RUN mkdir -p /etc/entrypoint.d && \
+    printf "#!/bin/sh\n\
+if [ -S /var/run/docker.sock ]; then\n\
+    SOCK_GID=\$(stat -c '%%g' /var/run/docker.sock)\n\
+    echo \"Fixing docker socket permissions (GID: \$SOCK_GID)...\"\n\
+    if getent group \$SOCK_GID; then\n\
+        GROUP_NAME=\$(getent group \$SOCK_GID | cut -d: -f1)\n\
+        usermod -aG \$GROUP_NAME www-data\n\
+    else\n\
+        groupadd -g \$SOCK_GID docker_sock_runtime\n\
+        usermod -aG docker_sock_runtime www-data\n\
+    fi\n\
+fi\n" > /etc/entrypoint.d/99-fix-docker-sock.sh && \
+    chmod +x /etc/entrypoint.d/99-fix-docker-sock.sh
 
-USER www-data
+# Note: We run as root to allow the entrypoint script to fix permissions.
+# The base image handles dropping privileges to www-data for PHP-FPM.
 EOF
     
     log_success "Dockerfile generated"
