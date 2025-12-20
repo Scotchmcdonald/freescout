@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
+use Illuminate\Support\Facades\Cache;
 
 class Update extends Command
 {
@@ -34,37 +35,49 @@ class Update extends Command
             return 1;
         }
 
-        $this->info('Starting FreeScout update...');
+        // Prevent concurrent updates
+        $lock = Cache::lock('freescout_update_process', 600); // 10 minute lock
 
-        // Increase memory limit for update process
-        ini_set('memory_limit', '256M');
+        if (!$lock->get()) {
+            $this->error('Another update process is currently running. Please wait.');
+            return 1;
+        }
 
         try {
-            // Run database migrations
-            $this->info('Running database migrations...');
-            $this->call('migrate', ['--force' => true]);
+            $this->info('Starting FreeScout update...');
 
-            // Clear all caches
-            $this->info('Clearing caches...');
-            $this->call('cache:clear');
-            $this->call('config:clear');
-            $this->call('route:clear');
-            $this->call('view:clear');
+            // Increase memory limit for update process
+            ini_set('memory_limit', '256M');
 
-            // Optimize application
-            $this->info('Optimizing application...');
-            $this->call('optimize');
+            try {
+                // Run database migrations
+                $this->info('Running database migrations...');
+                $this->call('migrate', ['--force' => true]);
 
-            // Run post-update tasks
-            $this->info('Running post-update tasks...');
-            $this->call('freescout:after-app-update');
+                // Clear all caches
+                $this->info('Clearing caches...');
+                $this->call('cache:clear');
+                $this->call('config:clear');
+                $this->call('route:clear');
+                $this->call('view:clear');
 
-            $this->info('Update completed successfully!');
+                // Optimize application
+                $this->info('Optimizing application...');
+                $this->call('optimize');
 
-            return 0;
-        } catch (\Exception $e) {
-            $this->error('Error occurred during update: ' . $e->getMessage());
-            return 1;
+                // Run post-update tasks
+                $this->info('Running post-update tasks...');
+                $this->call('freescout:after-app-update');
+
+                $this->info('Update completed successfully!');
+
+                return 0;
+            } catch (\Exception $e) {
+                $this->error('Error occurred during update: ' . $e->getMessage());
+                return 1;
+            }
+        } finally {
+            $lock->release();
         }
     }
 }

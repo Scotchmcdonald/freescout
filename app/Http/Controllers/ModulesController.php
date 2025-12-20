@@ -345,7 +345,7 @@ class ModulesController extends Controller
                 if (!$response->successful()) {
                     return response()->json([
                         'success' => false,
-                        'message' => __('Connection failed: :error', ['error' => $response->status()])
+                        'message' => __('We couldn\'t connect to the module server. Please verify your network settings. Error: :error', ['error' => $response->status()])
                     ], 500);
                 }
                 

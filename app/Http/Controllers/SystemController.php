@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class SystemController extends Controller
@@ -974,6 +975,13 @@ class SystemController extends Controller
      */
     public function performUpdate(Request $request): RedirectResponse
     {
+        // Rate Limiting: 1 update per minute to prevent abuse
+        if (RateLimiter::tooManyAttempts('system-update', 1)) {
+            $seconds = RateLimiter::availableIn('system-update');
+            return back()->with('error', "Please wait $seconds seconds before retrying update.");
+        }
+        RateLimiter::hit('system-update', 60);
+
         try {
             // Increase memory limit
             ini_set('memory_limit', '256M');

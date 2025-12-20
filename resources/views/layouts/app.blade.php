@@ -52,6 +52,7 @@
                 @endif
             </main>
         </div>
+        <x-activity-drawer />
         @action('layout.body_end')
         @stack('scripts')
     </body>

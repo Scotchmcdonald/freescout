@@ -158,7 +158,7 @@
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    <span x-text="previewing ? '{{ __('Loading...') }}' : '{{ __('Preview Module') }}'"></span>
+                                    <span x-text="previewing ? '{{ __('Analyzing...') }}' : '{{ __('Preview Module') }}'"></span>
                                 </span>
                             </button>
                         </div>
@@ -281,10 +281,10 @@
                                     <span x-text="installMessage"></span>
                                     <span x-text="installProgress + '%'"></span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                                    <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
-                                         :style="'width: ' + installProgress + '%'"></div>
-                                </div>
+                                <x-progress-bar 
+                                    alpine="installProgress" 
+                                    color="primary" 
+                                />
                                 <p class="text-xs text-gray-500 mt-1 capitalize" x-text="installStage"></p>
                             </div>
 

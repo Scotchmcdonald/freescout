@@ -40,12 +40,23 @@
                     </div>
 
                     <!-- SMTP Result -->
-                    <div x-show="smtpResult" 
-                         x-cloak
-                         class="mt-4 p-4 rounded"
-                         :class="smtpResultType === 'success' ? 'bg-green-100 text-green-800' : (smtpResultType === 'error' ? 'bg-red-100 text-red-800' : 'text-gray-600')"
-                         x-text="smtpResult">
-                    </div>
+                    <template x-if="smtpResultType === 'error'">
+                        <x-troubleshooting-card 
+                            title="Connection Failed" 
+                            type="error"
+                            alpine-body="smtpResult"
+                            action-text="Check Documentation"
+                            action-url="https://freescout.net/module/email-migration/"
+                        />
+                    </template>
+                    <template x-if="smtpResultType === 'success'">
+                        <div class="mt-4">
+                            <x-status-badge status="success" alpine-text="smtpResult" />
+                        </div>
+                    </template>
+                    <template x-if="smtpResultType === 'info'">
+                        <div class="mt-4 p-4 rounded bg-gray-100 text-gray-600" x-text="smtpResult"></div>
+                    </template>
 
                     <!-- Test Email Form -->
                     <div x-show="showSmtpTestForm" x-cloak class="mt-4">
@@ -87,12 +98,23 @@
                     </div>
 
                     <!-- IMAP Result -->
-                    <div x-show="imapResult" 
-                         x-cloak
-                         class="mt-4 p-4 rounded"
-                         :class="imapResultType === 'success' ? 'bg-green-100 text-green-800' : (imapResultType === 'error' ? 'bg-red-100 text-red-800' : 'text-gray-600')"
-                         x-text="imapResult">
-                    </div>
+                    <template x-if="imapResultType === 'error'">
+                        <x-troubleshooting-card 
+                            title="Connection Failed" 
+                            type="error"
+                            alpine-body="imapResult"
+                            action-text="Check Documentation"
+                            action-url="https://freescout.net/module/email-migration/"
+                        />
+                    </template>
+                    <template x-if="imapResultType === 'success'">
+                        <div class="mt-4">
+                            <x-status-badge status="success" alpine-text="imapResult" />
+                        </div>
+                    </template>
+                    <template x-if="imapResultType === 'info'">
+                        <div class="mt-4 p-4 rounded bg-gray-100 text-gray-600" x-text="imapResult"></div>
+                    </template>
                 </div>
             </div>
             

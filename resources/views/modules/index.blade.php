@@ -98,9 +98,7 @@
                                                 <h4 class="text-lg font-medium text-gray-900">
                                                     {{ $module['name'] }}
                                                 </h4>
-                                                <span class="ml-3 px-2 py-1 text-xs rounded-full {{ $module['enabled'] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
-                                                    {{ $module['enabled'] ? __('Enabled') : __('Disabled') }}
-                                                </span>
+                                                <x-status-badge :status="$module['enabled'] ? 'success' : 'neutral'" :text="$module['enabled'] ? __('Enabled') : __('Disabled')" class="ml-3" />
                                                 <span class="update-status-badge ml-2 px-2 py-1 text-xs rounded-full hidden"></span>
                                             </div>
                                             
