@@ -42,6 +42,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        config(['broadcasting.default' => 'log']);
         $this->service = new ImapService();
     }
 
@@ -67,7 +68,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
      */
     protected function createMockMessage(array $params = []): Message
     {
-        $message = Mockery::mock(Message::class);
+        $message = Mockery::mock(Message::class . ', \Tests\Unit\Services\MessageWithRawHeader');
 
         // Default values
         $defaults = [
@@ -1056,10 +1057,14 @@ This is the forwarded message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         // Mock Attribute object with get method (not toArray)
-        $fromAttribute = Mockery::mock();
-        $fromAttribute->shouldReceive('get')->andReturn([
-            (object)['mail' => 'getmethod@example.com', 'personal' => 'Get User']
-        ]);
+        // Use anonymous class to ensure method_exists returns true
+        $fromAttribute = new class {
+            public function get() {
+                return [
+                    (object)['mail' => 'getmethod@example.com', 'personal' => 'Get User']
+                ];
+            }
+        };
 
         $message = Mockery::mock(Message::class);
         $message->shouldReceive('getFrom')->andReturn($fromAttribute);
@@ -1681,3 +1686,7 @@ This is the forwarded message content';
         $this->assertTrue((bool)$conversation2->has_attachments, 'Conversation should have attachments flag if regular attachment is present');
     }
 }
+interface MessageWithRawHeader {
+    public function getRawHeader();
+}
+

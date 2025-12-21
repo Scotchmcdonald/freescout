@@ -8,6 +8,7 @@ use App\Http\Controllers\ConversationController;
 use App\Http\Requests\StoreConversationRequest;
 use App\Http\Requests\UpdateConversationRequest;
 use App\Http\Requests\ReplyConversationRequest;
+use App\Actions\Conversations\ReplyToConversationAction;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Folder;
@@ -300,17 +301,21 @@ class ConversationControllerTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $user->mailboxes()->attach($mailbox->id);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
+        
+        $this->actingAs($user);
 
         $request = \Mockery::mock(ReplyConversationRequest::class);
         $request->shouldReceive('user')->andReturn($user);
         $request->shouldReceive('validated')->andReturn(['body' => 'This is a reply']);
         $request->shouldReceive('expectsJson')->andReturn(false);
 
+        $action = \Mockery::mock(ReplyToConversationAction::class);
+        $action->shouldReceive('execute')->once();
+
         $controller = new ConversationController;
-        $response = $controller->reply($request, $conversation);
+        $response = $controller->reply($request, $conversation, $action);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
-        $this->assertEquals(1, Thread::where('conversation_id', $conversation->id)->count());
     }
 
     public function test_reply_requires_body(): void

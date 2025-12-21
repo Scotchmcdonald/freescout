@@ -100,7 +100,7 @@ FreeScout is a pure PHP/MySQL application, so it can be easily deployed even on 
 
   * Nginx / Apache / IIS
   * PHP 8.2+
-  * MySQL 5.0+ / MariaDB 5.0+ / PostgreSQL
+  * MariaDB 10.6+ (Recommended) / MySQL 8.0+ / PostgreSQL
 
 There are no minimum system requirements (CPU / RAM) – FreeScout will run on any system.
 
@@ -181,7 +181,7 @@ Login page:
 
 ## 🐳 Docker Deployment
 
-We provide a "One-Click" Docker deployment script that sets up the entire stack (App, MySQL, Redis, Nginx) with a single command.
+We provide a "One-Click" Docker deployment script that sets up the entire stack (App, MariaDB, Redis, Nginx) with a single command.
 
 ### Quick Start
 
@@ -195,7 +195,7 @@ We provide a "One-Click" Docker deployment script that sets up the entire stack 
     Open your browser and navigate to `http://<your-server-ip>`.
 
 ### Features of the Docker Setup
-*   **Full Stack**: Includes Nginx, PHP 8.2 FPM, MySQL 8.0, and Redis.
+*   **Full Stack**: Includes Nginx, PHP 8.2 FPM, MariaDB 10.6, and Redis.
 *   **Auto-Configuration**: Generates `Dockerfile`, `docker-compose.yml`, and `.env` automatically.
 *   **Production Ready**: Configured with proper permissions, volume persistence, and security headers.
 *   **Queue & Cron**: Automatically sets up background workers for emails and scheduled tasks.

@@ -150,7 +150,7 @@ class CompleteWorkflowTest extends TestCase
         // Verify reply thread was created
         $this->assertDatabaseHas('threads', [
             'conversation_id' => $conversation->id,
-            'body' => 'Hi John, I would be happy to help you with that.',
+            'body' => '<p>Hi John, I would be happy to help you with that.</p>',
             'created_by_user_id' => $this->agent->id,
         ]);
 
@@ -276,7 +276,7 @@ class CompleteWorkflowTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('threads', [
             'conversation_id' => $conversation->id,
-            'body' => 'Please check the logs for this customer.',
+            'body' => '<p>Please check the logs for this customer.</p>',
             'type' => 2, // Internal note type
             'created_by_user_id' => $this->admin->id,
         ]);
@@ -462,7 +462,7 @@ class CompleteWorkflowTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('threads', [
             'conversation_id' => $conversation1->id,
-            'body' => 'Working on this issue now.',
+            'body' => '<p>Working on this issue now.</p>',
         ]);
 
         // Step 7: User logs out
@@ -641,7 +641,7 @@ class CompleteWorkflowTest extends TestCase
         // Verify reply was created
         $this->assertDatabaseHas('threads', [
             'conversation_id' => $conversation->id,
-            'body' => 'Follow-up on closed issue',
+            'body' => '<p>Follow-up on closed issue</p>',
         ]);
 
         // Check if conversation status changed (implementation dependent)

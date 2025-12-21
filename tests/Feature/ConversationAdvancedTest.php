@@ -229,7 +229,7 @@ class ConversationAdvancedTest extends TestCase
 
         // Check initial thread was created
         $this->assertDatabaseHas('threads', [
-            'body' => 'I need help with my account',
+            'body' => '<p>I need help with my account</p>',
         ]);
     }
 
@@ -399,7 +399,7 @@ class ConversationAdvancedTest extends TestCase
         // Check thread was created
         $this->assertDatabaseHas('threads', [
             'conversation_id' => $conversation->id,
-            'body' => 'This is my reply to the customer',
+            'body' => '<p>This is my reply to the customer</p>',
             'created_by_user_id' => $this->agent->id,
         ]);
 
@@ -452,7 +452,7 @@ class ConversationAdvancedTest extends TestCase
         // Verify the response data
         $data = $response->json();
         $this->assertTrue($data['success']);
-        $this->assertEquals('AJAX reply test', $data['thread']['body']);
+        $this->assertEquals('<p>AJAX reply test</p>', $data['thread']['body']);
     }
 
     /** Test reply with type=2 creates internal note */
@@ -473,7 +473,7 @@ class ConversationAdvancedTest extends TestCase
 
         $this->assertDatabaseHas('threads', [
             'conversation_id' => $conversation->id,
-            'body' => 'Internal note: Customer seems frustrated',
+            'body' => '<p>Internal note: Customer seems frustrated</p>',
             'type' => 2,
         ]);
     }

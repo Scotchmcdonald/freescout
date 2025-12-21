@@ -80,8 +80,14 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     {
         $message = Mockery::mock(Message::class);
         $addressObj = (object) ['mail' => 'user@test.com', 'personal' => 'User Name'];
-        $from = Mockery::mock();
-        $from->shouldReceive('get')->andReturn([$addressObj]);
+        
+        // Use anonymous class to satisfy method_exists check
+        $from = new class($addressObj) {
+            private $addr;
+            public function __construct($addr) { $this->addr = $addr; }
+            public function get() { return [$this->addr]; }
+        };
+        
         $message->shouldReceive('getFrom')->andReturn($from);
 
         Log::shouldReceive('debug')->once(); // Only "Processing message from" is logged, user not found
@@ -533,8 +539,9 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_get_message_headers_returns_raw_header(): void
     {
-        $mockMessage = Mockery::mock();
-        $mockMessage->shouldReceive('getRawHeader')->andReturn('Header: Value');
+        $mockMessage = new class {
+            public function getRawHeader() { return 'Header: Value'; }
+        };
 
         $result = $this->invokeMethod($this->service, 'getMessageHeaders', [$mockMessage]);
 
@@ -543,9 +550,10 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_get_message_headers_falls_back_to_get_header(): void
     {
-        $mockMessage = Mockery::mock();
-        $mockMessage->shouldReceive('getRawHeader')->andReturn('');
-        $mockMessage->shouldReceive('getHeader')->andReturn('Fallback Header');
+        $mockMessage = new class {
+            public function getRawHeader() { return ''; }
+            public function getHeader() { return 'Fallback Header'; }
+        };
 
         $result = $this->invokeMethod($this->service, 'getMessageHeaders', [$mockMessage]);
 

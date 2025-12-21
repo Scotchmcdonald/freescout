@@ -546,19 +546,20 @@ services:
       start_period: 40s
 
   db:
-    image: mysql:8.0
+    image: mariadb:10.6
     restart: unless-stopped
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --innodb-file-per-table=1 --skip-innodb-read-only-compressed
     environment:
-      MYSQL_ROOT_PASSWORD: \${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: \${DB_DATABASE}
-      MYSQL_USER: \${DB_USER}
-      MYSQL_PASSWORD: \${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: \${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: \${DB_DATABASE}
+      MARIADB_USER: \${DB_USER}
+      MARIADB_PASSWORD: \${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     networks:
       - fs-net
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 5

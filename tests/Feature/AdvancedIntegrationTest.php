@@ -56,7 +56,7 @@ class AdvancedIntegrationTest extends FeatureTestCase
 
         $this->assertDatabaseHas('threads', [
             'conversation_id' => $conversation->id,
-            'body' => 'Here is my reply',
+            'body' => '<p>Here is my reply</p>',
         ]);
 
         // Close conversation
@@ -216,11 +216,11 @@ class AdvancedIntegrationTest extends FeatureTestCase
         // Both replies should be saved
         $this->assertDatabaseHas('threads', [
             'conversation_id' => $conversation->id,
-            'body' => 'Reply from user 1',
+            'body' => '<p>Reply from user 1</p>',
         ]);
         $this->assertDatabaseHas('threads', [
             'conversation_id' => $conversation->id,
-            'body' => 'Reply from user 2',
+            'body' => '<p>Reply from user 2</p>',
         ]);
     }
 
