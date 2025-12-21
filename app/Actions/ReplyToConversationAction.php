@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
  * Encapsulates the business logic for creating a reply thread,
  * updating conversation state, and dispatching notification jobs.
  */
-final class ReplyToConversationAction
+class ReplyToConversationAction
 {
     /**
      * Execute the reply action.

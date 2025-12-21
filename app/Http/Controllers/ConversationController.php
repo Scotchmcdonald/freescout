@@ -298,6 +298,8 @@ class ConversationController extends Controller
         Conversation $conversation,
         ReplyToConversationAction $action
     ): RedirectResponse|JsonResponse {
+        $this->authorize('update', $conversation);
+
         /** @var \App\Models\User $user */
         $user = $request->user();
 

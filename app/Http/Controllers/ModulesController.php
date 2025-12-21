@@ -845,7 +845,28 @@ class ModulesController extends Controller
                 $outputLog = new BufferedOutput;
                 Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
                 
-                Artisan::call('cache:clear');
+                // Clear all caches to ensure menu items and routes are registered
+                Artisan::call('optimize:clear');
+
+                // Build assets if package.json exists and npm is available
+                if (File::exists($targetPath . '/package.json')) {
+                    $sendEvent('installing', 90, __('Building assets...'));
+                    
+                    $npmCheck = new \Symfony\Component\Process\Process(['npm', '-v']);
+                    $npmCheck->run();
+                    
+                    if ($npmCheck->isSuccessful()) {
+                        // npm install
+                        $npmInstall = new \Symfony\Component\Process\Process(['npm', 'install'], $targetPath);
+                        $npmInstall->setTimeout(600);
+                        $npmInstall->run();
+                        
+                        // npm run build
+                        $npmBuild = new \Symfony\Component\Process\Process(['npm', 'run', 'build'], $targetPath);
+                        $npmBuild->setTimeout(600);
+                        $npmBuild->run();
+                    }
+                }
 
                 $sendEvent('complete', 100, __('Module installed successfully!'));
 
@@ -1183,7 +1204,24 @@ class ModulesController extends Controller
             $outputLog = new BufferedOutput;
             Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
             
-            Artisan::call('cache:clear');
+            // Clear all caches
+            Artisan::call('optimize:clear');
+
+            // Build assets if package.json exists
+            if (File::exists($targetPath . '/package.json')) {
+                $npmCheck = new \Symfony\Component\Process\Process(['npm', '-v']);
+                $npmCheck->run();
+                
+                if ($npmCheck->isSuccessful()) {
+                    $npmInstall = new \Symfony\Component\Process\Process(['npm', 'install'], $targetPath);
+                    $npmInstall->setTimeout(600);
+                    $npmInstall->run();
+                    
+                    $npmBuild = new \Symfony\Component\Process\Process(['npm', 'run', 'build'], $targetPath);
+                    $npmBuild->setTimeout(600);
+                    $npmBuild->run();
+                }
+            }
             
             // Log successful installation
             $this->logActivity($moduleName, 'install', [
@@ -1259,8 +1297,25 @@ class ModulesController extends Controller
                 $outputLog = new BufferedOutput;
                 Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
 
-                // Clear cache again
-                Artisan::call('cache:clear');
+                // Clear all caches
+                Artisan::call('optimize:clear');
+
+                // Build assets if package.json exists
+                $modulePath = $module->getPath();
+                if (File::exists($modulePath . '/package.json')) {
+                    $npmCheck = new \Symfony\Component\Process\Process(['npm', '-v']);
+                    $npmCheck->run();
+                    
+                    if ($npmCheck->isSuccessful()) {
+                        $npmInstall = new \Symfony\Component\Process\Process(['npm', 'install'], $modulePath);
+                        $npmInstall->setTimeout(600);
+                        $npmInstall->run();
+                        
+                        $npmBuild = new \Symfony\Component\Process\Process(['npm', 'run', 'build'], $modulePath);
+                        $npmBuild->setTimeout(600);
+                        $npmBuild->run();
+                    }
+                }
 
                 return redirect()->back()->with('success', __('Module installed and enabled successfully'));
             } else {
@@ -1734,7 +1789,24 @@ class ModulesController extends Controller
             $outputLog = new BufferedOutput;
             Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
             
-            Artisan::call('cache:clear');
+            // Clear all caches to ensure menu items and routes are registered
+            Artisan::call('optimize:clear');
+
+            // Build assets if package.json exists and npm is available
+            if (File::exists($path . '/package.json')) {
+                $npmCheck = new \Symfony\Component\Process\Process(['npm', '-v']);
+                $npmCheck->run();
+                
+                if ($npmCheck->isSuccessful()) {
+                    $npmInstall = new \Symfony\Component\Process\Process(['npm', 'install'], $path);
+                    $npmInstall->setTimeout(600);
+                    $npmInstall->run();
+                    
+                    $npmBuild = new \Symfony\Component\Process\Process(['npm', 'run', 'build'], $path);
+                    $npmBuild->setTimeout(600);
+                    $npmBuild->run();
+                }
+            }
             
             $message = __('Module updated from GitHub successfully');
             if ($hasMigrations) {

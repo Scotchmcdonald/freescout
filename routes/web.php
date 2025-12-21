@@ -42,12 +42,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// Style Guide (Dev Only)
 if (app()->environment('local', 'testing')) {
-    Route::get('/style-guide', function () {
-        return view('style-guide');
-    })->middleware(['auth'])->name('style-guide');
-
     // Chaos Testing
     Route::get('/chaos/network-timeout', [\App\Http\Controllers\ChaosController::class, 'networkTimeout'])->name('chaos.network_timeout');
     Route::get('/chaos/disk-full', [\App\Http\Controllers\ChaosController::class, 'diskFull'])->name('chaos.disk_full');
