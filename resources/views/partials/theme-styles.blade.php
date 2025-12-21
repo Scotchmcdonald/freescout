@@ -236,6 +236,26 @@
     .focus-within\:ring-indigo-500:focus-within { --tw-ring-color: var(--theme-primary-500) !important; }
     .focus-within\:border-indigo-500:focus-within { border-color: var(--theme-primary-500) !important; }
 
+    /* Primary Class Overrides (for tailwind.config.js 'primary' color) */
+    .bg-primary-50 { background-color: var(--theme-primary-50) !important; }
+    .bg-primary-100 { background-color: var(--theme-primary-100) !important; }
+    .bg-primary-500 { background-color: var(--theme-primary-500) !important; }
+    .bg-primary-600 { background-color: var(--theme-primary-600) !important; }
+    .bg-primary-700 { background-color: var(--theme-primary-700) !important; }
+    
+    .text-primary-50 { color: var(--theme-primary-50) !important; }
+    .text-primary-100 { color: var(--theme-primary-100) !important; }
+    .text-primary-500 { color: var(--theme-primary-500) !important; }
+    .text-primary-600 { color: var(--theme-primary-600) !important; }
+    .text-primary-700 { color: var(--theme-primary-700) !important; }
+    
+    .border-primary-200 { border-color: var(--theme-primary-100) !important; }
+    .border-primary-500 { border-color: var(--theme-primary-500) !important; }
+    .border-primary-600 { border-color: var(--theme-primary-600) !important; }
+    
+    .ring-primary-50 { --tw-ring-color: var(--theme-primary-50) !important; }
+    .ring-primary-500 { --tw-ring-color: var(--theme-primary-500) !important; }
+
     /* Additional Blue Overrides */
     .text-blue-400 { color: var(--theme-primary-500) !important; }
     .border-blue-200 { border-color: var(--theme-primary-100) !important; }
@@ -294,6 +314,33 @@
         svg.text-gray-400 { color: var(--theme-text-muted) !important; }
         svg.text-gray-500 { color: var(--theme-text-muted) !important; }
     @endif
+
+    /* Semantic Progress Bar / Strong Backgrounds */
+    .bg-success-600 { background-color: var(--theme-status-success-text) !important; }
+    .bg-warning-600 { background-color: var(--theme-status-warning-text) !important; }
+    .bg-danger-600 { background-color: var(--theme-status-error-text) !important; }
+    .bg-info-600 { background-color: var(--theme-status-info-text) !important; }
+
+    /* Status Badge Backgrounds (Light) */
+    .bg-success-50 { background-color: var(--theme-status-success-bg) !important; }
+    .bg-warning-50 { background-color: var(--theme-status-warning-bg) !important; }
+    .bg-danger-50 { background-color: var(--theme-status-error-bg) !important; }
+    .bg-info-50 { background-color: var(--theme-status-info-bg) !important; }
+    .bg-primary-50 { background-color: var(--theme-primary-50) !important; }
+    
+    /* Status Badge Text */
+    .text-success-700 { color: var(--theme-status-success-text) !important; }
+    .text-warning-700 { color: var(--theme-status-warning-text) !important; }
+    .text-danger-700 { color: var(--theme-status-error-text) !important; }
+    .text-info-700 { color: var(--theme-status-info-text) !important; }
+    .text-primary-700 { color: var(--theme-primary-700) !important; }
+
+    /* Status Badge Borders */
+    .border-success-200 { border-color: var(--theme-status-success-text) !important; opacity: 0.3; }
+    .border-warning-200 { border-color: var(--theme-status-warning-text) !important; opacity: 0.3; }
+    .border-danger-200 { border-color: var(--theme-status-error-text) !important; opacity: 0.3; }
+    .border-info-200 { border-color: var(--theme-status-info-text) !important; opacity: 0.3; }
+    .border-primary-200 { border-color: var(--theme-primary-500) !important; opacity: 0.3; }
 
     /* Theme Selection Card */
     .theme-selection-card {

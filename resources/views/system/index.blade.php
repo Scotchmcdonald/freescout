@@ -90,6 +90,12 @@
                             <dt class="text-gray-600">Memory Limit</dt>
                             <dd class="font-medium">{{ $systemInfo['memory_limit'] }}</dd>
                         </div>
+                        <div class="flex justify-between pt-4 border-t">
+                            <dt class="text-gray-600">{{ __('Developer Tools') }}</dt>
+                            <dd class="font-medium">
+                                <a href="{{ route('themes') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('Themes & Style Guide') }}</a>
+                            </dd>
+                        </div>
                     </dl>
                 </div>
             </div>

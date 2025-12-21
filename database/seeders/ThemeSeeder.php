@@ -135,36 +135,7 @@ class ThemeSeeder extends Seeder
                     'nav' => ['bg' => '#403e41', 'text' => '#fcfcfa', 'border' => '#5b595c'],
                 ],
             ],
-            // Purple
-            'purple' => [
-                'name' => 'Purple',
-                'light' => [
-                    'primary' => ['50' => '#faf5ff', '100' => '#f3e8ff', '500' => '#a855f7', '600' => '#9333ea', '700' => '#7e22ce'],
-                    'bg' => ['main' => '#faf5ff', 'card' => '#ffffff', 'input' => '#ffffff', 'hover' => '#f3e8ff'],
-                    'text' => ['main' => '#581c87', 'muted' => '#4b5563', 'inverted' => '#ffffff'],
-                    'border' => '#e9d5ff',
-                    'status' => [
-                        'success' => ['bg' => '#dcfce7', 'text' => '#166534'],
-                        'warning' => ['bg' => '#fef9c3', 'text' => '#854d0e'],
-                        'info' => ['bg' => '#dbeafe', 'text' => '#1e40af'],
-                        'error' => ['bg' => '#fee2e2', 'text' => '#991b1b'],
-                    ],
-                    'nav' => ['bg' => '#f3e8ff', 'text' => '#581c87', 'border' => '#e9d5ff'],
-                ],
-                'dark' => [
-                    'primary' => ['50' => '#3b0764', '100' => '#581c87', '500' => '#c084fc', '600' => '#a855f7', '700' => '#9333ea'],
-                    'bg' => ['main' => '#2e1065', 'card' => '#4c1d95', 'input' => '#5b21b6', 'hover' => '#5b21b6'],
-                    'text' => ['main' => '#faf5ff', 'muted' => '#e9d5ff', 'inverted' => '#2e1065'],
-                    'border' => '#5b21b6',
-                    'status' => [
-                        'success' => ['bg' => '#064e3b', 'text' => '#4ade80'],
-                        'warning' => ['bg' => '#422006', 'text' => '#facc15'],
-                        'info' => ['bg' => '#1e3a8a', 'text' => '#60a5fa'],
-                        'error' => ['bg' => '#450a0a', 'text' => '#fca5a5'],
-                    ],
-                    'nav' => ['bg' => '#4c1d95', 'text' => '#faf5ff', 'border' => '#5b21b6'],
-                ],
-            ],
+
             // Solarized
             'solarized' => [
                 'name' => 'Solarized',
@@ -172,7 +143,7 @@ class ThemeSeeder extends Seeder
                     'primary' => ['50' => '#fdf6e3', '100' => '#eee8d5', '500' => '#268bd2', '600' => '#2aa198', '700' => '#268bd2'],
                     'bg' => ['main' => '#fdf6e3', 'card' => '#eee8d5', 'input' => '#fdf6e3', 'hover' => '#e6dfc8'],
                     'text' => ['main' => '#657b83', 'muted' => '#93a1a1', 'inverted' => '#fdf6e3'],
-                    'border' => '#eee8d5',
+                    'border' => '#93a1a1',
                     'status' => [
                         'success' => ['bg' => '#dcfce7', 'text' => '#166534'],
                         'warning' => ['bg' => '#fef9c3', 'text' => '#854d0e'],
@@ -185,46 +156,17 @@ class ThemeSeeder extends Seeder
                     'primary' => ['50' => '#002b36', '100' => '#073642', '500' => '#268bd2', '600' => '#2aa198', '700' => '#268bd2'],
                     'bg' => ['main' => '#002b36', 'card' => '#073642', 'input' => '#002b36', 'hover' => '#094b59'],
                     'text' => ['main' => '#839496', 'muted' => '#586e75', 'inverted' => '#002b36'],
-                    'border' => '#073642',
+                    'border' => '#586e75',
                     'status' => [
                         'success' => ['bg' => '#073642', 'text' => '#859900'],
                         'warning' => ['bg' => '#073642', 'text' => '#b58900'],
                         'info' => ['bg' => '#073642', 'text' => '#268bd2'],
                         'error' => ['bg' => '#073642', 'text' => '#dc322f'],
                     ],
-                    'nav' => ['bg' => '#073642', 'text' => '#839496', 'border' => '#002b36'],
+                    'nav' => ['bg' => '#073642', 'text' => '#839496', 'border' => '#586e75'],
                 ],
             ],
-            // Minimal Kiwi
-            'minimal_kiwi' => [
-                'name' => 'Minimal Kiwi',
-                'light' => [
-                    'primary' => ['50' => '#f7fee7', '100' => '#ecfccb', '500' => '#84cc16', '600' => '#65a30d', '700' => '#4d7c0f'],
-                    'bg' => ['main' => '#f7fee7', 'card' => '#ffffff', 'input' => '#ffffff', 'hover' => '#ecfccb'],
-                    'text' => ['main' => '#365314', 'muted' => '#4d7c0f', 'inverted' => '#ffffff'],
-                    'border' => '#d9f99d',
-                    'status' => [
-                        'success' => ['bg' => '#ecfccb', 'text' => '#365314'],
-                        'warning' => ['bg' => '#fef9c3', 'text' => '#854d0e'],
-                        'info' => ['bg' => '#dbeafe', 'text' => '#1e40af'],
-                        'error' => ['bg' => '#fee2e2', 'text' => '#991b1b'],
-                    ],
-                    'nav' => ['bg' => '#f7fee7', 'text' => '#365314', 'border' => '#d9f99d'],
-                ],
-                'dark' => [
-                    'primary' => ['50' => '#365314', '100' => '#4d7c0f', '500' => '#84cc16', '600' => '#65a30d', '700' => '#4d7c0f'],
-                    'bg' => ['main' => '#1a2e05', 'card' => '#365314', 'input' => '#4d7c0f', 'hover' => '#4d7c0f'],
-                    'text' => ['main' => '#ecfccb', 'muted' => '#bef264', 'inverted' => '#1a2e05'],
-                    'border' => '#4d7c0f',
-                    'status' => [
-                        'success' => ['bg' => '#365314', 'text' => '#84cc16'],
-                        'warning' => ['bg' => '#422006', 'text' => '#facc15'],
-                        'info' => ['bg' => '#1e3a8a', 'text' => '#60a5fa'],
-                        'error' => ['bg' => '#450a0a', 'text' => '#fca5a5'],
-                    ],
-                    'nav' => ['bg' => '#365314', 'text' => '#ecfccb', 'border' => '#4d7c0f'],
-                ],
-            ],
+
             // Tokyo Night Pro
             'tokyo_night' => [
                 'name' => 'Tokyo Night Pro',
@@ -262,27 +204,27 @@ class ThemeSeeder extends Seeder
                     'primary' => ['50' => '#fffaf3', '100' => '#f2e9e1', '500' => '#d7827e', '600' => '#b4637a', '700' => '#907aa9'],
                     'bg' => ['main' => '#faf4ed', 'card' => '#fffaf3', 'input' => '#ffffff', 'hover' => '#f2e9e1'],
                     'text' => ['main' => '#575279', 'muted' => '#9893a5', 'inverted' => '#faf4ed'],
-                    'border' => '#dfdad9',
+                    'border' => '#9893a5',
                     'status' => [
                         'success' => ['bg' => '#ecfccb', 'text' => '#56949f'],
                         'warning' => ['bg' => '#fef9c3', 'text' => '#ea9d34'],
                         'info' => ['bg' => '#dbeafe', 'text' => '#286983'],
                         'error' => ['bg' => '#fee2e2', 'text' => '#b4637a'],
                     ],
-                    'nav' => ['bg' => '#fffaf3', 'text' => '#575279', 'border' => '#dfdad9'],
+                    'nav' => ['bg' => '#fffaf3', 'text' => '#575279', 'border' => '#9893a5'],
                 ],
                 'dark' => [
                     'primary' => ['50' => '#21202e', '100' => '#403d52', '500' => '#ebbcba', '600' => '#e0a6a4', '700' => '#d1918f'],
                     'bg' => ['main' => '#191724', 'card' => '#1f1d2e', 'input' => '#26233a', 'hover' => '#26233a'],
                     'text' => ['main' => '#e0def4', 'muted' => '#908caa', 'inverted' => '#191724'],
-                    'border' => '#26233a',
+                    'border' => '#524f67',
                     'status' => [
                         'success' => ['bg' => '#191724', 'text' => '#9ccfd8'],
                         'warning' => ['bg' => '#191724', 'text' => '#f6c177'],
                         'info' => ['bg' => '#191724', 'text' => '#31748f'],
                         'error' => ['bg' => '#191724', 'text' => '#eb6f92'],
                     ],
-                    'nav' => ['bg' => '#1f1d2e', 'text' => '#e0def4', 'border' => '#26233a'],
+                    'nav' => ['bg' => '#1f1d2e', 'text' => '#e0def4', 'border' => '#524f67'],
                 ],
             ],
         ];

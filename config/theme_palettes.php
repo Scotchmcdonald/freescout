@@ -105,32 +105,7 @@ return [
             ],
         ],
     ],
-    // Purple
-    'purple' => [
-        'name' => 'Purple',
-        'light' => [
-            'primary' => ['50' => '#faf5ff', '100' => '#f3e8ff', '500' => '#a855f7', '600' => '#9333ea', '700' => '#7e22ce'],
-            'bg' => ['main' => '#faf5ff', 'card' => '#ffffff', 'input' => '#ffffff', 'hover' => '#f3e8ff'],
-            'text' => ['main' => '#581c87', 'muted' => '#4b5563', 'inverted' => '#ffffff'],
-            'border' => '#e9d5ff',
-            'status' => [
-                'success' => ['bg' => '#dcfce7', 'text' => '#166534'],
-                'warning' => ['bg' => '#fef9c3', 'text' => '#854d0e'],
-                'info' => ['bg' => '#dbeafe', 'text' => '#1e40af'],
-            ],
-        ],
-        'dark' => [
-            'primary' => ['50' => '#3b0764', '100' => '#581c87', '500' => '#c084fc', '600' => '#a855f7', '700' => '#9333ea'],
-            'bg' => ['main' => '#2e1065', 'card' => '#4c1d95', 'input' => '#5b21b6', 'hover' => '#5b21b6'],
-            'text' => ['main' => '#faf5ff', 'muted' => '#e9d5ff', 'inverted' => '#2e1065'],
-            'border' => '#5b21b6',
-            'status' => [
-                'success' => ['bg' => '#064e3b', 'text' => '#4ade80'],
-                'warning' => ['bg' => '#422006', 'text' => '#facc15'],
-                'info' => ['bg' => '#1e3a8a', 'text' => '#60a5fa'],
-            ],
-        ],
-    ],
+
     // Solarized
     'solarized' => [
         'name' => 'Solarized',
@@ -138,7 +113,7 @@ return [
             'primary' => ['50' => '#fdf6e3', '100' => '#eee8d5', '500' => '#268bd2', '600' => '#2aa198', '700' => '#268bd2'],
             'bg' => ['main' => '#fdf6e3', 'card' => '#eee8d5', 'input' => '#fdf6e3', 'hover' => '#e6dfc8'],
             'text' => ['main' => '#657b83', 'muted' => '#93a1a1', 'inverted' => '#fdf6e3'],
-            'border' => '#eee8d5',
+            'border' => '#93a1a1',
             'status' => [
                 'success' => ['bg' => '#dcfce7', 'text' => '#166534'],
                 'warning' => ['bg' => '#fef9c3', 'text' => '#854d0e'],
@@ -149,7 +124,7 @@ return [
             'primary' => ['50' => '#002b36', '100' => '#073642', '500' => '#268bd2', '600' => '#2aa198', '700' => '#268bd2'],
             'bg' => ['main' => '#002b36', 'card' => '#073642', 'input' => '#002b36', 'hover' => '#094b59'],
             'text' => ['main' => '#839496', 'muted' => '#586e75', 'inverted' => '#002b36'],
-            'border' => '#073642',
+            'border' => '#586e75',
             'status' => [
                 'success' => ['bg' => '#073642', 'text' => '#859900'],
                 'warning' => ['bg' => '#073642', 'text' => '#b58900'],

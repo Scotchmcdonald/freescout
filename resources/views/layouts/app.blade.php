@@ -52,7 +52,19 @@
                 @endif
             </main>
         </div>
+        
+        <!-- Global Activity Drawer -->
         <x-activity-drawer />
+        
+        <!-- Activity Trigger (Bottom Right) -->
+        <div class="fixed bottom-4 right-4 z-40" x-data>
+            <button @click="$dispatch('open-activity-drawer')" class="bg-white p-3 rounded-full shadow-lg border border-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" title="View Activity">
+                <svg class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                </svg>
+            </button>
+        </div>
+
         @action('layout.body_end')
         @stack('scripts')
     </body>

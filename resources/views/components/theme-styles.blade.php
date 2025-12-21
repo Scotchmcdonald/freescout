@@ -219,6 +219,46 @@
     .focus\:text-indigo-800:focus { color: var(--theme-primary-700) !important; }
     .focus\:bg-indigo-100:focus { background-color: var(--theme-primary-100) !important; }
 
+    /* Semantic Color Overrides (Fix for Tailwind Config mapping) */
+    
+    /* Success */
+    .bg-success-50 { background-color: var(--theme-status-success-bg) !important; }
+    .bg-success-600 { background-color: var(--theme-status-success-text) !important; }
+    .text-success-400 { color: var(--theme-status-success-text) !important; opacity: 0.6; }
+    .text-success-600 { color: var(--theme-status-success-text) !important; }
+    .text-success-700 { color: var(--theme-status-success-text) !important; }
+    .border-success-200 { border-color: var(--theme-status-success-text) !important; opacity: 0.3; }
+    
+    /* Warning */
+    .bg-warning-50 { background-color: var(--theme-status-warning-bg) !important; }
+    .bg-warning-600 { background-color: var(--theme-status-warning-text) !important; }
+    .text-warning-400 { color: var(--theme-status-warning-text) !important; opacity: 0.6; }
+    .text-warning-600 { color: var(--theme-status-warning-text) !important; }
+    .text-warning-700 { color: var(--theme-status-warning-text) !important; }
+    .border-warning-200 { border-color: var(--theme-status-warning-text) !important; opacity: 0.3; }
+
+    /* Danger */
+    .bg-danger-50 { background-color: var(--theme-status-error-bg) !important; }
+    .bg-danger-600 { background-color: var(--theme-status-error-text) !important; }
+    .text-danger-400 { color: var(--theme-status-error-text) !important; opacity: 0.6; }
+    .text-danger-600 { color: var(--theme-status-error-text) !important; }
+    .text-danger-700 { color: var(--theme-status-error-text) !important; }
+    .border-danger-200 { border-color: var(--theme-status-error-text) !important; opacity: 0.3; }
+
+    /* Primary */
+    .bg-primary-50 { background-color: var(--theme-primary-50) !important; }
+    .bg-primary-100 { background-color: var(--theme-primary-100) !important; }
+    .bg-primary-500 { background-color: var(--theme-primary-500) !important; }
+    .bg-primary-600 { background-color: var(--theme-primary-600) !important; }
+    .bg-primary-700 { background-color: var(--theme-primary-700) !important; }
+    .text-primary-400 { color: var(--theme-primary-500) !important; }
+    .text-primary-600 { color: var(--theme-primary-600) !important; }
+    .text-primary-700 { color: var(--theme-primary-700) !important; }
+    .text-primary-900 { color: var(--theme-primary-700) !important; }
+    .border-primary-200 { border-color: var(--theme-primary-100) !important; }
+    .border-primary-600 { border-color: var(--theme-primary-600) !important; }
+    .ring-primary-50 { --tw-ring-color: var(--theme-primary-50) !important; }
+
     /* Global Overrides for Dark Mode / Theming */
     @if($isDarkMode || ($normalizedTheme === 'default' && $mode === 'dark') || $mode === 'dark')
         body {

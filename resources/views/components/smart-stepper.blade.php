@@ -1,7 +1,7 @@
 @props(['steps', 'currentStep' => 1])
 
 <div class="w-full py-6">
-    <div class="flex items-center justify-between px-4">
+    <div class="flex items-center justify-between px-16">
         @foreach($steps as $index => $label)
             @php 
                 $stepNum = $index + 1; 
