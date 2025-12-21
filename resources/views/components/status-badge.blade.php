@@ -2,34 +2,34 @@
 
 @php
 $colors = [
-    'success' => 'bg-success-50 text-success-700 border-success-200',
-    'completed' => 'bg-success-50 text-success-700 border-success-200',
-    'synced' => 'bg-success-50 text-success-700 border-success-200',
-    'active' => 'bg-success-50 text-success-700 border-success-200',
+    'success' => 'bg-success-100 text-success-800 border-success-200 dark:bg-success-900 dark:text-success-200 dark:border-success-700',
+    'completed' => 'bg-success-100 text-success-800 border-success-200 dark:bg-success-900 dark:text-success-200 dark:border-success-700',
+    'synced' => 'bg-success-100 text-success-800 border-success-200 dark:bg-success-900 dark:text-success-200 dark:border-success-700',
+    'active' => 'bg-success-100 text-success-800 border-success-200 dark:bg-success-900 dark:text-success-200 dark:border-success-700',
     
-    'processing' => 'bg-primary-50 text-primary-700 border-primary-200',
-    'migrating' => 'bg-primary-50 text-primary-700 border-primary-200',
-    'syncing' => 'bg-primary-50 text-primary-700 border-primary-200',
-    'running' => 'bg-primary-50 text-primary-700 border-primary-200',
-    'pre-staging' => 'bg-primary-50 text-primary-700 border-primary-200',
-    'scanning' => 'bg-primary-50 text-primary-700 border-primary-200',
-    'analyzing' => 'bg-primary-50 text-primary-700 border-primary-200',
+    'processing' => 'bg-primary-100 text-primary-800 border-primary-200 dark:bg-primary-900 dark:text-primary-200 dark:border-primary-700',
+    'migrating' => 'bg-primary-100 text-primary-800 border-primary-200 dark:bg-primary-900 dark:text-primary-200 dark:border-primary-700',
+    'syncing' => 'bg-primary-100 text-primary-800 border-primary-200 dark:bg-primary-900 dark:text-primary-200 dark:border-primary-700',
+    'running' => 'bg-primary-100 text-primary-800 border-primary-200 dark:bg-primary-900 dark:text-primary-200 dark:border-primary-700',
+    'pre-staging' => 'bg-primary-100 text-primary-800 border-primary-200 dark:bg-primary-900 dark:text-primary-200 dark:border-primary-700',
+    'scanning' => 'bg-primary-100 text-primary-800 border-primary-200 dark:bg-primary-900 dark:text-primary-200 dark:border-primary-700',
+    'analyzing' => 'bg-primary-100 text-primary-800 border-primary-200 dark:bg-primary-900 dark:text-primary-200 dark:border-primary-700',
     
-    'warning' => 'bg-warning-50 text-warning-700 border-warning-200',
-    'pending' => 'bg-warning-50 text-warning-700 border-warning-200',
-    'paused' => 'bg-warning-50 text-warning-700 border-warning-200',
-    'throttled' => 'bg-warning-50 text-warning-700 border-warning-200',
-    'delta_syncing' => 'bg-blue-50 text-blue-700 border-blue-200', // Special case for delta
-    'delta' => 'bg-purple-50 text-purple-700 border-purple-200',
-    'initial' => 'bg-blue-50 text-blue-700 border-blue-200',
+    'warning' => 'bg-warning-100 text-warning-800 border-warning-200 dark:bg-warning-900 dark:text-warning-200 dark:border-warning-700',
+    'pending' => 'bg-warning-100 text-warning-800 border-warning-200 dark:bg-warning-900 dark:text-warning-200 dark:border-warning-700',
+    'paused' => 'bg-warning-100 text-warning-800 border-warning-200 dark:bg-warning-900 dark:text-warning-200 dark:border-warning-700',
+    'throttled' => 'bg-warning-100 text-warning-800 border-warning-200 dark:bg-warning-900 dark:text-warning-200 dark:border-warning-700',
+    'delta_syncing' => 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700', // Special case for delta
+    'delta' => 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
+    'initial' => 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
     
-    'danger' => 'bg-danger-50 text-danger-700 border-danger-200',
-    'failed' => 'bg-danger-50 text-danger-700 border-danger-200',
-    'error' => 'bg-danger-50 text-danger-700 border-danger-200',
-    'stopped' => 'bg-danger-50 text-danger-700 border-danger-200',
+    'danger' => 'bg-danger-100 text-danger-800 border-danger-200 dark:bg-danger-900 dark:text-danger-200 dark:border-danger-700',
+    'failed' => 'bg-danger-100 text-danger-800 border-danger-200 dark:bg-danger-900 dark:text-danger-200 dark:border-danger-700',
+    'error' => 'bg-danger-100 text-danger-800 border-danger-200 dark:bg-danger-900 dark:text-danger-200 dark:border-danger-700',
+    'stopped' => 'bg-danger-100 text-danger-800 border-danger-200 dark:bg-danger-900 dark:text-danger-200 dark:border-danger-700',
     
-    'neutral' => 'bg-gray-50 text-gray-600 border-gray-200',
-    'draft' => 'bg-gray-50 text-gray-600 border-gray-200',
+    'neutral' => 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
+    'draft' => 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
 ];
 
 // Default to neutral if status not found, or try to match by key existence
