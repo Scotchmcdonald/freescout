@@ -15,14 +15,6 @@
 # Storage & Logs
 /public/storage
 /storage/*.key
-/storage/logs/*
-/storage/framework/cache/*
-/storage/framework/sessions/*
-/storage/framework/views/*
-/storage/framework/testing/*
-/storage/app/attachments/*
-/storage/.ignore_locales
-/storage/.installed
 
 # Environment & Secrets
 .env
