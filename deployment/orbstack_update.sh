@@ -222,6 +222,22 @@ wait_for_app() {
     return 1
 }
 
+install_dependencies() {
+    log_step "Installing Dependencies"
+    
+    log_info "Installing Composer dependencies..."
+    docker compose exec -T -u root app composer install --no-dev --optimize-autoloader
+    docker compose exec -T -u root app chown -R www-data:www-data /var/www/html/vendor /var/www/html/composer.lock
+    
+    log_info "Installing NPM dependencies..."
+    docker compose exec -T -u root app npm install
+    
+    log_info "Building frontend assets..."
+    docker compose exec -T -u root app npm run build
+    
+    log_success "Dependencies installed"
+}
+
 run_migrations() {
     log_step "Running Database Migrations"
     
@@ -297,6 +313,7 @@ main() {
     pull_docker_images
     restart_containers
     wait_for_app
+    install_dependencies
     run_migrations
     clear_caches
     optimize_application

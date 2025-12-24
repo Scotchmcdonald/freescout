@@ -343,7 +343,7 @@ RUN apt-get update && apt-get install -y gnupg git curl ca-certificates && \
     apt-get update && \
     apt-get install -y docker-ce-cli docker-compose-plugin || apt-get install -y docker.io docker-buildx || true && \
     # Install Node.js
-    curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs && \
     # Install PHP extensions
     curl -sSLf \
@@ -668,6 +668,11 @@ docker compose up -d
 
 echo "🗄️  Running migrations..."
 docker compose exec -T app php artisan migrate --force
+
+echo "📦 Installing dependencies..."
+docker compose exec -T -u root app composer install --no-dev --optimize-autoloader
+docker compose exec -T -u root app npm install
+docker compose exec -T -u root app npm run build
 
 echo "🧹 Clearing caches..."
 docker compose exec -T app php artisan freescout:clear-cache
