@@ -19,7 +19,8 @@
         {{-- Unassigned Option --}}
         <button type="button" 
                 data-user-id=""
-                class="assignee-option w-full text-left px-4 py-2 hover:bg-gray-100 transition {{ !$selected_user_id ? 'bg-blue-50' : '' }}"
+                class="assignee-option w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                style="{{ !$selected_user_id ? 'background-color: var(--theme-primary-50);' : '' }}"
                 onclick="selectAssignee(null)">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
@@ -39,10 +40,11 @@
             <button type="button" 
                     data-user-id="{{ $user->id }}"
                     data-user-name="{{ $user->getFullName() }}"
-                    class="assignee-option w-full text-left px-4 py-2 hover:bg-gray-100 transition {{ $selected_user_id == $user->id ? 'bg-blue-50' : '' }}"
+                    class="assignee-option w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                    style="{{ $selected_user_id == $user->id ? 'background-color: var(--theme-primary-50);' : '' }}"
                     onclick="selectAssignee({{ $user->id }}, '{{ addslashes($user->getFullName()) }}')">
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-sm">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background-color: var(--theme-primary-600)">
                         {{ substr($user->first_name, 0, 1) }}{{ substr($user->last_name, 0, 1) }}
                     </div>
                     <div>

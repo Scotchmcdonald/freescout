@@ -10,8 +10,8 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     @if($errors->any())
-                        <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4">
-                            <ul class="list-disc list-inside text-sm text-red-700">
+                        <div class="mb-6 border-l-4 p-4" style="background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg)">
+                            <ul class="list-disc list-inside text-sm" style="color: var(--theme-status-error-text)">
                                 @foreach($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -20,8 +20,8 @@
                     @endif
                     
                     @if(session('success'))
-                        <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4">
-                            <p class="text-sm text-green-700">{{ session('success') }}</p>
+                        <div class="mb-6 border-l-4 p-4" style="background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg)">
+                            <p class="text-sm" style="color: var(--theme-status-success-text)">{{ session('success') }}</p>
                         </div>
                     @endif
                     

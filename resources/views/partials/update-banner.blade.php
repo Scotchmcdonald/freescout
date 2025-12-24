@@ -1,10 +1,10 @@
 @if(auth()->check() && auth()->user()->isAdmin())
     <div id="update-banner" class="hidden">
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg">
+        <div class="text-white shadow-lg" style="background-color: var(--theme-primary-600)">
             <div class="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between flex-wrap">
                     <div class="w-0 flex-1 flex items-center">
-                        <span class="flex p-2 rounded-lg bg-blue-800">
+                        <span class="flex p-2 rounded-lg" style="background-color: var(--theme-primary-700)">
                             <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                             </svg>
@@ -14,12 +14,12 @@
                         </p>
                     </div>
                     <div class="order-3 mt-2 flex-shrink-0 w-full sm:order-2 sm:mt-0 sm:w-auto">
-                        <a href="{{ route('system.update') }}" class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-blue-50">
+                        <a href="{{ route('system.update') }}" class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium bg-white transition" style="color: var(--theme-primary-600)">
                             {{ __('Update Now') }}
                         </a>
                     </div>
                     <div class="order-2 flex-shrink-0 sm:order-3 sm:ml-3">
-                        <button type="button" onclick="dismissUpdateBanner()" class="-mr-1 flex p-2 rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2">
+                        <button type="button" onclick="dismissUpdateBanner()" class="-mr-1 flex p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white sm:-mr-2" style="background-color: transparent">
                             <span class="sr-only">{{ __('Dismiss') }}</span>
                             <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>

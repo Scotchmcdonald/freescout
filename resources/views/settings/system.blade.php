@@ -114,9 +114,9 @@
                         </a>
                     </div>
                     
-                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                        <h4 class="text-sm font-semibold text-blue-900 mb-2">{{ __('System Status') }}</h4>
-                        <p class="text-sm text-blue-700">All systems operational</p>
+                    <div class="mt-6 p-4 rounded-lg" style="background-color: var(--theme-status-info-bg)">
+                        <h4 class="text-sm font-semibold mb-2" style="color: var(--theme-status-info-text)">{{ __('System Status') }}</h4>
+                        <p class="text-sm" style="color: var(--theme-status-info-text)">All systems operational</p>
                     </div>
                 </div>
             </div>
@@ -125,7 +125,7 @@
             <div x-show="message" 
                  x-cloak
                  class="mt-6 p-4 border-l-4"
-                 :class="messageType === 'success' ? 'bg-green-50 border-green-400 text-green-700' : 'bg-red-50 border-red-400 text-red-700'"
+                 :style="messageType === 'success' ? 'background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg); color: var(--theme-status-success-text)' : 'background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg); color: var(--theme-status-error-text)'"
                  x-text="message">
             </div>
             </div>

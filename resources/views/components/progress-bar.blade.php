@@ -2,20 +2,20 @@
 
 @php
     $colorClasses = [
-        'primary' => 'bg-primary-600',
-        'success' => 'bg-success-600',
-        'warning' => 'bg-warning-600',
-        'danger' => 'bg-danger-600',
-        'info' => 'bg-info-600',
+        'primary' => 'background-color: var(--theme-primary-600)',
+        'success' => 'background-color: var(--theme-status-success-text)',
+        'warning' => 'background-color: var(--theme-status-warning-text)',
+        'danger' => 'background-color: var(--theme-status-error-text)',
+        'info' => 'background-color: var(--theme-status-info-text)',
     ];
-    $bgClass = $alpine ? '' : ($colorClasses[$color] ?? 'bg-primary-600');
+    $bgStyle = $alpine ? '' : ($colorClasses[$color] ?? 'background-color: var(--theme-primary-600)');
 @endphp
 
 <div class="w-full">
     @if($label)
         <div class="flex justify-between mb-1">
-            <span class="text-sm font-medium text-gray-700">{{ $label }}</span>
-            <span class="text-sm font-medium text-gray-700">
+            <span class="text-sm font-medium" style="color: var(--theme-text-main)">{{ $label }}</span>
+            <span class="text-sm font-medium" style="color: var(--theme-text-main)">
                 @if($alpine)
                     <span x-text="{{ $alpine }}"></span>%
                 @else
@@ -24,17 +24,12 @@
             </span>
         </div>
     @endif
-    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden">
-        <div class="{{ $bgClass }} h-2.5 rounded-full transition-all duration-700 ease-out" 
+    <div class="w-full rounded-full h-2.5 overflow-hidden" style="background-color: var(--theme-bg-input)">
+        <div class="h-2.5 rounded-full transition-all duration-700 ease-out" 
              @if($alpine) 
-                :style="'width: ' + {{ $alpine }} + '%'"
-                :class="{
-                    'bg-primary-500': {{ $alpine }} < 40,
-                    'bg-primary-600': {{ $alpine }} >= 40 && {{ $alpine }} < 80,
-                    'bg-primary-700': {{ $alpine }} >= 80
-                }"
+                :style="'width: ' + {{ $alpine }} + '%; filter: saturate(' + (0.5 + ({{ $alpine }} / 100)) + '); background-color: var(--theme-primary-500)'"
              @else 
-                style="width: {{ $percent }}%" 
+                style="width: {{ $percent }}%; {{ $bgStyle }}" 
              @endif></div>
     </div>
 </div>

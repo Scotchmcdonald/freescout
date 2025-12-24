@@ -56,8 +56,8 @@
 
             {{-- Selected Conversation Display --}}
             <div id="selected-conversation-display" class="hidden">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div class="text-sm text-blue-700 mb-1">{{ __('Selected Target Conversation') }}</div>
+                <div class="border rounded-lg p-4" style="background-color: var(--theme-primary-50); border-color: var(--theme-primary-200);">
+                    <div class="text-sm mb-1" style="color: var(--theme-primary-700);">{{ __('Selected Target Conversation') }}</div>
                     <div id="selected-conversation-info"></div>
                 </div>
             </div>
@@ -73,7 +73,8 @@
                                name="keep_threads" 
                                value="1" 
                                checked
-                               class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                               class="mt-1 rounded border-gray-300 focus:ring-0"
+                               style="color: var(--theme-primary-600);">
                         <span class="ml-2 text-sm text-gray-700">
                             {{ __('Keep all threads from both conversations') }}
                         </span>
@@ -82,7 +83,8 @@
                         <input type="checkbox" 
                                name="update_customer" 
                                value="1"
-                               class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                               class="mt-1 rounded border-gray-300 focus:ring-0"
+                               style="color: var(--theme-primary-600);">
                         <span class="ml-2 text-sm text-gray-700">
                             {{ __('Update customer to match target conversation') }}
                         </span>

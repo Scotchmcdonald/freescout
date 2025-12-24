@@ -68,9 +68,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }).then(response => response.json())
               .then(data => {
                   if (data.success) {
-                      location.reload();
+                      showToast('Job retried successfully', 'success');
+                      setTimeout(() => location.reload(), 1000);
                   } else {
-                      alert(data.message);
+                      showToast(data.message, 'error');
                   }
               });
         });
@@ -89,9 +90,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }).then(response => response.json())
               .then(data => {
                   if (data.success) {
-                      location.reload();
+                      showToast('Job deleted successfully', 'success');
+                      setTimeout(() => location.reload(), 1000);
                   } else {
-                      alert(data.message);
+                      showToast(data.message, 'error');
                   }
               });
         });

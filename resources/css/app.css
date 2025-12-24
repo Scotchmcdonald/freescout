@@ -144,19 +144,23 @@
 }
 
 .status-badge-active {
-    @apply bg-green-100 text-green-800;
+    background-color: var(--theme-status-success-bg);
+    color: var(--theme-status-success-text);
 }
 
 .status-badge-pending {
-    @apply bg-yellow-100 text-yellow-800;
+    background-color: var(--theme-status-warning-bg);
+    color: var(--theme-status-warning-text);
 }
 
 .status-badge-closed {
-    @apply bg-gray-100 text-gray-800;
+    background-color: var(--theme-bg-hover);
+    color: var(--theme-text-muted);
 }
 
 .status-badge-spam {
-    @apply bg-red-100 text-red-800;
+    background-color: var(--theme-status-error-bg);
+    color: var(--theme-status-error-text);
 }
 
 /* Dropdown Menu */

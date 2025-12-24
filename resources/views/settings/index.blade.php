@@ -12,8 +12,8 @@
             <div class="flex-1 bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     @if(session('success'))
-                        <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4">
-                            <p class="text-sm text-green-700">{{ session('success') }}</p>
+                        <div class="mb-6 border-l-4 p-4" style="background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg)">
+                            <p class="text-sm" style="color: var(--theme-status-success-text)">{{ session('success') }}</p>
                         </div>
                     @endif
                     
@@ -224,7 +224,8 @@
                         
                         <div class="mt-6 flex justify-end">
                             <button type="submit" 
-                                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                                    class="inline-flex items-center px-4 py-2 text-white rounded-md transition"
+                                    style="background-color: var(--theme-primary-600)">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>

@@ -137,8 +137,8 @@
                                       file:mr-4 file:py-2 file:px-4
                                       file:rounded-md file:border-0
                                       file:text-sm file:font-semibold
-                                      file:bg-blue-50 file:text-blue-700
-                                      hover:file:bg-blue-100">
+                                      file:bg-[var(--theme-primary-50)] file:text-[var(--theme-primary-700)]
+                                      hover:file:bg-[var(--theme-primary-100)]">
                         @error('photo_url')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror

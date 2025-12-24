@@ -12,10 +12,10 @@
             
             <!-- Step Node -->
             <div class="relative flex flex-col items-center group z-10">
-                <div class="rounded-full transition-all duration-500 ease-in-out h-10 w-10 flex items-center justify-center border-2 bg-white shadow-sm
-                    {{ $isCompleted ? 'bg-primary-600 border-primary-600 text-white' : '' }}
-                    {{ $isActive ? 'border-primary-600 text-primary-600 ring-4 ring-primary-50' : '' }}
-                    {{ !$isCompleted && !$isActive ? 'border-gray-200 text-gray-300' : '' }}">
+                <div class="rounded-full transition-all duration-500 ease-in-out h-10 w-10 flex items-center justify-center border-2 shadow-sm"
+                    style="{{ $isCompleted ? 'background-color: var(--theme-primary-600); border-color: var(--theme-primary-600); color: white;' : '' }}
+                           {{ $isActive ? 'border-color: var(--theme-primary-600); color: var(--theme-primary-600); background-color: var(--theme-primary-50);' : '' }}
+                           {{ !$isCompleted && !$isActive ? 'border-color: var(--theme-border); color: var(--theme-text-muted); background-color: var(--theme-bg-card);' : '' }}">
                     
                     @if($isCompleted)
                         <!-- Checkmark -->
@@ -28,16 +28,16 @@
                     @endif
                 </div>
                 
-                <div class="absolute top-0 -ml-16 text-center mt-12 w-40 text-xs font-bold uppercase tracking-wider transition-colors duration-300
-                    {{ $stepNum <= $currentStep ? 'text-primary-900' : 'text-gray-400' }}">
+                <div class="absolute top-0 -ml-16 text-center mt-12 w-40 text-xs font-bold uppercase tracking-wider transition-colors duration-300"
+                    style="color: {{ $stepNum <= $currentStep ? 'var(--theme-primary-700)' : 'var(--theme-text-muted)' }}">
                     {{ $label }}
                 </div>
             </div>
             
             <!-- Connector Line -->
             @if(!$isLast)
-                <div class="flex-auto border-t-2 transition-colors duration-500 ease-in-out mx-4
-                    {{ $stepNum < $currentStep ? 'border-primary-600' : 'border-gray-200' }}"></div>
+                <div class="flex-auto border-t-2 transition-colors duration-500 ease-in-out mx-4"
+                    style="border-color: {{ $stepNum < $currentStep ? 'var(--theme-primary-600)' : 'var(--theme-border)' }}"></div>
             @endif
         @endforeach
     </div>

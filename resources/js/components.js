@@ -18,6 +18,13 @@ export function themeToggle() {
             console.log('Theme toggle clicked');
             this.isDarkMode = !this.isDarkMode;
 
+            // Toggle dark class on html element
+            if (this.isDarkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+
             // Toggle icon visibility
             const darkIcon = document.getElementById('theme-toggle-dark-icon');
             const lightIcon = document.getElementById('theme-toggle-light-icon');
@@ -143,11 +150,11 @@ export function conversationStatus(conversationId, currentStatus, ajaxUrl, csrfT
                     location.reload();
                 } else {
                     console.error('Failed to update status:', data.message);
-                    alert('Failed to update status: ' + (data.message || 'Unknown error'));
+                    window.showToast('Failed to update status: ' + (data.message || 'Unknown error'), 'error');
                 }
             } catch (error) {
                 console.error('Error updating status:', error);
-                alert('Error updating status: ' + error.message);
+                window.showToast('Error updating status: ' + error.message, 'error');
             } finally {
                 this.loading = false;
             }
@@ -448,12 +455,13 @@ export function failedJobs() {
                 });
                 const data = await response.json();
                 if (data.success) {
-                    location.reload();
+                    window.showToast('Job retried successfully', 'success');
+                    setTimeout(() => location.reload(), 1000);
                 } else {
-                    alert(data.message || 'Failed to retry job');
+                    window.showToast(data.message || 'Failed to retry job', 'error');
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                window.showToast('Error: ' + error.message, 'error');
             } finally {
                 this.loading = false;
             }
@@ -475,12 +483,13 @@ export function failedJobs() {
                 });
                 const data = await response.json();
                 if (data.success) {
-                    location.reload();
+                    window.showToast('Job deleted successfully', 'success');
+                    setTimeout(() => location.reload(), 1000);
                 } else {
-                    alert(data.message || 'Failed to delete job');
+                    window.showToast(data.message || 'Failed to delete job', 'error');
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                window.showToast('Error: ' + error.message, 'error');
             } finally {
                 this.loading = false;
             }
@@ -514,12 +523,13 @@ export function replyForm(routeUrl, csrfToken) {
                 });
                 const data = await response.json();
                 if (data.success) {
-                    location.reload();
+                    window.showToast('Reply sent successfully', 'success');
+                    setTimeout(() => location.reload(), 1000);
                 } else {
-                    alert('Error: ' + (data.message || 'Failed to send reply'));
+                    window.showToast('Error: ' + (data.message || 'Failed to send reply'), 'error');
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                window.showToast('Error: ' + error.message, 'error');
             } finally {
                 this.loading = false;
             }
@@ -725,7 +735,7 @@ export function mailboxSettings(mailboxId, smtpTestUrl, imapTestUrl, fetchEmails
         
         async sendTestEmail() {
             if (!this.testEmail) {
-                alert('Please enter a test email address');
+                window.showToast('Please enter a test email address', 'error');
                 return;
             }
             

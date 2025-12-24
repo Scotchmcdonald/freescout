@@ -29,12 +29,14 @@
                      x-transition:leave-start="translate-x-0"
                      x-transition:leave-end="translate-x-full">
                     
-                    <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
-                        <div class="px-4 py-6 sm:px-6 bg-gray-50 border-b border-gray-200">
+                    <div class="flex h-full flex-col overflow-y-scroll shadow-xl" style="background-color: var(--theme-bg-card)">
+                        <div class="px-4 py-6 sm:px-6 border-b" style="background-color: var(--theme-bg-hover); border-color: var(--theme-border)">
                             <div class="flex items-start justify-between">
-                                <h2 class="text-lg font-medium text-gray-900" id="slide-over-title">System Activity</h2>
+                                <h2 class="text-lg font-medium" style="color: var(--theme-text-main)" id="slide-over-title">System Activity</h2>
                                 <div class="ml-3 flex h-7 items-center">
-                                    <button type="button" class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" @click="open = false">
+                                    <button type="button" class="rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" 
+                                            style="background-color: var(--theme-bg-card); color: var(--theme-text-muted)"
+                                            @click="open = false">
                                         <span class="sr-only">Close panel</span>
                                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -46,21 +48,21 @@
                         <div class="relative mt-6 flex-1 px-4 sm:px-6">
                             <!-- Active Jobs -->
                             <template x-for="job in jobs" :key="job.id">
-                                <div class="mb-6 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                                <div class="mb-6 rounded-lg border p-4 shadow-sm" style="background-color: var(--theme-bg-card); border-color: var(--theme-border)">
                                     <div class="flex justify-between items-center mb-2">
-                                        <span class="font-medium text-gray-900" x-text="job.name"></span>
+                                        <span class="font-medium" style="color: var(--theme-text-main)" x-text="job.name"></span>
                                         <x-status-badge status="processing" />
                                     </div>
                                     <div class="mb-2">
                                         <x-progress-bar :percent="0" :alpine="'job.progress'" />
                                     </div>
-                                    <p class="text-xs text-gray-500 font-mono" x-text="job.status_text"></p>
+                                    <p class="text-xs font-mono" style="color: var(--theme-text-muted)" x-text="job.status_text"></p>
                                 </div>
                             </template>
 
                             <!-- Empty State -->
-                            <div x-show="jobs.length === 0" class="text-center text-gray-500 py-10">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <div x-show="jobs.length === 0" class="text-center py-10" style="color: var(--theme-text-muted)">
+                                <svg class="mx-auto h-12 w-12" style="color: var(--theme-text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                 <p class="mt-2 text-sm">No active background jobs.</p>
                             </div>
                         </div>

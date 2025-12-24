@@ -23,7 +23,8 @@
                         <div class="divide-y divide-gray-200">
                             @forelse($conversations ?? [] as $conversation)
                                 <a href="{{ route('conversations.chats', ['id' => $conversation->id]) }}" 
-                                   class="block p-4 hover:bg-gray-50 transition {{ isset($active_conversation) && $active_conversation->id == $conversation->id ? 'bg-blue-50' : '' }}">
+                                   class="block p-4 hover:bg-gray-50 transition"
+                                   style="{{ isset($active_conversation) && $active_conversation->id == $conversation->id ? 'background-color: var(--theme-primary-50);' : '' }}">
                                     <div class="flex items-start gap-3">
                                         <div class="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold flex-shrink-0">
                                             {{ substr($conversation->customer->first_name, 0, 1) }}

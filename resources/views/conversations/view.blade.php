@@ -140,19 +140,22 @@
                                  class="dropdown-menu max-h-64 overflow-y-auto"
                                  x-transition>
                                 <a href="#" 
-                                   class="@if (!$conversation->user_id) bg-blue-50 @endif"
+                                   class="@if (!$conversation->user_id) @endif"
+                                   style="@if (!$conversation->user_id) background-color: var(--theme-primary-50); @endif"
                                    @click.prevent="window.conversationManager.changeAssignee(-1); open = false">
                                     {{ __("Anyone") }}
                                 </a>
                                 <a href="#" 
-                                   class="@if ($conversation->user_id == Auth::user()->id) bg-blue-50 @endif"
+                                   class="@if ($conversation->user_id == Auth::user()->id) @endif"
+                                   style="@if ($conversation->user_id == Auth::user()->id) background-color: var(--theme-primary-50); @endif"
                                    @click.prevent="window.conversationManager.changeAssignee({{ Auth::user()->id }}); open = false">
                                     {{ __("Me") }}
                                 </a>
                                 @foreach ($mailbox->usersAssignable() as $user)
                                     @if ($user->id != Auth::user()->id)
                                         <a href="#" 
-                                           class="@if ($conversation->user_id == $user->id) bg-blue-50 @endif"
+                                           class="@if ($conversation->user_id == $user->id) @endif"
+                                           style="@if ($conversation->user_id == $user->id) background-color: var(--theme-primary-50); @endif"
                                            @click.prevent="window.conversationManager.changeAssignee({{ $user->id }}); open = false">
                                             {{ $user->getFullName() }}@action('assignee_list.item_append', $user)
                                         </a>
@@ -181,7 +184,8 @@
                                 @if ($conversation->status != App\Conversation::STATUS_SPAM)
                                     @foreach (App\Conversation::$statuses as $status => $dummy)
                                         <a href="#" 
-                                           class="@if ($conversation->status == $status) bg-blue-50 @endif"
+                                           class="@if ($conversation->status == $status) @endif"
+                                           style="@if ($conversation->status == $status) background-color: var(--theme-primary-50); @endif"
                                            @click.prevent="window.conversationManager.changeStatus({{ $status }}); open = false">
                                             {{ App\Conversation::statusCodeToName($status) }}
                                         </a>
@@ -292,7 +296,7 @@
                 </div>
 
                 @if ($is_in_chat_mode)
-                    <div class="conv-top-chat mt-4 p-4 bg-blue-50 rounded">
+                    <div class="conv-top-chat mt-4 p-4 rounded" style="background-color: var(--theme-primary-50)">
                         @if ($conversation->user_id != Auth::user()->id)
                             <button type="button" 
                                     @click="window.conversationManager.acceptChat()"

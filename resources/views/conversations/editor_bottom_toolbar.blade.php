@@ -163,7 +163,7 @@
 
     function saveDraft() {
         // Implement draft saving logic
-        alert('{{ __('Draft saved') }}');
+        showToast('{{ __('Draft saved') }}', 'success');
     }
 
     // Keyboard shortcuts

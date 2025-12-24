@@ -34,13 +34,13 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <h3 class="text-lg font-semibold mb-4">{{ __('Active Conversations') }}</h3>
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="p-4 bg-green-50 rounded-lg">
-                            <div class="text-2xl font-bold text-green-600">{{ $stats['active_conversations'] }}</div>
-                            <div class="text-sm text-green-700">Active</div>
+                        <div class="p-4 rounded-lg" style="background-color: var(--theme-status-success-bg)">
+                            <div class="text-2xl font-bold" style="color: var(--theme-status-success-text)">{{ $stats['active_conversations'] }}</div>
+                            <div class="text-sm" style="color: var(--theme-status-success-text)">Active</div>
                         </div>
-                        <div class="p-4 bg-orange-50 rounded-lg">
-                            <div class="text-2xl font-bold text-orange-600">{{ $stats['unassigned_conversations'] }}</div>
-                            <div class="text-sm text-orange-700">Unassigned</div>
+                        <div class="p-4 rounded-lg" style="background-color: var(--theme-status-warning-bg)">
+                            <div class="text-2xl font-bold" style="color: var(--theme-status-warning-text)">{{ $stats['unassigned_conversations'] }}</div>
+                            <div class="text-sm" style="color: var(--theme-status-warning-text)">Unassigned</div>
                         </div>
                     </div>
                 </div>
@@ -70,7 +70,7 @@
                         @if($updateInfo['has_update'])
                         <div class="flex justify-between">
                             <dt class="text-gray-600">Update Available</dt>
-                            <dd class="font-medium text-yellow-600">{{ $updateInfo['commits_behind'] ?? 0 }} commits behind</dd>
+                            <dd class="font-medium" style="color: var(--theme-status-warning-text)">{{ $updateInfo['commits_behind'] ?? 0 }} commits behind</dd>
                         </div>
                         @endif
                         @endif
@@ -93,7 +93,7 @@
                         <div class="flex justify-between pt-4 border-t">
                             <dt class="text-gray-600">{{ __('Developer Tools') }}</dt>
                             <dd class="font-medium">
-                                <a href="{{ route('themes') }}" class="text-indigo-600 hover:text-indigo-900">{{ __('Themes & Style Guide') }}</a>
+                                <a href="{{ route('themes') }}" class="hover:underline" style="color: var(--theme-primary-600)">{{ __('Themes & Style Guide') }}</a>
                             </dd>
                         </div>
                     </dl>
@@ -146,11 +146,9 @@
                 <div x-show="message" 
                      x-transition
                      class="mt-4 p-4 border-l-4"
-                     :class="{
-                         'bg-blue-50 border-blue-400 text-blue-700': messageType === 'info',
-                         'bg-green-50 border-green-400 text-green-700': messageType === 'success',
-                         'bg-red-50 border-red-400 text-red-700': messageType === 'error'
-                     }">
+                     :style="messageType === 'info' ? 'background-color: var(--theme-status-info-bg); border-color: var(--theme-status-info-bg); color: var(--theme-status-info-text)' : 
+                            (messageType === 'success' ? 'background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg); color: var(--theme-status-success-text)' : 
+                            'background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg); color: var(--theme-status-error-text)')">
                     <span x-text="message"></span>
                 </div>
 
@@ -172,11 +170,9 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="key"></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                                                  :class="{
-                                                      'bg-green-100 text-green-800': result.status === 'ok',
-                                                      'bg-red-100 text-red-800': result.status === 'error',
-                                                      'bg-yellow-100 text-yellow-800': result.status === 'warning'
-                                                  }"
+                                                  :style="result.status === 'ok' ? 'background-color: var(--theme-status-success-bg); color: var(--theme-status-success-text)' : 
+                                                         (result.status === 'error' ? 'background-color: var(--theme-status-error-bg); color: var(--theme-status-error-text)' : 
+                                                         'background-color: var(--theme-status-warning-bg); color: var(--theme-status-warning-text)')"
                                                   x-text="result.status ? result.status.toUpperCase() : 'UNKNOWN'">
                                             </span>
                                         </td>

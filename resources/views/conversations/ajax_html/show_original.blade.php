@@ -40,8 +40,8 @@
         {{-- Message Source --}}
         <div>
             <h4 class="text-sm font-semibold text-gray-700 mb-2">{{ __('Message Source') }}</h4>
-            <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                <pre class="text-xs text-gray-100 whitespace-pre-wrap break-words"><code>{{-- Raw email source would go here --}}
+            <div class="rounded-lg p-4 overflow-x-auto" style="background-color: var(--theme-bg-input); color: var(--theme-text-main);">
+                <pre class="text-xs whitespace-pre-wrap break-words" style="color: var(--theme-text-muted);"><code>{{-- Raw email source would go here --}}
 From: {{ $thread->from ?? 'N/A' }}
 To: {{ is_array($thread->to) ? implode(', ', $thread->to) : ($thread->to ?? 'N/A') }}
 @if($thread->cc)
@@ -56,8 +56,8 @@ Message-ID: {{ $thread->message_id ?? 'N/A' }}
         </div>
 
         {{-- Additional Info --}}
-        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-            <div class="text-sm text-blue-700">
+        <div class="mt-6 p-4 rounded-lg" style="background-color: var(--theme-primary-50)">
+            <div class="text-sm" style="color: var(--theme-primary-700)">
                 <strong>{{ __('Thread ID') }}:</strong> {{ $thread->id }}<br>
                 <strong>{{ __('Created') }}:</strong> {{ $thread->created_at->format('M d, Y g:i:s A') }}<br>
                 <strong>{{ __('Type') }}:</strong> {{ $thread->type == 1 ? __('Customer') : ($thread->type == 2 ? __('Note') : __('Message')) }}

@@ -46,8 +46,11 @@
         @if ($should_show)
             <li data-folder-id="{{ $folder_item->id }}" data-active-count="{{ $active_count }}">
                 <a href="{{ route('mailboxes.view', ['mailbox' => $mailbox->id, 'folder' => $folder_item->id]) }}" 
-                   class="flex items-center px-3 py-2 text-sm font-medium rounded-md {{ $folder_item->id == $folder->id ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }} {{ !$active_count ? 'opacity-60' : '' }}">
-                    <svg class="mr-3 h-5 w-5 {{ $folder_item->id == $folder->id ? 'text-blue-500' : 'text-gray-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   class="flex items-center px-3 py-2 text-sm font-medium rounded-md {{ $folder_item->id == $folder->id ? '' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }} {{ !$active_count ? 'opacity-60' : '' }}"
+                   style="{{ $folder_item->id == $folder->id ? 'background-color: var(--theme-primary-50); color: var(--theme-primary-700);' : '' }}">
+                    <svg class="mr-3 h-5 w-5 {{ $folder_item->id == $folder->id ? '' : 'text-gray-400' }}" 
+                         style="{{ $folder_item->id == $folder->id ? 'color: var(--theme-primary-500);' : '' }}"
+                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $folder_icon }}" />
                     </svg>
                     <span class="flex-1">{{ method_exists($folder_item, 'getTypeName') ? $folder_item->getTypeName() : ($folder_item->name ?? 'Folder') }}</span>

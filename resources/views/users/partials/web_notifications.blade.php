@@ -25,7 +25,8 @@
             @endif
             
             {{-- Notification item --}}
-            <li class="@if(!$notification->read_at) bg-blue-50 @endif hover:bg-gray-50 transition">
+            <li class="@if(!$notification->read_at) @endif hover:bg-gray-50 transition"
+                style="@if(!$notification->read_at) background-color: var(--theme-primary-50); @endif">
                 <a href="{{ $notification->data['url'] ?? '#' }}" 
                    class="block px-4 py-3">
                     <div class="flex items-start space-x-3">

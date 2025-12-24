@@ -55,8 +55,8 @@
                               file:mr-4 file:py-2 file:px-4
                               file:rounded file:border-0
                               file:text-sm file:font-semibold
-                              file:bg-blue-50 file:text-blue-700
-                              hover:file:bg-blue-100"
+                              file:bg-[var(--theme-primary-50)] file:text-[var(--theme-primary-700)]
+                              hover:file:bg-[var(--theme-primary-100)]"
                        :disabled="saving">
             </div>
 
@@ -68,7 +68,10 @@
                     {{ __('Cancel') }}
                 </button>
                 <button type="submit" 
-                        class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-2"
+                        class="px-4 py-2 text-sm text-white rounded transition flex items-center gap-2"
+                        style="background-color: var(--theme-primary-600)"
+                        onmouseover="this.style.backgroundColor='var(--theme-primary-700)'"
+                        onmouseout="this.style.backgroundColor='var(--theme-primary-600)'"
                         :disabled="saving">
                     <span x-show="!saving">{{ __('Save Changes') }}</span>
                     <span x-show="saving" style="display: none;">

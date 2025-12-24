@@ -9,7 +9,8 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if(!empty($flashes))
                 @foreach($flashes as $flash)
-                    <div class="mb-4 {{ $flash['type'] == 'success' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700' }} border px-4 py-3 rounded">
+                    <div class="mb-4 border px-4 py-3 rounded"
+                         style="{{ $flash['type'] == 'success' ? 'background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg); color: var(--theme-status-success-text)' : 'background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg); color: var(--theme-status-error-text)' }}">
                         @if(!empty($flash['unescaped']))
                             {!! $flash['text'] !!}
                         @else
@@ -20,13 +21,13 @@
             @endif
 
             @if(session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                <div class="mb-4 border px-4 py-3 rounded" style="background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg); color: var(--theme-status-success-text)">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if(session('error'))
-                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <div class="mb-4 border px-4 py-3 rounded" style="background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg); color: var(--theme-status-error-text)">
                     {{ session('error') }}
                 </div>
             @endif
@@ -34,7 +35,7 @@
             <style>
                 pre.margin-top {
                     margin-top: 1rem;
-                    background-color: #f3f4f6;
+                    background-color: var(--theme-bg-hover);
                     padding: 0.5rem;
                     border-radius: 0.375rem;
                     font-size: 0.875rem;
@@ -60,7 +61,7 @@
                                 </svg>
                                 {{ __('Activity Log') }}
                             </a>
-                            <a href="{{ route('modules.install.form') }}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center">
+                            <a href="{{ route('modules.install.form') }}" class="px-6 py-3 text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center" style="background-color: var(--theme-primary-600)">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                 </svg>
@@ -109,17 +110,17 @@
                                             @endif
 
                                             <div class="mt-2 flex items-center space-x-4 text-xs text-gray-500">
-                                                <span>{{ __('Alias') }}: <code class="bg-gray-100 px-1 py-0.5 rounded">{{ $module['alias'] }}</code></span>
+                                                <span>{{ __('Alias') }}: <code class="px-1 py-0.5 rounded" style="background-color: var(--theme-bg-input)">{{ $module['alias'] }}</code></span>
                                                 <span>{{ __('Version') }}: {{ $module['version'] }}</span>
                                                 @if($module['commit'])
                                                     <span>{{ __('Commit') }}: 
                                                         <span class="module-commit-wrapper">
                                                             @if($module['commit_url'])
-                                                                <a href="{{ $module['commit_url'] }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">
-                                                                    <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">{{ $module['commit'] }}</code>
+                                                                <a href="{{ $module['commit_url'] }}" target="_blank" class="hover:underline" style="color: var(--theme-primary-600)">
+                                                                    <code class="px-1 py-0.5 rounded font-mono" style="background-color: var(--theme-bg-input)">{{ $module['commit'] }}</code>
                                                                 </a>
                                                             @else
-                                                                <code class="bg-gray-100 px-1 py-0.5 rounded font-mono">{{ $module['commit'] }}</code>
+                                                                <code class="px-1 py-0.5 rounded font-mono" style="background-color: var(--theme-bg-input)">{{ $module['commit'] }}</code>
                                                             @endif
                                                         </span>
                                                     </span>
@@ -160,16 +161,19 @@
                                                                         const link = document.createElement('a');
                                                                         link.href = data.new_commit_url;
                                                                         link.target = '_blank';
-                                                                        link.className = 'text-blue-600 hover:text-blue-800 hover:underline';
+                                                                        link.className = 'hover:underline';
+                                                                        link.style.color = 'var(--theme-primary-600)';
                                                                         const code = document.createElement('code');
-                                                                        code.className = 'bg-gray-100 px-1 py-0.5 rounded font-mono';
+                                                                        code.className = 'px-1 py-0.5 rounded font-mono';
+                                                                        code.style.backgroundColor = 'var(--theme-bg-input)';
                                                                         code.textContent = data.new_commit;
                                                                         link.appendChild(code);
                                                                         commitWrapper.innerHTML = '';
                                                                         commitWrapper.appendChild(link);
                                                                     } else if (commitWrapper) {
                                                                         const code = document.createElement('code');
-                                                                        code.className = 'bg-gray-100 px-1 py-0.5 rounded font-mono';
+                                                                        code.className = 'px-1 py-0.5 rounded font-mono';
+                                                                        code.style.backgroundColor = 'var(--theme-bg-input)';
                                                                         code.textContent = data.new_commit;
                                                                         commitWrapper.innerHTML = '';
                                                                         commitWrapper.appendChild(code);
@@ -211,7 +215,7 @@
                                                                     statusBadge.classList.add('bg-red-100', 'text-red-800');
                                                                     setTimeout(() => statusBadge.classList.add('hidden'), 3000);
                                                                 }
-                                                                alert(data.message);
+                                                                showToast(data.message, 'error');
                                                                 updating = false;
                                                             }
                                                         })
@@ -222,12 +226,12 @@
                                                                 statusBadge.classList.add('bg-red-100', 'text-red-800');
                                                                 setTimeout(() => statusBadge.classList.add('hidden'), 3000);
                                                             }
-                                                            alert('{{ __('An error occurred') }}');
+                                                            showToast('{{ __('An error occurred') }}', 'error');
                                                             updating = false;
                                                         });
                                                     "
                                                     :disabled="updating || updated"
-                                                    :class="{ 'bg-green-600 hover:bg-green-500 focus:border-green-700 focus:ring-green-300': updated, 'bg-indigo-600 hover:bg-indigo-500 focus:border-indigo-700 focus:ring-indigo-300': !updated }">
+                                                    :style="updated ? 'background-color: var(--theme-status-success-text); color: var(--theme-text-inverted)' : 'background-color: var(--theme-primary-600); color: var(--theme-text-inverted)'">
                                                     <span x-show="!updating && !updated">{{ __('Update') }}</span>
                                                     <span x-show="updating" class="flex items-center">
                                                         <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -262,14 +266,15 @@
                                                         .then(response => response.json())
                                                         .then(data => {
                                                             if (data.status === 'success') {
-                                                                window.location.reload();
+                                                                showToast('Module disabled successfully', 'success');
+                                                                setTimeout(() => window.location.reload(), 1000);
                                                             } else {
-                                                                alert(data.message);
+                                                                showToast(data.message, 'error');
                                                                 processing = false;
                                                             }
                                                         })
                                                         .catch(error => {
-                                                            alert('{{ __('An error occurred') }}');
+                                                            showToast('{{ __('An error occurred') }}', 'error');
                                                             processing = false;
                                                         });
                                                     "
@@ -293,14 +298,15 @@
                                                         .then(response => response.json())
                                                         .then(data => {
                                                             if (data.status === 'success') {
-                                                                window.location.reload();
+                                                                showToast('Module enabled successfully', 'success');
+                                                                setTimeout(() => window.location.reload(), 1000);
                                                             } else {
-                                                                alert(data.message);
+                                                                showToast(data.message, 'error');
                                                                 processing = false;
                                                             }
                                                         })
                                                         .catch(error => {
-                                                            alert('{{ __('An error occurred') }}');
+                                                            showToast('{{ __('An error occurred') }}', 'error');
                                                             processing = false;
                                                         });
                                                     "
@@ -315,7 +321,7 @@
                                                 <button 
                                                     x-data="{ resetting: false }"
                                                     @click="
-                                                        if (confirm('This will DELETE the module and re-clone from GitHub. All local changes will be lost. Continue?')) {
+                                                        confirmAction('Hard Refresh Module', 'This will DELETE the module and re-clone from GitHub. All local changes will be lost. Continue?', () => {
                                                             resetting = true;
                                                             const btn = $el;
                                                             fetch('{{ route('modules.ajax') }}', {
@@ -354,18 +360,18 @@
                                                                             commitWrapper.appendChild(code);
                                                                         }
                                                                     }
-                                                                    alert(data.message);
-                                                                    window.location.reload();
+                                                                    showToast(data.message, 'success');
+                                                                    setTimeout(() => window.location.reload(), 1000);
                                                                 } else {
-                                                                    alert(data.message);
+                                                                    showToast(data.message, 'error');
                                                                     resetting = false;
                                                                 }
                                                             })
                                                             .catch(error => {
-                                                                alert('An error occurred');
+                                                                showToast('An error occurred', 'error');
                                                                 resetting = false;
                                                             });
-                                                        }
+                                                        });
                                                     "
                                                     :disabled="resetting"
                                                     class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
@@ -376,7 +382,7 @@
 
                                             <button 
                                                 @click="
-                                                    if (confirm('{{ __('Are you sure you want to delete this module?') }}')) {
+                                                    confirmAction('Delete Module', '{{ __('Are you sure you want to delete this module?') }}', () => {
                                                         processing = true;
                                                         fetch('{{ route('modules.delete', $module['alias']) }}', {
                                                             method: 'DELETE',
@@ -389,17 +395,18 @@
                                                         .then(response => response.json())
                                                         .then(data => {
                                                             if (data.status === 'success') {
-                                                                window.location.reload();
+                                                                showToast('Module deleted successfully', 'success');
+                                                                setTimeout(() => window.location.reload(), 1000);
                                                             } else {
-                                                                alert(data.message);
+                                                                showToast(data.message, 'error');
                                                                 processing = false;
                                                             }
                                                         })
                                                         .catch(error => {
-                                                            alert('{{ __('An error occurred') }}');
+                                                            showToast('{{ __('An error occurred') }}', 'error');
                                                             processing = false;
                                                         });
-                                                    }
+                                                    });
                                                 "
                                                 :disabled="processing"
                                                 class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
@@ -631,7 +638,7 @@
                         }, 500);
                     } else {
                         if (!isAutoCheck) {
-                            alert(data.message || '{{ __('Failed to check for updates') }}');
+                            showToast(data.message || '{{ __('Failed to check for updates') }}', 'error');
                         }
                         if (btn && !isAutoCheck) {
                             btn.innerText = originalText;
@@ -649,7 +656,7 @@
                 .catch(error => {
                     console.error(error);
                     if (!isAutoCheck) {
-                        alert('{{ __('An error occurred while checking for updates') }}');
+                        showToast('{{ __('An error occurred while checking for updates') }}', 'error');
                     }
                     if (btn && !isAutoCheck) {
                         btn.innerText = originalText;

@@ -10,14 +10,14 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     @if(session('success'))
-                        <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4">
-                            <p class="text-sm text-green-700">{{ session('success') }}</p>
+                        <div class="mb-6 border-l-4 p-4" style="background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg); color: var(--theme-status-success-text)">
+                            <p class="text-sm">{{ session('success') }}</p>
                         </div>
                     @endif
 
                     @if(session('error'))
-                        <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4">
-                            <p class="text-sm text-red-700">{{ session('error') }}</p>
+                        <div class="mb-6 border-l-4 p-4" style="background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg); color: var(--theme-status-error-text)">
+                            <p class="text-sm">{{ session('error') }}</p>
                         </div>
                     @endif
 
@@ -57,7 +57,7 @@
                                             <div class="flex items-center gap-2">
                                                 <h4 class="font-medium text-gray-900">{{ $theme->title }}</h4>
                                                 @if($currentTheme === $theme->name)
-                                                    <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Active</span>
+                                                    <span class="px-2 py-0.5 rounded-full text-xs font-bold" style="background-color: var(--theme-primary-100); color: var(--theme-primary-700)">Active</span>
                                                 @endif
                                             </div>
                                             <div class="theme-selection-check w-4 h-4 rounded-full border-2 border-gray-300 flex items-center justify-center">
@@ -102,23 +102,23 @@
                         <h4 class="text-sm font-semibold text-gray-500 mb-2">Primary Colors</h4>
                         <div class="grid grid-cols-5 gap-2">
                             <div class="space-y-1 text-center">
-                                <div class="w-full h-12 rounded bg-primary-50 border"></div>
+                                <div class="w-full h-12 rounded border" style="background-color: var(--theme-primary-50)"></div>
                                 <span class="text-xs text-gray-500">50</span>
                             </div>
                             <div class="space-y-1 text-center">
-                                <div class="w-full h-12 rounded bg-primary-100 border"></div>
+                                <div class="w-full h-12 rounded border" style="background-color: var(--theme-primary-100)"></div>
                                 <span class="text-xs text-gray-500">100</span>
                             </div>
                             <div class="space-y-1 text-center">
-                                <div class="w-full h-12 rounded bg-primary-500 shadow-sm"></div>
+                                <div class="w-full h-12 rounded shadow-sm" style="background-color: var(--theme-primary-500)"></div>
                                 <span class="text-xs text-gray-500">500</span>
                             </div>
                             <div class="space-y-1 text-center">
-                                <div class="w-full h-12 rounded bg-primary-600 shadow-sm"></div>
+                                <div class="w-full h-12 rounded shadow-sm" style="background-color: var(--theme-primary-600)"></div>
                                 <span class="text-xs text-gray-500">600</span>
                             </div>
                             <div class="space-y-1 text-center">
-                                <div class="w-full h-12 rounded bg-primary-700 shadow-sm"></div>
+                                <div class="w-full h-12 rounded shadow-sm" style="background-color: var(--theme-primary-700)"></div>
                                 <span class="text-xs text-gray-500">700</span>
                             </div>
                         </div>
@@ -129,20 +129,20 @@
                         <h4 class="text-sm font-semibold text-gray-500 mb-2">Status Colors</h4>
                         <div class="grid grid-cols-4 gap-4">
                             <div class="space-y-2">
-                                <div class="p-3 rounded bg-success-50 text-success-700 text-sm font-medium text-center border border-success-200">Success</div>
-                                <div class="h-2 w-full bg-success-600 rounded-full"></div>
+                                <div class="p-3 rounded text-sm font-medium text-center border" style="background-color: var(--theme-status-success-bg); color: var(--theme-status-success-text); border-color: var(--theme-status-success-bg)">Success</div>
+                                <div class="h-2 w-full rounded-full" style="background-color: var(--theme-status-success-text)"></div>
                             </div>
                             <div class="space-y-2">
-                                <div class="p-3 rounded bg-warning-50 text-warning-700 text-sm font-medium text-center border border-warning-200">Warning</div>
-                                <div class="h-2 w-full bg-warning-600 rounded-full"></div>
+                                <div class="p-3 rounded text-sm font-medium text-center border" style="background-color: var(--theme-status-warning-bg); color: var(--theme-status-warning-text); border-color: var(--theme-status-warning-bg)">Warning</div>
+                                <div class="h-2 w-full rounded-full" style="background-color: var(--theme-status-warning-text)"></div>
                             </div>
                             <div class="space-y-2">
-                                <div class="p-3 rounded bg-danger-50 text-danger-700 text-sm font-medium text-center border border-danger-200">Danger</div>
-                                <div class="h-2 w-full bg-danger-600 rounded-full"></div>
+                                <div class="p-3 rounded text-sm font-medium text-center border" style="background-color: var(--theme-status-error-bg); color: var(--theme-status-error-text); border-color: var(--theme-status-error-bg)">Danger</div>
+                                <div class="h-2 w-full rounded-full" style="background-color: var(--theme-status-error-text)"></div>
                             </div>
                             <div class="space-y-2">
-                                <div class="p-3 rounded bg-info-50 text-info-700 text-sm font-medium text-center border border-info-200">Info</div>
-                                <div class="h-2 w-full bg-info-600 rounded-full"></div>
+                                <div class="p-3 rounded text-sm font-medium text-center border" style="background-color: var(--theme-status-info-bg); color: var(--theme-status-info-text); border-color: var(--theme-status-info-bg)">Info</div>
+                                <div class="h-2 w-full rounded-full" style="background-color: var(--theme-status-info-text)"></div>
                             </div>
                         </div>
                     </div>
@@ -294,10 +294,10 @@
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Buttons</h4>
                                 <div class="flex flex-wrap gap-2">
-                                    <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Primary</button>
+                                    <button class="px-4 py-2 text-white rounded hover:opacity-90" style="background-color: var(--theme-primary-600)">Primary</button>
                                     <button class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Secondary</button>
-                                    <button class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Success</button>
-                                    <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Danger</button>
+                                    <button class="px-4 py-2 text-white rounded hover:opacity-90" style="background-color: var(--theme-status-success-text)">Success</button>
+                                    <button class="px-4 py-2 text-white rounded hover:opacity-90" style="background-color: var(--theme-status-error-text)">Danger</button>
                                     <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50">Outline</button>
                                 </div>
                             </div>
@@ -335,17 +335,17 @@
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Alerts</h4>
                                 <div class="space-y-2">
-                                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
-                                        <p class="text-sm text-blue-700">Info alert message.</p>
+                                    <div class="border-l-4 p-4" style="background-color: var(--theme-status-info-bg); border-color: var(--theme-status-info-bg); color: var(--theme-status-info-text)">
+                                        <p class="text-sm">Info alert message.</p>
                                     </div>
-                                    <div class="bg-blue-50 border-l-4 border-green-400 p-4">
-                                        <p class="text-sm text-blue-700">Success alert message.</p>
+                                    <div class="border-l-4 p-4" style="background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg); color: var(--theme-status-success-text)">
+                                        <p class="text-sm">Success alert message.</p>
                                     </div>
-                                    <div class="bg-blue-50 border-l-4 border-yellow-400 p-4">
-                                        <p class="text-sm text-blue-700">Warning alert message.</p>
+                                    <div class="border-l-4 p-4" style="background-color: var(--theme-status-warning-bg); border-color: var(--theme-status-warning-bg); color: var(--theme-status-warning-text)">
+                                        <p class="text-sm">Warning alert message.</p>
                                     </div>
-                                    <div class="bg-blue-50 border-l-4 border-red-400 p-4">
-                                        <p class="text-sm text-blue-700">Error alert message.</p>
+                                    <div class="border-l-4 p-4" style="background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg); color: var(--theme-status-error-text)">
+                                        <p class="text-sm">Error alert message.</p>
                                     </div>
                                 </div>
                             </div>

@@ -215,13 +215,14 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    location.reload();
+                    showToast('Reply sent successfully', 'success');
+                    setTimeout(() => location.reload(), 1000);
                 } else {
-                    alert('Error: ' + (data.message || 'Failed to send reply'));
+                    showToast('Error: ' + (data.message || 'Failed to send reply'), 'error');
                 }
             })
             .catch(error => {
-                alert('Error: ' + error);
+                showToast('Error: ' + error, 'error');
             });
         }
     </script>

@@ -10,8 +10,8 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     @if($errors->any())
-                        <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4">
-                            <ul class="list-disc list-inside text-sm text-red-700">
+                        <div class="mb-6 border-l-4 p-4" style="background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg)">
+                            <ul class="list-disc list-inside text-sm" style="color: var(--theme-status-error-text)">
                                 @foreach($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -20,8 +20,8 @@
                     @endif
                     
                     @if(session('success'))
-                        <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4">
-                            <p class="text-sm text-green-700">{{ session('success') }}</p>
+                        <div class="mb-6 border-l-4 p-4" style="background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg)">
+                            <p class="text-sm" style="color: var(--theme-status-success-text)">{{ session('success') }}</p>
                         </div>
                     @endif
                     
@@ -70,7 +70,7 @@
                                             <option value="other" {{ (is_array($email) && ($email['type'] ?? '') == 'other') ? 'selected' : '' }}>Other</option>
                                         </select>
                                         @if($index > 0)
-                                            <button type="button" @click="removeEmail($event)" class="px-3 py-2 text-red-600 hover:text-red-800">
+                                            <button type="button" @click="removeEmail($event)" class="px-3 py-2 hover:opacity-75" style="color: var(--theme-status-error-text)">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                 </svg>
@@ -78,7 +78,7 @@
                                         @endif
                                     </div>
                                 @endforeach
-                                <button type="button" @click="addEmail()" class="mt-2 text-sm text-blue-600 hover:text-blue-800">
+                                <button type="button" @click="addEmail()" class="mt-2 text-sm hover:underline" style="color: var(--theme-primary-600)">
                                     + Add another email
                                 </button>
                             </div>
@@ -166,7 +166,8 @@
                                 {{ __('Cancel') }}
                             </a>
                             <button type="submit" 
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                    class="px-4 py-2 text-white rounded-md transition"
+                                    style="background-color: var(--theme-primary-600)">
                                 {{ __('Save Customer') }}
                             </button>
                         </div>

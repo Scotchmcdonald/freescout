@@ -365,3 +365,10 @@
         border-color: var(--theme-primary-500) !important;
     }
 </style>
+<script>
+    @if($isDarkMode)
+        document.documentElement.classList.add('dark');
+    @else
+        document.documentElement.classList.remove('dark');
+    @endif
+</script>

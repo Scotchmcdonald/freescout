@@ -102,12 +102,12 @@
                                     </div>
                                 </div>
                             @else
-                                <div class="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="mb-8 p-4 border rounded-lg" style="background-color: var(--theme-primary-50); border-color: var(--theme-primary-200);">
                                     <div class="flex">
-                                        <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg class="h-5 w-5" style="color: var(--theme-primary-400);" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                                         </svg>
-                                        <p class="ml-3 text-sm text-blue-700">
+                                        <p class="ml-3 text-sm" style="color: var(--theme-primary-700);">
                                             {{ __('Administrator users have access to all features and mailboxes by default.') }}
                                         </p>
                                     </div>

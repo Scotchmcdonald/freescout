@@ -114,7 +114,7 @@
                                 </button>
                             </div>
                             
-                            <p class="mt-1 text-xs text-green-600" x-show="hasSavedToken">
+                            <p class="mt-1 text-xs" style="color: var(--theme-status-success-text)" x-show="hasSavedToken">
                                 ✓ {{ __('Using saved token') }}
                             </p>
                             
@@ -131,16 +131,16 @@
                                     {{ __('How to get a Personal Access Token') }}
                                 </button>
                                 
-                                <div x-show="expanded" x-collapse class="mt-3 p-4 bg-gray-50 rounded-lg text-xs text-gray-700 space-y-2">
+                                <div x-show="expanded" x-collapse class="mt-3 p-4 rounded-lg text-xs space-y-2" style="background-color: var(--theme-bg-hover); color: var(--theme-text-muted)">
                                     <p class="font-medium">{{ __('For Private Repositories:') }}</p>
                                     <ol class="list-decimal list-inside space-y-1.5 ml-2">
-                                        <li>{{ __('Go to') }} <a href="https://github.com/settings/tokens/new" target="_blank" class="text-blue-600 hover:underline">{{ __('GitHub Settings → Tokens → New Token (Classic)') }}</a></li>
+                                        <li>{{ __('Go to') }} <a href="https://github.com/settings/tokens/new" target="_blank" class="hover:underline" style="color: var(--theme-primary-600)">{{ __('GitHub Settings → Tokens → New Token (Classic)') }}</a></li>
                                         <li>{{ __('Set a descriptive name (e.g., "FreeScout Module Installer")') }}</li>
-                                        <li>{{ __('Under "Select scopes", check:') }} <code class="bg-gray-200 px-1.5 py-0.5 rounded text-red-600 font-mono">repo</code></li>
+                                        <li>{{ __('Under "Select scopes", check:') }} <code class="px-1.5 py-0.5 rounded font-mono" style="background-color: var(--theme-bg-input); color: var(--theme-status-error-text)">repo</code></li>
                                         <li>{{ __('Click "Generate token" and copy it immediately') }}</li>
                                         <li>{{ __('Paste the token in the field above') }}</li>
                                     </ol>
-                                    <p class="text-gray-500 italic mt-3">{{ __('Note: Public repositories do not require a token.') }}</p>
+                                    <p class="italic mt-3" style="color: var(--theme-text-muted)">{{ __('Note: Public repositories do not require a token.') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -203,10 +203,14 @@
 
                         <!-- Connection Test Results -->
                         <div x-show="connectionResult" x-transition>
-                            <div class="p-4 rounded-lg border" :class="connectionSuccess ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
-                                <p class="text-sm font-medium" :class="connectionSuccess ? 'text-green-800' : 'text-red-800'" x-text="connectionMessage"></p>
+                            <div class="p-4 rounded-lg border" 
+                                 :style="connectionSuccess ? 'background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg)' : 'background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg)'">
+                                <p class="text-sm font-medium" 
+                                   :style="connectionSuccess ? 'color: var(--theme-status-success-text)' : 'color: var(--theme-status-error-text)'" 
+                                   x-text="connectionMessage"></p>
                                 <div x-show="connectionSuggestions.length > 0" class="mt-2">
-                                    <ul class="text-xs space-y-1" :class="connectionSuccess ? 'text-green-700' : 'text-red-700'">
+                                    <ul class="text-xs space-y-1" 
+                                        :style="connectionSuccess ? 'color: var(--theme-status-success-text)' : 'color: var(--theme-status-error-text)'">
                                         <template x-for="suggestion in connectionSuggestions" :key="suggestion">
                                             <li class="flex items-start">
                                                 <span class="mr-1">•</span>
@@ -219,13 +223,13 @@
                         </div>
 
                         <!-- Error Message -->
-                        <div x-show="error" x-transition class="p-4 bg-red-50 border border-red-200 rounded-lg">
-                            <p class="text-sm text-red-700" x-text="error"></p>
+                        <div x-show="error" x-transition class="p-4 border rounded-lg" style="background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg)">
+                            <p class="text-sm" style="color: var(--theme-status-error-text)" x-text="error"></p>
                         </div>
 
                         <!-- Installation Error -->
-                        <div x-show="installError" x-transition class="p-4 bg-red-50 border border-red-200 rounded-lg">
-                            <p class="text-sm text-red-700" x-text="installError"></p>
+                        <div x-show="installError" x-transition class="p-4 border rounded-lg" style="background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg)">
+                            <p class="text-sm" style="color: var(--theme-status-error-text)" x-text="installError"></p>
                         </div>
 
                         <!-- Branch Selection -->
@@ -291,7 +295,8 @@
                             <button 
                                 type="submit" 
                                 :disabled="installing"
-                                class="w-full px-4 py-3 bg-gray-800 text-white text-sm font-medium rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                class="w-full px-4 py-3 text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                style="background-color: var(--theme-primary-600); color: var(--theme-text-inverted)"
                             >
                                 <span class="flex items-center justify-center">
                                     <svg x-show="installing" class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
@@ -365,7 +370,7 @@
                                     </div>
 
                                     <!-- Composer Dependencies -->
-                                    <div x-show="previewData?.composer_info?.require" class="bg-blue-50 rounded-lg p-4">
+                                    <div x-show="previewData?.composer_info?.require" class="rounded-lg p-4" style="background-color: var(--theme-primary-50)">
                                         <h4 class="font-semibold text-gray-900 mb-2">{{ __('Dependencies') }}</h4>
                                         <div class="text-sm space-y-1">
                                             <template x-for="(version, package) in previewData?.composer_info?.require" :key="package">
@@ -380,17 +385,17 @@
                                     <!-- PHP Version Requirements -->
                                     <div x-show="previewData?.composer_info?.require?.php" 
                                          class="border rounded-lg p-4"
-                                         :class="previewData?.php_version_compatible ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-300'">
+                                         :style="previewData?.php_version_compatible ? 'background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg)' : 'background-color: var(--theme-status-warning-bg); border-color: var(--theme-status-warning-bg)'">
                                         <h4 class="font-semibold mb-2" 
-                                            :class="previewData?.php_version_compatible ? 'text-green-900' : 'text-yellow-900'">
+                                            :style="previewData?.php_version_compatible ? 'color: var(--theme-status-success-text)' : 'color: var(--theme-status-warning-text)'">
                                             {{ __('PHP Version') }}
                                         </h4>
                                         <div class="text-sm space-y-1">
-                                            <p :class="previewData?.php_version_compatible ? 'text-green-700' : 'text-yellow-700'">
+                                            <p :style="previewData?.php_version_compatible ? 'color: var(--theme-status-success-text)' : 'color: var(--theme-status-warning-text)'">
                                                 <strong>{{ __('Required:') }}</strong> 
                                                 <span x-text="previewData?.composer_info?.require?.php"></span>
                                             </p>
-                                            <p :class="previewData?.php_version_compatible ? 'text-green-700' : 'text-yellow-700'">
+                                            <p :style="previewData?.php_version_compatible ? 'color: var(--theme-status-success-text)' : 'color: var(--theme-status-warning-text)'">
                                                 <strong>{{ __('Current:') }}</strong> 
                                                 <span x-text="previewData?.current_php_version || '{{ PHP_VERSION }}'"></span>
                                             </p>

@@ -65,35 +65,35 @@
                         @else
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
+                                    <thead style="background-color: var(--theme-bg-hover)">
                                         <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recipient</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">ID</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">Type</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">Recipient</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">Status</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">Date</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                                    <tbody class="divide-y" style="background-color: var(--theme-bg-card); border-color: var(--theme-border)">
                                         @foreach($sendLogs as $log)
-                                            <tr class="hover:bg-gray-50">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $log->id }}</td>
+                                            <tr class="hover:bg-opacity-50" style="border-color: var(--theme-border)">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: var(--theme-text-main)">{{ $log->id }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                                     @if($log->user_id)
-                                                        <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">User</span>
+                                                        <span class="px-2 py-1 text-xs rounded" style="background-color: var(--theme-status-info-bg); color: var(--theme-status-info-text)">User</span>
                                                     @else
-                                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Customer</span>
+                                                        <span class="px-2 py-1 text-xs rounded" style="background-color: var(--theme-status-success-bg); color: var(--theme-status-success-text)">Customer</span>
                                                     @endif
                                                 </td>
-                                                <td class="px-6 py-4 text-sm text-gray-600">{{ $log->email }}</td>
+                                                <td class="px-6 py-4 text-sm" style="color: var(--theme-text-muted)">{{ $log->email }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                                     @if($log->status == 1)
-                                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Sent</span>
+                                                        <span class="px-2 py-1 text-xs rounded" style="background-color: var(--theme-status-success-bg); color: var(--theme-status-success-text)">Sent</span>
                                                     @else
-                                                        <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">Failed</span>
+                                                        <span class="px-2 py-1 text-xs rounded" style="background-color: var(--theme-status-error-bg); color: var(--theme-status-error-text)">Failed</span>
                                                     @endif
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: var(--theme-text-muted)">
                                                     {{ $log->created_at->format('Y-m-d H:i:s') }}
                                                 </td>
                                             </tr>
@@ -118,31 +118,31 @@
                         @else
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
+                                    <thead style="background-color: var(--theme-bg-hover)">
                                         <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">Event</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">User</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">Subject</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">Date</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                                    <tbody class="divide-y" style="background-color: var(--theme-bg-card); border-color: var(--theme-border)">
                                         @foreach($activityLogs as $log)
-                                            <tr class="hover:bg-gray-50">
+                                            <tr class="hover:bg-opacity-50" style="border-color: var(--theme-border)">
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded">{{ $log->description }}</span>
+                                                    <span class="px-2 py-1 text-xs rounded" style="background-color: var(--theme-bg-hover); color: var(--theme-text-main)">{{ $log->description }}</span>
                                                 </td>
-                                                <td class="px-6 py-4 text-sm text-gray-600">
+                                                <td class="px-6 py-4 text-sm" style="color: var(--theme-text-muted)">
                                                     {{ $log->causer?->getFullName() ?? 'System' }}
                                                 </td>
-                                                <td class="px-6 py-4 text-sm text-gray-600">
+                                                <td class="px-6 py-4 text-sm" style="color: var(--theme-text-muted)">
                                                     @if($log->subject)
                                                         {{ class_basename($log->subject_type) }} #{{ $log->subject_id }}
                                                     @else
-                                                        <span class="text-gray-400">N/A</span>
+                                                        <span style="color: var(--theme-text-muted)">N/A</span>
                                                     @endif
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: var(--theme-text-muted)">
                                                     {{ $log->created_at->format('Y-m-d H:i:s') }}
                                                 </td>
                                             </tr>
@@ -168,41 +168,41 @@
                         @else
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
+                                    <thead style="background-color: var(--theme-bg-hover)">
                                         <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP Address</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">Event</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">Email</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">IP Address</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">User</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium uppercase" style="color: var(--theme-text-muted)">Date</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                                    <tbody class="divide-y" style="background-color: var(--theme-bg-card); border-color: var(--theme-border)">
                                         @foreach($loginLogs as $log)
-                                            <tr class="hover:bg-gray-50">
+                                            <tr class="hover:bg-opacity-50" style="border-color: var(--theme-border)">
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     @if($log->description === 'login')
-                                                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">✓ Login Success</span>
+                                                        <span class="px-2 py-1 text-xs rounded" style="background-color: var(--theme-status-success-bg); color: var(--theme-status-success-text)">✓ Login Success</span>
                                                     @elseif($log->description === 'login_failed')
-                                                        <span class="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">✗ Login Failed</span>
+                                                        <span class="px-2 py-1 text-xs rounded" style="background-color: var(--theme-status-error-bg); color: var(--theme-status-error-text)">✗ Login Failed</span>
                                                     @elseif($log->description === 'locked')
-                                                        <span class="px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded">⚠ Locked Out</span>
+                                                        <span class="px-2 py-1 text-xs rounded" style="background-color: var(--theme-status-warning-bg); color: var(--theme-status-warning-text)">⚠ Locked Out</span>
                                                     @elseif($log->description === 'logout')
-                                                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded">← Logout</span>
+                                                        <span class="px-2 py-1 text-xs rounded" style="background-color: var(--theme-bg-hover); color: var(--theme-text-muted)">← Logout</span>
                                                     @else
-                                                        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded">{{ $log->description }}</span>
+                                                        <span class="px-2 py-1 text-xs rounded" style="background-color: var(--theme-bg-hover); color: var(--theme-text-muted)">{{ $log->description }}</span>
                                                     @endif
                                                 </td>
-                                                <td class="px-6 py-4 text-sm text-gray-600">{{ $log->properties['email'] ?? 'N/A' }}</td>
-                                                <td class="px-6 py-4 text-sm text-gray-600 font-mono">{{ $log->properties['ip'] ?? 'N/A' }}</td>
-                                                <td class="px-6 py-4 text-sm text-gray-600">
+                                                <td class="px-6 py-4 text-sm" style="color: var(--theme-text-muted)">{{ $log->properties['email'] ?? 'N/A' }}</td>
+                                                <td class="px-6 py-4 text-sm font-mono" style="color: var(--theme-text-muted)">{{ $log->properties['ip'] ?? 'N/A' }}</td>
+                                                <td class="px-6 py-4 text-sm" style="color: var(--theme-text-muted)">
                                                     @if($log->causer)
                                                         {{ $log->causer->getFullName() }}
                                                     @else
-                                                        <span class="text-gray-400">—</span>
+                                                        <span style="color: var(--theme-text-muted)">—</span>
                                                     @endif
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm" style="color: var(--theme-text-muted)">
                                                     {{ $log->created_at->format('Y-m-d H:i:s') }}
                                                 </td>
                                             </tr>

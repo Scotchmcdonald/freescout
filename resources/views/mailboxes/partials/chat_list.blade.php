@@ -42,7 +42,8 @@
 
     @foreach ($chats as $chat_i => $chat)
         @if ($chat_i < $chat_list_size)
-            <li class="px-4 py-3 hover:bg-gray-50 {{ isset($conversation) && $chat->id == $conversation->id ? 'bg-blue-50' : '' }} {{ (method_exists($chat, 'isActive') && $chat->isActive()) || $chat->status == 1 ? 'border-l-4 border-blue-500' : '' }}" 
+            <li class="px-4 py-3 hover:bg-gray-50 {{ (method_exists($chat, 'isActive') && $chat->isActive()) || $chat->status == 1 ? 'border-l-4' : '' }}" 
+                style="{{ isset($conversation) && $chat->id == $conversation->id ? 'background-color: var(--theme-primary-50);' : '' }} {{ (method_exists($chat, 'isActive') && $chat->isActive()) || $chat->status == 1 ? 'border-color: var(--theme-primary-500);' : '' }}"
                 data-chat-id="{{ $chat->id }}">
                 <a href="{{ method_exists($chat, 'url') ? $chat->url(null, null, ['chat_mode' => 1]) : route('conversations.show', $chat) }}" class="block">
                     <div class="flex items-start justify-between mb-1">

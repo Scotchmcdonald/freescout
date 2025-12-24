@@ -13,7 +13,8 @@
     <nav class="flex flex-col p-2">
         @foreach($sections as $key => $section)
             <a href="{{ route($section['route']) }}" 
-               class="flex items-center px-4 py-2 text-sm font-medium rounded-md mb-1 {{ $currentSection === $key ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+               class="flex items-center px-4 py-2 text-sm font-medium rounded-md mb-1 {{ $currentSection === $key ? '' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
+               style="{{ $currentSection === $key ? 'background-color: var(--theme-primary-50); color: var(--theme-primary-700);' : '' }}">
                 @if(isset($section['icon']))
                     <span class="mr-3">
                         @switch($section['icon'])

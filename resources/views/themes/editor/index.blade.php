@@ -14,19 +14,19 @@
                 <div class="p-6 text-gray-900">
                     
                     @if(session('error'))
-                        <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4">
-                            <p class="text-sm text-red-700">{{ session('error') }}</p>
+                        <div class="mb-6 border-l-4 p-4" style="background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg)">
+                            <p class="text-sm" style="color: var(--theme-status-error-text)">{{ session('error') }}</p>
                         </div>
                     @endif
                     
                     @if(session('success'))
-                        <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4">
-                            <p class="text-sm text-green-700">{{ session('success') }}</p>
+                        <div class="mb-6 border-l-4 p-4" style="background-color: var(--theme-status-success-bg); border-color: var(--theme-status-success-bg)">
+                            <p class="text-sm" style="color: var(--theme-status-success-text)">{{ session('success') }}</p>
                         </div>
                     @endif
 
                     <div class="mb-8 flex justify-end">
-                        <a href="{{ route('themes.editor.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Create New Theme</a>
+                        <a href="{{ route('themes.editor.create') }}" class="px-4 py-2 text-white rounded transition" style="background-color: var(--theme-primary-600)">Create New Theme</a>
                     </div>
 
                     <h3 class="text-lg font-medium mb-4">Available Themes</h3>
@@ -41,32 +41,32 @@
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($themes as $theme)
-                                    <tr class="{{ isset($activeTheme) && $activeTheme === $theme->name ? 'bg-blue-50' : '' }}">
+                                    <tr style="{{ isset($activeTheme) && $activeTheme === $theme->name ? 'background-color: var(--theme-primary-50)' : '' }}">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900">
                                                 {{ $theme->title }}
                                                 @if(isset($activeTheme) && $activeTheme === $theme->name)
-                                                    <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Active</span>
+                                                    <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full" style="background-color: var(--theme-primary-100); color: var(--theme-primary-700)">Active</span>
                                                 @endif
                                             </div>
                                             <div class="text-sm text-gray-500">{{ $theme->name }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($theme->is_system)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">System</span>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" style="background-color: var(--theme-bg-input); color: var(--theme-text-muted)">System</span>
                                             @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">User</span>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" style="background-color: var(--theme-status-success-bg); color: var(--theme-status-success-text)">User</span>
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             @if($theme->is_system)
-                                                <a href="{{ route('themes.editor.show', $theme) }}" class="text-gray-600 hover:text-gray-900 mr-3">View Palette</a>
+                                                <a href="{{ route('themes.editor.show', $theme) }}" class="mr-3" style="color: var(--theme-text-muted)">View Palette</a>
                                             @else
-                                                <a href="{{ route('themes.editor.edit', $theme) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit Palette</a>
+                                                <a href="{{ route('themes.editor.edit', $theme) }}" class="mr-3" style="color: var(--theme-primary-600)">Edit Palette</a>
                                                 <form action="{{ route('themes.editor.destroy', $theme) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this theme?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                                    <button type="submit" style="color: var(--theme-status-error-text)">Delete</button>
                                                 </form>
                                             @endif
                                         </td>

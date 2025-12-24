@@ -27,7 +27,8 @@
                 <div class="hidden absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
                     @foreach ($menu_mailboxes as $mailbox_item)
                         <a href="{{ route(Route::currentRouteName(), ['mailbox' => $mailbox_item->id]) }}" 
-                           class="block px-4 py-2 text-sm {{ $mailbox_item->id == $mailbox->id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
+                           class="block px-4 py-2 text-sm"
+                           style="{{ $mailbox_item->id == $mailbox->id ? 'background-color: var(--theme-primary-50); color: var(--theme-primary-700); font-weight: 500' : 'color: var(--theme-text-muted)' }}">
                             {{ $mailbox_item->name }}
                         </a>
                     @endforeach

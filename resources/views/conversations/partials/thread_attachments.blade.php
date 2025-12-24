@@ -26,8 +26,8 @@
                                  loading="lazy">
                         </div>
                     @else
-                        <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded flex items-center justify-center">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex-shrink-0 w-12 h-12 rounded flex items-center justify-center" style="background-color: var(--theme-primary-100)">
+                            <svg class="w-6 h-6" style="color: var(--theme-primary-600)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                         </div>
@@ -51,7 +51,7 @@
                     @if(!empty($attachment->url))
                         <a href="{{ $attachment->url }}" 
                            download="{{ $attachment->file_name }}"
-                           class="flex-shrink-0 p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition"
+                           class="flex-shrink-0 p-2 rounded transition text-[var(--theme-primary-600)] hover:text-[var(--theme-primary-800)] hover:bg-[var(--theme-primary-50)]"
                            title="{{ __('Download') }}">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
