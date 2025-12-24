@@ -518,10 +518,19 @@ services:
       - PGID=$(id -g)
       # Docker GID for socket access (enables sibling container spawning)
       - DOCKER_GID=${DOCKER_GID}
+      # Host path for DooD volume mounting
+      - HOST_SRC_PATH=${PWD}/src
       - PHP_MEMORY_LIMIT=512M
       - PHP_OPCACHE_ENABLE=1
       - PHP_POST_MAX_SIZE=20M
       - PHP_UPLOAD_MAX_FILESIZE=20M
+      # Database Configuration
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=\${DB_DATABASE}
+      - DB_USERNAME=\${DB_USER}
+      - DB_PASSWORD=\${DB_PASSWORD}
     volumes:
       - ./src:/var/www/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
@@ -582,6 +591,13 @@ services:
     environment:
       - PHP_MEMORY_LIMIT=512M
       - PHP_OPCACHE_ENABLE=1
+      # Database Configuration
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=\${DB_DATABASE}
+      - DB_USERNAME=\${DB_USER}
+      - DB_PASSWORD=\${DB_PASSWORD}
     volumes:
       - ./src:/var/www/html
     depends_on:
