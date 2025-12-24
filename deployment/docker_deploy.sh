@@ -670,6 +670,8 @@ services:
       - PGID=33
       # Docker GID for socket access (enables sibling container spawning)
       - DOCKER_GID=${DOCKER_GID}
+      # Host path for DooD volume mounting
+      - HOST_SRC_PATH=${PWD}/src
       - PHP_MEMORY_LIMIT=512M
       - PHP_OPCACHE_ENABLE=1
       - PHP_POST_MAX_SIZE=20M
