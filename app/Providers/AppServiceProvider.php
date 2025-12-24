@@ -18,7 +18,9 @@ use App\Observers\UserObserver;
 use App\Policies\ConversationPolicy;
 use App\Policies\FolderPolicy;
 use App\Policies\MailboxPolicy;
+use Modules\EmailMigration\Policies\MigrationProjectPolicy;
 use App\Policies\ThreadPolicy;
+use Modules\EmailMigration\Models\MigrationProject;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -48,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
         // Register authorization policies
         Gate::policy(Conversation::class, ConversationPolicy::class);
         Gate::policy(Mailbox::class, MailboxPolicy::class);
+        Gate::policy(MigrationProject::class, MigrationProjectPolicy::class);
         Gate::policy(Thread::class, ThreadPolicy::class);
         Gate::policy(Folder::class, FolderPolicy::class);
 
