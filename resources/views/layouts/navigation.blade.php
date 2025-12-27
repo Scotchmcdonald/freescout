@@ -16,6 +16,55 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
+                    <div class="hidden sm:flex sm:items-center sm:ms-6">
+                        <x-dropdown align="left" width="48">
+                            <x-slot name="trigger">
+                                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-inherit bg-transparent hover:opacity-75 focus:outline-none transition ease-in-out duration-150">
+                                    <div>{{ __('Finance') }}</div>
+                                    <div class="ms-1">
+                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </button>
+                            </x-slot>
+                            <x-slot name="content">
+                                @can('finance.admin')
+                                <x-dropdown-link :href="route('billing.finance.dashboard')">
+                                    {{ __('Dashboard') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('billing.finance.pre-flight')">
+                                    {{ __('Pre-Flight Review') }}
+                                </x-dropdown-link>
+                                @endcan
+                                
+                                <x-dropdown-link :href="route('inventory.products.index')">
+                                    {{ __('Service Catalog') }}
+                                </x-dropdown-link>
+
+                                @can('finance.admin')
+                                <x-dropdown-link :href="route('billing.finance.overrides')">
+                                    {{ __('Price Overrides') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('billing.finance.invoices')">
+                                    {{ __('Invoices') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('billing.finance.payments')">
+                                    {{ __('Payments') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('billing.finance.ar-aging')">
+                                    {{ __('AR Aging') }}
+                                </x-dropdown-link>
+                                @endcan
+
+                                <div class="border-t border-gray-200"></div>
+                                <x-dropdown-link :href="route('billing.portal.entry')">
+                                    {{ __('Client Portal') }}
+                                </x-dropdown-link>
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
+
                     @auth
                         @php
                             $mailboxes = Auth::user()->mailboxesCanView(true);
@@ -68,6 +117,18 @@
                                     @if (Auth::user()->isAdmin())
                                         <x-dropdown-link :href="route('settings')">
                                             {{ __('Settings') }}
+                                        </x-dropdown-link>
+
+                                        <x-dropdown-link :href="route('billing.finance.index')">
+                                            {{ __('Billing Dashboard') }}
+                                        </x-dropdown-link>
+
+                                        <x-dropdown-link :href="route('inventory.products.index')">
+                                            {{ __('Product Catalog') }}
+                                        </x-dropdown-link>
+
+                                        <x-dropdown-link :href="route('billing.portal.entry')">
+                                            {{ __('Billing Portal') }}
                                         </x-dropdown-link>
                                     @endif
                                     

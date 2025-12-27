@@ -378,4 +378,33 @@ class Helper
 
         return round($bytes, $precision).' '.$units[(int) $pow];
     }
+
+    /**
+     * Get application subdirectory.
+     */
+    public static function getSubdirectory(): ?string
+    {
+        $path = parse_url((string)config('app.url'), PHP_URL_PATH);
+
+        return $path ? trim($path, '/') : null;
+    }
+
+    /**
+     * Check if menu item is selected.
+     */
+    public static function menuSelectedHtml(string $segment): string
+    {
+        if (request()->segment(1) == $segment) {
+            return 'active';
+        }
+        return '';
+    }
+
+    /**
+     * Check if current route matches.
+     */
+    public static function isRoute(string $route): bool
+    {
+        return request()->routeIs($route);
+    }
 }

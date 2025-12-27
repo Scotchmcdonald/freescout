@@ -47,6 +47,7 @@ class Customer extends Model
         'first_name',
         'last_name',
         'company',
+        'company_id',
         'job_title',
         'photo_url',
         'photo_type',
@@ -77,6 +78,14 @@ class Customer extends Model
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the company that owns the customer.
+     */
+    public function companyRel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\Modules\Billing\Models\Company::class, 'company_id');
     }
 
     /**

@@ -22,6 +22,16 @@ return [
             'url' => 'https://github.com/BorealTek/CRM-Module',
             'description' => 'Customer Relationship Management features',
         ],
+        [
+            'name' => 'Billing',
+            'url' => 'https://github.com/Scotchmcdonald/Billing',
+            'description' => 'Billing Module',
+        ],
+        [
+            'name' => 'MspInventory',
+            'url' => 'https://github.com/Scotchmcdonald/MspInventory',
+            'description' => 'MSP Inventory Module',
+        ],
     ],
 
     /*

@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'theme' => \App\Http\Middleware\ApplyUserTheme::class,
+            'billing.auth' => \Modules\Billing\Http\Middleware\EnsureUserCanAccessCompanyBilling::class,
         ]);
         
         // Add middleware to web group:

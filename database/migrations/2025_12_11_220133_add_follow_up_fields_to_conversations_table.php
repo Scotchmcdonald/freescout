@@ -24,11 +24,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('conversations', function (Blueprint $table) {
-            $table->dateTime('follow_up_date')->nullable()->after('closed_at');
-            $table->dateTime('follow_up_reminded_at')->nullable()->after('follow_up_date');
+            if (!Schema::hasColumn('conversations', 'follow_up_date')) {
+                $table->dateTime('follow_up_date')->nullable()->after('closed_at');
+            }
+            if (!Schema::hasColumn('conversations', 'follow_up_reminded_at')) {
+                $table->dateTime('follow_up_reminded_at')->nullable()->after('follow_up_date');
+            }
             
             // Add composite index for efficient querying of due follow-ups
-            $table->index(['follow_up_date', 'follow_up_reminded_at', 'status'], 'idx_follow_up_reminders');
+            // $table->index(['follow_up_date', 'follow_up_reminded_at', 'status'], 'idx_follow_up_reminders');
         });
     }
 

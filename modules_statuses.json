@@ -1,5 +1,8 @@
 {
     "Crm": true,
     "EmailMigration": true,
-    "TestModule": true
+    "TestModule": true,
+    "Billing": true,
+    "Customers Management (CRM)": true,
+    "Inventory": true
 }

@@ -26,6 +26,8 @@
 
 ### 📚 Documentation
 
+- **[FinOps Implementation Plan](FINOPS_IMPLEMENTATION_PLAN.md)** - Master architecture and roadmap for the Billing module.
+- **[Post-Implementation Checklist](POST_IMPLEMENTATION_CHECKLIST.md)** - Refinements and UX improvements identified during audit.
 - **[Planning Documents](docs/archive/)** - Original analysis and strategy
 
 ---

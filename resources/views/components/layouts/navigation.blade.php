@@ -96,6 +96,20 @@
                                             {{ __('Themes & Style Guide') }}
                                         </x-dropdown-link>
 
+                                        <div class="border-t border-gray-100 my-1"></div>
+                                        
+                                        <x-dropdown-link :href="route('billing.finance.index')">
+                                            {{ __('FinOps Control Tower') }}
+                                        </x-dropdown-link>
+
+                                        <x-dropdown-link :href="route('inventory.products.index')">
+                                            {{ __('Product Catalog') }}
+                                        </x-dropdown-link>
+
+                                        <x-dropdown-link :href="route('billing.portal.entry')">
+                                            {{ __('Billing Portal') }}
+                                        </x-dropdown-link>
+
                                         @action('menu.manage')
                                     @else
                                         <x-dropdown-link :href="route('themes')">
