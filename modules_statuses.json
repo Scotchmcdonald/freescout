@@ -4,5 +4,6 @@
     "TestModule": true,
     "Billing": true,
     "Customers Management (CRM)": true,
-    "Inventory": true
+    "Inventory": true,
+    "DevFeedback": true
 }

@@ -44,6 +44,85 @@ The interface must be:
         3.  **What now?** (Actionable advice).
 *   **Quality Standard**: Never show a raw stack trace to a user. Always wrap it in a "Troubleshooting" context.
 
+### D. Tabbed Content (Information Architecture)
+**Use Case**: Related views that share context (e.g., Settings, Reports, Related Records).
+*   **Concept**: Consolidate related screens under a single page with tabbed navigation to reduce cognitive load and improve discoverability.
+*   **When to Use Tabs**:
+    *   Multiple views that operate on the same entity (e.g., Invoice: Details, Timeline, Disputes)
+    *   Related configuration screens (e.g., Settings: General, Integrations, Notifications)
+    *   Different perspectives of the same data (e.g., Reports: Summary, Detailed, Export)
+    *   Workflow stages that need quick switching (e.g., Pre-flight: Clean, Review, Approved)
+*   **Pattern**: The `Tab Navigator`.
+    *   **Visual Hierarchy**:
+        1.  **Page Header**: Entity name and primary actions (remains visible across tabs)
+        2.  **Tab Bar**: Horizontal navigation with active state indicator
+        3.  **Tab Content**: Full-width content area with smooth transitions
+    *   **Behavior**:
+        *   **Active State**: Primary color underline/border on active tab
+        *   **URL Sync**: Tab state reflected in URL hash (#tab-name) for bookmarkability
+        *   **Keyboard Nav**: Arrow keys navigate between tabs
+        *   **Loading**: Show skeleton or spinner when tab content is lazy-loaded
+        *   **Count Badges**: Display counts on tabs when relevant (e.g., "Disputes (3)")
+    *   **Implementation**:
+        ```blade
+        <div x-data="{ activeTab: '{{ request()->query('tab', 'details') }}' }">
+            <!-- Tab Navigation -->
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button @click="activeTab = 'details'" 
+                            :class="activeTab === 'details' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                        Details
+                    </button>
+                    <button @click="activeTab = 'timeline'" 
+                            :class="activeTab === 'timeline' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+                        Timeline
+                    </button>
+                </nav>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="mt-6">
+                <div x-show="activeTab === 'details'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    <!-- Details content -->
+                </div>
+                <div x-show="activeTab === 'timeline'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    <!-- Timeline content -->
+                </div>
+            </div>
+        </div>
+        ```
+
+### E. Hybrid Tab Navigation (Multi-Page Context)
+**Use Case**: When "tabs" are actually distinct pages (routes) but need to feel like a cohesive module.
+*   **Concept**: Use standard `<a>` links styled as tabs to navigate between separate controllers/views while maintaining the "Cockpit" feel.
+*   **When to Use**:
+    *   When tab content is too heavy to load all at once.
+    *   When tabs represent distinct sub-modules (e.g., Dashboard vs. Settings vs. Reports).
+    *   When deep-linking to a specific "tab" (page) is required without client-side routing complexity.
+*   **Implementation**:
+    ```blade
+    <div class="border-b border-gray-200 mb-6">
+        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <a href="{{ route('module.dashboard') }}" 
+               class="{{ Route::is('module.dashboard') ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+                <svg class="{{ Route::is('module.dashboard') ? 'text-primary-500' : 'text-gray-400 group-hover:text-gray-500' }} -ml-0.5 mr-2 h-5 w-5" ...>...</svg>
+                <span>Overview</span>
+            </a>
+
+            <a href="{{ route('module.settings') }}" 
+               class="{{ Route::is('module.settings') ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200">
+                <svg class="{{ Route::is('module.settings') ? 'text-primary-500' : 'text-gray-400 group-hover:text-gray-500' }} -ml-0.5 mr-2 h-5 w-5" ...>...</svg>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </div>
+    ```
+*   **Quality Standard**: Ensure the "active" state logic is robust (e.g., using `Route::is()` or checking request parameters).
+
+*   **Quality Standard**: Tabs should not exceed 6-7 items. If more are needed, consider a different information architecture (e.g., sidebar navigation or grouped sections).
+
 ---
 
 ## 3. Visual System (Abstracted)

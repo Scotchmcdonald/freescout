@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $zip
  * @property string|null $country
  * @property string|null $notes
+ * @property bool $is_non_profit
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Email> $emails
@@ -48,6 +49,7 @@ class Customer extends Model
         'last_name',
         'company',
         'company_id',
+        'is_non_profit',
         'job_title',
         'photo_url',
         'photo_type',
@@ -75,6 +77,7 @@ class Customer extends Model
             'phones' => 'json',
             'websites' => 'json',
             'social_profiles' => 'json',
+            'is_non_profit' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

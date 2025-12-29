@@ -33,27 +33,29 @@
                                 <x-dropdown-link :href="route('billing.finance.dashboard')">
                                     {{ __('Dashboard') }}
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('billing.finance.pre-flight')">
-                                    {{ __('Pre-Flight Review') }}
-                                </x-dropdown-link>
-                                @endcan
                                 
-                                <x-dropdown-link :href="route('inventory.products.index')">
-                                    {{ __('Service Catalog') }}
+                                <x-dropdown-link :href="route('billing.finance.pre-flight')">
+                                    {{ __('Pre-Flight') }}
                                 </x-dropdown-link>
-
-                                @can('finance.admin')
-                                <x-dropdown-link :href="route('billing.finance.overrides')">
-                                    {{ __('Price Overrides') }}
+                                
+                                <x-dropdown-link :href="route('billing.finance.usage-review')">
+                                    {{ __('Usage Review') }}
                                 </x-dropdown-link>
+                                
                                 <x-dropdown-link :href="route('billing.finance.invoices')">
                                     {{ __('Invoices') }}
                                 </x-dropdown-link>
+                                
                                 <x-dropdown-link :href="route('billing.finance.payments')">
                                     {{ __('Payments') }}
                                 </x-dropdown-link>
-                                <x-dropdown-link :href="route('billing.finance.ar-aging')">
-                                    {{ __('AR Aging') }}
+                                
+                                <x-dropdown-link :href="route('billing.finance.reports-hub')">
+                                    {{ __('Reports') }}
+                                </x-dropdown-link>
+                                
+                                <x-dropdown-link :href="route('billing.finance.settings-hub')">
+                                    {{ __('Settings') }}
                                 </x-dropdown-link>
                                 @endcan
 

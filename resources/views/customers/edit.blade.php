@@ -29,136 +29,152 @@
                         @csrf
                         @method('PATCH')
                         
-                        <div class="space-y-6">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('First Name') }} *
-                                    </label>
-                                    <input type="text" name="first_name" id="first_name" required
-                                           value="{{ old('first_name', $customer->first_name) }}"
-                                           class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                </div>
-                                
-                                <div>
-                                    <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('Last Name') }}
-                                    </label>
-                                    <input type="text" name="last_name" id="last_name"
-                                           value="{{ old('last_name', $customer->last_name) }}"
-                                           class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                </div>
-                            </div>
-                            
-                            <div id="emails-container">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    {{ __('Email Addresses') }}
-                                </label>
-                                @php
-                                    $emails = old('emails', $customer->emails ?? [['email' => '', 'type' => 'work']]);
-                                @endphp
-                                @foreach($emails as $index => $email)
-                                    <div class="email-row flex gap-2 mb-2">
-                                        <input type="email" name="emails[{{ $index }}][email]"
-                                               value="{{ is_array($email) ? ($email['email'] ?? '') : $email }}"
-                                               placeholder="email@example.com"
-                                               class="flex-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        <select name="emails[{{ $index }}][type]"
-                                                class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                            <option value="work" {{ (is_array($email) && ($email['type'] ?? '') == 'work') ? 'selected' : '' }}>Work</option>
-                                            <option value="home" {{ (is_array($email) && ($email['type'] ?? '') == 'home') ? 'selected' : '' }}>Home</option>
-                                            <option value="other" {{ (is_array($email) && ($email['type'] ?? '') == 'other') ? 'selected' : '' }}>Other</option>
-                                        </select>
-                                        @if($index > 0)
-                                            <button type="button" @click="removeEmail($event)" class="px-3 py-2 hover:opacity-75" style="color: var(--theme-status-error-text)">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
-                                            </button>
-                                        @endif
+                        <x-billing::tabs :tabs="[
+                            ['id' => 'profile', 'label' => 'Profile', 'icon' => 'user'],
+                            ['id' => 'contact', 'label' => 'Contact Info', 'icon' => 'address-card'],
+                            ['id' => 'notes', 'label' => 'Notes', 'icon' => 'sticky-note']
+                        ]" active="profile">
+                        
+                            <x-billing::tab-panel id="profile">
+                                <div class="space-y-6">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ __('First Name') }} *
+                                            </label>
+                                            <input type="text" name="first_name" id="first_name" required
+                                                   value="{{ old('first_name', $customer->first_name) }}"
+                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ __('Last Name') }}
+                                            </label>
+                                            <input type="text" name="last_name" id="last_name"
+                                                   value="{{ old('last_name', $customer->last_name) }}"
+                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
                                     </div>
-                                @endforeach
-                                <button type="button" @click="addEmail()" class="mt-2 text-sm hover:underline" style="color: var(--theme-primary-600)">
-                                    + Add another email
-                                </button>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label for="company" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('Company') }}
-                                    </label>
-                                    <input type="text" name="company" id="company"
-                                           value="{{ old('company', $customer->company) }}"
-                                           class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="company" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ __('Company') }}
+                                            </label>
+                                            <input type="text" name="company" id="company"
+                                                   value="{{ old('company', $customer->company) }}"
+                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="job_title" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ __('Job Title') }}
+                                            </label>
+                                            <input type="text" name="job_title" id="job_title"
+                                                   value="{{ old('job_title', $customer->job_title) }}"
+                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+                                    </div>
                                 </div>
-                                
-                                <div>
-                                    <label for="job_title" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('Job Title') }}
-                                    </label>
-                                    <input type="text" name="job_title" id="job_title"
-                                           value="{{ old('job_title', $customer->job_title) }}"
-                                           class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </x-billing::tab-panel>
+
+                            <x-billing::tab-panel id="contact">
+                                <div class="space-y-6">
+                                    <div id="emails-container">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            {{ __('Email Addresses') }}
+                                        </label>
+                                        @php
+                                            $emails = old('emails', $customer->emails ?? [['email' => '', 'type' => 'work']]);
+                                        @endphp
+                                        @foreach($emails as $index => $email)
+                                            <div class="email-row flex gap-2 mb-2">
+                                                <input type="email" name="emails[{{ $index }}][email]"
+                                                       value="{{ is_array($email) ? ($email['email'] ?? '') : $email }}"
+                                                       placeholder="email@example.com"
+                                                       class="flex-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                <select name="emails[{{ $index }}][type]"
+                                                        class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                    <option value="work" {{ (is_array($email) && ($email['type'] ?? '') == 'work') ? 'selected' : '' }}>Work</option>
+                                                    <option value="home" {{ (is_array($email) && ($email['type'] ?? '') == 'home') ? 'selected' : '' }}>Home</option>
+                                                    <option value="other" {{ (is_array($email) && ($email['type'] ?? '') == 'other') ? 'selected' : '' }}>Other</option>
+                                                </select>
+                                                @if($index > 0)
+                                                    <button type="button" @click="removeEmail($event)" class="px-3 py-2 hover:opacity-75" style="color: var(--theme-status-error-text)">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                        <button type="button" @click="addEmail()" class="mt-2 text-sm hover:underline" style="color: var(--theme-primary-600)">
+                                            + Add another email
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+                                            {{ __('Address') }}
+                                        </label>
+                                        <input type="text" name="address" id="address"
+                                               value="{{ old('address', $customer->address) }}"
+                                               class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-3 gap-4">
+                                        <div>
+                                            <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ __('City') }}
+                                            </label>
+                                            <input type="text" name="city" id="city"
+                                                   value="{{ old('city', $customer->city) }}"
+                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="state" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ __('State/Province') }}
+                                            </label>
+                                            <input type="text" name="state" id="state"
+                                                   value="{{ old('state', $customer->state) }}"
+                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="zip" class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ __('ZIP/Postal Code') }}
+                                            </label>
+                                            <input type="text" name="zip" id="zip"
+                                                   value="{{ old('zip', $customer->zip) }}"
+                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="country" class="block text-sm font-medium text-gray-700 mb-2">
+                                            {{ __('Country') }}
+                                        </label>
+                                        <input type="text" name="country" id="country" maxlength="2"
+                                               value="{{ old('country', $customer->country) }}"
+                                               placeholder="US"
+                                               class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div>
-                                <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
-                                    {{ __('Address') }}
-                                </label>
-                                <input type="text" name="address" id="address"
-                                       value="{{ old('address', $customer->address) }}"
-                                       class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            </div>
-                            
-                            <div class="grid grid-cols-3 gap-4">
+                            </x-billing::tab-panel>
+
+                            <x-billing::tab-panel id="notes">
                                 <div>
-                                    <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('City') }}
+                                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('Notes') }}
                                     </label>
-                                    <input type="text" name="city" id="city"
-                                           value="{{ old('city', $customer->city) }}"
-                                           class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <textarea name="notes" id="notes" rows="4"
+                                              class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('notes', $customer->notes) }}</textarea>
                                 </div>
-                                
-                                <div>
-                                    <label for="state" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('State/Province') }}
-                                    </label>
-                                    <input type="text" name="state" id="state"
-                                           value="{{ old('state', $customer->state) }}"
-                                           class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                </div>
-                                
-                                <div>
-                                    <label for="zip" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('ZIP/Postal Code') }}
-                                    </label>
-                                    <input type="text" name="zip" id="zip"
-                                           value="{{ old('zip', $customer->zip) }}"
-                                           class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label for="country" class="block text-sm font-medium text-gray-700 mb-2">
-                                    {{ __('Country') }}
-                                </label>
-                                <input type="text" name="country" id="country" maxlength="2"
-                                       value="{{ old('country', $customer->country) }}"
-                                       placeholder="US"
-                                       class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            </div>
-                            
-                            <div>
-                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
-                                    {{ __('Notes') }}
-                                </label>
-                                <textarea name="notes" id="notes" rows="4"
-                                          class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('notes', $customer->notes) }}</textarea>
-                            </div>
-                        </div>
+                            </x-billing::tab-panel>
+
+                        </x-billing::tabs>
                         
                         <div class="mt-6 flex justify-between">
                             <a href="{{ route('customers.show', $customer) }}" 
