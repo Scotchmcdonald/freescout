@@ -16,56 +16,47 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    <div class="hidden sm:flex sm:items-center sm:ms-6">
-                        <x-dropdown align="left" width="48">
-                            <x-slot name="trigger">
-                                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-inherit bg-transparent hover:opacity-75 focus:outline-none transition ease-in-out duration-150">
-                                    <div>{{ __('Finance') }}</div>
-                                    <div class="ms-1">
-                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </button>
-                            </x-slot>
-                            <x-slot name="content">
-                                @can('finance.admin')
-                                <x-dropdown-link :href="route('billing.finance.dashboard')">
-                                    {{ __('Dashboard') }}
-                                </x-dropdown-link>
-                                
-                                <x-dropdown-link :href="route('billing.finance.pre-flight')">
-                                    {{ __('Pre-Flight') }}
-                                </x-dropdown-link>
-                                
-                                <x-dropdown-link :href="route('billing.finance.usage-review')">
-                                    {{ __('Usage Review') }}
-                                </x-dropdown-link>
-                                
-                                <x-dropdown-link :href="route('billing.finance.invoices')">
-                                    {{ __('Invoices') }}
-                                </x-dropdown-link>
-                                
-                                <x-dropdown-link :href="route('billing.finance.payments')">
-                                    {{ __('Payments') }}
-                                </x-dropdown-link>
-                                
-                                <x-dropdown-link :href="route('billing.finance.reports-hub')">
-                                    {{ __('Reports') }}
-                                </x-dropdown-link>
-                                
-                                <x-dropdown-link :href="route('billing.finance.settings-hub')">
-                                    {{ __('Settings') }}
-                                </x-dropdown-link>
-                                @endcan
-
-                                <div class="border-t border-gray-200"></div>
-                                <x-dropdown-link :href="route('billing.portal.entry')">
-                                    {{ __('Client Portal') }}
-                                </x-dropdown-link>
-                            </x-slot>
-                        </x-dropdown>
-                    </div>
+                    <!-- Dynamic Navigation -->
+                    @inject('navigationService', 'App\Services\Navigation\NavigationService')
+                    @foreach($navigationService->getItems() as $item)
+                        @if($item['type'] === 'dropdown')
+                            @if(empty($item['permission']) || Gate::check($item['permission']))
+                                <div class="hidden sm:flex sm:items-center sm:ms-6">
+                                    <x-dropdown align="left" width="48">
+                                        <x-slot name="trigger">
+                                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-inherit bg-transparent hover:opacity-75 focus:outline-none transition ease-in-out duration-150">
+                                                <div>{{ __($item['label']) }}</div>
+                                                <div class="ms-1">
+                                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                            </button>
+                                        </x-slot>
+                                        <x-slot name="content">
+                                            @foreach($item['children'] as $child)
+                                                @if(empty($child['permission']) || Gate::check($child['permission']))
+                                                    @if(Route::has($child['route']))
+                                                        <x-dropdown-link :href="route($child['route'])">
+                                                            {{ __($child['label']) }}
+                                                        </x-dropdown-link>
+                                                    @endif
+                                                @endif
+                                            @endforeach
+                                        </x-slot>
+                                    </x-dropdown>
+                                </div>
+                            @endif
+                        @elseif($item['type'] === 'link')
+                             @if(empty($item['permission']) || Gate::check($item['permission']))
+                                @if(Route::has($item['route']))
+                                    <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['route'])">
+                                        {{ __($item['label']) }}
+                                    </x-nav-link>
+                                @endif
+                             @endif
+                        @endif
+                    @endforeach
 
                     @auth
                         @php
@@ -121,17 +112,23 @@
                                             {{ __('Settings') }}
                                         </x-dropdown-link>
 
+                                        @if(Route::has('billing.finance.index'))
                                         <x-dropdown-link :href="route('billing.finance.index')">
                                             {{ __('Billing Dashboard') }}
                                         </x-dropdown-link>
+                                        @endif
 
+                                        @if(Route::has('inventory.products.index'))
                                         <x-dropdown-link :href="route('inventory.products.index')">
                                             {{ __('Product Catalog') }}
                                         </x-dropdown-link>
+                                        @endif
 
+                                        @if(Route::has('billing.portal.entry'))
                                         <x-dropdown-link :href="route('billing.portal.entry')">
                                             {{ __('Billing Portal') }}
                                         </x-dropdown-link>
+                                        @endif
                                     @endif
                                     
                                     <x-dropdown-link :href="route('mailboxes.index')">
