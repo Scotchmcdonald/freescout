@@ -1226,7 +1226,33 @@ class ModulesController extends Controller
             }
 
             if (!$module) {
-                throw new \Exception(__("Module installed to :path but could not be found as ':name'. Please check module.json name.", ['path' => $targetPath, 'name' => $moduleName]));
+                // Gather debug info
+                $allModules = collect(Module::all())->map(function($m) {
+                    return $m->getName() . ' [' . $m->getLowerName() . ']';
+                })->implode(', ');
+
+                $moduleJsonContent = File::exists($targetPath . '/module.json') 
+                    ? substr(File::get($targetPath . '/module.json'), 0, 100) . '...' 
+                    : 'NOT FOUND';
+
+                $debugInfo = [
+                    'target_path' => $targetPath,
+                    'expected_name' => $moduleName,
+                    'expected_alias' => $moduleAlias,
+                    'folder_name' => $folderName,
+                    'module_json_preview' => $moduleJsonContent,
+                    'loaded_modules' => $allModules,
+                ];
+
+                \Log::error('Module installation failed - Module not found after clone', $debugInfo);
+
+                throw new \Exception(__("Module installed to :path but could not be found. \nExpected Name: :name \nExpected Alias: :alias \nFolder: :folder \n\nLoaded Modules: :modules \n\nCheck laravel.log for more details.", [
+                    'path' => $targetPath, 
+                    'name' => $moduleName,
+                    'alias' => $moduleAlias ?? 'N/A',
+                    'folder' => $folderName,
+                    'modules' => $allModules ?: 'None'
+                ]));
             }
 
             $module->enable();
@@ -2172,7 +2198,14 @@ class ModulesController extends Controller
         // Check if composer.json exists (optional but recommended)
         $composerJsonPath = $modulePath . '/composer.json';
         if (!File::exists($composerJsonPath)) {
-            \Illuminate\Support\Facades\Log::info("Module at {$modulePath} does not have composer.json (optional)");
+            // This is not a critical error, just a warning
+            // \Illuminate\Support\Facades\Log::info("Module at {$modulePath} does not have composer.json (optional)");
+        }
+
+        // Check if Providers directory exists (common structure)
+        if (!File::exists($modulePath . '/Providers') && !File::exists($modulePath . '/src/Providers')) {
+             // This might be a valid module structure without Providers, but it's rare in this system
+             // We won't fail on it, but it's good to know
         }
 
         return [
