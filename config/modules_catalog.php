@@ -28,9 +28,14 @@ return [
             'description' => 'Billing Module',
         ],
         [
-            'name' => 'MspInventory',
-            'url' => 'https://github.com/Scotchmcdonald/MspInventory',
-            'description' => 'MSP Inventory Module',
+            'name' => 'Inventory',
+            'url' => 'https://github.com/Scotchmcdonald/Inventory',
+            'description' => 'MSP Inventory and PriceBook Management',
+        ],
+        [
+            'name' => 'DevFeedback',
+            'url' => 'https://github.com/Scotchmcdonald/DevFeedback',
+            'description' => 'Developer Feedback Module',
         ],
     ],
 

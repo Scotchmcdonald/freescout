@@ -1196,15 +1196,34 @@ class ModulesController extends Controller
             Artisan::call('config:clear');
 
             // Check for module.json to get the real module name
+            $folderName = $moduleName;
+            $moduleAlias = null;
+
             if (File::exists($targetPath . '/module.json')) {
                 $moduleJson = json_decode(File::get($targetPath . '/module.json'), true);
                 if (isset($moduleJson['name'])) {
                     $moduleName = $moduleJson['name'];
                 }
+                if (isset($moduleJson['alias'])) {
+                    $moduleAlias = $moduleJson['alias'];
+                }
+            }
+
+            // Force reload modules to detect the newly installed one
+            if (method_exists(app('modules'), 'scan')) {
+                app('modules')->scan();
             }
 
             // Try to find the module
             $module = Module::find($moduleName);
+
+            if (!$module && $moduleAlias) {
+                $module = Module::findByAlias($moduleAlias);
+            }
+
+            if (!$module) {
+                $module = Module::find($folderName);
+            }
 
             if (!$module) {
                 throw new \Exception(__("Module installed to :path but could not be found as ':name'. Please check module.json name.", ['path' => $targetPath, 'name' => $moduleName]));
