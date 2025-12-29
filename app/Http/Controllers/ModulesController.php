@@ -1225,6 +1225,17 @@ class ModulesController extends Controller
                 $module = Module::find($folderName);
             }
 
+            // Fallback: If module is still not found, try to register it manually for this request
+            if (!$module && File::exists($targetPath . '/module.json')) {
+                try {
+                    // Manually register the module if it wasn't picked up by scan()
+                    // This is a workaround for when the repository cache isn't clearing properly
+                    $module = new \Nwidart\Modules\Module(app(), $moduleName, $targetPath);
+                } catch (\Exception $e) {
+                    \Log::warning("Failed to manually instantiate module: " . $e->getMessage());
+                }
+            }
+
             if (!$module) {
                 // Gather debug info
                 $allModules = collect(Module::all())->map(function($m) {
