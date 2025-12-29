@@ -9,6 +9,7 @@ use Qirolab\Theme\ThemeServiceProvider;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
+        \App\Providers\AppServiceProvider::class,
         EventServiceProvider::class,
         ModuleCompatibilityServiceProvider::class,
         ThemeServiceProvider::class,
