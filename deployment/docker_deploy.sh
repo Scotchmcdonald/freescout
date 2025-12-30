@@ -274,13 +274,16 @@ MAILBOX_SMTP_PASS=""
 SEED_SAMPLE_DATA=false
 
 # Define your access tokens (optional)
-export BILLING_REPO_TOKEN="ghp_your_token_here"
+export REPO_TOKEN="ghp_your_token_here"
 
 # Configure modules to install
 # Format: "ModuleName|RepoURL|TokenEnvVarName"
 MODULES_TO_INSTALL=(
-    "Billing|https://github.com/Scotchmcdonald/Billing.git|BILLING_REPO_TOKEN"
-    "Crm|https://github.com/Scotchmcdonald/Crm.git|"
+    "EmailMigration|https://github.com/BorealTek/Email-Migration.git|REPO_TOKEN"
+    "Crm|https://github.com/BorealTek/CRM-Module.git|REPO_TOKEN"
+    "Billing|https://github.com/Scotchmcdonald/Billing.git|REPO_TOKEN"
+    "Inventory|https://github.com/Scotchmcdonald/Inventory.git|REPO_TOKEN"
+    "DevFeedback|https://github.com/Scotchmcdonald/DevFeedback.git|REPO_TOKEN"
 )
 
 EOF
