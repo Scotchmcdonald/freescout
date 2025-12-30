@@ -18,6 +18,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Nwidart\Modules\Facades\Module;
 
 class SettingsController extends Controller
 {
@@ -52,6 +55,18 @@ class SettingsController extends Controller
                 'route' => 'settings.system',
                 'icon' => 'server',
                 'order' => 400
+            ],
+            'migrations' => [
+                'title' => __('Migrations'),
+                'route' => 'settings.migrations',
+                'icon' => 'database',
+                'order' => 500
+            ],
+            'demo' => [
+                'title' => __('Demo Data'),
+                'route' => 'settings.demo',
+                'icon' => 'play',
+                'order' => 600
             ],
         ];
 
@@ -314,6 +329,7 @@ class SettingsController extends Controller
     {
         try {
             Artisan::call('migrate', ['--force' => true]);
+            Artisan::call('module:migrate', ['--force' => true]);
 
             // Return JSON for AJAX requests
             if (request()->wantsJson() || request()->expectsJson()) {
@@ -611,5 +627,124 @@ class SettingsController extends Controller
         
         /** @var view-string $viewName */
         return view($viewName, compact('settings', 'sections', 'currentSection'));
+    }
+
+    /**
+     * Display migrations status.
+     */
+    public function migrations(): View|ViewFactory
+    {
+        $sections = $this->getSections();
+        $currentSection = 'migrations';
+
+        $migrator = app('migrator');
+        $repository = $migrator->getRepository();
+        
+        if (!$repository->repositoryExists()) {
+            $repository->createRepository();
+        }
+
+        $ran = $repository->getRan();
+        
+        $migrations = [];
+        
+        // App Migrations
+        $appPath = database_path('migrations');
+        $appFiles = $migrator->getMigrationFiles([$appPath]);
+        
+        foreach ($appFiles as $file => $path) {
+            $migrations[] = [
+                'name' => $file,
+                'path' => $path,
+                'status' => in_array($file, $ran) ? 'Ran' : 'Pending',
+                'module' => 'App',
+            ];
+        }
+
+        // Module Migrations
+        foreach (Module::all() as $module) {
+            $modulePath = $module->getPath() . '/Database/Migrations';
+            if (File::exists($modulePath)) {
+                $moduleFiles = $migrator->getMigrationFiles([$modulePath]);
+                foreach ($moduleFiles as $file => $path) {
+                    $migrations[] = [
+                        'name' => $file,
+                        'path' => $path,
+                        'status' => in_array($file, $ran) ? 'Ran' : 'Pending',
+                        'module' => $module->getName(),
+                    ];
+                }
+            }
+        }
+        
+        // Sort by name (timestamp)
+        usort($migrations, function ($a, $b) {
+            return strcmp($b['name'], $a['name']); // Descending
+        });
+
+        return view('settings.migrations', compact('sections', 'currentSection', 'migrations'));
+    }
+
+    /**
+     * Display demo data / seeders.
+     */
+    public function demo(): View|ViewFactory
+    {
+        $sections = $this->getSections();
+        $currentSection = 'demo';
+
+        $seeders = [];
+        
+        // App Seeders
+        $appPath = database_path('seeders');
+        if (File::exists($appPath)) {
+            foreach (File::files($appPath) as $file) {
+                if ($file->getExtension() === 'php') {
+                    $seeders[] = [
+                        'class' => 'Database\\Seeders\\' . $file->getFilenameWithoutExtension(),
+                        'name' => $file->getFilenameWithoutExtension(),
+                        'module' => 'App',
+                    ];
+                }
+            }
+        }
+
+        // Module Seeders
+        foreach (Module::all() as $module) {
+            $modulePath = $module->getPath() . '/Database/Seeders';
+            if (File::exists($modulePath)) {
+                foreach (File::files($modulePath) as $file) {
+                    if ($file->getExtension() === 'php') {
+                        $seeders[] = [
+                            'class' => 'Modules\\' . $module->getStudlyName() . '\\Database\\Seeders\\' . $file->getFilenameWithoutExtension(),
+                            'name' => $file->getFilenameWithoutExtension(),
+                            'module' => $module->getName(),
+                        ];
+                    }
+                }
+            }
+        }
+
+        return view('settings.demo', compact('sections', 'currentSection', 'seeders'));
+    }
+
+    /**
+     * Run a seeder.
+     */
+    public function runSeeder(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'class' => 'required|string',
+        ]);
+
+        try {
+            Artisan::call('db:seed', [
+                '--class' => $request->class,
+                '--force' => true,
+            ]);
+            return back()->with('success', "Seeder {$request->class} executed successfully.");
+        } catch (\Exception $e) {
+            return back()->with('error', "Failed to run seeder: " . $e->getMessage());
+        }
     }
 }

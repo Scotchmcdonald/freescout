@@ -157,6 +157,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/settings/test-smtp', [SettingsController::class, 'testSmtp'])->name('settings.test-smtp');
         Route::post('/settings/test-imap', [SettingsController::class, 'testImap'])->name('settings.test-imap');
         Route::post('/settings/validate-smtp', [SettingsController::class, 'validateSmtp'])->name('settings.validate-smtp');
+        
+        // Migrations & Demo
+        Route::get('/settings/migrations', [SettingsController::class, 'migrations'])->name('settings.migrations');
+        Route::get('/settings/demo', [SettingsController::class, 'demo'])->name('settings.demo');
+        Route::post('/settings/demo/seed', [SettingsController::class, 'runSeeder'])->name('settings.demo.seed');
     });
 
     // System (admin only)

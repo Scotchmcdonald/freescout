@@ -36,11 +36,10 @@
                     @if($currentType === 'application')
                         <!-- Application Logs -->
                         <div class="mb-4 flex justify-between items-center">
-                            <h3 class="text-lg font-semibold">{{ __('Recent Log Entries') }}</h3>
-                            <span class="text-sm text-gray-600">Showing last 100 lines</span>
+                            <h3 class="text-lg font-semibold">{{ __('Application Logs') }}</h3>
                         </div>
                         
-                        @if(empty($lines) || count($lines) === 0)
+                        @if(empty($logs))
                             <div class="text-center py-12 text-gray-500">
                                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -48,10 +47,108 @@
                                 <p class="mt-2">No log entries found</p>
                             </div>
                         @else
-                            <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                                <pre class="text-xs text-gray-100 font-mono whitespace-pre-wrap">@foreach($lines as $line){{ $line }}
-@endforeach</pre>
+                            <div x-data="logViewer(@js($logs))">
+                                <!-- Controls -->
+                                <div class="mb-4 flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <div class="flex items-center space-x-4">
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" x-model="filters.info" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-600">Info</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" x-model="filters.warning" class="rounded border-gray-300 text-yellow-600 shadow-sm focus:ring-yellow-500">
+                                            <span class="ml-2 text-sm text-gray-600">Warning</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" x-model="filters.error" class="rounded border-gray-300 text-red-600 shadow-sm focus:ring-red-500">
+                                            <span class="ml-2 text-sm text-gray-600">Error</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" x-model="filters.debug" class="rounded border-gray-300 text-gray-600 shadow-sm focus:ring-gray-500">
+                                            <span class="ml-2 text-sm text-gray-600">Debug</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="border-l border-gray-300 h-6 mx-2"></div>
+
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" x-model="compressStackTraces" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm text-gray-600">Compress Stack Traces</span>
+                                    </label>
+                                </div>
+
+                                <!-- Logs List -->
+                                <div class="bg-gray-900 rounded-lg overflow-hidden shadow-inner">
+                                    <div class="overflow-y-auto max-h-[800px] p-4 space-y-2 font-mono text-xs">
+                                        <template x-for="(log, index) in filteredLogs" :key="index">
+                                            <div class="border-b border-gray-800 pb-2 last:border-0">
+                                                <div class="flex items-start">
+                                                    <span class="text-gray-500 w-36 flex-shrink-0" x-text="log.timestamp"></span>
+                                                    <span class="w-20 flex-shrink-0 font-bold" 
+                                                          :class="{
+                                                              'text-blue-400': log.level === 'INFO',
+                                                              'text-yellow-400': log.level === 'WARNING',
+                                                              'text-red-400': log.level === 'ERROR' || log.level === 'CRITICAL' || log.level === 'ALERT' || log.level === 'EMERGENCY',
+                                                              'text-gray-400': log.level === 'DEBUG'
+                                                          }" 
+                                                          x-text="log.level"></span>
+                                                    <span class="text-gray-300 break-all whitespace-pre-wrap" x-text="log.message"></span>
+                                                </div>
+                                                
+                                                <template x-if="log.context">
+                                                    <div class="mt-1 ml-36 pl-4 border-l-2 border-gray-700 text-gray-400 whitespace-pre-wrap">
+                                                        <template x-if="!compressStackTraces">
+                                                            <div x-text="log.context"></div>
+                                                        </template>
+                                                        <template x-if="compressStackTraces">
+                                                            <div x-text="getCompressedContext(log.context)"></div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        
+                                        <div x-show="filteredLogs.length === 0" class="text-center py-8 text-gray-500">
+                                            No logs match the current filters.
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <script>
+                                document.addEventListener('alpine:init', () => {
+                                    Alpine.data('logViewer', (logs) => ({
+                                        logs: logs,
+                                        filters: {
+                                            info: true,
+                                            warning: true,
+                                            error: true,
+                                            debug: true
+                                        },
+                                        compressStackTraces: true,
+
+                                        get filteredLogs() {
+                                            return this.logs.filter(log => {
+                                                const level = log.level.toLowerCase();
+                                                if (level === 'info' && !this.filters.info) return false;
+                                                if (level === 'warning' && !this.filters.warning) return false;
+                                                if ((level === 'error' || level === 'critical' || level === 'alert' || level === 'emergency') && !this.filters.error) return false;
+                                                if (level === 'debug' && !this.filters.debug) return false;
+                                                return true;
+                                            });
+                                        },
+
+                                        getCompressedContext(context) {
+                                            const lines = context.trim().split('\n');
+                                            if (lines.length <= 6) return context;
+                                            
+                                            const first3 = lines.slice(0, 3).join('\n');
+                                            const last3 = lines.slice(-3).join('\n');
+                                            return `${first3}\n\n... ${lines.length - 6} lines omitted ...\n\n${last3}`;
+                                        }
+                                    }));
+                                });
+                            </script>
                         @endif
 
                     @elseif($currentType === 'email')

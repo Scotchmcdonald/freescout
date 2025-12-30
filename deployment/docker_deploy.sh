@@ -203,6 +203,11 @@ load_or_create_config() {
                 # shellcheck disable=SC1090
                 source "$CONFIG_FILE"
                 INTERACTIVE=false
+                
+                # Ensure array exists if not defined in config
+                if [ -z "${MODULES_TO_INSTALL+x}" ]; then
+                    MODULES_TO_INSTALL=()
+                fi
                 return
             fi
         fi
@@ -267,6 +272,17 @@ MAILBOX_SMTP_PASS=""
 
 # Sample Data Seeding (Optional)
 SEED_SAMPLE_DATA=false
+
+# Define your access tokens (optional)
+export BILLING_REPO_TOKEN="ghp_your_token_here"
+
+# Configure modules to install
+# Format: "ModuleName|RepoURL|TokenEnvVarName"
+MODULES_TO_INSTALL=(
+    "Billing|https://github.com/Scotchmcdonald/Billing.git|BILLING_REPO_TOKEN"
+    "Crm|https://github.com/Scotchmcdonald/Crm.git|"
+)
+
 EOF
     
     if [ -n "${SUDO_USER:-}" ]; then
@@ -636,6 +652,10 @@ GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
 GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
 GOOGLE_REDIRECT_URI=https://${DOMAIN_NAME}/auth/google/callback
 EOF
+
+    # Pass through any environment variables ending in _TOKEN, _KEY, or _SECRET
+    # This allows passing git access tokens for modules
+    env | grep -E '(_TOKEN|_KEY|_SECRET)=' | grep -vE '^(DB_|APP_|REDIS_|GOOGLE_|REVERB_)' >> .env || true
     
     log_success "Docker .env generated"
 }
@@ -981,6 +1001,55 @@ setup_storage_permissions() {
     log_success "Storage directories ready"
 }
 
+install_modules() {
+    log_step "Installing Modules"
+
+    if [ ${#MODULES_TO_INSTALL[@]} -eq 0 ]; then
+        log_info "No modules configured to install."
+        return
+    fi
+
+    # Ensure Modules directory exists
+    mkdir -p "$DEFAULT_INSTALL_DIR/src/Modules"
+
+    for module_entry in "${MODULES_TO_INSTALL[@]}"; do
+        local name=$(echo "$module_entry" | cut -d'|' -f1)
+        local repo_url=$(echo "$module_entry" | cut -d'|' -f2)
+        local token_var=$(echo "$module_entry" | cut -d'|' -f3)
+
+        if [ -z "$name" ] || [ -z "$repo_url" ]; then
+            log_warning "Invalid module entry: $module_entry"
+            continue
+        fi
+
+        local target_dir="$DEFAULT_INSTALL_DIR/src/Modules/$name"
+
+        if [ -d "$target_dir" ]; then
+            log_info "Module $name already exists. Skipping..."
+            continue
+        fi
+
+        log_info "Installing module: $name"
+        
+        local final_url="$repo_url"
+        if [ -n "$token_var" ]; then
+            local token_val="${!token_var:-}"
+            
+            if [ -n "$token_val" ]; then
+                # Inject token into URL for HTTPS
+                local clean_url="${repo_url#https://}"
+                final_url="https://oauth2:${token_val}@${clean_url}"
+            else
+                log_warning "Token variable $token_var is not set or empty."
+            fi
+        fi
+
+        git clone "$final_url" "$target_dir" || log_error "Failed to clone $name"
+    done
+    
+    log_success "Modules installed"
+}
+
 build_and_launch_containers() {
     log_step "Building & Launching Docker Containers"
     
@@ -1059,6 +1128,9 @@ finalize_installation() {
             --first_name="Admin" \
             --last_name="User"
     fi
+    
+    log_info "Running module migrations..."
+    sudo docker compose exec -T app php artisan module:migrate --force
     
     log_info "Seeding themes..."
     sudo docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
@@ -1147,6 +1219,7 @@ main() {
     generate_update_script
     clone_or_update_repo
     configure_laravel
+    install_modules
     setup_storage_permissions
     build_and_launch_containers
     wait_for_database

@@ -265,12 +265,70 @@ class SystemController extends Controller
     {
         $checks = [];
 
+        // App Health
+        $checks['app'] = [
+            'status' => 'ok',
+            'message' => 'Application is running (' . app()->environment() . ')',
+        ];
+
         // Database connection
         try {
             DB::connection()->getPdo();
             $checks['database'] = ['status' => 'ok', 'message' => 'Database connection successful'];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $checks['database'] = ['status' => 'error', 'message' => $e->getMessage()];
+        }
+
+        // Redis Health
+        try {
+            \Illuminate\Support\Facades\Redis::connection()->ping();
+            $checks['redis'] = ['status' => 'ok', 'message' => 'Redis connection successful'];
+        } catch (\Throwable $e) {
+            $checks['redis'] = ['status' => 'error', 'message' => 'Redis connection failed: ' . $e->getMessage()];
+        }
+
+        // Queue Health
+        try {
+            // Check if failed_jobs table exists
+            if (DB::getSchemaBuilder()->hasTable('failed_jobs')) {
+                $failedJobs = DB::table('failed_jobs')->count();
+                if ($failedJobs > 0) {
+                    $checks['queue'] = ['status' => 'warning', 'message' => "$failedJobs failed jobs found"];
+                } else {
+                    $checks['queue'] = ['status' => 'ok', 'message' => 'Queue is healthy'];
+                }
+            } else {
+                $checks['queue'] = ['status' => 'info', 'message' => 'Queue tables not found'];
+            }
+        } catch (\Throwable $e) {
+            $checks['queue'] = ['status' => 'warning', 'message' => 'Could not check queue health: ' . $e->getMessage()];
+        }
+
+        // Cron Health
+        $lastRunFetch = cache()->get('last_run_fetch');
+        if ($lastRunFetch) {
+            $lastRun = \Illuminate\Support\Carbon::parse($lastRunFetch);
+            if ($lastRun->diffInMinutes(now()) > 10) {
+                $checks['cron'] = ['status' => 'warning', 'message' => 'Cron has not run in the last 10 minutes'];
+            } else {
+                $checks['cron'] = ['status' => 'ok', 'message' => 'Cron is running normally'];
+            }
+        } else {
+            $checks['cron'] = ['status' => 'warning', 'message' => 'Cron has never run or cache cleared'];
+        }
+
+        // Reverb Health
+        if (config('reverb.apps.apps.0.app_id') && config('reverb.apps.apps.0.key') && config('reverb.apps.apps.0.secret')) {
+             $checks['reverb'] = ['status' => 'ok', 'message' => 'Reverb is configured'];
+        } else {
+             $checks['reverb'] = ['status' => 'warning', 'message' => 'Reverb is not fully configured'];
+        }
+
+        // Tunnel Health
+        if (env('TUNNEL_TOKEN')) {
+             $checks['tunnel'] = ['status' => 'ok', 'message' => 'Cloudflare Tunnel token is present'];
+        } else {
+             $checks['tunnel'] = ['status' => 'info', 'message' => 'Cloudflare Tunnel not configured'];
         }
 
         // Storage writable
@@ -288,7 +346,7 @@ class SystemController extends Controller
                 'status' => $value === 'test_value' ? 'ok' : 'error',
                 'message' => $value === 'test_value' ? 'Cache is working' : 'Cache test failed',
             ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $checks['cache'] = ['status' => 'error', 'message' => $e->getMessage()];
         }
 
@@ -558,15 +616,8 @@ class SystemController extends Controller
         switch ($type) {
             case 'application':
                 $logFile = storage_path('logs/laravel.log');
-                $lines = [];
-
-                if (file_exists($logFile)) {
-                    $content = file_get_contents($logFile);
-                    $content = $content !== false ? $content : '';
-                    $lines = array_slice(explode("\n", $content), -100); // Last 100 lines
-                }
-
-                $data = ['lines' => $lines];
+                $parsedLogs = $this->getParsedLogFile($logFile);
+                $data = ['logs' => $parsedLogs];
                 break;
 
             case 'email':
@@ -1021,5 +1072,58 @@ class SystemController extends Controller
         $appKey = config('app.key');
         $appKeyStr = is_string($appKey) || is_int($appKey) || is_float($appKey) ? (string) $appKey : '';
         return hash_hmac('sha256', 'cron', $appKeyStr);
+    }
+
+    /**
+     * Parse Laravel log file.
+     *
+     * @param string $path
+     * @return array
+     */
+    private function getParsedLogFile(string $path): array
+    {
+        if (!file_exists($path)) {
+            return [];
+        }
+
+        try {
+            $content = file_get_contents($path);
+        } catch (\Exception $e) {
+            return [];
+        }
+
+        if ($content === false) {
+            return [];
+        }
+
+        $lines = explode("\n", $content);
+        $logs = [];
+        $currentLog = null;
+
+        foreach ($lines as $line) {
+            // Match start of log line: [2023-10-27 10:00:00] env.LEVEL:
+            if (preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\] (\w+)\.(\w+): (.*)/', $line, $matches)) {
+                if ($currentLog) {
+                    $logs[] = $currentLog;
+                }
+                $currentLog = [
+                    'timestamp' => $matches[1],
+                    'env' => $matches[2],
+                    'level' => strtoupper($matches[3]),
+                    'message' => $matches[4],
+                    'context' => '',
+                ];
+            } else {
+                if ($currentLog) {
+                    $currentLog['context'] .= $line . "\n";
+                }
+            }
+        }
+        if ($currentLog) {
+            $logs[] = $currentLog;
+        }
+
+        // Reverse to show newest first
+        return array_reverse($logs);
     }
 }
