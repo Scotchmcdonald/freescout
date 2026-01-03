@@ -40,6 +40,7 @@ readonly NC='\033[0m'
 
 # State variables
 INTERACTIVE=true
+REUSE_DB=false
 CLEANUP_NEEDED=false
 
 #===============================================================================
@@ -291,16 +292,74 @@ interactive_setup() {
 # DEPLOYMENT FUNCTIONS
 #===============================================================================
 
-setup_directories() {
-    log_step "Setting Up Directory Structure"
+load_existing_credentials() {
+    local env_file=$1
     
-    mkdir -p "$DEFAULT_INSTALL_DIR/nginx"
-    cd "$DEFAULT_INSTALL_DIR"
+    # Load Docker .env credentials
+    if [ -f "$env_file" ]; then
+        DB_PASS=$(grep "^DB_PASSWORD=" "$env_file" | cut -d '=' -f2 || echo "")
+        DB_ROOT_PASS=$(grep "^DB_ROOT_PASSWORD=" "$env_file" | cut -d '=' -f2 || echo "")
+        DB_USER=$(grep "^DB_USER=" "$env_file" | cut -d '=' -f2 || echo "")
+        DB_NAME=$(grep "^DB_DATABASE=" "$env_file" | cut -d '=' -f2 || echo "")
+    fi
     
-    # Check if this is a re-deployment (docker-compose.yml exists)
-    if [ -f "docker-compose.yml" ]; then
-        log_warning "Existing deployment detected!"
+    # Load Laravel .env credentials
+    local laravel_env="$DEFAULT_INSTALL_DIR/src/.env"
+    if [ -f "$laravel_env" ]; then
+        local existing_email existing_pass
+        existing_email=$(grep "^ADMIN_EMAIL=" "$laravel_env" | cut -d '=' -f2 | tr -d '"' | tr -d "'" || echo "")
+        existing_pass=$(grep "^ADMIN_PASSWORD=" "$laravel_env" | cut -d '=' -f2 | tr -d '"' | tr -d "'" || echo "")
         
+        if [ -n "$existing_email" ]; then ADMIN_EMAIL=$existing_email; fi
+        if [ -n "$existing_pass" ]; then
+            ADMIN_PASS=$existing_pass
+        fi
+    fi
+}
+
+check_existing_installation() {
+    local existing_env="$DEFAULT_INSTALL_DIR/.env"
+    
+    if [ -f "$existing_env" ]; then
+        log_warning "Existing installation found at $DEFAULT_INSTALL_DIR"
+        
+        if [ -t 0 ]; then
+            echo ""
+            echo "1) Reuse existing database (Keep data)"
+            echo "2) Overwrite database (DESTROY ALL DATA)"
+            read -rp "Select [1-2]: " reuse_opt
+            
+            case "$reuse_opt" in
+                2)
+                    REUSE_DB=false
+                    log_error "WARNING: Existing database will be destroyed!"
+                    ;;
+                *)
+                    REUSE_DB=true
+                    ;;
+            esac
+        else
+            # Non-interactive: default to safe option
+            REUSE_DB=true
+        fi
+        
+        if [ "$REUSE_DB" = true ]; then
+            log_info "Loading existing credentials..."
+            load_existing_credentials "$existing_env"
+        fi
+    else
+        # Fresh installation - ensure REUSE_DB is false
+        REUSE_DB=false
+    fi
+}
+
+decommission_existing() {
+    if [ -f "$DEFAULT_INSTALL_DIR/docker-compose.yml" ]; then
+        log_step "Decommissioning Existing Installation"
+        
+        cd "$DEFAULT_INSTALL_DIR"
+        
+        log_warning "Existing deployment detected!"
         echo ""
         echo -e "${YELLOW}What would you like to do?${NC}"
         echo "  1) Reuse existing data (keep database and volumes)"
@@ -311,11 +370,12 @@ setup_directories() {
         
         case $choice in
             1)
+                REUSE_DB=true
                 log_info "Reusing existing data - stopping containers only..."
                 docker compose down 2>/dev/null || true
-                log_success "Containers stopped, data preserved"
                 ;;
             2)
+                REUSE_DB=false
                 log_warning "Nuking everything - all data will be lost!"
                 read -p "Type 'yes' to confirm: " confirm
                 if [ "$confirm" = "yes" ]; then
@@ -339,6 +399,13 @@ setup_directories() {
                 ;;
         esac
     fi
+}
+
+setup_directories() {
+    log_step "Setting Up Directory Structure"
+    
+    mkdir -p "$DEFAULT_INSTALL_DIR/nginx"
+    cd "$DEFAULT_INSTALL_DIR"
     
     log_success "Directories created"
 }
@@ -867,8 +934,19 @@ install_modules() {
 
         local target_dir="$DEFAULT_INSTALL_DIR/src/Modules/$name"
 
+        # Check for local module override
+        if [ -d "/var/www/html/Modules/$name" ]; then
+            log_info "Using local module: $name"
+            cp -r "/var/www/html/Modules/$name" "$target_dir"
+            continue
+        fi
+
         if [ -d "$target_dir" ]; then
-            log_info "Module $name already exists. Skipping..."
+            log_info "Module $name already exists. Updating..."
+            cd "$target_dir"
+            git fetch origin
+            git pull
+            cd - >/dev/null
             continue
         fi
 
@@ -891,6 +969,30 @@ install_modules() {
     done
     
     log_success "Modules installed"
+}
+
+patch_modules() {
+    log_step "Patching Modules for Compatibility"
+    
+    # Patches have been moved to the modules themselves.
+    # This function is kept as a placeholder for future compatibility fixes if needed.
+    
+    log_success "Modules patched (Skipped - fixes applied to source)"
+}
+
+patch_database_seeder() {
+    log_step "Patching DatabaseSeeder"
+    local seeder_file="$DEFAULT_INSTALL_DIR/src/database/seeders/DatabaseSeeder.php"
+    if [ -f "$seeder_file" ]; then
+        # Check if Billing module is installed
+        if [ ! -d "$DEFAULT_INSTALL_DIR/src/Modules/Billing" ]; then
+            log_info "Billing module not found. Disabling MspScenarioSeeder in DatabaseSeeder.php..."
+            # Use BSD sed syntax for macOS
+            sed -i '' 's/^use Modules\\Billing\\Database\\Seeders\\MspScenarioSeeder;/\/\/ use Modules\\Billing\\Database\\Seeders\\MspScenarioSeeder;/' "$seeder_file"
+            sed -i '' 's/\$this->call(MspScenarioSeeder::class);/\/\/ \$this->call(MspScenarioSeeder::class);/' "$seeder_file"
+        fi
+    fi
+    log_success "DatabaseSeeder patched"
 }
 
 setup_storage_permissions() {
@@ -968,13 +1070,18 @@ finalize_installation() {
     log_info "Generating application key..."
     docker compose exec -T app php artisan key:generate
     
-    log_info "Installing FreeScout..."
-    docker compose exec -T app php artisan freescout:install \
-        --force \
-        --email="$ADMIN_EMAIL" \
-        --password="$ADMIN_PASS" \
-        --first_name="Admin" \
-        --last_name="User"
+    if [ "$REUSE_DB" = true ]; then
+        log_info "Running migrations on existing database..."
+        docker compose exec -T app php artisan migrate --force
+    else
+        log_info "Installing FreeScout..."
+        docker compose exec -T app php artisan freescout:install \
+            --force \
+            --email="$ADMIN_EMAIL" \
+            --password="$ADMIN_PASS" \
+            --first_name="Admin" \
+            --last_name="User"
+    fi
     
     log_info "Running module migrations..."
     docker compose exec -T app php artisan module:migrate --force
@@ -1040,6 +1147,8 @@ main() {
     ADMIN_EMAIL="${ADMIN_EMAIL:-admin@scotchmcdonald.dev}"
     ADMIN_PASS="${ADMIN_PASS:-$(openssl rand -hex 12)}"
     
+    check_existing_installation
+
     if [ "$INTERACTIVE" = true ]; then
         interactive_setup
     fi
@@ -1049,6 +1158,7 @@ main() {
     validate_required_var "CF_TUNNEL_TOKEN" "${CF_TUNNEL_TOKEN:-}"
     
     # Execute deployment
+    decommission_existing
     setup_directories
     generate_dockerfile
     generate_nginx_config
@@ -1059,6 +1169,8 @@ main() {
     clone_or_update_repo
     configure_laravel
     install_modules
+    patch_modules
+    patch_database_seeder
     setup_storage_permissions
     build_and_launch_containers
     wait_for_database
