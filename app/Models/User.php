@@ -96,6 +96,36 @@ class User extends Authenticatable implements MustVerifyEmail
     public const PERM_EDIT_USERS = 10;
 
     /**
+     * The companies that the user belongs to.
+     */
+    public function companies(): BelongsToMany
+    {
+        return $this->belongsToMany(\Modules\Billing\Models\Company::class, 'company_user')
+            ->withPivot('role_id', 'status')
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if the user has access to the given company.
+     *
+     * @param int|string|\Modules\Billing\Models\Company $company
+     */
+    public function hasCompanyAccess($company): bool
+    {
+        // MSP Admin has access to all companies (Global Role)
+        if ($this->role === self::ROLE_ADMIN) {
+            return true;
+        }
+
+        $companyId = $company instanceof \Modules\Billing\Models\Company ? $company->id : $company;
+
+        return $this->companies()
+            ->where('company_id', $companyId)
+            ->wherePivot('status', 'approved')
+            ->exists();
+    }
+
+    /**
      * The attributes that are mass assignable.
      */
     protected $fillable = [
@@ -392,9 +422,37 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Check if user has permission.
+     *
+     * @param int|string $permission
+     * @param bool $checkOwnPermissions
+     * @return bool
      */
-    public function hasPermission(int $permission, bool $checkOwnPermissions = true): bool
+    public function hasPermission($permission, bool $checkOwnPermissions = true): bool
     {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        // New RBAC String Permissions
+        if (is_string($permission)) {
+            // Get all role IDs for this user across all approved companies
+            $roleIds = $this->companies()
+                ->wherePivot('status', 'approved')
+                ->pluck('company_user.role_id')
+                ->filter()
+                ->unique();
+            
+            if ($roleIds->isEmpty()) {
+                return false;
+            }
+
+            return \App\Models\Permission::where('name', $permission)
+                ->whereHas('roles', function ($query) use ($roleIds) {
+                    $query->whereIn('roles.id', $roleIds);
+                })->exists();
+        }
+
+        // Legacy Integer Permissions
         $hasPermission = false;
 
         $globalPermissions = self::getGlobalUserPermissions();

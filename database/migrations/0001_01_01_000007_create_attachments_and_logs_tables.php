@@ -7,12 +7,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        // Attachments - files attached to conversations/threads
+        // Attachments
         Schema::create('attachments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('thread_id')->constrained()->cascadeOnDelete();
@@ -28,7 +25,7 @@ return new class extends Migration
             $table->index('conversation_id');
         });
 
-        // Activity logs - audit trail of all actions
+        // Activity logs (General)
         Schema::create('activity_log', function (Blueprint $table) {
             $table->id();
             $table->string('log_name')->nullable();
@@ -44,7 +41,21 @@ return new class extends Migration
             $table->index('created_at');
         });
 
-        // Send logs - tracking outgoing emails
+        // Module Activity Logs (Specific to Module Management)
+        Schema::create('module_activity_logs', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('module_name', 100)->index();
+            $table->string('action', 50)->index(); // install, update, enable, disable, delete
+            $table->text('metadata')->nullable(); 
+            $table->string('ip_address', 45)->nullable();
+            $table->timestamps();
+            
+            $table->index(['module_name', 'action']);
+            $table->index('created_at');
+        });
+
+        // Send logs
         Schema::create('send_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('thread_id')->nullable()->constrained()->nullOnDelete();
@@ -70,24 +81,22 @@ return new class extends Migration
             $table->index('customer_id');
         });
 
-        // Add prefix index for message_id (MySQL requires prefix for TEXT columns)
-        // SQLite: Skip this - it handles TEXT indexing differently
         if (DB::connection()->getDriverName() !== 'sqlite') {
             DB::statement('CREATE INDEX send_logs_message_id_index ON send_logs (message_id(191))');
         }
 
-        // Subscriptions - users subscribing to receive notifications
+        // Subscriptions
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->unsignedTinyInteger('medium'); // 1=email, 2=browser, etc.
-            $table->unsignedTinyInteger('event'); // specific event type
+            $table->unsignedTinyInteger('medium'); // 1=email, 2=browser
+            $table->unsignedTinyInteger('event'); 
             $table->timestamps();
 
             $table->unique(['user_id', 'medium', 'event']);
         });
 
-        // Notifications - Laravel notifications table
+        // Notifications
         Schema::create('notifications', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('type');
@@ -98,14 +107,12 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('notifications');
         Schema::dropIfExists('subscriptions');
         Schema::dropIfExists('send_logs');
+        Schema::dropIfExists('module_activity_logs');
         Schema::dropIfExists('activity_log');
         Schema::dropIfExists('attachments');
     }

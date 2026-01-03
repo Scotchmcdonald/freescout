@@ -1,23 +1,15 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Billing\Database\Seeders\MspScenarioSeeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        $this->call([
-            UserSeeder::class,
-            MailboxSeeder::class,
-            CustomerSeeder::class,
-            ConversationSeeder::class,
-        ]);
+        // Run the MSP Scenario Seeder
+        $this->call(MspScenarioSeeder::class);
     }
 }

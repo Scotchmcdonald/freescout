@@ -755,7 +755,7 @@ services:
   queue:
     image: freescout-app
     restart: always
-    command: php artisan queue:work --queue=emails,default --sleep=3 --tries=3 --max-time=3600
+    command: php artisan queue:work --queue=emails,default,long-running --sleep=3 --tries=3 --max-time=3600
     environment:
       - PHP_MEMORY_LIMIT=512M
       - PHP_OPCACHE_ENABLE=1

@@ -43,4 +43,10 @@ return [
         'allowed_domains' => env('GOOGLE_ALLOWED_DOMAINS'),
     ],
 
+    'helcim' => [
+        'key' => env('HELCIM_API_KEY'),
+        'account_id' => env('HELCIM_ACCOUNT_ID'),
+        'url' => env('HELCIM_API_URL', 'https://api.helcim.com/v2'),
+    ],
+
 ];

@@ -2,14 +2,10 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         // Conversations - ticket/conversation threads
@@ -44,6 +40,10 @@ return new class extends Migration
             // Closing info
             $table->foreignId('closed_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('closed_at')->nullable();
+
+            // Follow-up Reminders
+            $table->dateTime('follow_up_date')->nullable();
+            $table->dateTime('follow_up_reminded_at')->nullable();
 
             // Activity timestamps
             $table->timestamp('user_updated_at')->nullable();
@@ -98,64 +98,15 @@ return new class extends Migration
             $table->text('send_status_data')->nullable();
             $table->string('meta_subtype', 20)->nullable();
             $table->unsignedBigInteger('meta_id')->nullable();
-            $table->boolean('imported')->default(false);
-            $table->timestamp('opened_at')->nullable();
-            $table->text('meta')->nullable();
             $table->timestamps();
-            $table->softDeletes();
-
+            
             $table->index('conversation_id');
-            $table->index('user_id');
-            $table->index(['conversation_id', 'type', 'from', 'customer_id']);
-            $table->index(['conversation_id', 'created_at']);
-            $table->index(['meta_subtype', 'meta_id']);
-        });
-
-        // Add unique prefix index for message_id (MySQL uses prefix for TEXT columns)
-        // SQLite: Skip this - it handles TEXT indexing differently
-        if (DB::connection()->getDriverName() !== 'sqlite') {
-            DB::statement('CREATE UNIQUE INDEX threads_message_id_unique ON threads (message_id(191))');
-        }
-
-        // Conversation-Folder pivot (for organizing conversations)
-        Schema::create('conversation_folder', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('folder_id')->constrained()->cascadeOnDelete();
-            $table->timestamps();
-
-            $table->unique(['conversation_id', 'folder_id']);
-        });
-
-        // Followers - users following conversations
-        Schema::create('followers', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->timestamps();
-
-            $table->unique(['conversation_id', 'user_id']);
-        });
-
-        // Conversation User Stars - users starring conversations
-        Schema::create('conversation_user_stars', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->timestamps();
-
-            $table->unique(['conversation_id', 'user_id']);
+            $table->index('message_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('conversation_user_stars');
-        Schema::dropIfExists('followers');
-        Schema::dropIfExists('conversation_folder');
         Schema::dropIfExists('threads');
         Schema::dropIfExists('conversations');
     }

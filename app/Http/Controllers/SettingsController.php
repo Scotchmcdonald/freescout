@@ -29,7 +29,7 @@ class SettingsController extends Controller
      * 
      * @return array<string, array{title: string, route: string, icon: string, order: int}>
      */
-    protected function getSections(): array
+    public function getSections(): array
     {
         $sections = [
             'general' => [
@@ -67,6 +67,12 @@ class SettingsController extends Controller
                 'route' => 'settings.demo',
                 'icon' => 'play',
                 'order' => 600
+            ],
+            'rbac' => [
+                'title' => __('Permissions & Roles'),
+                'route' => 'rbac.matrix',
+                'icon' => 'shield-check',
+                'order' => 700
             ],
         ];
 

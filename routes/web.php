@@ -49,6 +49,10 @@ if (app()->environment('local', 'testing')) {
 }
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // RBAC
+    Route::get('/rbac/matrix', [\App\Http\Controllers\RbacController::class, 'index'])->name('rbac.matrix');
+    Route::post('/rbac/update', [\App\Http\Controllers\RbacController::class, 'update'])->name('rbac.update');
+
         // Collision Detection
     Route::post('/conversations/{id}/viewing', [CollisionController::class, 'viewing'])->name('conversations.viewing');
     

@@ -645,6 +645,65 @@ $path = base_path("Modules/$moduleName");
 // Prevents: Directory traversal, special characters, null bytes
 ```
 
+## 🧩 Module Compatibility Standards
+
+To ensure seamless integration with the host application, installed modules must adhere to the following standards, particularly regarding the Role-Based Access Control (RBAC) system introduced in v2.0.
+
+### RBAC Integration
+
+Modules must register their permissions and define gates in their `ServiceProvider::boot()` method. This ensures that upon installation, the module's permissions are available to the system.
+
+**Example `ServiceProvider.php`:**
+
+```php
+use Illuminate\Support\Facades\Gate;
+use App\Models\Permission;
+
+public function boot()
+{
+    // ... other boot logic
+
+    // 1. Register Permissions
+    // These will automatically appear in the Settings > Permissions & Roles matrix
+    if (class_exists(Permission::class)) {
+        Permission::register('view_my_module', 'View My Module');
+        Permission::register('manage_my_module', 'Manage My Module');
+    }
+
+    // 2. Define Gates
+    // Map standard Laravel gates to the RBAC permissions
+    Gate::define('view_my_module', function ($user) {
+        return $user->hasPermission('view_my_module');
+    });
+
+    Gate::define('manage_my_module', function ($user) {
+        return $user->hasPermission('manage_my_module');
+    });
+
+    // 3. Register Navigation (Optional)
+    // Use the permission name to gate the menu item
+    if (class_exists(\App\Services\Navigation\NavigationService::class)) {
+        $nav = $this->app->make(\App\Services\Navigation\NavigationService::class);
+        $nav->registerItem('My Module', 'my_module.index', 'view_my_module', 'icon-name');
+    }
+}
+```
+
+### Route Protection
+
+Modules should protect their routes using the standard `can` middleware, referencing the gates defined above.
+
+**Example `routes/web.php`:**
+
+```php
+Route::middleware(['auth', 'can:view_my_module'])->group(function () {
+    Route::get('/', [MyController::class, 'index'])->name('my_module.index');
+    
+    Route::post('/settings', [MyController::class, 'settings'])
+        ->middleware('can:manage_my_module')
+        ->name('my_module.settings');
+});
+```
 
 ## 🤝 Contributing
 

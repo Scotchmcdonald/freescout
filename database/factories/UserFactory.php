@@ -40,6 +40,35 @@ class UserFactory extends Factory
         ];
     }
 
+    public function mspAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 2, // Admin
+            'type' => 1, // Internal
+            'job_title' => 'MSP Administrator',
+        ]);
+    }
+
+    public function mspFinance(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 1, // User
+            'type' => 1, // Internal
+            'job_title' => 'Finance Manager',
+            // Assuming permissions are handled via roles/permissions tables, 
+            // but for factory purposes we just set the title/type
+        ]);
+    }
+
+    public function clientAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 1, // User
+            'type' => 2, // External/Client
+            'job_title' => 'IT Manager',
+        ]);
+    }
+
     public function admin(): static
     {
         return $this->state(fn (array $attributes) => [

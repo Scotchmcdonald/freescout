@@ -55,6 +55,14 @@ class RegisteredUserController extends Controller
             'status' => User::STATUS_ACTIVE,
         ]);
 
+        // Auto-Enrollment Logic
+        $domain = substr(strrchr($user->email, "@"), 1);
+        $companyDomain = \App\Models\CompanyDomain::where('domain', $domain)->first();
+
+        if ($companyDomain) {
+            $user->companies()->attach($companyDomain->company_id, ['status' => 'pending']);
+        }
+
         event(new Registered($user));
 
         Auth::login($user);
