@@ -23,7 +23,7 @@ readonly SCRIPT_VERSION="2.0.0"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly DEFAULT_REPO="https://github.com/Scotchmcdonald/freescout.git"
 readonly DEFAULT_BRANCH="laravel-11-foundation"
-readonly DEFAULT_INSTALL_DIR="/opt/freescout-docker"
+DEFAULT_INSTALL_DIR="/opt/freescout-docker"
 readonly CONFIG_FILE="${SCRIPT_DIR}/deploy.conf"
 
 # Color codes
