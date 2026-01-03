@@ -1019,6 +1019,7 @@ install_modules() {
         local name=$(echo "$module_entry" | cut -d'|' -f1)
         local repo_url=$(echo "$module_entry" | cut -d'|' -f2)
         local token_var=$(echo "$module_entry" | cut -d'|' -f3)
+        local branch=$(echo "$module_entry" | cut -d'|' -f4)
 
         if [ -z "$name" ] || [ -z "$repo_url" ]; then
             log_warning "Invalid module entry: $module_entry"
@@ -1028,7 +1029,16 @@ install_modules() {
         local target_dir="$DEFAULT_INSTALL_DIR/src/Modules/$name"
 
         if [ -d "$target_dir" ]; then
-            log_info "Module $name already exists. Skipping..."
+            log_info "Module $name already exists. Updating..."
+            cd "$target_dir"
+            git fetch origin
+            if [ -n "$branch" ]; then
+                git checkout "$branch" || git checkout -b "$branch" "origin/$branch"
+                git pull origin "$branch"
+            else
+                git pull
+            fi
+            cd - >/dev/null
             continue
         fi
 
@@ -1047,10 +1057,47 @@ install_modules() {
             fi
         fi
 
-        git clone "$final_url" "$target_dir" || log_error "Failed to clone $name"
+        if [ -n "$branch" ]; then
+            git clone -b "$branch" "$final_url" "$target_dir" || log_error "Failed to clone $name"
+        else
+            git clone "$final_url" "$target_dir" || log_error "Failed to clone $name"
+        fi
     done
     
     log_success "Modules installed"
+}
+
+patch_modules() {
+    log_step "Patching Modules for Compatibility"
+    
+    if [ ! -d "$DEFAULT_INSTALL_DIR/src/Modules" ]; then
+        return
+    fi
+    
+    log_info "Replacing legacy Helper class references..."
+    find "$DEFAULT_INSTALL_DIR/src/Modules" -type f -name "*.php" -print0 | xargs -0 sed -i 's/\\Helper::/\\App\\Misc\\Helper::/g'
+
+    log_info "Removing legacy Factory import from CrmServiceProvider..."
+    local crm_provider="$DEFAULT_INSTALL_DIR/src/Modules/Crm/Providers/CrmServiceProvider.php"
+    if [ -f "$crm_provider" ]; then
+        sed -i '/use Illuminate\\Database\\Eloquent\\Factory;/d' "$crm_provider"
+    fi
+    
+    log_success "Modules patched"
+}
+
+patch_database_seeder() {
+    log_step "Patching DatabaseSeeder"
+    local seeder_file="$DEFAULT_INSTALL_DIR/src/database/seeders/DatabaseSeeder.php"
+    if [ -f "$seeder_file" ]; then
+        # Check if Billing module is installed
+        if [ ! -d "$DEFAULT_INSTALL_DIR/src/Modules/Billing" ]; then
+            log_info "Billing module not found. Disabling MspScenarioSeeder in DatabaseSeeder.php..."
+            sed -i 's/^use Modules\\Billing\\Database\\Seeders\\MspScenarioSeeder;/\/\/ use Modules\\Billing\\Database\\Seeders\\MspScenarioSeeder;/' "$seeder_file"
+            sed -i 's/\$this->call(MspScenarioSeeder::class);/\/\/ \$this->call(MspScenarioSeeder::class);/' "$seeder_file"
+        fi
+    fi
+    log_success "DatabaseSeeder patched"
 }
 
 build_and_launch_containers() {
@@ -1093,16 +1140,13 @@ wait_for_database() {
 install_dependencies() {
     log_step "Installing Dependencies"
     
-    local composer_flags="--no-dev --optimize-autoloader"
-    
     if [ "${SEED_SAMPLE_DATA:-false}" = true ]; then
         log_info "Installing Composer dependencies (including dev for seeding)..."
-        composer_flags="--optimize-autoloader"
+        sudo docker compose exec -T app composer install --optimize-autoloader
     else
         log_info "Installing Composer dependencies..."
+        sudo docker compose exec -T app composer install --no-dev --optimize-autoloader
     fi
-    
-    sudo docker compose exec -T app composer install $composer_flags
     
     log_info "Installing NPM dependencies..."
     sudo docker compose exec -T app npm install
@@ -1132,8 +1176,12 @@ finalize_installation() {
             --last_name="User"
     fi
     
-    log_info "Running module migrations..."
-    sudo docker compose exec -T app php artisan module:migrate --force
+    if [ ${#MODULES_TO_INSTALL[@]} -gt 0 ]; then
+        log_info "Running module migrations..."
+        sudo docker compose exec -T app php artisan module:migrate --all --force
+    else
+        log_info "No modules to migrate."
+    fi
     
     log_info "Seeding themes..."
     sudo docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force
@@ -1223,6 +1271,8 @@ main() {
     clone_or_update_repo
     configure_laravel
     install_modules
+    patch_modules
+    patch_database_seeder
     setup_storage_permissions
     build_and_launch_containers
     wait_for_database
