@@ -27,6 +27,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "icanhazstring/composer-unused": "*",
         "larastan/larastan": "^3.8",
         "laravel/breeze": "^2.3",
         "laravel/dusk": "^8.3",
