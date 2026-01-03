@@ -1027,6 +1027,13 @@ install_modules() {
         fi
 
         local target_dir="$DEFAULT_INSTALL_DIR/src/Modules/$name"
+        
+        # Check for local module override
+        if [ -d "/var/www/html/Modules/$name" ]; then
+            log_info "Using local module: $name"
+            cp -r "/var/www/html/Modules/$name" "$target_dir"
+            continue
+        fi
 
         if [ -d "$target_dir" ]; then
             log_info "Module $name already exists. Updating..."
@@ -1070,20 +1077,10 @@ install_modules() {
 patch_modules() {
     log_step "Patching Modules for Compatibility"
     
-    if [ ! -d "$DEFAULT_INSTALL_DIR/src/Modules" ]; then
-        return
-    fi
+    # Patches have been moved to the modules themselves.
+    # This function is kept as a placeholder for future compatibility fixes if needed.
     
-    log_info "Replacing legacy Helper class references..."
-    find "$DEFAULT_INSTALL_DIR/src/Modules" -type f -name "*.php" -print0 | xargs -0 sed -i 's/\\Helper::/\\App\\Misc\\Helper::/g'
-
-    log_info "Removing legacy Factory import from CrmServiceProvider..."
-    local crm_provider="$DEFAULT_INSTALL_DIR/src/Modules/Crm/Providers/CrmServiceProvider.php"
-    if [ -f "$crm_provider" ]; then
-        sed -i '/use Illuminate\\Database\\Eloquent\\Factory;/d' "$crm_provider"
-    fi
-    
-    log_success "Modules patched"
+    log_success "Modules patched (Skipped - fixes applied to source)"
 }
 
 patch_database_seeder() {
@@ -1105,6 +1102,22 @@ build_and_launch_containers() {
     
     log_info "Stopping any existing containers..."
     sudo docker compose down --remove-orphans 2>/dev/null || true
+    
+    # Check and free ports 80 and 443
+    for port in 80 443; do
+        if sudo ss -lptn "sport = :$port" | grep -q ":$port"; then
+            log_warning "Port $port is in use. Attempting to release..."
+            if command_exists fuser; then
+                sudo fuser -k -n tcp "$port" >/dev/null 2>&1 || true
+            else
+                # Fallback to kill if fuser is missing
+                pids=$(sudo ss -lptn "sport = :$port" | grep -o 'pid=[0-9]*' | cut -d= -f2)
+                if [ -n "$pids" ]; then
+                    echo "$pids" | xargs -r sudo kill -9 >/dev/null 2>&1 || true
+                fi
+            fi
+        fi
+    done
     
     log_info "Building application image (with BuildKit)..."
     sudo docker compose build app
