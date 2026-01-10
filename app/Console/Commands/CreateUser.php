@@ -77,7 +77,7 @@ class CreateUser extends Command
         $user->password = Hash::make($password);
         $user->status = User::STATUS_ACTIVE;
 
-        if (!$this->option('no-verification')) {
+        if ($this->option('no-verification')) {
             $user->email_verified_at = now();
         }
 

@@ -37,6 +37,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\Navigation\NavigationService::class, function ($app) {
             return new \App\Services\Navigation\NavigationService();
         });
+
+        // Register class aliases for backward compatibility
+        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
+        $loader->alias('Helper', \App\Misc\Helper::class);
     }
 
     /**
