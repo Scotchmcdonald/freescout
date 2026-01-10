@@ -1089,9 +1089,15 @@ patch_database_seeder() {
     if [ -f "$seeder_file" ]; then
         # Check if Billing module is installed
         if [ ! -d "$DEFAULT_INSTALL_DIR/src/Modules/Billing" ]; then
-            log_info "Billing module not found. Disabling MspScenarioSeeder in DatabaseSeeder.php..."
+            log_info "Billing module not found. Disabling billing seeders in DatabaseSeeder.php..."
             sed -i 's/^use Modules\\Billing\\Database\\Seeders\\MspScenarioSeeder;/\/\/ use Modules\\Billing\\Database\\Seeders\\MspScenarioSeeder;/' "$seeder_file"
             sed -i 's/\$this->call(MspScenarioSeeder::class);/\/\/ \$this->call(MspScenarioSeeder::class);/' "$seeder_file"
+            
+            sed -i 's/^use Modules\\Billing\\Database\\Seeders\\AssetCreditProductSeeder;/\/\/ use Modules\\Billing\\Database\\Seeders\\AssetCreditProductSeeder;/' "$seeder_file"
+            sed -i 's/\$this->call(AssetCreditProductSeeder::class);/\/\/ \$this->call(AssetCreditProductSeeder::class);/' "$seeder_file"
+
+            sed -i 's/^use Modules\\Billing\\Database\\Seeders\\AdHocProductSeeder;/\/\/ use Modules\\Billing\\Database\\Seeders\\AdHocProductSeeder;/' "$seeder_file"
+            sed -i 's/\$this->call(AdHocProductSeeder::class);/\/\/ \$this->call(AdHocProductSeeder::class);/' "$seeder_file"
         fi
     fi
     log_success "DatabaseSeeder patched"
