@@ -2,8 +2,8 @@ FROM serversideup/php:8.2-fpm-nginx
 
 USER root
 
-# Install system dependencies and Node.js 22.x
-RUN apt-get update && apt-get install -y gnupg curl ca-certificates && \
+# Install system dependencies, Node.js 22.x, and utilities for Composer
+RUN apt-get update && apt-get install -y gnupg curl ca-certificates unzip git && \
     # Install Docker CLI and Compose
     install -m 0755 -d /etc/apt/keyrings && \
     curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc && \

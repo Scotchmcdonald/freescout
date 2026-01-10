@@ -848,7 +848,7 @@ echo "🗄️  Running migrations..."
 sudo docker compose exec -T app php artisan migrate --force
 
 echo "📦 Installing dependencies..."
-sudo docker compose exec -T app composer install --no-dev --optimize-autoloader
+sudo docker compose exec -e COMPOSER_PROCESS_TIMEOUT=2000 -T app composer install --no-dev --optimize-autoloader
 sudo docker compose exec -T app npm install
 sudo docker compose exec -T app npm run build
 
@@ -1161,10 +1161,10 @@ install_dependencies() {
     
     if [ "${SEED_SAMPLE_DATA:-false}" = true ]; then
         log_info "Installing Composer dependencies (including dev for seeding)..."
-        sudo docker compose exec -T app composer install --optimize-autoloader
+        sudo docker compose exec -e COMPOSER_PROCESS_TIMEOUT=2000 -T app composer install --optimize-autoloader
     else
         log_info "Installing Composer dependencies..."
-        sudo docker compose exec -T app composer install --no-dev --optimize-autoloader
+        sudo docker compose exec -e COMPOSER_PROCESS_TIMEOUT=2000 -T app composer install --no-dev --optimize-autoloader
     fi
     
     log_info "Installing NPM dependencies..."
@@ -1210,7 +1210,7 @@ finalize_installation() {
         sudo docker compose exec -T app php artisan db:seed --class=DatabaseSeeder --force
         
         log_info "Cleaning up dev dependencies..."
-        sudo docker compose exec -T app composer install --no-dev --optimize-autoloader
+        sudo docker compose exec -e COMPOSER_PROCESS_TIMEOUT=2000 -T app composer install --no-dev --optimize-autoloader
     fi
     
     # Configure git safe directory
