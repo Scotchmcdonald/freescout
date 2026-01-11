@@ -12,10 +12,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Run the MSP Scenario Seeder
-        $this->call(MspScenarioSeeder::class);
+        // $this->call(MspScenarioSeeder::class);
         
         // Seed Billing Products
-        $this->call(AssetCreditProductSeeder::class);
-        $this->call(AdHocProductSeeder::class);
+        // $this->call(AssetCreditProductSeeder::class);
+        // $this->call(AdHocProductSeeder::class);
     }
 }
