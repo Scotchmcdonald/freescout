@@ -19,7 +19,7 @@ export default defineConfig({
                 'vendor/'
             ]
         },
-        include: ['resources/js/**/*.test.js', 'tests/javascript/**/*.test.js']
+        include: ['resources/js/**/*.test.js', 'tests/JavaScript/**/*.test.js']
     },
     resolve: {
         alias: {
