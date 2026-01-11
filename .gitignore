@@ -59,6 +59,7 @@ app/Console/Commands/Test*
 
 # Modules (if dynamically managed)
 /Modules
+/modules
 /resources/lang/module.*
 
 # Reports
