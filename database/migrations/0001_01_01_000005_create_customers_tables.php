@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('photo_url')->nullable();
             $table->text('notes')->nullable();
             $table->string('company', 100)->nullable();
+            $table->unsignedBigInteger('company_id')->nullable()->index(); // Added company_id
+            $table->boolean('is_non_profit')->default(false);
             $table->string('job_title', 100)->nullable();
             $table->unsignedTinyInteger('photo_type')->nullable();
             $table->string('age', 7)->nullable();

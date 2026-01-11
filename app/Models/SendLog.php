@@ -79,6 +79,8 @@ class SendLog extends Model
         'customer_id',
         'user_id',
         'message_id',
+        'smtp_queue_id',
+        'subject',
         'email',
         'mail_type',
         'status',

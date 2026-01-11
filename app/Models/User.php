@@ -142,12 +142,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'invite_hash',
         'locale',
         'theme',
+        'dark_mode',
         'job_title',
         'phone',
+        'emails',
         'time_format',
         'enable_kb_shortcuts',
+        'locked',
         'google_id',
         'avatar',
+        'permissions', // Added missing fillable
         'email_verified_at',
     ];
 

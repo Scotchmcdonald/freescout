@@ -83,7 +83,7 @@ return new class extends Migration
             $table->text('cc')->nullable(); // JSON
             $table->text('bcc')->nullable(); // JSON
             $table->boolean('has_attachments')->default(false);
-            $table->string('message_id', 998)->nullable();
+            $table->string('message_id', 760)->nullable();
             $table->unsignedTinyInteger('source_via'); // 1=user, 2=customer
             $table->unsignedTinyInteger('source_type'); // 1=email, 2=web, 3=API
             $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();
@@ -98,6 +98,12 @@ return new class extends Migration
             $table->text('send_status_data')->nullable();
             $table->string('meta_subtype', 20)->nullable();
             $table->unsignedBigInteger('meta_id')->nullable();
+            
+            // Missing columns added for Model compliance
+            $table->boolean('imported')->default(false);
+            $table->timestamp('opened_at')->nullable();
+            $table->text('meta')->nullable();
+
             $table->timestamps();
             
             $table->index('conversation_id');

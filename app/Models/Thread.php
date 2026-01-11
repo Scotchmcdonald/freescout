@@ -122,6 +122,13 @@ class Thread extends Model
         'first',
         'has_attachments',
         'imported',
+        'action_data', // Added missing fillables
+        'body_original',
+        'meta_id',
+        'meta_subtype',
+        'saved_reply_id',
+        'send_status',
+        'send_status_data',
     ];
 
     /**
