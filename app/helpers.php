@@ -24,16 +24,21 @@ if (! function_exists('setting')) {
      */
     function setting($key, $default = null)
     {
-        try {
-            if (class_exists(\Modules\Billing\Models\BillingSetting::class)) {
-                $setting = \Modules\Billing\Models\BillingSetting::where('key', $key)->first();
-                return $setting ? $setting->value : $default;
-            }
-        } catch (\Exception $e) {
-            // Fail gracefully if table doesn't exist or other error
-            return $default;
-        }
-        
         return $default;
     }
 }
+
+if (! function_exists('money')) {
+    /**
+     * Format a number as currency.
+     *
+     * @param mixed $amount
+     * @param string $currency
+     * @return string
+     */
+    function money($amount, $currency = '$')
+    {
+        return $currency . number_format((float) $amount, 2);
+    }
+}
+

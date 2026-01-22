@@ -230,11 +230,9 @@ export REPO_TOKEN="ghp_your_token_here"
 # Configure modules to install
 # Format: "ModuleName|RepoURL|TokenEnvVarName"
 MODULES_TO_INSTALL=(
-    "EmailMigration|https://github.com/BorealTek/Email-Migration.git|REPO_TOKEN"
-    "Crm|https://github.com/BorealTek/CRM-Module.git|REPO_TOKEN"
-    "Billing|https://github.com/Scotchmcdonald/Billing.git|REPO_TOKEN"
-    "Inventory|https://github.com/Scotchmcdonald/Inventory.git|REPO_TOKEN"
-    "DevFeedback|https://github.com/Scotchmcdonald/DevFeedback.git|REPO_TOKEN"
+    "Crm|https://github.com/Example/Crm.git|REPO_TOKEN"
+    "PIB|https://github.com/Example/PIB.git|REPO_TOKEN"
+    "AssetManagement|https://github.com/Example/AssetManagement.git|REPO_TOKEN"
 )
 EOF
 }
@@ -983,21 +981,7 @@ patch_modules() {
 patch_database_seeder() {
     log_step "Patching DatabaseSeeder"
     local seeder_file="$DEFAULT_INSTALL_DIR/src/database/seeders/DatabaseSeeder.php"
-    if [ -f "$seeder_file" ]; then
-        # Check if Billing module is installed
-        if [ ! -d "$DEFAULT_INSTALL_DIR/src/Modules/Billing" ]; then
-            log_info "Billing module not found. Disabling billing seeders in DatabaseSeeder.php..."
-            # Use BSD sed syntax for macOS
-            sed -i '' 's/^use Modules\\Billing\\Database\\Seeders\\MspScenarioSeeder;/\/\/ use Modules\\Billing\\Database\\Seeders\\MspScenarioSeeder;/' "$seeder_file"
-            sed -i '' 's/\$this->call(MspScenarioSeeder::class);/\/\/ \$this->call(MspScenarioSeeder::class);/' "$seeder_file"
-            
-            sed -i '' 's/^use Modules\\Billing\\Database\\Seeders\\AssetCreditProductSeeder;/\/\/ use Modules\\Billing\\Database\\Seeders\\AssetCreditProductSeeder;/' "$seeder_file"
-            sed -i '' 's/\$this->call(AssetCreditProductSeeder::class);/\/\/ \$this->call(AssetCreditProductSeeder::class);/' "$seeder_file"
-
-            sed -i '' 's/^use Modules\\Billing\\Database\\Seeders\\AdHocProductSeeder;/\/\/ use Modules\\Billing\\Database\\Seeders\\AdHocProductSeeder;/' "$seeder_file"
-            sed -i '' 's/\$this->call(AdHocProductSeeder::class);/\/\/ \$this->call(AdHocProductSeeder::class);/' "$seeder_file"
-        fi
-    fi
+    # No patches required for current modules
     log_success "DatabaseSeeder patched"
 }
 

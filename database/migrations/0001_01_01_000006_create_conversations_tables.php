@@ -105,6 +105,7 @@ return new class extends Migration
             $table->text('meta')->nullable();
 
             $table->timestamps();
+            $table->softDeletes();
             
             $table->index('conversation_id');
             $table->index('message_id');

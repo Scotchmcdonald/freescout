@@ -11,6 +11,7 @@
         "enshrined/svg-sanitize": "^0.22",
         "google/apiclient": "^2.18",
         "guzzlehttp/guzzle": "^7.8",
+        "lab404/laravel-impersonate": "^1.7",
         "laravel/framework": "^11.0",
         "laravel/reverb": "^1.6",
         "laravel/socialite": "^5.23",
@@ -26,6 +27,7 @@
         "wikimedia/composer-merge-plugin": "^2.1"
     },
     "require-dev": {
+        "brianium/paratest": "^7.0",
         "fakerphp/faker": "^1.23",
         "icanhazstring/composer-unused": "*",
         "larastan/larastan": "^3.8",

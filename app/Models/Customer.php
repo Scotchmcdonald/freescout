@@ -95,7 +95,7 @@ class Customer extends Model
      */
     public function companyRel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(\Modules\Billing\Models\Company::class, 'company_id');
+        return $this->belongsTo(\Modules\Crm\Models\Company::class, 'company_id');
     }
 
     /**

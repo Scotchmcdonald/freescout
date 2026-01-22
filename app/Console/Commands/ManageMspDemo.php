@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Modules\Billing\Database\Seeders\MspScenarioSeeder;
 
 class ManageMspDemo extends Command
 {
@@ -26,23 +25,7 @@ class ManageMspDemo extends Command
      */
     public function handle()
     {
-        $action = $this->argument('action');
-        $seeder = new MspScenarioSeeder();
-        
-        // Inject command context into seeder so it can output info
-        $seeder->setCommand($this);
-
-        if ($action === 'seed') {
-            $this->info('Deploying MSP Demo Scenario...');
-            $seeder->run();
-        } elseif ($action === 'clean') {
-            $this->info('Cleaning MSP Demo Scenario...');
-            $seeder->reverse();
-        } else {
-            $this->error('Invalid action. Use "seed" or "clean".');
-            return 1;
-        }
-
-        return 0;
+        $this->error('MspScenarioSeeder is missing. Command disabled.');
+        return 1;
     }
 }

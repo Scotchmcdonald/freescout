@@ -19,8 +19,5 @@ class UserSeeder extends Seeder
                 'email' => 'admin@example.com',
             ]);
         }
-
-        // Create regular users
-        User::factory()->count(5)->create();
     }
 }

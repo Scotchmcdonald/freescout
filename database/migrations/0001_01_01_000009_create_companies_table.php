@@ -35,12 +35,9 @@ return new class extends Migration
                 
                 // Metadata
                 $table->text('notes')->nullable();
-                $table->boolean('is_active')->default(true); // Added for MSP scenarios
-
-                // Billing / Scenarios
-                $table->string('scenario')->nullable();
-                $table->string('pricing_tier')->default('standard');
-                $table->decimal('margin_floor_percent', 5, 2)->default(20.00);
+                $table->boolean('is_active')->default(true);
+                $table->boolean('sms_notifications_enabled')->default(false);
+                $table->json('settings')->nullable();
 
                 $table->timestamps();
                 $table->softDeletes();

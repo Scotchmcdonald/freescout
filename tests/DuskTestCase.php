@@ -33,6 +33,12 @@ abstract class DuskTestCase extends BaseTestCase
             '--disable-smooth-scrolling',
             '--no-sandbox',
             '--disable-dev-shm-usage',
+            '--ignore-certificate-errors',           // Accept self-signed SSL certs
+            '--allow-insecure-localhost',            // Trust localhost SSL
+            '--ignore-ssl-errors=yes',               // Ignore SSL errors
+            '--incognito',                           // Fresh session, no cookies
+            '--disable-extensions',                  // No extensions
+            '--disable-application-cache',           // No caching
         ])->unless($this->hasHeadlessDisabled(), function (Collection $items) {
             return $items->merge([
                 '--disable-gpu',

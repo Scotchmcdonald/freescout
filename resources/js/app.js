@@ -22,7 +22,10 @@ import {
     customerMerge,
     systemTools,
     advancedMailboxSettings,
-    mergeConversationSearch
+    mergeConversationSearch,
+    licenseAssignment,
+    subscriptionCreation,
+    assignmentDeletion
 } from './components';
 
 // Register Alpine.js components
@@ -48,6 +51,9 @@ Alpine.data('customerMerge', customerMerge);
 Alpine.data('systemTools', systemTools);
 Alpine.data('advancedMailboxSettings', advancedMailboxSettings);
 Alpine.data('mergeConversationSearch', mergeConversationSearch);
+Alpine.data('licenseAssignment', licenseAssignment);
+Alpine.data('subscriptionCreation', subscriptionCreation);
+Alpine.data('assignmentDeletion', assignmentDeletion);
 
 window.Alpine = Alpine;
 
@@ -74,6 +80,9 @@ window.customerMerge = customerMerge;
 window.systemTools = systemTools;
 window.advancedMailboxSettings = advancedMailboxSettings;
 window.mergeConversationSearch = mergeConversationSearch;
+window.licenseAssignment = licenseAssignment;
+window.subscriptionCreation = subscriptionCreation;
+window.assignmentDeletion = assignmentDeletion;
 
 document.addEventListener('DOMContentLoaded', () => {
     Alpine.start();

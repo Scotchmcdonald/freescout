@@ -112,23 +112,13 @@
                                             {{ __('Settings') }}
                                         </x-dropdown-link>
 
-                                        @if(Route::has('billing.finance.index'))
-                                        <x-dropdown-link :href="route('billing.finance.index')">
-                                            {{ __('Billing Dashboard') }}
+                                        @if(Route::has('pib.workbench.index'))
+                                        <x-dropdown-link :href="route('pib.workbench.index')">
+                                            {{ __('Billing Workbench') }}
                                         </x-dropdown-link>
                                         @endif
 
-                                        @if(Route::has('inventory.products.index'))
-                                        <x-dropdown-link :href="route('inventory.products.index')">
-                                            {{ __('Product Catalog') }}
-                                        </x-dropdown-link>
-                                        @endif
 
-                                        @if(Route::has('billing.portal.entry'))
-                                        <x-dropdown-link :href="route('billing.portal.entry')">
-                                            {{ __('Billing Portal') }}
-                                        </x-dropdown-link>
-                                        @endif
                                     @endif
                                     
                                     <x-dropdown-link :href="route('mailboxes.index')">

@@ -31,6 +31,9 @@
         <div class="min-h-screen bg-gray-100">
             <x-layouts.navigation />
             
+            <!-- Impersonation Banner -->
+            <x-impersonation-banner />
+            
             <!-- Update Banner for Admins -->
             @include('partials.update-banner')
 
@@ -166,6 +169,22 @@
             }));
         }
         </script>
+
+        @if(session('success'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    window.showToast("{{ session('success') }}", 'success');
+                });
+            </script>
+        @endif
+
+        @if(session('error'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    window.showToast("{{ session('error') }}", 'error');
+                });
+            </script>
+        @endif
 
         @action('layout.body_end')
         @stack('scripts')

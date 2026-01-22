@@ -12,62 +12,10 @@ $fixes = [];
 
 echo "Scanning workspace in $root...\n\n";
 
-// --- 1. Check Root 'Modules' -> 'modules' ---
-if (is_dir("$root/Modules")) {
-    $issues[] = "[CRITICAL] Root directory 'Modules' is PascalCase (should be lowercase 'modules').";
-    $fixes[] = [
-        'desc' => "Rename 'Modules' to 'modules' and update configs",
-        'action' => function() use ($root) {
-            echo "-> Renaming Modules to modules...\n";
-            passthru("cd $root && git mv Modules modules", $ret);
-            if ($ret !== 0) {
-                echo "[ERROR] git mv Modules modules failed. Check if git is clean.\n";
-                return;
-            }
+// NOTE: Root 'Modules' folder is intentionally PascalCase per Laravel/nwidart-modules convention.
+// This is an exception to the general lowercase folder naming rule.
 
-            // Update composer.json
-            echo "-> Updating composer.json...\n";
-            $compPath = "$root/composer.json";
-            if (file_exists($compPath)) {
-                $c = file_get_contents($compPath);
-                $c = str_replace('"Modules\\\\": "Modules/"', '"Modules\\\\": "modules/"', $c);
-                file_put_contents($compPath, $c);
-            }
-
-            // Update phpstan.neon
-            echo "-> Updating phpstan.neon...\n";
-            $psPath = "$root/phpstan.neon";
-            if (file_exists($psPath)) {
-                $c = file_get_contents($psPath);
-                $patterns = [
-                    '/- Modules\b/', 
-                    '/paths:\s*- Modules/'
-                ];
-                $c = str_replace('- Modules', '- modules', $c);
-                file_put_contents($psPath, $c);
-            }
-
-            // Update config/modules.php
-            echo "-> Updating config/modules.php...\n";
-            $modConf = "$root/config/modules.php";
-            if (file_exists($modConf)) {
-                $c = file_get_contents($modConf);
-                if (strpos($c, "'paths' => [") === false) {
-                     echo "[WARN] Could not find 'paths' array in config/modules.php. Please manually verify.\n";
-                }
-                // Attempt to replace or inform
-                if (strpos($c, "base_path('Modules')") !== false) {
-                    $c = str_replace("base_path('Modules')", "base_path('modules')", $c);
-                    file_put_contents($modConf, $c);
-                } else {
-                     echo "[INFO] No explicit base_path('Modules') found to replace. Ensure config uses 'modules' folder.\n";
-                }
-            }
-        }
-    ];
-}
-
-// --- 2. Check 'tests/javascript' -> 'tests/JavaScript' ---
+// --- 1. Check 'tests/javascript' -> 'tests/JavaScript' ---
 if (is_dir("$root/tests/javascript")) {
     $issues[] = "[CRITICAL] Directory 'tests/javascript' is lowercase (should be PascalCase 'tests/JavaScript').";
     $fixes[] = [
@@ -95,7 +43,7 @@ if (is_dir("$root/tests/javascript")) {
     ];
 }
 
-// --- 3. Check for Docs Collision ---
+// --- 2. Check for Docs Collision ---
 $dirs = scandir($root);
 $hasDocs = in_array('docs', $dirs);
 $hasUpperDocs = in_array('Docs', $dirs);
@@ -103,6 +51,53 @@ if ($hasDocs && $hasUpperDocs) {
     $issues[] = "[COLLISION] Both 'docs' and 'Docs' directories exist.";
     // No auto fix for collision, too risky
     echo "[WARN] Manual intervention required for 'docs'/'Docs' collision.\n";
+}
+
+// --- 3. Check for 'Resources' vs 'resources' collision in Modules ---
+// Modules should use lowercase 'resources' folder for views/lang/assets
+if (is_dir("$root/Modules")) {
+    $modules = array_filter(scandir("$root/Modules"), fn($d) => $d !== '.' && $d !== '..' && is_dir("$root/Modules/$d"));
+    foreach ($modules as $module) {
+        $modulePath = "$root/Modules/$module";
+        $hasResources = is_dir("$modulePath/Resources");
+        $hasLowerResources = is_dir("$modulePath/resources");
+        
+        if ($hasResources && $hasLowerResources) {
+            $issues[] = "[COLLISION] Module '$module' has both 'Resources' and 'resources' directories.";
+            $fixes[] = [
+                'desc' => "Remove empty 'Modules/$module/Resources' folder (views should be in lowercase 'resources')",
+                'action' => function() use ($modulePath, $module) {
+                    $resourcesPath = "$modulePath/Resources";
+                    // Only remove if empty or contains only empty subdirectories
+                    $isEmpty = true;
+                    $iterator = new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator($resourcesPath, RecursiveDirectoryIterator::SKIP_DOTS),
+                        RecursiveIteratorIterator::CHILD_FIRST
+                    );
+                    foreach ($iterator as $file) {
+                        if ($file->isFile()) {
+                            $isEmpty = false;
+                            break;
+                        }
+                    }
+                    if ($isEmpty) {
+                        echo "-> Removing empty 'Modules/$module/Resources' folder...\n";
+                        passthru("rm -rf " . escapeshellarg($resourcesPath), $ret);
+                        if ($ret === 0) {
+                            echo "-> Removed successfully.\n";
+                        } else {
+                            echo "[ERROR] Failed to remove 'Modules/$module/Resources'.\n";
+                        }
+                    } else {
+                        echo "[WARN] 'Modules/$module/Resources' contains files. Manual merge required.\n";
+                    }
+                }
+            ];
+        } elseif ($hasResources && !$hasLowerResources) {
+            $issues[] = "[NAMING] Module '$module' uses 'Resources' instead of 'resources'.";
+            echo "[INFO] Consider renaming 'Modules/$module/Resources' to 'resources' for consistency.\n";
+        }
+    }
 }
 
 

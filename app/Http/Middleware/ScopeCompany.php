@@ -34,7 +34,7 @@ class ScopeCompany
              return $next($request);
         }
 
-        $companyId = $company instanceof \Modules\Billing\Models\Company ? $company->id : $company;
+        $companyId = $company instanceof \Modules\Crm\Models\Company ? $company->id : $company;
 
         if (! $user->hasCompanyAccess($companyId)) {
             abort(403, 'Unauthorized access to this company.');

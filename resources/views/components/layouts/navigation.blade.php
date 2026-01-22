@@ -133,9 +133,25 @@
                                         <x-dropdown-link :href="route('system')">
                                             {{ __('System') }}
                                         </x-dropdown-link>
-                                        
-                                        <x-dropdown-link :href="route('themes')">
-                                            {{ __('Themes & Style Guide') }}
+
+                                        <div class="border-t border-gray-100 my-1"></div>
+
+                                        {{-- Infrastructure Resilience (Phase 6) --}}
+                                        <x-dropdown-link :href="route('admin.resilience.circuit-breakers')">
+                                            {{ __('Circuit Breakers') }}
+                                        </x-dropdown-link>
+                                        <x-dropdown-link :href="route('admin.resilience.rate-limits')">
+                                            {{ __('Rate Limits') }}
+                                        </x-dropdown-link>
+                                        <x-dropdown-link :href="route('admin.resilience.events-audit')">
+                                            {{ __('Event Audit Log') }}
+                                        </x-dropdown-link>
+
+                                        <div class="border-t border-gray-100 my-1"></div>
+
+                                        {{-- Asset Management (Phase 6 Week 2) --}}
+                                        <x-dropdown-link :href="route('admin.assets.inventory')">
+                                            {{ __('Global Fleet Inventory') }}
                                         </x-dropdown-link>
 
                                         <div class="border-t border-gray-100 my-1"></div>
@@ -146,11 +162,14 @@
                                         </x-dropdown-link>
                                         @endif
 
+                                        {{-- Asset Management --}}
+                                        @if(Route::has('assets.conflicts.index'))
+                                            <x-dropdown-link :href="route('assets.conflicts.index')">
+                                                {{ __('Billing Exceptions') }}
+                                            </x-dropdown-link>
+                                        @endif
+
                                         @action('menu.manage')
-                                    @else
-                                        <x-dropdown-link :href="route('themes')">
-                                            {{ __('Themes') }}
-                                        </x-dropdown-link>
                                     @endif
                                 </x-slot>
                             </x-dropdown>
@@ -163,7 +182,7 @@
             @auth
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <!-- Theme Toggle -->
-                <button id="theme-toggle" type="button" x-data="themeToggle" @click="toggle()" class="text-inherit hover:opacity-75 focus:outline-none mr-4" aria-label="Toggle Dark Mode">
+                <button id="theme-toggle" type="button" x-data="themeToggle" @click="toggle()" class="text-inherit hover:opacity-75 focus:outline-none mr-2" aria-label="Toggle Dark Mode">
                     <svg id="theme-toggle-dark-icon" class="w-5 h-5 {{ Auth::user()->dark_mode ? '' : 'hidden' }}" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
                     </svg>
@@ -171,6 +190,13 @@
                         <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
                     </svg>
                 </button>
+
+                <!-- Style Guide Link -->
+                <a href="{{ route('themes') }}" class="text-inherit hover:opacity-75 focus:outline-none mr-4" aria-label="Themes & Style Guide" title="Themes & Style Guide">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd"></path>
+                    </svg>
+                </a>
 
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">

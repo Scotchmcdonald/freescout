@@ -55,7 +55,7 @@
         "\/var\/www\/html\/tests\/Feature\/DraftsTest.php": 0.225702,
         "\/var\/www\/html\/tests\/Feature\/EdgeCasesAndIntegrationTest.php": 1.483,
         "\/var\/www\/html\/tests\/Feature\/ErrorHandlingTest.php": 0.386921,
-        "\/var\/www\/html\/tests\/Feature\/ExampleTest.php": 0.02533,
+        "\/var\/www\/html\/tests\/Feature\/ExampleTest.php": 0.24197,
         "\/var\/www\/html\/tests\/Feature\/ForwardConversationTest.php": 0.079444,
         "\/var\/www\/html\/tests\/Feature\/Integration\/CompleteWorkflowTest.php": 0.351855,
         "\/var\/www\/html\/tests\/Feature\/Integration\/ConversationWorkflowTest.php": 0.146308,

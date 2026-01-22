@@ -37,9 +37,39 @@ return [
     ],
 
     'helcim' => [
-        'key' => env('HELCIM_API_KEY'),
+        'api_token' => env('HELCIM_API_TOKEN'),
+        'api_url' => env('HELCIM_API_URL', 'https://api.helcim.com/v2'),
         'account_id' => env('HELCIM_ACCOUNT_ID'),
-        'url' => env('HELCIM_API_URL', 'https://api.helcim.com/v2'),
+        'webhook_secret' => env('HELCIM_WEBHOOK_SECRET'),
+        'timeout' => env('HELCIM_TIMEOUT', 30),
+        
+        // Convenience fee settings
+        'convenience_fee_enabled' => env('HELCIM_CONVENIENCE_FEE_ENABLED', false),
+        'convenience_fee_percent' => env('HELCIM_CONVENIENCE_FEE_PERCENT', 2.9),
+        'convenience_fee_flat' => env('HELCIM_CONVENIENCE_FEE_FLAT', 0.30),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rate Limiting & Circuit Breaker
+    |--------------------------------------------------------------------------
+    */
+
+    'rate_limiter' => [
+        'driver' => env('RATE_LIMITER_DRIVER', 'redis'),
+        'google_api' => [
+            'max_attempts' => env('GOOGLE_API_RATE_LIMIT', 100),
+            'decay_seconds' => 3600, // 1 hour
+        ],
+        'action1_api' => [
+            'max_attempts' => env('ACTION1_API_RATE_LIMIT', 60),
+            'decay_seconds' => 3600,
+        ],
+    ],
+
+    'circuit_breaker' => [
+        'threshold' => env('CIRCUIT_BREAKER_THRESHOLD', 5),
+        'timeout' => env('CIRCUIT_BREAKER_TIMEOUT', 60), // seconds
     ],
 
 ];

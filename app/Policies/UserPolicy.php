@@ -59,4 +59,42 @@ class UserPolicy
 
         return $user->isAdmin() && $user->id !== $model->id;
     }
+
+    /**
+     * Determine if the user can impersonate another user.
+     * 
+     * Security rules:
+     * - Only admins can impersonate
+     * - Cannot impersonate yourself
+     * - Cannot impersonate other admins
+     * - Cannot impersonate while already impersonating
+     */
+    public function impersonate(?User $user, User $target): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+
+        // Must be an admin
+        if (!$user->isAdmin()) {
+            return false;
+        }
+
+        // Cannot impersonate yourself
+        if ($user->id === $target->id) {
+            return false;
+        }
+
+        // Cannot impersonate other admins
+        if ($target->isAdmin()) {
+            return false;
+        }
+
+        // Cannot impersonate while already impersonating someone
+        if ($user->isImpersonated()) {
+            return false;
+        }
+
+        return true;
+    }
 }

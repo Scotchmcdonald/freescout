@@ -48,6 +48,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
     use Notifiable;
+    use \Lab404\Impersonate\Models\Impersonate;
 
     /**
      * Determine if the user has verified their email address.
@@ -100,7 +101,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function companies(): BelongsToMany
     {
-        return $this->belongsToMany(\Modules\Billing\Models\Company::class, 'company_user')
+        return $this->belongsToMany(\Modules\Crm\Models\Company::class, 'company_user')
             ->withPivot('role_id', 'status')
             ->withTimestamps();
     }
@@ -108,7 +109,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if the user has access to the given company.
      *
-     * @param int|string|\Modules\Billing\Models\Company $company
+     * @param int|string|\Modules\Crm\Models\Company $company
      */
     public function hasCompanyAccess($company): bool
     {
@@ -117,7 +118,7 @@ class User extends Authenticatable implements MustVerifyEmail
             return true;
         }
 
-        $companyId = $company instanceof \Modules\Billing\Models\Company ? $company->id : $company;
+        $companyId = $company instanceof \Modules\Crm\Models\Company ? $company->id : $company;
 
         return $this->companies()
             ->where('company_id', $companyId)

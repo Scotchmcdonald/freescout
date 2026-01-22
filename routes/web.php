@@ -5,6 +5,7 @@ use App\Http\Controllers\CollisionController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ImpersonationController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MailboxController;
 use App\Http\Controllers\ModulesController;
@@ -17,6 +18,11 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\WebhookGatewayController;
+use App\Http\Controllers\ReconciliationController;
+use App\Http\Controllers\MilestoneController;
+use App\Http\Controllers\AlertSubscriptionController;
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Api\ConversationController as ApiConversationController;
 use App\Http\Controllers\PublicAttachmentController;
 use App\Http\Controllers\TrackingController;
@@ -41,6 +47,12 @@ Route::get('/cron/{hash}', [SystemController::class, 'cron'])->name('system.cron
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+// Impersonation routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/impersonate/{user}', [ImpersonationController::class, 'impersonate'])->name('impersonate');
+    Route::post('/impersonate/leave', [ImpersonationController::class, 'leave'])->name('impersonate.leave');
+});
 
 if (app()->environment('local', 'testing')) {
     // Chaos Testing
@@ -212,6 +224,70 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/conversations/import', [ConversationController::class, 'import'])->name('conversations.import');
     });
 
+    // Admin - Infrastructure Resilience (Phase 6)
+    Route::middleware(['admin'])->prefix('admin')->group(function () {
+        Route::get('/resilience/circuit-breakers', [App\Http\Controllers\Admin\ResilienceController::class, 'circuitBreakers'])->name('admin.resilience.circuit-breakers');
+        Route::post('/resilience/circuit-breakers/{service}/reset', [App\Http\Controllers\Admin\ResilienceController::class, 'resetCircuit'])->name('admin.resilience.reset-circuit');
+    
+    // Rate Limiter Routes
+    Route::get('/resilience/rate-limits', [App\Http\Controllers\Admin\ResilienceController::class, 'rateLimits'])->name('admin.resilience.rate-limits');
+
+    // Event Audit Log Routes
+    Route::get('/resilience/events', [App\Http\Controllers\Admin\ResilienceController::class, 'eventsAudit'])->name('admin.resilience.events-audit');
+    Route::get('/resilience/events/export', [App\Http\Controllers\Admin\ResilienceController::class, 'exportEvents'])->name('admin.resilience.events-audit.export');
+
+    // Sync Operation Monitor (Phase 8)
+    Route::get('/sync-monitor', [App\Http\Controllers\Admin\SyncMonitorController::class, 'index'])->name('admin.sync-monitor.index');
+    Route::get('/sync-monitor/{operation}', [App\Http\Controllers\Admin\SyncMonitorController::class, 'show'])->name('admin.sync-monitor.show');
+    Route::post('/sync-monitor/{operation}/resume', [App\Http\Controllers\Admin\SyncMonitorController::class, 'resume'])->name('admin.sync-monitor.resume');
+    Route::post('/sync-monitor/{operation}/retry', [App\Http\Controllers\Admin\SyncMonitorController::class, 'retry'])->name('admin.sync-monitor.retry');
+    Route::post('/sync-monitor/{operation}/cancel', [App\Http\Controllers\Admin\SyncMonitorController::class, 'cancel'])->name('admin.sync-monitor.cancel');
+
+    // Asset Management Routes (AssetManagement Module)
+    Route::get('/assets/inventory', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'index'])->name('admin.assets.inventory');
+    Route::post('/assets/inventory', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'store'])->name('admin.assets.store');
+    Route::get('/assets/inventory/export', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'export'])->name('admin.assets.inventory.export');
+    Route::get('/assets/conflicts', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'conflicts'])->name('admin.assets.conflicts');
+    Route::post('/assets/conflicts/{id}/approve', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'approveConflict'])->name('admin.assets.conflicts.approve');
+    Route::post('/assets/conflicts/{id}/reject', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'rejectConflict'])->name('admin.assets.conflicts.reject');
+    Route::get('/assets/assign', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'assign'])->name('admin.assets.assign');
+    Route::post('/assets/assign', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'storeAssignment'])->name('admin.assets.store_assignment');
+    Route::get('/assets/{id}', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'show'])->name('admin.assets.show');
+    Route::get('/assets/{id}/edit', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'edit'])->name('admin.assets.edit');
+    Route::put('/assets/{id}', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'update'])->name('admin.assets.update');
+    Route::patch('/assets/{id}/status', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'updateStatus'])->name('admin.assets.update_status');
+
+    // Billing Operations (PIB Module)
+    Route::get('/billing/variance-explorer', [Modules\PIB\Http\Controllers\BillingController::class, 'varianceExplorer'])->name('admin.billing.variance');
+    Route::get('/billing/templates/create', [Modules\PIB\Http\Controllers\BillingController::class, 'createTemplate'])->name('admin.billing.templates.create');
+    Route::post('/billing/templates', [Modules\PIB\Http\Controllers\BillingController::class, 'storeTemplate'])->name('admin.billing.templates.store');
+
+    // Client 360 Workspace
+    Route::get('/clients/{client}', [App\Http\Controllers\Admin\Client360Controller::class, 'show'])->name('admin.clients.show');
+
+    // User Lifecycle Dashboard
+    Route::get('/users/lifecycle', [App\Http\Controllers\Admin\UserLifecycleController::class, 'index'])->name('admin.users.lifecycle');
+    Route::post('/users/lifecycle/sync', [App\Http\Controllers\Admin\UserLifecycleController::class, 'sync'])->name('admin.users.lifecycle.sync');
+
+    // CRM Permission Matrix
+    Route::get('/crm/permission-matrix', [App\Http\Controllers\Admin\PermissionMatrixController::class, 'index'])->name('admin.crm.permission-matrix');
+    Route::post('/crm/permission-matrix/bulk-update', [App\Http\Controllers\Admin\PermissionMatrixController::class, 'bulkUpdate'])->name('admin.crm.permission-matrix.bulk-update');
+    Route::post('/crm/permission-matrix/apply-template', [App\Http\Controllers\Admin\PermissionMatrixController::class, 'applyTemplate'])->name('admin.crm.permission-matrix.apply-template');
+    
+    // CRM Custom Fields
+    Route::resource('crm/fields', \Modules\Crm\Http\Controllers\CustomFieldController::class)->names('crm.fields');
+    Route::post('crm/fields/save-values/{entity_type}/{id}', [\Modules\Crm\Http\Controllers\CustomFieldController::class, 'saveValues'])->name('crm.fields.save_values');
+
+    // CRM Clients
+    Route::get('/crm/clients', [\Modules\Crm\Http\Controllers\ClientController::class, 'index'])->name('admin.crm.clients.index');
+    Route::get('/crm/clients/create', [\Modules\Crm\Http\Controllers\ClientController::class, 'create'])->name('admin.crm.clients.create');
+    Route::post('/crm/clients', [\Modules\Crm\Http\Controllers\ClientController::class, 'store'])->name('admin.crm.clients.store');
+    
+    // CRM Contacts
+    Route::post('/crm/contacts', [\Modules\Crm\Http\Controllers\ContactController::class, 'store'])->name('crm.contacts.store');
+    Route::delete('/crm/contacts/{id}', [\Modules\Crm\Http\Controllers\ContactController::class, 'destroy'])->name('crm.contacts.destroy');
+});
+
     // Modules (admin only)
     Route::middleware(['admin'])->group(function () {
         Route::get('/modules/list', [ModulesController::class, 'index'])->name('modules');
@@ -268,6 +344,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Test email route
     Route::post('/mailbox/{mailbox}/send-test-email', [MailboxController::class, 'sendTestEmail'])->name('mailboxes.send_test_email');
 
+    // Webhook Gateway
+    Route::prefix('admin/webhooks')->name('webhooks.gateway.')->group(function () {
+        Route::get('/', [WebhookGatewayController::class, 'index'])->name('index');
+        Route::post('/', [WebhookGatewayController::class, 'store'])->name('store');
+        Route::get('/{channel}/renew', [WebhookGatewayController::class, 'renewForm'])->name('renew.form');
+        Route::post('/{channel}/renew', [WebhookGatewayController::class, 'renew'])->name('renew');
+        Route::post('/{channel}/stop', [WebhookGatewayController::class, 'stop'])->name('stop');
+        Route::post('/{channel}/test', [WebhookGatewayController::class, 'test'])->name('test');
+    });
+
+    // Reconciliation History
+    Route::prefix('admin/reconciliation')->name('reconciliation.')->group(function () {
+        Route::get('/', [ReconciliationController::class, 'index'])->name('index');
+        Route::get('/{run}', [ReconciliationController::class, 'show'])->name('show');
+        Route::post('/trigger', [ReconciliationController::class, 'trigger'])->name('trigger');
+        Route::post('/discrepancies/{discrepancy}/resolve', [ReconciliationController::class, 'resolve'])->name('discrepancies.resolve');
+    });
+
+    // Predictive Analytics
+    Route::prefix('admin/analytics')->name('analytics.')->group(function () {
+        Route::get('/', [AnalyticsController::class, 'index'])->name('index');
+    });
+
+    // Milestone Progress Stepper
+    Route::prefix('admin/milestones')->name('milestones.')->group(function () {
+        Route::get('/', [MilestoneController::class, 'index'])->name('index');
+        Route::get('/create', [MilestoneController::class, 'create'])->name('create');
+        Route::post('/', [MilestoneController::class, 'store'])->name('store');
+        Route::get('/{milestone}', [MilestoneController::class, 'show'])->name('show');
+        Route::get('/{milestone}/edit', [MilestoneController::class, 'edit'])->name('edit');
+        Route::put('/{milestone}', [MilestoneController::class, 'update'])->name('update');
+        Route::delete('/{milestone}', [MilestoneController::class, 'destroy'])->name('destroy');
+        Route::post('/{milestone}/progress', [MilestoneController::class, 'updateProgress'])->name('updateProgress');
+        Route::post('/{milestone}/status', [MilestoneController::class, 'updateStatus'])->name('updateStatus');
+    });
+
     Route::post('/customers/ajax', [CustomerController::class, 'ajax'])->name('customers.ajax');
 });
 
@@ -287,6 +399,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark_as_read');
+    
+    // Alert Subscriptions (Phase 12.3)
+    Route::get('/alerts/subscriptions', [AlertSubscriptionController::class, 'index'])->name('alerts.subscriptions.index');
+    Route::post('/alerts/subscriptions', [AlertSubscriptionController::class, 'update'])->name('alerts.subscriptions.update');
     Route::get('/attachments/{id}/download', [AttachmentController::class, 'download'])->name('attachments.download');
     Route::get('/conversations/{id}/print', [ConversationController::class, 'print'])->name('conversations.print');
 });

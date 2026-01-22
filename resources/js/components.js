@@ -1066,6 +1066,238 @@ export function mergeConversationSearch(searchUrl, csrfToken) {
     };
 }
 
+/**
+ * Alpine.js component for software license assignment.
+ * 
+ * Provides AJAX-based license assignment without page refresh.
+ * Usage: x-data="licenseAssignment(storeUrl, csrfToken, subscriptionData)"
+ */
+export function licenseAssignment(storeUrl, csrfToken, subscriptionData) {
+    return {
+        loading: false,
+        success: false,
+        errors: {},
+        message: '',
+        
+        // Subscription state (updated after each assignment)
+        assignedCount: subscriptionData.assigned_count,
+        purchasedQuantity: subscriptionData.purchased_quantity,
+        
+        // Form state
+        assignableType: 'contact',
+        assignableId: '',
+        assignedAt: new Date().toISOString().split('T')[0],
+        
+        get availableCount() {
+            return this.purchasedQuantity - this.assignedCount;
+        },
+        
+        get canAssign() {
+            return this.availableCount > 0 && !this.loading && this.assignableId !== '';
+        },
+        
+        async submitAssignment(event) {
+            event.preventDefault();
+            
+            if (!this.canAssign) {
+                return;
+            }
+            
+            this.loading = true;
+            this.errors = {};
+            this.success = false;
+            this.message = '';
+            
+            const formData = new FormData(event.target);
+            
+            try {
+                const response = await fetch(storeUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Update UI state
+                    this.assignedCount = data.data.subscription.assigned_count;
+                    this.success = true;
+                    this.message = data.message;
+                    
+                    // Reset form
+                    this.assignableId = '';
+                    this.assignedAt = new Date().toISOString().split('T')[0];
+                    
+                    // Show success toast if available
+                    if (window.showToast) {
+                        window.showToast(data.message, 'success');
+                    }
+                    
+                    // Auto-hide success message after 3s
+                    setTimeout(() => {
+                        this.success = false;
+                        this.message = '';
+                    }, 3000);
+                    
+                } else {
+                    // Handle errors
+                    this.errors = data.errors || {};
+                    this.message = data.message || 'An error occurred';
+                }
+            } catch (error) {
+                console.error('Assignment failed:', error);
+                this.message = 'Network error: ' + error.message;
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        toggleType() {
+            this.assignableType = this.assignableType === 'contact' ? 'asset' : 'contact';
+            this.assignableId = ''; // Reset selection
+        }
+    };
+}
+
+/**
+ * Alpine.js component for assignment deletion with confirmation.
+ * Handles AJAX deletion and counter updates.
+ */
+export function assignmentDeletion() {
+    return {
+        deleting: false,
+        assignedCount: 0,
+        purchasedQuantity: 0,
+        
+        async deleteAssignment(deleteUrl, csrfToken) {
+            if (!confirm('Are you sure you want to unassign this license? This action cannot be undone.')) {
+                return;
+            }
+            
+            this.deleting = true;
+            
+            try {
+                const response = await fetch(deleteUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Update counter in parent component if available
+                    if (this.$root.assignedCount !== undefined) {
+                        this.$root.assignedCount = data.data.subscription.assigned_count;
+                    }
+                    
+                    // Show success toast
+                    if (window.showToast) {
+                        window.showToast(data.message, 'success');
+                    }
+                    
+                    // Remove row from table with animation
+                    const row = this.$el.closest('tr');
+                    if (row) {
+                        row.style.opacity = '0';
+                        setTimeout(() => row.remove(), 300);
+                    }
+                    
+                    // Reload page after a moment to update counts
+                    setTimeout(() => window.location.reload(), 500);
+                    
+                } else {
+                    alert(data.message || 'Failed to delete assignment');
+                }
+            } catch (error) {
+                console.error('Assignment deletion failed:', error);
+                alert('Network error: ' + error.message);
+            } finally {
+                this.deleting = false;
+            }
+        }
+    };
+}
+
+/**
+ * Alpine.js component for software subscription creation form.
+ * Handles AJAX submission with inline success/error display.
+ */
+export function subscriptionCreation(storeUrl, csrfToken) {
+    return {
+        loading: false,
+        success: false,
+        errors: {},
+        message: '',
+        redirectUrl: '',
+        
+        async submitForm(event) {
+            event.preventDefault();
+            
+            this.loading = true;
+            this.errors = {};
+            this.success = false;
+            this.message = '';
+            
+            const formData = new FormData(event.target);
+            
+            try {
+                const response = await fetch(storeUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    this.success = true;
+                    this.message = data.message;
+                    this.redirectUrl = data.data.redirect_url;
+                    
+                    // Show success toast if available
+                    if (window.showToast) {
+                        window.showToast(data.message, 'success');
+                    }
+                    
+                    // Reset form
+                    event.target.reset();
+                    
+                } else {
+                    // Handle validation errors
+                    this.errors = data.errors || {};
+                    this.message = data.message || 'Validation failed. Please check your input.';
+                }
+            } catch (error) {
+                console.error('Subscription creation failed:', error);
+                this.message = 'Network error: ' + error.message;
+            } finally {
+                this.loading = false;
+            }
+        },
+        
+        getError(field) {
+            return this.errors[field] ? this.errors[field][0] : '';
+        },
+        
+        hasError(field) {
+            return !!this.errors[field];
+        }
+    };
+}
+
 // Export all components
 export default {
     themeToggle,
@@ -1089,5 +1321,8 @@ export default {
     customerMerge,
     systemTools,
     advancedMailboxSettings,
-    mergeConversationSearch
+    mergeConversationSearch,
+    licenseAssignment,
+    subscriptionCreation,
+    assignmentDeletion
 };

@@ -146,9 +146,16 @@ if ($process->isSuccessful()) {
 
 // --- TEST DISCOVERY ---
 $io->section('Discovering Test Files');
+
+// Collect all test directories (base tests + module tests)
+$testDirs = [$baseDir . '/tests'];
+foreach (glob($baseDir . '/Modules/*/Tests') as $moduleTestDir) {
+    $testDirs[] = $moduleTestDir;
+}
+
 $finder = new Finder();
 $finder->files()
-    ->in($baseDir . '/tests')
+    ->in($testDirs)
     ->name('*Test.php')
     ->notPath('Browser') // Exclude Browser tests
     ->sortByName();
@@ -156,7 +163,15 @@ $allFiles = [];
 foreach ($finder as $file) {
     $allFiles[] = $file->getRealPath();
 }
-$io->text("Found " . count($allFiles) . " test files.");
+
+$moduleTestCount = 0;
+foreach ($allFiles as $file) {
+    if (strpos($file, '/Modules/') !== false) {
+        $moduleTestCount++;
+    }
+}
+$baseTestCount = count($allFiles) - $moduleTestCount;
+$io->text("Found " . count($allFiles) . " test files ({$baseTestCount} base, {$moduleTestCount} modules).");
 
 // --- REPORTS INIT ---
 $reportsDir = $baseDir.'/reports/test_runs_'.date('Y-m-d_His');

@@ -5,61 +5,95 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Role;
 use App\Models\Permission;
+use Nwidart\Modules\Facades\Module;
 
 class RbacSeeder extends Seeder
 {
     public function run()
     {
-        // Create Permissions
-        $permissions = [
-            'view_billing' => 'View Billing & Finance',
-            'manage_assets' => 'Manage Assets',
-            'approve_users' => 'Approve Users',
+        // 1. Core Permissions (Always Available)
+        $corePermissions = [
             'view_tickets' => 'View Tickets',
             'manage_tickets' => 'Manage Tickets',
-            // Module Permissions
-            'view_inventory' => 'View Inventory',
-            'manage_inventory' => 'Manage Inventory',
-            'view_crm' => 'View CRM',
-            'manage_crm' => 'Manage CRM',
-            'view_email_migration' => 'View Email Migration',
-            'manage_email_migration' => 'Manage Email Migration',
-            'view_dev_feedback' => 'View Dev Feedback',
-            'manage_dev_feedback' => 'Manage Dev Feedback',
+            'approve_users' => 'Approve Users',
+            'view_reports' => 'View Reports',
+            'access_admin_panel' => 'Access Admin Panel',
         ];
 
-        foreach ($permissions as $name => $label) {
+        foreach ($corePermissions as $name => $label) {
             Permission::firstOrCreate(['name' => $name], ['label' => $label]);
         }
 
-        // Create Roles
+        // 2. Dynamic Module Permissions & High Level Access
+        // We now iterate through all enabled modules and look for their 'permissions'
+        // config in module.json.
+        if (class_exists(Module::class)) {
+            foreach (Module::allEnabled() as $module) {
+                // Ensure alias is lowercase for consistency
+                $alias = strtolower((string) $module->getAlias());
+                
+                // A. Create High-Level Access Permission (The "All or Nothing" Switch)
+                Permission::firstOrCreate(
+                    ['name' => "access_{$alias}"], 
+                    ['label' => "Access " . $module->getName() . " Module"]
+                );
+
+                // B. Read Granular Permissions from module.json
+                // Expected format in module.json:
+                // "permissions": {
+                //    "view_assets": "View Assets",
+                //    "manage_assets": "Manage Assets"
+                // }
+                $definedPermissions = $module->get('permissions', []);
+                
+                if (is_array($definedPermissions)) {
+                    foreach ($definedPermissions as $permName => $permLabel) {
+                        Permission::firstOrCreate(['name' => $permName], ['label' => $permLabel]);
+                    }
+                }
+            }
+        }
+
+        // 3. Create Roles
         $mspAdmin = Role::firstOrCreate(['name' => 'MSP Admin'], ['label' => 'MSP Administrator']);
         $mspFinance = Role::firstOrCreate(['name' => 'MSP Finance'], ['label' => 'MSP Finance']);
-        $consultant = Role::firstOrCreate(['name' => 'Consultant'], ['label' => 'External Consultant']);
+        $mspTech = Role::firstOrCreate(['name' => 'MSP Technician'], ['label' => 'MSP Technician']);
+        
         $clientAdmin = Role::firstOrCreate(['name' => 'Client Admin'], ['label' => 'Client Administrator']);
         $clientUser = Role::firstOrCreate(['name' => 'Client User'], ['label' => 'Client User']);
 
-        // Assign Permissions to Roles
+        // 4. Assign Permissions to Roles
         
-        // MSP Admin gets everything
+        // MSP Admin gets EVERYTHING
         $mspAdmin->permissions()->sync(Permission::all());
 
-        // MSP Finance gets billing and CRM view
-        $mspFinance->permissions()->sync(Permission::whereIn('name', ['view_billing', 'view_crm'])->pluck('id'));
+        // MSP Tech gets Ticket, Asset, CRM access
+        $techPermissions = Permission::whereIn('name', [
+            'view_tickets', 'manage_tickets', 'access_admin_panel',
+            'access_crm', 'view_crm', 'manage_crm',
+            'access_assetmanagement', 'view_assets', 'manage_assets',
+            'access_emailmigration',
+            'access_pib', // Techs might need to see billing?
+        ])->pluck('id');
+        $mspTech->permissions()->sync($techPermissions);
 
-        // Consultant gets tickets, assets, inventory, CRM view
-        $consultant->permissions()->sync(Permission::whereIn('name', [
-            'view_tickets', 'manage_tickets', 'manage_assets', 
-            'view_inventory', 'manage_inventory', 'view_crm'
-        ])->pluck('id'));
+        // MSP Finance gets Billing, Payment, CRM
+        $financePermissions = Permission::whereIn('name', [
+            'access_crm', 'view_crm',
+            'access_pib', 'view_billing', 'manage_billing',
+            'access_payment', 'manage_payments'
+        ])->pluck('id');
+        $mspFinance->permissions()->sync($financePermissions);
 
-        // Client Admin gets tickets, assets, approve users, view inventory
-        $clientAdmin->permissions()->sync(Permission::whereIn('name', [
-            'view_tickets', 'manage_tickets', 'manage_assets', 'approve_users',
-            'view_inventory'
-        ])->pluck('id'));
+        // Client Admin gets access to their own data
+        $clientAdminPermissions = Permission::whereIn('name', [
+            'view_tickets', 'approve_users',
+            'access_assetmanagement', 'view_assets',
+            'access_pib', 'view_billing'
+        ])->pluck('id');
+        $clientAdmin->permissions()->sync($clientAdminPermissions);
 
-        // Client User gets view tickets
+        // Client User gets basic ticket access
         $clientUser->permissions()->sync(Permission::whereIn('name', ['view_tickets'])->pluck('id'));
     }
 }

@@ -1,9 +1,16 @@
 {
     "Crm": true,
+    "AssetManagement": true,
+    "PIB": true,
+    "Payment": true,
+    "DevFeedback": true,
     "EmailMigration": true,
     "TestModule": true,
-    "Billing": true,
-    "Customers Management (CRM)": true,
-    "Inventory": true,
-    "DevFeedback": true
+    "ClientPortal": true,
+    "ContractManager": true,
+    "SoftwareSubscriptions": true,
+    "Alerts": true,
+    "Action1": true,
+    "GoogleAdmin": true,
+    "WidgetRegistry": true
 }

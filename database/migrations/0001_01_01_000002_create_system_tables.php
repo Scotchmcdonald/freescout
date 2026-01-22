@@ -91,6 +91,27 @@ return new class extends Migration
             $table->index('status');
             $table->index('locale');
         });
+
+        // API Rate Limiting
+        Schema::create('api_rate_limit_tracking', function (Blueprint $table) {
+            $table->id();
+            $table->string('key')->unique();
+            $table->integer('attempts')->default(0);
+            $table->timestamp('reset_at');
+            $table->timestamps();
+            
+            $table->index('reset_at');
+        });
+
+        // Circuit Breaker Integration Patterns
+        Schema::create('circuit_breaker_states', function (Blueprint $table) {
+            $table->string('service')->primary();
+            $table->enum('state', ['closed', 'open', 'half_open'])->default('closed');
+            $table->integer('failure_count')->default(0);
+            $table->timestamp('last_failure_at')->nullable();
+            $table->timestamp('opened_at')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -98,6 +119,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('circuit_breaker_states');
+        Schema::dropIfExists('api_rate_limit_tracking');
         Schema::dropIfExists('ltm_translations');
         Schema::dropIfExists('polycast_events');
         Schema::dropIfExists('modules');
