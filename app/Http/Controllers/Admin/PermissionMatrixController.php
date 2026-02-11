@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -7,13 +9,15 @@ use Illuminate\Http\Request;
 use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Contact;
 use Modules\Crm\Models\ContactPermission;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class PermissionMatrixController extends Controller
 {
     /**
      * Display the Contact & Permission Matrix
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $query = Client::with(['contacts.permissions']);
 
@@ -36,7 +40,7 @@ class PermissionMatrixController extends Controller
     /**
      * Bulk update permissions for multiple contacts
      */
-    public function bulkUpdate(Request $request)
+    public function bulkUpdate(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'updates' => 'required|array',
@@ -72,7 +76,7 @@ class PermissionMatrixController extends Controller
     /**
      * Apply a role template to all contacts of a specific client
      */
-    public function applyTemplate(Request $request)
+    public function applyTemplate(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
@@ -83,6 +87,7 @@ class PermissionMatrixController extends Controller
         $count = 0;
 
         foreach ($client->contacts as $contact) {
+            /** @var \Modules\Crm\Models\Contact $contact */
             ContactPermission::updateOrCreate(
                 [
                     'contact_id' => $contact->id,

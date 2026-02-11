@@ -1,14 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\NotificationSubscription;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class AlertSubscriptionController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $user = Auth::user();
         $definitions = NotificationSubscription::getAlertTypes();
@@ -21,7 +26,7 @@ class AlertSubscriptionController extends Controller
         return view('alerts.subscriptions.index', compact('definitions', 'subscriptions'));
     }
 
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse|RedirectResponse
     {
         $request->validate([
             'subscriptions' => 'array',

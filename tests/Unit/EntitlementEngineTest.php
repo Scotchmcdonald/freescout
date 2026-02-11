@@ -6,7 +6,7 @@ namespace Tests\Unit;
 
 use App\Contracts\EntitlementResolver;
 use App\DataTransferObjects\EntitlementResult;
-use App\Services\EntitlementEngine;
+use App\Services\EntitlementEngineService;
 use Modules\PIB\Models\BillingTemplate;
 use Tests\TestCase;
 
@@ -17,13 +17,13 @@ use Tests\TestCase;
  */
 class EntitlementEngineTest extends TestCase
 {
-    private EntitlementEngine $engine;
+    private EntitlementEngineService $engine;
 
     protected function setUp(): void
     {
         parent::setUp();
         
-        $this->engine = new EntitlementEngine();
+        $this->engine = new EntitlementEngineService();
     }
 
     public function test_can_register_resolver(): void

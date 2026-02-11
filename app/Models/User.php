@@ -72,6 +72,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public const ROLE_REPORTER = 3;
 
+    public const ROLE_FINANCE = 4;
+
     // Status constants
     public const STATUS_ACTIVE = 1;
 
@@ -98,6 +100,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * The companies that the user belongs to.
+     *
+     * @return BelongsToMany<\Modules\Crm\Models\Company, $this>
      */
     public function companies(): BelongsToMany
     {
@@ -252,6 +256,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the notification subscriptions for this user.
+     *
+     * @return HasMany<NotificationSubscription, $this>
+     */
+    public function notificationSubscriptions(): HasMany
+    {
+        return $this->hasMany(NotificationSubscription::class);
+    }
+
+    /**
      * Get the saved searches for this user.
      *
      * @return HasMany<SavedSearch, $this>
@@ -279,6 +293,23 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    /**
+     * Check if this is a client-type user (external).
+     * Internal users (admin, agent, finance, etc.) are NOT clients.
+     */
+    public function isClient(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Check if user is a finance user.
+     */
+    public function isFinance(): bool
+    {
+        return $this->role === self::ROLE_FINANCE;
     }
 
     /**

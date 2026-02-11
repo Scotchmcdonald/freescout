@@ -14,6 +14,7 @@ enum UserRole: int
     case User = 1;
     case Admin = 2;
     case Reporter = 3;
+    case Finance = 4;
 
     /**
      * Get the human-readable label for the role.
@@ -21,9 +22,10 @@ enum UserRole: int
     public function label(): string
     {
         return match ($this) {
-            self::User => __('User'),
+            self::User => __('Agent'),
             self::Admin => __('Admin'),
             self::Reporter => __('Reporter'),
+            self::Finance => __('Finance'),
         };
     }
 
@@ -36,6 +38,7 @@ enum UserRole: int
             self::User => __('Standard user with access to assigned mailboxes'),
             self::Admin => __('Full access to all mailboxes and settings'),
             self::Reporter => __('Read-only access to assigned mailboxes'),
+            self::Finance => __('Access to billing, invoices, and financial reports'),
         };
     }
 
@@ -50,6 +53,7 @@ enum UserRole: int
             self::User->value => self::User->label(),
             self::Admin->value => self::Admin->label(),
             self::Reporter->value => self::Reporter->label(),
+            self::Finance->value => self::Finance->label(),
         ];
     }
 

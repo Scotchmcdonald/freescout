@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -82,6 +84,8 @@ class SyncOperation extends Model
 
     /**
      * Save checkpoint for resume capability
+     *
+     * @param array<string, mixed> $checkpointData
      */
     public function saveCheckpoint(array $checkpointData): void
     {
@@ -199,17 +203,17 @@ class SyncOperation extends Model
     /**
      * Scope to get recent operations
      */
-    public function scopeRecent($query, int $hours = 24)
+    public function scopeRecent(\Illuminate\Database\Eloquent\Builder $query, int $hours = 24): void
     {
-        return $query->where('started_at', '>=', now()->subHours($hours))
+        $query->where('started_at', '>=', now()->subHours($hours))
             ->orderBy('started_at', 'desc');
     }
 
     /**
      * Scope to get active operations
      */
-    public function scopeActive($query)
+    public function scopeActive(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->whereIn('status', ['running', 'paused']);
+        $query->whereIn('status', ['running', 'paused']);
     }
 }

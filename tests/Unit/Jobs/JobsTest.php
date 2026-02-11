@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Jobs;
 
-use App\Jobs\SendAutoReply;
-use App\Jobs\SendConversationReply;
+use App\Jobs\SendAutoReplyJob as SendAutoReply;
+use App\Jobs\SendConversationReplyJob as SendConversationReply;
 use App\Mail\AutoReplyNotification;
 use App\Mail\ConversationReplyNotification;
 use App\Models\Conversation;

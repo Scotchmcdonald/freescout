@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Services\RateLimiter;
+use App\Services\RateLimiterService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Support\Facades\Cache;
@@ -12,12 +12,12 @@ class RateLimiterTest extends TestCase
 {
     use RefreshDatabase;
     
-    protected RateLimiter $limiter;
+    protected RateLimiterService $limiter;
     
     protected function setUp(): void
     {
         parent::setUp();
-        $this->limiter = new RateLimiter();
+        $this->limiter = new RateLimiterService();
         Cache::flush();
     }
     

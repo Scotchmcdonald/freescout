@@ -18,8 +18,6 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tests\UnitTestCase;
 
 /**
@@ -38,9 +36,8 @@ use Tests\UnitTestCase;
  * - Concurrent execution scenarios
  * - Performance and resource limits
  * - Integration with various Laravel services
+ * @group console
  */
-#[RunTestsInSeparateProcesses]
-#[PreserveGlobalState(false)]
 class KernelAndEdgeCasesTest extends UnitTestCase
 {
 
@@ -52,9 +49,11 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         Cache::flush();
 
         // Mock ModuleSource to prevent network calls and timeouts
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
-        $mockModuleSource->method('getModules')->willReturn([]);
-        $this->app->instance(\App\Services\ModuleSource::class, $mockModuleSource);
+        if (class_exists(\App\Services\ModuleSourceService::class)) {
+            $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
+            $mockModuleSource->method('getModules')->willReturn([]);
+            $this->app->instance(\App\Services\ModuleSourceService::class, $mockModuleSource);
+        }
     }
 
     protected function tearDown(): void
@@ -1301,7 +1300,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         }
 
         // Handle ModuleUpdate separately due to dependency
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
         $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
     }
@@ -1325,7 +1324,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
 
     public function test_all_commands_have_non_empty_descriptions(): void
     {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
 
         $commands = [
             new ModuleBuild(),
@@ -1342,7 +1341,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
 
     public function test_all_commands_have_unique_signatures(): void
     {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
 
         $commands = [
             new ModuleBuild(),

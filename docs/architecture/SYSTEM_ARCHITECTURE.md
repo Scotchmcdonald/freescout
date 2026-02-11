@@ -1,7 +1,29 @@
 # System Architecture
-**Version:** 4.3  
-**Date:** January 19, 2026  
-**Status:** Design Document (Updated with Controller Patterns & Data Ownership)
+**Version:** 4.6
+**Date:** February 10, 2026
+**Status:** Production-Ready Design Document (Implementation-Tracked)
+
+---
+
+## 📊 Implementation Status Legend
+
+**This document uses status indicators to distinguish between implemented and planned features:**
+
+| Symbol | Status | Meaning |
+|--------|--------|----------|
+| ✅ | **Implemented** | Feature is fully functional in the codebase |
+| ⏳ | **Planned** | Feature is documented but not yet implemented |
+| ⚠️ | **Partial** | Partially implemented, requires completion |
+| 🐛 | **Bug/Gap** | Implementation exists but has known issues |
+| 🧑‍💻 | **In Progress** | Currently being developed |
+| ❌ | **Deprecated** | No longer planned or being removed |
+
+**Documentation Best Practices:**
+1. **Separate Current State from Future Plans** - Use status indicators consistently
+2. **Update Regularly** - Review status quarterly or after major releases
+3. **Link to Issues** - Reference GitHub issues/PRs for planned features
+4. **Version Documentation** - Update version number and date when making significant changes
+5. **Maintain Accuracy** - Documentation should reflect reality, not aspirations alone
 
 ---
 
@@ -22,6 +44,21 @@
 3. **Planning work?** Check [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) for current phase
 4. **Need details?** This document is the authoritative design reference
 
+**Recent Updates (v4.5 - Feb 8, 2026):**
+- ⭐ **Added Section 14: Performance & Scalability Architecture** - Horizontal scaling, caching strategy, performance targets
+- ⭐ **Added Section 15: Observability & Monitoring** - Logs, metrics (Prometheus), traces (Sentry), health checks
+- ⭐ **Added Section 16: Transaction Management Guidelines** - When to use transactions, patterns, anti-patterns
+- ⭐ **Added Section 17: Disaster Recovery & Business Continuity** - Backup strategy, recovery procedures, RTO/RPO
+- ⭐ **Added Section 18: API Standards & Versioning** - URL versioning, compatibility policy, authentication (Sanctum)
+- ✅ Addressed all critical architecture gaps identified in best practices review
+
+**Previous Updates (v4.4 - Feb 2026):**
+- ✅ Updated module status: Alerts, SoftwareSubscriptions, WidgetRegistry confirmed as implemented
+- ✅ Clarified service naming: GoogleWorkspaceService, Action1Service, InvoiceGenerator
+- ✅ Added implementation status tracking with clear indicators (✅/⏳/⚠️)
+- ⏳ Documented planned features: Queue isolation, webhook support, ADR-006 shared components
+- ✅ Added missing services to documentation: AssetStatusService, AssetCounterService, TimeEntryService
+
 **Recent Updates (v4.2):**
 - ✅ Extracted billing fields from CRM `client_conversations` to PIB `conversation_billing_metadata`
 - ✅ CRM fires `ConversationLinkedToClient` with `clientConversationId` for PIB to create billing records
@@ -41,13 +78,14 @@
 
 This document defines the comprehensive architecture for an event-driven, modular MSP management platform. The system orchestrates customer relationship management, asset tracking, billing automation, contract management, and client portal interactions through loosely coupled modules communicating via Laravel Events and Reverb WebSockets.
 
-**Architectural Compliance Status (Jan 17, 2026):**
-- ✅ **Zero core blindness violations** - All feature module dependencies removed from core
+**Architectural Compliance Status (Feb 10, 2026):**
+- ❌ **Core blindness violations detected** - 5 architectural test failures (details in [ARCHITECTURAL_AUDIT_REPORT.md](ARCHITECTURAL_AUDIT_REPORT.md))
 - ✅ **Proper data ownership** - Financial data isolated in billing modules (PIB)
 - ✅ **Ticket billing separation** - CRM owns ticket↔client links, PIB owns billing metadata
 - ✅ **Controller organization** - Module controllers live in their respective modules
 - ✅ **Dynamic class checking** - Cross-module aggregators use graceful degradation
 - ✅ **Complete case study** - Credit system migration demonstrates all patterns
+- ⚠️ **Queue isolation** - Configured but not automatically enforced (PIB jobs define queue at dispatch time only)
 
 ---
 
@@ -66,8 +104,13 @@ This document defines the comprehensive architecture for an event-driven, modula
 11. [API Contracts](#11-api-contracts)
 12. [Implementation Roadmap](#12-implementation-roadmap)
 13. [Module Development Best Practices](#13-module-development-best-practices)
-14. [Case Study: Credit System Migration](#14-case-study-credit-system-migration-crm--pib)
-15. [Open Questions](#15-open-questions)
+14. [Performance & Scalability Architecture](#14-performance--scalability-architecture) ⭐ **NEW**
+15. [Observability & Monitoring](#15-observability--monitoring) ⭐ **NEW**
+16. [Transaction Management Guidelines](#16-transaction-management-guidelines) ⭐ **NEW**
+17. [Disaster Recovery & Business Continuity](#17-disaster-recovery--business-continuity) ⭐ **NEW**
+18. [API Standards & Versioning](#18-api-standards--versioning) ⭐ **NEW**
+19. [Case Study: Credit System Migration](#19-case-study-credit-system-migration-crm--pib)
+20. [Open Questions](#20-open-questions)
 
 ---
 
@@ -211,7 +254,9 @@ resources/css/design-tokens.css
 --color-primary: #3b82f6; --color-success: #10b981; --space-4: 1rem;
 ```
 
-**Enforcement:**
+**Implementation Status:** ⏳ **Planned (Not Yet Implemented)**
+
+**Proposed Enforcement:**
 1. ESLint rules block direct CSS classes, require @/components/ui/ imports
 2. ClientPortal validates components before tab registration
 3. CI/CD fails builds with unapproved components
@@ -301,13 +346,14 @@ resources/css/design-tokens.css
     ┌───────────────┼─────────────────────┤
     │               │                     │
     ▼               ▼                     ▼
-┌─────────────┐ ┌─────────────────────────────────────┐
-│SoftwareSubs⏳│ │              PIB ✅                  │
-│ [PLANNED]   │ │    (Billing Execution Engine)       │
-│Depends: CRM,│ │  Depends: CRM, ContractManager,     │
-│AssetMgmt    │ │  AssetMgmt                          │
-└──────┬──────┘ │  Reads BillingTemplates from CM     │
-       │        └─────────────────┬───────────────────┘
+┌───────────────────┐ ┌─────────────────────────────────────┐
+│SoftwareSubs ✅    │ │              PIB ✅                  │
+│ [IMPLEMENTED]     │ │    (Billing Execution Engine)       │
+│Depends: CRM,      │ │  Depends: CRM, ContractManager,     │
+│AssetMgmt,         │ │  AssetMgmt                          │
+│GoogleAdmin,       │ │  Reads BillingTemplates from CM     │
+│Action1            │ │                                      │
+└──────┬────────────┘ └─────────────────┬───────────────────┘
        │                          │
        └────────┬─────────────────┘
                 │
@@ -333,9 +379,11 @@ resources/css/design-tokens.css
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│                    Alerts ⏳ [PLANNED]                   │
-│  Notification subscription and routing (Cross-Cutting)  │
-│  No dependencies (provides infrastructure)              │
+│         Infrastructure Modules (Cross-Cutting) ✅        │
+├─────────────────────────────────────────────────────────┤
+│  Alerts ✅         - Alert routing, throttling, digests │
+│  WidgetRegistry ✅ - Dynamic UI composition             │
+│  KnowledgeBase ✅  - Help article management            │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -362,54 +410,62 @@ resources/css/design-tokens.css
   - Rendering logic for widget zones
   - Ensuring module independence in UI composition
 
-#### **Other Modules**
+#### **GoogleAdmin**
 - **Purpose**: Google Workspace API integration
-- **Models**: `GoogleSyncLog`, `GoogleConfig`
+- **Models**: Configuration stored in module Config
 - **Dependencies**: CRM
+- **Status**: ✅ **Implemented** (polling-based sync)
+- **Services**:
+  - `GoogleWorkspaceService`: Main sync orchestration
+  - `GoogleUserProvider`: User data provider for authentication
 - **Responsibilities**:
   - Sync users from Google Workspace to CRM
   - Sync Chromebooks to AssetManagement (via events)
-  - Push user changes back to Google Workspace
   - OAuth token management
-  - **Webhook receiver for real-time updates** (replaces polling)
 - **Events Published**:
   - `GoogleUserSynced`
   - `GoogleChromebookDiscovered`
+  - `GoogleLicenseDiscovered`
   - `GoogleSyncFailed`
-- **Webhook Support**: Directory API push notifications, Chrome device status updates
+- **Webhook Support**: ⏳ **Planned (Future)** - Directory API push notifications, Chrome device status updates
 
-#### **Action1** (NEW)
+#### **Action1**
 - **Purpose**: Action1 RMM API integration
-- **Models**: `Action1SyncLog`, `Action1Config`, `Action1Script`
+- **Models**: Configuration stored in module Config
 - **Dependencies**: CRM
+- **Status**: ✅ **Implemented** (polling-based sync)
+- **Services**:
+  - `Action1Service`: Main API client and sync orchestration
 - **Responsibilities**:
   - Sync Windows/macOS/Linux devices to AssetManagement
-  - Execute remote scripts (future)
   - API credential management
-  - **Webhook receiver for device status changes**
 - **Events Published**:
   - `Action1DeviceDiscovered`
   - `Action1DeviceUpdated`
+  - `Action1SoftwareDiscovered`
   - `Action1SyncFailed`
-- **Webhook Support**: Device status notifications, real-time online/offline status
+- **Future Enhancements**: ⏳ Execute remote scripts, webhook support for real-time device status
 
-#### **AssetManagement** (Existing - Refactor)
+#### **AssetManagement**
 - **Purpose**: Central asset inventory and status management
-- **Models**: `Asset`, `AssetType`, `AssetStatusChange`, `AssetStagingRecord`
+- **Models**: `Asset`, `AssetStagingRecord`
 - **Dependencies**: CRM, GoogleAdmin, Action1
+- **Status**: ✅ **Implemented**
+- **Services**:
+  - `AssetStatusService`: Asset state machine management (Singleton)
+  - `AssetCounterService`: Asset quantity tracking with atomic operations (Singleton)
+  - `AssetReconciliationService`: Conflict resolution for asset data
 - **Responsibilities**:
   - Asset records (Chromebooks, Windows, macOS, Linux)
   - Asset-to-client assignments
   - Status change staging/conflict resolution
-  - Asset count tracking for billing
+  - Asset count tracking for billing via AtomicCounterService
 - **Events Published**:
   - `AssetStatusChanged`
   - `AssetCountChanged`
-  - `AssetAssignedToClient`
-  - `AssetStagingApproved`
 - **Events Listened**:
-  - `GoogleChromebookDiscovered` → Create/update assets
-  - `Action1DeviceDiscovered` → Create/update assets
+  - `GoogleChromebookDiscovered` → Create/update assets (GoogleChromebookDiscoveredListener)
+  - `Action1DeviceDiscovered` → Create/update assets (Action1DeviceDiscoveredListener)
 
 #### **ContractManager** (Evolved from QuoteWizard)
 - **Purpose**: Quote creation, contract management, and billing configuration
@@ -428,8 +484,8 @@ resources/css/design-tokens.css
   - `QuoteApproved` → Creates Contract
   - `QuoteSentToClient`
   - `ContractActivated` → Triggers billing schedule
-  - `ContractRevised` → Triggers proration in PIB
-  - `BillingTemplateDue` → PIB generates invoice
+  - `ContractRevised` → ✅ **Implemented:** Triggers proration in PIB (RecalculateProrationOnContractChange listener)
+  - `BillingTemplateDue` → PIB generates invoice (BillingTemplateDueListener)
 - **Database Tables**:
   - `cm_quotes`: Quote proposals
   - `cm_quote_line_items`: Line items on quotes
@@ -456,12 +512,16 @@ resources/css/design-tokens.css
   - **Financial Operations**: Client credit balance tracking (atomic operations)
   - **Financial Audit Trail**: Complete ledger of all credit transactions
 - **Services**:
-  - `ClientCreditService`: Manage client credit balances with atomic operations using `AtomicCounterService`
+  - `ClientCreditService`: Manage client credit balances with atomic operations (implements CreditLedgerInterface)
     - `addCredit()`: Add pre-payment credits (hardware prepayments)
     - `deductCredit()`: Deduct credits on asset assignment
     - `getBalance()`: Get current credit balance
     - `getLedger()`: Get audit trail of all transactions
     - `hasSufficientCredit()`: Check if client can make a purchase
+  - `BillingService`: Invoice queries and client billing data (implements BillingServiceInterface)
+  - `InvoiceGenerator`: Generate invoices from billing templates
+  - `TimeEntryService`: Time tracking for billable work
+  - `BillingAnalysisService`: Billing analytics and reporting
 - **Database Tables**:
   - `pib_invoices`: Generated invoices
   - `pib_invoice_line_items`: Line items on invoices
@@ -476,9 +536,13 @@ resources/css/design-tokens.css
   - `InvoiceOverdue`
   - `InvoiceUnusual` → Alert Finance roles
 - **Events Listened**:
-  - `BillingTemplateDue` → Generate invoice from template (ContractManager owns template)
-  - `AssetCountChanged` → Update entitlement snapshots
-  - `ContractRevised` → Calculate proration for mid-cycle changes
+  - `BillingTemplateDue` → Generate invoice from template (BillingTemplateDueListener)
+  - `ConversationLinkedToClient` → Create billing metadata for ticket (ConversationLinkedToClientListener)
+  - `ContractActivated` → Generate first invoice (GenerateFirstInvoice listener)
+  - `PaymentDisputed` → Handle payment disputes (PaymentDisputedListener)
+  - ✅ **Implemented:** `AssetCountChanged` → Update entitlement snapshots (UpdateEntitlementSnapshots listener)
+  - ✅ **Implemented:** `ContractRevised` → Calculate proration for mid-cycle changes (RecalculateProrationOnContractChange listener)
+  - ✅ **Implemented:** `SoftwareCountChanged` → Recalculate subscription costs (AdjustBillingOnSoftwareCountChange listener)
 - **Architecture Note**: Credit balance tracking lives in PIB (not CRM) because credits are a **billing product** (the "up-front asset credit" offering). This maintains proper separation of concerns: CRM owns customer data, PIB owns financial data. ✅ Respects Core Blindness principle.
 - **Module Boundary**: PIB is a **stateless execution engine**. It receives billing templates from ContractManager and generates invoices. This separation means:
   - ContractManager: "What did the client agree to pay?" (configuration)
@@ -647,10 +711,11 @@ resources/css/design-tokens.css
   - `SoftwareComplianceAlert` → Over-deployed or under-licensed detected
   - `UnrecognizedSoftwareDetected` → Software found not in catalog (suggest adding)
 
-#### **ClientPortal** (NEW)
+#### **ClientPortal**
 - **Purpose**: Client-facing portal aggregator
 - **Models**: None (reads from other modules)
 - **Dependencies**: CRM, ContractManager, PIB, Payment, AssetManagement
+- **Status**: ✅ **Implemented** (Portal functional with tab registry system)
 - **Responsibilities**:
   - Dashboard showing quotes, contracts, invoices, payments, assets, software
   - Quote approval interface (triggers ContractManager events)
@@ -731,32 +796,106 @@ resources/css/design-tokens.css
   - WebSocket broadcasts for real-time progress updates
   - See `Modules/EmailMigration/ARCHITECTURE.md` for detailed V2.1 specification
 
-#### **Alerts** (⏳ PLANNED - NOT YET IMPLEMENTED)
+#### **Alerts** (✅ IMPLEMENTED)
 
-> **Note:** This module is documented for future implementation. It does not currently exist in the codebase. Basic notification functionality exists via Laravel's built-in notification system.
+> **Status Update (Feb 2026):** This module has been fully implemented with multi-channel delivery, throttling, and digest support. See Modules/Alerts/README.md for API documentation.
 
-- **Purpose**: Centralized alert subscription and routing
-- **Models**: `AlertSubscription`, `AlertRule`
+- **Purpose**: Centralized alert subscription and routing system
+- **Models**: `AlertType`, `AlertSubscription`, `AlertDeliveryLog`, `AlertThrottle`, `AlertDigestQueue`
 - **Dependencies**: None (infrastructure layer)
-- **Responsibilities**:
-  - Email/SMS/Slack routing
-  - Alert filtering by type and company
-  - Role-based subscriptions
-  - Client contact subscriptions
+- **Status**: ✅ **Fully Operational**
+- **Services**:
+  - `AlertService`: Central routing service for dispatching alerts with throttling
+  - `AlertSubscriptionService`: User subscription preference management
+- **Features**:
+  - **Multi-channel delivery**: Email, Slack, SMS, and database notifications
+  - **Alert throttling**: Prevents alert fatigue (1 alert per type per client per hour by default)
+  - **Digest support**: Hourly, daily, or weekly aggregated notifications
+  - **User subscriptions**: Users configure which alerts they receive and how
+  - **Client filtering**: Subscribe to alerts for specific clients only
+  - **Audit logging**: Complete delivery audit trail via AlertDeliveryLog
+  - **Cross-module integration**: Listens to events from PIB, Payment, GoogleAdmin, Action1, SoftwareSubscriptions
+- **Events Listened**:
+  - `PaymentFailed` (Payment) → Alert code: `payment.failed`
+  - `InvoiceUnusual` (PIB) → Alert code: `invoice.unusual`
+  - `GoogleSyncFailed` (GoogleAdmin) → Alert code: `sync.google.failed`
+  - `Action1SyncFailed` (Action1) → Alert code: `sync.action1.failed`
+  - `SoftwareDeploymentFailed` (SoftwareSubscriptions) → Alert code: `software.deployment.failed`
+- **API Endpoints**:
+  - `GET /api/v1/alert-subscriptions/matrix` - Get subscription matrix
+  - `GET /api/v1/alert-subscriptions` - List user's subscriptions
+  - `POST /api/v1/alert-subscriptions/subscribe` - Subscribe to alert type
+  - `GET /api/v1/alert-types` - List all alert types (admin)
+  - `GET /api/v1/alert-logs` - Delivery logs with filtering
+  - `GET /api/v1/alert-logs/stats` - Delivery statistics
 - **Configuration Example**:
   ```php
-  AlertSubscription::create([
-      'user_id' => $financeUser->id,
-      'alert_types' => ['invoice.unusual', 'invoice.overdue', 'payment.failed'],
-      'companies' => [1, 5, 10], // Empty = all companies
-      'channels' => ['email', 'slack']
-  ]);
+  use Modules\Alerts\DataTransferObjects\AlertPayload;
+  use Modules\Alerts\Services\AlertService;
+  
+  $alertService = app(AlertService::class);
+  $alertService->dispatch(new AlertPayload(
+      alertTypeCode: 'payment.failed',
+      title: 'Payment Failed - $150.00',
+      message: 'Payment transaction failed. Reason: Card declined.',
+      clientId: 123,
+      clientName: 'Acme Corp',
+      eventId: 'evt_abc123',
+      metadata: ['invoice_id' => 456],
+      actionUrl: '/invoices/456',
+      actionLabel: 'View Invoice',
+  ));
   ```
-- **Events Listened**: All `*Unusual`, `*Failed`, `*Overdue` events
+- **Listeners**:
+  - `PaymentFailedListener` → Dispatches `payment.failed` alert
+  - `InvoiceUnusualListener` → Dispatches `invoice.unusual` alert  
+  - `GoogleSyncFailedListener` → Dispatches `sync.google.failed` alert
+  - `Action1SyncFailedListener` → Dispatches `sync.action1.failed` alert
+  - `SoftwareDeploymentFailedListener` → Dispatches `software.deployment.failed` alert
 
----
+#### **WidgetRegistry** (✅ IMPLEMENTED)
+- **Purpose**: Dynamic UI composition for cross-module views
+- **Dependencies**: None (infrastructure module)
+- **Status**: ✅ **Fully Operational**
+- **Service**: `WidgetRegistryService` - Widget registration and rendering engine
+- **Contract**: `Modules\WidgetRegistry\Contracts\Widget` interface
+- **Implementation Pattern**:
+  ```php
+  // Modules register widgets in ServiceProvider boot()
+  $registry = app(WidgetRegistryService::class);
+  $registry->register(new class implements Widget {
+      public function getId(): string { return 'client_summary'; }
+      public function getTitle(): string { return 'Client Summary'; }
+      public function getZone(): string { return 'client_360.top'; }
+      public function getPermission(): ?string { return null; }
+      public function render(array $data): ?string {
+          $client = $data['client'];
+          return view('crm::widgets.summary', compact('client'))->render();
+      }
+  });
+  ```
+- **Widget Zones**:
+  - `client_360.top` - Top of client detail page
+  - `client_360.sidebar` - Right sidebar on client detail
+  - `dashboard.overview` - Main dashboard widgets
+  - `admin.reports` - Report widgets
+- **Features**:
+  - Permission-based widget filtering
+  - Zone-based widget organization
+  - Module isolation (Core never imports module classes)
+  - Graceful degradation when modules disabled
 
-## 3. Data Flow & Event Architecture
+#### **KnowledgeBase** (✅ IMPLEMENTED)
+- **Purpose**: Internal help articles and documentation system
+- **Dependencies**: None (standalone utility)
+- **Status**: ✅ **Operational**
+- **Features**: 
+  - Article management with categories
+  - Full-text search
+  - Permission-based access control
+  - Markdown support
+
+#### **DevFeedback** (✅ IMPLEMENTED)
 
 ### 3.1 User Synchronization Flow
 
@@ -8471,7 +8610,3382 @@ CLOSED → (5 failures in 5min) → OPEN → (wait 5min) → HALF_OPEN → (test
 
 ---
 
-## 14. Case Study: Credit System Migration (CRM → PIB)
+### 13.8 SQL Injection Prevention & Safe Database Practices ✅
+
+**Rule:** Raw SQL queries are FORBIDDEN unless absolutely necessary and properly parameterized.
+
+#### Approved Database Patterns
+
+**✅ ALWAYS USE: Eloquent ORM (Automatic Parameter Binding)**
+```php
+// Safe: Query Builder with parameter binding
+$users = DB::table('users')
+    ->where('email', $email)  // Automatically parameterized
+    ->where('active', true)
+    ->get();
+
+// Safe: Eloquent Models
+$invoices = Invoice::where('client_id', $clientId)
+    ->where('status', 'unpaid')
+    ->where('due_date', '<', now())
+    ->get();
+
+// Safe: Eloquent relationships
+$client->invoices()
+    ->where('total_cents', '>', 10000)
+    ->with('items')
+    ->get();
+```
+
+**✅ CONDITIONAL USE: Parameterized Raw Queries (Code Review Required)**
+```php
+// Safe: Named parameter binding
+$results = DB::select(
+    'SELECT * FROM complex_view WHERE client_id = :clientId AND year = :year',
+    ['clientId' => $clientId, 'year' => $year]
+);
+
+// Safe: Positional parameter binding
+$results = DB::select(
+    'SELECT COUNT(*) as total FROM invoices WHERE status = ? AND client_id = ?',
+    ['paid', $clientId]
+);
+
+// Safe: WhereRaw with bindings
+Invoice::whereRaw('YEAR(created_at) = ? AND MONTH(created_at) = ?', [2026, 1])
+    ->get();
+```
+
+#### FORBIDDEN Patterns
+
+**❌ NEVER: String Concatenation or Interpolation**
+```php
+// DANGEROUS: SQL injection vulnerability
+$email = $_GET['email']; // Could be: test@example.com' OR '1'='1
+$query = "SELECT * FROM users WHERE email = '$email'";
+$users = DB::select($query); // ⚠️ INJECTION RISK
+
+// DANGEROUS: String interpolation
+$status = $request->input('status');
+$invoices = DB::select("SELECT * FROM invoices WHERE status = '{$status}'");
+```
+
+**❌ NEVER: Unvalidated Dynamic Table/Column Names**
+```php
+// DANGEROUS: Attacker could inject arbitrary table names
+$table = $request->input('table'); // Could be: "users; DROP TABLE invoices;--"
+$results = DB::table($table)->get(); // ⚠️ INJECTION RISK
+
+// DANGEROUS: Unvalidated column names
+$orderBy = $request->input('sort'); // Could be: "id; DELETE FROM users;--"
+$users = DB::table('users')->orderBy($orderBy)->get();
+```
+
+#### Safe Dynamic Queries
+
+**✅ Whitelist Pattern for Dynamic Columns/Tables**
+```php
+// Safe: Whitelist allowed columns
+$allowedColumns = ['name', 'email', 'created_at'];
+$sortColumn = $request->input('sort', 'created_at');
+
+if (!in_array($sortColumn, $allowedColumns)) {
+    $sortColumn = 'created_at'; // Default fallback
+}
+
+$users = User::orderBy($sortColumn)->get();
+
+// Safe: Enum for table selection
+enum ReportTable: string {
+    case INVOICES = 'invoices';
+    case PAYMENTS = 'payments';
+    case CREDITS = 'credit_ledger';
+}
+
+$table = ReportTable::tryFrom($request->input('table')) ?? ReportTable::INVOICES;
+$results = DB::table($table->value)->get();
+```
+
+#### Code Review Checklist
+
+**Before merging ANY raw SQL query:**
+- [ ] Is Eloquent/Query Builder truly insufficient? (Justify in PR comments)
+- [ ] Are ALL user inputs parameterized? (Never concatenated)
+- [ ] Are dynamic table/column names whitelisted?
+- [ ] Is the query audited by a senior developer?
+- [ ] Are there unit tests covering SQL injection attack vectors?
+
+#### Testing for SQL Injection
+
+**Test Suite Pattern:**
+```php
+// tests/Feature/SqlInjectionPreventionTest.php
+test('user search prevents SQL injection via email field', function () {
+    $maliciousEmail = "test@example.com' OR '1'='1";
+    
+    // Should return 0 results, not all users
+    $users = User::where('email', $maliciousEmail)->get();
+    
+    expect($users)->toHaveCount(0);
+});
+
+test('invoice filtering prevents SQL injection via status', function () {
+    $maliciousStatus = "paid' OR '1'='1' --";
+    
+    // Should return 0 results, not all invoices
+    $invoices = Invoice::where('status', $maliciousStatus)->get();
+    
+    expect($invoices)->toHaveCount(0);
+});
+```
+
+#### Static Analysis Integration
+
+**PHPStan Custom Rule (Planned):**
+```php
+// phpstan-rules/NoRawSqlWithoutBindingsRule.php
+// Detects: DB::select("SELECT * FROM users WHERE id = $id")
+// Requires: DB::select("SELECT * FROM users WHERE id = ?", [$id])
+```
+
+#### Key Security Principles
+
+1. **Default to Eloquent:** 99% of queries should use Eloquent/Query Builder
+2. **Parameterize Everything:** User input MUST use parameter binding
+3. **Whitelist Dynamic Elements:** Table/column names from allowlists only
+4. **Code Review Gate:** All raw SQL requires senior developer approval
+5. **Test Attack Vectors:** Include SQL injection tests in test suite
+
+#### Consequences
+
+✅ **Protects against SQL injection attacks**  
+✅ **Laravel's Query Builder provides automatic escaping**  
+✅ **Eloquent ORM enforces safe patterns by default**  
+✅ **Type safety reduces risk of injection**  
+⚠️ **Raw queries require extra scrutiny in code reviews**  
+
+**Status:** ✅ Policy documented, enforcement via code review process
+
+---
+
+### 13.9 Content Security Policy (CSP) Configuration ✅
+
+**Implementation:** CSP headers configured in `app/Http/Middleware/ResponseHeaders.php`
+
+#### Current CSP Directives
+
+```php
+// app/Http/Middleware/ResponseHeaders.php
+$csp = implode('; ', [
+    "default-src 'self'",                                    // Only load resources from same origin by default
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://cdn.quilljs.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://cdn.quilljs.com",
+    "img-src 'self' data: https:",                          // Allow data URIs and HTTPS images
+    "font-src 'self' data: https://fonts.bunny.net",
+    "connect-src 'self' ws: wss: https://cloudflareinsights.com",  // WebSocket for Laravel Reverb
+    "frame-ancestors 'none'",                                // Prevent clickjacking (no iframes)
+    "base-uri 'self'",                                       // Prevent <base> tag injection
+    "form-action 'self'",                                    // Forms can only submit to same domain
+]);
+
+// Add upgrade-insecure-requests on HTTPS
+if ($request->secure()) {
+    $csp .= "; upgrade-insecure-requests";
+}
+```
+
+#### Security Headers Bundle
+
+**Complete Security Headers:**
+```php
+// X-Frame-Options: Prevent clickjacking (legacy browsers)
+$response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+
+// X-Content-Type-Options: Prevent MIME sniffing
+$response->headers->set('X-Content-Type-Options', 'nosniff');
+
+// X-XSS-Protection: Enable browser XSS filter (legacy support)
+$response->headers->set('X-XSS-Protection', '1; mode=block');
+
+// Referrer-Policy: Control referrer information
+$response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+// Permissions-Policy: Disable dangerous browser features
+$response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+```
+
+#### CSP Directive Explanations
+
+| Directive | Current Value | Purpose | Tightening Options |
+|-----------|--------------|---------|-------------------|
+| `default-src` | `'self'` | Fallback for unspecified directives | ✅ Already strict |
+| `script-src` | `'self' 'unsafe-inline' 'unsafe-eval'` | JavaScript sources | ⚠️ Remove `unsafe-eval` when Alpine/Vue removed |
+| `style-src` | `'self' 'unsafe-inline'` | CSS sources | ⚠️ Replace with nonce-based CSP |
+| `img-src` | `'self' data: https:` | Image sources | Consider whitelisting specific domains |
+| `font-src` | `'self' data: https://fonts.bunny.net` | Font sources | ✅ Whitelisted |
+| `connect-src` | `'self' ws: wss:` | AJAX/WebSocket endpoints | ✅ Supports Laravel Reverb |
+| `frame-ancestors` | `'none'` | Prevents clickjacking | ✅ Strictest setting |
+| `form-action` | `'self'` | Form submission targets | ✅ Already strict |
+
+#### Production Hardening Recommendations
+
+**Current (Development-Friendly):**
+```php
+"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com"
+```
+
+**Production (Strict):**
+```php
+// Option 1: Nonce-based (Recommended)
+$nonce = base64_encode(random_bytes(16));
+"script-src 'self' 'nonce-{$nonce}' https://static.cloudflareinsights.com"
+
+// In blade templates:
+<script nonce="{{ request()->attributes->get('csp_nonce') }}">
+    // Inline script
+</script>
+
+// Option 2: Hash-based (for specific inline scripts)
+$scriptHash = base64_encode(hash('sha256', $scriptContent, true));
+"script-src 'self' 'sha256-{$scriptHash}'"
+```
+
+#### CSP Violation Reporting
+
+**Add reporting endpoint (Future Enhancement):**
+```php
+// Add to CSP header
+"report-uri /csp-violation-report; report-to csp-endpoint"
+
+// Create reporting endpoint
+Route::post('/csp-violation-report', [CspViolationController::class, 'report'])
+    ->middleware('throttle:100,1'); // High rate limit for violations
+
+// Log violations for analysis
+public function report(Request $request): Response
+{
+    Log::channel('security')->warning('CSP Violation Detected', [
+        'violated_directive' => $request->input('violated-directive'),
+        'blocked_uri' => $request->input('blocked-uri'),
+        'source_file' => $request->input('source-file'),
+        'line_number' => $request->input('line-number'),
+    ]);
+    
+    return response('', 204);
+}
+```
+
+#### Testing CSP
+
+**Browser DevTools:**
+```bash
+# Check for CSP violations in browser console
+# Violations appear as: "Refused to load the script '<URL>' because it violates the following Content Security Policy directive..."
+```
+
+**Automated Tests:**
+```php
+// tests/Feature/SecurityHeadersTest.php
+test('CSP headers prevent inline scripts without nonce', function () {
+    $response = $this->get('/');
+    
+    expect($response->headers->get('Content-Security-Policy'))
+        ->toContain("script-src 'self'")
+        ->toContain("frame-ancestors 'none'");
+});
+
+test('CSP headers include WebSocket support for Reverb', function () {
+    $response = $this->get('/');
+    
+    expect($response->headers->get('Content-Security-Policy'))
+        ->toContain("connect-src 'self' ws: wss:");
+});
+```
+
+#### CSP Audit Checklist
+
+**Before tightening CSP in production:**
+- [ ] Audit all inline `<script>` tags and convert to external files or nonces
+- [ ] Remove `'unsafe-eval'` if Alpine.js/Vue are no longer used
+- [ ] Whitelist only necessary CDNs (Cloudflare Insights, Quill.js)
+- [ ] Test with CSP in report-only mode first
+- [ ] Monitor violation reports for 1 week before enforcing
+- [ ] Update documentation when directives change
+
+#### Current Limitations
+
+⚠️ **`'unsafe-inline'` and `'unsafe-eval'` allowed for development:**
+- Alpine.js and Vue.js require `'unsafe-eval'` for template compilation
+- Inline event handlers (`onclick="..."`) require `'unsafe-inline'`
+- **Mitigation:** Move to nonce-based CSP when refactoring frontend
+
+⚠️ **`img-src` allows all HTTPS:**
+- Permits any HTTPS image source
+- **Mitigation:** Whitelist specific image CDNs when known
+
+#### Clickjacking Protection
+
+**Dual-layer defense:**
+```php
+// app/Http/Middleware/FrameGuard.php
+$response->headers->set('X-Frame-Options', 'SAMEORIGIN');  // Legacy browsers
+$csp = "frame-ancestors 'self'";                           // Modern browsers (CSP)
+```
+
+This prevents the application from being embedded in iframes on malicious sites.
+
+#### Key Security Principles
+
+1. **Defense in Depth:** CSP + X-Frame-Options + X-Content-Type-Options
+2. **Whitelist Approach:** Only allow trusted sources, deny by default
+3. **Progressive Enhancement:** Development-friendly now, production-strict later
+4. **Violation Monitoring:** Log violations to identify attack attempts
+5. **Regular Audits:** Review CSP directives quarterly
+
+#### Consequences
+
+✅ **Prevents XSS attacks via inline script injection**  
+✅ **Blocks clickjacking attacks**  
+✅ **Mitigates data exfiltration attempts**  
+✅ **Controls resource loading from untrusted sources**  
+⚠️ **Requires nonce-based approach for stricter production CSP**  
+⚠️ **May break third-party widgets without proper whitelisting**  
+
+**Status:** ✅ Implemented in `ResponseHeaders.php`, ⏳ Nonce-based CSP planned for production hardening
+
+---
+
+### 13.10 API Authentication Strategy ⏳
+
+**Status:** Documented, implementation planned
+
+#### Overview
+
+API authentication will use Laravel Sanctum for SPA (Single Page Application) and API token authentication. This provides a lightweight, secure authentication system without the complexity of OAuth2.
+
+#### Authentication Methods
+
+**1. SPA Authentication (Session-Based)**
+```php
+// For first-party JavaScript applications (Vue, React, Alpine)
+// Uses Laravel's built-in session authentication
+// No API tokens required
+
+// routes/web.php - Already using session auth
+Route::middleware(['auth:web'])->group(function () {
+    Route::get('/api/user/profile', [ProfileController::class, 'show']);
+});
+```
+
+**2. API Token Authentication (Stateless)**
+```php
+// For third-party integrations, mobile apps, external services
+// Uses Sanctum personal access tokens
+
+// Installation:
+composer require laravel/sanctum
+php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+php artisan migrate
+
+// config/auth.php - Add API guard
+'guards' => [
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+    'api' => [
+        'driver' => 'sanctum',
+        'provider' => 'users',
+    ],
+],
+
+// routes/api.php - Protected API routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/clients', [ApiClientController::class, 'index']);
+    Route::post('/tickets', [ApiTicketController::class, 'store']);
+});
+```
+
+#### Token Management
+
+**Creating Personal Access Tokens**
+```php
+// app/Http/Controllers/Api/TokenController.php
+class TokenController extends Controller
+{
+    public function create(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'abilities' => 'array',
+        ]);
+
+        $token = $request->user()->createToken(
+            $validated['name'],
+            $validated['abilities'] ?? ['*']
+        );
+
+        return response()->json([
+            'token' => $token->plainTextToken,
+            'expires_at' => null, // Tokens don't expire by default
+        ]);
+    }
+
+    public function revoke(Request $request, $tokenId)
+    {
+        $request->user()->tokens()->where('id', $tokenId)->delete();
+
+        return response()->json(['message' => 'Token revoked']);
+    }
+
+    public function list(Request $request)
+    {
+        return response()->json([
+            'tokens' => $request->user()->tokens,
+        ]);
+    }
+}
+```
+
+#### Token Abilities (Permissions)
+
+**Fine-Grained Token Permissions**
+```php
+// When creating tokens, specify abilities
+$token = $user->createToken('Mobile App', [
+    'tickets:read',
+    'tickets:create',
+    'clients:read',
+])->plainTextToken;
+
+// Check abilities in controllers
+Route::get('/admin/users', function (Request $request) {
+    if ($request->user()->tokenCan('admin:users')) {
+        return User::all();
+    }
+
+    abort(403, 'Insufficient token permissions');
+})->middleware('auth:sanctum');
+
+// Or use middleware
+Route::middleware(['auth:sanctum', 'ability:tickets:create'])
+    ->post('/tickets', [ApiTicketController::class, 'store']);
+```
+
+#### API Rate Limiting
+
+**Separate Rate Limits for API vs Web**
+```php
+// app/Http/Kernel.php or bootstrap/app.php
+'api' => [
+    'throttle:60,1', // 60 requests per minute
+    'auth:sanctum',
+],
+
+// Custom rate limits per endpoint
+Route::middleware('throttle:10,1') // 10 per minute
+    ->post('/api/webhooks/billing', [WebhookController::class, 'billing']);
+
+// Stricter limits for expensive operations
+Route::middleware('throttle:5,1') // 5 per minute
+    ->post('/api/exports', [ExportController::class, 'generate']);
+```
+
+#### API Versioning Integration
+
+**Token-Based Access to Versioned APIs**
+```php
+// routes/api.php
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+    Route::get('/clients', [V1\ClientController::class, 'index']);
+});
+
+Route::prefix('v2')->middleware('auth:sanctum')->group(function () {
+    Route::get('/clients', [V2\ClientController::class, 'index']);
+});
+
+// Token abilities can include version restrictions
+$token = $user->createToken('Legacy Integration', [
+    'api:v1', // Only access V1 endpoints
+    'clients:read',
+]);
+```
+
+#### Security Best Practices
+
+**Token Storage & Transmission**
+```php
+// ✅ GOOD: Token stored securely, transmitted via Authorization header
+Authorization: Bearer {token}
+
+// ❌ BAD: Token in URL query parameters (logged everywhere)
+GET /api/clients?token=abcd1234
+
+// ❌ BAD: Token in localStorage without HttpOnly protection
+localStorage.setItem('api_token', token); // Vulnerable to XSS
+
+// ✅ GOOD: For SPAs, use httpOnly cookies instead
+// Sanctum automatically handles this with CSRF protection
+```
+
+**Token Rotation & Expiration**
+```php
+// Optional: Implement token expiration
+// database/migrations/xxxx_add_expires_at_to_personal_access_tokens.php
+Schema::table('personal_access_tokens', function (Blueprint $table) {
+    $table->timestamp('expires_at')->nullable()->after('last_used_at');
+});
+
+// app/Http/Middleware/EnsureTokenIsValid.php
+class EnsureTokenIsValid
+{
+    public function handle(Request $request, Closure $next)
+    {
+        $token = $request->user()->currentAccessToken();
+
+        if ($token && $token->expires_at && $token->expires_at->isPast()) {
+            return response()->json(['error' => 'Token expired'], 401);
+        }
+
+        return $next($request);
+    }
+}
+```
+
+**Audit Logging for API Access**
+```php
+// app/Http/Middleware/AuditApiAccess.php
+class AuditApiAccess
+{
+    public function handle(Request $request, Closure $next)
+    {
+        $token = $request->user()?->currentAccessToken();
+
+        activity('api_access')
+            ->causedBy($request->user())
+            ->withProperties([
+                'endpoint' => $request->fullUrl(),
+                'method' => $request->method(),
+                'token_name' => $token?->name,
+                'token_id' => $token?->id,
+                'ip_address' => $request->ip(),
+            ])
+            ->log('api_request');
+
+        return $next($request);
+    }
+}
+```
+
+#### API Response Standards
+
+**Consistent JSON Structure**
+```php
+// app/Http/Controllers/Api/BaseApiController.php
+abstract class BaseApiController extends Controller
+{
+    protected function successResponse($data, string $message = null, int $statusCode = 200)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $data,
+        ], $statusCode);
+    }
+
+    protected function errorResponse(string $message, int $statusCode = 400, array $errors = [])
+    {
+        return response()->json([
+            'success' => false,
+            'message' => $message,
+            'errors' => $errors,
+        ], $statusCode);
+    }
+}
+
+// Usage in controllers
+class ApiClientController extends BaseApiController
+{
+    public function index(Request $request)
+    {
+        $clients = Client::paginate(50);
+        
+        return $this->successResponse($clients, 'Clients retrieved successfully');
+    }
+
+    public function store(Request $request)
+    {
+        try {
+            $client = Client::create($request->validated());
+            return $this->successResponse($client, 'Client created', 201);
+        } catch (Exception $e) {
+            return $this->errorResponse('Failed to create client', 500);
+        }
+    }
+}
+```
+
+#### Testing API Authentication
+
+**Sanctum Test Helpers**
+```php
+// tests/Feature/Api/ClientApiTest.php
+use Laravel\Sanctum\Sanctum;
+
+test('authenticated user can list clients via API', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user, ['clients:read']);
+
+    $response = $this->getJson('/api/v1/clients');
+
+    $response->assertOk()
+        ->assertJsonStructure(['success', 'data']);
+});
+
+test('token with insufficient abilities cannot create tickets', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user, ['tickets:read']); // Missing 'tickets:create'
+
+    $response = $this->postJson('/api/v1/tickets', [
+        'subject' => 'Test',
+        'body' => 'Test ticket',
+    ]);
+
+    $response->assertForbidden();
+});
+
+test('API rate limiting applies per token', function () {
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    // Make 60 requests (rate limit threshold)
+    for ($i = 0; $i < 60; $i++) {
+        $this->withToken($token)->getJson('/api/v1/clients');
+    }
+
+    // 61st request should be rate limited
+    $response = $this->withToken($token)->getJson('/api/v1/clients');
+    $response->assertStatus(429); // Too Many Requests
+});
+```
+
+#### Documentation & Discovery
+
+**API Documentation with Swagger/OpenAPI**
+```php
+/**
+ * @OA\Get(
+ *     path="/api/v1/clients",
+ *     tags={"Clients"},
+ *     summary="List all clients",
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="page",
+ *         in="query",
+ *         description="Page number",
+ *         required=false,
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="boolean", example=true),
+ *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Client"))
+ *         )
+ *     ),
+ *     @OA\Response(response=401, description="Unauthenticated"),
+ *     @OA\Response(response=403, description="Insufficient permissions")
+ * )
+ */
+public function index(Request $request) { ... }
+```
+
+#### Migration Path
+
+**Phase 1: SPA Authentication (Already Working)**
+- ✅ Session-based authentication for web routes
+- ✅ CSRF protection via VerifyCsrfToken middleware
+- ✅ Works with Reverb WebSockets
+
+**Phase 2: API Token Authentication (Planned)**
+1. Install Laravel Sanctum: `composer require laravel/sanctum`
+2. Publish configuration: `php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"`
+3. Run migrations: `php artisan migrate`
+4. Add Sanctum middleware to API routes
+5. Create token management UI
+6. Document API endpoints
+
+**Phase 3: Third-Party Integrations**
+1. Build OAuth2 wrapper if needed (for Zapier, Make.com integrations)
+2. Implement webhook signing for incoming webhooks
+3. Add IP whitelisting for enterprise customers
+
+#### Consequences
+
+✅ **Simple implementation** - Sanctum is lightweight vs OAuth2  
+✅ **Flexible permissions** - Token abilities provide fine-grained control  
+✅ **Works with existing auth** - Seamless integration with Laravel's auth system  
+✅ **SPA-friendly** - Built-in CSRF protection for first-party apps  
+⚠️ **Requires careful token management** - Tokens must be stored securely  
+⚠️ **No built-in token expiration** - Requires custom implementation if needed  
+
+**Status:** ⏳ Planned for Phase 2, documentation complete
+
+---
+
+### 13.11 Centralized Error Tracking & Monitoring ⏳
+
+**Status:** Documented, Sentry integration planned
+
+#### Overview
+
+Centralized error tracking aggregates exceptions, errors, and performance issues from across the application into a single dashboard for analysis and alerting. This enables rapid identification and resolution of production issues.
+
+#### Solution: Sentry Integration
+
+**Why Sentry:**
+- Real-time error alerting
+- Stack trace deobfuscation
+- Release tracking and deployment correlation
+- Performance monitoring (transaction traces)
+- Breadcrumb tracking (user actions leading to error)
+- Issue grouping and deduplication
+- Slack/email/PagerDuty integrations
+
+#### Installation & Configuration
+
+**1. Install Sentry SDK**
+```bash
+composer require sentry/sentry-laravel
+
+# Publish configuration
+php artisan vendor:publish --provider="Sentry\Laravel\ServiceProvider"
+
+# Add to .env
+SENTRY_LARAVEL_DSN=https://[KEY]@[ORG].ingest.sentry.io/[PROJECT]
+SENTRY_TRACES_SAMPLE_RATE=0.2  # 20% of transactions for performance monitoring
+SENTRY_ENVIRONMENT=production
+```
+
+**2. Configure Sentry**
+```php
+// config/sentry.php
+return [
+    'dsn' => env('SENTRY_LARAVEL_DSN'),
+
+    // Capture performance transactions
+    'traces_sample_rate' => (float) env('SENTRY_TRACES_SAMPLE_RATE', 0.0),
+
+    // Environment classification
+    'environment' => env('SENTRY_ENVIRONMENT', env('APP_ENV', 'production')),
+
+    // Release tracking (tie errors to deployments)
+    'release' => env('SENTRY_RELEASE', trim(exec('git describe --tags --always'))),
+
+    // Breadcrumbs - Track user actions before error
+    'breadcrumbs' => [
+        // Log queries (useful for debugging)
+        'sql_queries' => env('SENTRY_BREADCRUMBS_SQL_QUERIES_ENABLED', true),
+        'sql_bindings' => env('SENTRY_BREADCRUMBS_SQL_BINDINGS_ENABLED', false), // Avoid logging sensitive data
+    ],
+
+    // Context data attached to every event
+    'context' => [
+        'user' => true,
+        'request' => true,
+        'env' => ['APP_NAME', 'APP_ENV'],
+    ],
+
+    // Ignored exceptions (noise reduction)
+    'ignore_exceptions' => [
+        Illuminate\Auth\AuthenticationException::class,
+        Illuminate\Validation\ValidationException::class,
+        Symfony\Component\HttpKernel\Exception\NotFoundHttpException::class,
+    ],
+
+    // Scrub sensitive data from error reports
+    'send_default_pii' => false, // Don't send personally identifiable information
+    'before_send' => function (\Sentry\Event $event): ?\Sentry\Event {
+        // Remove sensitive data from extra context
+        if ($extra = $event->getExtra()) {
+            unset($extra['password'], $extra['credit_card'], $extra['ssn']);
+            $event->setExtra($extra);
+        }
+        return $event;
+    },
+];
+```
+
+**3. Register Sentry in Exception Handler**
+```php
+// bootstrap/app.php or App\Exceptions\Handler
+use Sentry\Laravel\ApplicationContext;
+use Sentry\Laravel\Integration;
+
+return Application::configure(basePath: dirname(__DIR__))
+    ->withProviders()
+    ->withExceptions(function (Exceptions $exceptions) {
+        // Sentry integration
+        Integration::handles($exceptions);
+        
+        // Custom error reporting
+        $exceptions->reportable(function (Throwable $e) {
+            if (app()->bound('sentry')) {
+                app('sentry')->captureException($e);
+            }
+        });
+    })
+    ->create();
+```
+
+#### Error Context Enrichment
+
+**Adding Business Context to Errors**
+```php
+// app/Exceptions/Handler.php
+public function report(Throwable $exception)
+{
+    if ($this->shouldReport($exception) && app()->bound('sentry')) {
+        \Sentry\configureScope(function (\Sentry\State\Scope $scope): void {
+            // Add user context
+            if ($user = auth()->user()) {
+                $scope->setUser([
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'company_id' => $user->company_id ?? null,
+                ]);
+            }
+
+            // Add request context
+            $scope->setTag('route', request()->route()?->getName());
+            $scope->setTag('method', request()->method());
+            
+            // Add business context
+            if ($clientId = request()->input('client_id')) {
+                $scope->setTag('client_id', $clientId);
+            }
+            
+            // Add module context
+            if ($module = $this->detectModule()) {
+                $scope->setTag('module', $module);
+            }
+        });
+    }
+
+    parent::report($exception);
+}
+
+private function detectModule(): ?string
+{
+    $namespace = request()->route()?->getControllerClass();
+    if (preg_match('/Modules\\\\(\w+)\\\\/', $namespace, $matches)) {
+        return $matches[1];
+    }
+    return null;
+}
+```
+
+#### Performance Monitoring
+
+**Transaction Tracking**
+```php
+// app/Http/Middleware/SentryPerformanceTracking.php
+class SentryPerformanceTracking
+{
+    public function handle(Request $request, Closure $next)
+    {
+        if (!app()->bound('sentry')) {
+            return $next($request);
+        }
+
+        // Start transaction
+        $transactionContext = new \Sentry\Tracing\TransactionContext();
+        $transactionContext->setName($request->route()?->getName() ?? $request->path());
+        $transactionContext->setOp('http.server');
+        
+        $transaction = \Sentry\startTransaction($transactionContext);
+        \Sentry\SentrySdk::getCurrentHub()->setSpan($transaction);
+
+        // Execute request
+        $response = $next($request);
+
+        // Set transaction metadata
+        $transaction->setHttpStatus($response->getStatusCode());
+        $transaction->finish();
+
+        return $response;
+    }
+}
+
+// Track specific operations
+class InvoiceService
+{
+    use AuditsSensitiveOperations;
+    
+    public function generateInvoices(int $clientId): void
+    {
+        $span = \Sentry\SentrySdk::getCurrentHub()
+            ->getSpan()
+            ?->startChild([
+                'op' => 'invoice.generate',
+                'description' => "Generate invoices for client {$clientId}",
+            ]);
+
+        try {
+            // Expensive operation
+            $this->performGeneration($clientId);
+            $span?->setStatus(\Sentry\Tracing\SpanStatus::ok());
+        } catch (\Exception $e) {
+            $span?->setStatus(\Sentry\Tracing\SpanStatus::internalError());
+            throw $e;
+        } finally {
+            $span?->finish();
+        }
+    }
+}
+```
+
+#### Alert Configuration
+
+**Slack Integration**
+```yaml
+# Sentry Dashboard → Project Settings → Alerts
+
+# Rule 1: Critical Errors
+Conditions:
+  - Event level >= error
+  - Event.message contains "CRITICAL"
+Actions:
+  - Send Slack notification to #alerts-production
+  - Send email to oncall@company.com
+
+# Rule 2: High Error Rate
+Conditions:
+  - Error count > 50 in 5 minutes
+Actions:
+  - Send Slack notification to #alerts-production
+  - Create PagerDuty incident
+
+# Rule 3: Performance Degradation
+Conditions:
+  - P95 transaction duration > 3 seconds
+  - For any transaction with >100 events
+Actions:
+  - Send Slack notification to #performance
+```
+
+#### Query Monitoring Integration
+
+**Slow Query Detection**
+```php
+// app/Providers/AppServiceProvider.php
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+public function boot(): void
+{
+    // Log slow queries to Sentry
+    DB::listen(function ($query) {
+        if ($query->time > 1000) { // > 1 second
+            \Sentry\captureMessage("Slow query detected: {$query->sql}", \Sentry\Severity::warning());
+            
+            \Sentry\withScope(function (\Sentry\State\Scope $scope) use ($query): void {
+                $scope->setContext('query', [
+                    'sql' => $query->sql,
+                    'bindings' => $query->bindings,
+                    'time' => $query->time,
+                ]);
+            });
+
+            Log::channel('performance')->warning('Slow query', [
+                'sql' => $query->sql,
+                'bindings' => $query->bindings,
+                'time' => $query->time,
+            ]);
+        }
+    });
+}
+```
+
+#### Release Tracking
+
+**Deployment Correlation**
+```bash
+# deployment/deploy.sh
+# After successful deployment, notify Sentry
+curl https://sentry.io/api/0/organizations/$SENTRY_ORG/releases/ \
+  -X POST \
+  -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "version": "'"$(git describe --tags --always)"'",
+    "projects": ["msp-management"],
+    "refs": [{
+      "repository": "github.com/company/msp-app",
+      "commit": "'"$(git rev-parse HEAD)"'"
+    }]
+  }'
+
+# Associate commits with release
+sentry-cli releases finalize "$(git describe --tags --always)"
+```
+
+#### Issue Grouping & Fingerprinting
+
+**Custom Error Fingerprinting**
+```php
+// Prevent over-grouping of similar errors
+\Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($exception): void {
+    // Group by exception type + client
+    if ($exception instanceof BillingException) {
+        $scope->setFingerprint([
+            get_class($exception),
+            $exception->getClientId(),
+        ]);
+    }
+    
+    // Group by error message pattern
+    if ($exception instanceof ApiException) {
+        $scope->setFingerprint([
+            'api-error',
+            $exception->getApiEndpoint(),
+            $exception->getStatusCode(),
+        ]);
+    }
+});
+```
+
+#### Alternative: Laravel Telescope for Local Development
+
+**Complement Sentry with Telescope**
+```bash
+# Already installed in this project
+composer require laravel/telescope --dev
+php artisan telescope:install
+php artisan migrate
+
+# Only enable in local/staging
+// config/telescope.php
+'enabled' => env('TELESCOPE_ENABLED', false),
+
+// .env
+TELESCOPE_ENABLED=true    # Only in local/staging
+```
+
+**Telescope Benefits:**
+- Local exception debugging without external service
+- Database query inspector
+- Request/response inspection
+- Job/queue monitoring
+- Cache hit/miss rates
+
+#### Logging Strategy Integration
+
+**Multi-Level Error Tracking**
+```php
+// 1. Laravel Logs (always)
+Log::error('Order processing failed', ['order_id' => $orderId]);
+
+// 2. Activity Log (audit trail)
+activity('order_failure')
+    ->causedBy($user)
+    ->withProperties(['order_id' => $orderId, 'reason' => $exception->getMessage()])
+    ->log('order_processing_failed');
+
+// 3. Sentry (production aggregation)
+\Sentry\captureException($exception);
+
+// 4. Business metrics (optional)
+Metrics::increment('orders.failed', ['reason' => $exception->getCode()]);
+```
+
+#### Testing Error Tracking
+
+**Verify Sentry Integration**
+```php
+// tests/Feature/ErrorTrackingTest.php
+test('sentry captures exceptions in production', function () {
+    Config::set('app.env', 'production');
+    
+    $this->expectException(\Exception::class);
+    
+    try {
+        throw new \Exception('Test Sentry exception');
+    } catch (\Exception $e) {
+        if (app()->bound('sentry')) {
+            app('sentry')->captureException($e);
+        }
+        throw $e;
+    }
+});
+
+// Manual test endpoint (production only)
+Route::get('/debug-sentry', function () {
+    if (app()->environment('production')) {
+        abort(403, 'Only available in non-production');
+    }
+    
+    throw new \Exception('Sentry test exception');
+})->middleware('auth');
+```
+
+#### Key Metrics to Monitor
+
+**Error Rate Thresholds**
+- 📊 **< 0.01% error rate** - Healthy
+- ⚠️ **0.01% - 0.1% error rate** - Investigate
+- 🚨 **> 0.1% error rate** - Critical
+
+**Response Time Thresholds** (P95)
+- 📊 **< 500ms** - Excellent
+- ⚠️ **500ms - 2s** - Acceptable
+- 🚨 **> 2s** - Performance issue
+
+**Alert Priorities**
+1. **P0 Critical:** Payment failures, data corruption, authentication bypass
+2. **P1 High:** API outages, slow transactions (>5s), high error rate
+3. **P2 Medium:** Deprecation warnings, non-critical feature failures
+4. **P3 Low:** Info logs, performance recommendations
+
+#### Consequences
+
+✅ **Real-time error visibility** - Know about issues before users report them  
+✅ **Context-rich debugging** - Stack traces, breadcrumbs, user actions  
+✅ **Performance insights** - Identify slow transactions and queries  
+✅ **Release correlation** - Link errors to specific deployments  
+✅ **Alert fatigue reduction** - Smart grouping and noise filtering  
+⚠️ **Requires Sentry subscription** - Free tier limited to 5K events/month  
+⚠️ **PII concerns** - Must scrub sensitive data from error reports  
+
+**Status:** ⏳ Documented (Feb 9, 2026), Sentry installation planned for Phase 2
+
+---
+
+### 13.12 Transaction Management Verification & Best Practices ✅
+
+**Status:** Verified (Feb 9, 2026) - Comprehensive audit completed
+
+#### Overview
+
+Database transactions ensure atomicity for multi-step operations. This section verifies current transaction usage and documents best practices.
+
+#### Current Implementation Audit
+
+**✅ Verified Correct Transaction Usage:**
+
+**1. Financial Operations** (Payment Module)
+```php
+// Modules/Payment/Services/ClientCreditService.php
+public function addCredit(Client $client, float $amount, ...): ClientCreditLedger
+{
+    return DB::transaction(function () use ($client, $amount, ...) {
+        // ✅ EXCELLENT: Uses lockForUpdate to prevent race conditions
+        Client::where('id', $client->id)->lockForUpdate()->first();
+        
+        // Calculate new balance
+        $currentBalance = $this->getBalance($client);
+        $newBalance = $currentBalance + $amount;
+        
+        // Create ledger entry with balance snapshot
+        $ledger = ClientCreditLedger::create([...]);
+        
+        return $ledger;
+    });
+}
+
+// ✅ Same pattern for deductCredit(), applyCreditToInvoice()
+```
+
+**Status:** ✅ Excellent implementation with row-level locking
+
+**2. Multi-Model Operations** (CRM Actions)
+```php
+// app/Actions/MergeCustomersAction.php
+public function execute(Customer $source, Customer $target): bool
+{
+    return DB::transaction(function () use ($source, $target) {
+        // Update multiple related tables atomically
+        $this->moveConversations($source, $target);
+        $this->mergeEmails($source, $target);
+        $this->mergePhones($source, $target);
+        $this->mergeNotes($source, $target);
+        
+        // Allow modules to extend
+        \Eventy::action('customer.merge', $source, $target);
+        
+        // Delete source (rollback-safe)
+        $source->delete();
+        
+        return true;
+    });
+}
+```
+
+**Status:** ✅ Proper multi-table atomicity
+
+**3. Contract Operations** (ContractManager Module)
+```php
+// Modules/ContractManager/Services/QuoteService.php
+public function createQuote(Client $client, array $data, ...): Quote
+{
+    return DB::transaction(function () use ($client, $data, ...) {
+        // Create quote
+        $quote = Quote::create([...]);
+        
+        // Create line items
+        foreach ($data['line_items'] as $item) {
+            $quote->lineItems()->create($item);
+        }
+        
+        // Calculate totals
+        $quote->recalculateTotals();
+        
+        return $quote;
+    });
+}
+
+// ✅ Also used in: reviseQuote(), convertToContract(), cancelContract()
+```
+
+**Status:** ✅ Proper transactional boundaries
+
+**4. Counter Operations with Lock** (SoftwareSubscriptions Module)
+```php
+// Modules/SoftwareSubscriptions/Services/SubscriptionCounterService.php
+public function incrementAssignedCount(...): LicenseAssignment
+{
+    return DB::transaction(function () use ($subscription, ...) {
+        // ✅ CRITICAL: Uses lockForUpdate to prevent race conditions
+        $subscription = SoftwareSubscription::where('id', $subscription->id)
+            ->lockForUpdate()
+            ->first();
+        
+        // Check capacity
+        if ($subscription->assigned_count >= $subscription->license_count) {
+            throw new Exception('No available licenses');
+        }
+        
+        // Atomic increment
+        $subscription->increment('assigned_count');
+        
+        // Create assignment record
+        $assignment = LicenseAssignment::create([...]);
+        
+        return $assignment;
+    });
+}
+```
+
+**Status:** ✅ Excellent race condition prevention
+
+**5. Idempotent Event Processing**
+```php
+// app/Listeners/IdempotentListener.php
+public function handle($event): void
+{
+    DB::transaction(function () use ($event) {
+        // Check if already processed
+        $eventId = $event->getEventId();
+        $processed = ProcessedEvent::where('event_id', $eventId)
+            ->where('listener_class', static::class)
+            ->exists();
+        
+        if ($processed) {
+            return; // Already handled
+        }
+        
+        // Process the event
+        $this->process($event);
+        
+        // Mark as processed
+        ProcessedEvent::create([
+            'event_id' => $eventId,
+            'listener_class' => static::class,
+            'processed_at' => now(),
+        ]);
+    });
+}
+```
+
+**Status:** ✅ Proper idempotency with transactions
+
+#### Transaction Best Practices (Documented)
+
+**When to Use Transactions:**
+```php
+// ✅ ALWAYS: Financial operations
+DB::transaction(function () {
+    $invoice->update(['status' => 'paid']);
+    $creditLedger->recordPayment($invoice->amount);
+    $client->decrement('balance_due', $invoice->amount);
+});
+
+// ✅ ALWAYS: Multi-table updates that must succeed/fail together
+DB::transaction(function () {
+    $quote->update(['status' => 'approved']);
+    $contract = Contract::createFromQuote($quote);
+    $quote->contract()->associate($contract)->save();
+});
+
+// ✅ ALWAYS: Counter increments/decrements
+DB::transaction(function () use ($asset) {
+    $asset = Asset::where('id', $asset->id)->lockForUpdate()->first();
+    $asset->increment('usage_count');
+    UsageLog::create(['asset_id' => $asset->id]);
+});
+
+// ✅ CONDITIONAL: Complex business logic with multiple DB writes
+DB::transaction(function () {
+    // Multiple related operations
+});
+```
+
+**When NOT to Use Transactions:**
+```php
+// ❌ AVOID: External API calls (cannot be rolled back)
+// BAD:
+DB::transaction(function () {
+    $invoice = Invoice::create([...]);
+    $this->helcimService->chargeCard($invoice); // External API!
+});
+
+// GOOD: Separate transaction from API call
+$invoice = DB::transaction(function () {
+    return Invoice::create([...]);
+});
+
+try {
+    $this->helcimService->chargeCard($invoice);
+    $invoice->markAsPaid();
+} catch (ApiException $e) {
+    $invoice->markAsF ailed();
+}
+
+// ❌ AVOID: Long-running operations (holds locks)
+// BAD:
+DB::transaction(function () {
+    $clients = Client::all();
+    foreach ($clients as $client) {
+        $this->generateMonthlyReport($client); // Slow!
+    }
+});
+
+// GOOD: Individual transactions per item
+$clients = Client::all();
+foreach ($clients as $client) {
+    DB::transaction(function () use ($client) {
+        $this->generateMonthlyReport($client);
+    });
+}
+
+// ❌ AVOID: Event dispatching inside transactions
+// BAD:
+DB::transaction(function () {
+    $invoice = Invoice::create([...]);
+    event(new InvoiceCreated($invoice)); // May trigger external APIs!
+});
+
+// GOOD: Dispatch after transaction commits
+$invoice = DB::transaction(function () {
+    return Invoice::create([...]);
+});
+event(new InvoiceCreated($invoice));
+```
+
+#### Pessimistic Locking Patterns
+
+**Row-Level Locking**
+```php
+// ✅ Use lockForUpdate() for counters and balances
+public function processPayment(Invoice $invoice, float $amount): void
+{
+    DB::transaction(function () use ($invoice, $amount) {
+        // Lock invoice to prevent double-payment
+        $invoice = Invoice::where('id', $invoice->id)
+            ->lockForUpdate()
+            ->first();
+        
+        if ($invoice->status === 'paid') {
+            throw new Exception('Invoice already paid');
+        }
+        
+        $invoice->update([
+            'status' => 'paid',
+            'paid_at' => now(),
+            'paid_amount' => $amount,
+        ]);
+    });
+}
+
+// ✅ Lock shared resources
+public function assignLicense(SoftwareSubscription $subscription, User $user): void
+{
+    DB::transaction(function () use ($subscription, $user) {
+        // Lock subscription to prevent over-assignment
+        $subscription = SoftwareSubscription::where('id', $subscription->id)
+            ->lockForUpdate()
+            ->first();
+        
+        if ($subscription->assigned_count >= $subscription->license_count) {
+            throw new Exception('No licenses available');
+        }
+        
+        $subscription->increment('assigned_count');
+        LicenseAssignment::create([...]);
+    });
+}
+```
+
+#### Nested Transaction Handling
+
+**Laravel's Savepoint Behavior**
+```php
+// Laravel automatically uses savepoints for nested transactions
+DB::transaction(function () {
+    $order = Order::create([...]);
+    
+    // Nested transaction (creates savepoint)
+    DB::transaction(function () use ($order) {
+        foreach ($order->items as $item) {
+            // Process items
+        }
+    }); // Savepoint committed
+    
+    $order->recalculateTotal();
+}); // Main transaction committed
+```
+
+#### Retry Logic for Deadlocks
+
+**Automatic Retry Pattern**
+```php
+// app/Traits/RetriesOnDeadlock.php
+trait RetriesOnDeadlock
+{
+    protected function transactionWithRetry(callable $callback, int $maxAttempts = 3)
+    {
+        $attempts = 0;
+        
+        while ($attempts < $maxAttempts) {
+            try {
+                return DB::transaction($callback);
+            } catch (\Illuminate\Database\QueryException $e) {
+                // Deadlock error code: 1213
+                if ($e->getCode() === '40001' || $e->errorInfo[1] === 1213) {
+                    $attempts++;
+                    if ($attempts >= $maxAttempts) {
+                        throw $e;
+                    }
+                    // Exponential backoff
+                    usleep(100000 * $attempts); // 100ms, 200ms, 300ms
+                    continue;
+                }
+                throw $e;
+            }
+        }
+    }
+}
+
+// Usage
+class InvoiceService
+{
+    use RetriesOnDeadlock;
+    
+    public function generateInvoices(int $clientId): void
+    {
+        $this->transactionWithRetry(function () use ($clientId) {
+            // Financial operations with potential deadlock
+        });
+    }
+}
+```
+
+#### Testing Transactions
+
+**Verify Atomicity**
+```php
+// tests/Feature/TransactionTest.php
+test('credit addition is atomic and prevents race conditions', function () {
+    $client = Client::factory()->create();
+    
+    // Simulate concurrent credit additions
+    $promises = [];
+    for ($i = 0; $i < 10; $i++) {
+        $promises[] = async(fn() => app(ClientCreditService::class)->addCredit($client, 100, 'Test'));
+    }
+    
+    await($promises);
+    
+    $client->refresh();
+    $balance = app(ClientCreditService::class)->getBalance($client);
+    
+    // Should be exactly 1000 (10 * 100), not less due to lost updates
+    expect($balance)->toBe(1000.0);
+});
+
+test('transaction rollback on exception', function () {
+    $client = Client::factory()->create();
+    $initialBalance = app(ClientCreditService::class)->getBalance($client);
+    
+    try {
+        DB::transaction(function () use ($client) {
+            app(ClientCreditService::class)->addCredit($client, 100, 'Test');
+            throw new Exception('Simulated failure');
+        });
+    } catch (Exception $e) {
+        // Exception expected
+    }
+    
+    $client->refresh();
+    $finalBalance = app(ClientCreditService::class)->getBalance($client);
+    
+    // Balance should be unchanged (transaction rolled back)
+    expect($finalBalance)->toBe($initialBalance);
+});
+```
+
+#### Verification Summary
+
+**Codebase Audit Results (Feb 9, 2026):**
+
+✅ **Financial Operations:** All use transactions with lockForUpdate()  
+✅ **Multi-Table Operations:** Proper transaction boundaries  
+✅ **Counter Increments:** Row-level locking prevents race conditions  
+✅ **Idempotency:** Transactions ensure duplicate prevention  
+✅ **Error Handling:** Transactions auto-rollback on exceptions  
+⚠️ **External APIs:** Some controllers mix API calls with transactions (needs refactoring)  
+⚠️ **Long Operations:** Module batch jobs should use per-item transactions  
+
+**Files Verified:**
+- ✅ `Modules/Payment/Services/ClientCreditService.php`
+- ✅ `Modules/ContractManager/Services/QuoteService.php`
+- ✅ `Modules/ContractManager/Services/ContractService.php`
+- ✅ `Modules/SoftwareSubscriptions/Services/SubscriptionCounterService.php`
+- ✅ `app/Actions/MergeCustomersAction.php`
+- ✅ `app/Actions/CreateConversationAction.php`
+- ✅ `app/Listeners/IdempotentListener.php`
+
+**Recommendations:**
+1. ✅ **Current Usage:** Excellent patterns for financial operations
+2. ⚠️ **Refactor:** Separate API calls from transactional code
+3. ⏳ **Add:** Deadlock retry trait for high-contention operations
+4. ⏳ **Document:** Add transaction usage to service method PHPDocs
+
+**Status:** ✅ Verified (Feb 9, 2026), patterns documented, minor improvements recommended
+
+---
+
+## 14. Performance & Scalability Architecture
+
+### 14.1 Horizontal Scaling Strategy
+
+**Current State:** ⏳ **Planned** - Documentation for multi-server deployment
+
+**Architecture:**
+```
+┌──────────────────────────────────────┐
+│      Load Balancer (HAProxy/Nginx)  │
+│      SSL Termination, Health Checks  │
+└─────────────┬────────────────────────┘
+              │
+    ┌─────────┼─────────┬────────┬────────┐
+    ▼         ▼         ▼        ▼        ▼
+┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐
+│ Web 1  │ │ Web 2  │ │ Web 3  │ │ Web N  │
+│Laravel │ │Laravel │ │Laravel │ │Laravel │
+│+ Nginx │ │+ Nginx │ │+ Nginx │ │+ Nginx │
+│+ FPM   │ │+ FPM   │ │+ FPM   │ │+ FPM   │
+└───┬────┘ └───┬────┘ └───┬────┘ └───┬────┘
+    │          │          │          │
+    └──────────┴──────────┴──────────┘
+               │
+    ┌──────────┴──────────┐
+    ▼                     ▼
+┌─────────────┐     ┌──────────────────┐
+│Redis Cluster│     │ MySQL Cluster    │
+│- Sessions   │     │ - Primary (RW)   │
+│- Cache      │     │ - Replica 1 (RO) │
+│- Queue      │     │ - Replica 2 (RO) │
+│- Locks      │     │ Auto-failover    │
+└─────────────┘     └──────────────────┘
+```
+
+**Configuration:**
+
+```php
+// config/database.php
+'mysql' => [
+    'read' => [
+        'host' => [
+            env('DB_READ_HOST_1', '127.0.0.1'),
+            env('DB_READ_HOST_2', '127.0.0.1'),
+        ],
+    ],
+    'write' => [
+        'host' => [env('DB_WRITE_HOST', '127.0.0.1')],
+    ],
+    'sticky' => true, // Important: Ensures read-your-writes consistency
+    'driver' => 'mysql',
+    'database' => env('DB_DATABASE', 'forge'),
+    'username' => env('DB_USERNAME', 'forge'),
+    'password' => env('DB_PASSWORD', ''),
+    'charset' => 'utf8mb4',
+    'collation' => 'utf8mb4_unicode_ci',
+],
+
+// config/session.php
+'driver' => env('SESSION_DRIVER', 'redis'), // REQUIRED for multi-server
+'connection' => 'session',
+
+// config/cache.php
+'default' => env('CACHE_DRIVER', 'redis'),
+'stores' => [
+    'redis' => [
+        'driver' => 'redis',
+        'connection' => 'cache',
+        'lock_connection' => 'default',
+    ],
+],
+```
+
+**Session Storage Strategy:**
+```bash
+# .env for multi-server deployment
+SESSION_DRIVER=redis
+SESSION_CONNECTION=session
+CACHE_DRIVER=redis
+QUEUE_CONNECTION=redis
+
+# Redis configuration
+REDIS_HOST=redis-cluster.internal
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+```
+
+**File Storage Strategy:**
+```php
+// config/filesystems.php
+'default' => env('FILESYSTEM_DISK', 's3'),
+
+'disks' => [
+    's3' => [
+        'driver' => 's3',
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION'),
+        'bucket' => env('AWS_BUCKET'),
+    ],
+    
+    // For self-hosted: MinIO (S3-compatible)
+    'minio' => [
+        'driver' => 's3',
+        'endpoint' => env('MINIO_ENDPOINT', 'http://minio:9000'),
+        'use_path_style_endpoint' => true,
+        'key' => env('MINIO_ACCESS_KEY'),
+        'secret' => env('MINIO_SECRET_KEY'),
+        'region' => env('MINIO_REGION', 'us-east-1'),
+        'bucket' => env('MINIO_BUCKET', 'uploads'),
+    ],
+],
+```
+
+---
+
+### 14.2 Caching Strategy
+
+**Cache Layers:**
+
+```php
+// app/Services/CacheService.php
+namespace App\Services;
+
+use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
+
+class CacheService
+{
+    /**
+     * Cache key naming convention:
+     * {domain}:{entity_type}:{entity_id}:{attribute?}
+     */
+    
+    // Layer 1: Application State (Long TTL)
+    public function cacheUserPermissions(int $userId, array $permissions): void
+    {
+        Cache::put(
+            "auth:user:{$userId}:permissions",
+            $permissions,
+            now()->addHours(24)
+        );
+    }
+    
+    // Layer 2: Query Results (Medium TTL)
+    public function getClientEntitlement(int $clientId): ?array
+    {
+        return Cache::remember(
+            "billing:entitlement:{$clientId}:current",
+            now()->addMinutes(5),
+            fn() => $this->calculateEntitlement($clientId)
+        );
+    }
+    
+    // Layer 3: Hot Data (Short TTL)
+    public function getClientCreditBalance(int $clientId): int
+    {
+        return Cache::remember(
+            "billing:client:{$clientId}:balance",
+            now()->addMinutes(1),
+            fn() => DB::table('client_credits')
+                ->where('client_id', $clientId)
+                ->value('balance_cents') ?? 0
+        );
+    }
+}
+```
+
+**Cache Invalidation Rules:**
+
+```php
+// Modules/PIB/Listeners/ClearCreditCacheOnPayment.php
+namespace Modules\PIB\Listeners;
+
+use Illuminate\Support\Facades\Cache;
+use Modules\Payment\Events\PaymentSucceeded;
+
+class ClearCreditCacheOnPayment
+{
+    public function handle(PaymentSucceeded $event): void
+    {
+        $clientId = $event->invoice->client_id;
+        
+        // Clear specific keys
+        Cache::forget("billing:client:{$clientId}:balance");
+        Cache::forget("billing:client:{$clientId}:invoices");
+        Cache::forget("billing:entitlement:{$clientId}:current");
+        
+        // Or use cache tags (Redis/Memcached only)
+        Cache::tags(["client:{$clientId}", 'billing'])->flush();
+    }
+}
+```
+
+**Cache Warming Strategy:**
+
+```php
+// app/Console/Commands/WarmCache.php
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+
+class WarmCache extends Command
+{
+    protected $signature = 'cache:warm';
+    protected $description = 'Pre-populate cache with frequently accessed data';
+    
+    public function handle(): void
+    {
+        $this->info('Warming cache...');
+        
+        // Warm active clients' entitlements
+        Client::where('status', 'active')
+            ->chunk(100, function ($clients) {
+                foreach ($clients as $client) {
+                    Cache::remember(
+                        "billing:entitlement:{$client->id}:current",
+                        now()->addMinutes(5),
+                        fn() => $this->entitlementEngine->resolve($client)
+                    );
+                }
+            });
+        
+        $this->info('Cache warmed successfully!');
+    }
+}
+```
+
+**Cache Configuration:**
+
+```php
+// config/cache.php
+'stores' => [
+    'redis' => [
+        'driver' => 'redis',
+        'connection' => 'cache',
+        'lock_connection' => 'default',
+        'prefix' => env('CACHE_PREFIX', 'freescout_cache'),
+    ],
+],
+
+// Cache TTL Guidelines:
+// - User permissions: 24 hours (invalidate on role change)
+// - Entitlements: 5 minutes (business logic changes frequently)
+// - Credit balances: 1 minute (financial data must be near real-time)
+// - Client contacts: 15 minutes (changes infrequently)
+// - Asset counts: 5 minutes (reconciliation runs periodically)
+```
+
+---
+
+### 14.3 Performance Targets
+
+**Response Time SLAs (p95):**
+
+| Endpoint | Target | Current | Status |
+|----------|--------|---------|--------|
+| Dashboard | < 500ms | ~300ms | ✅ |
+| Conversation List | < 300ms | ~200ms | ✅ |
+| Conversation View | < 400ms | ~250ms | ✅ |
+| Invoice Generation | < 2s/invoice | ~1.5s | ✅ |
+| Search Results | < 1s | ~800ms | ✅ |
+| API Endpoints | < 200ms | ~150ms | ✅ |
+
+**Throughput Targets:**
+
+```yaml
+API Requests: 1000 req/sec sustained (10,000 clients)
+Invoice Generation: 50 invoices/sec (3,000/minute)
+Event Processing: 500 events/sec
+Queue Processing: 
+  - billing: 100 jobs/sec
+  - default: 200 jobs/sec
+  - notifications: 500 jobs/sec
+```
+
+**Resource Limits:**
+
+```yaml
+Memory per Request: < 128MB
+Database Connections: < 100 concurrent (per web server)
+Queue Workers: 
+  - billing: 10 workers minimum
+  - default: 20 workers minimum
+  - long-running: 5 workers minimum
+Redis Memory: 8GB allocated (4GB sessions, 2GB cache, 2GB queues)
+```
+
+**Database Query Performance:**
+
+```php
+// Performance monitoring middleware
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class MonitorQueryPerformance
+{
+    public function handle($request, Closure $next)
+    {
+        if (app()->environment('local', 'development')) {
+            DB::listen(function ($query) {
+                if ($query->time > 1000) { // Queries > 1 second
+                    Log::warning('Slow query detected', [
+                        'sql' => $query->sql,
+                        'bindings' => $query->bindings,
+                        'time' => $query->time . 'ms',
+                        'url' => request()->fullUrl(),
+                    ]);
+                }
+            });
+        }
+        
+        return $next($request);
+    }
+}
+```
+
+---
+
+### 14.4 Database Optimization Patterns
+
+**Indexing Strategy:**
+
+```sql
+-- Composite indexes for common queries
+CREATE INDEX idx_conversations_mailbox_status 
+    ON conversations(mailbox_id, status, updated_at);
+
+CREATE INDEX idx_invoices_client_date 
+    ON invoices(client_id, invoice_date DESC);
+
+CREATE INDEX idx_assets_client_status 
+    ON assets(client_id, status, created_at);
+
+-- Covering indexes for read-heavy queries
+CREATE INDEX idx_client_credits_balance 
+    ON client_credits(client_id) 
+    INCLUDE (balance_cents, last_updated_at);
+
+-- Partial indexes for filtered queries
+CREATE INDEX idx_active_conversations 
+    ON conversations(mailbox_id, updated_at) 
+    WHERE status IN ('active', 'pending');
+```
+
+**Query Optimization Examples:**
+
+```php
+// ❌ BAD: N+1 Query Problem
+$clients = Client::all();
+foreach ($clients as $client) {
+    echo $client->invoices->count(); // Separate query per client
+}
+
+// ✅ GOOD: Eager Loading
+$clients = Client::withCount('invoices')->get();
+foreach ($clients as $client) {
+    echo $client->invoices_count; // Single query
+}
+
+// ❌ BAD: Loading full models when only IDs needed
+$clientIds = Client::where('status', 'active')->get()->pluck('id');
+
+// ✅ GOOD: Pluck directly
+$clientIds = Client::where('status', 'active')->pluck('id');
+
+// ❌ BAD: Loading all records into memory
+Client::all()->each(function ($client) {
+    // Process client
+});
+
+// ✅ GOOD: Chunking for large datasets
+Client::chunk(100, function ($clients) {
+    foreach ($clients as $client) {
+        // Process client
+    }
+});
+
+// ✅ BETTER: Lazy collections for memory efficiency
+Client::lazy()->each(function ($client) {
+    // Process client with minimal memory
+});
+```
+
+---
+
+## 15. Observability & Monitoring
+
+### 15.1 Three Pillars of Observability
+
+**1. Logs (Structured Logging)**
+
+```php
+// app/Logging/CreateCustomLogger.php
+namespace App\Logging;
+
+use Monolog\Formatter\JsonFormatter;
+
+class CreateCustomLogger
+{
+    public function __invoke(array $config)
+    {
+        $handler = new \Monolog\Handler\StreamHandler(
+            $config['path'],
+            $config['level'] ?? 'debug'
+        );
+        
+        $handler->setFormatter(new JsonFormatter());
+        
+        return new \Monolog\Logger(
+            $config['name'] ?? 'custom',
+            [$handler]
+        );
+    }
+}
+
+// config/logging.php
+'channels' => [
+    'structured' => [
+        'driver' => 'custom',
+        'via' => App\Logging\CreateCustomLogger::class,
+        'path' => storage_path('logs/structured.log'),
+        'level' => 'info',
+    ],
+],
+
+// Usage in application
+use Illuminate\Support\Facades\Log;
+
+Log::channel('structured')->info('invoice_generated', [
+    'client_id' => $client->id,
+    'invoice_id' => $invoice->id,
+    'total_cents' => $invoice->total_cents,
+    'line_item_count' => $invoice->lineItems->count(),
+    'generation_time_ms' => $generationTime,
+    'template_id' => $template->id,
+]);
+```
+
+**2. Metrics (Prometheus + Grafana)**
+
+```php
+// app/Services/MetricsService.php
+namespace App\Services;
+
+use Prometheus\CollectorRegistry;
+use Prometheus\Storage\Redis;
+
+class MetricsService
+{
+    private CollectorRegistry $registry;
+    
+    public function __construct()
+    {
+        $this->registry = new CollectorRegistry(new Redis([
+            'host' => config('database.redis.default.host'),
+            'port' => config('database.redis.default.port'),
+        ]));
+    }
+    
+    public function incrementCounter(string $name, array $labels = []): void
+    {
+        $counter = $this->registry->getOrRegisterCounter(
+            'app',
+            $name,
+            'Application counter metric',
+            array_keys($labels)
+        );
+        $counter->inc(array_values($labels));
+    }
+    
+    public function observeHistogram(string $name, float $value, array $labels = []): void
+    {
+        $histogram = $this->registry->getOrRegisterHistogram(
+            'app',
+            $name,
+            'Application histogram metric',
+            array_keys($labels),
+            [0.1, 0.5, 1.0, 2.0, 5.0, 10.0] // Buckets in seconds
+        );
+        $histogram->observe($value, array_values($labels));
+    }
+    
+    public function setGauge(string $name, float $value, array $labels = []): void
+    {
+        $gauge = $this->registry->getOrRegisterGauge(
+            'app',
+            $name,
+            'Application gauge metric',
+            array_keys($labels)
+        );
+        $gauge->set($value, array_values($labels));
+    }
+}
+
+// Usage in controllers/services
+class InvoiceController
+{
+    public function store(Request $request, MetricsService $metrics)
+    {
+        $startTime = microtime(true);
+        
+        try {
+            $invoice = $this->billingService->generate($request->client_id);
+            
+            $metrics->incrementCounter('invoices_created_total', [
+                'status' => 'success',
+                'client_id' => $request->client_id,
+            ]);
+            
+            $metrics->observeHistogram(
+                'invoice_generation_duration_seconds',
+                microtime(true) - $startTime,
+                ['client_id' => $request->client_id]
+            );
+            
+            return response()->json($invoice, 201);
+            
+        } catch (\Exception $e) {
+            $metrics->incrementCounter('invoices_created_total', [
+                'status' => 'error',
+                'error_type' => class_basename($e),
+            ]);
+            
+            throw $e;
+        }
+    }
+}
+
+// Expose metrics endpoint for Prometheus scraping
+// routes/web.php
+Route::get('/metrics', function (MetricsService $metrics) {
+    $renderer = new \Prometheus\RenderTextFormat();
+    return response(
+        $renderer->render($metrics->registry->getMetricFamilySamples()),
+        200,
+        ['Content-Type' => \Prometheus\RenderTextFormat::MIME_TYPE]
+    );
+})->middleware('auth:sanctum'); // Secure with authentication
+```
+
+**Key Metrics to Track:**
+
+```yaml
+# Application Metrics
+app_invoices_created_total{status, client_id}
+app_invoice_generation_duration_seconds{client_id}
+app_events_processed_total{event_type, status}
+app_event_processing_duration_seconds{event_type}
+app_api_requests_total{endpoint, method, status_code}
+app_api_request_duration_seconds{endpoint, method}
+
+# Queue Metrics (Laravel Horizon provides these)
+queue_jobs_processed_total{queue, status}
+queue_jobs_pending{queue}
+queue_wait_time_seconds{queue}
+queue_processing_time_seconds{queue}
+
+# Database Metrics
+db_query_duration_seconds{query_type}
+db_connections_active
+db_slow_queries_total
+
+# External API Metrics
+external_api_requests_total{service, status}
+external_api_request_duration_seconds{service}
+circuit_breaker_state{service}
+circuit_breaker_trips_total{service}
+```
+
+**3. Traces (Distributed Tracing)**
+
+```php
+// composer require sentry/sentry-laravel
+// config/sentry.php
+'dsn' => env('SENTRY_LARAVEL_DSN'),
+'traces_sample_rate' => env('SENTRY_TRACES_SAMPLE_RATE', 0.1),
+'profiles_sample_rate' => env('SENTRY_PROFILES_SAMPLE_RATE', 0.1),
+
+// Custom transaction tracking
+use Sentry\Tracing\TransactionContext;
+use function Sentry\startTransaction;
+
+class InvoiceGenerator
+{
+    public function generate(int $clientId): Invoice
+    {
+        $transaction = startTransaction(
+            new TransactionContext('invoice.generation', 'task')
+        );
+        $transaction->setTag('client_id', $clientId);
+        
+        try {
+            // Span 1: Load entitlements
+            $span1 = $transaction->startChild([
+                'op' => 'db.query',
+                'description' => 'Load client entitlements',
+            ]);
+            $entitlements = $this->loadEntitlements($clientId);
+            $span1->finish();
+            
+            // Span 2: Calculate line items
+            $span2 = $transaction->startChild([
+                'op' => 'calculation',
+                'description' => 'Calculate invoice line items',
+            ]);
+            $lineItems = $this->calculateLineItems($entitlements);
+            $span2->finish();
+            
+            // Span 3: Create invoice
+            $span3 = $transaction->startChild([
+                'op' => 'db.transaction',
+                'description' => 'Create invoice record',
+            ]);
+            $invoice = $this->createInvoice($clientId, $lineItems);
+            $span3->finish();
+            
+            $transaction->finish();
+            return $invoice;
+            
+        } catch (\Exception $e) {
+            $transaction->setStatus('internal_error');
+            $transaction->finish();
+            throw $e;
+        }
+    }
+}
+```
+
+---
+
+### 15.2 Error Tracking (Sentry)
+
+**Production Setup:**
+
+```bash
+composer require sentry/sentry-laravel
+php artisan sentry:publish --dsn=YOUR_SENTRY_DSN
+```
+
+```php
+// config/sentry.php
+return [
+    'dsn' => env('SENTRY_LARAVEL_DSN'),
+    'environment' => env('APP_ENV', 'production'),
+    'release' => env('APP_VERSION', '1.0.0'),
+    
+    'breadcrumbs' => [
+        'logs' => true,
+        'cache' => true,
+        'livewire' => true,
+        'sql_queries' => true,
+        'sql_bindings' => true,
+    ],
+    
+    'send_default_pii' => false, // Don't send PII by default
+    
+    'traces_sample_rate' => env('SENTRY_TRACES_SAMPLE_RATE', 0.2),
+    
+    'profiles_sample_rate' => env('SENTRY_PROFILES_SAMPLE_RATE', 0.2),
+    
+    'before_send' => function (\Sentry\Event $event): ?\Sentry\Event {
+        // Scrub sensitive data
+        if ($user = $event->getUser()) {
+            $user->setEmail(null);
+            $user->setIpAddress(null);
+        }
+        return $event;
+    },
+];
+
+// Usage: Automatic exception catching + custom context
+use Sentry\Laravel\Integration;
+use function Sentry\captureException;
+use function Sentry\configureScope;
+
+try {
+    $invoice = $this->billingService->generate($clientId);
+} catch (InsufficientCreditException $e) {
+    configureScope(function (\Sentry\State\Scope $scope) use ($clientId) {
+        $scope->setTag('client_id', $clientId);
+        $scope->setContext('billing', [
+            'balance_cents' => $this->creditService->getBalance($clientId),
+            'invoice_total_cents' => $e->requiredAmount,
+        ]);
+    });
+    
+    captureException($e);
+    throw $e;
+}
+```
+
+**Alerting Rules:**
+
+```yaml
+# Sentry Alert Rules (configure in Sentry dashboard)
+High Priority:
+  - Invoice generation failures > 10 in 5 minutes
+  - Payment processing errors > 5 in 5 minutes
+  - Database connection errors > 3 in 1 minute
+  - Circuit breaker trips
+
+Medium Priority:
+  - Slow transactions (p95 > 2 seconds) > 100 in 15 minutes
+  - Queue worker failures > 20 in 10 minutes
+  - External API timeouts > 10 in 5 minutes
+
+Low Priority:
+  - Deprecation warnings
+  - Cache misses > 50% over 1 hour
+```
+
+---
+
+### 15.3 Application Performance Monitoring (APM)
+
+**Laravel Telescope (Development):**
+
+```bash
+composer require laravel/telescope --dev
+php artisan telescope:install
+php artisan migrate
+```
+
+```php
+// config/telescope.php
+'enabled' => env('TELESCOPE_ENABLED', false),
+'path' => env('TELESCOPE_PATH', 'telescope'),
+
+'watchers' => [
+    Watchers\QueryWatcher::class => env('TELESCOPE_QUERY_WATCHER', true),
+    Watchers\EventWatcher::class => env('TELESCOPE_EVENT_WATCHER', true),
+    Watchers\JobWatcher::class => env('TELESCOPE_JOB_WATCHER', true),
+    Watchers\CacheWatcher::class => env('TELESCOPE_CACHE_WATCHER', true),
+],
+
+// .env
+TELESCOPE_ENABLED=true
+TELESCOPE_QUERY_WATCHER=true
+```
+
+**Laravel Horizon (Queue Monitoring):**
+
+```bash
+composer require laravel/horizon
+php artisan horizon:install
+```
+
+```php
+// config/horizon.php
+'environments' => [
+    'production' => [
+        'supervisor-1' => [
+            'connection' => 'redis',
+            'queue' => ['billing'],
+            'balance' => 'auto',
+            'minProcesses' => 10,
+            'maxProcesses' => 50,
+            'tries' => 3,
+            'timeout' => 300,
+        ],
+        'supervisor-2' => [
+            'connection' => 'redis',
+            'queue' => ['default'],
+            'balance' => 'auto',
+            'minProcesses' => 20,
+            'maxProcesses' => 100,
+            'tries' => 3,
+            'timeout' => 180,
+        ],
+    ],
+],
+```
+
+---
+
+### 15.4 Health Checks & Monitoring Endpoints
+
+```php
+// routes/web.php
+Route::get('/health', [HealthCheckController::class, 'check']);
+Route::get('/health/detailed', [HealthCheckController::class, 'detailed'])
+    ->middleware('auth:sanctum');
+
+// app/Http/Controllers/HealthCheckController.php
+namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache;
+
+class HealthCheckController extends Controller
+{
+    public function check()
+    {
+        // Basic health check (used by load balancer)
+        try {
+            DB::connection()->getPdo();
+            return response()->json(['status' => 'ok'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error'], 503);
+        }
+    }
+    
+    public function detailed()
+    {
+        $checks = [
+            'database' => $this->checkDatabase(),
+            'redis' => $this->checkRedis(),
+            'queue' => $this->checkQueue(),
+            'storage' => $this->checkStorage(),
+            'external_apis' => $this->checkExternalApis(),
+        ];
+        
+        $overallStatus = collect($checks)
+            ->every(fn($check) => $check['status'] === 'ok') ? 'healthy' : 'degraded';
+        
+        return response()->json([
+            'status' => $overallStatus,
+            'timestamp' => now()->toIso8601String(),
+            'checks' => $checks,
+        ], $overallStatus === 'healthy' ? 200 : 503);
+    }
+    
+    private function checkDatabase(): array
+    {
+        try {
+            $start = microtime(true);
+            DB::select('SELECT 1');
+            $duration = (microtime(true) - $start) * 1000;
+            
+            return [
+                'status' => 'ok',
+                'response_time_ms' => round($duration, 2),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+    
+    private function checkRedis(): array
+    {
+        try {
+            $start = microtime(true);
+            Redis::ping();
+            $duration = (microtime(true) - $start) * 1000;
+            
+            return [
+                'status' => 'ok',
+                'response_time_ms' => round($duration, 2),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+    
+    private function checkQueue(): array
+    {
+        try {
+            $pending = DB::table('jobs')->count();
+            $failed = DB::table('failed_jobs')
+                ->where('failed_at', '>', now()->subHour())
+                ->count();
+            
+            return [
+                'status' => $pending < 10000 ? 'ok' : 'warning',
+                'pending_jobs' => $pending,
+                'failed_jobs_last_hour' => $failed,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+    
+    private function checkStorage(): array
+    {
+        try {
+            $disk = disk_free_space(storage_path());
+            $total = disk_total_space(storage_path());
+            $used = $total - $disk;
+            $percentage = round(($used / $total) * 100, 2);
+            
+            return [
+                'status' => $percentage < 90 ? 'ok' : 'warning',
+                'used_percentage' => $percentage,
+                'free_gb' => round($disk / 1024 / 1024 / 1024, 2),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+    
+    private function checkExternalApis(): array
+    {
+        $apis = [];
+        
+        // Check circuit breakers
+        if (class_exists('\App\Services\CircuitBreaker')) {
+            $breaker = app('\App\Services\CircuitBreaker');
+            
+            foreach (['google_workspace', 'action1', 'helcim'] as $service) {
+                $state = Cache::get("circuit_breaker:{$service}:state", 'closed');
+                $apis[$service] = [
+                    'status' => $state === 'open' ? 'degraded' : 'ok',
+                    'circuit_breaker_state' => $state,
+                ];
+            }
+        }
+        
+        return [
+            'status' => collect($apis)->every(fn($api) => $api['status'] === 'ok') ? 'ok' : 'degraded',
+            'services' => $apis,
+        ];
+    }
+}
+```
+
+---
+
+## 16. Transaction Management Guidelines
+
+### 16.1 When to Use Database Transactions
+
+**Rule:** Use transactions for operations that MUST succeed or fail atomically.
+
+**Transaction Checklist:**
+
+✅ **Use transactions when:**
+- Multiple database writes that must be consistent (e.g., invoice + line items)
+- Financial operations (payments, credits, refunds)
+- Counter increments with validation logic
+- Creating auditable operations (action + audit log entry)
+- Race condition prevention (with `lockForUpdate()`)
+
+❌ **Do NOT use transactions when:**
+- Single database write (already atomic)
+- External API calls involved (long locks, cannot rollback external state)
+- Reading data only (no writes)
+- Job dispatching (events should handle transactions separately)
+
+---
+
+### 16.2 Transaction Patterns
+
+**Pattern 1: Financial Atomicity**
+
+```php
+// Modules/PIB/Services/InvoiceService.php
+namespace Modules\PIB\Services;
+
+use Illuminate\Support\Facades\DB;
+
+class InvoiceService
+{
+    public function markAsPaid(Invoice $invoice, Transaction $payment): void
+    {
+        DB::transaction(function () use ($invoice, $payment) {
+            // 1. Update invoice status
+            $invoice->update([
+                'status' => 'paid',
+                'paid_at' => now(),
+                'payment_transaction_id' => $payment->id,
+            ]);
+            
+            // 2. Update client credit (if applicable)
+            if ($payment->amount_cents > $invoice->total_cents) {
+                $creditAmount = $payment->amount_cents - $invoice->total_cents;
+                $this->creditService->addCredit(
+                    $invoice->client_id,
+                    $creditAmount,
+                    "Overpayment on Invoice #{$invoice->number}"
+                );
+            }
+            
+            // 3. Create audit log
+            DB::table('invoice_audit_log')->insert([
+                'invoice_id' => $invoice->id,
+                'action' => 'marked_paid',
+                'user_id' => auth()->id(),
+                'metadata' => json_encode(['payment_id' => $payment->id]),
+                'created_at' => now(),
+            ]);
+            
+            // 4. Dispatch event (will commit after transaction)
+            event(new InvoicePaid($invoice, $payment));
+        });
+    }
+}
+```
+
+**Pattern 2: Idempotent Event Handler with Transaction**
+
+```php
+// app/Listeners/IdempotentListener.php
+abstract class IdempotentListener
+{
+    public function handle($event): void
+    {
+        DB::transaction(function () use ($event) {
+            // Check if already processed
+            if (DB::table('processed_events')
+                ->where('event_id', $event->eventId)
+                ->where('handler_class', static::class)
+                ->exists()) {
+                return; // Skip duplicate
+            }
+            
+            // Process the event
+            $this->handleIdempotent($event);
+            
+            // Mark as processed (same transaction)
+            DB::table('processed_events')->insert([
+                'event_id' => $event->eventId,
+                'handler_class' => static::class,
+                'processed_at' => now(),
+            ]);
+        });
+    }
+    
+    abstract protected function handleIdempotent($event): void;
+}
+```
+
+**Pattern 3: Atomic Counter with Business Logic**
+
+```php
+// app/Services/AtomicCounterService.php
+namespace App\Services;
+
+use Illuminate\Support\Facades\DB;
+
+class AtomicCounterService
+{
+    public function increment(
+        string $table,
+        array $where,
+        string $column,
+        int $amount = 1,
+        ?callable $validator = null
+    ): int {
+        return DB::transaction(function () use ($table, $where, $column, $amount, $validator) {
+            // 1. Lock the row
+            $row = DB::table($table)
+                ->where($where)
+                ->lockForUpdate()
+                ->first();
+            
+            $currentValue = $row->$column ?? 0;
+            $newValue = $currentValue + $amount;
+            
+            // 2. Optional validation (e.g., cannot go negative)
+            if ($validator && !$validator($currentValue, $newValue)) {
+                throw new \InvalidArgumentException(
+                    "Counter validation failed: {$currentValue} + {$amount} = {$newValue}"
+                );
+            }
+            
+            // 3. Update the counter
+            DB::table($table)
+                ->where($where)
+                ->update([$column => $newValue]);
+            
+            return $newValue;
+        });
+    }
+}
+```
+
+**Pattern 4: Compensating Transaction (Saga Pattern Lite)**
+
+```php
+// For operations that span multiple bounded contexts
+class OrderFulfillmentSaga
+{
+    public function fulfill(Order $order): void
+    {
+        $state = [];
+        
+        try {
+            // Step 1: Reserve inventory (transactional)
+            DB::transaction(function () use ($order, &$state) {
+                $state['inventory_reserved'] = $this->inventoryService->reserve($order);
+            });
+            
+            // Step 2: Charge payment (external API - not in transaction)
+            $state['payment_charged'] = $this->paymentGateway->charge($order);
+            
+            // Step 3: Create shipment (transactional)
+            DB::transaction(function () use ($order, &$state) {
+                $state['shipment_created'] = $this->shippingService->createShipment($order);
+            });
+            
+        } catch (\Exception $e) {
+            // Compensate: Undo completed steps
+            $this->compensate($state);
+            throw $e;
+        }
+    }
+    
+    private function compensate(array $state): void
+    {
+        if ($state['shipment_created'] ?? false) {
+            DB::transaction(fn() => $this->shippingService->cancelShipment($state['shipment_created']));
+        }
+        
+        if ($state['payment_charged'] ?? false) {
+            $this->paymentGateway->refund($state['payment_charged']);
+        }
+        
+        if ($state['inventory_reserved'] ?? false) {
+            DB::transaction(fn() => $this->inventoryService->release($state['inventory_reserved']));
+        }
+    }
+}
+```
+
+---
+
+### 16.3 Transaction Anti-Patterns
+
+**❌ Anti-Pattern 1: Transaction Spanning External API**
+
+```php
+// ❌ WRONG: API call inside transaction (long lock)
+DB::transaction(function () use ($invoice) {
+    $invoice = Invoice::create([...]);
+    
+    // External API call - could take 5+ seconds
+    $helcimResponse = Http::timeout(30)
+        ->post('https://api.helcim.com/charge', [...]);
+    
+    $invoice->update(['status' => 'paid']);
+});
+
+// ✅ CORRECT: API call outside, atomic update inside
+$invoice = Invoice::create([...]);
+
+$helcimResponse = Http::timeout(30)
+    ->post('https://api.helcim.com/charge', [...]);
+
+if ($helcimResponse->successful()) {
+    DB::transaction(function () use ($invoice, $helcimResponse) {
+        $invoice->update(['status' => 'paid']);
+        // Record payment...
+    });
+}
+```
+
+**❌ Anti-Pattern 2: Nested Transactions Without Savepoints**
+
+```php
+// ❌ WRONG: Nested transactions (Laravel doesn't support true nested transactions)
+DB::transaction(function () {
+    Client::create([...]);
+    
+    DB::transaction(function () { // This is NOT a true nested transaction!
+        Contact::create([...]);
+        throw new \Exception(); // This rolls back EVERYTHING
+    });
+});
+
+// ✅ CORRECT: Use a single transaction or separate transactions
+DB::transaction(function () {
+    $client = Client::create([...]);
+    $contact = Contact::create(['client_id' => $client->id, ...]);
+});
+```
+
+**❌ Anti-Pattern 3: Forgetting to Handle Deadlocks**
+
+```php
+// ❌ WRONG: No deadlock retry logic
+DB::transaction(function () {
+    // Update in non-deterministic order (can cause deadlocks)
+    foreach ($ids as $id) {
+        DB::table('counters')->where('id', $id)->increment('count');
+    }
+});
+
+// ✅ CORRECT: Retry on deadlock + deterministic order
+$maxRetries = 3;
+$attempt = 0;
+
+while ($attempt < $maxRetries) {
+    try {
+        DB::transaction(function () use ($ids) {
+            // Sort IDs to ensure deterministic lock order
+            sort($ids);
+            
+            foreach ($ids as $id) {
+                DB::table('counters')->where('id', $id)->increment('count');
+            }
+        });
+        
+        break; // Success
+        
+    } catch (\Illuminate\Database\QueryException $e) {
+        if ($e->getCode() === '40001' && $attempt < $maxRetries - 1) {
+            $attempt++;
+            usleep(rand(100000, 500000)); // Random backoff 100-500ms
+        } else {
+            throw $e;
+        }
+    }
+}
+```
+
+---
+
+## 17. Disaster Recovery & Business Continuity
+
+### 17.1 Recovery Objectives
+
+**Recovery Time Objective (RTO):** 4 hours  
+**Recovery Point Objective (RPO):** 15 minutes
+
+**SLA Breakdown:**
+
+| Priority | Service | RTO | RPO |
+|----------|---------|-----|-----|
+| P0 Critical | Client Portal, Ticketing | 4 hours | 15 min |
+| P1 High | Billing, Invoicing | 8 hours | 1 hour |
+| P2 Medium | Reporting, Analytics | 24 hours | 4 hours |
+| P3 Low | Asset Sync, Knowledge Base | 48 hours | 24 hours |
+
+---
+
+### 17.2 Backup Strategy
+
+**Database Backups:**
+
+```bash
+#!/bin/bash
+# scripts/backup-database.sh
+
+BACKUP_DIR="/backups/mysql"
+DATE=$(date +%Y%m%d_%H%M%S)
+DB_NAME="freescout"
+RETENTION_DAYS=30
+
+# 1. Full backup (daily at 2 AM UTC)
+mysqldump \
+  --single-transaction \
+  --routines \
+  --triggers \
+  --events \
+  --master-data=2 \
+  -h ${DB_HOST} \
+  -u ${DB_USER} \
+  -p${DB_PASSWORD} \
+  ${DB_NAME} | gzip > ${BACKUP_DIR}/full_${DATE}.sql.gz
+
+# 2. Upload to S3 for offsite storage
+aws s3 cp ${BACKUP_DIR}/full_${DATE}.sql.gz \
+  s3://company-backups/freescout/database/ \
+  --storage-class STANDARD_IA
+
+# 3. Cleanup old backups
+find ${BACKUP_DIR} -name "full_*.sql.gz" -mtime +${RETENTION_DAYS} -delete
+
+# 4. Verify backup integrity
+gunzip < ${BACKUP_DIR}/full_${DATE}.sql.gz | head -n 5
+if [ $? -eq 0 ]; then
+  echo "✅ Backup verified: ${BACKUP_DIR}/full_${DATE}.sql.gz"
+else
+  echo "❌ Backup verification failed!"
+  # Send alert to Slack/PagerDuty
+fi
+```
+
+**Incremental Backups (Binary Logs):**
+
+```bash
+#!/bin/bash
+# scripts/backup-binlogs.sh
+# Run every 15 minutes via cron
+
+BINLOG_DIR="/backups/mysql/binlogs"
+DATE=$(date +%Y%m%d)
+
+# Flush logs to create new binlog file
+mysql -h ${DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} -e "FLUSH BINARY LOGS;"
+
+# Copy all binlogs to backup location
+for binlog in $(mysql -h ${DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} -N -e "SHOW BINARY LOGS" | awk '{print $1}' | head -n -1); do
+  if [ ! -f "${BINLOG_DIR}/${binlog}" ]; then
+    mysqlbinlog --read-from-remote-server \
+      -h ${DB_HOST} \
+      -u ${DB_USER} \
+      -p${DB_PASSWORD} \
+      ${binlog} > ${BINLOG_DIR}/${binlog}
+    
+    aws s3 cp ${BINLOG_DIR}/${binlog} \
+      s3://company-backups/freescout/binlogs/${DATE}/
+  fi
+done
+```
+
+**File Storage Backups:**
+
+```bash
+#!/bin/bash
+# scripts/backup-storage.sh
+
+STORAGE_DIR="/var/www/html/storage/app"
+BACKUP_DIR="/backups/storage"
+DATE=$(date +%Y%m%d)
+
+# Incremental backup using rsync
+rsync -av --delete \
+  --backup --backup-dir=${BACKUP_DIR}/incremental_${DATE} \
+  ${STORAGE_DIR}/ \
+  ${BACKUP_DIR}/current/
+
+# Upload to S3
+aws s3 sync ${BACKUP_DIR}/current/ \
+  s3://company-backups/freescout/storage/ \
+  --delete
+```
+
+**Backup Schedule:**
+
+```cron
+# /etc/cron.d/freescout-backups
+
+# Full database backup (daily 2 AM UTC)
+0 2 * * * root /var/www/html/scripts/backup-database.sh >> /var/log/backups.log 2>&1
+
+# Incremental binlog backup (every 15 minutes)
+*/15 * * * * root /var/www/html/scripts/backup-binlogs.sh >> /var/log/backups.log 2>&1
+
+# Storage backup (daily 3 AM UTC)
+0 3 * * * root /var/www/html/scripts/backup-storage.sh >> /var/log/backups.log 2>&1
+
+# Backup verification (daily 4 AM UTC)
+0 4 * * * root /var/www/html/scripts/verify-backups.sh >> /var/log/backups.log 2>&1
+```
+
+---
+
+### 17.3 Recovery Procedures
+
+**Scenario 1: Database Corruption (Point-in-Time Recovery)**
+
+```bash
+#!/bin/bash
+# scripts/restore-database.sh
+
+RESTORE_TO_TIMESTAMP="2026-02-08 14:30:00"  # Specify desired point-in-time
+LATEST_FULL_BACKUP="/backups/mysql/full_20260208_020000.sql.gz"
+BINLOG_DIR="/backups/mysql/binlogs/20260208"
+
+echo "⚠️  Starting database recovery to ${RESTORE_TO_TIMESTAMP}"
+
+# 1. Stop application servers
+echo "1. Stopping application..."
+systemctl stop php-fpm nginx
+
+# 2. Restore full backup
+echo "2. Restoring full backup: ${LATEST_FULL_BACKUP}"
+gunzip < ${LATEST_FULL_BACKUP} | mysql -h ${DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} ${DB_NAME}
+
+# 3. Apply incremental changes from binlogs up to restore point
+echo "3. Applying binlogs up to ${RESTORE_TO_TIMESTAMP}"
+for binlog in $(ls -1 ${BINLOG_DIR}/mysql-bin.* | sort); do
+  echo "   Applying: ${binlog}"
+  mysqlbinlog --stop-datetime="${RESTORE_TO_TIMESTAMP}" ${binlog} | \
+    mysql -h ${DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} ${DB_NAME}
+done
+
+# 4. Verify data integrity
+echo "4. Verifying data integrity..."
+mysql -h ${DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} ${DB_NAME} -e "SELECT COUNT(*) FROM clients; SELECT COUNT(*) FROM invoices;"
+
+# 5. Clear application cache
+echo "5. Clearing application cache..."
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+
+# 6. Restart application
+echo "6. Restarting application..."
+systemctl start php-fpm nginx
+
+echo "✅ Database recovery complete!"
+```
+
+**Scenario 2: Total Server Failure (Rebuild from Backups)**
+
+```bash
+#!/bin/bash
+# scripts/rebuild-from-backups.sh
+
+echo "🔴 DISASTER RECOVERY: Rebuilding server from backups"
+
+# 1. Provision new server (using IaC - Terraform/Ansible)
+echo "1. Provisioning new server..."
+# terraform apply -auto-approve
+
+# 2. Install dependencies
+echo "2. Installing dependencies..."
+apt-get update && apt-get install -y \
+  nginx php8.3-fpm php8.3-mysql php8.3-redis mysql-client redis-tools
+
+# 3. Clone application code
+echo "3. Cloning application repository..."
+git clone git@github.com:company/freescout.git /var/www/html
+cd /var/www/html
+composer install --no-dev --optimize-autoloader
+
+# 4. Restore database from S3
+echo "4. Restoring database from S3..."
+aws s3 cp s3://company-backups/freescout/database/full_20260208_020000.sql.gz /tmp/
+gunzip < /tmp/full_20260208_020000.sql.gz | mysql -h ${DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} ${DB_NAME}
+
+# 5. Restore storage files from S3
+echo "5. Restoring storage files from S3..."
+aws s3 sync s3://company-backups/freescout/storage/ /var/www/html/storage/app/
+
+# 6. Configure environment
+echo "6. Configuring environment..."
+cp .env.production .env
+php artisan key:generate
+php artisan config:cache
+php artisan route:cache
+
+# 7. Start services
+echo "7. Starting services..."
+systemctl start php-fpm nginx mysql redis
+systemctl enable php-fpm nginx mysql redis
+
+# 8. Start queue workers
+echo "8. Starting queue workers..."
+php artisan horizon:terminate
+php artisan horizon &
+
+# 9. Smoke tests
+echo "9. Running smoke tests..."
+curl -f http://localhost/health || exit 1
+php artisan migrate:status
+
+echo "✅ Server rebuild complete! Please verify functionality."
+```
+
+---
+
+### 17.4 Business Continuity Plan
+
+**Incident Response Procedure:**
+
+1. **Detection (0-5 minutes)**
+   - Monitor alerts (Sentry, Prometheus, health checks)
+   - Validate incident severity (P0-P3)
+   - Create incident ticket in tracking system
+
+2. **Notification (5-10 minutes)**
+   - Alert on-call engineer (PagerDuty)
+   - Notify stakeholders (Slack #incidents channel)
+   - Update status page (status.company.com)
+
+3. **Assessment (10-20 minutes)**
+   - Determine root cause
+   - Estimate impact (users affected, data loss)
+   - Decide on recovery strategy
+
+4. **Recovery (20 minutes - 4 hours)**
+   - Execute recovery procedures
+   - Validate data integrity
+   - Run smoke tests
+
+5. **Communication (Throughout)**
+   - Update stakeholders every 30 minutes
+   - Post-incident report within 24 hours
+
+**Failover Procedures:**
+
+```yaml
+Primary Region Failure:
+  1. DNS failover to secondary region (automatic - Route53 health checks)
+  2. Promote read replica to primary (manual)
+  3. Update application config to point to new primary
+  4. Verify data replication lag (should be < 5 seconds)
+  5. Monitor for cascading failures
+
+Database Primary Failure:
+  1. Automatic failover to replica (MySQL replication)
+  2. Update application connection string
+  3. Verify write operations working
+  4. Promote new replica to replace failed primary
+
+Redis Cluster Failure:
+  1. Redis Sentinel automatic failover
+  2. Application auto-reconnects
+  3. Verify session persistence
+  4. Check queue processing resumes
+```
+
+---
+
+## 18. API Standards & Versioning
+
+### 18.1 API Versioning Strategy
+
+**Approach:** URL-based versioning (simple, explicit, cacheable)
+
+```php
+// routes/api.php
+use Illuminate\Support\Facades\Route;
+
+// API Version 1
+Route::prefix('api/v1')->middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+    Route::get('/clients', [\App\Http\Controllers\Api\V1\ClientController::class, 'index']);
+    Route::get('/clients/{id}', [\App\Http\Controllers\Api\V1\ClientController::class, 'show']);
+    Route::post('/clients', [\App\Http\Controllers\Api\V1\ClientController::class, 'store']);
+    
+    Route::get('/invoices', [\App\Http\Controllers\Api\V1\InvoiceController::class, 'index']);
+    Route::get('/invoices/{id}', [\App\Http\Controllers\Api\V1\InvoiceController::class, 'show']);
+});
+
+// API Version 2 (with breaking changes)
+Route::prefix('api/v2')->middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+    Route::get('/clients', [\App\Http\Controllers\Api\V2\ClientController::class, 'index']);
+    Route::get('/clients/{id}', [\App\Http\Controllers\Api\V2\ClientController::class, 'show']);
+    
+    // New endpoints in v2
+    Route::get('/clients/{id}/billing-summary', [\App\Http\Controllers\Api\V2\ClientController::class, 'billingSummary']);
+});
+```
+
+---
+
+### 18.2 API Compatibility Policy
+
+**Version Support:**
+- **Current version (v2):** Fully supported, receives new features
+- **Previous version (v1):** Supported for 12 months, bug fixes only
+- **Deprecated versions:** 90-day sunset notice before removal
+
+**Breaking Changes (require new version):**
+```yaml
+Breaking:
+  - Removing or renaming response fields
+  - Changing field data types (string → integer)
+  - Making optional fields required
+  - Removing endpoints
+  - Changing HTTP status codes
+  - Changing authentication mechanism
+
+Non-Breaking:
+  - Adding new optional fields to requests
+  - Adding new fields to responses
+  - Adding new endpoints
+  - Adding new optional query parameters
+  - Fixing bugs that don't affect contract
+```
+
+**Deprecation Headers:**
+
+```php
+// app/Http/Controllers/Api/V1/BaseController.php
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+
+abstract class BaseController extends Controller
+{
+    public function __construct()
+    {
+        // Add deprecation warning to all v1 responses
+        $this->middleware(function ($request, $next) {
+            $response = $next($request);
+            
+            $response->headers->add([
+                'X-API-Deprecated' => 'true',
+                'X-API-Deprecation-Date' => '2026-12-31',
+                'X-API-Deprecation-Info' => 'https://docs.company.com/api/v1-sunset',
+                'X-API-Current-Version' => 'v2',
+            ]);
+            
+            return $response;
+        });
+    }
+}
+```
+
+---
+
+### 18.3 API Response Standards
+
+**Success Response Format:**
+
+```json
+{
+  "data": {
+    "id": 123,
+    "name": "Acme Corp",
+    "email": "billing@acmecorp.com"
+  },
+  "meta": {
+    "timestamp": "2026-02-08T14:30:00Z",
+    "version": "v2"
+  }
+}
+```
+
+**Paginated Response Format:**
+
+```json
+{
+  "data": [
+    {"id": 1, "name": "Client A"},
+    {"id": 2, "name": "Client B"}
+  ],
+  "meta": {
+    "current_page": 1,
+    "per_page": 20,
+    "total": 150,
+    "last_page": 8
+  },
+  "links": {
+    "first": "https://api.company.com/v2/clients?page=1",
+    "last": "https://api.company.com/v2/clients?page=8",
+    "prev": null,
+    "next": "https://api.company.com/v2/clients?page=2"
+  }
+}
+```
+
+**Error Response Format:**
+
+```json
+{
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "The email field is required.",
+    "details": {
+      "email": ["The email field is required."]
+    }
+  },
+  "meta": {
+    "timestamp": "2026-02-08T14:30:00Z",
+    "request_id": "req_abc123xyz"
+  }
+}
+```
+
+**Standard Error Codes:**
+
+```php
+// app/Enums/ApiErrorCode.php
+namespace App\Enums;
+
+enum ApiErrorCode: string
+{
+    case INVALID_REQUEST = 'INVALID_REQUEST';          // 400
+    case AUTHENTICATION_FAILED = 'AUTH_FAILED';        // 401
+    case PERMISSION_DENIED = 'PERMISSION_DENIED';      // 403
+    case RESOURCE_NOT_FOUND = 'NOT_FOUND';             // 404
+    case RATE_LIMIT_EXCEEDED = 'RATE_LIMIT';           // 429
+    case INTERNAL_ERROR = 'INTERNAL_ERROR';            // 500
+    case SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE';  // 503
+}
+```
+
+---
+
+### 18.4 API Authentication
+
+**Laravel Sanctum (Recommended):**
+
+```php
+// config/sanctum.php
+'expiration' => 60 * 24 * 7, // 7 days
+
+'middleware' => [
+    'verify_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,
+    'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
+],
+
+// Token generation
+use Laravel\Sanctum\HasApiTokens;
+
+class User extends Authenticatable
+{
+    use HasApiTokens;
+}
+
+// Generate token with scopes
+$token = $user->createToken('api-access', ['read:clients', 'write:invoices']);
+
+return response()->json([
+    'token' => $token->plainTextToken,
+    'expires_at' => now()->addDays(7)->toIso8601String(),
+]);
+
+// Protect routes with scopes
+Route::middleware(['auth:sanctum', 'abilities:read:clients'])->group(function () {
+    Route::get('/clients', [ClientController::class, 'index']);
+});
+```
+
+**Rate Limiting:**
+
+```php
+// routes/api.php
+Route::middleware('throttle:api')->group(function () {
+    // Default: 60 requests per minute
+});
+
+Route::middleware('throttle:strict')->group(function () {
+    // Strict: 10 requests per minute for expensive operations
+    Route::post('/invoices/generate-bulk', [InvoiceController::class, 'generateBulk']);
+});
+
+// config/rate-limiters.php (custom limiter)
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+
+RateLimiter::for('api', function (Request $request) {
+    return $request->user()
+        ? Limit::perMinute(100)->by($request->user()->id)
+        : Limit::perMinute(20)->by($request->ip());
+});
+```
+
+---
+
+### 18.5 API Documentation (OpenAPI/Swagger)
+
+```bash
+composer require darkaonline/l5-swagger
+php artisan l5-swagger:generate
+```
+
+```php
+// app/Http/Controllers/Api/V2/ClientController.php
+
+/**
+ * @OA\Info(
+ *     title="FreeScout API",
+ *     version="2.0",
+ *     description="MSP Management Platform API"
+ * )
+ *
+ * @OA\Server(
+ *     url="https://api.company.com",
+ *     description="Production API"
+ * )
+ *
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="Bearer"
+ * )
+ */
+
+class ClientController extends Controller
+{
+    /**
+     * @OA\Get(
+     *     path="/api/v2/clients",
+     *     summary="List all clients",
+     *     tags={"Clients"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Client")),
+     *             @OA\Property(property="meta", ref="#/components/schemas/PaginationMeta")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
+     */
+    public function index(Request $request)
+    {
+        // Implementation...
+    }
+}
+```
+
+---
+
+## 19. Case Study: Credit System Migration (CRM → PIB)
 
 This case study demonstrates proper application of Core Blindness, data ownership, and cross-module access patterns.
 
@@ -8733,8 +12247,15 @@ ALTER TABLE processed_events DROP COLUMN event_payload; -- Payload optimization 
 ALTER TABLE processed_events ADD COLUMN event_signature CHAR(64); -- Event deduplication (Section 13.2)
 ```
 
-**Architecture Complete:** 11 ADRs, 6 critical refinements, 15-week roadmap. Ready for Phase 0 implementation.
-- Add PHPUnit test suite: `Architecture` (Section 13.3)
+**Architecture ComFebruary 8, 2026  
+**Version:** 4.5
+
+**Version History:**
+- **v4.5** (Feb 8, 2026): Added comprehensive sections on Performance & Scalability, Observability & Monitoring, Transaction Management, Disaster Recovery, and API Standards
+- **v4.4** (Feb 8, 2026): Updated module statuses, added implementation status tracking
+- **v4.3** (Jan 27, 2026): Enhanced MODULE_COMMUNICATION_AUDIT with event flows
+- **v4.2** (Jan 20, 2026): Extracted billing fields from CRM to PIB
+- **v4.1** (Jan 15, 2026): Added Case Study: Credit System Migration, Controller Organization Patterns
 - Add GitHub Actions workflow step: `Component Audit` (Section 13.3)
 
 ---

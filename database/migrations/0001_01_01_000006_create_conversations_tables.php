@@ -110,10 +110,30 @@ return new class extends Migration
             $table->index('conversation_id');
             $table->index('message_id');
         });
+
+        // Conversation followers (pivot table)
+        Schema::create('followers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+            
+            $table->unique(['conversation_id', 'user_id']);
+        });
+
+        // Starred conversations
+        Schema::create('conversation_user_stars', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->unique(['conversation_id', 'user_id']);
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('conversation_user_stars');
+        Schema::dropIfExists('followers');
         Schema::dropIfExists('threads');
         Schema::dropIfExists('conversations');
     }

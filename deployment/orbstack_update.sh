@@ -25,14 +25,27 @@ readonly SCRIPT_VERSION="2.0.0"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly CONFIG_FILE="${SCRIPT_DIR}/deploy.conf"
 
-# Color codes
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly CYAN='\033[0;36m'
-readonly BLUE='\033[0;34m'
-readonly MAGENTA='\033[0;35m'
-readonly NC='\033[0m'
+# Boreal Theme Colors
+readonly RED='\033[38;5;196m'        # Bright Red
+readonly GREEN='\033[38;5;46m'       # Neon Green
+readonly FOREST='\033[38;5;22m'      # Forest Green
+readonly YELLOW='\033[38;5;226m'     # Bright Yellow
+readonly CYAN='\033[38;5;51m'        # Ice Blue/Cyan
+readonly BLUE='\033[38;5;27m'        # Deep Blue
+readonly MAGENTA='\033[38;5;201m'    # Neon Pink/Magenta
+readonly WHITE='\033[38;5;231m'      # Bright White
+readonly GREY='\033[38;5;240m'       # Dark Grey
+readonly NC='\033[0m' # No Color
+
+# Theme Aliases
+readonly COLOR_PRIMARY=$CYAN
+readonly COLOR_SECONDARY=$GREEN
+readonly COLOR_ACCENT=$WHITE
+readonly COLOR_DIM=$GREY
+readonly COLOR_SUCCESS=$GREEN
+readonly COLOR_WARNING=$YELLOW
+readonly COLOR_ERROR=$RED
+
 
 #===============================================================================
 # UTILITY FUNCTIONS
@@ -43,7 +56,7 @@ log_info() {
 }
 
 log_success() {
-    echo -e "${GREEN}✓${NC} $*"
+    echo -e "${GREEN}✔${NC} $*"
 }
 
 log_warning() {
@@ -51,12 +64,31 @@ log_warning() {
 }
 
 log_error() {
-    echo -e "${RED}✗${NC} $*" >&2
+    echo -e "${RED}✖${NC} $*" >&2
 }
 
 log_step() {
     echo ""
-    echo -e "${MAGENTA}▶${NC} ${BLUE}$*${NC}"
+    echo -e "${MAGENTA}➜${NC} ${BLUE}$*${NC}"
+}
+
+show_banner() {
+    clear
+    echo -e "${FOREST}       # #### ####${NC}"
+    echo -e "${FOREST}     ### \\/#|### |/####${NC}"
+    echo -e "${FOREST}    ##\\/#/ \\||/##/_/##/_#${NC}      ${CYAN}  ____                        _ _______   _          ${NC}"
+    echo -e "${FOREST}  ###  \\/###|/ \\/ # ###${NC}        ${CYAN} |  _ \\                      | |__   __| | |        ${NC}"
+    echo -e "${FOREST} ##_\\_#\\_\\## | #/###_/_####${NC}   ${CYAN}  | |_) | ___   _ __.__  ___  | |  | |  __| | __     ${NC}"
+    echo -e "${FOREST}## #### # \\ #| /  #### ##/##${NC}    ${CYAN}|  _ < / _ \| '__/ _ \/ _ \\\`| |  | |/ _ \ |/ /     ${NC}"
+    echo -e "${FOREST} __#_--###\`  |{,###---###-~${NC}     ${CYAN}| |_) | (_) | |  | __/ (_| || |  | || __/   <        ${NC}"
+    echo -e "${FOREST}           \\ }{${NC}                 ${CYAN}|____/ \\___/|_|  \\___|\\__,_||_|  |_|\\___|_|\\_\\ ${NC}"
+    echo -e "${FOREST}            }}{${NC}"
+    echo -e "${FOREST}            }}{${NC}                     ${GREEN} T R E E S C O U T   E N T E R P R I S E     ${NC}"
+    echo -e "${FOREST}            }}{${NC}"
+    echo -e "${FOREST}      , -=-~{ .-^- _${NC}"
+    echo -e "${FOREST}            \`${NC}"
+    echo ""
+    echo -e "${COLOR_DIM}────────────────────────────────────────────────────────────────────────${NC}"
 }
 
 cleanup() {
@@ -244,6 +276,22 @@ run_migrations() {
     log_info "Checking for pending migrations..."
     docker compose exec -T app php artisan migrate --force
     
+    log_info "Running module migrations..."
+    docker compose exec -T app php artisan module:migrate --force
+    
+    log_info "Seeding KnowledgeBase content..."
+    echo '
+$modules = Module::all();
+foreach($modules as $module) {
+    if (!$module->isEnabled()) continue;
+    $seeder = "Modules\\" . $module->getName() . "\\Database\\Seeders\\KnowledgeBaseSeeder";
+    if (class_exists($seeder)) {
+        echo "Seeding " . $module->getName() . "...\n";
+        Artisan::call("db:seed", ["--class" => $seeder, "--force" => true]);
+    }
+}
+' | docker compose exec -T app php artisan tinker
+
     log_success "Migrations complete"
 }
 

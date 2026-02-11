@@ -36,8 +36,8 @@ class ConversationController extends Controller
             abort(401);
         }
 
-        // Check access to mailbox
-        if (! $user->mailboxes->contains($mailbox->id)) {
+        // Check access to mailbox (admins bypass)
+        if (! $user->isAdmin() && ! $user->mailboxes->contains($mailbox->id)) {
             abort(403);
         }
 
@@ -240,9 +240,38 @@ class ConversationController extends Controller
                 // Update conversation thread count
                 $conversation->update(['threads_count' => 1]);
 
+                // Link conversation to CRM client if client_id was provided
+                $clientId = request()->input('client_id');
+                if ($clientId && \Illuminate\Support\Facades\Schema::hasTable('client_conversations')) {
+                    \Illuminate\Support\Facades\DB::table('client_conversations')->insert([
+                        'client_id' => $clientId,
+                        'conversation_id' => $conversation->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+
+                // Store billing meta if provided
+                if (request()->has('billable') || request()->has('billable_hours') || request()->has('hourly_rate')) {
+                    $meta = $conversation->meta ?? [];
+                    $meta['is_billable'] = (bool) request()->input('billable');
+                    if (request()->filled('billable_hours')) {
+                        $meta['billable_hours'] = request()->input('billable_hours');
+                    }
+                    if (request()->filled('hourly_rate')) {
+                        $meta['billable_rate'] = request()->input('hourly_rate');
+                    }
+                    $meta['client_id'] = $clientId;
+                    $conversation->meta = $meta;
+                    $conversation->save();
+                }
+
+                $isHelpdesk = request()->is('helpdesk/*') || request()->has('client_id');
+                $message = $isHelpdesk ? 'Ticket created' : 'Conversation created successfully.';
+
                 return redirect()
                     ->route('conversations.show', $conversation)
-                    ->with('success', 'Conversation created successfully.');
+                    ->with('success', $message);
             });
         } catch (\Exception $e) {
             return back()
@@ -278,16 +307,61 @@ class ConversationController extends Controller
 
         $conversation->update($validated);
 
+        // Handle billing meta fields
+        $meta = $conversation->meta ?? [];
+        $metaChanged = false;
+        if ($request->has('is_billable')) {
+            $meta['is_billable'] = (bool) $request->input('is_billable');
+            $metaChanged = true;
+        }
+        if ($request->filled('billable_hours')) {
+            $meta['billable_hours'] = $request->input('billable_hours');
+            $metaChanged = true;
+        }
+        if ($request->filled('billable_rate')) {
+            $meta['billable_rate'] = $request->input('billable_rate');
+            $metaChanged = true;
+        }
+        if ($request->filled('resolution_notes')) {
+            $meta['resolution_notes'] = $request->input('resolution_notes');
+            $metaChanged = true;
+        }
+
+        // Dynamic success message based on status change
+        $statusText = $request->input('status_text', '');
+        if ($statusText === 'resolved') {
+            $meta['status_display'] = 'resolved';
+            $metaChanged = true;
+        } elseif ($statusText === 'closed') {
+            $meta['status_display'] = 'closed';
+            $metaChanged = true;
+        }
+
+        if ($metaChanged) {
+            $conversation->meta = $meta;
+            $conversation->save();
+        }
+
+        if ($statusText === 'closed') {
+            $message = 'Ticket closed';
+        } elseif ($statusText === 'resolved') {
+            $message = 'Ticket resolved';
+        } elseif (isset($validated['status'])) {
+            $message = 'Ticket updated';
+        } else {
+            $message = 'Ticket updated';
+        }
+
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Conversation updated successfully.',
+                'message' => $message,
             ]);
         }
 
         return redirect()
             ->route('conversations.show', $conversation)
-            ->with('success', 'Conversation updated successfully.');
+            ->with('success', $message);
     }
 
     /**
@@ -332,7 +406,7 @@ class ConversationController extends Controller
 
             return redirect()
                 ->route('conversations.show', $conversation)
-                ->with('success', 'Reply added successfully.');
+                ->with('success', 'Reply sent');
                 
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
@@ -632,7 +706,7 @@ class ConversationController extends Controller
                     /** @var \App\Models\Thread $thread */
                     $thread = Thread::findOrFail($threadId);
                     // Re-dispatch the send job
-                    \App\Jobs\SendConversationReply::dispatch($conversation, $thread);
+                    \App\Jobs\SendConversationReplyJob::dispatch($conversation, $thread);
                 }
 
                 return response()->json(['success' => true, 'message' => 'Retry queued']);
@@ -716,6 +790,11 @@ class ConversationController extends Controller
             case 'bulk_change_user':
                 $userIdVal = $request->input('user_id');
                 $newUserId = $userIdVal && is_numeric($userIdVal) ? intval($userIdVal) : null;
+
+                if ($newUserId && ! User::where('id', $newUserId)->exists()) {
+                    return response()->json(['success' => false, 'message' => 'User not found'], 400);
+                }
+
                 foreach ($conversations as $conversation) {
                     $conversation->changeUser($newUserId, $user);
                 }

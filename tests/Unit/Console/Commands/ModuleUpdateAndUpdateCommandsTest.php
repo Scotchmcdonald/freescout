@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tests\UnitTestCase;
 
 /**
@@ -31,9 +29,8 @@ use Tests\UnitTestCase;
  * - Cache management
  * - Output validation
  */
-#[RunTestsInSeparateProcesses]
-#[PreserveGlobalState(false)]
 #[Group('isolated')]
+/** @group console */
 class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
 {
 
@@ -45,9 +42,11 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         Cache::flush();
 
         // Mock ModuleSource to prevent network calls
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
-        $mockModuleSource->method('getModules')->willReturn([]);
-        $this->app->instance(\App\Services\ModuleSource::class, $mockModuleSource);
+        if (class_exists(\App\Services\ModuleSourceService::class)) {
+            $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
+            $mockModuleSource->method('getModules')->willReturn([]);
+            $this->app->instance(\App\Services\ModuleSourceService::class, $mockModuleSource);
+        }
     }
 
     protected function tearDown(): void
@@ -95,7 +94,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
 
     public function test_module_update_command_can_be_instantiated(): void
     {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
         
         $this->assertInstanceOf(ModuleUpdate::class, $command);
@@ -104,7 +103,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
 
     public function test_module_update_has_correct_signature(): void
     {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
         
         $this->assertEquals('freescout:module-update', $command->getName());
@@ -112,7 +111,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
 
     public function test_module_update_signature_has_optional_module_alias(): void
     {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
         $definition = $command->getDefinition();
         
@@ -122,7 +121,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
 
     public function test_module_update_has_description(): void
     {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
         
         $this->assertNotEmpty($command->getDescription());
@@ -131,7 +130,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
 
     public function test_module_update_has_handle_method(): void
     {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
         
         $this->assertTrue(method_exists($command, 'handle'));

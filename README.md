@@ -24,7 +24,7 @@
 - Modern frontend with Vite, Tailwind, Alpine.js
 - Authorization policies (100% complete)
 - **Automated Testing**: 
-  - Comprehensive Dusk Test Suite (Coverage Review in progress)
+  - Comprehensive Playwright E2E Test Suite (Replaced Dusk)
   - Critical workflows like "Quote-to-Cash" verified
   - Software Licensing & Atomic Counters verified
 
@@ -32,7 +32,6 @@
 
 **🚀 Active Development Plans:**
 - **[Remaining Issues Plan](docs/WIP/REMAINING_ISSUES_PLAN.md)** - Current tactical plan for resolving test failures
-- **[Dusk Test Suite Review](docs/WIP/DUSK_TEST_SUITE_REVIEW.md)** - Coverage analysis and improvements roadmap
 - **[Module Refactor Plan](docs/WIP/MODULE_DATABASE_REFACTOR_PLAN.md)** - Database schema modernization strategy
 
 **📖 Reference:**

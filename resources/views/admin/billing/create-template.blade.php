@@ -87,14 +87,14 @@
                     <h3 class="text-lg font-medium text-gray-900 border-b pb-2">Select Product Type</h3>
                     
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                        <!-- Silver Plan -->
+                        <!-- Subscription Service Plan -->
                         <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
                             <div class="flex-shrink-0">
-                                <input type="radio" name="product_type" value="silver_plan" x-model="formData.product_type" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                                <input type="radio" name="product_type" value="subscription_service_plan" x-model="formData.product_type" dusk="contract-type-service" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
                             </div>
                             <div class="flex-1 min-w-0">
                                 <span class="absolute inset-0" aria-hidden="true"></span>
-                                <p class="text-sm font-medium text-gray-900">Silver Plan</p>
+                                <p class="text-sm font-medium text-gray-900">Service Plan</p>
                                 <p class="text-xs text-gray-500 truncate">Managed Services (Base + User)</p>
                             </div>
                         </div>
@@ -102,7 +102,7 @@
                         <!-- Rent To Own -->
                         <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
                             <div class="flex-shrink-0">
-                                <input type="radio" name="product_type" value="rent_to_own" x-model="formData.product_type" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
+                                <input type="radio" name="product_type" value="rent_to_own" x-model="formData.product_type" dusk="contract-type-rent-to-own" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300">
                             </div>
                             <div class="flex-1 min-w-0">
                                 <span class="absolute inset-0" aria-hidden="true"></span>
@@ -141,7 +141,7 @@
                         </div>
                     </div>
 
-                    <div x-show="formData.product_type === 'silver_plan'" class="space-y-6">
+                    <div x-show="formData.product_type === 'subscription_service_plan'" class="space-y-6">
                          <div>
                             <label class="block text-sm font-medium text-gray-700">Base Rate ($)</label>
                             <input type="number" step="0.01" name="product_config[base_rate]" x-model="formData.config.base_rate" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
@@ -244,7 +244,7 @@
                                 return;
                             }
                         }
-                        if (this.formData.product_type === 'silver_plan') {
+                        if (this.formData.product_type === 'subscription_service_plan') {
                             if (!this.formData.config.base_rate || !this.formData.config.per_user_rate) {
                                 alert('Please complete the configuration.');
                                 return;

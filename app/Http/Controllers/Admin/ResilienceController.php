@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\CircuitBreaker;
-use App\Services\RateLimiter;
+use App\Services\CircuitBreakerService;
+use App\Services\RateLimiterService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -19,23 +19,18 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class ResilienceController extends Controller
 {
     /**
-     * Circuit Breaker Dashboard - Real-time service health monitoring.
-     * 
-     * Displays live status of external service circuit breakers:
-     * - Google API (Workspace, Directory, Admin)
-     * - Action1 RMM API
-     * - Helcim Payment Gateway
+     * Combined Resilience Dashboard - Circuit Breakers & Rate Limiters
      */
-    public function circuitBreakers(): View
+    public function index(): View
     {
-        $breaker = app(CircuitBreaker::class);
-        
-        $services = ['google_api', 'action1_api', 'helcim_api'];
+        // --- Circuit Breaker Logic ---
+        $breaker = app(CircuitBreakerService::class);
+        $cbServices = ['google_api', 'action1_api', 'helcim_api'];
         $allStates = collect($breaker->getAllStates())->keyBy('service');
-        $statusCards = [];
+        $circuitBreakerStatus = [];
         $openCircuits = 0;
 
-        foreach ($services as $service) {
+        foreach ($cbServices as $service) {
             $state = $allStates->get($service);
             
             if (!$state) {
@@ -48,7 +43,7 @@ class ResilienceController extends Controller
                 ];
             }
             
-            $statusCards[] = [
+            $circuitBreakerStatus[] = [
                 'key' => $service,
                 'name' => $this->formatServiceName($service),
                 'state' => $state->state,
@@ -64,50 +59,11 @@ class ResilienceController extends Controller
             }
         }
 
-        // Get state transition history (last 24 hours) - placeholder for now
-        $transitions = [];
-
-        return view('admin.resilience.circuit-breakers', [
-            'services' => $statusCards,
-            'openCircuits' => $openCircuits,
-            'transitions' => $transitions,
-        ]);
-    }
-
-    /**
-     * Reset a circuit breaker (dangerous action - requires confirmation).
-     * 
-     * @param string $service Service name (google_api, action1_api, helcim_api)
-     */
-    public function resetCircuit(string $service): RedirectResponse
-    {
-        // Validate service name
-        $allowedServices = ['google_api', 'action1_api', 'helcim_api'];
-        if (!in_array($service, $allowedServices, true)) {
-            return redirect()->back()->with('error', 'Invalid service name.');
-        }
-
-        // Reset the circuit
-        $breaker = app(CircuitBreaker::class);
-        $breaker->reset($service);
-        
-        $serviceName = $this->formatServiceName($service);
-        
-        return redirect()->back()->with('success', "Circuit breaker for {$serviceName} has been reset. Service will be tested on next request.");
-    }
-
-    /**
-     * Rate Limiter Dashboard - API quota consumption monitoring.
-     * 
-     * Displays current usage for all rate-limited services with warnings
-     * when approaching limits.
-     */
-    public function rateLimits(): View
-    {
-        $rateLimiter = app(RateLimiter::class);
+        // --- Rate Limiter Logic ---
+        $rateLimiter = app(RateLimiterService::class);
         
         // Define service rate limits
-        $servicesConfig = [
+        $rateLimitServicesConfig = [
             [
                 'name' => 'Google Workspace API',
                 'key' => 'google_api_hourly',
@@ -125,11 +81,35 @@ class ResilienceController extends Controller
             ],
         ];
         
-        $limitData = $rateLimiter->getUsageStats($servicesConfig);
+        $rateLimitStatus = $rateLimiter->getUsageStats($rateLimitServicesConfig);
 
-        return view('admin.resilience.rate-limits', [
-            'services' => $limitData,
+        return view('admin.resilience.index', [
+            'circuitBreakers' => $circuitBreakerStatus,
+            'openCircuits' => $openCircuits,
+            'rateLimits' => $rateLimitStatus,
         ]);
+    }
+
+    /**
+     * Reset a circuit breaker (dangerous action - requires confirmation).
+     * 
+     * @param string $service Service name (google_api, action1_api, helcim_api)
+     */
+    public function resetCircuit(string $service): RedirectResponse
+    {
+        // Validate service name
+        $allowedServices = ['google_api', 'action1_api', 'helcim_api'];
+        if (!in_array($service, $allowedServices, true)) {
+            return redirect()->back()->with('error', 'Invalid service name.');
+        }
+
+        // Reset the circuit
+        $breaker = app(CircuitBreakerService::class);
+        $breaker->reset($service);
+        
+        $serviceName = $this->formatServiceName($service);
+        
+        return redirect()->back()->with('success', "Circuit breaker for {$serviceName} has been reset. Service will be tested on next request.");
     }
 
     /**

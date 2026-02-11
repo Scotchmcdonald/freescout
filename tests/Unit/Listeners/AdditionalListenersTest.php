@@ -8,7 +8,7 @@ use App\Events\ConversationStatusChanged;
 use App\Events\ConversationUserChanged;
 use App\Events\UserCreatedConversation;
 use App\Events\UserReplied;
-use App\Jobs\SendConversationReply;
+use App\Jobs\SendConversationReplyJob as SendConversationReply;
 use App\Listeners\RememberUserLocale;
 use App\Listeners\SendPasswordChanged;
 use App\Listeners\SendReplyToCustomer;

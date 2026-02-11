@@ -88,17 +88,24 @@ class CustomerController extends Controller
     /**
      * Update the specified customer.
      */
-    public function update(UpdateCustomerRequest $request, Customer $customer): JsonResponse
+    public function update(UpdateCustomerRequest $request, Customer $customer): JsonResponse|RedirectResponse
     {
         $validated = $request->validated();
 
         $customer->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Customer updated successfully.',
-            'customer' => $customer,
-        ]);
+        // Check if this is an AJAX request
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer updated successfully.',
+                'customer' => $customer,
+            ]);
+        }
+
+        // Form submission - redirect back with success message
+        return redirect()->back()
+            ->with('success', 'Client updated successfully.');
     }
 
     /**

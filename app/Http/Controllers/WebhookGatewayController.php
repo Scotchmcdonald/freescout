@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\GooglePushChannel;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class WebhookGatewayController extends Controller
 {
     /**
      * Display webhook gateway dashboard.
      */
-    public function index()
+    public function index(): View
     {
         $channels = GooglePushChannel::orderBy('expiration_time')->get();
 
@@ -33,7 +36,7 @@ class WebhookGatewayController extends Controller
     /**
      * Show form to renew a channel.
      */
-    public function renewForm(GooglePushChannel $channel)
+    public function renewForm(GooglePushChannel $channel): View
     {
         return view('webhooks.gateway.renew', compact('channel'));
     }
@@ -41,7 +44,7 @@ class WebhookGatewayController extends Controller
     /**
      * Renew a push notification channel.
      */
-    public function renew(Request $request, GooglePushChannel $channel)
+    public function renew(Request $request, GooglePushChannel $channel): RedirectResponse
     {
         $request->validate([
             'duration_hours' => 'required|integer|min:1|max:43200', // Max 30 days
@@ -78,7 +81,7 @@ class WebhookGatewayController extends Controller
     /**
      * Stop a push notification channel.
      */
-    public function stop(GooglePushChannel $channel)
+    public function stop(GooglePushChannel $channel): RedirectResponse
     {
         try {
             // In production, this would call Google API to stop the channel
@@ -104,7 +107,7 @@ class WebhookGatewayController extends Controller
     /**
      * Test webhook delivery.
      */
-    public function test(Request $request, GooglePushChannel $channel)
+    public function test(Request $request, GooglePushChannel $channel): JsonResponse
     {
         $request->validate([
             'test_payload' => 'nullable|json',
@@ -154,7 +157,7 @@ class WebhookGatewayController extends Controller
     /**
      * Create a new push notification channel.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'resource_type' => 'required|string|max:50',

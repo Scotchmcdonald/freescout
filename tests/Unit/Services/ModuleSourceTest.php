@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services;
 
-use App\Services\ModuleSource;
+use App\Services\ModuleSourceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -14,12 +14,12 @@ class ModuleSourceTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected ModuleSource $moduleSource;
+    protected ModuleSourceService $moduleSource;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->moduleSource = new ModuleSource();
+        $this->moduleSource = new ModuleSourceService();
         
         // Clear cache before each test
         Cache::forget('available_modules');
@@ -101,8 +101,8 @@ class ModuleSourceTest extends TestCase
 
     public function test_module_source_can_be_instantiated(): void
     {
-        $service = new ModuleSource();
-        $this->assertInstanceOf(ModuleSource::class, $service);
+        $service = new ModuleSourceService();
+        $this->assertInstanceOf(ModuleSourceService::class, $service);
     }
 
     public function test_get_modules_handles_http_failure(): void

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Listeners;
 
 use App\Events\CustomerCreatedConversation;
-use App\Jobs\SendAutoReply as SendAutoReplyJob;
+use App\Jobs\SendAutoReplyJob;
 use App\Listeners\SendAutoReply;
 use App\Models\Conversation;
 use App\Models\Customer;

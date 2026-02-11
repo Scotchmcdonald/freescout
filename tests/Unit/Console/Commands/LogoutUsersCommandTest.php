@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
+/** @group console */
 class LogoutUsersCommandTest extends TestCase
 {
     use RefreshDatabase;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataTransferObjects;
 
 /**
@@ -10,6 +12,9 @@ namespace App\DataTransferObjects;
  */
 final readonly class GoogleUserSyncedData
 {
+    /**
+     * @param array<string, mixed> $metadata
+     */
     public function __construct(
         public int $clientId,
         public string $email,
@@ -24,7 +29,7 @@ final readonly class GoogleUserSyncedData
     /**
      * Factory method for backward compatibility
      * 
-     * @param array $data Raw array data
+     * @param array<string, mixed> $data Raw array data
      * @return self
      */
     public static function fromArray(array $data): self
@@ -44,7 +49,7 @@ final readonly class GoogleUserSyncedData
     /**
      * Convert to array representation
      * 
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

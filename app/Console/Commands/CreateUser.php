@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Models\User;
@@ -14,7 +16,7 @@ class CreateUser extends Command
      *
      * @var string
      */
-    protected $signature = 'freescout:create-user {--role=} {--firstName=} {--lastName=} {--email=} {--password=} {--no-verification}';
+    protected $signature = 'freescout:create-user {--role=} {--firstName=} {--lastName=} {--email=} {--password=} {--verified} {--overwrite}';
 
     /**
      * The console command description.
@@ -57,7 +59,7 @@ class CreateUser extends Command
             'role' => ['required', 'in:admin,user'],
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string', 'min:8'],
         ]);
 
@@ -69,22 +71,49 @@ class CreateUser extends Command
             return 1;
         }
 
-        $user = new User();
+        $user = User::where('email', $email)->first();
+        if ($user && !$this->option('overwrite')) {
+            if (!$this->confirm("User with email '$email' already exists. Do you want to overwrite it?", false)) {
+                $this->error('User already exists.');
+                return 1;
+            }
+        }
+        
+        if (!$user) {
+            $user = new User();
+            $user->email = $email;
+        }
+
         $user->role = $role === 'admin' ? User::ROLE_ADMIN : User::ROLE_USER;
         $user->first_name = $firstName;
         $user->last_name = $lastName;
-        $user->email = $email;
         $user->password = Hash::make($password);
         $user->status = User::STATUS_ACTIVE;
 
-        if ($this->option('no-verification')) {
-            $user->email_verified_at = now();
+        $verify = true;
+        
+        // If --verified is present, we force verify. 
+        // If running interactively and not specified, we ask.
+        // If not interactive and not specified, we assume verified (default true).
+        
+        if ($this->option('verified')) {
+            $verify = true;
+        } elseif ($this->option('no-interaction')) {
+            $verify = true; 
+        } else {
+            $verify = $this->confirm('Mark email as verified?', true);
         }
 
-        if ($this->confirm('Do you want to create the user?', true)) {
+        if ($verify) {
+            $user->email_verified_at = now();
+        } else {
+            $user->email_verified_at = null;
+        }
+
+        if ($this->confirm('Do you want to create/update the user?', true)) {
             try {
                 $user->save();
-                $this->info('User created with id: ' . $user->id);
+                $this->info('User saved with id: ' . $user->id);
             } catch (\Exception $e) {
                 $this->error('Error creating user: ' . $e->getMessage());
                 return 1;

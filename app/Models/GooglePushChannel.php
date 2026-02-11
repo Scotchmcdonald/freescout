@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -19,7 +20,7 @@ use Illuminate\Support\Carbon;
  * @property bool $is_active
  * @property Carbon|null $last_notification_at
  * @property int $notification_count
- * @property array|null $metadata
+ * @property array<string, mixed>|null $metadata
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -70,7 +71,7 @@ class GooglePushChannel extends Model
     public function isExpiringSoon(): bool
     {
         return $this->expiration_time->isFuture() && 
-               $this->expiration_time->diffInHours(now()) <= 24;
+               $this->expiration_time->lte(now()->addHours(24));
     }
 
     /**
@@ -128,40 +129,31 @@ class GooglePushChannel extends Model
             return 'Expired';
         }
 
-        return $this->expiration_time->diffForHumans(null, true);
+        return $this->expiration_time->diffForHumans(null, CarbonInterface::DIFF_ABSOLUTE);
     }
 
     /**
      * Scope to get active channels.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder<GooglePushChannel>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<GooglePushChannel>
      */
-    public function scopeActive($query)
+    public function scopeActive(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('is_active', true);
+        $query->where('is_active', true);
     }
 
     /**
      * Scope to get expired channels.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder<GooglePushChannel>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<GooglePushChannel>
      */
-    public function scopeExpired($query)
+    public function scopeExpired(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('expiration_time', '<', now());
+        $query->where('expiration_time', '<', now());
     }
 
     /**
      * Scope to get expiring soon channels.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder<GooglePushChannel>  $query
-     * @return \Illuminate\Database\Eloquent\Builder<GooglePushChannel>
      */
-    public function scopeExpiringSoon($query)
+    public function scopeExpiringSoon(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('expiration_time', '>', now())
+        $query->where('expiration_time', '>', now())
                     ->where('expiration_time', '<=', now()->addHours(24));
     }
 }

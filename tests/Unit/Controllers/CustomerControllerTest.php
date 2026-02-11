@@ -60,17 +60,18 @@ class CustomerControllerTest extends UnitTestCase
 
     public function test_index_searches_by_last_name(): void
     {
-        Customer::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
-        Customer::factory()->create(['first_name' => 'Jane', 'last_name' => 'Smith']);
+        // Use unique names to prevent collisions
+        Customer::factory()->create(['first_name' => 'John', 'last_name' => 'UniqueLastA']);
+        Customer::factory()->create(['first_name' => 'Jane', 'last_name' => 'UniqueLastB']);
 
         $controller = new CustomerController;
-        $request = Request::create('/customers?search=Smith', 'GET');
+        $request = Request::create('/customers?search=UniqueLastB', 'GET');
 
         $view = $controller->index($request);
         $customers = $view->getData()['customers'];
 
         $this->assertCount(1, $customers);
-        $this->assertEquals('Smith', $customers->first()->last_name);
+        $this->assertEquals('UniqueLastB', $customers->first()->last_name);
     }
 
     public function test_show_returns_view(): void
@@ -116,6 +117,7 @@ class CustomerControllerTest extends UnitTestCase
             'first_name' => 'Updated',
             'last_name' => 'Name',
         ]);
+        $request->shouldReceive('expectsJson')->andReturn(true);
 
         $response = $controller->update($request, $customer);
 
@@ -138,6 +140,7 @@ class CustomerControllerTest extends UnitTestCase
             'job_title' => 'Developer',
             'city' => 'New York',
         ]);
+        $request->shouldReceive('expectsJson')->andReturn(true);
 
         $response = $controller->update($request, $customer);
 

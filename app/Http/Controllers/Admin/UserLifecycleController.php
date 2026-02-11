@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
-use App\Services\UserDirectoryRegistry;
+use App\Services\UserDirectoryRegistryService;
+use Illuminate\View\View;
 
 class UserLifecycleController extends Controller
 {
     public function __construct(
-        protected UserDirectoryRegistry $registry
+        protected UserDirectoryRegistryService $registry
     ) {}
 
     /**
@@ -19,7 +23,7 @@ class UserLifecycleController extends Controller
      *
      * Shows user identities synced from Google Workspace.
      */
-    public function index()
+    public function index(): View
     {
         $users = $this->registry->getAllUsers();
         $lastSync = now();
@@ -38,14 +42,17 @@ class UserLifecycleController extends Controller
     /**
      * Trigger a manual sync.
      */
-    public function sync()
+    public function sync(): RedirectResponse
     {
         // In a real implementation, this would dispatch a job.
         // For now, we'll just redirect back with a message.
         return redirect()->route('admin.users.lifecycle')->with('success', 'Sync triggered. Data will refresh shortly.');
     }
 
-    private function getMockUsers()
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function getMockUsers(): array
     {
         return [
             [

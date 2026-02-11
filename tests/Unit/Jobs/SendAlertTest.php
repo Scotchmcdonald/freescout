@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Jobs;
 
-use App\Jobs\SendAlert;
+use App\Jobs\SendAlertJob as SendAlert;
 use App\Models\SendLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;

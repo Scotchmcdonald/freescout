@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -57,10 +59,17 @@ class RegisteredUserController extends Controller
 
         // Auto-Enrollment Logic
         $domain = substr(strrchr($user->email, "@"), 1);
-        $companyDomain = \App\Models\CompanyDomain::where('domain', $domain)->first();
+        $companyDomainClass = 'Modules\Crm\Models\CompanyDomain';
+        
+        if (class_exists($companyDomainClass)) {
+            $companyDomain = $companyDomainClass::where('domain', $domain)->first();
 
-        if ($companyDomain) {
-            $user->companies()->attach($companyDomain->company_id, ['status' => 'pending']);
+            if ($companyDomain) {
+                // Ensure relationship exists before calling
+                if (method_exists($user, 'companies')) {
+                    $user->companies()->attach($companyDomain->company_id, ['status' => 'pending']);
+                }
+            }
         }
 
         event(new Registered($user));

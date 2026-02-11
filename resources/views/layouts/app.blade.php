@@ -48,6 +48,23 @@
 
             <!-- Page Content -->
             <main>
+                @if(session('success'))
+                   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+                        <div class="bg-green-50 border-l-4 border-green-400 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-green-700">{{ session('success') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                   </div>
+                @endif
+
                 @hasSection('content')
                     @yield('content')
                 @else
@@ -59,11 +76,36 @@
         <!-- Global Activity Drawer -->
         <x-activity-drawer />
         
-        <!-- Activity Trigger (Bottom Right) -->
-        <div class="fixed bottom-4 right-4 z-40" x-data>
-            <button @click="$dispatch('open-activity-drawer')" class="bg-white p-3 rounded-full shadow-lg border border-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" title="View Activity">
-                <svg class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+        <!-- Contextual Help Trigger (Bottom Right) -->
+        <div class="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2" 
+             x-data="{ showCard: false }" 
+             @click.outside="showCard = false">
+            
+            <div x-show="showCard" 
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 translate-y-2"
+                 class="w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-gray-700"
+                 style="display: none;">
+                <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">{{ __('Page Help') }}</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {{ __('You are currently viewing:') }} <span class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">{{ Route::currentRouteName() ?? 'Unknown Page' }}</span>
+                </p>
+                <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <a href="{{ route('knowledgebase.explore', ['context' => Route::currentRouteName()]) }}" target="_blank" class="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        {{ __('Explore Features') }}
+                    </a>
+                    <button @click="showCard = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm">{{ __('Close') }}</button>
+                </div>
+            </div>
+            
+            <button @click="showCard = !showCard" class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200" title="{{ __('Need Help?') }}">
+                <svg class="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
                 </svg>
             </button>
         </div>

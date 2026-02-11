@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
@@ -33,9 +34,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'theme' => \App\Http\Middleware\ApplyUserTheme::class,
             'scope.company' => \App\Http\Middleware\ScopeCompany::class,
             'impersonate.protect' => \App\Http\Middleware\PreventImpersonatorWrites::class,
+            'webhook.verify' => \App\Http\Middleware\VerifyWebhookSignature::class,
         ]);
         
         // Add middleware to web group:
+        // - AddSentryContext: Enrich error reports with request/user context
         // - ResponseHeaders: Security headers (X-Content-Type-Options, etc.)
         // - FrameGuard: Security against clickjacking
         // - ApplyUserTheme: Apply user's selected theme
@@ -43,6 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // - LogoutIfDeleted: Force logout deleted/disabled users
         // - CustomHandle: Chat mode toggle and module hooks
         $middleware->web(append: [
+            \App\Http\Middleware\AddSentryContext::class,
             \App\Http\Middleware\ResponseHeaders::class,
             \App\Http\Middleware\FrameGuard::class,
             \App\Http\Middleware\ApplyUserTheme::class,

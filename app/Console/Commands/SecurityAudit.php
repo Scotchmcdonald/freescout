@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -40,7 +42,7 @@ class SecurityAudit extends Command
         $this->error('Security vulnerabilities found!');
         $this->line($output);
 
-        $recipient = $this->option('email') ?? env('ADMIN_EMAIL') ?? config('mail.from.address');
+        $recipient = $this->option('email') ?? config('app.admin_email') ?? config('mail.from.address');
 
         if ($recipient) {
             $this->info("Sending alert to {$recipient}...");

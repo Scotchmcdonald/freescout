@@ -26,14 +26,26 @@ readonly DEFAULT_BRANCH="laravel-11-foundation"
 DEFAULT_INSTALL_DIR="/opt/freescout-docker"
 readonly CONFIG_FILE="${SCRIPT_DIR}/deploy.conf"
 
-# Color codes
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly CYAN='\033[0;36m'
-readonly BLUE='\033[0;34m'
-readonly MAGENTA='\033[0;35m'
+# Boreal Theme Colors
+readonly RED='\033[38;5;196m'        # Bright Red
+readonly GREEN='\033[38;5;46m'       # Neon Green
+readonly FOREST='\033[38;5;22m'      # Forest Green
+readonly YELLOW='\033[38;5;226m'     # Bright Yellow
+readonly CYAN='\033[38;5;51m'        # Ice Blue/Cyan
+readonly BLUE='\033[38;5;27m'        # Deep Blue
+readonly MAGENTA='\033[38;5;201m'    # Neon Pink/Magenta
+readonly WHITE='\033[38;5;231m'      # Bright White
+readonly GREY='\033[38;5;240m'       # Dark Grey
 readonly NC='\033[0m' # No Color
+
+# Theme Aliases
+readonly COLOR_PRIMARY=$CYAN
+readonly COLOR_SECONDARY=$GREEN
+readonly COLOR_ACCENT=$WHITE
+readonly COLOR_DIM=$GREY
+readonly COLOR_SUCCESS=$GREEN
+readonly COLOR_WARNING=$YELLOW
+readonly COLOR_ERROR=$RED
 
 # State variables
 INTERACTIVE=true
@@ -50,7 +62,7 @@ log_info() {
 }
 
 log_success() {
-    echo -e "${GREEN}✓${NC} $*"
+    echo -e "${GREEN}✔${NC} $*"
 }
 
 log_warning() {
@@ -58,31 +70,26 @@ log_warning() {
 }
 
 log_error() {
-    echo -e "${RED}✗${NC} $*" >&2
+    echo -e "${RED}✖${NC} $*" >&2
 }
 
 log_step() {
     echo ""
-    echo -e "${MAGENTA}▶${NC} ${BLUE}$*${NC}"
+    echo -e "${MAGENTA}➜${NC} ${BLUE}$*${NC}"
 }
 
-progress_bar() {
-    local duration=$1
-    local message=$2
-    local progress=0
-    local bar_length=50
-    
-    while [ $progress -le $duration ]; do
-        local filled=$((progress * bar_length / duration))
-        local empty=$((bar_length - filled))
-        printf "\r${CYAN}%s${NC} [" "$message"
-        printf "%${filled}s" | tr ' ' '='
-        printf "%${empty}s" | tr ' ' ' '
-        printf "] %3d%%" $((progress * 100 / duration))
-        sleep 1
-        ((progress++))
+spinner() {
+    local pid=$1
+    local delay=0.1
+    local spinstr='|/-\'
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
     done
-    printf "\n"
+    printf "    \b\b\b\b"
 }
 
 cleanup() {
@@ -103,6 +110,22 @@ trap cleanup EXIT INT TERM
 
 command_exists() {
     command -v "$1" >/dev/null 2>&1
+}
+
+safe_read() {
+    # $1: prompt
+    # $2: variable name
+    if [ -t 0 ]; then
+        read -rp "$1" "$2"
+    elif [ -c /dev/tty ]; then
+        # Prompt to stderr
+        echo -ne "$1" >&2
+        read -r "$2" < /dev/tty
+        echo "" >&2
+    else
+        log_error "Interactive input required but no TTY available."
+        exit 1
+    fi
 }
 
 validate_required_var() {
@@ -159,11 +182,28 @@ preflight_checks() {
     fi
     
     # Verify Docker is running
+    log_info "Verifying Docker daemon status..."
     if ! sudo docker info >/dev/null 2>&1; then
         log_error "Docker is installed but not running"
+        log_info "Try starting it with: sudo systemctl start docker"
         exit 1
     fi
-    
+
+    # Check System Resources
+    log_info "Checking system resources..."
+    if [ -f /proc/meminfo ]; then
+        local total_mem
+        total_mem=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+        # Check for at least 2GB RAM
+        if [ "$total_mem" -lt 2000000 ]; then
+            log_warning "System memory is below 2GB. Performance may be degraded."
+            log_warning "Recommended: 4GB+ for production."
+            sleep 2
+        else 
+            log_success "System memory check passed"
+        fi
+    fi
+
     # Enable BuildKit for faster builds
     export DOCKER_BUILDKIT=1
     export COMPOSE_DOCKER_CLI_BUILD=1
@@ -177,13 +217,23 @@ preflight_checks() {
 
 show_banner() {
     clear
-    echo -e "${CYAN}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║                                                            ║${NC}"
-    echo -e "${CYAN}║          FreeScout Docker Deployer v${SCRIPT_VERSION}              ║${NC}"
-    echo -e "${CYAN}║                                                            ║${NC}"
-    echo -e "${CYAN}╚════════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${FOREST}       # #### ####${NC}"
+    echo -e "${FOREST}     ### \\/#|### |/####${NC}"
+    echo -e "${FOREST}    ##\\/#/ \\||/##/_/##/_#${NC}      ${CYAN}  ____                        _ _______   _          ${NC}"
+    echo -e "${FOREST}  ###  \\/###|/ \\/ # ###${NC}        ${CYAN} |  _ \\                      | |__   __| | |        ${NC}"
+    echo -e "${FOREST} ##_\\_#\\_\\## | #/###_/_####${NC}   ${CYAN}  | |_) | ___   _ __.__  ___  | |  | |  __| | __     ${NC}"
+    echo -e "${FOREST}## #### # \\ #| /  #### ##/##${NC}    ${CYAN}|  _ < / _ \| '__/ _ \/ _ \\\`| |  | |/ _ \ |/ /     ${NC}"
+    echo -e "${FOREST} __#_--###\`  |{,###---###-~${NC}     ${CYAN}| |_) | (_) | |  | __/ (_| || |  | || __/   <        ${NC}"
+    echo -e "${FOREST}           \\ }{${NC}                 ${CYAN}|____/ \\___/|_|  \\___|\\__,_||_|  |_|\\___|_|\\_\\ ${NC}"
+    echo -e "${FOREST}            }}{${NC}"
+    echo -e "${FOREST}            }}{${NC}                     ${GREEN} T R E E S C O U T   E N T E R P R I S E     ${NC}"
+    echo -e "${FOREST}            }}{${NC}"
+    echo -e "${FOREST}      , -=-~{ .-^- _${NC}"
+    echo -e "${FOREST}            \`${NC}"
     echo ""
+    echo -e "${COLOR_DIM}────────────────────────────────────────────────────────────────────────${NC}"
 }
+
 
 load_or_create_config() {
     if [ -f "$CONFIG_FILE" ]; then
@@ -193,135 +243,234 @@ load_or_create_config() {
         fi
         
         log_success "Configuration file found: $CONFIG_FILE"
+        # shellcheck disable=SC1090
+        source "$CONFIG_FILE"
         
-        if [ -t 0 ]; then  # Check if stdin is a terminal
-            read -rp "Use this configuration? [Y/n] " use_config
-            use_config=${use_config:-Y}
-            
-            if [[ "$use_config" =~ ^[Yy]$ ]]; then
-                log_info "Loading configuration..."
-                # shellcheck disable=SC1090
-                source "$CONFIG_FILE"
-                INTERACTIVE=false
-                
-                # Ensure array exists if not defined in config
-                if [ -z "${MODULES_TO_INSTALL+x}" ]; then
-                    MODULES_TO_INSTALL=()
-                fi
-                return
-            fi
+        # Ensure array exists if not defined in config
+        if [ -z "${MODULES_TO_INSTALL+x}" ]; then
+            MODULES_TO_INSTALL=()
         fi
     else
-        log_info "No configuration file found"
-        
-        if [ -t 0 ]; then
-            read -rp "Create configuration template? [y/N] " create_config
-            
-            if [[ "$create_config" =~ ^[Yy]$ ]]; then
-                create_config_template
-                log_success "Configuration template created at $CONFIG_FILE"
-                log_info "Please edit the file and run this script again"
-                exit 0
-            fi
-        fi
+        log_info "No configuration file found. Starting setup wizard..."
     fi
 }
 
-create_config_template() {
+save_current_config() {
+    log_info "Saving configuration to $CONFIG_FILE..."
+    
+    # Generate array string for MODULES_TO_INSTALL
+    local modules_str=""
+    if [ -n "${MODULES_TO_INSTALL+x}" ]; then
+        for mod in "${MODULES_TO_INSTALL[@]}"; do
+            modules_str+="    \"$mod\""$'\n'
+        done
+    fi
+
     cat > "$CONFIG_FILE" <<EOF
 #===============================================================================
 # FreeScout Deployment Configuration
+# Generated on $(date)
 #===============================================================================
 
 # Installation Settings
-GIT_REPO_URL="$DEFAULT_REPO"
-GIT_BRANCH="$DEFAULT_BRANCH"
-DEFAULT_INSTALL_DIR="$DEFAULT_INSTALL_DIR"
+GIT_REPO_URL="${GIT_REPO_URL:-$DEFAULT_REPO}"
+GIT_BRANCH="${GIT_BRANCH:-$DEFAULT_BRANCH}"
+DEFAULT_INSTALL_DIR="${DEFAULT_INSTALL_DIR:-/opt/freescout-docker}"
 
 # Network Settings
-DOMAIN_NAME="tickets.example.com"
-DOCKER_SUBNET="192.168.220.0/24"
+DOMAIN_NAME="${DOMAIN_NAME:-}"
+DOCKER_SUBNET="${DOCKER_SUBNET:-}"
 
 # Database Settings
-DB_ROOT_PASS="$(openssl rand -hex 16)"
-DB_USER="freescout"
-DB_PASS="$(openssl rand -hex 16)"
-DB_NAME="freescout"
+DB_ROOT_PASS="${DB_ROOT_PASS:-}"
+DB_USER="${DB_USER:-freescout}"
+DB_PASS="${DB_PASS:-}"
+DB_NAME="${DB_NAME:-freescout}"
 
 # Admin User
-ADMIN_EMAIL="admin@example.com"
-ADMIN_PASS="$(openssl rand -hex 12)"
+ADMIN_EMAIL="${ADMIN_EMAIL:-}"
+ADMIN_PASS="${ADMIN_PASS:-}"
+
+# Additional Users (Optional)
+AGENT_EMAIL="${AGENT_EMAIL:-}"
+AGENT_PASS="${AGENT_PASS:-}"
+FINANCE_EMAIL="${FINANCE_EMAIL:-}"
+FINANCE_PASS="${FINANCE_PASS:-}"
+REPORTER_EMAIL="${REPORTER_EMAIL:-}"
+REPORTER_PASS="${REPORTER_PASS:-}"
 
 # Google OAuth (Optional)
-GOOGLE_CLIENT_ID=""
-GOOGLE_CLIENT_SECRET=""
-GOOGLE_ADMIN_EMAILS=""
-GOOGLE_ALLOWED_DOMAINS=""
+GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
+GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
+GOOGLE_ADMIN_EMAILS="${GOOGLE_ADMIN_EMAILS:-}"
+GOOGLE_ALLOWED_DOMAINS="${GOOGLE_ALLOWED_DOMAINS:-}"
 
 # Mailbox Auto-Provisioning (Optional)
-MAILBOX_EMAIL=""
-MAILBOX_NAME=""
-MAILBOX_IMAP_HOST=""
-MAILBOX_IMAP_PORT="993"
-MAILBOX_IMAP_USER=""
-MAILBOX_IMAP_PASS=""
-MAILBOX_SMTP_HOST=""
-MAILBOX_SMTP_PORT="587"
-MAILBOX_SMTP_USER=""
-MAILBOX_SMTP_PASS=""
+MAILBOX_EMAIL="${MAILBOX_EMAIL:-}"
+MAILBOX_NAME="${MAILBOX_NAME:-}"
+MAILBOX_IMAP_HOST="${MAILBOX_IMAP_HOST:-}"
+MAILBOX_IMAP_PORT="${MAILBOX_IMAP_PORT:-993}"
+MAILBOX_IMAP_USER="${MAILBOX_IMAP_USER:-}"
+MAILBOX_IMAP_PASS="${MAILBOX_IMAP_PASS:-}"
+MAILBOX_SMTP_HOST="${MAILBOX_SMTP_HOST:-}"
+MAILBOX_SMTP_PORT="${MAILBOX_SMTP_PORT:-587}"
+MAILBOX_SMTP_USER="${MAILBOX_SMTP_USER:-}"
+MAILBOX_SMTP_PASS="${MAILBOX_SMTP_PASS:-}"
 
-# Sample Data Seeding (Optional)
-SEED_SAMPLE_DATA=false
+# Sample Data Seeding
+SEED_SAMPLE_DATA=${SEED_SAMPLE_DATA:-false}
 
-# Define your access tokens (optional)
-export REPO_TOKEN="ghp_your_token_here"
+# Define your access tokens
+export REPO_TOKEN="${REPO_TOKEN:-}"
 
 # Configure modules to install
-# Format: "ModuleName|RepoURL|TokenEnvVarName"
 MODULES_TO_INSTALL=(
-    "Crm|https://github.com/Example/Crm.git|REPO_TOKEN"
-    "PIB|https://github.com/Example/PIB.git|REPO_TOKEN"
-    "AssetManagement|https://github.com/Example/AssetManagement.git|REPO_TOKEN"
-)
+${modules_str})
 
 EOF
     
     if [ -n "${SUDO_USER:-}" ]; then
         chown "$SUDO_USER:$(id -g "$SUDO_USER")" "$CONFIG_FILE"
     fi
+    log_success "Configuration saved."
+}
+
+
+interactive_menu() {
+    local choice
+    while true; do
+        show_banner
+        echo -e "  ${COLOR_PRIMARY}[1]${NC} Deploy Fresh (Standard)"
+        echo -e "  ${COLOR_PRIMARY}[2]${NC} Update Existing Installation"
+        echo -e "  ${COLOR_PRIMARY}[3]${NC} Manage Modules"
+        echo -e "  ${COLOR_PRIMARY}[4]${NC} View Logs"
+        echo -e "  ${COLOR_PRIMARY}[0]${NC} Exit"
+        echo ""
+        safe_read "  Enter Selection: " choice
+        
+        case $choice in
+            1) return 0 ;;
+            2) 
+                if [ -f "./update.sh" ]; then
+                    bash ./update.sh
+                    safe_read "Press Enter to continue..." dummy
+                else
+                    log_error "Update script not found."
+                    sleep 2
+                fi
+                ;;
+            3)
+                log_info "Module management is automated via deploy.conf"
+                sleep 2
+                ;;
+            4)
+                if command_exists docker; then
+                     docker compose logs -f app
+                fi
+                ;;
+            0) exit 0 ;;
+            *) log_error "Invalid selection" ; sleep 1 ;;
+        esac
+    done
 }
 
 interactive_setup() {
+    # If script provided with args, skip menu
+    if [ "$INTERACTIVE" = true ] && [ -z "${1:-}" ]; then
+        interactive_menu
+    fi
+
+    # Check for existing config to allow skipping detailed setup
+    if [ -n "${DOMAIN_NAME:-}" ] && [ -n "${DOCKER_SUBNET:-}" ]; then
+        echo ""
+        log_info "Configuration loaded from $CONFIG_FILE"
+        echo -e "  Domain: ${GREEN}$DOMAIN_NAME${NC}"
+        echo -e "  Subnet: ${GREEN}$DOCKER_SUBNET${NC}"
+        safe_read "Use these settings? [Y/n] " use_defaults
+        if [[ "${use_defaults:-Y}" =~ ^[Yy]$ ]]; then
+             # Check for token
+             if [ -z "${REPO_TOKEN:-}" ]; then
+                 safe_read "Enter GitHub Token (for modules): " REPO_TOKEN
+                 export REPO_TOKEN
+                 save_current_config
+             fi
+             return
+        fi
+    fi
+
     log_step "Interactive Setup"
     
     # Repository configuration
-    echo -e "Default Repository: ${YELLOW}$DEFAULT_REPO${NC}"
-    read -rp "Press ENTER to confirm, or paste a new URL: " input_repo
-    GIT_REPO_URL="${input_repo:-$DEFAULT_REPO}"
+    local current_repo="${GIT_REPO_URL:-$DEFAULT_REPO}"
+    echo -e "Repository URL: ${YELLOW}$current_repo${NC}"
+    safe_read "Press ENTER to confirm, or paste a new URL: " input_repo
+    GIT_REPO_URL="${input_repo:-$current_repo}"
     
-    echo -e "Default Branch: ${YELLOW}$DEFAULT_BRANCH${NC}"
-    read -rp "Press ENTER to confirm, or type a new branch: " input_branch
-    GIT_BRANCH="${input_branch:-$DEFAULT_BRANCH}"
+    local current_branch="${GIT_BRANCH:-$DEFAULT_BRANCH}"
+    echo -e "Branch: ${YELLOW}$current_branch${NC}"
+    safe_read "Press ENTER to confirm, or type a new branch: " input_branch
+    GIT_BRANCH="${input_branch:-$current_branch}"
     echo ""
     
     # Network configuration
     log_info "Network Configuration"
-    while [ -z "${DOMAIN_NAME:-}" ]; do
-        read -rp "Domain Name: " DOMAIN_NAME
-    done
+    local current_domain="${DOMAIN_NAME:-}" 
+    if [ -n "$current_domain" ]; then
+        echo -e "Domain Name: ${YELLOW}$current_domain${NC}"
+        safe_read "Press ENTER to confirm, or type new domain: " input_domain
+        DOMAIN_NAME="${input_domain:-$current_domain}"
+    else
+        while [ -z "${DOMAIN_NAME:-}" ]; do
+            safe_read "Domain Name: " DOMAIN_NAME
+        done
+    fi
     
-    while [ -z "${DOCKER_SUBNET:-}" ]; do
-        read -rp "Docker Subnet (CIDR, e.g. 192.168.220.0/24): " DOCKER_SUBNET
-    done
+    local current_subnet="${DOCKER_SUBNET:-}"
+    if [ -n "$current_subnet" ]; then
+         echo -e "Docker Subnet: ${YELLOW}$current_subnet${NC}"
+         safe_read "Press ENTER to confirm, or type new: " input_subnet
+         DOCKER_SUBNET="${input_subnet:-$current_subnet}"
+    else
+        while [ -z "${DOCKER_SUBNET:-}" ]; do
+            safe_read "Docker Subnet (CIDR, e.g. 192.168.220.0/24): " DOCKER_SUBNET
+        done
+    fi
+    echo ""
+
+    # Access Tokens
+    log_info "Authentication"
+    local current_token="${REPO_TOKEN:-}"
+    if [ -n "$current_token" ]; then
+        echo -e "Repo Token: ${YELLOW}********${NC}"
+    else
+        echo -e "Repo Token: ${YELLOW}<not set>${NC}"
+    fi
+    safe_read "Press ENTER to keep, or paste new token (required for modules): " input_token
+    if [ -n "$input_token" ]; then
+        REPO_TOKEN="$input_token"
+    fi
+    export REPO_TOKEN="${REPO_TOKEN:-}"
     echo ""
     
     # Google OAuth (optional)
     log_info "Google OAuth (Optional)"
-    read -rp "Google Client ID (Enter to skip): " GOOGLE_CLIENT_ID
+    local current_client_id="${GOOGLE_CLIENT_ID:-}"
+    echo -e "Google Client ID: ${YELLOW}${current_client_id:-<not set>}${NC}"
+    safe_read "Enter Client ID (or ENTER to skip/keep): " input_client_id
+    
+    if [ -n "$input_client_id" ]; then
+         GOOGLE_CLIENT_ID="$input_client_id"
+    fi
+    
     if [ -n "$GOOGLE_CLIENT_ID" ]; then
-        read -rp "Google Client Secret: " GOOGLE_CLIENT_SECRET
-        read -rp "Google Admin Emails (comma separated): " GOOGLE_ADMIN_EMAILS
-        read -rp "Allowed Domains (comma separated): " GOOGLE_ALLOWED_DOMAINS
+        safe_read "Google Client Secret [${GOOGLE_CLIENT_SECRET:0:5}...]: " input_secret
+        GOOGLE_CLIENT_SECRET="${input_secret:-$GOOGLE_CLIENT_SECRET}"
+        
+        safe_read "Google Admin Emails [${GOOGLE_ADMIN_EMAILS}]: " input_emails
+        GOOGLE_ADMIN_EMAILS="${input_emails:-$GOOGLE_ADMIN_EMAILS}"
+        
+        safe_read "Allowed Domains [${GOOGLE_ALLOWED_DOMAINS}]: " input_domains
+        GOOGLE_ALLOWED_DOMAINS="${input_domains:-$GOOGLE_ALLOWED_DOMAINS}"
     fi
     echo ""
     
@@ -331,13 +480,26 @@ interactive_setup() {
         log_warning "WARNING: Reusing existing database"
         log_warning "Seeding may cause conflicts or duplicates"
     fi
-    read -rp "Seed sample data (Mailboxes, Users, Conversations)? [y/N] " input_seed
-    if [[ "$input_seed" =~ ^[Yy]$ ]]; then
+    
+    local default_seed="N"
+    if [ "$SEED_SAMPLE_DATA" = true ]; then default_seed="Y"; fi
+    
+    safe_read "Seed sample data (Mailboxes, Users, Conversations)? [y/N] (Current: $default_seed) " input_seed
+    if [ -z "$input_seed" ]; then
+         : # Keep current
+    elif [[ "$input_seed" =~ ^[Yy]$ ]]; then
         SEED_SAMPLE_DATA=true
     else
         SEED_SAMPLE_DATA=false
     fi
     echo ""
+
+    # Save Config
+    safe_read "Save this configuration to $CONFIG_FILE? [Y/n] " save_opt
+    save_opt="${save_opt:-Y}"
+    if [[ "$save_opt" =~ ^[Yy]$ ]]; then
+        save_current_config
+    fi
     
     # Configuration summary
     echo "────────────────────────────────────────────────────────────"
@@ -352,7 +514,7 @@ interactive_setup() {
     fi
     echo "────────────────────────────────────────────────────────────"
     echo ""
-    read -rp "Press ENTER to start deployment (or Ctrl+C to cancel)..."
+    safe_read "Press ENTER to start deployment (or Ctrl+C to cancel)..." dummy
 }
 
 check_existing_installation() {
@@ -435,7 +597,7 @@ decommission_existing() {
         echo "  2) Nuke everything (fresh install, all data lost)"
         echo "  3) Cancel deployment"
         echo ""
-        read -p "Enter choice [1-3]: " choice
+        safe_read "Enter choice [1-3]: " choice
         
         case $choice in
             1)
@@ -445,7 +607,7 @@ decommission_existing() {
                 ;;
             2)
                 log_warning "Nuking everything - all data will be lost!"
-                read -p "Type 'yes' to confirm: " confirm
+                safe_read "Type 'yes' to confirm: " confirm
                 if [ "$confirm" = "yes" ]; then
                     REUSE_DB=false
                     log_info "Stopping and removing containers and volumes..."
@@ -772,10 +934,10 @@ services:
     command: >
       /bin/sh -c '
       echo "Installing cron..." &&
-      apk add --no-cache dcron &&
+      apt-get update && apt-get install -y cron &&
       echo "* * * * * cd /var/www/html && php artisan schedule:run >> /var/log/cron.log 2>&1" | crontab - &&
-      echo "Cron installed. Starting crond..." &&
-      crond -f -l 2
+      echo "Cron installed. Starting cron..." &&
+      cron -f
       '
     volumes:
       - ./src:/var/www/html
@@ -926,7 +1088,7 @@ configure_laravel() {
     local env_file="$DEFAULT_INSTALL_DIR/src/.env"
     
     # Database configuration
-    sed -i "s/APP_NAME=Laravel/APP_NAME=\"Borealtek Ticketing\"/g" "$env_file"
+    sed -i "s/APP_NAME=Laravel/APP_NAME=\"BorealTek Treescout\"/g" "$env_file"
     sed -i "s/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/g" "$env_file"
     sed -i "s/# DB_HOST=127.0.0.1/DB_HOST=db/g" "$env_file"
     sed -i "s/# DB_PORT=3306/DB_PORT=3306/g" "$env_file"
@@ -946,6 +1108,26 @@ configure_laravel() {
 # Admin Credentials
 ADMIN_EMAIL=${ADMIN_EMAIL}
 ADMIN_PASSWORD="${ADMIN_PASS}"
+ADMIN_FIRST_NAME="${ADMIN_FIRST_NAME:-System}"
+ADMIN_LAST_NAME="${ADMIN_LAST_NAME:-Administrator}"
+
+# Agent User
+AGENT_EMAIL="${AGENT_EMAIL:-agent@example.com}"
+AGENT_PASSWORD="${AGENT_PASS:-agent123456789}"
+AGENT_FIRST_NAME="${AGENT_FIRST_NAME:-Support}"
+AGENT_LAST_NAME="${AGENT_LAST_NAME:-Agent}"
+
+# Finance User
+FINANCE_EMAIL="${FINANCE_EMAIL:-finance@example.com}"
+FINANCE_PASSWORD="${FINANCE_PASS:-finance123456789}"
+FINANCE_FIRST_NAME="${FINANCE_FIRST_NAME:-Finance}"
+FINANCE_LAST_NAME="${FINANCE_LAST_NAME:-Manager}"
+
+# Reporter User
+REPORTER_EMAIL="${REPORTER_EMAIL:-reporter@example.com}"
+REPORTER_PASSWORD="${REPORTER_PASS:-reporter123456789}"
+REPORTER_FIRST_NAME="${REPORTER_FIRST_NAME:-Report}"
+REPORTER_LAST_NAME="${REPORTER_LAST_NAME:-Viewer}"
 EOF
     
     # Reverb/Broadcasting
@@ -1025,17 +1207,6 @@ install_modules() {
         fi
 
         local target_dir="$DEFAULT_INSTALL_DIR/src/Modules/$name"
-        
-        # Check for local module override
-        if [ -d "/var/www/html/Modules/$name" ]; then
-            log_info "Using local module: $name"
-            # Prevent nesting or stale files if target already exists
-            if [ -d "$target_dir" ]; then
-                rm -rf "$target_dir"
-            fi
-            cp -r "/var/www/html/Modules/$name" "$target_dir"
-            continue
-        fi
 
         if [ -d "$target_dir" ]; then
             log_info "Module $name already exists. Updating..."
@@ -1187,6 +1358,19 @@ finalize_installation() {
     if [ ${#MODULES_TO_INSTALL[@]} -gt 0 ]; then
         log_info "Running module migrations..."
         sudo docker compose exec -T app php artisan module:migrate --all --force
+        
+        log_info "Seeding KnowledgeBase content..."
+        echo '
+$modules = Module::all();
+foreach($modules as $module) {
+    if (!$module->isEnabled()) continue;
+    $seeder = "Modules\\" . $module->getName() . "\\Database\\Seeders\\KnowledgeBaseSeeder";
+    if (class_exists($seeder)) {
+        echo "Seeding " . $module->getName() . "...\n";
+        Artisan::call("db:seed", ["--class" => $seeder, "--force" => true]);
+    }
+}
+' | sudo docker compose exec -T app php artisan tinker
     else
         log_info "No modules to migrate."
     fi
@@ -1201,6 +1385,10 @@ finalize_installation() {
         log_info "Cleaning up dev dependencies..."
         sudo docker compose exec -e COMPOSER_PROCESS_TIMEOUT=2000 -T app composer install --no-dev --optimize-autoloader
     fi
+    
+    # Seed default users for all roles
+    log_info "Seeding default users (Admin, Agent, Finance, Reporter)..."
+    sudo docker compose exec -T app php artisan db:seed --class=UserSeeder --force
     
     # Configure git safe directory
     cd "$DEFAULT_INSTALL_DIR"
@@ -1219,13 +1407,29 @@ show_completion_message() {
     echo ""
     echo -e "${CYAN}Access Information:${NC}"
     echo -e "  URL:   ${GREEN}https://$DOMAIN_NAME${NC}"
-    echo -e "  Email: ${GREEN}$ADMIN_EMAIL${NC}"
+    echo ""
+    echo -e "${CYAN}Default User Accounts:${NC}"
+    echo -e "  ${YELLOW}Admin${NC} - Full System Access"
+    echo -e "    Email: ${GREEN}$ADMIN_EMAIL${NC}"
     
     if [ "$REUSE_DB" = true ] && [ "$ADMIN_PASS_PRESERVED" = true ]; then
-        echo -e "  Pass:  ${YELLOW}(Existing password unchanged)${NC}"
+        echo -e "    Pass:  ${YELLOW}(Existing password unchanged)${NC}"
     else
-        echo -e "  Pass:  ${GREEN}$ADMIN_PASS${NC}"
+        echo -e "    Pass:  ${GREEN}$ADMIN_PASS${NC}"
     fi
+    
+    echo ""
+    echo -e "  ${YELLOW}Agent${NC} - Standard Support Access"
+    echo -e "    Email: ${GREEN}${AGENT_EMAIL:-agent@example.com}${NC}"
+    echo -e "    Pass:  ${GREEN}${AGENT_PASS:-agent123456789}${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Finance${NC} - Billing & Invoice Access"
+    echo -e "    Email: ${GREEN}${FINANCE_EMAIL:-finance@example.com}${NC}"
+    echo -e "    Pass:  ${GREEN}${FINANCE_PASS:-finance123456789}${NC}"
+    echo ""
+    echo -e "  ${YELLOW}Reporter${NC} - Read-Only Access"
+    echo -e "    Email: ${GREEN}${REPORTER_EMAIL:-reporter@example.com}${NC}"
+    echo -e "    Pass:  ${GREEN}${REPORTER_PASS:-reporter123456789}${NC}"
     
     echo ""
     echo -e "${CYAN}Next Steps:${NC}"

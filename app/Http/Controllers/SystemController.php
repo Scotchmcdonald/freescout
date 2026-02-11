@@ -325,7 +325,7 @@ class SystemController extends Controller
         }
 
         // Tunnel Health
-        if (env('TUNNEL_TOKEN')) {
+        if (config('services.cloudflare.tunnel_token')) {
              $checks['tunnel'] = ['status' => 'ok', 'message' => 'Cloudflare Tunnel token is present'];
         } else {
              $checks['tunnel'] = ['status' => 'info', 'message' => 'Cloudflare Tunnel not configured'];
@@ -1035,7 +1035,7 @@ class SystemController extends Controller
 
         try {
             // Increase memory limit
-            ini_set('memory_limit', '256M');
+            ini_set('memory_limit', '1024M');
 
             Artisan::call('freescout:update', ['--force' => true]);
 
@@ -1078,7 +1078,7 @@ class SystemController extends Controller
      * Parse Laravel log file.
      *
      * @param string $path
-     * @return array
+     * @return array<int, array<string, string>>
      */
     private function getParsedLogFile(string $path): array
     {

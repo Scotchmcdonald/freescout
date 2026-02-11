@@ -43,8 +43,8 @@ class SendReplyToCustomer
             return;
         }
 
-        // Dispatch SendConversationReply job
-        \App\Jobs\SendConversationReply::dispatch($conversation, $thread)
+        // Dispatch SendConversationReplyJob job
+        \App\Jobs\SendConversationReplyJob::dispatch($conversation, $thread)
             ->delay(now()->addSeconds(10))
             ->onQueue('emails');
     }

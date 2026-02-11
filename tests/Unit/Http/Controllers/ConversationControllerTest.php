@@ -277,24 +277,5 @@ class ConversationControllerTest extends TestCase
 
         $this->assertGreaterThanOrEqual(3, $folders->count());
     }
-
-    public function test_store_requires_subject(): void
-    {
-        $this->markTestSkipped('Moved to Feature test: tests/Feature/ConversationValidationTest.php::test_conversation_requires_subject');
-    }
-
-    public function test_store_requires_body(): void
-    {
-        $this->markTestSkipped('Moved to Feature test: tests/Feature/ConversationValidationTest.php::test_conversation_requires_body');
-    }
-
-    public function test_store_requires_valid_email_addresses(): void
-    {
-        $this->markTestSkipped('Moved to Feature test: tests/Feature/ConversationValidationTest.php::test_conversation_validates_email_format');
-    }
-
-    public function test_store_denies_access_to_unauthorized_user(): void
-    {
-        $this->markTestSkipped('Moved to Feature test: tests/Feature/SecurityTest.php and tests/Feature/ConversationReplyTest.php');
-    }
 }
+

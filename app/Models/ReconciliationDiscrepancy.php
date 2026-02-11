@@ -33,6 +33,8 @@ class ReconciliationDiscrepancy extends Model
 
     /**
      * Get the reconciliation run this discrepancy belongs to.
+     *
+     * @return BelongsTo<ReconciliationRun, $this>
      */
     public function run(): BelongsTo
     {
@@ -41,6 +43,8 @@ class ReconciliationDiscrepancy extends Model
 
     /**
      * Get the user who resolved this discrepancy.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function resolver(): BelongsTo
     {
@@ -73,6 +77,8 @@ class ReconciliationDiscrepancy extends Model
 
     /**
      * Get severity information with color and icon.
+     *
+     * @return array<string, mixed>
      */
     public function getSeverityInfo(): array
     {
@@ -112,6 +118,8 @@ class ReconciliationDiscrepancy extends Model
 
     /**
      * Get resolution status information.
+     *
+     * @return array<string, mixed>
      */
     public function getResolutionInfo(): array
     {
@@ -152,33 +160,33 @@ class ReconciliationDiscrepancy extends Model
     /**
      * Query scope for pending discrepancies.
      */
-    public function scopePending($query)
+    public function scopePending(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('resolution_status', 'pending');
+        $query->where('resolution_status', 'pending');
     }
 
     /**
      * Query scope for resolved discrepancies.
      */
-    public function scopeResolved($query)
+    public function scopeResolved(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->whereIn('resolution_status', ['auto_corrected', 'resolved', 'ignored']);
+        $query->whereIn('resolution_status', ['auto_corrected', 'resolved', 'ignored']);
     }
 
     /**
      * Query scope for critical discrepancies.
      */
-    public function scopeCritical($query)
+    public function scopeCritical(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('severity', 'critical');
+        $query->where('severity', 'critical');
     }
 
     /**
      * Query scope for unresolved critical issues.
      */
-    public function scopeUnresolvedCritical($query)
+    public function scopeUnresolvedCritical(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('severity', 'critical')
+        $query->where('severity', 'critical')
                      ->whereIn('resolution_status', ['pending', 'manual_review']);
     }
 }

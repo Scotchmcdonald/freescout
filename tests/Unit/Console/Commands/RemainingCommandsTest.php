@@ -15,6 +15,7 @@ use App\Console\Commands\ModuleUpdate;
 use App\Console\Commands\UpdateFolderCounters;
 use Tests\UnitTestCase;
 
+/** @group console */
 class RemainingCommandsTest extends UnitTestCase
 {
     // AfterAppUpdate Tests
@@ -165,7 +166,7 @@ class RemainingCommandsTest extends UnitTestCase
     
     public function test_module_update_command_can_be_instantiated(): void
     {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
         
         $this->assertInstanceOf(ModuleUpdate::class, $command);
@@ -173,7 +174,7 @@ class RemainingCommandsTest extends UnitTestCase
 
     public function test_module_update_has_correct_signature(): void
     {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
         
         $this->assertEquals('freescout:module-update', $command->getName());

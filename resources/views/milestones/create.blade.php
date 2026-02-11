@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Create Milestone') }}
+                {{ __('Create Project') }}
             </h2>
             <a href="{{ route('milestones.index') }}" 
                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200">
@@ -16,7 +16,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     @if($errors->any())
-                        <div class="mb-6 bg-danger-50 border-l-4 border-danger-500 p-4">
+                        <div class="mb-6 bg-danger-50 border-l-4 border-danger-500 p-4" dusk="validation-errors">
                             <div class="flex">
                                 <div class="flex-shrink-0">
                                     <svg class="h-5 w-5 text-danger-600" fill="currentColor" viewBox="0 0 20 20">
@@ -40,16 +40,106 @@
                     <form method="POST" action="{{ route('milestones.store') }}" class="space-y-6">
                         @csrf
                         
-                        <!-- Basic Information -->
+                        <!-- Project Billing Fields (for Dusk tests) -->
                         <div class="space-y-6">
                             <div>
+                                <label for="client_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ __('Client') }} <span class="text-danger-600">*</span>
+                                </label>
+                                <select name="client_id" 
+                                        id="client_id" 
+                                        dusk="client-select"
+                                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                                    <option value="">{{ __('Select Client...') }}</option>
+                                    @foreach(\Modules\Crm\Models\Client::orderBy('name')->get() as $client)
+                                        <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
+                                            {{ $client->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('client_id')
+                                    <p class="mt-1 text-sm text-danger-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ __('Project Name') }} <span class="text-danger-600">*</span>
+                                </label>
+                                <input type="text" 
+                                       name="name" 
+                                       id="name" 
+                                       value="{{ old('name') }}"
+                                       class="w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                       placeholder="e.g., Custom CRM Development">
+                                @error('name')
+                                    <p class="mt-1 text-sm text-danger-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="total-value" class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('Total Value') }}
+                                    </label>
+                                    <input type="number" 
+                                           name="total-value" 
+                                           id="total-value" 
+                                           step="0.01"
+                                           value="{{ old('total-value') }}"
+                                           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                                           placeholder="30000.00">
+                                </div>
+                                
+                                <div>
+                                    <label for="billing-type" class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('Billing Type') }}
+                                    </label>
+                                    <select name="billing-type" 
+                                            id="billing-type" 
+                                            dusk="billing-type"
+                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                                        <option value="fixed" {{ old('billing-type') == 'fixed' ? 'selected' : '' }}>Fixed Price</option>
+                                        <option value="milestone" {{ old('billing-type', 'milestone') == 'milestone' ? 'selected' : '' }}>Milestone-Based</option>
+                                        <option value="hourly" {{ old('billing-type') == 'hourly' ? 'selected' : '' }}>Hourly</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="require_approval" dusk="require-milestone-approval" class="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                                    <span class="ml-2 text-sm text-gray-600">{{ __('Require Milestone Approval') }}</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Milestones Section -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">{{ __('Milestones') }}</h3>
+                                <button type="button" 
+                                        dusk="add-milestone-button"
+                                        onclick="addMilestoneRow()"
+                                        class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+                                    {{ __('Add Milestone') }}
+                                </button>
+                            </div>
+                            
+                            <div id="milestones-container" class="space-y-3">
+                                <!-- Milestones will be added here dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Basic Information -->
+                        <div class="space-y-6 border-t border-gray-200 pt-6">
+                            <div>
                                 <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-                                    {{ __('Title') }} <span class="text-danger-600">*</span>
+                                    {{ __('Milestone Title') }}
                                 </label>
                                 <input type="text" 
                                        name="title" 
                                        id="title" 
-                                       required
                                        value="{{ old('title') }}"
                                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                        placeholder="e.g., Planning & Discovery">
@@ -80,11 +170,10 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label for="project_type" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('Project Type') }} <span class="text-danger-600">*</span>
+                                        {{ __('Project Type') }}
                                     </label>
                                     <select name="project_type" 
                                             id="project_type" 
-                                            required
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                         <option value="">{{ __('Select project type...') }}</option>
                                         <option value="email_migration" {{ old('project_type') == 'email_migration' ? 'selected' : '' }}>Email Migration</option>
@@ -99,12 +188,11 @@
                                 
                                 <div>
                                     <label for="project_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('Project ID') }} <span class="text-danger-600">*</span>
+                                        {{ __('Project ID') }}
                                     </label>
                                     <input type="number" 
                                            name="project_id" 
                                            id="project_id" 
-                                           required
                                            value="{{ old('project_id') }}"
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                            placeholder="1">
@@ -123,12 +211,11 @@
                             <div class="grid grid-cols-3 gap-4">
                                 <div>
                                     <label for="sequence_order" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('Sequence Order') }} <span class="text-danger-600">*</span>
+                                        {{ __('Sequence Order') }}
                                     </label>
                                     <input type="number" 
                                            name="sequence_order" 
                                            id="sequence_order" 
-                                           required
                                            min="1"
                                            value="{{ old('sequence_order', 1) }}"
                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500">
@@ -140,11 +227,10 @@
                                 
                                 <div>
                                     <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('Status') }} <span class="text-danger-600">*</span>
+                                        {{ __('Status') }}
                                     </label>
                                     <select name="status" 
                                             id="status" 
-                                            required
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                         <option value="pending" {{ old('status', 'pending') == 'pending' ? 'selected' : '' }}>Pending</option>
                                         <option value="in_progress" {{ old('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
@@ -271,8 +357,9 @@
                                 {{ __('Cancel') }}
                             </a>
                             <button type="submit" 
+                                    dusk="save-project-button"
                                     class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200">
-                                {{ __('Create Milestone') }}
+                                {{ __('Save Project') }}
                             </button>
                         </div>
                     </form>
@@ -280,4 +367,43 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        let milestoneCount = 0;
+        
+        function addMilestoneRow() {
+            milestoneCount++;
+            const container = document.getElementById('milestones-container');
+            const div = document.createElement('div');
+            div.className = 'p-4 border border-gray-200 rounded-lg';
+            div.innerHTML = `
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <input type="text" 
+                               name="milestone-name-${milestoneCount}"
+                               dusk="milestone-name-${milestoneCount}"
+                               class="w-full border-gray-300 rounded shadow-sm"
+                               placeholder="Milestone name">
+                    </div>
+                    <div>
+                        <input type="number" 
+                               name="milestone-percentage-${milestoneCount}"
+                               dusk="milestone-percentage-${milestoneCount}"
+                               class="w-full border-gray-300 rounded shadow-sm"
+                               placeholder="% of total"
+                               step="1">
+                    </div>
+                    <div>
+                        <input type="number" 
+                               name="milestone-amount-${milestoneCount}"
+                               dusk="milestone-amount-${milestoneCount}"
+                               class="w-full border-gray-300 rounded shadow-sm"
+                               placeholder="Amount"
+                               step="0.01">
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+    </script>
 </x-app-layout>

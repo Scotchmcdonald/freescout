@@ -1140,7 +1140,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $mockModule = $this->createMock(\Nwidart\Modules\Module::class);
         $mockModule->expects($this->once())
             ->method('enable');
-        $mockModule->expects($this->exactly(3)) // Called 3 times: Log, Install command, Success message
+        $mockModule->expects($this->exactly(4)) // Called 4 times: Log, Install command, Activity log, Success message
             ->method('getName')
             ->willReturn('TestModule');
 
@@ -1164,7 +1164,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/enable/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $controller = new ModulesController($mockModuleSource);
         $response = $controller->enable($request, 'testmodule');
 
@@ -1184,7 +1184,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/enable/nonexistent', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $controller = new ModulesController($mockModuleSource);
         $response = $controller->enable($request, 'nonexistent');
 
@@ -1213,7 +1213,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/enable/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $controller = new ModulesController($mockModuleSource);
         $response = $controller->enable($request, 'testmodule');
 
@@ -1246,7 +1246,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/disable/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $controller = new ModulesController($mockModuleSource);
         $response = $controller->disable($request, 'testmodule');
 
@@ -1266,7 +1266,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/disable/nonexistent', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $controller = new ModulesController($mockModuleSource);
         $response = $controller->disable($request, 'nonexistent');
 
@@ -1292,7 +1292,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/disable/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $controller = new ModulesController($mockModuleSource);
         $response = $controller->disable($request, 'testmodule');
 
@@ -1343,7 +1343,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/delete/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $controller = new ModulesController($mockModuleSource);
         $response = $controller->delete($request, 'testmodule');
 
@@ -1392,7 +1392,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/delete/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $controller = new ModulesController($mockModuleSource);
         $response = $controller->delete($request, 'testmodule');
 
@@ -1413,7 +1413,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/delete/nonexistent', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $controller = new ModulesController($mockModuleSource);
         $response = $controller->delete($request, 'nonexistent');
 
@@ -1447,7 +1447,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/modules/delete/testmodule', 'POST');
         $request->setUserResolver(fn () => $this->admin);
 
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSource::class);
+        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $controller = new ModulesController($mockModuleSource);
         $response = $controller->delete($request, 'testmodule');
 

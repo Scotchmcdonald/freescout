@@ -1,17 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\View\View;
 
 class AnalyticsController extends Controller
 {
     /**
      * Display predictive analytics dashboard
      */
-    public function index()
+    public function index(): View
     {
         // Calculate key metrics
         $metrics = $this->calculateMetrics();
@@ -39,6 +42,8 @@ class AnalyticsController extends Controller
 
     /**
      * Calculate current metrics
+     *
+     * @return array<string, mixed>
      */
     private function calculateMetrics(): array
     {
@@ -95,6 +100,8 @@ class AnalyticsController extends Controller
 
     /**
      * Get revenue trends for last 12 months
+     *
+     * @return array<string, mixed>
      */
     private function getRevenueTrends(): array
     {
@@ -117,6 +124,8 @@ class AnalyticsController extends Controller
 
     /**
      * Get client growth trends for last 12 months
+     *
+     * @return list<array<string, mixed>>
      */
     private function getClientTrends(): array
     {
@@ -140,6 +149,9 @@ class AnalyticsController extends Controller
 
     /**
      * Generate forecasts for next 6 months using linear regression
+     *
+     * @param array<string, mixed> $revenueTrends
+     * @return list<array<string, mixed>>
      */
     private function generateForecasts(array $revenueTrends): array
     {
@@ -177,6 +189,10 @@ class AnalyticsController extends Controller
 
     /**
      * Generate actionable insights
+     *
+     * @param array<string, mixed> $metrics
+     * @param array<string, mixed> $revenueTrends
+     * @return list<array<string, mixed>>
      */
     private function generateInsights(array $metrics, array $revenueTrends): array
     {

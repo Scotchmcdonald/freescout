@@ -1,0 +1,4 @@
+name,vendor,sku,category,description,licensing_model,pricing_type,vendor_cost,default_price,billing_frequency
+"Microsoft 365 Business Standard","Microsoft","M365-BS","Productivity","Office apps and services","user","flat_rate",10.00,12.50,"monthly"
+"CrowdStrike Falcon","CrowdStrike","CS-FALCON","Security","Endpoint protection","device","tiered",5.00,8.00,"monthly"
+"Adobe Creative Cloud","Adobe","ADOBE-CC","Creative","All apps collection","user","flat_rate",45.00,55.00,"monthly"

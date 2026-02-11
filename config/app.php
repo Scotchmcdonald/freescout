@@ -15,6 +15,8 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'admin_email' => env('ADMIN_EMAIL'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
@@ -53,6 +55,8 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+
+    'host_src_path' => env('HOST_SRC_PATH'),
 
     /*
     |--------------------------------------------------------------------------
@@ -178,5 +182,40 @@ return [
     */
 
     'default_follow_up_days' => env('DEFAULT_FOLLOW_UP_DAYS', 3),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Seeder Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for database seeders.
+    |
+    */
+
+    'seeding' => [
+        'admin' => [
+            'password' => env('ADMIN_PASSWORD', 'admin123456789'),
+            'first_name' => env('ADMIN_FIRST_NAME', 'System'),
+            'last_name' => env('ADMIN_LAST_NAME', 'Administrator'),
+        ],
+        'agent' => [
+            'email' => env('AGENT_EMAIL', 'agent@example.com'),
+            'password' => env('AGENT_PASSWORD', 'agent123456789'),
+            'first_name' => env('AGENT_FIRST_NAME', 'Support'),
+            'last_name' => env('AGENT_LAST_NAME', 'Agent'),
+        ],
+        'finance' => [
+            'email' => env('FINANCE_EMAIL', 'finance@example.com'),
+            'password' => env('FINANCE_PASSWORD', 'finance123456789'),
+            'first_name' => env('FINANCE_FIRST_NAME', 'Finance'),
+            'last_name' => env('FINANCE_LAST_NAME', 'Manager'),
+        ],
+        'reporter' => [
+            'email' => env('REPORTER_EMAIL', 'reporter@example.com'),
+            'password' => env('REPORTER_PASSWORD', 'reporter123456789'),
+            'first_name' => env('REPORTER_FIRST_NAME', 'Report'),
+            'last_name' => env('REPORTER_LAST_NAME', 'Viewer'),
+        ]
+    ],
 
 ];

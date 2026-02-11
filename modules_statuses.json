@@ -5,12 +5,13 @@
     "Payment": true,
     "DevFeedback": true,
     "EmailMigration": true,
-    "TestModule": true,
     "ClientPortal": true,
     "ContractManager": true,
     "SoftwareSubscriptions": true,
     "Alerts": true,
     "Action1": true,
     "GoogleAdmin": true,
-    "WidgetRegistry": true
+    "WidgetRegistry": true,
+    "KnowledgeBase": true,
+    "TestModule": true
 }

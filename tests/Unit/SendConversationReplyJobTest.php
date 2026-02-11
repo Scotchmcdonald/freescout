@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Jobs\SendConversationReply;
+use App\Jobs\SendConversationReplyJob as SendConversationReply;
 use App\Mail\CustomerReply;
 use App\Models\Conversation;
 use App\Models\Customer;

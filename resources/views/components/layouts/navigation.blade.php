@@ -20,85 +20,128 @@
                         @php
                             $mailboxes = Auth::user()->mailboxesCanView(true);
                         @endphp
-                        @if ($mailboxes->count() == 1)
-                            <x-nav-link :href="route('mailboxes.view', ['mailbox' => $mailboxes->first()->id])" :active="request()->routeIs('mailboxes.view') && request()->mailbox && request()->mailbox->id == $mailboxes->first()->id">
-                                {{ __('Mailbox') }}
-                            </x-nav-link>
-                        @elseif ($mailboxes->count() > 1)
-                             <div class="hidden sm:flex sm:items-center sm:ms-6">
-                                <x-dropdown align="left" width="48">
-                                    <x-slot name="trigger">
-                                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-inherit bg-transparent hover:opacity-75 focus:outline-none transition ease-in-out duration-150">
-                                            <div>{{ __('Mailboxes') }}</div>
-                                            <div class="ms-1">
-                                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        </button>
-                                    </x-slot>
-                                    <x-slot name="content">
+                        @if ($mailboxes->count() > 0)
+                        <div class="hidden sm:flex sm:items-center sm:ms-6">
+                            <x-dropdown align="left" width="48">
+                                <x-slot name="trigger">
+                                    <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-inherit bg-transparent hover:opacity-75 focus:outline-none transition ease-in-out duration-150">
+                                        <div>{{ __('Mailboxes') }}</div>
+                                        <div class="ms-1">
+                                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </x-slot>
+                                <x-slot name="content">
+                                    <x-dropdown-link :href="route('mailboxes.index')">
+                                        {{ __('All Mailboxes') }}
+                                    </x-dropdown-link>
+                                    @if ($mailboxes->count() > 1)
+                                        <div class="border-t border-gray-100"></div>
                                         @foreach ($mailboxes as $mailbox)
                                             <x-dropdown-link :href="route('mailboxes.view', ['mailbox' => $mailbox->id])">
                                                 {{ $mailbox->name }}
                                             </x-dropdown-link>
                                         @endforeach
-                                    </x-slot>
-                                </x-dropdown>
-                            </div>
+                                    @endif
+                                </x-slot>
+                            </x-dropdown>
+                        </div>
                         @endif
                     @endauth
 
-                    <!-- Dynamic Navigation -->
+                    <!-- Manage (Dynamic Items) -->
                     @inject('navigationService', 'App\Services\Navigation\NavigationService')
-                    @foreach($navigationService->getItems() as $item)
-                        @if($item['type'] === 'dropdown')
-                            @if(empty($item['permission']) || Gate::check($item['permission']))
-                                <div class="hidden sm:flex sm:items-center sm:ms-6">
-                                    <x-dropdown align="left" width="48">
-                                        <x-slot name="trigger">
-                                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-inherit bg-transparent hover:opacity-75 focus:outline-none transition ease-in-out duration-150">
-                                                <div>{{ __($item['label']) }}</div>
-                                                <div class="ms-1">
-                                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                                    </svg>
-                                                </div>
-                                            </button>
-                                        </x-slot>
-                                        <x-slot name="content">
-                                            @foreach($item['children'] as $child)
-                                                @if(empty($child['permission']) || Gate::check($child['permission']))
-                                                    @if(Route::has($child['route']))
-                                                        <x-dropdown-link :href="route($child['route'])">
-                                                            {{ __($child['label']) }}
+                    @if(count($navigationService->getItems()) > 0)
+                        <div class="hidden sm:flex sm:items-center sm:ms-6">
+                             <x-dropdown align="left" width="48">
+                                <x-slot name="trigger">
+                                    <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-inherit bg-transparent hover:opacity-75 focus:outline-none transition ease-in-out duration-150">
+                                        <div>{{ __('Manage') }}</div>
+                                        <div class="ms-1">
+                                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </x-slot>
+                                <x-slot name="content">
+                                    @foreach($navigationService->getGroupedItems() as $category => $items)
+                                        @if($category === 'General')
+                                            @foreach($items as $item)
+                                                @if($item['type'] === 'dropdown')
+                                                     @foreach($item['children'] as $child)
+                                                        @if(empty($child['permission']) || Gate::check($child['permission']))
+                                                            <x-dropdown-link :href="route($child['route'])">
+                                                                {{ __($child['label']) }}
+                                                            </x-dropdown-link>
+                                                        @endif
+                                                    @endforeach
+                                                @elseif($item['type'] === 'link')
+                                                     @if(empty($item['permission']) || Gate::check($item['permission']))
+                                                        <x-dropdown-link :href="route($item['route'])">
+                                                            {{ __($item['label']) }}
                                                         </x-dropdown-link>
-                                                    @endif
+                                                     @endif
                                                 @endif
                                             @endforeach
-                                        </x-slot>
-                                    </x-dropdown>
-                                </div>
-                            @endif
-                        @elseif($item['type'] === 'link')
-                             @if(empty($item['permission']) || Gate::check($item['permission']))
-                                @if(Route::has($item['route']))
-                                    <x-nav-link :href="route($item['route'])" :active="request()->routeIs($item['route'])">
-                                        {{ __($item['label']) }}
-                                    </x-nav-link>
-                                @endif
-                             @endif
-                        @endif
-                    @endforeach
+                                        @else
+                                            <div class="relative group" x-data="{ subOpen: false }" @mouseenter="subOpen = true" @mouseleave="subOpen = false">
+                                                <button class="w-full text-start px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out flex justify-between items-center">
+                                                    <span>{{ __($category) }}</span>
+                                                    <svg class="h-4 w-4 text-gray-400 group-hover:text-gray-500 transform rotate-90 rtl:-rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </button>
+                                                <div x-show="subOpen"
+                                                     x-transition:enter="transition ease-out duration-200"
+                                                     x-transition:enter-start="opacity-0 scale-95"
+                                                     x-transition:enter-end="opacity-100 scale-100"
+                                                     x-transition:leave="transition ease-in duration-75"
+                                                     x-transition:leave-start="opacity-100 scale-100"
+                                                     x-transition:leave-end="opacity-0 scale-95"
+                                                     class="absolute top-0 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
+                                                     style="left: 100%; display: none;">
+                                                    @foreach($items as $item)
+                                                        @if($item['type'] === 'dropdown')
+                                                            @if($item['label'] !== $category)
+                                                                <div class="px-4 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                                                    {{ __($item['label']) }}
+                                                                </div>
+                                                            @endif
+                                                            @foreach($item['children'] as $child)
+                                                                 @if(empty($child['permission']) || Gate::check($child['permission']))
+                                                                    <x-dropdown-link :href="route($child['route'])">
+                                                                        {{ __($child['label']) }}
+                                                                    </x-dropdown-link>
+                                                                @endif
+                                                            @endforeach
+                                                        @elseif($item['type'] === 'link')
+                                                             @if(empty($item['permission']) || Gate::check($item['permission']))
+                                                                <x-dropdown-link :href="route($item['route'])">
+                                                                    {{ __($item['label']) }}
+                                                                </x-dropdown-link>
+                                                             @endif
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                    <?php app('eventy')->action('menu.manage'); ?>
+                                </x-slot>
+                            </x-dropdown>
+                        </div>
+                    @endif
 
-                    @if (Auth::check() && (Auth::user()->isAdmin()
-                        || Auth::user()->hasPermission(App\Models\User::PERM_EDIT_USERS))
-                    )
+                    <!-- Admin -->
+                    @if (Auth::check() && (Auth::user()->isAdmin() || Auth::user()->hasPermission(App\Models\User::PERM_EDIT_USERS)))
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
                             <x-dropdown align="left" width="48">
                                 <x-slot name="trigger">
                                     <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-inherit bg-transparent hover:opacity-75 focus:outline-none transition ease-in-out duration-150">
-                                        <div>{{ __('Manage') }}</div>
+                                        <div>{{ __('Admin') }}</div>
                                         <div class="ms-1">
                                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -111,65 +154,57 @@
                                         <x-dropdown-link :href="route('settings')">
                                             {{ __('Settings') }}
                                         </x-dropdown-link>
+
+                                        @if(Route::has('pib.workbench.index'))
+                                        <x-dropdown-link :href="route('pib.workbench.index')">
+                                            {{ __('Billing Workbench') }}
+                                        </x-dropdown-link>
+                                        @endif
                                     @endif
-                                    
-                                    <x-dropdown-link :href="route('mailboxes.index')">
-                                        {{ __('Mailboxes') }}
-                                    </x-dropdown-link>
 
                                     @if (Auth::user()->isAdmin() || Auth::user()->hasPermission(App\Models\User::PERM_EDIT_USERS))
                                         <x-dropdown-link :href="route('users.index')">
                                             {{ __('Users') }}
                                         </x-dropdown-link>
                                     @endif
+                                </x-slot>
+                            </x-dropdown>
+                        </div>
+                    @endif
 
-                                    @if (Auth::user()->isAdmin())
-                                        <x-dropdown-link :href="route('modules')">
-                                            {{ __('Modules') }}
-                                        </x-dropdown-link>
-                                        <x-dropdown-link :href="route('logs')">
-                                            {{ __('Logs') }}
-                                        </x-dropdown-link>
-                                        <x-dropdown-link :href="route('system')">
-                                            {{ __('System') }}
-                                        </x-dropdown-link>
+                    <!-- System -->
+                    @if (Auth::check() && Auth::user()->isAdmin())
+                        <div class="hidden sm:flex sm:items-center sm:ms-6">
+                            <x-dropdown align="left" width="48">
+                                <x-slot name="trigger">
+                                    <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-inherit bg-transparent hover:opacity-75 focus:outline-none transition ease-in-out duration-150">
+                                        <div>{{ __('System') }}</div>
+                                        <div class="ms-1">
+                                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                </x-slot>
+                                <x-slot name="content">
+                                    <x-dropdown-link :href="route('modules')">
+                                        {{ __('Modules') }}
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('logs')">
+                                        {{ __('Logs') }}
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.resilience.index')">
+                                        {{ __('Resilience') }}
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('system')">
+                                        {{ __('System') }}
+                                    </x-dropdown-link>
 
-                                        <div class="border-t border-gray-100 my-1"></div>
-
-                                        {{-- Infrastructure Resilience (Phase 6) --}}
-                                        <x-dropdown-link :href="route('admin.resilience.circuit-breakers')">
-                                            {{ __('Circuit Breakers') }}
-                                        </x-dropdown-link>
-                                        <x-dropdown-link :href="route('admin.resilience.rate-limits')">
-                                            {{ __('Rate Limits') }}
-                                        </x-dropdown-link>
-                                        <x-dropdown-link :href="route('admin.resilience.events-audit')">
-                                            {{ __('Event Audit Log') }}
-                                        </x-dropdown-link>
-
-                                        <div class="border-t border-gray-100 my-1"></div>
-
-                                        {{-- Asset Management (Phase 6 Week 2) --}}
-                                        <x-dropdown-link :href="route('admin.assets.inventory')">
-                                            {{ __('Global Fleet Inventory') }}
-                                        </x-dropdown-link>
-
-                                        <div class="border-t border-gray-100 my-1"></div>
-
-                                        @if(Route::has('inventory.products.index'))
-                                        <x-dropdown-link :href="route('inventory.products.index')">
-                                            {{ __('Product Catalog') }}
-                                        </x-dropdown-link>
-                                        @endif
-
-                                        {{-- Asset Management --}}
-                                        @if(Route::has('assets.conflicts.index'))
-                                            <x-dropdown-link :href="route('assets.conflicts.index')">
-                                                {{ __('Billing Exceptions') }}
-                                            </x-dropdown-link>
-                                        @endif
-
-                                        @action('menu.manage')
+                                    {{-- Infrastructure Resilience (Phase 6) --}}
+                                    @if(Route::has('admin.resilience.events-audit'))
+                                    <x-dropdown-link :href="route('admin.resilience.events-audit')">
+                                        {{ __('Event Audit Log') }}
+                                    </x-dropdown-link>
                                     @endif
                                 </x-slot>
                             </x-dropdown>
@@ -182,6 +217,13 @@
             @auth
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <!-- Theme Toggle -->
+
+                <button type="button" @click="$dispatch('open-activity-drawer')" class="text-inherit hover:opacity-75 focus:outline-none mr-2" title="{{ __('View Activity') }}">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
+                </button>
+
                 <button id="theme-toggle" type="button" x-data="themeToggle" @click="toggle()" class="text-inherit hover:opacity-75 focus:outline-none mr-2" aria-label="Toggle Dark Mode">
                     <svg id="theme-toggle-dark-icon" class="w-5 h-5 {{ Auth::user()->dark_mode ? '' : 'hidden' }}" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>

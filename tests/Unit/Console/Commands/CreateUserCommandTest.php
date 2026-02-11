@@ -8,8 +8,10 @@ use App\Console\Commands\CreateUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
+#[Group('console')]
 class CreateUserCommandTest extends TestCase
 {
     use RefreshDatabase;
@@ -22,9 +24,9 @@ class CreateUserCommandTest extends TestCase
             '--lastName' => 'Doe',
             '--email' => 'john.doe@example.com',
             '--password' => 'password123',
-            '--no-verification' => true,
+            '--verified' => true,
         ])
-            ->expectsConfirmation('Do you want to create the user?', 'yes')
+            ->expectsConfirmation('Do you want to create/update the user?', 'yes')
             ->assertExitCode(0);
 
         $this->assertDatabaseHas('users', [
@@ -33,6 +35,8 @@ class CreateUserCommandTest extends TestCase
             'last_name' => 'Doe',
             'role' => User::ROLE_ADMIN,
         ]);
+        
+        $this->assertNotNull(User::where('email', 'john.doe@example.com')->first()->email_verified_at);
     }
 
     public function test_create_user_command_creates_regular_user(): void
@@ -43,9 +47,9 @@ class CreateUserCommandTest extends TestCase
             '--lastName' => 'Smith',
             '--email' => 'jane.smith@example.com',
             '--password' => 'password123',
-            '--no-verification' => true,
+            '--verified' => true,
         ])
-            ->expectsConfirmation('Do you want to create the user?', 'yes')
+            ->expectsConfirmation('Do you want to create/update the user?', 'yes')
             ->assertExitCode(0);
 
         $this->assertDatabaseHas('users', [
@@ -97,6 +101,7 @@ class CreateUserCommandTest extends TestCase
             '--email' => 'existing@example.com',
             '--password' => 'password123',
         ])
+            ->expectsConfirmation("User with email 'existing@example.com' already exists. Do you want to overwrite it?", 'no')
             ->assertExitCode(1);
     }
 
@@ -108,9 +113,9 @@ class CreateUserCommandTest extends TestCase
             '--lastName' => 'User',
             '--email' => 'test.user@example.com',
             '--password' => 'password123',
-            '--no-verification' => true,
+            '--verified' => true,
         ])
-            ->expectsConfirmation('Do you want to create the user?', 'no')
+            ->expectsConfirmation('Do you want to create/update the user?', 'no')
             ->assertExitCode(0);
 
         $this->assertDatabaseMissing('users', [
@@ -127,7 +132,8 @@ class CreateUserCommandTest extends TestCase
             '--email' => 'verified@example.com',
             '--password' => 'password123',
         ])
-            ->expectsConfirmation('Do you want to create the user?', 'yes')
+            ->expectsConfirmation('Mark email as verified?', 'yes')
+            ->expectsConfirmation('Do you want to create/update the user?', 'yes')
             ->assertExitCode(0);
 
         $user = User::where('email', 'verified@example.com')->first();
@@ -143,13 +149,55 @@ class CreateUserCommandTest extends TestCase
             '--lastName' => 'User',
             '--email' => 'unverified@example.com',
             '--password' => 'password123',
-            '--no-verification' => true,
         ])
-            ->expectsConfirmation('Do you want to create the user?', 'yes')
+            ->expectsConfirmation('Mark email as verified?', 'no')
+            ->expectsConfirmation('Do you want to create/update the user?', 'yes')
             ->assertExitCode(0);
 
         $user = User::where('email', 'unverified@example.com')->first();
         $this->assertNotNull($user);
         $this->assertNull($user->email_verified_at);
+    }
+
+    public function test_create_user_with_explicit_verified_flag(): void
+    {
+        $this->artisan('freescout:create-user', [
+            '--role' => 'admin',
+            '--firstName' => 'Explicit',
+            '--lastName' => 'User',
+            '--email' => 'explicit@example.com',
+            '--password' => 'password123',
+            '--verified' => true,
+        ])
+            ->expectsConfirmation('Do you want to create/update the user?', 'yes')
+            ->assertExitCode(0);
+
+        $user = User::where('email', 'explicit@example.com')->first();
+        $this->assertNotNull($user->email_verified_at);
+    }
+
+    public function test_create_user_command_overwrites_existing_user(): void
+    {
+        // specific setup within the test method since using RefreshDatabase
+        $existingUser = User::factory()->create([
+            'email' => 'existing@example.com',
+            'first_name' => 'Original',
+            'last_name' => 'Name',
+        ]);
+
+        $this->artisan('freescout:create-user', [
+            '--role' => 'admin',
+            '--firstName' => 'New',
+            '--lastName' => 'Name',
+            '--email' => 'existing@example.com',
+            '--password' => 'newpassword123',
+            '--overwrite' => true,
+        ])
+            ->expectsConfirmation('Mark email as verified?', 'yes')
+            ->expectsConfirmation('Do you want to create/update the user?', 'yes')
+            ->assertExitCode(0);
+
+        $user = User::where('email', 'existing@example.com')->first();
+        $this->assertEquals('New', $user->first_name);
     }
 }

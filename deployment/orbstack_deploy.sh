@@ -29,14 +29,26 @@ readonly DEFAULT_BRANCH="laravel-11-foundation"
 readonly DEFAULT_INSTALL_DIR="$HOME/borealtek-ticketing"
 readonly CONFIG_FILE="${SCRIPT_DIR}/deploy.conf"
 
-# Color codes
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly CYAN='\033[0;36m'
-readonly BLUE='\033[0;34m'
-readonly MAGENTA='\033[0;35m'
-readonly NC='\033[0m'
+# Boreal Theme Colors
+readonly RED='\033[38;5;196m'        # Bright Red
+readonly GREEN='\033[38;5;46m'       # Neon Green
+readonly FOREST='\033[38;5;22m'      # Forest Green
+readonly YELLOW='\033[38;5;226m'     # Bright Yellow
+readonly CYAN='\033[38;5;51m'        # Ice Blue/Cyan
+readonly BLUE='\033[38;5;27m'        # Deep Blue
+readonly MAGENTA='\033[38;5;201m'    # Neon Pink/Magenta
+readonly WHITE='\033[38;5;231m'      # Bright White
+readonly GREY='\033[38;5;240m'       # Dark Grey
+readonly NC='\033[0m' # No Color
+
+# Theme Aliases
+readonly COLOR_PRIMARY=$CYAN
+readonly COLOR_SECONDARY=$GREEN
+readonly COLOR_ACCENT=$WHITE
+readonly COLOR_DIM=$GREY
+readonly COLOR_SUCCESS=$GREEN
+readonly COLOR_WARNING=$YELLOW
+readonly COLOR_ERROR=$RED
 
 # State variables
 INTERACTIVE=true
@@ -52,7 +64,7 @@ log_info() {
 }
 
 log_success() {
-    echo -e "${GREEN}✓${NC} $*"
+    echo -e "${GREEN}✔${NC} $*"
 }
 
 log_warning() {
@@ -60,12 +72,26 @@ log_warning() {
 }
 
 log_error() {
-    echo -e "${RED}✗${NC} $*" >&2
+    echo -e "${RED}✖${NC} $*" >&2
 }
 
 log_step() {
     echo ""
-    echo -e "${MAGENTA}▶${NC} ${BLUE}$*${NC}"
+    echo -e "${MAGENTA}➜${NC} ${BLUE}$*${NC}"
+}
+
+spinner() {
+    local pid=$1
+    local delay=0.1
+    local spinstr='|/-\'
+    while ps -p $pid > /dev/null; do
+        local temp=${spinstr#?}
+        printf " [%c]  " "$spinstr"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+        printf "\b\b\b\b\b\b"
+    done
+    printf "    \b\b\b\b"
 }
 
 cleanup() {
@@ -86,6 +112,22 @@ trap cleanup EXIT INT TERM
 
 command_exists() {
     command -v "$1" >/dev/null 2>&1
+}
+
+safe_read() {
+    # $1: prompt
+    # $2: variable name
+    if [ -t 0 ]; then
+        read -rp "$1" "$2"
+    elif [ -c /dev/tty ]; then
+        # Prompt to stderr so it shows up
+        echo -ne "$1" >&2
+        read -r "$2" < /dev/tty
+        echo "" >&2
+    else
+        log_error "Interactive input required but no TTY available."
+        exit 1
+    fi
 }
 
 validate_required_var() {
@@ -130,9 +172,24 @@ preflight_checks() {
     fi
     
     # Verify Docker is running
+    log_info "Verifying Docker Status..."
     if ! docker info >/dev/null 2>&1; then
         log_error "Docker is installed but not running"
         exit 1
+    fi
+
+    # Check System Resources (macOS)
+    if command_exists sysctl; then
+        log_info "Checking system resources..."
+        local total_mem
+        total_mem=$(sysctl -n hw.memsize)
+        # Check for at least 4GB RAM (approx 4294967296 bytes) since macOS is heavy
+        if [ "$total_mem" -lt 4294967296 ]; then
+            log_warning "System memory is below 4GB. Docker performance may be degraded."
+            sleep 2
+        else
+            log_success "System memory check passed"
+        fi
     fi
     
     # Enable BuildKit
@@ -148,20 +205,29 @@ preflight_checks() {
 
 show_banner() {
     clear
-    echo -e "${CYAN}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║                                                            ║${NC}"
-    echo -e "${CYAN}║    FreeScout OrbStack Deployer v${SCRIPT_VERSION} (macOS)         ║${NC}"
-    echo -e "${CYAN}║                                                            ║${NC}"
-    echo -e "${CYAN}╚════════════════════════════════════════════════════════════╝${NC}"
+    echo -e "${FOREST}       # #### ####${NC}"
+    echo -e "${FOREST}     ### \\/#|### |/####${NC}"
+    echo -e "${FOREST}    ##\\/#/ \\||/##/_/##/_#${NC}      ${CYAN}  ____                        _ _______   _          ${NC}"
+    echo -e "${FOREST}  ###  \\/###|/ \\/ # ###${NC}        ${CYAN} |  _ \\                      | |__   __| | |        ${NC}"
+    echo -e "${FOREST} ##_\\_#\\_\\## | #/###_/_####${NC}   ${CYAN}  | |_) | ___   _ __.__  ___  | |  | |  __| | __     ${NC}"
+    echo -e "${FOREST}## #### # \\ #| /  #### ##/##${NC}    ${CYAN}|  _ < / _ \| '__/ _ \/ _ \\\`| |  | |/ _ \ |/ /     ${NC}"
+    echo -e "${FOREST} __#_--###\`  |{,###---###-~${NC}     ${CYAN}| |_) | (_) | |  | __/ (_| || |  | || __/   <        ${NC}"
+    echo -e "${FOREST}           \\ }{${NC}                 ${CYAN}|____/ \\___/|_|  \\___|\\__,_||_|  |_|\\___|_|\\_\\ ${NC}"
+    echo -e "${FOREST}            }}{${NC}"
+    echo -e "${FOREST}            }}{${NC}                     ${GREEN} T R E E S C O U T   E N T E R P R I S E     ${NC}"
+    echo -e "${FOREST}            }}{${NC}"
+    echo -e "${FOREST}      , -=-~{ .-^- _${NC}"
+    echo -e "${FOREST}            \`${NC}"
     echo ""
+    echo -e "${COLOR_DIM}────────────────────────────────────────────────────────────────────────${NC}"
 }
 
 load_or_create_config() {
     if [ -f "$CONFIG_FILE" ]; then
         log_success "Configuration file found: $CONFIG_FILE"
         
-        if [ -t 0 ]; then
-            read -rp "Use this configuration? [Y/n] " use_config
+        if [ -t 0 ] || [ -c /dev/tty ]; then
+            safe_read "Use this configuration? [Y/n] " use_config
             use_config=${use_config:-Y}
             
             if [[ "$use_config" =~ ^[Yy]$ ]]; then
@@ -180,8 +246,8 @@ load_or_create_config() {
     else
         log_info "No configuration file found"
         
-        if [ -t 0 ]; then
-            read -rp "Create configuration template? [y/N] " create_config
+        if [ -t 0 ] || [ -c /dev/tty ]; then
+            safe_read "Create configuration template? [y/N] " create_config
             
             if [[ "$create_config" =~ ^[Yy]$ ]]; then
                 create_config_template
@@ -237,35 +303,66 @@ MODULES_TO_INSTALL=(
 EOF
 }
 
+
+interactive_menu() {
+    local choice
+    while true; do
+        show_banner
+        echo -e "  ${COLOR_PRIMARY}[1]${NC} Deploy to OrbStack (Fresh)"
+        echo -e "  ${COLOR_PRIMARY}[2]${NC} Update Existing/Redeploy"
+        echo -e "  ${COLOR_PRIMARY}[4]${NC} View Logs"
+        echo -e "  ${COLOR_PRIMARY}[0]${NC} Exit"
+        echo ""
+        safe_read "  Enter Selection: " choice
+        
+        case $choice in
+            1) return 0 ;;
+            2) return 0 ;;
+            4)
+                if command_exists docker; then
+                     docker compose logs -f app
+                fi
+                ;;
+            0) exit 0 ;;
+            *) log_error "Invalid selection" ; sleep 1 ;;
+        esac
+    done
+}
+
 interactive_setup() {
+     # If script provided with args, skip menu
+    if [ "$INTERACTIVE" = true ]; then
+        interactive_menu
+    fi
+
     log_step "Interactive Setup"
     
     # Cloudflare configuration
     log_info "Cloudflare Configuration"
-    read -rp "Domain Name [devtickets.scotchmcdonald.dev]: " input_domain
+    safe_read "Domain Name [devtickets.scotchmcdonald.dev]: " input_domain
     DOMAIN_NAME="${input_domain:-devtickets.scotchmcdonald.dev}"
     
     while [ -z "${CF_TUNNEL_TOKEN:-}" ]; do
         echo -e "${YELLOW}Paste your Cloudflare Tunnel Token (starts with ey...):${NC}"
-        read -r CF_TUNNEL_TOKEN
+        safe_read "> " CF_TUNNEL_TOKEN
     done
     echo ""
     
     # Admin configuration
     log_info "Admin User"
-    read -rp "Admin Email [admin@scotchmcdonald.dev]: " input_email
+    safe_read "Admin Email [admin@scotchmcdonald.dev]: " input_email
     ADMIN_EMAIL="${input_email:-admin@scotchmcdonald.dev}"
-    read -rp "Admin Password [auto-generate]: " input_pass
+    safe_read "Admin Password [auto-generate]: " input_pass
     ADMIN_PASS="${input_pass:-$(openssl rand -hex 12)}"
     echo ""
     
     # Google OAuth (optional)
     log_info "Google OAuth (Optional)"
-    read -rp "Google Client ID (Enter to skip): " GOOGLE_CLIENT_ID
+    safe_read "Google Client ID (Enter to skip): " GOOGLE_CLIENT_ID
     if [ -n "$GOOGLE_CLIENT_ID" ]; then
-        read -rp "Google Client Secret: " GOOGLE_CLIENT_SECRET
-        read -rp "Google Admin Emails (comma separated): " GOOGLE_ADMIN_EMAILS
-        read -rp "Allowed Domains (comma separated): " GOOGLE_ALLOWED_DOMAINS
+        safe_read "Google Client Secret: " GOOGLE_CLIENT_SECRET
+        safe_read "Google Admin Emails (comma separated): " GOOGLE_ADMIN_EMAILS
+        safe_read "Allowed Domains (comma separated): " GOOGLE_ALLOWED_DOMAINS
     fi
     echo ""
     
@@ -321,11 +418,11 @@ check_existing_installation() {
     if [ -f "$existing_env" ]; then
         log_warning "Existing installation found at $DEFAULT_INSTALL_DIR"
         
-        if [ -t 0 ]; then
+        if [ -t 0 ] || [ -c /dev/tty ]; then
             echo ""
             echo "1) Reuse existing database (Keep data)"
             echo "2) Overwrite database (DESTROY ALL DATA)"
-            read -rp "Select [1-2]: " reuse_opt
+            safe_read "Select [1-2]: " reuse_opt
             
             case "$reuse_opt" in
                 2)
@@ -364,7 +461,7 @@ decommission_existing() {
         echo "  2) Nuke everything (fresh install, all data lost)"
         echo "  3) Cancel deployment"
         echo ""
-        read -p "Enter choice [1-3]: " choice
+        safe_read "Enter choice [1-3]: " choice
         
         case $choice in
             1)
@@ -375,7 +472,7 @@ decommission_existing() {
             2)
                 REUSE_DB=false
                 log_warning "Nuking everything - all data will be lost!"
-                read -p "Type 'yes' to confirm: " confirm
+                safe_read "Type 'yes' to confirm: " confirm
                 if [ "$confirm" = "yes" ]; then
                     log_info "Stopping and removing containers and volumes..."
                     docker compose down -v --remove-orphans 2>/dev/null || true
@@ -932,13 +1029,6 @@ install_modules() {
 
         local target_dir="$DEFAULT_INSTALL_DIR/src/Modules/$name"
 
-        # Check for local module override
-        if [ -d "/var/www/html/Modules/$name" ]; then
-            log_info "Using local module: $name"
-            cp -r "/var/www/html/Modules/$name" "$target_dir"
-            continue
-        fi
-
         if [ -d "$target_dir" ]; then
             log_info "Module $name already exists. Updating..."
             cd "$target_dir"
@@ -1075,6 +1165,19 @@ finalize_installation() {
     
     log_info "Running module migrations..."
     docker compose exec -T app php artisan module:migrate --force
+    
+    log_info "Seeding KnowledgeBase content..."
+    echo '
+$modules = Module::all();
+foreach($modules as $module) {
+    if (!$module->isEnabled()) continue;
+    $seeder = "Modules\\" . $module->getName() . "\\Database\\Seeders\\KnowledgeBaseSeeder";
+    if (class_exists($seeder)) {
+        echo "Seeding " . $module->getName() . "...\n";
+        Artisan::call("db:seed", ["--class" => $seeder, "--force" => true]);
+    }
+}
+' | docker compose exec -T app php artisan tinker
 
     log_info "Seeding themes..."
     docker compose exec -T app php artisan db:seed --class=ThemeSeeder --force

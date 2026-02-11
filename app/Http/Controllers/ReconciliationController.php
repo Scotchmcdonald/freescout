@@ -6,15 +6,17 @@ namespace App\Http\Controllers;
 
 use App\Models\ReconciliationRun;
 use App\Models\ReconciliationDiscrepancy;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class ReconciliationController extends Controller
 {
     /**
      * Display reconciliation history dashboard.
      */
-    public function index()
+    public function index(): View
     {
         $runs = ReconciliationRun::with('discrepancies')
             ->orderBy('started_at', 'desc')
@@ -36,7 +38,8 @@ class ReconciliationController extends Controller
         ];
 
         // Pending manual reviews across all recent runs
-        $pendingReviews = ReconciliationDiscrepancy::whereHas('run', function ($query) {
+        $pendingReviews = ReconciliationDiscrepancy::whereHas('run', function (\Illuminate\Database\Eloquent\Builder $query) {
+            /** @phpstan-var \Illuminate\Database\Eloquent\Builder<\App\Models\ReconciliationRun> $query */
             $query->recent(30);
         })->whereIn('resolution_status', ['pending', 'manual_review'])
           ->with('run')
@@ -63,7 +66,7 @@ class ReconciliationController extends Controller
     /**
      * Show detailed view of a specific reconciliation run.
      */
-    public function show(ReconciliationRun $run)
+    public function show(ReconciliationRun $run): View
     {
         $run->load(['discrepancies.resolver']);
 
@@ -87,7 +90,7 @@ class ReconciliationController extends Controller
     /**
      * Resolve a discrepancy.
      */
-    public function resolve(Request $request, ReconciliationDiscrepancy $discrepancy)
+    public function resolve(Request $request, ReconciliationDiscrepancy $discrepancy): RedirectResponse
     {
         $request->validate([
             'resolution_action' => 'required|string|max:255',
@@ -125,7 +128,7 @@ class ReconciliationController extends Controller
     /**
      * Trigger a manual reconciliation run.
      */
-    public function trigger(Request $request)
+    public function trigger(Request $request): RedirectResponse
     {
         $request->validate([
             'scope' => 'nullable|array',

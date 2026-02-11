@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
@@ -14,17 +16,17 @@ class JobProgressUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $userId;
-    public $jobId;
-    public $name;
-    public $progress;
-    public $statusText;
-    public $status; // 'started', 'processing', 'completed'
+    public int $userId;
+    public string $jobId;
+    public string $name;
+    public int $progress;
+    public string $statusText;
+    public string $status; // 'started', 'processing', 'completed'
 
     /**
      * Create a new event instance.
      */
-    public function __construct($userId, $jobId, $name, $progress, $statusText, $status = 'processing')
+    public function __construct(int $userId, string $jobId, string $name, int $progress, string $statusText, string $status = 'processing')
     {
         $this->userId = $userId;
         $this->jobId = $jobId;
@@ -46,7 +48,7 @@ class JobProgressUpdated implements ShouldBroadcast
         ];
     }
 
-    public function broadcastAs()
+    public function broadcastAs(): string
     {
         return 'job.updated';
     }

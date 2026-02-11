@@ -8,17 +8,14 @@ use App\Console\Commands\ModuleBuild;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tests\UnitTestCase;
 
 /**
  * Test Suite for Module Build Command
  * Tests the module:build Artisan command functionality
  * Target Coverage: 95%+
+ * @group console
  */
-#[RunTestsInSeparateProcesses]
-#[PreserveGlobalState(false)]
 class ModuleBuildCommandsTest extends UnitTestCase
 {
     protected function setUp(): void

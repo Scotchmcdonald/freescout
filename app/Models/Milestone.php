@@ -1,12 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+// use Modules\ContractManager\Models\Contract; // Core Blindness: Injected via ContractManagerServiceProvider
+use Modules\PIB\Models\Invoice;
 
+/**
+ * @property-read \Modules\ContractManager\Models\Contract $contract
+ */
 class Milestone extends Model
 {
     use HasFactory, SoftDeletes;
@@ -19,6 +26,11 @@ class Milestone extends Model
         'sequence_order',
         'status',
         'progress_percentage',
+        'billing_amount',
+        'client_approved',
+        'client_approved_at',
+        'contract_id',
+        'invoice_id',
         'target_date',
         'started_at',
         'completed_at',
@@ -30,6 +42,9 @@ class Milestone extends Model
 
     protected $casts = [
         'progress_percentage' => 'decimal:2',
+        'billing_amount' => 'decimal:2',
+        'client_approved' => 'boolean',
+        'client_approved_at' => 'datetime',
         'target_date' => 'datetime',
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
@@ -42,9 +57,87 @@ class Milestone extends Model
     |--------------------------------------------------------------------------
     */
 
+    /** @return BelongsTo<User, $this> */
     public function assignedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    // Contract relationship is injected via ContractManagerServiceProvider
+    // public function contract(): BelongsTo
+    // {
+    //     return $this->belongsTo(Contract::class, 'contract_id');
+    // }
+
+    // Invoice relationship is injected via PIBServiceProvider to maintain Core Blindness
+    // public function invoice(): BelongsTo
+    // {
+    //     return $this->belongsTo(Invoice::class, 'invoice_id');
+    // }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Billing Methods
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Check if this milestone can generate a partial invoice.
+     * Requires: status achieved, client approved, no existing invoice, and a billing amount.
+     */
+    public function canGenerateInvoice(): bool
+    {
+        return $this->isAchieved()
+            && $this->client_approved
+            && $this->billing_amount > 0
+            && $this->invoice_id === null;
+    }
+
+    /**
+     * Approve milestone for billing (client approval step).
+     */
+    public function approveForBilling(): void
+    {
+        $this->update([
+            'client_approved' => true,
+            'client_approved_at' => now(),
+        ]);
+    }
+
+    /**
+     * Generate a partial invoice for this milestone.
+     */
+    public function generateInvoice(): ?Invoice
+    {
+        if (! $this->canGenerateInvoice()) {
+            return null;
+        }
+
+        $invoice = Invoice::create([
+            'client_id' => $this->contract->client_id,
+            'company_id' => $this->contract->client->company_id ?? 1,
+            'contract_id' => $this->contract_id,
+            'invoice_number' => 'INV-MS-' . strtoupper(uniqid()),
+            'status' => 'draft',
+            'invoice_date' => now(),
+            'due_date' => now()->addDays(30),
+            'subtotal' => $this->billing_amount,
+            'tax_amount' => 0,
+            'total_amount' => $this->billing_amount,
+            'special_notes' => "Milestone: {$this->title}",
+        ]);
+
+        $this->update(['invoice_id' => $invoice->id]);
+
+        return $invoice;
+    }
+
+    /**
+     * Get the sum of billing amounts for all milestones on the same contract.
+     */
+    public static function projectTotal(int $contractId): float
+    {
+        return (float) static::where('contract_id', $contractId)->sum('billing_amount');
     }
 
     /*
@@ -93,6 +186,7 @@ class Milestone extends Model
     |--------------------------------------------------------------------------
     */
 
+    /** @return array<string, mixed> */
     public function getStatusInfo(): array
     {
         $statusMap = [
@@ -190,46 +284,46 @@ class Milestone extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function scopeAchieved($query)
+    public function scopeAchieved(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('status', 'achieved');
+        $query->where('status', 'achieved');
     }
 
-    public function scopePending($query)
+    public function scopePending(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('status', 'pending');
+        $query->where('status', 'pending');
     }
 
-    public function scopeInProgress($query)
+    public function scopeInProgress(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('status', 'in_progress');
+        $query->where('status', 'in_progress');
     }
 
-    public function scopeBlocked($query)
+    public function scopeBlocked(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('status', 'blocked');
+        $query->where('status', 'blocked');
     }
 
-    public function scopeActive($query)
+    public function scopeActive(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->whereIn('status', ['pending', 'in_progress']);
+        $query->whereIn('status', ['pending', 'in_progress']);
     }
 
-    public function scopeOverdue($query)
+    public function scopeOverdue(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('status', '!=', 'achieved')
+        $query->where('status', '!=', 'achieved')
             ->where('target_date', '<', now());
     }
 
-    public function scopeForProject($query, string $projectType, int $projectId)
+    public function scopeForProject(\Illuminate\Database\Eloquent\Builder $query, string $projectType, int $projectId): void
     {
-        return $query->where('project_type', $projectType)
+        $query->where('project_type', $projectType)
             ->where('project_id', $projectId);
     }
 
-    public function scopeOrdered($query)
+    public function scopeOrdered(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->orderBy('sequence_order');
+        $query->orderBy('sequence_order');
     }
 
     /*
@@ -244,7 +338,7 @@ class Milestone extends Model
             return null;
         }
 
-        return now()->diffInDays($this->target_date, false);
+        return (int) now()->diffInDays($this->target_date, false);
     }
 
     public function getDurationAttribute(): ?string

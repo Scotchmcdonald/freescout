@@ -12,6 +12,7 @@ use Tests\UnitTestCase;
 /**
  * Cache clearing tests are skipped when running with code coverage
  * because they interfere with PCOV's coverage collection and cause hangs.
+ * @group console
  */
 class ClearCacheTest extends UnitTestCase
 {

@@ -220,7 +220,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         // Should handle without exception and skip sending
         $listener->handle($event);
 
-        \Queue::assertNotPushed(\App\Jobs\SendConversationReply::class);
+        \Queue::assertNotPushed(\App\Jobs\SendConversationReplyJob::class);
     }
 
     public function test_listener_dispatches_job_with_correct_delay(): void
@@ -242,7 +242,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         
         $listener->handle($event);
 
-        \Queue::assertPushed(\App\Jobs\SendConversationReply::class, function ($job) {
+        \Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, function ($job) {
             return !is_null($job->delay);
         });
     }
@@ -266,7 +266,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         
         $listener->handle($event);
 
-        \Queue::assertPushedOn('emails', \App\Jobs\SendConversationReply::class);
+        \Queue::assertPushedOn('emails', \App\Jobs\SendConversationReplyJob::class);
     }
 
     public function test_listener_handles_event_without_thread_property(): void
@@ -295,7 +295,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         
         $listener->handle($event);
 
-        \Queue::assertPushed(\App\Jobs\SendConversationReply::class, function ($job) use ($conversation, $thread) {
+        \Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, function ($job) use ($conversation, $thread) {
             return $job->conversation->id === $conversation->id &&
                    $job->thread->id === $thread->id;
         });

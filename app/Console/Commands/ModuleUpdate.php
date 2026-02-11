@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * php artisan freescout:module-install modulealias.
  */
@@ -6,7 +8,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Services\ModuleSource;
+use App\Services\ModuleSourceService;
 
 class ModuleUpdate extends Command
 {
@@ -24,14 +26,14 @@ class ModuleUpdate extends Command
      */
     protected $description = 'Update all modules or a single module (if module_alias is set)';
 
-    protected ModuleSource $moduleSource;
+    protected ModuleSourceService $moduleSource;
 
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct(ModuleSource $moduleSource)
+    public function __construct(ModuleSourceService $moduleSource)
     {
         parent::__construct();
         $this->moduleSource = $moduleSource;
@@ -48,7 +50,9 @@ class ModuleUpdate extends Command
         $modules = [];
 
         // We have to clear modules cache first to update modules cache
-        \Artisan::call('cache:clear');
+        if (!app()->runningUnitTests()) {
+            \Artisan::call('cache:clear');
+        }
 
         // Create a symlink for the module (or all modules)
         $module_alias = $this->argument('module_alias');

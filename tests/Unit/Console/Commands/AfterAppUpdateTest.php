@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Artisan;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
+/** @group console */
 class AfterAppUpdateTest extends UnitTestCase
 {
 

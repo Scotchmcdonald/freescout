@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
+/** @group console */
 class CreateUserTest extends UnitTestCase
 {
 
@@ -71,11 +72,11 @@ class CreateUserTest extends UnitTestCase
         $this->assertTrue($command->getDefinition()->hasOption('password'));
     }
 
-    public function test_command_accepts_no_verification_option(): void
+    public function test_command_accepts_verified_option(): void
     {
         $command = new CreateUser();
         
-        $this->assertTrue($command->getDefinition()->hasOption('no-verification'));
+        $this->assertTrue($command->getDefinition()->hasOption('verified'));
     }
 
     public function test_command_creates_admin_user(): void
@@ -162,22 +163,6 @@ class CreateUserTest extends UnitTestCase
         $this->assertNotNull($user->email_verified_at);
     }
 
-    public function test_command_skips_verification_with_flag(): void
-    {
-        Artisan::call('freescout:create-user', [
-            '--role' => 'user',
-            '--firstName' => 'Unverified',
-            '--lastName' => 'User',
-            '--email' => 'unverified@example.com',
-            '--password' => 'password123',
-            '--no-verification' => true,
-            '--no-interaction' => true,
-        ]);
-
-        $user = User::where('email', 'unverified@example.com')->first();
-        $this->assertNull($user->email_verified_at);
-    }
-
     public function test_command_validates_email_format(): void
     {
         $exitCode = Artisan::call('freescout:create-user', [
@@ -251,6 +236,6 @@ class CreateUserTest extends UnitTestCase
         ]);
         
         $output = Artisan::output();
-        $this->assertStringContainsString('created', $output);
+        $this->assertStringContainsString('User saved with id', $output);
     }
 }

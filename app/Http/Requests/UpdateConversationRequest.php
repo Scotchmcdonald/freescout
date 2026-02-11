@@ -32,6 +32,29 @@ class UpdateConversationRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        // Map text status values to integers
+        $status = $this->input('status');
+        if (is_string($status) && !is_numeric($status)) {
+            $statusMap = [
+                'active' => ConversationStatus::Active->value,
+                'pending' => ConversationStatus::Pending->value,
+                'closed' => ConversationStatus::Closed->value,
+                'resolved' => ConversationStatus::Closed->value,
+            ];
+            if (isset($statusMap[strtolower($status)])) {
+                $this->merge([
+                    'status' => $statusMap[strtolower($status)],
+                    'status_text' => strtolower($status),
+                ]);
+            }
+        }
+    }
+
+    /**
      * Get custom messages for validator errors.
      *
      * @return array<string, string>

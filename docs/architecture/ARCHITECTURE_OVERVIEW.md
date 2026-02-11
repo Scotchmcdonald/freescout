@@ -1,6 +1,6 @@
 # Architecture Overview
 **Current State:** Production  
-**Last Updated:** January 19, 2026  
+**Last Updated:** February 10, 2026  
 **Audience:** Developers, Technical Leadership, New Team Members
 
 ---
@@ -80,6 +80,11 @@ GenerateInvoiceJob::dispatch($template)->onQueue('billing');
 ```
 **Why:** Prevents bulk operations (e.g., generating 10,000 invoices) from blocking critical system notifications (password resets, ticket alerts) which run on the `default` queue.
 
+**Implementation Status:** ⚠️ **Partially Implemented**
+- ✅ Queue configuration exists (`billing`, `long-running` queues defined in config/queue.php)
+- ⏳ **Action Required:** PIB jobs need to be updated to use `->onQueue('billing')` when dispatched
+- 🎯 **Priority:** HIGH - Required to prevent system notification delays during bulk billing operations
+
 ### 7. Service Interfaces
 **Rule:** Define contracts in Core for critical feature module services.
 
@@ -111,7 +116,7 @@ Core Application (app/)
 └── Http/Controllers/Admin: Cross-module aggregators only
 
 Modules/
-├── Crm/                    ✅ Foundation module (customer data) [REQUIRED]
+├── Crm/                    ✅ Foundation module (customer data) [REQUIRED] [CSV Import]
 │   NOTE: CRM is a "foundation module" - always enabled, other modules depend on it
 │   ├── Models: Client, Company, Contact, CustomField
 │   ├── Services: ClientService, ClientMetricsService
@@ -120,17 +125,17 @@ Modules/
 │
 ├── AssetManagement/        ✅ Asset inventory & tracking
 │   ├── Entities: Asset, AssetStagingRecord
-│   ├── Services: AssetReconciliationService
-│   ├── Listeners: Google/Action1 sync listeners
+│   ├── Services: AssetStatusService, AssetCounterService, AssetReconciliationService
+│   ├── Listeners: GoogleChromebookDiscoveredListener, Action1DeviceDiscoveredListener
 │   └── Http/Controllers: AssetController
 │
 ├── GoogleAdmin/            ✅ Google Workspace integration
-│   ├── Services: GoogleSyncService, GoogleApiClient
-│   └── Events: GoogleUserSynced, GoogleChromebookDiscovered
+│   ├── Services: GoogleWorkspaceService, GoogleUserProvider
+│   └── Events: GoogleUserSynced, GoogleChromebookDiscovered, GoogleSyncFailed
 │
 ├── Action1/                ✅ RMM integration (Windows/Mac/Linux)
-│   ├── Services: Action1SyncService, Action1ApiClient
-│   └── Events: Action1DeviceDiscovered
+│   ├── Services: Action1Service
+│   └── Events: Action1DeviceDiscovered, Action1DeviceUpdated, Action1SoftwareDiscovered, Action1SyncFailed
 │
 ├── ContractManager/        ✅ Quotes, contracts, billing configuration
 │   ├── Models: Quote, Contract, BillingTemplate, ContractSchedule
@@ -140,15 +145,17 @@ Modules/
 │
 ├── PIB/                    ✅ Billing execution engine
 │   ├── Models: Invoice, InvoiceLineItem, EntitlementSnapshot, ClientCredit, ServiceUsage
-│   ├── Services: ClientCreditService, ProrationService, InvoiceGenerationService, TimeTrackingService, BillingAnalysisService
-│   ├── Resolvers: ServicePlanEntitlementResolver, RentToOwnEntitlementResolver
+│   ├── Services: ClientCreditService, BillingService, InvoiceGenerator, TimeEntryService, BillingAnalysisService
+│   ├── Resolvers: SilverPlanEntitlementResolver, RentToOwnEntitlementResolver
 │   └── Http/Controllers: BillingController, ServiceUsageController
+│   Note: ProrationService lives in app/Services (shared infrastructure)
 │
-├── SoftwareSubscriptions/  ✅ Subscription lifecycle & license tracking
+├── SoftwareSubscriptions/  ✅ Subscription lifecycle & license tracking [CSV Import]
 │   ├── Models: SoftwareProduct, ClientSoftwareSubscription, SoftwareAssignment
-│   ├── Services: SubscriptionCounterService, LicenseDeploymentService
+│   ├── Services: SubscriptionCounterService, LicenseDeploymentService, SoftwareReconciliationService, VendorReconciliationService
 │   ├── Resolvers: SoftwareProductEntitlementResolver
-│   └── Events: SoftwareAssignmentAdded, SoftwareCountChanged
+│   ├── Events: SoftwareAssignmentAdded, SoftwareCountChanged, SoftwareComplianceAlert
+│   └── Listeners: ContactCreated, ContactDeactivated, AssetCreated, AssetRetired, Action1SoftwareDiscovered, GoogleLicenseDiscovered
 │
 ├── Payment/                ✅ Helcim payment processing
 │   ├── Models: PaymentMethod, Transaction
@@ -171,9 +178,21 @@ Modules/
 │   ├── Features: 4-stage workflow (Discovery→Mapping→Verification→Execution)
 │   └── Dependencies: None (standalone tool)
 │
-└── Alerts/                 ⏳ PLANNED - NOT YET IMPLEMENTED
-    ├── Purpose: Centralized notification subscription and routing
-    └── Dependencies: None (infrastructure layer)
+├── Alerts/                 ✅ Centralized notification system [IMPLEMENTED]
+│   ├── Purpose: Alert subscription, routing, throttling, and digest support
+│   ├── Services: AlertService, AlertSubscriptionService
+│   ├── Models: AlertType, AlertSubscription, AlertDeliveryLog, AlertThrottle
+│   ├── Listeners: PaymentFailed, InvoiceUnusual, GoogleSyncFailed, Action1SyncFailed
+│   └── Dependencies: None (infrastructure layer)
+│
+├── WidgetRegistry/         ✅ UI composition infrastructure [IMPLEMENTED]
+│   ├── Purpose: Dynamic widget registration for cross-module views
+│   ├── Services: WidgetRegistryService
+│   └── Dependencies: None (infrastructure module)
+│
+└── KnowledgeBase/          ✅ Help article management [IMPLEMENTED]
+    ├── Purpose: Internal knowledge base and documentation
+    └── Dependencies: None (standalone utility)
 ```
 
 ### Module Dependencies

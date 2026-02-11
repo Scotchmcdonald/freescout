@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataTransferObjects;
 
 /**
@@ -13,7 +15,7 @@ final readonly class AssetStatusChangedData
     public function __construct(
         public int $assetId,
         public int $clientId,
-        public string $oldStatus,
+        public ?string $oldStatus,
         public string $newStatus,
         public string $source, // 'GoogleAdmin', 'Action1', 'Manual'
         public ?int $userId,

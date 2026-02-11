@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Modules\Crm\Models\Client;
 use Modules\WidgetRegistry\Services\WidgetRegistryService;
+use Illuminate\View\View;
 
 /**
  * Client 360 View Controller
@@ -15,7 +18,7 @@ use Modules\WidgetRegistry\Services\WidgetRegistryService;
  */
 class Client360Controller extends Controller
 {
-    public function show($id, WidgetRegistryService $widgetRegistry)
+    public function show(int $id, WidgetRegistryService $widgetRegistry): View
     {
         $client = Client::findOrFail($id);
         

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\ValueObjects;
 
 use InvalidArgumentException;
@@ -44,6 +46,10 @@ class Money implements JsonSerializable
         return $this->multiply($percent / 100);
     }
 
+    /**
+     * @param int $ratios
+     * @return array<int, self>
+     */
     public function allocate(int $ratios): array
     {
         if ($ratios <= 0) {
@@ -76,6 +82,9 @@ class Money implements JsonSerializable
         return number_format($this->toFloat(), 2);
     }
 
+    /**
+     * @return array{amount: int, currency: string, formatted: string}
+     */
     public function jsonSerialize(): array
     {
         return [

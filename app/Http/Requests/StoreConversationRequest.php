@@ -61,6 +61,31 @@ class StoreConversationRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        // Map 'description' to 'body' for helpdesk ticket context
+        if ($this->has('description') && !$this->has('body')) {
+            $this->merge([
+                'body' => $this->input('description'),
+            ]);
+        }
+
+        // Auto-populate customer_email and to from client_id when in helpdesk context
+        if ($this->filled('client_id') && !$this->filled('customer_email')) {
+            $client = \Modules\Crm\Models\Client::find($this->input('client_id'));
+            if ($client) {
+                $email = $client->email;
+                // Fall back to client user email if client has no email
+                if (!$email) {
+                    /** @var \Modules\Crm\Models\ClientUser|null $clientUser */
+                    $clientUser = $client->users()->first();
+                    $email = $clientUser ? $clientUser->email : 'client-' . $client->id . '@portal.local';
+                }
+                $this->merge([
+                    'customer_email' => $email,
+                    'to' => [$email],
+                ]);
+            }
+        }
+        
         if ($this->has('body')) {
             $this->merge([
                 'body' => clean($this->input('body'), 'default'),

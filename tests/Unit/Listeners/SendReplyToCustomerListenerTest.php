@@ -6,7 +6,7 @@ namespace Tests\Unit\Listeners;
 
 use App\Events\UserCreatedConversation;
 use App\Events\UserReplied;
-use App\Jobs\SendConversationReply;
+use App\Jobs\SendConversationReplyJob as SendConversationReply;
 use App\Listeners\SendReplyToCustomer;
 use App\Models\Conversation;
 use App\Models\Customer;

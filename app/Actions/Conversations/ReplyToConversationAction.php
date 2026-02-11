@@ -6,7 +6,7 @@ namespace App\Actions\Conversations;
 
 use App\Enums\ConversationStatus;
 use App\Enums\ThreadType;
-use App\Jobs\SendConversationReply;
+use App\Jobs\SendConversationReplyJob;
 use App\Models\Conversation;
 use App\Models\Thread;
 use App\Models\User;
@@ -90,10 +90,18 @@ class ReplyToConversationAction
      */
     private function updateConversation(Conversation $conversation, User $user, array $data): void
     {
+        // If no explicit status provided and this is an admin/agent reply (type=1),
+        // auto-set status to Pending (2) = "Awaiting Client Response"
+        $isReply = ($data['type'] ?? ThreadType::MESSAGE->value) === ThreadType::MESSAGE->value;
+        $defaultStatus = $conversation->status;
+        if ($isReply && !isset($data['status']) && $user->isAdmin()) {
+            $defaultStatus = ConversationStatus::Pending->value;
+        }
+
         $updateData = [
             'threads_count' => $conversation->threads_count + 1,
             'last_reply_at' => now(),
-            'status' => $data['status'] ?? $conversation->status,
+            'status' => $data['status'] ?? $defaultStatus,
         ];
 
         // Assign to user if unassigned
@@ -112,7 +120,7 @@ class ReplyToConversationAction
         $isReply = ($data['type'] ?? ThreadType::MESSAGE->value) === ThreadType::MESSAGE->value;
         
         if ($isReply) {
-            SendConversationReply::dispatch($conversation, $thread)
+            SendConversationReplyJob::dispatch($conversation, $thread)
                 ->delay(now()->addSeconds(10));
         }
     }

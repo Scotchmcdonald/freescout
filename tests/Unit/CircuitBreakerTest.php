@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Services\CircuitBreaker;
+use App\Services\CircuitBreakerService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -11,12 +11,12 @@ class CircuitBreakerTest extends TestCase
 {
     use RefreshDatabase;
     
-    protected CircuitBreaker $breaker;
+    protected CircuitBreakerService $breaker;
     
     protected function setUp(): void
     {
         parent::setUp();
-        $this->breaker = new CircuitBreaker();
+        $this->breaker = new CircuitBreakerService();
     }
     
     public function test_closed_circuit_allows_requests(): void

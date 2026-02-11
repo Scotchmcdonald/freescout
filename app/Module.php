@@ -50,7 +50,7 @@ class Module
             'module_name' => $alias,
         ];
 
-        $moduleSource = app(\App\Services\ModuleSource::class);
+        $moduleSource = app(\App\Services\ModuleSourceService::class);
         $moduleInfo = $moduleSource->getModule($alias);
 
         if (!$moduleInfo) {

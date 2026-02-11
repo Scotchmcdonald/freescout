@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Jobs;
 
-use App\Jobs\SendAlert;
-use App\Jobs\SendAutoReply;
-use App\Jobs\SendNotificationToUsers;
+use App\Jobs\SendAlertJob as SendAlert;
+use App\Jobs\SendAutoReplyJob as SendAutoReply;
+use App\Jobs\SendNotificationToUsersJob as SendNotificationToUsers;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;

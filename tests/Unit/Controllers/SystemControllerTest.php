@@ -385,6 +385,9 @@ class SystemControllerTest extends UnitTestCase
         \Artisan::shouldReceive('call')->with('config:clear')->once();
         \Artisan::shouldReceive('call')->with('route:clear')->once();
         \Artisan::shouldReceive('call')->with('view:clear')->once();
+        \Artisan::shouldReceive('call')->with('event:clear')->once();
+        \Artisan::shouldReceive('call')->with('optimize:clear')->once();
+        \Artisan::shouldReceive('output')->andReturn('Cleared');
 
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $request = Request::create('/system/ajax', 'POST');
@@ -455,6 +458,11 @@ class SystemControllerTest extends UnitTestCase
         \Artisan::shouldReceive('call')->with('cache:clear')
             ->andThrow(new \Exception('Cache clear failed'));
 
+        // Other calls might happen or not depending on implementation loop, but usually it continues? 
+        // Based on controller code: `foreach ($commands as $command => $label)` it continues even if one fails.
+        // So we should expect other calls or allow them.
+        \Artisan::shouldReceive('call'); 
+
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $request = Request::create('/system/ajax', 'POST');
         $request->setUserResolver(fn () => $admin);
@@ -463,10 +471,10 @@ class SystemControllerTest extends UnitTestCase
         $controller = new SystemController;
         $response = $controller->ajax($request);
 
-        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
         $data = $response->getData(true);
         $this->assertFalse($data['success']);
-        $this->assertStringContainsString('Failed to clear cache', $data['message']);
+        $this->assertStringContainsString('Some caches failed to clear', $data['message']);
     }
 
     public function test_ajax_handles_exception_in_optimize(): void

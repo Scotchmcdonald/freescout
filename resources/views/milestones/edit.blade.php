@@ -302,14 +302,6 @@
                                 {{ __('Cancel') }}
                             </a>
                             <div class="flex gap-3">
-                                <form method="POST" action="{{ route('milestones.destroy', $milestone) }}" onsubmit="return confirm('{{ __('Are you sure you want to delete this milestone?') }}');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" 
-                                            class="px-6 py-2 border border-danger-600 text-danger-600 rounded-lg hover:bg-danger-50 transition-colors duration-200">
-                                        {{ __('Delete') }}
-                                    </button>
-                                </form>
                                 <button type="submit" 
                                         class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200">
                                     {{ __('Update Milestone') }}
@@ -317,6 +309,17 @@
                             </div>
                         </div>
                     </form>
+
+                    <div class="flex justify-end mt-4 px-6 pb-6">
+                        <form method="POST" action="{{ route('milestones.destroy', $milestone) }}" onsubmit="return confirm('{{ __('Are you sure you want to delete this milestone?') }}');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" 
+                                    class="px-6 py-2 border border-danger-600 text-danger-600 rounded-lg hover:bg-danger-50 transition-colors duration-200">
+                                {{ __('Delete') }}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

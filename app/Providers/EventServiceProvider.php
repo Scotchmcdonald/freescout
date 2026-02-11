@@ -14,6 +14,7 @@ use App\Events\UserCreatedConversation;
 use App\Events\UserDeleted;
 use App\Events\UserReplied;
 use App\Listeners\HandleNewMessage;
+use App\Listeners\InvalidateCacheOnInvoicePaid;
 use App\Listeners\LogFailedLogin;
 use App\Listeners\LogLockout;
 use App\Listeners\LogPasswordReset;

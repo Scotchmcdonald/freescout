@@ -11,6 +11,7 @@ use App\Models\Mailbox;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/** @group console */
 class UpdateFolderCountersCommandTest extends TestCase
 {
     use RefreshDatabase;

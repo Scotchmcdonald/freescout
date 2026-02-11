@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Tests\UnitTestCase;
 
+/** @group console */
 class CommandErrorHandlingTest extends UnitTestCase
 {
     protected function tearDown(): void

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -25,7 +27,7 @@ class AtomicCounterService
      * Atomically increment a counter
      * 
      * @param string $table Database table name
-     * @param array $where Where conditions (e.g., ['client_id' => 1])
+     * @param array<string, mixed> $where Where conditions (e.g., ['client_id' => 1])
      * @param string $column Counter column name
      * @param int $amount Amount to increment by (default: 1)
      * @return int New counter value after increment
@@ -43,7 +45,7 @@ class AtomicCounterService
      * Atomically decrement a counter
      * 
      * @param string $table Database table name
-     * @param array $where Where conditions
+     * @param array<string, mixed> $where Where conditions
      * @param string $column Counter column name
      * @param int $amount Amount to decrement by (default: 1)
      * @return int New counter value after decrement
@@ -61,7 +63,7 @@ class AtomicCounterService
      * Get current counter value
      * 
      * @param string $table Database table name
-     * @param array $where Where conditions
+     * @param array<string, mixed> $where Where conditions
      * @param string $column Counter column name
      * @return int Current counter value
      */
@@ -82,7 +84,7 @@ class AtomicCounterService
      * Set counter to specific value
      * 
      * @param string $table Database table name
-     * @param array $where Where conditions
+     * @param array<string, mixed> $where Where conditions
      * @param string $column Counter column name
      * @param int $value New counter value
      * @return void
@@ -103,7 +105,7 @@ class AtomicCounterService
      * Uses raw SQL to ensure atomicity at database level
      * 
      * @param string $table Database table name
-     * @param array $where Where conditions
+     * @param array<string, mixed> $where Where conditions
      * @param string $column Counter column name
      * @param int $delta Amount to change (+/-)
      * @return int New counter value
@@ -121,6 +123,12 @@ class AtomicCounterService
     
     /**
      * PostgreSQL atomic update with RETURNING clause
+     *
+     * @param string $table
+     * @param array<string, mixed> $where
+     * @param string $column
+     * @param int $delta
+     * @return int
      */
     protected function atomicUpdatePostgres(string $table, array $where, string $column, int $delta): int
     {
@@ -139,6 +147,12 @@ class AtomicCounterService
     
     /**
      * MySQL atomic update with separate SELECT
+     *
+     * @param string $table
+     * @param array<string, mixed> $where
+     * @param string $column
+     * @param int $delta
+     * @return int
      */
     protected function atomicUpdateMysql(string $table, array $where, string $column, int $delta): int
     {
@@ -158,6 +172,9 @@ class AtomicCounterService
     
     /**
      * Build WHERE clause from conditions array
+     *
+     * @param array<string, mixed> $where
+     * @return string
      */
     protected function buildWhereClause(array $where): string
     {

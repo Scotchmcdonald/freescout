@@ -97,6 +97,62 @@
                                   placeholder="{{ __('Add internal notes (not visible to customer)') }}"
                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('internal_notes', $conversation->meta['internal_notes'] ?? '') }}</textarea>
                     </div>
+
+                    {{-- Billing Section --}}
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-4">{{ __('Billing Information') }}</h4>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" 
+                                       name="is_billable" 
+                                       id="is_billable"
+                                       dusk="billable-checkbox"
+                                       value="1"
+                                       {{ old('is_billable', $conversation->meta['is_billable'] ?? false) ? 'checked' : '' }}
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <label for="is_billable" class="ml-2 text-sm text-gray-700">
+                                    {{ __('This ticket is billable') }}
+                                </label>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="billable_hours" class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('Billable Hours') }}
+                                    </label>
+                                    <input type="number" 
+                                           name="billable_hours" 
+                                           id="billable_hours"
+                                           dusk="billable-hours"
+                                           step="0.25"
+                                           min="0"
+                                           value="{{ old('billable_hours', $conversation->meta['billable_hours'] ?? '') }}"
+                                           placeholder="0.00"
+                                           class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                </div>
+
+                                <div>
+                                    <label for="billable_rate" class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ __('Billable Rate ($)') }}
+                                    </label>
+                                    <input type="number" 
+                                           name="billable_rate" 
+                                           id="billable_rate"
+                                           dusk="billable-rate"
+                                           step="0.01"
+                                           min="0"
+                                           value="{{ old('billable_rate', $conversation->meta['billable_rate'] ?? '') }}"
+                                           placeholder="0.00"
+                                           class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                </div>
+                            </div>
+
+                            <div class="text-xs text-gray-500">
+                                {{ __('Total: $') }}<span id="billable-total">0.00</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Modal Footer --}}

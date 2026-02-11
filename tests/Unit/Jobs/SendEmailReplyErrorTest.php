@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Jobs;
 
-use App\Jobs\SendEmailReplyError;
+use App\Jobs\SendEmailReplyErrorJob as SendEmailReplyError;
 use App\Models\Mailbox;
 use App\Models\SendLog;
 use App\Models\User;

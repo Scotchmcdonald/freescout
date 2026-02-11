@@ -12,6 +12,10 @@ namespace App\DataTransferObjects;
  */
 final readonly class ClientUpdatedData
 {
+    /**
+     * @param list<string> $changedFields
+     * @param array<string, mixed> $oldValues
+     */
     public function __construct(
         public int $clientId,
         public array $changedFields,

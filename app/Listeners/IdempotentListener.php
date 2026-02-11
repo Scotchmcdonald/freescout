@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Listeners;
 
 use Illuminate\Support\Facades\DB;
@@ -21,7 +23,7 @@ use Illuminate\Support\Facades\DB;
  */
 abstract class IdempotentListener
 {
-    public function handle($event): void
+    public function handle(object $event): void
     {
         // Check if already processed
         if (DB::table('processed_events')
@@ -48,5 +50,5 @@ abstract class IdempotentListener
      * Override in subclasses to implement business logic
      * Guaranteed to execute exactly once per event
      */
-    abstract protected function handleIdempotent($event): void;
+    abstract protected function handleIdempotent(object $event): void;
 }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * php artisan freescout:module-install modulealias.
  */
@@ -94,7 +96,9 @@ class ModuleInstall extends Command
             $this->createModulePublicSymlink($module);
 
             $this->line('Clearing cache...');
-            $this->call('freescout:clear-cache');
+            $this->call('freescout:clear-cache', [
+                '--doNotCacheConfig' => app()->runningUnitTests()
+            ]);
 
         } catch (\Exception $e) {
             $this->error($e->getMessage());

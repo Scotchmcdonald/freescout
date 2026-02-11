@@ -418,7 +418,7 @@
                             <div class="mb-4">
                                 <div id="editor-container" 
                                      data-placeholder="@if ($conversation->isInChatMode()){{ __('Use ENTER to send the message and SHIFT+ENTER for a new line') }}@else{{ __('Type your reply...') }}@endif"></div>
-                                <textarea name="body" id="body" class="hidden"></textarea>
+                                <textarea name="body" id="body" class="hidden" dusk="reply-message"></textarea>
                                 @if ($errors->has('body'))
                                     <p class="form-error">{{ $errors->first('body') }}</p>
                                 @endif
@@ -469,12 +469,13 @@
                             {{-- Bottom Toolbar --}}
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" dusk="send-reply-button">
                                         {{ __('Send Reply') }}
                                     </button>
                                     <button type="button" 
                                             @click="window.conversationManager.createNote()"
-                                            class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                                            class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                                            dusk="add-note-button">
                                         {{ __('Add Note') }}
                                     </button>
                                     <button type="button" 

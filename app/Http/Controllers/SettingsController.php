@@ -62,12 +62,6 @@ class SettingsController extends Controller
                 'icon' => 'database',
                 'order' => 500
             ],
-            'demo' => [
-                'title' => __('Demo Data'),
-                'route' => 'settings.demo',
-                'icon' => 'play',
-                'order' => 600
-            ],
             'rbac' => [
                 'title' => __('Permissions & Roles'),
                 'route' => 'rbac.matrix',
@@ -79,6 +73,18 @@ class SettingsController extends Controller
         // Allow modules to add/remove sections
         \Eventy::filter('settings.sections', $sections);
         return $sections;
+    }
+
+    /**
+     * Display data import settings.
+     */
+    public function dataImport(): View|ViewFactory
+    {
+        $sections = $this->getSections();
+        $currentSection = 'data_import';
+        $settings = [];
+
+        return view('settings.data_import', compact('sections', 'currentSection', 'settings'));
     }
 
     /**
@@ -692,65 +698,17 @@ class SettingsController extends Controller
     }
 
     /**
-     * Display demo data / seeders.
+     * Run a seeder (Deprecated)
      */
+    /*
     public function demo(): View|ViewFactory
     {
-        $sections = $this->getSections();
-        $currentSection = 'demo';
-
-        $seeders = [];
-        
-        // App Seeders
-        $appPath = database_path('seeders');
-        if (File::exists($appPath)) {
-            foreach (File::files($appPath) as $file) {
-                if ($file->getExtension() === 'php') {
-                    $seeders[] = [
-                        'class' => 'Database\\Seeders\\' . $file->getFilenameWithoutExtension(),
-                        'name' => $file->getFilenameWithoutExtension(),
-                        'module' => 'App',
-                    ];
-                }
-            }
-        }
-
-        // Module Seeders
-        foreach (Module::all() as $module) {
-            $modulePath = $module->getPath() . '/Database/Seeders';
-            if (File::exists($modulePath)) {
-                foreach (File::files($modulePath) as $file) {
-                    if ($file->getExtension() === 'php') {
-                        $seeders[] = [
-                            'class' => 'Modules\\' . $module->getStudlyName() . '\\Database\\Seeders\\' . $file->getFilenameWithoutExtension(),
-                            'name' => $file->getFilenameWithoutExtension(),
-                            'module' => $module->getName(),
-                        ];
-                    }
-                }
-            }
-        }
-
-        return view('settings.demo', compact('sections', 'currentSection', 'seeders'));
+        ...
     }
-
-    /**
-     * Run a seeder.
-     */
+    
     public function runSeeder(Request $request): RedirectResponse
     {
-        $request->validate([
-            'class' => 'required|string',
-        ]);
-
-        try {
-            Artisan::call('db:seed', [
-                '--class' => $request->class,
-                '--force' => true,
-            ]);
-            return back()->with('success', "Seeder {$request->class} executed successfully.");
-        } catch (\Exception $e) {
-            return back()->with('error', "Failed to run seeder: " . $e->getMessage());
-        }
+       ...
     }
+    */
 }

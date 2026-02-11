@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use App\Jobs\RenewExpiringWebhooksJob;
 
 // Schedule automatic email fetching
 Schedule::command('freescout:fetch-emails')
@@ -14,6 +15,13 @@ Schedule::command('freescout:fetch-emails')
 Schedule::command('security:audit')
     ->dailyAt('08:00')
     ->runInBackground();
+
+// Webhook: Daily webhook renewal check (renew channels expiring within 48 hours)
+Schedule::job(new RenewExpiringWebhooksJob)
+    ->dailyAt('02:00')
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->name('renew-expiring-webhooks');
 
 // Asset Management: Daily Reconciliation & High-Water Mark Snapshot (Phase 2.3)
 // TODO: Uncomment when AssetManagement module is implemented

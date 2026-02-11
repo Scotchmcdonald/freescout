@@ -70,6 +70,51 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Business Events Channel - For audit trail and business logic events
+        'business' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/business.log'),
+            'level' => 'info',
+            'days' => 90, // Longer retention for audit purposes
+            'replace_placeholders' => true,
+        ],
+
+        // Performance Metrics Channel - For slow queries, API calls, etc.
+        'performance' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/performance.log'),
+            'level' => 'warning',
+            'days' => 7,
+            'replace_placeholders' => true,
+        ],
+
+        // Security Events Channel - For authentication, authorization, etc.
+        'security' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/security.log'),
+            'level' => 'warning',
+            'days' => 90, // Longer retention for compliance
+            'replace_placeholders' => true,
+        ],
+
+        // Audit Trail Channel - For sensitive operations (credit adjustments, approvals, etc.)
+        'audit' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/audit.log'),
+            'level' => 'info',
+            'days' => 365, // 1 year retention for compliance
+            'replace_placeholders' => true,
+        ],
+
+        // Queue Processing Channel - For job failures and retries
+        'queue' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/queue.log'),
+            'level' => 'info',
+            'days' => 14,
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => (string) env('LOG_SLACK_WEBHOOK_URL', ''),

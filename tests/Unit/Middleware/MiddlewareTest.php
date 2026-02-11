@@ -37,7 +37,7 @@ class MiddlewareTest extends UnitTestCase
 
     public function test_non_admin_user_is_forbidden(): void
     {
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $user = User::factory()->create(['role' => User::ROLE_USER, 'type' => 2]);
         $request = Request::create('/admin', 'GET');
         $request->setUserResolver(fn () => $user);
 
@@ -69,7 +69,7 @@ class MiddlewareTest extends UnitTestCase
 
     public function test_ensure_user_is_admin_returns_403_status(): void
     {
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $user = User::factory()->create(['role' => User::ROLE_USER, 'type' => 2]);
         $request = Request::create('/admin', 'GET');
         $request->setUserResolver(fn () => $user);
 
@@ -174,7 +174,7 @@ class MiddlewareTest extends UnitTestCase
         
         $this->assertTrue($admin->isAdmin());
         
-        $user = User::factory()->create(['role' => User::ROLE_USER]);
+        $user = User::factory()->create(['role' => User::ROLE_USER, 'type' => 2]);
         
         $this->assertFalse($user->isAdmin());
     }

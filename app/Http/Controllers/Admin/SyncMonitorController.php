@@ -1,18 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SyncOperation;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class SyncMonitorController extends Controller
 {
     /**
      * Display sync operations monitor
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $query = SyncOperation::query();
 
@@ -52,7 +56,7 @@ class SyncMonitorController extends Controller
     /**
      * Show detailed view of a sync operation
      */
-    public function show(SyncOperation $operation)
+    public function show(SyncOperation $operation): View
     {
         return view('admin.sync-monitor.show', compact('operation'));
     }
@@ -60,7 +64,7 @@ class SyncMonitorController extends Controller
     /**
      * Resume a stalled or paused operation
      */
-    public function resume(SyncOperation $operation)
+    public function resume(SyncOperation $operation): RedirectResponse
     {
         if (!in_array($operation->status, ['stalled', 'paused'])) {
             return back()->with('error', 'Only stalled or paused operations can be resumed.');
@@ -82,7 +86,7 @@ class SyncMonitorController extends Controller
     /**
      * Retry a failed operation
      */
-    public function retry(SyncOperation $operation)
+    public function retry(SyncOperation $operation): RedirectResponse
     {
         if ($operation->status !== 'failed') {
             return back()->with('error', 'Only failed operations can be retried.');
@@ -111,7 +115,7 @@ class SyncMonitorController extends Controller
     /**
      * Cancel a running operation
      */
-    public function cancel(SyncOperation $operation)
+    public function cancel(SyncOperation $operation): RedirectResponse
     {
         if ($operation->status !== 'running') {
             return back()->with('error', 'Only running operations can be cancelled.');
@@ -140,15 +144,18 @@ class SyncMonitorController extends Controller
         // Module-specific dispatch logic
         switch ($operation->source) {
             case 'GoogleAdmin':
-                if (class_exists(\Modules\GoogleAdmin\Jobs\ResumeSyncJob::class)) {
-                    \Modules\GoogleAdmin\Jobs\ResumeSyncJob::dispatch($operation);
-                }
+                // $jobClass = '\Modules\GoogleAdmin\Jobs\ResumeSyncJob';
+                // if (class_exists($jobClass)) {
+                //     $jobClass::dispatch($operation);
+                // }
+                // ResumeSyncJob does not exist and the architecture relies on restart/idempotency.
                 break;
 
             case 'Action1':
-                if (class_exists(\Modules\Action1\Jobs\ResumeSyncJob::class)) {
-                    \Modules\Action1\Jobs\ResumeSyncJob::dispatch($operation);
-                }
+                // if (class_exists(\Modules\Action1\Jobs\ResumeSyncJob::class)) {
+                //     \Modules\Action1\Jobs\ResumeSyncJob::dispatch($operation);
+                // }
+                // ResumeSyncJob does not exist and the architecture relies on restart/idempotency.
                 break;
 
             default:
@@ -164,15 +171,18 @@ class SyncMonitorController extends Controller
         // Module-specific dispatch logic
         switch ($operation->source) {
             case 'GoogleAdmin':
-                if ($operation->operation_type === 'google_users' && class_exists(\Modules\GoogleAdmin\Jobs\SyncUsersJob::class)) {
-                    \Modules\GoogleAdmin\Jobs\SyncUsersJob::dispatch($operation->id);
-                }
+                // $jobClass = '\Modules\GoogleAdmin\Jobs\SyncUsersJob';
+                // if ($operation->operation_type === 'google_users' && class_exists($jobClass)) {
+                //     $jobClass::dispatch($operation->id);
+                // }
+                // Implementation requires update: Job class is SyncGoogleUsersJob and arguments do not match.
                 break;
 
             case 'Action1':
-                if ($operation->operation_type === 'action1_devices' && class_exists(\Modules\Action1\Jobs\SyncDevicesJob::class)) {
-                    \Modules\Action1\Jobs\SyncDevicesJob::dispatch($operation->id);
-                }
+                // if ($operation->operation_type === 'action1_devices' && class_exists(\Modules\Action1\Jobs\SyncAction1DevicesJob::class)) {
+                //    \Modules\Action1\Jobs\SyncAction1DevicesJob::dispatch($operation->id);
+                // }
+                // Implementation requires update: Arguments do not match (Job expects ClientID, not OperationID).
                 break;
 
             default:

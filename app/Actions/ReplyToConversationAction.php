@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\DataTransferObjects\ThreadData;
-use App\Jobs\SendConversationReply;
+use App\Jobs\SendConversationReplyJob;
 use App\Models\Conversation;
 use App\Models\Thread;
 use App\Models\User;
@@ -83,7 +83,7 @@ class ReplyToConversationAction
 
             // Dispatch email notification for replies (not notes or drafts)
             if ($threadData->isReply() && !$threadData->isDraft) {
-                SendConversationReply::dispatch($conversation, $thread)
+                SendConversationReplyJob::dispatch($conversation, $thread)
                     ->delay(now()->addSeconds(10));
             }
 

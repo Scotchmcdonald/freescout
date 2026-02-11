@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -15,7 +17,7 @@ class PreventImpersonatorWrites
     public function handle(Request $request, Closure $next): Response
     {
         // Check if the current user is impersonating someone
-        if (auth()->check() && auth()->user()->isImpersonated()) {
+        if (auth()->check() && method_exists(auth()->user(), 'isImpersonated') && auth()->user()->isImpersonated()) {
             // Allow leaving impersonation and logout
             if ($request->routeIs('impersonate.leave') || $request->routeIs('portal.logout')) {
                 return $next($request);

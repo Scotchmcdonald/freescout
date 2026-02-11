@@ -131,7 +131,7 @@ class Subscription extends Model
             // The Job expects a collection of threads.
             $threads = $conversation->threads;
 
-            \App\Jobs\SendNotificationToUsers::dispatch($usersToNotify, $conversation, $threads);
+            \App\Jobs\SendNotificationToUsersJob::dispatch($usersToNotify, $conversation, $threads);
         }
     }
 }

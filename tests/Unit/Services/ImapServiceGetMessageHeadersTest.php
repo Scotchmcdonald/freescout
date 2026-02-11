@@ -12,7 +12,6 @@ use Webklex\PHPIMAP\Header;
 
 /**
  * Comprehensive tests for ImapService::getMessageHeaders() method.
- * This method currently has ~23% coverage and needs additional testing.
  */
 class ImapServiceGetMessageHeadersTest extends TestCase
 {
@@ -46,10 +45,11 @@ class ImapServiceGetMessageHeadersTest extends TestCase
     {
         $rawHeader = "From: test@example.com\r\nTo: recipient@example.com\r\nSubject: Test\r\n";
 
-        // Create a mock that properly reports method_exists
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andReturn($rawHeader);
-        $message->makePartial();
+        $message = new class($rawHeader) {
+            private $header;
+            public function __construct($header) { $this->header = $header; }
+            public function getRawHeader() { return $this->header; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -58,10 +58,10 @@ class ImapServiceGetMessageHeadersTest extends TestCase
 
     public function test_returns_empty_string_when_raw_header_is_empty(): void
     {
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andReturn('');
-        $message->allows('getHeader')->andReturn(null);
-        $message->makePartial();
+        $message = new class {
+            public function getRawHeader() { return ''; }
+            public function getHeader() { return null; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -70,10 +70,10 @@ class ImapServiceGetMessageHeadersTest extends TestCase
 
     public function test_returns_empty_string_when_raw_header_throws_exception(): void
     {
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andThrow(new \BadMethodCallException('Method not available'));
-        $message->allows('getHeader')->andReturn(null);
-        $message->makePartial();
+        $message = new class {
+            public function getRawHeader() { throw new \BadMethodCallException('Method not available'); }
+            public function getHeader() { return null; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -84,15 +84,18 @@ class ImapServiceGetMessageHeadersTest extends TestCase
     {
         $headerString = "From: test@example.com\nSubject: Test";
 
-        // getHeader() must return ?Header per type signature, not string
-        $header = Mockery::mock(Header::class);
-        $header->allows('__toString')->andReturn($headerString);
-        $header->makePartial();
+        $header = new class($headerString) {
+            private $str;
+            public function __construct($s) { $this->str = $s; }
+            public function __toString() { return $this->str; }
+        };
 
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andThrow(new \BadMethodCallException());
-        $message->allows('getHeader')->andReturn($header);
-        $message->makePartial();
+        $message = new class($header) {
+            private $h;
+            public function __construct($h) { $this->h = $h; }
+            // No getRawHeader method
+            public function getHeader() { return $this->h; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -103,14 +106,18 @@ class ImapServiceGetMessageHeadersTest extends TestCase
     {
         $headerString = "From: test@example.com\nTo: recipient@example.com";
         
-        $header = Mockery::mock(Header::class);
-        $header->allows('__toString')->andReturn($headerString);
-        $header->makePartial();
+        $header = new class($headerString) {
+            private $str;
+            public function __construct($s) { $this->str = $s; }
+            public function __toString() { return $this->str; }
+        };
 
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andThrow(new \BadMethodCallException());
-        $message->allows('getHeader')->andReturn($header);
-        $message->makePartial();
+        $message = new class($header) {
+            private $h;
+            public function __construct($h) { $this->h = $h; }
+            // No getRawHeader
+            public function getHeader() { return $this->h; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -119,14 +126,16 @@ class ImapServiceGetMessageHeadersTest extends TestCase
 
     public function test_returns_empty_when_header_tostring_returns_mockery_object(): void
     {
-        $header = Mockery::mock(Header::class);
-        $header->allows('__toString')->andReturn('Mockery_123_Header');
-        $header->makePartial();
+        // Simulate Mockery object string representation
+        $header = new class {
+            public function __toString() { return 'Mockery_123_Header'; }
+        };
 
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andThrow(new \BadMethodCallException());
-        $message->allows('getHeader')->andReturn($header);
-        $message->makePartial();
+        $message = new class($header) {
+            private $h;
+            public function __construct($h) { $this->h = $h; }
+            public function getHeader() { return $this->h; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -135,10 +144,10 @@ class ImapServiceGetMessageHeadersTest extends TestCase
 
     public function test_returns_empty_when_header_is_null(): void
     {
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andThrow(new \BadMethodCallException());
-        $message->allows('getHeader')->andReturn(null);
-        $message->makePartial();
+        $message = new class {
+            // No getRawHeader
+            public function getHeader() { return null; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -147,10 +156,10 @@ class ImapServiceGetMessageHeadersTest extends TestCase
 
     public function test_handles_exception_from_get_header(): void
     {
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andThrow(new \BadMethodCallException());
-        $message->allows('getHeader')->andThrow(new \Exception('Header not accessible'));
-        $message->makePartial();
+        $message = new class {
+            // No getRawHeader
+            public function getHeader() { throw new \Exception('Header not accessible'); }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -162,13 +171,18 @@ class ImapServiceGetMessageHeadersTest extends TestCase
         $rawHeader = "Raw: Header Content";
         $headerString = "Fallback: Header Content";
 
-        $header = Mockery::mock(Header::class);
-        $header->allows('__toString')->andReturn($headerString);
-        $header->makePartial();
+        $header = new class($headerString) {
+            private $str;
+            public function __construct($s) { $this->str = $s; }
+            public function __toString() { return $this->str; }
+        };
 
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andReturn($rawHeader);
-        $message->makePartial();
+        $message = new class($rawHeader, $header) {
+            private $rh, $h;
+            public function __construct($rh, $h) { $this->rh = $rh; $this->h = $h; }
+            public function getRawHeader() { return $this->rh; }
+            public function getHeader() { return $this->h; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -183,9 +197,11 @@ class ImapServiceGetMessageHeadersTest extends TestCase
                      "Date: Mon, 20 Nov 2025 10:00:00 +0000\r\n" .
                      "Message-ID: <123@example.com>\r\n";
 
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andReturn($rawHeader);
-        $message->makePartial();
+        $message = new class($rawHeader) {
+            private $rh;
+            public function __construct($rh) { $this->rh = $rh; }
+            public function getRawHeader() { return $this->rh; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -198,9 +214,11 @@ class ImapServiceGetMessageHeadersTest extends TestCase
     {
         $rawHeader = "From: tëst@example.com\r\nSubject: Тест 测试\r\n";
 
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andReturn($rawHeader);
-        $message->makePartial();
+        $message = new class($rawHeader) {
+            private $rh;
+            public function __construct($rh) { $this->rh = $rh; }
+            public function getRawHeader() { return $this->rh; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -210,11 +228,10 @@ class ImapServiceGetMessageHeadersTest extends TestCase
 
     public function test_returns_empty_when_raw_header_is_not_string(): void
     {
-        $message = Mockery::mock(Message::class);
-        // getRawHeader returns a non-string (mock object that isn't properly set up)
-        $message->allows('getRawHeader')->andReturn(new \stdClass());
-        $message->allows('getHeader')->andReturn(null);
-        $message->makePartial();
+        $message = new class {
+            public function getRawHeader() { return new \stdClass(); }
+            public function getHeader() { return null; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -225,10 +242,12 @@ class ImapServiceGetMessageHeadersTest extends TestCase
     {
         $headerObject = (object)['from' => 'test@example.com'];
 
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andThrow(new \BadMethodCallException());
-        $message->allows('getHeader')->andReturn($headerObject);
-        $message->makePartial();
+        $message = new class($headerObject) {
+            private $h;
+            public function __construct($h) { $this->h = $h; }
+            // No getRawHeader
+            public function getHeader() { return $this->h; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -239,9 +258,11 @@ class ImapServiceGetMessageHeadersTest extends TestCase
     {
         $rawHeader = str_repeat("X-Custom-Header: " . str_repeat('a', 100) . "\r\n", 50);
 
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andReturn($rawHeader);
-        $message->makePartial();
+        $message = new class($rawHeader) {
+            private $rh;
+            public function __construct($rh) { $this->rh = $rh; }
+            public function getRawHeader() { return $this->rh; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
@@ -254,23 +275,24 @@ class ImapServiceGetMessageHeadersTest extends TestCase
         $rawHeader = "From: \"John Doe\" <john@example.com>\r\n" .
                      "Subject: =?UTF-8?B?VGVzdCBTdWJqZWN0?=\r\n";
 
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andReturn($rawHeader);
-        $message->makePartial();
+        $message = new class($rawHeader) {
+            private $rh;
+            public function __construct($rh) { $this->rh = $rh; }
+            public function getRawHeader() { return $this->rh; }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 
         $this->assertEquals($rawHeader, $result);
-        // The string contains literal quote characters (not escaped in the result)
         $this->assertStringContainsString('"John Doe"', $result);
     }
 
     public function test_returns_empty_for_all_failures(): void
     {
-        $message = Mockery::mock(Message::class);
-        $message->allows('getRawHeader')->andThrow(new \RuntimeException());
-        $message->allows('getHeader')->andThrow(new \RuntimeException());
-        $message->makePartial();
+        $message = new class {
+            public function getRawHeader() { throw new \RuntimeException(); }
+            public function getHeader() { throw new \RuntimeException(); }
+        };
 
         $result = $this->invokeGetMessageHeaders($message);
 

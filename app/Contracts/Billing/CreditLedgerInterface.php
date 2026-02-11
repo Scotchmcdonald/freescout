@@ -7,62 +7,21 @@ namespace App\Contracts\Billing;
 /**
  * Interface CreditLedgerInterface
  * 
- * Standard contract for credit ledger operations.
- * Implemented by feature modules (e.g. PIB) to provide credit services to Core or other modules.
+ * Legacy interface for credit ledger operations.
+ * Extends both CreditWriter and CreditReader for backward compatibility.
+ * 
+ * @deprecated Use CreditWriter and/or CreditReader instead
+ * 
+ * MIGRATION PATH:
+ * - If you only read balances: depend on CreditReader
+ * - If you only modify credits: depend on CreditWriter
+ * - If you need both: depend on both interfaces (preferred) or this legacy interface
+ * 
+ * This interface will be kept for backward compatibility but new code should use
+ * the segregated interfaces to follow the Interface Segregation Principle.
  */
-interface CreditLedgerInterface
+interface CreditLedgerInterface extends CreditWriter, CreditReader
 {
-    /**
-     * Add credit to client account
-     *
-     * @param int $clientId
-     * @param float $amount Amount in dollars (positive)
-     * @param string $description
-     * @param string|null $referenceType
-     * @param int|null $referenceId
-     * @return void
-     */
-    public function addCredit(
-        int $clientId,
-        float $amount,
-        string $description,
-        ?string $referenceType = null,
-        ?int $referenceId = null
-    ): void;
-
-    /**
-     * Deduct credit from client account
-     *
-     * @param int $clientId
-     * @param float $amount Amount to deduct in dollars (positive)
-     * @param string $description
-     * @param string|null $referenceType
-     * @param int|null $referenceId
-     * @return void
-     * @throws \Exception If insufficient balance
-     */
-    public function deductCredit(
-        int $clientId,
-        float $amount,
-        string $description,
-        ?string $referenceType = null,
-        ?int $referenceId = null
-    ): void;
-
-    /**
-     * Get current credit balance
-     *
-     * @param int $clientId
-     * @return float Balance in dollars
-     */
-    public function getBalance(int $clientId): float;
-
-    /**
-     * Check if client has sufficient credit
-     *
-     * @param int $clientId
-     * @param float $amount
-     * @return bool
-     */
-    public function hasSufficientCredit(int $clientId, float $amount): bool;
+    // All methods inherited from CreditWriter and CreditReader
+    // No additional methods should be added here
 }

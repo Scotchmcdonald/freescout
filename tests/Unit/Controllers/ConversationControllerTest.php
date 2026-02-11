@@ -268,6 +268,11 @@ class ConversationControllerTest extends UnitTestCase
         $request->shouldReceive('user')->andReturn($user);
         $request->shouldReceive('validated')->andReturn(['user_id' => $assignee->id]);
         $request->shouldReceive('expectsJson')->andReturn(false);
+        $request->shouldReceive('has')->with('is_billable')->andReturn(false);
+        $request->shouldReceive('filled')->with('billable_hours')->andReturn(false);
+        $request->shouldReceive('filled')->with('billable_rate')->andReturn(false);
+        $request->shouldReceive('filled')->with('resolution_notes')->andReturn(false);
+        $request->shouldReceive('input')->with('status_text', '')->andReturn('');
 
         $controller = new ConversationController;
         $controller->update($request, $conversation);
@@ -288,6 +293,11 @@ class ConversationControllerTest extends UnitTestCase
         $request->shouldReceive('user')->andReturn($user);
         $request->shouldReceive('validated')->andReturn(['folder_id' => $folder2->id]);
         $request->shouldReceive('expectsJson')->andReturn(false);
+        $request->shouldReceive('has')->with('is_billable')->andReturn(false);
+        $request->shouldReceive('filled')->with('billable_hours')->andReturn(false);
+        $request->shouldReceive('filled')->with('billable_rate')->andReturn(false);
+        $request->shouldReceive('filled')->with('resolution_notes')->andReturn(false);
+        $request->shouldReceive('input')->with('status_text', '')->andReturn('');
 
         $controller = new ConversationController;
         $controller->update($request, $conversation);

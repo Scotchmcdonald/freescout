@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Console\Commands;
 
 use App\Console\Commands\ModuleBuild;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Tests\UnitTestCase;
 
 /**
@@ -13,6 +12,7 @@ use Tests\UnitTestCase;
  * 
  * Target: 90-95% coverage for App\Console\Commands\ModuleBuild
  * Current coverage: 50%
+ * @group console
  */
 class ModuleBuildTest extends UnitTestCase
 {
@@ -183,31 +183,30 @@ class ModuleBuildTest extends UnitTestCase
         $this->assertStringContainsString('?', $signature); // Optional argument
     }
 
-    #[RunInSeparateProcess]
     public function test_handle_returns_error_when_no_modules_found(): void
     {
         // Mock Module facade to return empty array
         \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([]);
+        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
 
         $this->artisan('freescout:module-build')
             ->expectsOutput('No modules found')
             ->assertExitCode(1);
     }
 
-    #[RunInSeparateProcess]
     public function test_handle_returns_error_when_module_not_found(): void
     {
         // Mock Module facade
         \Nwidart\Modules\Facades\Module::shouldReceive('findByAlias')
             ->with('nonexistent')
             ->andReturn(null);
+        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
 
         $this->artisan('freescout:module-build nonexistent')
             ->expectsOutput('Module with the specified alias not found: nonexistent')
             ->assertExitCode(1);
     }
 
-    #[RunInSeparateProcess]
     public function test_handle_builds_all_modules_when_no_alias_provided(): void
     {
         // Create mock module
@@ -218,6 +217,7 @@ class ModuleBuildTest extends UnitTestCase
         \Nwidart\Modules\Facades\Module::shouldReceive('all')
             ->andReturn([$mockModule])
             ->twice();
+        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
 
         // Create temp public/modules directory for test
         $publicModulesPath = public_path('modules/test-module');
@@ -245,7 +245,6 @@ class ModuleBuildTest extends UnitTestCase
         }
     }
 
-    #[RunInSeparateProcess]
     public function test_build_module_shows_error_if_public_symlink_missing(): void
     {
         $mockModule = \Mockery::mock();
@@ -255,13 +254,13 @@ class ModuleBuildTest extends UnitTestCase
         \Nwidart\Modules\Facades\Module::shouldReceive('findByAlias')
             ->with('missing-symlink-module')
             ->andReturn($mockModule);
+        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
 
         $this->artisan('freescout:module-build missing-symlink-module')
             ->expectsOutput('Building module: TestModule')
             ->assertExitCode(0);
     }
 
-    #[RunInSeparateProcess]
     public function test_build_vars_skips_when_view_does_not_exist(): void
     {
         $mockModule = \Mockery::mock();
@@ -271,6 +270,7 @@ class ModuleBuildTest extends UnitTestCase
         \Nwidart\Modules\Facades\Module::shouldReceive('findByAlias')
             ->with('no-view-module')
             ->andReturn($mockModule);
+        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
 
         // Create temp symlink
         $publicModulesPath = public_path('modules/no-view-module');
@@ -294,7 +294,6 @@ class ModuleBuildTest extends UnitTestCase
         }
     }
 
-    #[RunInSeparateProcess]
     public function test_command_uses_app_locales_config(): void
     {
         config(['app.locales' => ['en', 'es', 'fr']]);
@@ -306,6 +305,7 @@ class ModuleBuildTest extends UnitTestCase
         \Nwidart\Modules\Facades\Module::shouldReceive('findByAlias')
             ->with('locale-module')
             ->andReturn($mockModule);
+        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
 
         $publicModulesPath = public_path('modules/locale-module');
         $publicModulesDir = dirname($publicModulesPath);

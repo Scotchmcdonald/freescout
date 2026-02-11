@@ -10,7 +10,7 @@ use App\Events\CustomerReplied;
 use App\Events\UserAddedNote;
 use App\Events\UserCreatedConversation;
 use App\Events\UserReplied;
-use App\Jobs\SendNotificationToUsers as SendNotificationToUsersJob;
+use App\Jobs\SendNotificationToUsersJob;
 use App\Listeners\SendNotificationToUsers;
 use App\Models\Conversation;
 use App\Models\Customer;

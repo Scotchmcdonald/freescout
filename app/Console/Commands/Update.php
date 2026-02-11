@@ -47,7 +47,7 @@ class Update extends Command
             $this->info('Starting FreeScout update...');
 
             // Increase memory limit for update process
-            ini_set('memory_limit', '256M');
+            ini_set('memory_limit', '1024M');
 
             try {
                 // Run database migrations

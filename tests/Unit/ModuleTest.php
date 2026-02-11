@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Module;
-use App\Services\ModuleSource;
+use App\Services\ModuleSourceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -122,7 +122,7 @@ class ModuleTest extends TestCase
     public function test_update_module_with_missing_download_url(): void
     {
         // Mock module source to return module without download URL
-        $this->app->instance(ModuleSource::class, new class extends ModuleSource {
+        $this->app->instance(ModuleSourceService::class, new class extends ModuleSourceService {
             public function getModule(string $alias): ?array
             {
                 return [

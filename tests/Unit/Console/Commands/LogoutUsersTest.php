@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+/** @group console */
 class LogoutUsersTest extends TestCase
 {
     public function test_command_has_correct_signature(): void

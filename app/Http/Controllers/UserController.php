@@ -151,6 +151,11 @@ class UserController extends Controller
     {
         $this->authorize('delete', $user);
 
+        // Explicitly prevent self-deletion, as Gate::before for admins might override the policy
+        if ($request->user() && $request->user()->id === $user->id) {
+            abort(403, 'Users cannot delete themselves.');
+        }
+
         $reassignTo = $request->input('reassign_to');
         
         if ($user->conversations()->exists()) {

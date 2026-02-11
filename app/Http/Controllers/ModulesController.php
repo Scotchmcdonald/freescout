@@ -1230,7 +1230,7 @@ class ModulesController extends Controller
                 try {
                     // Manually register the module if it wasn't picked up by scan()
                     // This is a workaround for when the repository cache isn't clearing properly
-                    $module = new \Nwidart\Modules\Module(app(), $moduleName, $targetPath);
+                    $module = new \Nwidart\Modules\Laravel\Module(app(), $moduleName, $targetPath);
                 } catch (\Exception $e) {
                     \Log::warning("Failed to manually instantiate module: " . $e->getMessage());
                 }

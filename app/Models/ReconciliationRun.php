@@ -7,6 +7,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder|ReconciliationRun recent(int $days = 30)
+ * @method static \Illuminate\Database\Eloquent\Builder|ReconciliationRun completed()
+ * @method static \Illuminate\Database\Eloquent\Builder|ReconciliationRun running()
+ * @method static \Illuminate\Database\Eloquent\Builder|ReconciliationRun withCriticalIssues()
+ */
 class ReconciliationRun extends Model
 {
     protected $fillable = [
@@ -43,6 +49,8 @@ class ReconciliationRun extends Model
 
     /**
      * Get all discrepancies for this run.
+     *
+     * @return HasMany<ReconciliationDiscrepancy, $this>
      */
     public function discrepancies(): HasMany
     {
@@ -51,6 +59,8 @@ class ReconciliationRun extends Model
 
     /**
      * Get pending discrepancies requiring manual review.
+     *
+     * @return HasMany<ReconciliationDiscrepancy, $this>
      */
     public function pendingDiscrepancies(): HasMany
     {
@@ -59,6 +69,8 @@ class ReconciliationRun extends Model
 
     /**
      * Get critical discrepancies.
+     *
+     * @return HasMany<ReconciliationDiscrepancy, $this>
      */
     public function criticalDiscrepancies(): HasMany
     {
@@ -104,6 +116,8 @@ class ReconciliationRun extends Model
 
     /**
      * Get status information with color and message.
+     *
+     * @return array<string, mixed>
      */
     public function getStatusInfo(): array
     {
@@ -160,40 +174,40 @@ class ReconciliationRun extends Model
     /**
      * Query scope for completed runs.
      */
-    public function scopeCompleted($query)
+    public function scopeCompleted(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('status', 'completed');
+        $query->where('status', 'completed');
     }
 
     /**
      * Query scope for failed runs.
      */
-    public function scopeFailed($query)
+    public function scopeFailed(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('status', 'failed');
+        $query->where('status', 'failed');
     }
 
     /**
      * Query scope for running reconciliations.
      */
-    public function scopeRunning($query)
+    public function scopeRunning(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('status', 'running');
+        $query->where('status', 'running');
     }
 
     /**
      * Query scope for recent runs.
      */
-    public function scopeRecent($query, int $days = 30)
+    public function scopeRecent(\Illuminate\Database\Eloquent\Builder $query, int $days = 30): void
     {
-        return $query->where('started_at', '>=', now()->subDays($days));
+        $query->where('started_at', '>=', now()->subDays($days));
     }
 
     /**
      * Query scope for runs with critical issues.
      */
-    public function scopeWithCriticalIssues($query)
+    public function scopeWithCriticalIssues(\Illuminate\Database\Eloquent\Builder $query): void
     {
-        return $query->where('critical_issues', '>', 0);
+        $query->where('critical_issues', '>', 0);
     }
 }

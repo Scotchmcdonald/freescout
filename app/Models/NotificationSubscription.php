@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,6 +29,8 @@ class NotificationSubscription extends Model
 
     /**
      * Get the available alert types definition.
+     *
+     * @return array<string, array<string, string>>
      */
     public static function getAlertTypes(): array
     {
@@ -69,6 +73,7 @@ class NotificationSubscription extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

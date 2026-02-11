@@ -25,14 +25,16 @@ class ApplyUserTheme
             if (is_string($previewTheme) && preg_match('/^[a-zA-Z0-9_-]+$/', $previewTheme)) {
                 Theme::set($previewTheme);
             }
-        } elseif (Auth::check()) {
+        } elseif (Auth::guard('web')->check()) {
+            // Only apply theme for admin users (web guard)
             /** @var \App\Models\User $user */
-            $user = Auth::user();
+            $user = Auth::guard('web')->user();
 
             if ($user->theme) {
                 Theme::set($user->theme);
             }
         }
+        // Client portal users don't have theme customization
 
         return $next($request);
     }

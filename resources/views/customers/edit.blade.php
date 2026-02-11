@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Customer') }} - {{ $customer->getFullName() }}
+            {{ __('Edit Client') }} - {{ $customer->getFullName() }}
         </h2>
     </x-slot>
 
@@ -165,12 +165,30 @@
                             </x-billing::tab-panel>
 
                             <x-billing::tab-panel id="notes">
-                                <div>
-                                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ __('Notes') }}
-                                    </label>
-                                    <textarea name="notes" id="notes" rows="4"
-                                              class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('notes', $customer->notes) }}</textarea>
+                                <div class="space-y-6">
+                                    <div>
+                                        <label for="default_hourly_rate" class="block text-sm font-medium text-gray-700 mb-2">
+                                            {{ __('Default Hourly Rate') }}
+                                        </label>
+                                        <input type="number" 
+                                               name="default_hourly_rate" 
+                                               id="default_hourly_rate"
+                                               dusk="default-hourly-rate"
+                                               step="0.01"
+                                               min="0"
+                                               value="{{ old('default_hourly_rate', $customer->default_hourly_rate ?? '') }}"
+                                               placeholder="150.00"
+                                               class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <p class="mt-1 text-sm text-gray-500">Set a custom hourly billing rate for this client</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                                            {{ __('Notes') }}
+                                        </label>
+                                        <textarea name="notes" id="notes" rows="4"
+                                                  class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('notes', $customer->notes) }}</textarea>
+                                    </div>
                                 </div>
                             </x-billing::tab-panel>
 
@@ -182,6 +200,7 @@
                                 {{ __('Cancel') }}
                             </a>
                             <button type="submit" 
+                                    dusk="save-client-button"
                                     class="px-4 py-2 text-white rounded-md transition"
                                     style="background-color: var(--theme-primary-600)">
                                 {{ __('Save Customer') }}

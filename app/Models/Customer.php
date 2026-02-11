@@ -71,6 +71,7 @@ class Customer extends Model
         'zip',
         'country',
         'notes',
+        'default_hourly_rate',
     ];
 
     /**
@@ -92,6 +93,8 @@ class Customer extends Model
 
     /**
      * Get the company that owns the customer.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\Modules\Crm\Models\Company, $this>
      */
     public function companyRel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

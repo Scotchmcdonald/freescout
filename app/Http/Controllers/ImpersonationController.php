@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -11,7 +14,7 @@ class ImpersonationController extends Controller
     /**
      * Start impersonating a user
      */
-    public function impersonate(Request $request, User $user)
+    public function impersonate(Request $request, User $user): RedirectResponse
     {
         // Authorization check
         if (!$request->user()->can('impersonate', $user)) {
@@ -50,7 +53,7 @@ class ImpersonationController extends Controller
     /**
      * Stop impersonating and return to admin account
      */
-    public function leave(Request $request)
+    public function leave(Request $request): RedirectResponse
     {
         if (!auth()->user()->isImpersonated()) {
             return redirect()->route('dashboard');

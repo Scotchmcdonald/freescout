@@ -69,3 +69,4 @@ app/Console/Commands/Test*
 #composer.lock
 #/.htaccess/reports/
 deploy.conf
+deployment/

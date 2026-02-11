@@ -7,8 +7,6 @@ namespace Tests\Unit\Console\Commands;
 use App\Console\Commands\ModuleInstall;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tests\UnitTestCase;
 
 /**
@@ -26,9 +24,8 @@ use Tests\UnitTestCase;
  * - Installation workflows (15 tests)
  *
  * Total: 54 tests targeting 95%+ coverage of ModuleInstall command
+ * @group console
  */
-// #[RunTestsInSeparateProcesses]
-#[PreserveGlobalState(false)]
 class ModuleInstallCommandsTest extends UnitTestCase
 {
     protected function setUp(): void
@@ -397,7 +394,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Should be able to install all modules at once
         try {
             // Without interaction, should handle gracefully
-            $exitCode = Artisan::call('freescout:module-install');
+            $exitCode = Artisan::call('freescout:module-install', ['--no-interaction' => true]);
             
             $this->assertIsInt($exitCode);
         } catch (\Exception $e) {
@@ -408,7 +405,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
     public function test_module_install_lists_available_modules(): void
     {
         try {
-            Artisan::call('freescout:module-install');
+            Artisan::call('freescout:module-install', ['--no-interaction' => true]);
             
             $output = Artisan::output();
             $this->assertIsString($output);
@@ -421,7 +418,8 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => null
+                'module_alias' => null,
+                '--no-interaction' => true
             ]);
             
             $this->expectNotToPerformAssertions();
@@ -434,7 +432,8 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => ''
+                'module_alias' => '',
+                '--no-interaction' => true
             ]);
             
             $this->expectNotToPerformAssertions();

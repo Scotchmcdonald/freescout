@@ -1,7 +1,7 @@
 <html lang="en" class="dark"><head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="fTPCmIdR8FsNjwQ1tLz5pc28w1LZDSfo2yZ5v7dW">
+        <meta name="csrf-token" content="2pFnXz2Frjp5xUcsgAEGhZPs8ZDoCmIOvsg1FlE4">
                     <meta name="user-id" content="1">
                 
         <title>Borealtek Ticketing</title>
@@ -341,6 +341,9 @@
                                                                                                                                                                  <a class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-inherit opacity-60 hover:opacity-100 hover:border-gray-300 focus:outline-none focus:text-inherit focus:border-gray-300 transition duration-150 ease-in-out" href="https://127.0.0.1:8443/admin/milestones">
     Milestones
 </a>
+                                                                                                                                                                                                                                  <a class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-inherit opacity-60 hover:opacity-100 hover:border-gray-300 focus:outline-none focus:text-inherit focus:border-gray-300 transition duration-150 ease-in-out" href="https://127.0.0.1:8443/knowledgebase">
+    Knowledge Base
+</a>
                                                                                                                                                                                                                                                                                                                                                            <div class="hidden sm:flex sm:items-center sm:ms-6">
                                     <div class="relative" x-data="{ open: false }" @click.outside="open = false" @close.stop="open = false" @mouseenter="open = true" @mouseleave="open = false">
     <div @click="open = ! open">
@@ -533,7 +536,7 @@
                 <div class="relative" x-data="{ open: false }" @click.outside="open = false" @close.stop="open = false" @mouseenter="open = true" @mouseleave="open = false">
     <div @click="open = ! open">
         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-inherit bg-transparent hover:opacity-75 focus:outline-none transition ease-in-out duration-150">
-                            <div>Danial Roberts</div>
+                            <div>Admin User</div>
 
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -549,7 +552,7 @@
 
                         <!-- Authentication -->
                         <form method="POST" action="https://127.0.0.1:8443/logout">
-                            <input type="hidden" name="_token" value="fTPCmIdR8FsNjwQ1tLz5pc28w1LZDSfo2yZ5v7dW" autocomplete="off">
+                            <input type="hidden" name="_token" value="2pFnXz2Frjp5xUcsgAEGhZPs8ZDoCmIOvsg1FlE4" autocomplete="off">
                             <a class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out" href="https://127.0.0.1:8443/logout" onclick="event.preventDefault();
                                                 this.closest('form').submit();">Log Out</a>
                         </form>
@@ -581,8 +584,8 @@
         <!-- Responsive Settings Options -->
                 <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800">Danial Roberts</div>
-                <div class="font-medium text-sm text-gray-500">dakota.anderson@example.com</div>
+                <div class="font-medium text-base text-gray-800">Admin User</div>
+                <div class="font-medium text-sm text-gray-500">admin@example.com</div>
             </div>
 
             <div class="mt-3 space-y-1">
@@ -592,7 +595,7 @@
 
                 <!-- Authentication -->
                 <form method="POST" action="https://127.0.0.1:8443/logout">
-                    <input type="hidden" name="_token" value="fTPCmIdR8FsNjwQ1tLz5pc28w1LZDSfo2yZ5v7dW" autocomplete="off">
+                    <input type="hidden" name="_token" value="2pFnXz2Frjp5xUcsgAEGhZPs8ZDoCmIOvsg1FlE4" autocomplete="off">
                     <a class="block w-full ps-3 pe-4 py-2 border-l-4 border-transparent text-start text-base font-medium text-inherit opacity-75 hover:opacity-100 hover:bg-black/5 hover:border-gray-300 focus:outline-none focus:text-inherit focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out" href="https://127.0.0.1:8443/logout" onclick="event.preventDefault();
                                         this.closest('form').submit();">
     Log Out
@@ -684,15 +687,15 @@
     <div class="flex justify-between items-center mb-6">
         <div>
             <a href="https://127.0.0.1:8443/contracts/quotes" class="text-primary-600 hover:text-primary-900 dark:text-primary-400">← Back to Quotes</a>
-            <h1 dusk="quote-number" class="text-2xl font-bold text-gray-900 dark:text-white mt-2">QT-2026-00002</h1>
-            <p dusk="quote-title" class="text-gray-500 dark:text-gray-400">Pipeline Test Quote DUSK-20260122-052052</p>
+            <h1 dusk="quote-number" class="text-2xl font-bold text-gray-900 dark:text-white mt-2">QT-2026-40465</h1>
+            <p dusk="quote-title" class="text-gray-500 dark:text-gray-400">Pipeline Test Quote DUSK-20260206-233638</p>
         </div>
         <div class="flex gap-2">
-                            <form action="https://127.0.0.1:8443/contracts/quotes/2/send" method="POST" class="inline">
-                    <input type="hidden" name="_token" value="fTPCmIdR8FsNjwQ1tLz5pc28w1LZDSfo2yZ5v7dW" autocomplete="off">                    <button type="submit" dusk="send-quote" class="btn btn-primary">Send to Client</button>
+                            <form action="https://127.0.0.1:8443/contracts/quotes/71/send" method="POST" class="inline">
+                    <input type="hidden" name="_token" value="2pFnXz2Frjp5xUcsgAEGhZPs8ZDoCmIOvsg1FlE4" autocomplete="off">                    <button type="submit" dusk="send-quote" class="btn btn-primary">Send to Client</button>
                 </form>
-                        <a href="https://127.0.0.1:8443/contracts/quotes/2/edit" dusk="edit-quote" class="btn btn-secondary">Edit</a>
-            <a href="https://127.0.0.1:8443/contracts/quotes/2/pdf" dusk="download-pdf" class="btn btn-secondary">Download PDF</a>
+                        <a href="https://127.0.0.1:8443/contracts/quotes/71/edit" dusk="edit-quote" class="btn btn-secondary">Edit</a>
+            <a href="https://127.0.0.1:8443/contracts/quotes/71/pdf" dusk="download-pdf" class="btn btn-secondary">Download PDF</a>
         </div>
     </div>
 
@@ -705,7 +708,7 @@
                 <dl class="grid grid-cols-2 gap-4">
                     <div>
                         <dt class="text-sm text-gray-500 dark:text-gray-400">Client</dt>
-                        <dd dusk="client-name" class="text-gray-900 dark:text-white">Jovani Fisher</dd>
+                        <dd dusk="client-name" class="text-gray-900 dark:text-white">Quote Test Client</dd>
                     </div>
                     <div>
                         <dt class="text-sm text-gray-500 dark:text-gray-400">Status</dt>
@@ -725,11 +728,11 @@
                     </div>
                     <div>
                         <dt class="text-sm text-gray-500 dark:text-gray-400">Valid Until</dt>
-                        <dd dusk="valid-until" class="text-gray-900 dark:text-white">Feb 21, 2026</dd>
+                        <dd dusk="valid-until" class="text-gray-900 dark:text-white">Mar 08, 2026</dd>
                     </div>
                     <div>
                         <dt class="text-sm text-gray-500 dark:text-gray-400">Created By</dt>
-                        <dd dusk="created-date" class="text-gray-900 dark:text-white">Danial Roberts</dd>
+                        <dd dusk="created-date" class="text-gray-900 dark:text-white">Admin User</dd>
                     </div>
                 </dl>
 
@@ -776,11 +779,11 @@
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Actions</h2>
                 <div class="space-y-2">
-                                            <form action="https://127.0.0.1:8443/contracts/quotes/2/approve" method="POST">
-                            <input type="hidden" name="_token" value="fTPCmIdR8FsNjwQ1tLz5pc28w1LZDSfo2yZ5v7dW" autocomplete="off">                            <button type="submit" dusk="approve-quote" class="w-full btn btn-success btn-approve">Approve Quote</button>
+                                            <form action="https://127.0.0.1:8443/contracts/quotes/71/approve" method="POST">
+                            <input type="hidden" name="_token" value="2pFnXz2Frjp5xUcsgAEGhZPs8ZDoCmIOvsg1FlE4" autocomplete="off">                            <button type="submit" dusk="approve-quote" class="w-full btn btn-success btn-approve">Approve Quote</button>
                         </form>
-                        <form action="https://127.0.0.1:8443/contracts/quotes/2/reject" method="POST" x-data="{ showReason: false }">
-                            <input type="hidden" name="_token" value="fTPCmIdR8FsNjwQ1tLz5pc28w1LZDSfo2yZ5v7dW" autocomplete="off">                            <div x-show="!showReason">
+                        <form action="https://127.0.0.1:8443/contracts/quotes/71/reject" method="POST" x-data="{ showReason: false }">
+                            <input type="hidden" name="_token" value="2pFnXz2Frjp5xUcsgAEGhZPs8ZDoCmIOvsg1FlE4" autocomplete="off">                            <div x-show="!showReason">
                                 <button type="button" @click="showReason = true" dusk="reject-quote-btn" class="w-full btn btn-danger">Reject Quote</button>
                             </div>
                             <div x-show="showReason" class="space-y-2" style="display: none;">
@@ -788,10 +791,12 @@
                                 <button type="submit" dusk="confirm-reject" class="w-full btn btn-danger">Confirm Rejection</button>
                             </div>
                         </form>
-                                                            <form action="https://127.0.0.1:8443/contracts/quotes/2/duplicate" method="POST">
-                        <input type="hidden" name="_token" value="fTPCmIdR8FsNjwQ1tLz5pc28w1LZDSfo2yZ5v7dW" autocomplete="off">                        <button type="submit" dusk="duplicate-quote" class="w-full btn btn-secondary">Duplicate</button>
+                                                            
+                    
+                    <form action="https://127.0.0.1:8443/contracts/quotes/71/duplicate" method="POST">
+                        <input type="hidden" name="_token" value="2pFnXz2Frjp5xUcsgAEGhZPs8ZDoCmIOvsg1FlE4" autocomplete="off">                        <button type="submit" dusk="duplicate-quote" class="w-full btn btn-secondary">Duplicate</button>
                     </form>
-                    <a href="https://127.0.0.1:8443/contracts/quotes/2/preview" class="block w-full btn btn-secondary text-center">Preview</a>
+                    <a href="https://127.0.0.1:8443/contracts/quotes/71/preview" class="block w-full btn btn-secondary text-center">Preview</a>
                 </div>
             </div>
 
@@ -801,11 +806,13 @@
                 <div class="space-y-3">
                     <div class="flex items-center text-sm">
                         <span class="w-24 text-gray-500">Created</span>
-                        <span class="text-gray-900 dark:text-white">Jan 22, 2026 05:21</span>
+                        <span class="text-gray-900 dark:text-white">Feb 06, 2026 23:36</span>
                     </div>
                                                                             </div>
             </div>
-        </div>
+
+            
+                                </div>
     </div>
 </div>
                             </main>

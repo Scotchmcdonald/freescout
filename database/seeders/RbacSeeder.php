@@ -9,7 +9,7 @@ use Nwidart\Modules\Facades\Module;
 
 class RbacSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         // 1. Core Permissions (Always Available)
         $corePermissions = [

@@ -59,22 +59,22 @@ class AnalyzeTests extends Command
     {
         $this->components->twoColumnDetail(
             '<fg=gray>Total test files</>',
-            $analysis['metadata']['total_files']
+            (string) $analysis['metadata']['total_files']
         );
         
         $this->components->twoColumnDetail(
             '<fg=green>Parallel-safe</>',
-            count($analysis[TestAnalyzer::CATEGORY_PARALLEL_SAFE])
+            (string) count($analysis[TestAnalyzer::CATEGORY_PARALLEL_SAFE])
         );
         
         $this->components->twoColumnDetail(
             '<fg=yellow>Non-parallel</>',
-            count($analysis[TestAnalyzer::CATEGORY_NON_PARALLEL])
+            (string) count($analysis[TestAnalyzer::CATEGORY_NON_PARALLEL])
         );
         
         $this->components->twoColumnDetail(
             '<fg=red>Non-batched</>',
-            count($analysis[TestAnalyzer::CATEGORY_NON_BATCHED])
+            (string) count($analysis[TestAnalyzer::CATEGORY_NON_BATCHED])
         );
         
         $this->newLine();

@@ -1,0 +1,4 @@
+name,email,status,tier,phone,notes
+"Acme Corp","contact@acmecorp.com","active","Gold","555-0123","Initial client import"
+"Globex Corporation","info@globex.com","active","Silver","555-0124",""
+"Soylent Corp","sales@soylent.com","inactive","Bronze","555-0125","Churned 2024"

@@ -110,8 +110,8 @@ class WpApi
             return [];
         }
 
-        if ($response->getStatusCode() < 500) {
-            $body = $response->getBody()->getContents();
+        if ($response->status() < 500) {
+            $body = $response->body();
             $json = json_decode($body, true);
 
             if (! is_array($json)) {
