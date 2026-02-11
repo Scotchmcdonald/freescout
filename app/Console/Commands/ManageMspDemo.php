@@ -25,7 +25,7 @@ class ManageMspDemo extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $this->error('MspScenarioSeeder is missing. Command disabled.');
         return 1;

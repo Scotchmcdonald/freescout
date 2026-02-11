@@ -98,6 +98,9 @@ class RecordTestFailures extends Command
         return Command::SUCCESS;
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function parseFailedTests(string $reportDir): array
     {
         $tests = [];
@@ -124,6 +127,9 @@ class RecordTestFailures extends Command
         return array_unique($tests);
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function parseTimedOutTests(string $reportDir): array
     {
         $tests = [];
@@ -146,6 +152,9 @@ class RecordTestFailures extends Command
         return array_unique($tests);
     }
 
+    /**
+     * @param array<string, mixed> $roster
+     */
     private function promoteFlaky(array &$roster, int $threshold, string $baseDir): int
     {
         $promoted = 0;
@@ -200,6 +209,9 @@ class RecordTestFailures extends Command
         return $promoted;
     }
 
+    /**
+     * @param array<string, mixed> $roster
+     */
     private function displayFlakyTests(array $roster): void
     {
         $flaky = array_filter(

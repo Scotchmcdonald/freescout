@@ -55,6 +55,9 @@ class AnalyzeTests extends Command
         return Command::SUCCESS;
     }
 
+    /**
+     * @param array<string, mixed> $analysis
+     */
     private function displaySummary(array $analysis, string $baseDir): void
     {
         $this->components->twoColumnDetail(
@@ -115,6 +118,9 @@ class AnalyzeTests extends Command
         }
     }
 
+    /**
+     * @param array<string, mixed> $analysis
+     */
     private function outputJson(array $analysis, string $baseDir): void
     {
         // Convert to relative paths for JSON output
@@ -140,6 +146,9 @@ class AnalyzeTests extends Command
         $this->line(json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 
+    /**
+     * @param array<string, mixed> $analysis
+     */
     private function generateReport(array $analysis, TestAnalyzer $analyzer, string $baseDir): void
     {
         $report = $analyzer->generateReport($analysis);
@@ -150,6 +159,9 @@ class AnalyzeTests extends Command
         $this->components->info("Report saved to: tests/ISOLATION_REPORT.md");
     }
 
+    /**
+     * @param array<string, mixed> $analysis
+     */
     private function updateRoster(array $analysis, string $baseDir): void
     {
         $rosterPath = $baseDir . '/tests/test_roster.json';
