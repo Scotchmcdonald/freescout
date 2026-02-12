@@ -147,4 +147,4 @@ test('cache warming command runs successfully', function () {
     $this->artisan('cache:warm', ['--clients' => 3])
         ->expectsOutput('🔥 Warming cache...')
         ->assertExitCode(0);
-})->skip('Requires Entitlement model implementation');
+});

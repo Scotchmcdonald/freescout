@@ -89,7 +89,7 @@ class FolderMethodsTest extends UnitTestCase
             'state' => Conversation::STATE_DELETED,
         ]);
 
-        $this->assertEquals(2, Conversation::where('folder_id', $deletedFolder->id)->count());
+        $this->assertEquals(2, Conversation::withTrashed()->where('folder_id', $deletedFolder->id)->count());
     }
 
     // ===== Folder type identification tests =====

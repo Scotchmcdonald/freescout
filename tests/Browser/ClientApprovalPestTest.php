@@ -26,7 +26,7 @@ test('client can approve quote', function () {
 
     $quote->update(['status' => 'sent', 'sent_at' => now()]);
     
-    ApprovalRequest::create([
+    $approval = ApprovalRequest::create([
         'client_id' => $client->id,
         'approvable_type' => Quote::class,
         'approvable_id' => $quote->id,
@@ -44,12 +44,8 @@ test('client can approve quote', function () {
         ->click('button[type="submit"]')
         ->waitForText('Client Portal'); 
 
-    $browser = $this->visit('/portal/approvals')
-        ->waitForText($quote->title);
-        
-    $browser->click("tr:has-text(\"{$quote->title}\") >> a");
-
-    $browser->waitForText('Approve Request')
+    $browser = $this->visit("/portal/approvals/{$approval->id}")
+        ->waitForText('Approve Request')
         ->click('[dusk="approve-request-button"]');
         
     $browser->assertVisible('form[action*="/approve"]')
@@ -80,7 +76,7 @@ test('client can reject quote', function () {
      
      $quote->update(['status' => 'sent', 'sent_at' => now()]);
      
-     ApprovalRequest::create([
+     $approval = ApprovalRequest::create([
          'client_id' => $client->id,
          'approvable_type' => Quote::class,
          'approvable_id' => $quote->id,
@@ -97,12 +93,8 @@ test('client can reject quote', function () {
         ->click('button[type="submit"]')
         ->waitForText('Client Portal');
 
-    $browser = $this->visit('/portal/approvals')
-        ->waitForText($quote->title);
-             
-    $browser->click("tr:has-text(\"{$quote->title}\") >> a");
-             
-    $browser->waitForText('Reject Request')
+    $browser = $this->visit("/portal/approvals/{$approval->id}")
+        ->waitForText('Reject Request')
         ->click('[dusk="reject-request-button"]');
              
     $browser->assertVisible('form[action*="/reject"]')

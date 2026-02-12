@@ -15,34 +15,30 @@ class AttachmentObserverTest extends TestCase
 
     public function test_it_deletes_file_from_storage_when_attachment_deleted()
     {
-        Storage::fake('local');
-
-        $filePath = 'attachments/2024/test.pdf';
-        Storage::put($filePath, 'test content');
-
         $attachment = Attachment::factory()->create([
             'file_dir' => 'attachments/2024',
             'file_name' => 'test.pdf',
         ]);
 
-        $this->assertTrue(Storage::exists($filePath));
+        $filePath = 'attachments/2024/test.pdf';
+        Storage::disk('local')->put($filePath, 'test content');
+
+        $this->assertTrue(Storage::disk('local')->exists($filePath), 'File should exist');
 
         $attachment->delete();
 
-        $this->assertFalse(Storage::exists($filePath));
+        $this->assertFalse(Storage::disk('local')->exists($filePath), 'File not deleted');
     }
 
     public function test_it_handles_missing_file_gracefully()
     {
-        Storage::fake('local');
-
         $attachment = Attachment::factory()->create([
             'file_dir' => 'attachments/2024',
             'file_name' => 'nonexistent.pdf',
         ]);
 
         // File doesn't exist
-        $this->assertFalse(Storage::exists('attachments/2024/nonexistent.pdf'));
+        $this->assertFalse(Storage::disk('local')->exists('attachments/2024/nonexistent.pdf'));
 
         // Should not throw exception
         $attachment->delete();
@@ -52,14 +48,6 @@ class AttachmentObserverTest extends TestCase
 
     public function test_it_only_deletes_own_file()
     {
-        Storage::fake('local');
-
-        $filePath1 = 'attachments/2024/file1.pdf';
-        $filePath2 = 'attachments/2024/file2.pdf';
-
-        Storage::put($filePath1, 'content 1');
-        Storage::put($filePath2, 'content 2');
-
         $attachment1 = Attachment::factory()->create([
             'file_dir' => 'attachments/2024',
             'file_name' => 'file1.pdf',
@@ -70,10 +58,16 @@ class AttachmentObserverTest extends TestCase
             'file_name' => 'file2.pdf',
         ]);
 
+        $filePath1 = 'attachments/2024/file1.pdf';
+        $filePath2 = 'attachments/2024/file2.pdf';
+
+        Storage::disk('local')->put($filePath1, 'content 1');
+        Storage::disk('local')->put($filePath2, 'content 2');
+
         $attachment1->delete();
 
-        $this->assertFalse(Storage::exists($filePath1));
-        $this->assertTrue(Storage::exists($filePath2));
+        $this->assertFalse(Storage::disk('local')->exists($filePath1));
+        $this->assertTrue(Storage::disk('local')->exists($filePath2));
     }
 
     public function test_it_handles_attachment_without_file_dir()

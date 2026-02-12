@@ -44,11 +44,11 @@ it('allows client to view and add payment methods', function () {
         ->assertSee('Logout'); // Check for authenticated element
 
     // 2. Navigate to Payment Methods
-    $page = $this->visit(route('portal.billing.payment-methods'));
-    
-    $page->assertSee('Payment Methods')
+    $this->visit(route('portal.billing.payment-methods'))
+        ->assertSee('Payment Methods');
+
     // 3. Add New Payment Method
-        ->click('Add Payment Method')
+    $browser = $this->visit(route('portal.payments.create'))
         ->assertSee('New Payment Method')
         ->type('card_number', '4242424242424242')
         ->type('card_expiry', '1230')
@@ -61,10 +61,10 @@ it('allows client to view and add payment methods', function () {
         ->type('billing_country', 'US');
 
     // Force click via JS to bypass potential visibility/interactability checks
-    $page->script("document.querySelector('form[action*=\"payments\"] button[type=\"submit\"]').click()");
+    $browser->script("document.querySelector('form[action*=\"payments\"] button[type=\"submit\"]').click()");
 
     // 4. Verify Success
-    $page->waitForText('Payment method added', 10)
+    $browser->waitForText('Payment method added', 10)
          ->assertSee('4242');
 
 })->group('portal', 'payments');

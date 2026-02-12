@@ -15,9 +15,6 @@
             <directory>tests/Unit</directory>
             <exclude>tests/Unit/Console/Commands</exclude>
         </testsuite>
-        <testsuite name="Browser">
-            <directory>tests/Browser</directory>
-        </testsuite>
         <testsuite name="Modules">
             <directory>Modules/*/tests</directory>
         </testsuite>

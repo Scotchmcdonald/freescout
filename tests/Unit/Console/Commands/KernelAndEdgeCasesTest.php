@@ -80,6 +80,16 @@ class KernelAndEdgeCasesTest extends UnitTestCase
                 }
             }
         }
+
+        // Clean up modules_statuses.json
+        $statusesPath = base_path('modules_statuses.json');
+        if (File::exists($statusesPath)) {
+            $statuses = json_decode(File::get($statusesPath), true);
+            if (isset($statuses['TestModule'])) {
+                unset($statuses['TestModule']);
+                File::put($statusesPath, json_encode($statuses, JSON_PRETTY_PRINT));
+            }
+        }
     }
 
     // =================================================================
