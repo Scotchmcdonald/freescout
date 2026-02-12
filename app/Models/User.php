@@ -125,7 +125,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $companyId = $company instanceof \Modules\Crm\Models\Company ? $company->id : $company;
 
         return $this->companies()
-            ->where('company_id', $companyId)
+            ->where('id', $companyId)
             ->wherePivot('status', 'approved')
             ->exists();
     }

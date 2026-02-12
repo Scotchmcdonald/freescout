@@ -55,23 +55,23 @@ class ModuleGitStatus extends Command
             }
 
             // Get current branch
-            $branch = trim(shell_exec("cd {$repoPath} && git branch --show-current 2>/dev/null") ?? '');
+            $branch = trim((string) shell_exec("cd {$repoPath} && git branch --show-current 2>/dev/null"));
 
             // Get remote URL
-            $remote = trim(shell_exec("cd {$repoPath} && git remote get-url origin 2>/dev/null") ?? '');
-            $remote = preg_replace('/https:\/\/[^@]+@/', 'https://', $remote); // Strip tokens
+            $remote = trim((string) shell_exec("cd {$repoPath} && git remote get-url origin 2>/dev/null"));
+            $remote = preg_replace('/https:\/\/[^@]+@/', 'https://', $remote) ?? ''; // Strip tokens
             $remote = str_replace('https://github.com/', '', $remote);
             $remote = str_replace('.git', '', $remote);
 
             // Get status
-            $statusOutput = shell_exec("cd {$repoPath} && git status --porcelain 2>/dev/null") ?? '';
+            $statusOutput = (string) shell_exec("cd {$repoPath} && git status --porcelain 2>/dev/null");
             $changes = substr_count($statusOutput, "\n");
             if (empty(trim($statusOutput))) {
                 $changes = 0;
             }
 
             // Check ahead/behind
-            $aheadBehind = trim(shell_exec("cd {$repoPath} && git rev-list --left-right --count HEAD...@{upstream} 2>/dev/null") ?? '');
+            $aheadBehind = trim((string) shell_exec("cd {$repoPath} && git rev-list --left-right --count HEAD...@{upstream} 2>/dev/null"));
             $ahead = 0;
             $behind = 0;
             if (preg_match('/(\d+)\s+(\d+)/', $aheadBehind, $matches)) {
@@ -128,9 +128,9 @@ class ModuleGitStatus extends Command
 
         // Summary
         $this->newLine();
-        $totalChanges = collect($results)->sum('changes');
-        $totalAhead = collect($results)->sum('ahead');
-        $totalBehind = collect($results)->sum('behind');
+        $totalChanges = (int) array_sum(array_column($results, 'changes'));
+        $totalAhead = (int) array_sum(array_column($results, 'ahead'));
+        $totalBehind = (int) array_sum(array_column($results, 'behind'));
         $noRepo = collect($results)->where('branch', '-')->count();
 
         if ($totalChanges > 0 || $totalAhead > 0 || $totalBehind > 0 || $noRepo > 0) {

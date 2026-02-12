@@ -12,6 +12,9 @@ abstract class TestCase extends BaseTestCase
     
     protected function setUp(): void
     {
+        // FORCE MEMORY LIMIT
+        ini_set('memory_limit', '4096M');
+
         parent::setUp();
         
         // BEST PRACTICE: Isolate filesystem for parallel tests

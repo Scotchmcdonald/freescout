@@ -75,9 +75,10 @@ class AtomicCounterService
             $query->where($key, $value);
         }
         
+        /** @var string|int|float|null $result */
         $result = $query->value($column);
         
-        return $result ?? 0;
+        return is_numeric($result) ? (int) $result : 0;
     }
     
     /**

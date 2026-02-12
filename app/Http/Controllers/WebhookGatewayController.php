@@ -53,7 +53,7 @@ class WebhookGatewayController extends Controller
         try {
             // In production, this would call Google API to renew the channel
             // For now, we'll simulate the renewal
-            $newExpiration = now()->addHours($request->duration_hours);
+            $newExpiration = now()->addHours($request->integer('duration_hours'));
 
             $channel->update([
                 'expiration_time' => $newExpiration,
@@ -120,14 +120,14 @@ class WebhookGatewayController extends Controller
                 'resourceId' => $channel->resource_id,
                 'resourceUri' => 'https://www.googleapis.com/admin/directory/v1/users',
                 'token' => $channel->token,
-                'expiration' => $channel->expiration_time->timestamp * 1000,
+                'expiration' => (int) $channel->expiration_time->timestamp * 1000,
             ]);
 
             // Log the test attempt
-            Log::info('Webhook test initiated', [
+            \Illuminate\Support\Facades\Log::info('Webhook test initiated', [
                 'channel_id' => $channel->channel_id,
                 'webhook_url' => $channel->webhook_url,
-                'payload_size' => strlen($testPayload),
+                'payload_size' => strlen((string) json_encode($testPayload)),
             ]);
 
             // In production, this would actually send a test notification
@@ -173,7 +173,7 @@ class WebhookGatewayController extends Controller
                 'channel_id' => 'channel_' . Str::random(32),
                 'token' => Str::random(64),
                 'webhook_url' => $request->webhook_url,
-                'expiration_time' => now()->addHours($request->duration_hours),
+                'expiration_time' => now()->addHours($request->integer('duration_hours')),
                 'is_active' => true,
             ]);
 

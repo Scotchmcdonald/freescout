@@ -1,7 +1,7 @@
 # Documentation Index
 
-**Last Updated:** February 8, 2026  
-**Documentation Status:** ✅ Synchronized with implementation (v4.5)
+**Last Updated:** February 11, 2026  
+**Documentation Status:** ✅ Synchronized with implementation (v4.6)
 
 Welcome to the FreeScout Modernized documentation. This index helps you find the right documentation for your needs.
 

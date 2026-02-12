@@ -40,7 +40,7 @@ if (! function_exists('money')) {
      */
     function money($amount, $currency = '$')
     {
-        return $currency . number_format((float) $amount, 2);
+        return $currency . number_format(is_numeric($amount) ? (float) $amount : 0.0, 2);
     }
 }
 

@@ -26,6 +26,7 @@ use Illuminate\Support\Carbon;
  */
 class GooglePushChannel extends Model
 {
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<static>> */
     use HasFactory;
 
     protected $fillable = [
@@ -134,6 +135,8 @@ class GooglePushChannel extends Model
 
     /**
      * Scope to get active channels.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeActive(\Illuminate\Database\Eloquent\Builder $query): void
     {
@@ -142,6 +145,8 @@ class GooglePushChannel extends Model
 
     /**
      * Scope to get expired channels.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeExpired(\Illuminate\Database\Eloquent\Builder $query): void
     {
@@ -150,6 +155,8 @@ class GooglePushChannel extends Model
 
     /**
      * Scope to get expiring soon channels.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeExpiringSoon(\Illuminate\Database\Eloquent\Builder $query): void
     {

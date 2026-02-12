@@ -22,7 +22,7 @@ class MilestoneController extends Controller
 
         // Filter by project if specified
         if ($request->has('project_type') && $request->has('project_id')) {
-            $query->forProject($request->project_type, $request->project_id);
+            $query->forProject($request->string('project_type')->toString(), $request->integer('project_id'));
         }
 
         // Filter by status
@@ -200,7 +200,7 @@ class MilestoneController extends Controller
         ]);
 
         try {
-            $milestone->updateProgress($request->progress);
+            $milestone->updateProgress($request->float('progress'));
 
             Log::info('Milestone progress updated', [
                 'milestone_id' => $milestone->id,
@@ -250,7 +250,7 @@ class MilestoneController extends Controller
                     $milestone->markAsAchieved();
                     break;
                 case 'blocked':
-                    $milestone->markAsBlocked($request->blockers);
+                    $milestone->markAsBlocked($request->string('blockers')->toString());
                     break;
                 case 'in_progress':
                     $milestone->markAsInProgress();

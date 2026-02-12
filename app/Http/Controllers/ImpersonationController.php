@@ -16,15 +16,18 @@ class ImpersonationController extends Controller
      */
     public function impersonate(Request $request, User $user): RedirectResponse
     {
+        /** @var \App\Models\User $authUser */
+        $authUser = auth()->user();
+
         // Authorization check
-        if (!$request->user()->can('impersonate', $user)) {
+        if (!$authUser->can('impersonate', $user)) {
             return back()->with('error', '⚠️ You do not have permission to impersonate this user.');
         }
 
         // Audit log
         Log::info('User impersonation started', [
             'admin_id' => auth()->id(),
-            'admin_name' => auth()->user()->name,
+            'admin_name' => $authUser->name,
             'target_user_id' => $user->id,
             'target_user_name' => $user->name,
             'ip_address' => $request->ip(),
@@ -34,17 +37,17 @@ class ImpersonationController extends Controller
         // Log activity (if using spatie/laravel-activitylog)
         if (class_exists(\Spatie\Activitylog\Facades\Activity::class)) {
             activity()
-                ->causedBy(auth()->user())
+                ->causedBy($authUser)
                 ->performedOn($user)
                 ->withProperties([
-                    'admin_name' => auth()->user()->name,
+                    'admin_name' => $authUser->name,
                     'target_name' => $user->name,
                 ])
                 ->log('Started impersonation');
         }
 
         // Start impersonation
-        auth()->user()->impersonate($user);
+        $authUser->impersonate($user);
 
         return redirect()->route('portal.dashboard')
             ->with('success', "✓ Now viewing portal as {$user->name}. You are in read-only mode.");
@@ -55,11 +58,14 @@ class ImpersonationController extends Controller
      */
     public function leave(Request $request): RedirectResponse
     {
-        if (!auth()->user()->isImpersonated()) {
+        /** @var \App\Models\User $authUser */
+        $authUser = auth()->user();
+
+        if (!$authUser->isImpersonated()) {
             return redirect()->route('dashboard');
         }
 
-        $impersonatedUser = auth()->user();
+        $impersonatedUser = $authUser;
         
         // Audit log before leaving
         Log::info('User impersonation ended', [
@@ -73,20 +79,23 @@ class ImpersonationController extends Controller
         if (class_exists(\Spatie\Activitylog\Facades\Activity::class)) {
             $adminId = session('impersonated_by');
             if ($adminId) {
+                /** @var \App\Models\User|null $admin */
                 $admin = User::find($adminId);
-                activity()
-                    ->causedBy($admin)
-                    ->performedOn($impersonatedUser)
-                    ->withProperties([
-                        'admin_name' => $admin->name ?? 'Unknown',
-                        'impersonated_name' => $impersonatedUser->name,
-                    ])
-                    ->log('Ended impersonation');
+                if ($admin) {
+                    activity()
+                        ->causedBy($admin)
+                        ->performedOn($impersonatedUser)
+                        ->withProperties([
+                            'admin_name' => $admin->name ?? 'Unknown',
+                            'impersonated_name' => $impersonatedUser->name,
+                        ])
+                        ->log('Ended impersonation');
+                }
             }
         }
 
         // Leave impersonation
-        auth()->user()->leaveImpersonation();
+        $authUser->leaveImpersonation();
 
         return redirect()->route('dashboard')
             ->with('success', '✓ Returned to your admin account.');

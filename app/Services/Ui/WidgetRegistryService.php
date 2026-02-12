@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 class WidgetRegistryService
 {
     /**
-     * @var array<string, array<string, mixed>>
+     * @var array<string, list<array<string, mixed>>>
      */
     protected array $widgets = [];
 
@@ -52,6 +52,7 @@ class WidgetRegistryService
                 
                 // If it's a view string, render it
                 // We merge any static data with the context if it's an array
+                /** @var array<string, mixed> $data */
                 $data = $widget['data'];
                 if (is_array($context)) {
                     $data = array_merge($data, $context);
@@ -59,7 +60,10 @@ class WidgetRegistryService
                     $data['context'] = $context;
                 }
 
-                return view($widget['view'], $data)->render();
+                $viewName = is_string($widget['view']) ? $widget['view'] : '';
+                /** @var \Illuminate\View\View $viewInstance */
+                $viewInstance = view($viewName, $data);
+                return $viewInstance->render();
             });
     }
 }

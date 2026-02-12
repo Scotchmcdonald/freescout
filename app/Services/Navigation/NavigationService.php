@@ -55,7 +55,8 @@ class NavigationService
     {
         $grouped = [];
         foreach ($this->items as $item) {
-            $category = $item['category'] ?? 'General';
+            $cat = $item['category'] ?? 'General';
+            $category = is_string($cat) ? $cat : 'General';
             $grouped[$category][] = $item;
         }
         return $grouped;

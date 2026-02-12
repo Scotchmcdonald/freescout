@@ -49,6 +49,7 @@ class PermissionMatrixController extends Controller
         ]);
 
         foreach ($validated['updates'] as $update) {
+            /** @var \Modules\Crm\Models\Contact $contact */
             $contact = Contact::findOrFail($update['contact_id']);
             
             if ($update['permission_type'] === 'none') {
@@ -83,6 +84,7 @@ class PermissionMatrixController extends Controller
             'permission_type' => 'required|in:view_only,billing_admin,full_access',
         ]);
 
+        /** @var \Modules\Crm\Models\Client $client */
         $client = Client::with('contacts')->findOrFail($validated['client_id']);
         $count = 0;
 

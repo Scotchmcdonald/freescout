@@ -33,7 +33,8 @@ class RbacController extends Controller
             'attached' => 'required|boolean',
         ]);
 
-        $role = Role::find($request->role_id);
+        /** @var \App\Models\Role $role */
+        $role = Role::findOrFail($request->role_id);
         
         if ($request->attached) {
             $role->permissions()->syncWithoutDetaching([$request->permission_id]);

@@ -37,8 +37,11 @@ class CircuitBreakerService
     
     public function __construct()
     {
-        $this->failureThreshold = (int) config('services.circuit_breaker.threshold', 5);
-        $this->recoveryTimeout = (int) config('services.circuit_breaker.timeout', 60);
+        $thresh = config('services.circuit_breaker.threshold', 5);
+        $this->failureThreshold = is_numeric($thresh) ? intval($thresh) : 5;
+        
+        $timeout = config('services.circuit_breaker.timeout', 60);
+        $this->recoveryTimeout = is_numeric($timeout) ? intval($timeout) : 60;
     }
     
     /**
@@ -124,6 +127,7 @@ class CircuitBreakerService
      */
     public function getAllStates(): array
     {
+        /** @var array<int, \stdClass> */
         return DB::table('circuit_breaker_states')->get()->toArray();
     }
     
@@ -230,7 +234,8 @@ class CircuitBreakerService
             return true;
         }
         
-        $openedAt = strtotime($state['opened_at']);
+        $val = $state['opened_at'];
+        $openedAt = strtotime(is_string($val) ? $val : '');
         $elapsed = time() - $openedAt;
         
         return $elapsed >= $this->recoveryTimeout;

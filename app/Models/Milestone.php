@@ -16,6 +16,7 @@ use Modules\PIB\Models\Invoice;
  */
 class Milestone extends Model
 {
+    /** @use HasFactory<\Illuminate\Database\Eloquent\Factories\Factory<static>> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
@@ -284,43 +285,67 @@ class Milestone extends Model
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     */
     public function scopeAchieved(\Illuminate\Database\Eloquent\Builder $query): void
     {
         $query->where('status', 'achieved');
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     */
     public function scopePending(\Illuminate\Database\Eloquent\Builder $query): void
     {
         $query->where('status', 'pending');
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     */
     public function scopeInProgress(\Illuminate\Database\Eloquent\Builder $query): void
     {
         $query->where('status', 'in_progress');
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     */
     public function scopeBlocked(\Illuminate\Database\Eloquent\Builder $query): void
     {
         $query->where('status', 'blocked');
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     */
     public function scopeActive(\Illuminate\Database\Eloquent\Builder $query): void
     {
         $query->whereIn('status', ['pending', 'in_progress']);
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     */
     public function scopeOverdue(\Illuminate\Database\Eloquent\Builder $query): void
     {
         $query->where('status', '!=', 'achieved')
             ->where('target_date', '<', now());
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     */
     public function scopeForProject(\Illuminate\Database\Eloquent\Builder $query, string $projectType, int $projectId): void
     {
         $query->where('project_type', $projectType)
             ->where('project_id', $projectId);
     }
 
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     */
     public function scopeOrdered(\Illuminate\Database\Eloquent\Builder $query): void
     {
         $query->orderBy('sequence_order');

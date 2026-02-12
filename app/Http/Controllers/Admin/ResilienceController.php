@@ -126,7 +126,7 @@ class ResilienceController extends Controller
 
         // Apply filters
         if ($request->filled('search')) {
-            $search = $request->input('search');
+            $search = $request->string('search')->toString();
             $query->where(function($q) use ($search) {
                 $q->where('event', 'like', "%{$search}%")
                   ->orWhere('payload', 'like', "%{$search}%")
@@ -135,7 +135,8 @@ class ResilienceController extends Controller
         }
 
         if ($request->filled('event_type')) {
-            $query->where('event', 'like', "%{$request->input('event_type')}%");
+            $eventType = $request->string('event_type')->toString();
+            $query->where('event', 'like', "%{$eventType}%");
         }
 
         if ($request->filled('date_from')) {
@@ -143,7 +144,7 @@ class ResilienceController extends Controller
         }
 
         if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->input('date_to') . ' 23:59:59');
+            $query->where('created_at', '<=', $request->string('date_to')->toString() . ' 23:59:59');
         }
 
         $events = $query->orderBy('created_at', 'desc')
@@ -165,7 +166,7 @@ class ResilienceController extends Controller
             $query = DB::table('polycast_events');
 
             if ($request->filled('search')) {
-                $search = $request->input('search');
+                $search = $request->string('search')->toString();
                 $query->where(function($q) use ($search) {
                     $q->where('event', 'like', "%{$search}%")
                       ->orWhere('payload', 'like', "%{$search}%")
@@ -174,7 +175,8 @@ class ResilienceController extends Controller
             }
 
             if ($request->filled('event_type')) {
-                $query->where('event', 'like', "%{$request->input('event_type')}%");
+                $eventType = $request->string('event_type')->toString();
+                $query->where('event', 'like', "%{$eventType}%");
             }
 
             if ($request->filled('date_from')) {
@@ -182,14 +184,18 @@ class ResilienceController extends Controller
             }
 
             if ($request->filled('date_to')) {
-                $query->where('created_at', '<=', $request->input('date_to') . ' 23:59:59');
+                $query->where('created_at', '<=', $request->string('date_to')->toString() . ' 23:59:59');
             }
 
             $handle = fopen('php://output', 'w');
+            if ($handle === false) {
+                return;
+            }
             fputcsv($handle, ['ID', 'Channel', 'Event', 'Payload', 'Timestamp']);
 
             $query->orderBy('created_at', 'desc')->chunk(1000, function ($events) use ($handle) {
                 foreach ($events as $event) {
+                    /** @var object{id: int, channel: string, event: string, payload: string, created_at: string} $event */
                     fputcsv($handle, [
                         $event->id,
                         $event->channel,

@@ -60,33 +60,44 @@ class AnalyzeTests extends Command
      */
     private function displaySummary(array $analysis, string $baseDir): void
     {
+        /** @var array{total_files?: int, detection_reasons?: array<string, int>} $metadata */
+        $metadata = $analysis['metadata'];
+        /** @var array<int, mixed> $parallelSafe */
+        $parallelSafe = $analysis[TestAnalyzer::CATEGORY_PARALLEL_SAFE];
+        /** @var array<int, mixed> $nonParallel */
+        $nonParallel = $analysis[TestAnalyzer::CATEGORY_NON_PARALLEL];
+        /** @var array<int, mixed> $nonBatched */
+        $nonBatched = $analysis[TestAnalyzer::CATEGORY_NON_BATCHED];
+
         $this->components->twoColumnDetail(
             '<fg=gray>Total test files</>',
-            (string) $analysis['metadata']['total_files']
+            strval($metadata['total_files'] ?? 0)
         );
         
         $this->components->twoColumnDetail(
             '<fg=green>Parallel-safe</>',
-            (string) count($analysis[TestAnalyzer::CATEGORY_PARALLEL_SAFE])
+            (string) count($parallelSafe)
         );
         
         $this->components->twoColumnDetail(
             '<fg=yellow>Non-parallel</>',
-            (string) count($analysis[TestAnalyzer::CATEGORY_NON_PARALLEL])
+            (string) count($nonParallel)
         );
         
         $this->components->twoColumnDetail(
             '<fg=red>Non-batched</>',
-            (string) count($analysis[TestAnalyzer::CATEGORY_NON_BATCHED])
+            (string) count($nonBatched)
         );
         
         $this->newLine();
         
         // Show top detection reasons
-        if (!empty($analysis['metadata']['detection_reasons'])) {
+        /** @var array<string, int> $detectionReasons */
+        $detectionReasons = $metadata['detection_reasons'] ?? [];
+        if (!empty($detectionReasons)) {
             $this->components->info('Top detection reasons:');
-            arsort($analysis['metadata']['detection_reasons']);
-            $topReasons = array_slice($analysis['metadata']['detection_reasons'], 0, 10, true);
+            arsort($detectionReasons);
+            $topReasons = array_slice($detectionReasons, 0, 10, true);
             foreach ($topReasons as $reason => $count) {
                 $this->line("  • {$reason}: <fg=cyan>{$count}</>");
             }
@@ -94,11 +105,13 @@ class AnalyzeTests extends Command
         }
         
         // Show non-batched tests (most critical)
-        if (!empty($analysis[TestAnalyzer::CATEGORY_NON_BATCHED])) {
+        if (!empty($nonBatched)) {
             $this->components->warn('Non-batched tests (run alone):');
-            foreach ($analysis[TestAnalyzer::CATEGORY_NON_BATCHED] as $test) {
+            foreach ($nonBatched as $test) {
+                /** @var array{file: string, reasons: list<string>} $test */
                 $relative = str_replace($baseDir . '/', '', $test['file']);
-                $reason = $test['reasons'][0] ?? 'Unknown';
+                $reasons = $test['reasons'] ?? [];
+                $reason = $reasons[0] ?? 'Unknown';
                 $this->line("  <fg=red>•</> {$relative}");
                 $this->line("    <fg=gray>{$reason}</>");
             }
@@ -106,11 +119,13 @@ class AnalyzeTests extends Command
         }
         
         // Show non-parallel tests
-        if (!empty($analysis[TestAnalyzer::CATEGORY_NON_PARALLEL]) && $this->output->isVerbose()) {
+        if (!empty($nonParallel) && $this->output->isVerbose()) {
             $this->components->warn('Non-parallel tests (run sequentially):');
-            foreach ($analysis[TestAnalyzer::CATEGORY_NON_PARALLEL] as $test) {
+            foreach ($nonParallel as $test) {
+                /** @var array{file: string, reasons: list<string>} $test */
                 $relative = str_replace($baseDir . '/', '', $test['file']);
-                $reason = $test['reasons'][0] ?? 'Unknown';
+                $reasons = $test['reasons'] ?? [];
+                $reason = $reasons[0] ?? 'Unknown';
                 $this->line("  <fg=yellow>•</> {$relative}");
                 $this->line("    <fg=gray>{$reason}</>");
             }
@@ -134,7 +149,9 @@ class AnalyzeTests extends Command
         ];
         
         foreach ([TestAnalyzer::CATEGORY_PARALLEL_SAFE, TestAnalyzer::CATEGORY_NON_PARALLEL, TestAnalyzer::CATEGORY_NON_BATCHED] as $category) {
-            foreach ($analysis[$category] as $test) {
+            /** @var list<array{file: string, reasons: list<string>, confidence: float}> $categoryTests */
+            $categoryTests = $analysis[$category] ?? [];
+            foreach ($categoryTests as $test) {
                 $output['categories'][$category][] = [
                     'file' => str_replace($baseDir . '/', '', $test['file']),
                     'reasons' => $test['reasons'],
@@ -143,7 +160,7 @@ class AnalyzeTests extends Command
             }
         }
         
-        $this->line(json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        $this->line((string) json_encode($output, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 
     /**
@@ -167,9 +184,11 @@ class AnalyzeTests extends Command
         $rosterPath = $baseDir . '/tests/test_roster.json';
         
         // Load existing roster for manual overrides
+        /** @var array<string, mixed> $existingRoster */
         $existingRoster = [];
         if (file_exists($rosterPath)) {
-            $existingRoster = json_decode(file_get_contents($rosterPath), true) ?? [];
+            $contents = file_get_contents($rosterPath);
+            $existingRoster = $contents !== false ? (array) (json_decode($contents, true) ?? []) : [];
         }
         
         // Build new roster
@@ -190,12 +209,16 @@ class AnalyzeTests extends Command
         ];
         
         // Populate auto-detected lists with relative paths
-        foreach ($analysis[TestAnalyzer::CATEGORY_PARALLEL_SAFE] as $test) {
+        /** @var list<array{file: string}> $pSafe */
+        $pSafe = $analysis[TestAnalyzer::CATEGORY_PARALLEL_SAFE] ?? [];
+        foreach ($pSafe as $test) {
             $relative = str_replace($baseDir . '/', '', $test['file']);
             $roster['auto_detected']['parallel_safe'][] = $relative;
         }
         
-        foreach ($analysis[TestAnalyzer::CATEGORY_NON_PARALLEL] as $test) {
+        /** @var list<array{file: string, reasons: list<string>}> $nParallel */
+        $nParallel = $analysis[TestAnalyzer::CATEGORY_NON_PARALLEL] ?? [];
+        foreach ($nParallel as $test) {
             $relative = str_replace($baseDir . '/', '', $test['file']);
             $roster['auto_detected']['non_parallel'][] = [
                 'file' => $relative,
@@ -203,7 +226,9 @@ class AnalyzeTests extends Command
             ];
         }
         
-        foreach ($analysis[TestAnalyzer::CATEGORY_NON_BATCHED] as $test) {
+        /** @var list<array{file: string, reasons: list<string>}> $nBatched */
+        $nBatched = $analysis[TestAnalyzer::CATEGORY_NON_BATCHED] ?? [];
+        foreach ($nBatched as $test) {
             $relative = str_replace($baseDir . '/', '', $test['file']);
             $roster['auto_detected']['non_batched'][] = [
                 'file' => $relative,

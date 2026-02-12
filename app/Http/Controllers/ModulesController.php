@@ -1200,11 +1200,12 @@ class ModulesController extends Controller
             $moduleAlias = null;
 
             if (File::exists($targetPath . '/module.json')) {
+                /** @var array<string, mixed>|null $moduleJson */
                 $moduleJson = json_decode(File::get($targetPath . '/module.json'), true);
-                if (isset($moduleJson['name'])) {
+                if (isset($moduleJson['name']) && is_string($moduleJson['name'])) {
                     $moduleName = $moduleJson['name'];
                 }
-                if (isset($moduleJson['alias'])) {
+                if (isset($moduleJson['alias']) && is_string($moduleJson['alias'])) {
                     $moduleAlias = $moduleJson['alias'];
                 }
             }
@@ -1215,10 +1216,10 @@ class ModulesController extends Controller
             }
 
             // Try to find the module
-            $module = Module::find($moduleName);
+            $module = Module::find((string) $moduleName);
 
             if (!$module && $moduleAlias) {
-                $module = Module::findByAlias($moduleAlias);
+                $module = Module::findByAlias((string) $moduleAlias);
             }
 
             if (!$module) {
@@ -1230,7 +1231,7 @@ class ModulesController extends Controller
                 try {
                     // Manually register the module if it wasn't picked up by scan()
                     // This is a workaround for when the repository cache isn't clearing properly
-                    $module = new \Nwidart\Modules\Laravel\Module(app(), $moduleName, $targetPath);
+                    $module = new \Nwidart\Modules\Laravel\Module(app(), (string) $moduleName, $targetPath);
                 } catch (\Exception $e) {
                     \Log::warning("Failed to manually instantiate module: " . $e->getMessage());
                 }
@@ -1292,7 +1293,7 @@ class ModulesController extends Controller
             }
             
             // Log successful installation
-            $this->logActivity($moduleName, 'install', [
+            $this->logActivity((string) $moduleName, 'install', [
                 'repo_url' => $url,
                 'branch' => $branch,
                 'commit' => $commit,
@@ -1306,7 +1307,7 @@ class ModulesController extends Controller
 
         } catch (\Exception $e) {
             // Log failed installation
-            $this->logActivity($moduleName, 'install', [
+            $this->logActivity((string) $moduleName, 'install', [
                 'repo_url' => $url,
                 'error' => $e->getMessage(),
                 'failed' => true,

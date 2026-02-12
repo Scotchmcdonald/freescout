@@ -23,19 +23,32 @@ final readonly class AssetCountChangedData
     
     /**
      * Factory method for array construction
+     *
+     * @param array<string, mixed> $data
+     * @phpstan-param array{
+     *     client_id?: int, clientId?: int,
+     *     asset_type?: string, assetType?: string,
+     *     previous_count?: int, previousCount?: int,
+     *     new_count?: int, newCount?: int,
+     *     change_reason?: string, changeReason?: string,
+     *     asset_id?: int|null, assetId?: int|null,
+     * } $data
      */
     public static function fromArray(array $data): self
     {
         return new self(
-            clientId: $data['client_id'] ?? $data['clientId'],
-            assetType: $data['asset_type'] ?? $data['assetType'],
-            previousCount: $data['previous_count'] ?? $data['previousCount'],
-            newCount: $data['new_count'] ?? $data['newCount'],
-            changeReason: $data['change_reason'] ?? $data['changeReason'],
+            clientId: $data['client_id'] ?? $data['clientId'] ?? 0,
+            assetType: $data['asset_type'] ?? $data['assetType'] ?? '',
+            previousCount: $data['previous_count'] ?? $data['previousCount'] ?? 0,
+            newCount: $data['new_count'] ?? $data['newCount'] ?? 0,
+            changeReason: $data['change_reason'] ?? $data['changeReason'] ?? '',
             assetId: $data['asset_id'] ?? $data['assetId'] ?? null,
         );
     }
     
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

@@ -59,7 +59,7 @@ class ConversationObserver
             
             ConversationStatusChanged::dispatch(
                 $conversation,
-                auth()->user(),
+                auth()->user() instanceof \App\Models\User ? auth()->user() : null,
                 $oldStatusInt,
                 (int) $conversation->status
             );
@@ -97,7 +97,7 @@ class ConversationObserver
                     $oldUser = $found;
                 }
             }
-            ConversationUserChanged::dispatch($conversation, $oldUser, $conversation->user, auth()->user());
+            ConversationUserChanged::dispatch($conversation, $oldUser, $conversation->user, auth()->user() instanceof \App\Models\User ? auth()->user() : null);
         }
     }
 

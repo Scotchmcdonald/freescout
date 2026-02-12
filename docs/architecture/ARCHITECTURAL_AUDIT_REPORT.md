@@ -1,13 +1,16 @@
 # Architectural Audit Report
-**Date:** February 10, 2026
+**Date:** February 11, 2026
 **Auditor:** GitHub Copilot
 **Scope:** Core Blindness, Module Isolation, Queue Usage
 
 ## Executive Summary
-An automated assessment of the application architecture against defined constraints revealed **0 critical violations** of the core blindness and isolation principles.
+An automated assessment of the application architecture against defined constraints revealed **1 critical violation** of the core blindness and isolation principles.
 
-## 1. Core Blindness Violations (Resolved)
-All previous violations have been resolved through refactoring:
+## 1. Core Blindness Violations
+**Detected Violations:**
+- `App` depends on `Modules\PIB` (Architecture Test Failure: `app core blindness`)
+
+**Resolved Violations:**
 - `App` → `Modules\PIB` dependency removed (Listeners moved, Scopes refactored).
 - `Modules\Crm` → `Modules\Payment` dependency removed (Dynamic relationships).
 - `App` → `Modules\GoogleAdmin` dependency removed (Controller moved, Jobs dynamically resolved).

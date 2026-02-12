@@ -9,7 +9,7 @@ interface UserProvider
     /**
      * Get list of users from the provider.
      * 
-     * @return array Array of user arrays ['name', 'email', 'status', ...]
+     * @return array<int, array<string, mixed>> Array of user arrays ['name', 'email', 'status', ...]
      */
     public function getUsers(): array;
     

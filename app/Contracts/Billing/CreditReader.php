@@ -42,7 +42,7 @@ interface CreditReader
      *
      * @param int $clientId
      * @param int $limit Maximum number of entries to return
-     * @return array Array of ledger entries
+     * @return array<int, array<string, mixed>> Array of ledger entries
      */
     public function getLedger(int $clientId, int $limit = 50): array;
 }

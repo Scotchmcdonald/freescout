@@ -12,6 +12,9 @@ namespace App\DataTransferObjects;
  */
 final readonly class Action1DeviceDiscoveredData
 {
+    /**
+     * @param array<string, mixed> $metadata
+     */
     public function __construct(
         public int $clientId,
         public string $hostname,
@@ -26,17 +29,27 @@ final readonly class Action1DeviceDiscoveredData
     /**
      * Factory method for backward compatibility
      * 
-     * @param array $data Raw array data
+     * @param array<string, mixed> $data Raw array data
+     * @phpstan-param array{
+     *     client_id?: int,
+     *     hostname?: string,
+     *     os_type?: string, osType?: string,
+     *     os_version?: string, osVersion?: string,
+     *     action1_device_id?: string, action1DeviceId?: string,
+     *     is_online?: bool, isOnline?: bool,
+     *     assigned_user_email?: string|null, assignedUserEmail?: string|null,
+     *     metadata?: array<string, mixed>,
+     * } $data
      * @return self
      */
     public static function fromArray(array $data): self
     {
         return new self(
-            clientId: $data['client_id'],
-            hostname: $data['hostname'],
-            osType: $data['os_type'] ?? $data['osType'],
-            osVersion: $data['os_version'] ?? $data['osVersion'],
-            action1DeviceId: $data['action1_device_id'] ?? $data['action1DeviceId'],
+            clientId: $data['client_id'] ?? 0,
+            hostname: $data['hostname'] ?? '',
+            osType: $data['os_type'] ?? $data['osType'] ?? '',
+            osVersion: $data['os_version'] ?? $data['osVersion'] ?? '',
+            action1DeviceId: $data['action1_device_id'] ?? $data['action1DeviceId'] ?? '',
             isOnline: $data['is_online'] ?? $data['isOnline'] ?? false,
             assignedUserEmail: $data['assigned_user_email'] ?? $data['assignedUserEmail'] ?? null,
             metadata: $data['metadata'] ?? [],
@@ -46,7 +59,7 @@ final readonly class Action1DeviceDiscoveredData
     /**
      * Convert to array representation
      * 
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

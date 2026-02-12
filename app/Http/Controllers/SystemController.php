@@ -307,7 +307,7 @@ class SystemController extends Controller
         // Cron Health
         $lastRunFetch = cache()->get('last_run_fetch');
         if ($lastRunFetch) {
-            $lastRun = \Illuminate\Support\Carbon::parse($lastRunFetch);
+            $lastRun = \Illuminate\Support\Carbon::parse(is_string($lastRunFetch) ? $lastRunFetch : '');
             if ($lastRun->diffInMinutes(now()) > 10) {
                 $checks['cron'] = ['status' => 'warning', 'message' => 'Cron has not run in the last 10 minutes'];
             } else {

@@ -30,16 +30,26 @@ final readonly class GoogleUserSyncedData
      * Factory method for backward compatibility
      * 
      * @param array<string, mixed> $data Raw array data
+     * @phpstan-param array{
+     *     client_id?: int,
+     *     email?: string,
+     *     first_name?: string, firstName?: string,
+     *     last_name?: string, lastName?: string,
+     *     google_id?: string, googleId?: string,
+     *     suspended?: bool,
+     *     org_unit_path?: string, orgUnitPath?: string,
+     *     metadata?: array<string, mixed>,
+     * } $data
      * @return self
      */
     public static function fromArray(array $data): self
     {
         return new self(
-            clientId: $data['client_id'],
-            email: $data['email'],
+            clientId: $data['client_id'] ?? 0,
+            email: $data['email'] ?? '',
             firstName: $data['first_name'] ?? $data['firstName'] ?? '',
             lastName: $data['last_name'] ?? $data['lastName'] ?? '',
-            googleId: $data['google_id'] ?? $data['googleId'],
+            googleId: $data['google_id'] ?? $data['googleId'] ?? '',
             suspended: $data['suspended'] ?? false,
             orgUnitPath: $data['org_unit_path'] ?? $data['orgUnitPath'] ?? '/',
             metadata: $data['metadata'] ?? [],

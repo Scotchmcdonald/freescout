@@ -31,7 +31,7 @@ class SyncMonitorController extends Controller
         }
 
         // Default to last 24 hours
-        $hours = $request->get('hours', 24);
+        $hours = $request->integer('hours', 24);
         $query->recent($hours);
 
         // Check for stalled operations and mark them

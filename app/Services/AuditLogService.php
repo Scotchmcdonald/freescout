@@ -101,7 +101,9 @@ class AuditLogService
         }
 
         if (isset($filters['description_like'])) {
-            $query->where('description', 'like', '%' . $filters['description_like'] . '%');
+            $val = $filters['description_like'];
+            $strVal = is_string($val) ? $val : '';
+            $query->where('description', 'like', '%' . $strVal . '%');
         }
 
         return $query->latest();

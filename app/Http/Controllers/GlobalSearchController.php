@@ -16,7 +16,7 @@ class GlobalSearchController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = $request->input('q');
+        $query = $request->string('q')->toString();
         $results = [
             'tickets' => [],
             'clients' => [],

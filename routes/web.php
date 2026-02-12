@@ -343,8 +343,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['admin'])->group(function () {
     Route::get('/clients/{id}/edit', function ($id) {
         // Try to find existing Customer, or create one from CRM Client
+        /** @var \App\Models\Customer|null $customer */
         $customer = \App\Models\Customer::find($id);
         if (!$customer) {
+            /** @var \Modules\Crm\Models\Client $client */
             $client = \Modules\Crm\Models\Client::findOrFail($id);
             $email = $client->email;
             if (!$email) {
@@ -353,7 +355,7 @@ Route::middleware(['admin'])->group(function () {
                 $email = $clientUser ? $clientUser->email : 'client-' . $client->id . '@portal.local';
             }
             $customer = \App\Models\Customer::firstOrCreate(
-                ['email' => $email],
+                ['email' => $email], /** @phpstan-ignore argument.type */
                 ['first_name' => $client->name, 'company' => $client->name]
             );
         }
@@ -361,8 +363,10 @@ Route::middleware(['admin'])->group(function () {
     })->name('clients.edit');
 
     Route::patch('/clients/{id}', function (\Illuminate\Http\Request $request, $id) {
+        /** @var \App\Models\Customer|null $customer */
         $customer = \App\Models\Customer::find($id);
         if (!$customer) {
+            /** @var \Modules\Crm\Models\Client $client */
             $client = \Modules\Crm\Models\Client::findOrFail($id);
             $email = $client->email;
             if (!$email) {
@@ -371,7 +375,7 @@ Route::middleware(['admin'])->group(function () {
                 $email = $clientUser ? $clientUser->email : 'client-' . $client->id . '@portal.local';
             }
             $customer = \App\Models\Customer::firstOrCreate(
-                ['email' => $email],
+                ['email' => $email], /** @phpstan-ignore argument.type */
                 ['first_name' => $client->name, 'company' => $client->name]
             );
         }

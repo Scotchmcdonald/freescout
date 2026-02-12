@@ -15,6 +15,7 @@ class AlertSubscriptionController extends Controller
 {
     public function index(): View
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $definitions = NotificationSubscription::getAlertTypes();
         
@@ -36,12 +37,14 @@ class AlertSubscriptionController extends Controller
             'subscriptions.*.is_active' => 'boolean',
         ]);
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
+        /** @var array<string, array<string, mixed>> $input */
         $input = $request->input('subscriptions', []);
 
         foreach ($input as $alertType => $data) {
             // Only process valid alert types
-            if (!array_key_exists($alertType, NotificationSubscription::getAlertTypes())) {
+            if (!array_key_exists((string) $alertType, NotificationSubscription::getAlertTypes())) {
                 continue;
             }
 

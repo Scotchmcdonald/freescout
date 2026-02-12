@@ -17,13 +17,19 @@ class BillingTemplateFactory extends Factory
 
     /**
      * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     * @phpstan-ignore method.childReturnType
      */
-    public function definition()
+    public function definition(): array
     {
+        /** @var string $words */
+        $words = $this->faker->words(3, true);
+
         return [
             'client_id' => 1,
             'company_id' => 1,  // Required field
-            'name' => $this->faker->words(3, true) . ' Plan',
+            'name' => $words . ' Plan',
             'product_type' => $this->faker->randomElement(['service_plan', 'hardware', 'software']),
             'product_config' => [],
             'billing_cycle' => $this->faker->randomElement(['monthly', 'quarterly', 'annual']),

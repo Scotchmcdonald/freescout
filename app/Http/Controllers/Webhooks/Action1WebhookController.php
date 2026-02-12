@@ -78,7 +78,7 @@ class Action1WebhookController extends Controller
             }
 
             // Dispatch appropriate event based on event type
-            $this->dispatchDeviceEvent($eventType, $payload);
+            $this->dispatchDeviceEvent($eventType ?? '', $payload);
 
             $processingTime = microtime(true) - $startTime;
             $this->metrics->trackWebhookProcessed('action1', 'devices', $processingTime);

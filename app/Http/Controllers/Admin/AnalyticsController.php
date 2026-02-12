@@ -88,13 +88,13 @@ class AnalyticsController extends Controller
             ->value('total') ?? 0;
 
         return [
-            'mrr' => round($mrr, 2),
-            'mrr_growth' => round($mrrGrowth, 2),
+            'mrr' => round((float) $mrr, 2),
+            'mrr_growth' => round((float) $mrrGrowth, 2),
             'active_clients' => $activeClients,
             'new_clients_this_month' => $newClients,
-            'total_revenue' => round($totalRevenue, 2),
-            'arpc' => round($arpc, 2),
-            'unbilled_value' => round($unbilledValue, 2),
+            'total_revenue' => round((float) $totalRevenue, 2),
+            'arpc' => round((float) $arpc, 2),
+            'unbilled_value' => round(is_numeric($unbilledValue) ? (float) $unbilledValue : 0.0, 2),
         ];
     }
 
@@ -200,25 +200,28 @@ class AnalyticsController extends Controller
 
         // MRR Growth Insight
         if ($metrics['mrr_growth'] > 10) {
+            $val = $metrics['mrr_growth'];
             $insights[] = [
                 'type' => 'success',
                 'title' => 'Strong Revenue Growth',
-                'message' => sprintf('MRR grew by %.1f%% this month. Maintain current growth strategies.', $metrics['mrr_growth']),
+                'message' => sprintf('MRR grew by %.1f%% this month. Maintain current growth strategies.', is_numeric($val) ? (float) $val : 0.0),
             ];
         } elseif ($metrics['mrr_growth'] < -5) {
+            $val = $metrics['mrr_growth'];
             $insights[] = [
                 'type' => 'warning',
                 'title' => 'Revenue Decline Alert',
-                'message' => sprintf('MRR decreased by %.1f%%. Review client retention and pricing.', abs($metrics['mrr_growth'])),
+                'message' => sprintf('MRR decreased by %.1f%%. Review client retention and pricing.', abs(is_numeric($val) ? (float) $val : 0.0)),
             ];
         }
 
         // New Clients Insight
         if ($metrics['new_clients_this_month'] > 5) {
+            $val = $metrics['new_clients_this_month'];
             $insights[] = [
                 'type' => 'success',
                 'title' => 'Healthy Client Acquisition',
-                'message' => sprintf('%d new clients added this month. Sales pipeline is strong.', $metrics['new_clients_this_month']),
+                'message' => sprintf('%d new clients added this month. Sales pipeline is strong.', is_numeric($val) ? (int) $val : 0),
             ];
         } elseif ($metrics['new_clients_this_month'] === 0) {
             $insights[] = [
@@ -230,10 +233,11 @@ class AnalyticsController extends Controller
 
         // Unbilled Services Insight
         if ($metrics['unbilled_value'] > 5000) {
+            $val = $metrics['unbilled_value'];
             $insights[] = [
                 'type' => 'info',
                 'title' => 'Unbilled Services Pending',
-                'message' => sprintf('$%s in approved services awaiting invoicing. Review service usage queue.', number_format($metrics['unbilled_value'], 2)),
+                'message' => sprintf('$%s in approved services awaiting invoicing. Review service usage queue.', number_format(is_numeric($val) ? (float) $val : 0.0, 2)),
             ];
         }
 

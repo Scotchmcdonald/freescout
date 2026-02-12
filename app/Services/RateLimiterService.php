@@ -148,11 +148,12 @@ class RateLimiterService
         // Try cache first
         $attempts = Cache::get($key);
         
-        if ($attempts !== null) {
+        if (is_numeric($attempts)) {
             return (int) $attempts;
         }
         
         // Fallback to database
+        /** @var object{reset_at: string, attempts: int}|null $record */
         $record = DB::table('api_rate_limit_tracking')
             ->where('key', $key)
             ->where('reset_at', '>', now())
@@ -162,7 +163,7 @@ class RateLimiterService
             // Restore to cache
             $ttl = (int) now()->diffInSeconds($record->reset_at);
             Cache::put($key, $record->attempts, $ttl);
-            Cache::put($key . ':timer', strtotime($record->reset_at), $ttl);
+            Cache::put($key . ':timer', (int) strtotime($record->reset_at), $ttl);
             
             return $record->attempts;
         }
@@ -183,7 +184,7 @@ class RateLimiterService
         }
         
         // Increment in cache
-        $attempts = Cache::increment($key);
+        $attempts = (int) Cache::increment($key);
         Cache::put($key, $attempts, $decaySeconds);
         
         // Persist to database
@@ -191,7 +192,7 @@ class RateLimiterService
             ['key' => $key],
             [
                 'attempts' => $attempts,
-                'reset_at' => date('Y-m-d H:i:s', $resetAt),
+                'reset_at' => date('Y-m-d H:i:s', is_numeric($resetAt) ? (int) $resetAt : time()),
             ]
         );
         
@@ -205,14 +206,15 @@ class RateLimiterService
     {
         $resetAt = Cache::get($key . ':timer');
         
-        if ($resetAt !== null) {
-            return $resetAt;
+        if (is_numeric($resetAt)) {
+            return (int) $resetAt;
         }
         
+        /** @var object{reset_at: string}|null $record */
         $record = DB::table('api_rate_limit_tracking')
             ->where('key', $key)
             ->first();
         
-        return $record ? strtotime($record->reset_at) : time();
+        return $record ? (int) strtotime($record->reset_at) : time();
     }
 }

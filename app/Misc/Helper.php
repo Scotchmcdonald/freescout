@@ -384,7 +384,8 @@ class Helper
      */
     public static function getSubdirectory(): ?string
     {
-        $path = parse_url((string)config('app.url'), PHP_URL_PATH);
+        $url = config('app.url');
+        $path = parse_url(is_string($url) ? $url : '', PHP_URL_PATH);
 
         return $path ? trim($path, '/') : null;
     }

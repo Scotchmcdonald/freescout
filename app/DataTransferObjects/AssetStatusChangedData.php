@@ -24,17 +24,25 @@ final readonly class AssetStatusChangedData
     /**
      * Factory method for backward compatibility
      * 
-     * @param array $data Raw array data
+     * @param array<string, mixed> $data Raw array data
+     * @phpstan-param array{
+     *     asset_id?: int, assetId?: int,
+     *     client_id?: int, clientId?: int,
+     *     old_status?: string|null, oldStatus?: string|null,
+     *     new_status?: string, newStatus?: string,
+     *     source?: string,
+     *     user_id?: int|null, userId?: int|null,
+     * } $data
      * @return self
      */
     public static function fromArray(array $data): self
     {
         return new self(
-            assetId: $data['asset_id'] ?? $data['assetId'],
-            clientId: $data['client_id'] ?? $data['clientId'],
-            oldStatus: $data['old_status'] ?? $data['oldStatus'],
-            newStatus: $data['new_status'] ?? $data['newStatus'],
-            source: $data['source'],
+            assetId: $data['asset_id'] ?? $data['assetId'] ?? 0,
+            clientId: $data['client_id'] ?? $data['clientId'] ?? 0,
+            oldStatus: $data['old_status'] ?? $data['oldStatus'] ?? null,
+            newStatus: $data['new_status'] ?? $data['newStatus'] ?? '',
+            source: $data['source'] ?? '',
             userId: $data['user_id'] ?? $data['userId'] ?? null,
         );
     }
@@ -42,7 +50,7 @@ final readonly class AssetStatusChangedData
     /**
      * Convert to array representation
      * 
-     * @return array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {

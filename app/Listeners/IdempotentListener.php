@@ -25,6 +25,7 @@ abstract class IdempotentListener
 {
     public function handle(object $event): void
     {
+        /** @var object{eventId: string} $event */
         // Check if already processed
         if (DB::table('processed_events')
             ->where('event_id', $event->eventId)

@@ -42,7 +42,8 @@ class SecurityAudit extends Command
         $this->error('Security vulnerabilities found!');
         $this->line($output);
 
-        $recipient = $this->option('email') ?? config('app.admin_email') ?? config('mail.from.address');
+        $email = $this->option('email') ?? config('app.admin_email') ?? config('mail.from.address', '');
+        $recipient = is_string($email) ? $email : '';
 
         if ($recipient) {
             $this->info("Sending alert to {$recipient}...");

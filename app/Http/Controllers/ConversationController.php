@@ -69,7 +69,7 @@ class ConversationController extends Controller
 
         // Mark as read
         $user->unreadNotifications()
-            ->where('data', 'like', '%"conversation_id":'.$conversation->id.'%')
+            ->where('data', 'like', '%"conversation_id":'.(string)$conversation->id.'%')
             ->update(['read_at' => now()]);
 
         // Load relationships
@@ -205,11 +205,11 @@ class ConversationController extends Controller
                 /** @var string $bodyStr */
                 $bodyStr = is_string($bodyVal) || is_int($bodyVal) || is_float($bodyVal) ? (string) $bodyVal : '';
                 $conversation = Conversation::create([
-                    'mailbox_id' => $mailbox->id,
-                    'customer_id' => $customer->id,
-                    'folder_id' => $folder->id,
+                    'mailbox_id' => (int) $mailbox->id,
+                    'customer_id' => (int) $customer->id,
+                    'folder_id' => (int) $folder->id,
                     'user_id' => $validated['assign_to'] ?? null,
-                    'number' => $number,
+                    'number' => (int) $number,
                     'subject' => $validated['subject'],
                     'type' => 1, // Email
                     'status' => $validated['status'] ?? 1,
@@ -218,14 +218,14 @@ class ConversationController extends Controller
                     'source_type' => 2, // Web
                     'customer_email' => $customerEmail,
                     'preview' => mb_substr(strip_tags($bodyStr), 0, 255),
-                    'created_by_user_id' => $user->id,
+                    'created_by_user_id' => (int) $user->id,
                     'last_reply_at' => now(),
                 ]);
 
                 // Create first thread
                 Thread::create([
-                    'conversation_id' => $conversation->id,
-                    'user_id' => $user->id,
+                    'conversation_id' => (int) $conversation->id,
+                    'user_id' => (int) $user->id,
                     'type' => 1, // Message
                     'status' => 1, // Active
                     'state' => 2, // Published
@@ -241,11 +241,11 @@ class ConversationController extends Controller
                 $conversation->update(['threads_count' => 1]);
 
                 // Link conversation to CRM client if client_id was provided
-                $clientId = request()->input('client_id');
-                if ($clientId && \Illuminate\Support\Facades\Schema::hasTable('client_conversations')) {
+                $clientId = request()->integer('client_id');
+                if ($clientId > 0 && \Illuminate\Support\Facades\Schema::hasTable('client_conversations')) {
                     \Illuminate\Support\Facades\DB::table('client_conversations')->insert([
                         'client_id' => $clientId,
-                        'conversation_id' => $conversation->id,
+                        'conversation_id' => (int) $conversation->id,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);

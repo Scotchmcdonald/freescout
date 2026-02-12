@@ -97,7 +97,9 @@ class ThemeController extends Controller
      */
     public function seed(): RedirectResponse
     {
-        if (!Auth::user()?->isAdmin()) {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        if (!$user || !$user->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 

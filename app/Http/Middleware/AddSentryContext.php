@@ -80,12 +80,15 @@ class AddSentryContext
         ]);
 
         // Add scrubbed headers
-        $headers = $this->scrubSensitiveHeaders($request->headers->all());
+        /** @var array<string, array<int, string>> $rawHeaders */
+        $rawHeaders = $request->headers->all();
+        $headers = $this->scrubSensitiveHeaders($rawHeaders);
         $scope->setContext('headers', $headers);
 
         // Add query parameters (if not sensitive)
         $queryParams = $request->query();
         if (!empty($queryParams)) {
+            /** @var array<string, mixed> $queryParams */
             $scope->setContext('query_params', $this->scrubSensitiveData($queryParams));
         }
     }
@@ -99,6 +102,9 @@ class AddSentryContext
     {
         if (Auth::check()) {
             $user = Auth::user();
+            if ($user === null) {
+                return;
+            }
             
             // Only send user ID - no PII
             $scope->setUser([
@@ -145,7 +151,7 @@ class AddSentryContext
             $scope->setTag('context', 'console');
             
             // Try to detect queue worker
-            if (isset($_SERVER['argv']) && in_array('queue:work', $_SERVER['argv'])) {
+            if (isset($_SERVER['argv']) && is_array($_SERVER['argv']) && in_array('queue:work', $_SERVER['argv'])) {
                 $scope->setTag('queue_worker', 'true');
             }
         } else {
@@ -191,6 +197,7 @@ class AddSentryContext
             if (preg_match('/password|token|secret|api_key|credential/i', (string) $key)) {
                 $scrubbed[$key] = '[REDACTED]';
             } elseif (is_array($value)) {
+                /** @var array<string, mixed> $value */
                 $scrubbed[$key] = $this->scrubSensitiveData($value);
             } else {
                 $scrubbed[$key] = $value;
@@ -210,6 +217,7 @@ class AddSentryContext
             return null;
         }
 
+        /** @var array<string, mixed> $action */
         $action = $route->getAction();
         
         // Try to get module from controller namespace
@@ -234,6 +242,7 @@ class AddSentryContext
             return null;
         }
 
+        /** @var array<string, mixed> $action */
         $action = $route->getAction();
         
         if (isset($action['controller'])) {

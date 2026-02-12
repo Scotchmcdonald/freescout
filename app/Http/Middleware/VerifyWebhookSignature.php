@@ -34,14 +34,14 @@ class VerifyWebhookSignature
     private const GOOGLE_IP_RANGES = [
         // Google's push notification service uses various IPs
         // In production, check: https://www.gstatic.com/ipranges/goog.json
-        '0.0.0.0', // Allow all for development - REMOVE IN PRODUCTION
+        '127.0.0.1',
     ];
 
     /**
      * Action1 IP ranges (obtain from Action1 support)
      */
     private const ACTION1_IP_RANGES = [
-        '0.0.0.0', // Allow all for development - REMOVE IN PRODUCTION
+        '127.0.0.1',
     ];
 
     /**
@@ -208,7 +208,7 @@ class VerifyWebhookSignature
         // Get webhook secret from config
         $secret = config('action1.webhook_secret');
         
-        if (!$secret) {
+        if (!is_string($secret) || empty($secret)) {
             Log::error('Action1 webhook secret not configured');
             return false;
         }
@@ -287,7 +287,7 @@ class VerifyWebhookSignature
 
         // Simple check - in production, use CIDR matching
         foreach ($allowedRanges as $range) {
-            if ($range === '0.0.0.0' || $ip === $range) {
+            if ($ip === $range) {
                 return true;
             }
         }

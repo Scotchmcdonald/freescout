@@ -173,6 +173,8 @@ class ReconciliationRun extends Model
 
     /**
      * Query scope for completed runs.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeCompleted(\Illuminate\Database\Eloquent\Builder $query): void
     {
@@ -181,6 +183,8 @@ class ReconciliationRun extends Model
 
     /**
      * Query scope for failed runs.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeFailed(\Illuminate\Database\Eloquent\Builder $query): void
     {
@@ -189,6 +193,8 @@ class ReconciliationRun extends Model
 
     /**
      * Query scope for running reconciliations.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeRunning(\Illuminate\Database\Eloquent\Builder $query): void
     {
@@ -197,6 +203,8 @@ class ReconciliationRun extends Model
 
     /**
      * Query scope for recent runs.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeRecent(\Illuminate\Database\Eloquent\Builder $query, int $days = 30): void
     {
@@ -205,6 +213,8 @@ class ReconciliationRun extends Model
 
     /**
      * Query scope for runs with critical issues.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeWithCriticalIssues(\Illuminate\Database\Eloquent\Builder $query): void
     {

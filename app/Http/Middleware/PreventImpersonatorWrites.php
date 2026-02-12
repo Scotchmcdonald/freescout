@@ -17,7 +17,8 @@ class PreventImpersonatorWrites
     public function handle(Request $request, Closure $next): Response
     {
         // Check if the current user is impersonating someone
-        if (auth()->check() && method_exists(auth()->user(), 'isImpersonated') && auth()->user()->isImpersonated()) {
+        $user = auth()->user();
+        if ($user !== null && method_exists($user, 'isImpersonated') && $user->isImpersonated()) {
             // Allow leaving impersonation and logout
             if ($request->routeIs('impersonate.leave') || $request->routeIs('portal.logout')) {
                 return $next($request);

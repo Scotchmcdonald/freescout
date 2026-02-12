@@ -30,16 +30,13 @@ class Client360Controller extends Controller
             ->orderBy('last_name')
             ->get();
 
-        // Helper to get rendered widgets
-        $getRenderedWidgets = function($zone) use ($widgetRegistry, $client) {
-            return $widgetRegistry->getWidgets($zone, ['client' => $client])
-                ->map(fn($widget) => $widget->render(['client' => $client]));
-        };
-
         // Get widgets for different sections
-        $assetWidgets = $getRenderedWidgets('client_360.assets');
-        $financialWidgets = $getRenderedWidgets('client_360.financials');
-        $sidebarWidgets = $getRenderedWidgets('client_360.sidebar');
+        $assetWidgets = $widgetRegistry->getWidgets('client_360.assets', ['client' => $client])
+            ->map(fn($widget) => $widget->render(['client' => $client]));
+        $financialWidgets = $widgetRegistry->getWidgets('client_360.financials', ['client' => $client])
+            ->map(fn($widget) => $widget->render(['client' => $client]));
+        $sidebarWidgets = $widgetRegistry->getWidgets('client_360.sidebar', ['client' => $client])
+            ->map(fn($widget) => $widget->render(['client' => $client]));
 
         return view('admin.clients.show', compact(
             'client',

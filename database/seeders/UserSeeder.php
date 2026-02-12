@@ -49,7 +49,7 @@ class UserSeeder extends Seeder
                 User::create([
                     'role' => $userData['role'],
                     'email' => $userData['email'],
-                    'password' => Hash::make($userData['password']),
+                    'password' => Hash::make((string) $userData['password']), // @phpstan-ignore cast.string
                     'first_name' => $userData['first_name'],
                     'last_name' => $userData['last_name'],
                     'status' => User::STATUS_ACTIVE,

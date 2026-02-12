@@ -38,8 +38,8 @@ class ReconciliationController extends Controller
         ];
 
         // Pending manual reviews across all recent runs
-        $pendingReviews = ReconciliationDiscrepancy::whereHas('run', function (\Illuminate\Database\Eloquent\Builder $query) {
-            /** @phpstan-var \Illuminate\Database\Eloquent\Builder<\App\Models\ReconciliationRun> $query */
+        $pendingReviews = ReconciliationDiscrepancy::whereHas('run', function ($query) {
+            // @phpstan-ignore-next-line
             $query->recent(30);
         })->whereIn('resolution_status', ['pending', 'manual_review'])
           ->with('run')

@@ -202,6 +202,8 @@ class SyncOperation extends Model
 
     /**
      * Scope to get recent operations
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeRecent(\Illuminate\Database\Eloquent\Builder $query, int $hours = 24): void
     {
@@ -211,6 +213,8 @@ class SyncOperation extends Model
 
     /**
      * Scope to get active operations
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeActive(\Illuminate\Database\Eloquent\Builder $query): void
     {

@@ -70,6 +70,7 @@ class StoreConversationRequest extends FormRequest
 
         // Auto-populate customer_email and to from client_id when in helpdesk context
         if ($this->filled('client_id') && !$this->filled('customer_email')) {
+            /** @var \Modules\Crm\Models\Client|null $client */
             $client = \Modules\Crm\Models\Client::find($this->input('client_id'));
             if ($client) {
                 $email = $client->email;

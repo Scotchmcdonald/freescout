@@ -12,6 +12,9 @@ namespace App\DataTransferObjects;
  */
 final readonly class ClientCreatedData
 {
+    /**
+     * @param array<string, mixed> $metadata
+     */
     public function __construct(
         public int $clientId,
         public string $name,

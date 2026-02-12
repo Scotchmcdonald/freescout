@@ -159,6 +159,8 @@ class ReconciliationDiscrepancy extends Model
 
     /**
      * Query scope for pending discrepancies.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopePending(\Illuminate\Database\Eloquent\Builder $query): void
     {
@@ -167,6 +169,8 @@ class ReconciliationDiscrepancy extends Model
 
     /**
      * Query scope for resolved discrepancies.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeResolved(\Illuminate\Database\Eloquent\Builder $query): void
     {
@@ -175,6 +179,8 @@ class ReconciliationDiscrepancy extends Model
 
     /**
      * Query scope for critical discrepancies.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeCritical(\Illuminate\Database\Eloquent\Builder $query): void
     {
@@ -183,6 +189,8 @@ class ReconciliationDiscrepancy extends Model
 
     /**
      * Query scope for unresolved critical issues.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<static> $query
      */
     public function scopeUnresolvedCritical(\Illuminate\Database\Eloquent\Builder $query): void
     {
