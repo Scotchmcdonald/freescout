@@ -1,9 +1,9 @@
 # Module Development Guide
 
-**Version:** 2.1  
-**Last Updated:** January 15, 2026
+**Version:** 2.2
+**Last Updated:** February 13, 2026
 
-This guide defines the architecture, patterns, and best practices for developing and maintaining modular components in the application.
+This guide defines the architecture, patterns, and best practices for developing and maintaining modular components in the application (Laravel 12 / PHP 8.3).
 
 ---
 
@@ -554,3 +554,61 @@ Every enabled module MUST have at least one UI view (Minimum UI Standard), even 
 - [Module Installer Documentation](../MODULE_INSTALLER_README.md)
 - [UX Style Guide](../UX_STYLE_GUIDE.md)
 - [Laravel Module Package Documentation](https://nwidart.com/laravel-modules)
+
+---
+
+## Appendix A: Module Modernization Guide (Legacy Upgrade)
+
+This appendix outlines the steps to modernize an older FreeScout module for compatibility with the Laravel 12 Foundation.
+
+### A.1 Namespace & Model References
+Old modules often reference models in the root `App\` namespace. These must be updated to `App\Models\`.
+
+**Search & Replace:**
+- `use App\Conversation;` -> `use App\Models\Conversation;`
+- `use App\Customer;` -> `use App\Models\Customer;`
+- `use App\User;` -> `use App\Models\User;`
+- `use App\Mailbox;` -> `use App\Models\Mailbox;`
+- `use App\Thread;` -> `use App\Models\Thread;`
+- `use App\Attachment;` -> `use App\Models\Attachment;`
+
+### A.2 Route Definitions
+Update `Http/routes.php` to use the modern tuple syntax `[Controller::class, 'method']` instead of string-based routing.
+
+**Example:**
+```php
+// Before
+Route::group(['namespace' => 'Modules\Foo\Http\Controllers'], function() {
+    Route::get('/foo', 'FooController@index');
+});
+
+// After
+use Modules\Foo\Http\Controllers\FooController;
+
+Route::group([], function() {
+    Route::get('/foo', [FooController::class, 'index']);
+});
+```
+
+### A.3 Database Migrations
+Ensure migrations use `bigIncrements` (or `id()`) and `unsignedBigInteger` for foreign keys to match Laravel 11 defaults.
+
+**Changes:**
+- `$table->increments('id');` -> `$table->id();`
+- `$table->integer('user_id')->unsigned();` -> `$table->unsignedBigInteger('user_id');`
+
+### A.4 Controller Inheritance
+Controllers should extend `App\Http\Controllers\Controller` to inherit middleware and shared logic.
+
+### A.5 Service Providers
+- Remove calls to `registerFactories()` if using the legacy factory system.
+- Ensure `loadMigrationsFrom` points to the correct directory.
+
+### A.6 Validation
+- Ensure `Validator` is imported via `use Illuminate\Support\Facades\Validator;`.
+
+### A.7 PHP 8.3 Compatibility (Type Safety)
+The platform strictly enforces PHP 8.3 standards.
+- Add types to properties: `public string $name;`
+- Add return types to methods: `public function index(): View`
+- Use `readonly` classes for DTOs where appropriate.

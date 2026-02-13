@@ -1,5 +1,10 @@
 # Knowledge Base v2 - Product Specification
 
+> **⚠️ DESIGN BLUEPRINT ONLY**
+> This document describes the planned architecture for Knowledge Base V2. 
+> **Current Status:** Pre-Alpha. Controllers exist but views and database migrations are missing. 
+> **Do not expect this feature to function in the current codebase.**
+
 **Version:** 2.1
 **Status:** Enhanced Requirements Definition (Post-Critique)
 **Context:** MSP-Grade Knowledge Management System

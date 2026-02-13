@@ -78,17 +78,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/mailboxes/create', [MailboxController::class, 'create'])->name('mailboxes.create');
     Route::post('/mailboxes', [MailboxController::class, 'store'])->name('mailboxes.store');
     Route::get('/mailbox/{mailbox}', [MailboxController::class, 'show'])->name('mailboxes.view');
-    Route::get('/mailbox/{mailbox}/show', [MailboxController::class, 'show'])->name('mailboxes.show'); // Alias for tests
+    // Route::get('/mailbox/{mailbox}/show', [MailboxController::class, 'show'])->name('mailboxes.show'); // Alias for tests (Removed)
     Route::match(['patch', 'put'], '/mailbox/{mailbox}', [MailboxController::class, 'update'])->name('mailboxes.update');
     Route::delete('/mailbox/{mailbox}', [MailboxController::class, 'destroy'])->name('mailboxes.destroy');
     Route::get('/mailbox/{mailbox}/settings', [MailboxController::class, 'settings'])->name('mailboxes.settings');
     Route::get('/mailbox/{mailbox}/advanced-settings', [MailboxController::class, 'advancedSettings'])->name('mailboxes.advanced_settings');
     Route::post('/mailbox/{mailbox}/advanced-settings', [MailboxController::class, 'saveAdvancedSettings'])->name('mailboxes.save_advanced_settings');
     Route::get('/mailbox/{mailbox}/connection/incoming', [MailboxController::class, 'connectionIncoming'])->name('mailboxes.connection.incoming');
-    Route::get('/mailbox/{mailbox}/connection-incoming', [MailboxController::class, 'connectionIncoming'])->name('mailboxes.connection-incoming'); // Alias for tests
+    // Route::get('/mailbox/{mailbox}/connection-incoming', [MailboxController::class, 'connectionIncoming'])->name('mailboxes.connection-incoming'); // Alias for tests (Removed)
     Route::post('/mailbox/{mailbox}/connection/incoming', [MailboxController::class, 'saveConnectionIncoming'])->name('mailboxes.save-connection-incoming');
     Route::get('/mailbox/{mailbox}/connection/outgoing', [MailboxController::class, 'connectionOutgoing'])->name('mailboxes.connection.outgoing');
-    Route::get('/mailbox/{mailbox}/connection-outgoing', [MailboxController::class, 'connectionOutgoing'])->name('mailboxes.connection-outgoing'); // Alias for tests
+    // Route::get('/mailbox/{mailbox}/connection-outgoing', [MailboxController::class, 'connectionOutgoing'])->name('mailboxes.connection-outgoing'); // Alias for tests (Removed)
     Route::post('/mailbox/{mailbox}/connection/outgoing', [MailboxController::class, 'saveConnectionOutgoing']);
     Route::post('/mailbox/{mailbox}/fetch-emails', [MailboxController::class, 'fetchEmails'])->name('mailboxes.fetch-emails');
     Route::post('/mailbox/ajax', [MailboxController::class, 'ajax'])->name('mailboxes.ajax');
@@ -100,7 +100,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Conversations
     Route::get('/mailbox/{mailbox}/conversations', [ConversationController::class, 'index'])->name('conversations.index');
-    Route::get('/mailbox/{mailbox}/conversations/list', [ConversationController::class, 'index'])->name('mailbox.conversations'); // Alias for tests
+    // Route::get('/mailbox/{mailbox}/conversations/list', [ConversationController::class, 'index'])->name('mailbox.conversations'); // Alias for tests (Removed)
     Route::get('/conversation/{conversation}', [ConversationController::class, 'show'])->name('conversations.show');
     
     // Modified for tests: use mailbox_id parameter and allow POST
@@ -109,13 +109,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::post('/mailbox/{mailbox}/conversation', [ConversationController::class, 'store'])->name('conversations.store');
     Route::patch('/conversation/{conversation}', [ConversationController::class, 'update'])->name('conversations.update');
-    Route::post('/conversation/{conversation}/assign', [ConversationController::class, 'update'])->name('conversations.assign'); // Alias for tests
+    // Route::post('/conversation/{conversation}/assign', [ConversationController::class, 'update'])->name('conversations.assign'); // Alias for tests (Removed)
     Route::post('/conversation/{conversation}/reply', [ConversationController::class, 'reply'])->name('conversations.reply');
-    Route::post('/conversation/{conversation}/update-status', [ConversationController::class, 'update'])->name('conversations.update_status'); // Alias for tests
+    // Route::post('/conversation/{conversation}/update-status', [ConversationController::class, 'update'])->name('conversations.update_status'); // Alias for tests (Removed)
     Route::post('/conversations/ajax', [ConversationController::class, 'ajax'])->name('conversations.ajax');
     Route::delete('/conversation/{conversation}', [ConversationController::class, 'destroy'])->name('conversations.destroy');
     Route::get('/conversations/search', [ConversationController::class, 'search'])->name('conversations.search');
-    Route::get('/search', [ConversationController::class, 'search'])->name('search'); // Alias for tests
+    // Route::get('/search', [ConversationController::class, 'search'])->name('search'); // Alias for tests (Removed)
     Route::get('/mailbox/{mailbox}/clone-ticket/{thread}', [ConversationController::class, 'clone'])->name('conversations.clone');
     Route::post('/conversation/{conversation}/thread/{thread}/forward', [ConversationController::class, 'forward'])->name('conversations.forward');
     Route::post('/conversation/{conversation}/thread/{thread}/undo-send', [ConversationController::class, 'undoSend'])->name('conversations.undo_send');
@@ -125,54 +125,56 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/conversation/{conversation}/change-customer', [ConversationController::class, 'changeCustomer'])->name('conversations.change_customer');
     
     // Helpdesk/Ticket aliases for Dusk tests (point to conversation routes with default mailbox)
-    Route::get('/helpdesk/tickets', function() {
-        $mailbox = \App\Models\Mailbox::first();
-        if (!$mailbox) {
-            $mailbox = \App\Models\Mailbox::create([
-                'name' => 'Support', 'email' => 'support@example.com', 'is_default' => true,
-                'status' => 1, 'from_name' => 1, 'ticket_status' => 1, 'ticket_assignee' => 1, 'template' => 1, 'out_method' => 1,
-            ]);
-        }
-        return app(\App\Http\Controllers\ConversationController::class)->index(request(), $mailbox);
-    })->name('helpdesk.tickets.index');
+    if (app()->environment('local', 'testing')) {
+        Route::get('/helpdesk/tickets', function() {
+            $mailbox = \App\Models\Mailbox::first();
+            if (!$mailbox) {
+                $mailbox = \App\Models\Mailbox::create([
+                    'name' => 'Support', 'email' => 'support@example.com', 'is_default' => true,
+                    'status' => 1, 'from_name' => 1, 'ticket_status' => 1, 'ticket_assignee' => 1, 'template' => 1, 'out_method' => 1,
+                ]);
+            }
+            return app(\App\Http\Controllers\ConversationController::class)->index(request(), $mailbox);
+        })->name('helpdesk.tickets.index');
 
-    Route::get('/helpdesk/tickets/create', function() {
-        $mailbox = \App\Models\Mailbox::first();
-        if (!$mailbox) {
-            // Create a default mailbox for testing if none exists
-            $mailbox = \App\Models\Mailbox::create([
-                'name' => 'Support',
-                'email' => 'support@example.com',
-                'is_default' => true,
-                'status' => 1,
-                'from_name' => 1,
-                'ticket_status' => 1,
-                'ticket_assignee' => 1,
-                'template' => 1,
-                'out_method' => 1,
-            ]);
-        }
-        return app(\App\Http\Controllers\ConversationController::class)->create(request(), $mailbox);
-    })->name('helpdesk.tickets.create');
-    
-    Route::post('/helpdesk/tickets', function() {
-        $mailbox = \App\Models\Mailbox::first();
-        if (!$mailbox) {
-            // Create a default mailbox for testing if none exists
-            $mailbox = \App\Models\Mailbox::create([
-                'name' => 'Support',
-                'email' => 'support@example.com',
-                'is_default' => true,
-                'status' => 1,
-                'from_name' => 1,
-                'ticket_status' => 1,
-                'ticket_assignee' => 1,
-                'template' => 1,
-                'out_method' => 1,
-            ]);
-        }
-        return app(\App\Http\Controllers\ConversationController::class)->store(app(\App\Http\Requests\StoreConversationRequest::class), $mailbox);
-    })->name('helpdesk.tickets.store');
+        Route::get('/helpdesk/tickets/create', function() {
+            $mailbox = \App\Models\Mailbox::first();
+            if (!$mailbox) {
+                // Create a default mailbox for testing if none exists
+                $mailbox = \App\Models\Mailbox::create([
+                    'name' => 'Support',
+                    'email' => 'support@example.com',
+                    'is_default' => true,
+                    'status' => 1,
+                    'from_name' => 1,
+                    'ticket_status' => 1,
+                    'ticket_assignee' => 1,
+                    'template' => 1,
+                    'out_method' => 1,
+                ]);
+            }
+            return app(\App\Http\Controllers\ConversationController::class)->create(request(), $mailbox);
+        })->name('helpdesk.tickets.create');
+        
+        Route::post('/helpdesk/tickets', function() {
+            $mailbox = \App\Models\Mailbox::first();
+            if (!$mailbox) {
+                // Create a default mailbox for testing if none exists
+                $mailbox = \App\Models\Mailbox::create([
+                    'name' => 'Support',
+                    'email' => 'support@example.com',
+                    'is_default' => true,
+                    'status' => 1,
+                    'from_name' => 1,
+                    'ticket_status' => 1,
+                    'ticket_assignee' => 1,
+                    'template' => 1,
+                    'out_method' => 1,
+                ]);
+            }
+            return app(\App\Http\Controllers\ConversationController::class)->store(app(\App\Http\Requests\StoreConversationRequest::class), $mailbox);
+        })->name('helpdesk.tickets.store');
+    }
     Route::post('/conversation/{conversation}/merge', [ConversationController::class, 'merge'])->name('conversations.merge');
     Route::post('/conversation/{conversation}/move', [ConversationController::class, 'move'])->name('conversations.move');
     Route::post('/conversations/batch-update', [ConversationController::class, 'batchUpdate'])->name('conversations.batch_update');
@@ -213,7 +215,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Settings (admin only)
     Route::middleware(['admin'])->group(function () {
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
-        Route::get('/settings/index', [SettingsController::class, 'index'])->name('settings.index'); // Alias for tests
+        // Route::get('/settings/index', [SettingsController::class, 'index'])->name('settings.index'); // Alias for tests (Removed)
         Route::get('/settings/general', [SettingsController::class, 'general'])->name('settings.general'); // New route for tests
         Route::get('/settings/security', [SettingsController::class, 'security'])->name('settings.security'); // New route for tests
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
@@ -224,7 +226,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/settings/alerts', [SettingsController::class, 'updateAlerts'])->name('settings.alerts.update');
         Route::get('/settings/system', [SettingsController::class, 'system'])->name('settings.system');
         Route::post('/settings/cache/clear', [SettingsController::class, 'clearCache'])->name('settings.cache.clear');
-        Route::post('/settings/cache/clear-alias', [SettingsController::class, 'clearCache'])->name('system.clear-cache'); // Alias for tests
+        // Route::post('/settings/cache/clear-alias', [SettingsController::class, 'clearCache'])->name('system.clear-cache'); // Alias for tests (Removed)
         Route::post('/settings/migrate', [SettingsController::class, 'migrate'])->name('settings.migrate');
         Route::post('/settings/test-smtp', [SettingsController::class, 'testSmtp'])->name('settings.test-smtp');
         Route::post('/settings/test-imap', [SettingsController::class, 'testImap'])->name('settings.test-imap');
@@ -340,49 +342,51 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Client edit routes (alias - resolves CRM Client to Customer for billing tests)
-Route::middleware(['admin'])->group(function () {
-    Route::get('/clients/{id}/edit', function ($id) {
-        // Try to find existing Customer, or create one from CRM Client
-        /** @var \App\Models\Customer|null $customer */
-        $customer = \App\Models\Customer::find($id);
-        if (!$customer) {
-            /** @var \Modules\Crm\Models\Client $client */
-            $client = \Modules\Crm\Models\Client::findOrFail($id);
-            $email = $client->email;
-            if (!$email) {
-                /** @var \Modules\Crm\Models\ClientUser|null $clientUser */
-                $clientUser = $client->users()->first();
-                $email = $clientUser ? $clientUser->email : 'client-' . $client->id . '@portal.local';
+if (app()->environment('local', 'testing')) {
+    Route::middleware(['admin'])->group(function () {
+        Route::get('/clients/{id}/edit', function ($id) {
+            // Try to find existing Customer, or create one from CRM Client
+            /** @var \App\Models\Customer|null $customer */
+            $customer = \App\Models\Customer::find($id);
+            if (!$customer) {
+                /** @var \Modules\Crm\Models\Client $client */
+                $client = \Modules\Crm\Models\Client::findOrFail($id);
+                $email = $client->email;
+                if (!$email) {
+                    /** @var \Modules\Crm\Models\ClientUser|null $clientUser */
+                    $clientUser = $client->users()->first();
+                    $email = $clientUser ? $clientUser->email : 'client-' . $client->id . '@portal.local';
+                }
+                $customer = \App\Models\Customer::firstOrCreate(
+                    ['email' => $email], /** @phpstan-ignore argument.type */
+                    ['first_name' => $client->name, 'company' => $client->name]
+                );
             }
-            $customer = \App\Models\Customer::firstOrCreate(
-                ['email' => $email], /** @phpstan-ignore argument.type */
-                ['first_name' => $client->name, 'company' => $client->name]
-            );
-        }
-        return view('customers.edit', compact('customer'));
-    })->name('clients.edit');
+            return view('customers.edit', compact('customer'));
+        })->name('clients.edit');
 
-    Route::patch('/clients/{id}', function (\Illuminate\Http\Request $request, $id) {
-        /** @var \App\Models\Customer|null $customer */
-        $customer = \App\Models\Customer::find($id);
-        if (!$customer) {
-            /** @var \Modules\Crm\Models\Client $client */
-            $client = \Modules\Crm\Models\Client::findOrFail($id);
-            $email = $client->email;
-            if (!$email) {
-                /** @var \Modules\Crm\Models\ClientUser|null $clientUser */
-                $clientUser = $client->users()->first();
-                $email = $clientUser ? $clientUser->email : 'client-' . $client->id . '@portal.local';
+        Route::patch('/clients/{id}', function (\Illuminate\Http\Request $request, $id) {
+            /** @var \App\Models\Customer|null $customer */
+            $customer = \App\Models\Customer::find($id);
+            if (!$customer) {
+                /** @var \Modules\Crm\Models\Client $client */
+                $client = \Modules\Crm\Models\Client::findOrFail($id);
+                $email = $client->email;
+                if (!$email) {
+                    /** @var \Modules\Crm\Models\ClientUser|null $clientUser */
+                    $clientUser = $client->users()->first();
+                    $email = $clientUser ? $clientUser->email : 'client-' . $client->id . '@portal.local';
+                }
+                $customer = \App\Models\Customer::firstOrCreate(
+                    ['email' => $email], /** @phpstan-ignore argument.type */
+                    ['first_name' => $client->name, 'company' => $client->name]
+                );
             }
-            $customer = \App\Models\Customer::firstOrCreate(
-                ['email' => $email], /** @phpstan-ignore argument.type */
-                ['first_name' => $client->name, 'company' => $client->name]
-            );
-        }
-        $customer->update($request->only(['first_name', 'last_name', 'company', 'default_hourly_rate', 'notes']));
-        return redirect()->back()->with('success', 'Client updated');
-    })->name('clients.update');
-});
+            $customer->update($request->only(['first_name', 'last_name', 'company', 'default_hourly_rate', 'notes']));
+            return redirect()->back()->with('success', 'Client updated');
+        })->name('clients.update');
+    });
+}
 
     // Modules (admin only)
     Route::middleware(['admin'])->group(function () {
@@ -399,7 +403,7 @@ Route::middleware(['admin'])->group(function () {
         Route::get('/modules/deploy-key/check', [ModulesController::class, 'checkDeployKey'])->name('modules.deploy-key.check');
         Route::post('/modules/deploy-key/save', [ModulesController::class, 'saveDeployKey'])->name('modules.deploy-key.save');
         Route::post('/modules/{alias}/enable', [ModulesController::class, 'enable'])->name('modules.enable');
-        Route::post('/modules/{alias}/activate', [ModulesController::class, 'enable'])->name('modules.activate'); // Alias for tests
+        // Route::post('/modules/{alias}/activate', [ModulesController::class, 'enable'])->name('modules.activate'); // Alias for tests (Removed)
         Route::post('/modules/{alias}/disable', [ModulesController::class, 'disable'])->name('modules.disable');
         Route::delete('/modules/{alias}', [ModulesController::class, 'delete'])->name('modules.delete');
         Route::post('/modules/ajax', [ModulesController::class, 'ajax'])->name('modules.ajax');
@@ -426,14 +430,14 @@ Route::middleware(['admin'])->group(function () {
         ->name('mailboxes.permissions');
     Route::post('/mailboxes/{mailbox}/permissions', [MailboxController::class, 'updatePermissions'])
         ->name('mailboxes.permissions.update');
-    Route::post('/mailboxes/{mailbox}/update-permissions', [MailboxController::class, 'updatePermissions'])
-        ->name('mailboxes.update-permissions'); // Alias for tests
+    // Route::post('/mailboxes/{mailbox}/update-permissions', [MailboxController::class, 'updatePermissions'])
+        // ->name('mailboxes.update-permissions'); // Alias for tests (Removed)
 
     // Mailbox Auto-Reply
     Route::get('/mailboxes/{mailbox}/auto-reply', [MailboxController::class, 'autoReply'])
         ->name('mailboxes.auto_reply');
-    Route::get('/mailboxes/{mailbox}/auto-reply-test', [MailboxController::class, 'autoReply'])
-        ->name('mailboxes.auto-reply'); // Alias for tests
+    // Route::get('/mailboxes/{mailbox}/auto-reply-test', [MailboxController::class, 'autoReply'])
+        // ->name('mailboxes.auto-reply'); // Alias for tests (Removed)
     Route::post('/mailboxes/{mailbox}/auto-reply', [MailboxController::class, 'saveAutoReply'])
         ->name('mailboxes.auto_reply.save');
 
@@ -477,15 +481,17 @@ Route::middleware(['admin'])->group(function () {
     });
 
     // Project route aliases (for Dusk tests) - map to milestones controller
-    Route::prefix('projects')->name('projects.')->group(function () {
-        Route::get('/', [MilestoneController::class, 'index'])->name('index');
-        Route::get('/create', [MilestoneController::class, 'create'])->name('create');
-        Route::post('/', [MilestoneController::class, 'store'])->name('store');
-        Route::get('/{milestone}', [MilestoneController::class, 'show'])->name('show');
-        Route::get('/{milestone}/edit', [MilestoneController::class, 'edit'])->name('edit');
-        Route::put('/{milestone}', [MilestoneController::class, 'update'])->name('update');
-        Route::delete('/{milestone}', [MilestoneController::class, 'destroy'])->name('destroy');
-    });
+    if (app()->environment('local', 'testing')) {
+        Route::prefix('projects')->name('projects.')->group(function () {
+            Route::get('/', [MilestoneController::class, 'index'])->name('index');
+            Route::get('/create', [MilestoneController::class, 'create'])->name('create');
+            Route::post('/', [MilestoneController::class, 'store'])->name('store');
+            Route::get('/{milestone}', [MilestoneController::class, 'show'])->name('show');
+            Route::get('/{milestone}/edit', [MilestoneController::class, 'edit'])->name('edit');
+            Route::put('/{milestone}', [MilestoneController::class, 'update'])->name('update');
+            Route::delete('/{milestone}', [MilestoneController::class, 'destroy'])->name('destroy');
+        });
+    }
 
     Route::post('/customers/ajax', [CustomerController::class, 'ajax'])->name('customers.ajax');
 });
@@ -496,7 +502,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/drafts/discard', [App\Http\Controllers\DraftController::class, 'discard'])->name('drafts.discard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::get('/profile/show', [ProfileController::class, 'edit'])->name('profile.show'); // Alias for tests
+    // Route::get('/profile/show', [ProfileController::class, 'edit'])->name('profile.show'); // Alias for tests (Removed)
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password'); // New route for tests
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -535,8 +541,8 @@ Route::get('/system-alias', [SystemController::class, 'index'])->name('system.in
 Route::post('/system/failed-jobs/queue/delete-alias', [SystemController::class, 'deleteFailedJobsForQueue'])->name('system.failed-jobs.queue.delete')->middleware(['admin']);
 Route::post('/system/failed-jobs/queue/retry-alias', [SystemController::class, 'retryFailedJobsForQueue'])->name('system.failed-jobs.queue.retry')->middleware(['admin']);
 
-// Sentry Testing Route (only available in non-production environments)
-if (!app()->environment('production')) {
+// Sentry Testing Route (only available in local/testing environments)
+if (app()->environment('local', 'testing')) {
     Route::get('/test-sentry', function () {
         throw new \Exception('Test exception for Sentry error tracking - this is intentional for testing purposes.');
     })->name('test.sentry')->middleware(['admin']);

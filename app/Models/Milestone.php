@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-// use Modules\ContractManager\Models\Contract; // Core Blindness: Injected via ContractManagerServiceProvider
-use Modules\PIB\Models\Invoice;
 
 /**
  * @property-read \Modules\ContractManager\Models\Contract $contract
@@ -108,29 +106,15 @@ class Milestone extends Model
     /**
      * Generate a partial invoice for this milestone.
      */
-    public function generateInvoice(): ?Invoice
+    public function generateInvoice(): void
     {
         if (! $this->canGenerateInvoice()) {
-            return null;
+            return;
         }
 
-        $invoice = Invoice::create([
-            'client_id' => $this->contract->client_id,
-            'company_id' => $this->contract->client->company_id ?? 1,
-            'contract_id' => $this->contract_id,
-            'invoice_number' => 'INV-MS-' . strtoupper(uniqid()),
-            'status' => 'draft',
-            'invoice_date' => now(),
-            'due_date' => now()->addDays(30),
-            'subtotal' => $this->billing_amount,
-            'tax_amount' => 0,
-            'total_amount' => $this->billing_amount,
-            'special_notes' => "Milestone: {$this->title}",
-        ]);
-
-        $this->update(['invoice_id' => $invoice->id]);
-
-        return $invoice;
+        // DEPRECATED: Direct usage of Modules\PIB\Models\Invoice removed for Core Blindness.
+        // The App\Events\MilestoneReadyForBilling event handles this logic in Modules/PIB.
+        \App\Events\MilestoneReadyForBilling::dispatch($this);
     }
 
     /**

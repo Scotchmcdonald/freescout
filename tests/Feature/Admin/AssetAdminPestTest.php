@@ -18,7 +18,7 @@ test('admin can view assignment page', function () {
     $this->actingAs($admin)
         ->get(route('admin.assets.assign'))
         ->assertOk()
-        ->assertViewIs('admin.assets.assign');
+        ->assertViewIs('assetmanagement::assign');
 });
 
 test('admin can search for asset to assign', function () {
@@ -93,7 +93,7 @@ test('admin can view conflicts', function () {
     $this->actingAs($admin)
         ->get(route('admin.assets.conflicts'))
         ->assertOk()
-        ->assertViewIs('admin.assets.conflicts')
+        ->assertViewIs('assetmanagement::conflicts')
         ->assertSee('CONFLICT123')
         ->assertSee('new-hostname');
 });
@@ -172,7 +172,7 @@ test('admin can view inventory', function () {
     $this->actingAs($admin)
         ->get(route('admin.assets.inventory'))
         ->assertOk()
-        ->assertViewIs('admin.assets.inventory')
+        ->assertViewIs('assetmanagement::inventory')
         ->assertSee('Global Fleet Inventory')
         ->assertViewHas('assets');
 });

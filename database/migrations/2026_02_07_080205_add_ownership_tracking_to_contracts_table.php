@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('cm_contracts', function (Blueprint $table) {
             // Only add fields that don't exist
             if (!Schema::hasColumn('cm_contracts', 'ownership_status')) {
-                $table->enum('ownership_status', ['renting', 'owned'])
+                $table->enum('ownership_status', ['pending', 'renting', 'transferred', 'owned'])
                     ->default('renting')
                     ->after('status')
                     ->comment('Current ownership status of rent-to-own asset');

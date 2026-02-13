@@ -16,13 +16,13 @@ declare(strict_types=1);
  * 5. Event Handler Registration - Listeners must be registered in ServiceProviders
  */
 
-use Modules\PIB\Listeners\AdjustBillingOnSoftwareCountChange;
+use Modules\ContractManager\Listeners\AdjustBillingOnSoftwareCountChange;
 use Modules\PIB\Listeners\BillingTemplateDueListener;
 use Modules\PIB\Listeners\ConversationLinkedToClientListener;
-use Modules\PIB\Listeners\PauseBillingOnClientArchive;
+use Modules\ContractManager\Listeners\PauseBillingTemplatesOnClientArchive;
 use Modules\PIB\Listeners\PaymentDisputedListener;
-use Modules\PIB\Listeners\RecalculateProrationOnContractChange;
-use Modules\PIB\Listeners\UpdateEntitlementSnapshots;
+use Modules\ContractManager\Listeners\RecalculateProrationOnContractChange;
+use Modules\ContractManager\Listeners\UpdateEntitlementSnapshots;
 
 /**
  * Guard 1: Interface Segregation Principle
@@ -128,7 +128,7 @@ test('all module listeners extend IdempotentListener for safe event replay')
         AdjustBillingOnSoftwareCountChange::class,
         BillingTemplateDueListener::class,
         ConversationLinkedToClientListener::class,
-        PauseBillingOnClientArchive::class,
+        PauseBillingTemplatesOnClientArchive::class,
         PaymentDisputedListener::class,
         RecalculateProrationOnContractChange::class,
         UpdateEntitlementSnapshots::class,
