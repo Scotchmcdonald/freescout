@@ -1,6 +1,6 @@
 # System Architecture
-**Version:** 4.6
-**Date:** February 11, 2026
+**Version:** 4.7
+**Date:** February 13, 2026
 **Status:** Production-Ready Design Document (Implementation-Tracked)
 
 ---
@@ -29,7 +29,7 @@
 
 ## 📚 Documentation Navigation
 
-**You are here:** System Architecture v4.3 (Design Specification)
+**You are here:** System Architecture v4.7 (Design Specification)
 
 **Related Documents:**
 - � **[ARCHITECTURE_OVERVIEW.md](ARCHITECTURE_OVERVIEW.md)** - **START HERE** - Concise current state overview (recommended for new developers)
@@ -43,6 +43,12 @@
 2. **Implementing features?** Review [MODULE_DEVELOPMENT_GUIDE.md](MODULE_DEVELOPMENT_GUIDE.md) for patterns
 3. **Planning work?** Check [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) for current phase
 4. **Need details?** This document is the authoritative design reference
+
+**Recent Updates (v4.7 - Feb 13, 2026):**
+- ✅ **Infrastructure Standardization**: Standardized on PHP 8.3 execution environment across Docker and OrbStack
+- ✅ **Deployment Reliability**: Unified deployment flows and fixed SSL connectivity chain for database
+- ✅ **Module Deployment**: Standardized migration logic (`module:migrate --all --force`) for predictable rollouts
+- ✅ **Dependency Alignment**: Verified all 14 ecosystem modules are correctly deployed
 
 **Recent Updates (v4.6 - Feb 11, 2026):**
 - ✅ Validated Architectural Compliance (1 remaining violation)
@@ -12252,23 +12258,12 @@ ALTER TABLE processed_events DROP COLUMN event_payload; -- Payload optimization 
 ALTER TABLE processed_events ADD COLUMN event_signature CHAR(64); -- Event deduplication (Section 13.2)
 ```
 
-**Architecture ComFebruary 8, 2026  
-**Version:** 4.5
-
-**Version History:**
-- **v4.5** (Feb 8, 2026): Added comprehensive sections on Performance & Scalability, Observability & Monitoring, Transaction Management, Disaster Recovery, and API Standards
-- **v4.4** (Feb 8, 2026): Updated module statuses, added implementation status tracking
-- **v4.3** (Jan 27, 2026): Enhanced MODULE_COMMUNICATION_AUDIT with event flows
-- **v4.2** (Jan 20, 2026): Extracted billing fields from CRM to PIB
-- **v4.1** (Jan 15, 2026): Added Case Study: Credit System Migration, Controller Organization Patterns
-- Add GitHub Actions workflow step: `Component Audit` (Section 13.3)
-
 ---
 
 **Document Maintainers:** Development Team  
 **Review Cycle:** Quarterly or upon major feature additions  
-**Last Updated:** January 15, 2026  
-**Version:** 4.1 (Added Case Study: Credit System Migration, Controller Organization Patterns, Data Ownership Principles)
+**Last Updated:** February 13, 2026  
+**Version:** 4.7 (Infrastructure Standardization, Deployment Reliability, Module Deployment Standardization)
 
 **Related Documents:** 
 - [MODULE_DEVELOPMENT_GUIDE.md](MODULE_DEVELOPMENT_GUIDE.md)
