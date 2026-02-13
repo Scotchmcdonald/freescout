@@ -22,23 +22,40 @@ class SecurityAudit extends Command
      *
      * @var string
      */
-    protected $description = 'Run composer audit and email the results if vulnerabilities are found';
+    protected $description = 'Run composer and npm audits and email the results if vulnerabilities are found';
 
     /**
      * Execute the console command.
      */
     public function handle(): int
     {
+        $this->info('Running security audits...');
+
+        // Run Composer Audit
         $this->info('Running composer audit...');
+        $composerResult = Process::run('composer audit --locked --format=plain');
 
-        $result = Process::run('composer audit --locked --format=plain');
+        // Run NPM Audit
+        $this->info('Running npm audit...');
+        $npmResult = Process::run('npm audit');
 
-        if ($result->successful()) {
+        if ($composerResult->successful() && $npmResult->successful()) {
             $this->info('No security vulnerabilities found.');
             return Command::SUCCESS;
         }
 
-        $output = $result->output();
+        $output = '';
+
+        if ($composerResult->failed()) {
+            $output .= "=== COMPOSER AUDIT FAILURES ===\n\n";
+            $output .= $composerResult->output() . "\n\n";
+        }
+
+        if ($npmResult->failed()) {
+            $output .= "=== NPM AUDIT FAILURES ===\n\n";
+            $output .= $npmResult->output() . "\n\n";
+        }
+
         $this->error('Security vulnerabilities found!');
         $this->line($output);
 
@@ -50,7 +67,7 @@ class SecurityAudit extends Command
             
             Mail::raw($output, function ($message) use ($recipient) {
                 $message->to($recipient)
-                    ->subject('⚠️ Security Alert: Composer Audit Failed');
+                    ->subject('⚠️ Security Alert: Audit Failed');
             });
             
             $this->info('Alert sent.');

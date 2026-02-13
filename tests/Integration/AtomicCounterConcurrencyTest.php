@@ -36,6 +36,9 @@ class AtomicCounterConcurrencyTest extends TestCase
             'database' => $dbPath,
             'prefix' => '',
             'foreign_key_constraints' => true,
+            'busy_timeout' => 5000,
+            'journal_mode' => 'WAL',
+            'synchronous' => 'NORMAL',
         ]]);
         
         // Run migrations on the file-based database

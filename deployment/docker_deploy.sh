@@ -21,8 +21,8 @@ IFS=$'\n\t'
 
 readonly SCRIPT_VERSION="2.0.0"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly DEFAULT_REPO="https://github.com/Scotchmcdonald/freescout.git"
-readonly DEFAULT_BRANCH="laravel-11-foundation"
+DEFAULT_REPO="https://github.com/Scotchmcdonald/freescout.git"
+DEFAULT_BRANCH="laravel-11-foundation"
 DEFAULT_INSTALL_DIR="/opt/freescout-docker"
 readonly CONFIG_FILE="${SCRIPT_DIR}/deploy.conf"
 
@@ -52,6 +52,24 @@ INTERACTIVE=true
 REUSE_DB=true  # Optimistic default - decommission_existing will handle gracefully if no DB exists
 ADMIN_PASS_PRESERVED=false
 CLEANUP_NEEDED=false
+
+# Default Modules
+MODULES_TO_INSTALL=(
+    "Action1|https://github.com/BorealTek/Action1-Module.git|REPO_TOKEN|main"
+    "Alerts|https://github.com/BorealTek/Alerts-Module.git|REPO_TOKEN|main"
+    "AssetManagement|https://github.com/BorealTek/AssetManagement-Module.git|REPO_TOKEN|main"
+    "ClientPortal|https://github.com/BorealTek/ClientPortal-Module.git|REPO_TOKEN|main"
+    "ContractManager|https://github.com/BorealTek/ContractManager-Module.git|REPO_TOKEN|main"
+    "Crm|https://github.com/BorealTek/Crm-Module.git|REPO_TOKEN|main"
+    "DevFeedback|https://github.com/BorealTek/DevFeedback-Module.git|REPO_TOKEN|main"
+    "EmailMigration|https://github.com/BorealTek/EmailMigration-Module.git|REPO_TOKEN|main"
+    "GoogleAdmin|https://github.com/BorealTek/GoogleAdmin-Module.git|REPO_TOKEN|main"
+    "KnowledgeBase|https://github.com/BorealTek/KnowledgeBase-Module.git|REPO_TOKEN|main"
+    "PIB|https://github.com/BorealTek/PIB-Module.git|REPO_TOKEN|main"
+    "Payment|https://github.com/BorealTek/Payment-Module.git|REPO_TOKEN|main"
+    "SoftwareSubscriptions|https://github.com/BorealTek/SoftwareSubscriptions-Module.git|REPO_TOKEN|main"
+    "WidgetRegistry|https://github.com/BorealTek/WidgetRegistry-Module.git|REPO_TOKEN|main"
+)
 
 #===============================================================================
 # UTILITY FUNCTIONS
@@ -116,7 +134,8 @@ safe_read() {
     # $1: prompt
     # $2: variable name
     if [ -t 0 ]; then
-        read -rp "$1" "$2"
+        # Ensure read has a variable to avoid exit code 1 on empty input in strict mode
+        read -rp "$1" "$2" || true
     elif [ -c /dev/tty ]; then
         # Prompt to stderr
         echo -ne "$1" >&2
@@ -245,6 +264,10 @@ load_or_create_config() {
         log_success "Configuration file found: $CONFIG_FILE"
         # shellcheck disable=SC1090
         source "$CONFIG_FILE"
+
+        # Sync config variables to internal variables
+        if [ -n "${GIT_REPO_URL:-}" ]; then DEFAULT_REPO="$GIT_REPO_URL"; fi
+        if [ -n "${GIT_BRANCH:-}" ]; then DEFAULT_BRANCH="$GIT_BRANCH"; fi
         
         # Ensure array exists if not defined in config
         if [ -z "${MODULES_TO_INSTALL+x}" ]; then
@@ -253,6 +276,32 @@ load_or_create_config() {
     else
         log_info "No configuration file found. Starting setup wizard..."
     fi
+}
+
+interactive_menu() {
+    local choice
+    while true; do
+        # show_banner - removed to prevent flickering
+        echo ""
+        echo -e "  ${COLOR_PRIMARY}[1]${NC} Deploy to Docker (Fresh)"
+        echo -e "  ${COLOR_PRIMARY}[2]${NC} Update Existing/Redeploy"
+        echo -e "  ${COLOR_PRIMARY}[4]${NC} View Logs"
+        echo -e "  ${COLOR_PRIMARY}[0]${NC} Exit"
+        echo ""
+        safe_read "  Enter Selection: " choice
+        
+        case $choice in
+            1) return 0 ;;
+            2) return 0 ;;
+            4)
+                if command_exists docker; then
+                     sudo docker compose logs -f app
+                fi
+                ;;
+            0) exit 0 ;;
+            *) log_error "Invalid selection" ; sleep 1 ;;
+        esac
+    done
 }
 
 save_current_config() {
@@ -527,7 +576,7 @@ check_existing_installation() {
             echo ""
             echo "1) Reuse existing database (Keep data)"
             echo "2) Overwrite database (DESTROY ALL DATA)"
-            read -rp "Select [1-2]: " reuse_opt
+            read -rp "Select [1-2]: " reuse_opt || true
             
             case "$reuse_opt" in
                 2)
@@ -538,9 +587,11 @@ check_existing_installation() {
                     REUSE_DB=true
                     ;;
             esac
+            EXISTING_DECISION_MADE=true
         else
             # Non-interactive: default to safe option
             REUSE_DB=true
+            EXISTING_DECISION_MADE=true
         fi
         
         if [ "$REUSE_DB" = true ]; then
@@ -591,44 +642,46 @@ decommission_existing() {
         
         # Always prompt for what to do with existing deployment
         log_warning "Existing deployment detected!"
-        echo ""
-        echo -e "${YELLOW}What would you like to do?${NC}"
-        echo "  1) Reuse existing data (keep database and volumes)"
-        echo "  2) Nuke everything (fresh install, all data lost)"
-        echo "  3) Cancel deployment"
-        echo ""
-        safe_read "Enter choice [1-3]: " choice
         
-        case $choice in
-            1)
-                REUSE_DB=true
-                log_info "Reusing existing data - stopping containers only..."
-                sudo docker compose down 2>/dev/null || true
-                ;;
-            2)
-                log_warning "Nuking everything - all data will be lost!"
+        if [ "${EXISTING_DECISION_MADE:-false}" = true ]; then
+            log_info "Using previous selection (Reuse Database: $REUSE_DB)"
+        else
+            echo ""
+            echo -e "${YELLOW}What would you like to do?${NC}"
+            echo "  1) Reuse existing data (keep database and volumes)"
+            echo "  2) Nuke everything (fresh install, all data lost)"
+            echo "  3) Cancel deployment"
+            echo ""
+            safe_read "Enter choice [1-3]: " choice
+            
+            case $choice in
+                1) REUSE_DB=true ;;
+                2) REUSE_DB=false ;;
+                3) exit 0 ;;
+                *) REUSE_DB=true ;;
+            esac
+        fi
+        
+        if [ "$REUSE_DB" = true ]; then
+            log_info "Reusing existing data - stopping containers only..."
+            sudo docker compose down 2>/dev/null || true
+        else
+            log_warning "Nuking everything - all data will be lost!"
+            
+            if [ "${EXISTING_DECISION_MADE:-false}" = false ]; then
                 safe_read "Type 'yes' to confirm: " confirm
-                if [ "$confirm" = "yes" ]; then
-                    REUSE_DB=false
-                    log_info "Stopping and removing containers and volumes..."
-                    sudo docker compose down -v 2>/dev/null || true
-                    log_info "Removing source code directory..."
-                    sudo rm -rf src
-                    log_success "Everything nuked"
-                else
-                    log_error "Nuke cancelled"
-                    exit 1
+                if [ "$confirm" != "yes" ]; then
+                     log_error "Aborted by user."
+                     exit 1
                 fi
-                ;;
-            3)
-                log_info "Deployment cancelled by user"
-                exit 0
-                ;;
-            *)
-                log_error "Invalid choice"
-                exit 1
-                ;;
-        esac
+            fi
+
+            log_info "Stopping and removing containers and volumes..."
+            sudo docker compose down -v 2>/dev/null || true
+            log_info "Removing source code directory..."
+            sudo rm -rf src
+            log_success "Everything nuked"
+        fi
         
         log_info "Pruning unused networks..."
         sudo docker network prune -f >/dev/null 2>&1 || true
@@ -657,12 +710,12 @@ generate_dockerfile() {
     log_step "Generating Dockerfile"
     
     cat > Dockerfile <<'EOF'
-FROM serversideup/php:8.2-fpm-nginx
+FROM serversideup/php:8.3-fpm-nginx
 
 USER root
 
-# Install system dependencies, cron, Node.js 22.x, and utilities for Composer
-RUN apt-get update && apt-get install -y gnupg curl ca-certificates unzip git cron && \
+# Install system dependencies, cron, Node.js 22.x, MySQL client, and utilities for Composer
+RUN apt-get update && apt-get install -y gnupg curl ca-certificates unzip git cron default-mysql-client && \
     # Install Docker CLI and Compose
     install -m 0755 -d /etc/apt/keyrings && \
     curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc && \
@@ -678,7 +731,7 @@ RUN apt-get update && apt-get install -y gnupg curl ca-certificates unzip git cr
         -o /usr/local/bin/install-php-extensions \
         https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
     chmod +x /usr/local/bin/install-php-extensions && \
-    install-php-extensions imap gmp soap intl bcmath gd redis && \
+    install-php-extensions imap gmp soap intl bcmath gd redis sockets pcntl zip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -885,7 +938,8 @@ services:
   db:
     image: mariadb:10.6
     restart: unless-stopped
-    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --innodb-file-per-table=1 --skip-innodb-read-only-compressed
+    # Use mariadbd with SSL explicitly disabled to fix "SSL is required" error
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW --innodb-file-per-table=1 --skip-innodb-read-only-compressed --skip-ssl
     environment:
       MARIADB_ROOT_PASSWORD: \${DB_ROOT_PASSWORD}
       MARIADB_DATABASE: \${DB_DATABASE}
@@ -1474,6 +1528,17 @@ show_completion_message() {
 
 main() {
     show_banner
+    if [ "$INTERACTIVE" = true ]; then
+        if [ -n "${1:-}" ]; then
+            # Arguments passed, skip menu
+            GIT_REPO_URL=$1
+            GIT_BRANCH=${2:-$DEFAULT_BRANCH}
+            log_info "Arguments detected, skipping interactive menu..."
+        else
+            interactive_menu
+        fi
+    fi
+
     preflight_checks
     load_or_create_config
     
@@ -1488,10 +1553,7 @@ main() {
     check_existing_installation
     
     if [ "$INTERACTIVE" = true ]; then
-        if [ -n "${1:-}" ]; then
-            GIT_REPO_URL=$1
-            GIT_BRANCH=${2:-$DEFAULT_BRANCH}
-        else
+        if [ -z "${1:-}" ]; then
             interactive_setup
         fi
     fi
