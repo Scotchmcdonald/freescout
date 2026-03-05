@@ -92,24 +92,26 @@ test('super admin has full access', function () {
 })->group('rbac', 'super-admin');
 
 test('client portal permissions', function () {
-    $client = \Modules\Crm\Models\Client::forceCreate([
+    $company = \Modules\Crm\Models\Company::factory()->create(['is_active' => true]);
+    $client = \Modules\Crm\Models\Client::factory()->create([
+        'company_id' => $company->id,
         'name' => 'Security Test Client',
         'email' => 'security_client_' . uniqid() . '@example.com',
+        'status' => 'active',
     ]);
 
-    $clientUser = \Modules\Crm\Models\ClientUser::withoutEvents(function () use ($client) {
-        return \Modules\Crm\Models\ClientUser::forceCreate([
-            'email' => 'security_user_' . uniqid() . '@example.com',
-            'password' => bcrypt('password'),
-            'name' => 'Security Test User',
-            'client_id' => $client->id,
-            'is_active' => true,
-        ]);
-    });
+    $portalUser = User::factory()->create([
+        'type' => 2,
+        'email' => 'security_user_' . uniqid() . '@example.com',
+        'password' => bcrypt('password'),
+        'status' => User::STATUS_ACTIVE,
+        'email_verified_at' => now(),
+    ]);
+    $company->users()->attach($portalUser->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
 
     // Login as client via portal
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $portalUser->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
@@ -179,10 +181,10 @@ it('prevents mass assignment on sensitive fields', function () {
         expect(true)->toBeTrue();
     }
 
-    // Verify ClientUser also has protection
-    $clientUser = new \Modules\Crm\Models\ClientUser();
-    $clientGuarded = $clientUser->getGuarded();
-    expect($clientGuarded)->not->toBeEmpty();
+    // Verify User model also has protection for portal users
+    $portalUser = new \App\Models\User();
+    $portalGuarded = $portalUser->getGuarded();
+    expect($portalGuarded)->not->toBeEmpty();
 })->group('rbac', 'security', 'mass-assignment');
 
 test('permission system active', function () {

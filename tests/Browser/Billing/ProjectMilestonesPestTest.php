@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Milestone;
+use Modules\ContractManager\Models\Milestone;
 use Modules\Crm\Models\Client;
 use Modules\ContractManager\Models\Contract;
 use Modules\PIB\Models\Invoice;

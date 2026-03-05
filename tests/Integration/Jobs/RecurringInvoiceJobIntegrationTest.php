@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Jobs;
 
-use App\Services\EntitlementEngine;
+use Modules\PIB\Services\EntitlementEngineService as EntitlementEngine;
 use App\Contracts\EntitlementResolver;
 use App\Contracts\BillingTemplateInterface;
 use App\DataTransferObjects\EntitlementResult;
 use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Company;
 use Modules\PIB\Jobs\GenerateRecurringInvoicesJob;
-use Modules\PIB\Models\BillingTemplate;
+use Modules\ContractManager\Models\BillingTemplate;
 use Modules\PIB\Models\Invoice;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -48,20 +48,26 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
 
     private function createRequiredTables(): void
     {
-        Schema::dropIfExists('pib_billing_templates');
+        Schema::dropIfExists('cm_billing_templates');
         Schema::dropIfExists('pib_invoices');
         Schema::dropIfExists('pib_invoice_line_items');
 
-        Schema::create('pib_billing_templates', function ($table) {
+        Schema::create('cm_billing_templates', function ($table) {
             $table->id();
             $table->foreignId('client_id');
-            $table->foreignId('company_id');
-            $table->string('name')->nullable();
+            $table->foreignId('contract_id')->nullable();
+            $table->string('name');
             $table->string('product_type');
             $table->json('product_config')->nullable();
             $table->string('billing_cycle')->default('monthly');
             $table->date('next_invoice_date')->nullable();
+            $table->boolean('proration_enabled')->default(false);
             $table->string('status')->default('active');
+            $table->timestamp('activated_at')->nullable();
+            $table->timestamp('paused_at')->nullable();
+            $table->timestamp('terminated_at')->nullable();
+            $table->text('notes')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
 
@@ -97,7 +103,6 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
     {
         $data = array_merge([
             'client_id' => $this->client->id,
-            'company_id' => $this->company->id,
             'name' => 'Test Template',
             'product_type' => 'test_product',
             'product_config' => json_encode([]),
@@ -112,7 +117,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
             $data['product_config'] = json_encode($data['product_config']);
         }
 
-        $id = DB::table('pib_billing_templates')->insertGetId($data);
+        $id = DB::table('cm_billing_templates')->insertGetId($data);
         
         return BillingTemplate::find($id);
     }

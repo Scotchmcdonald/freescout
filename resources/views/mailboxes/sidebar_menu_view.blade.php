@@ -63,7 +63,7 @@
                     
                     {{-- Settings Dropdown --}}
                     <div class="hidden absolute bottom-full mb-2 w-full bg-white rounded-md shadow-lg border border-gray-200 z-10">
-                        @if (Auth::user()->isAdmin())
+                        @if (Auth::user()->hasAdminAccess())
                             <a href="{{ route('mailboxes.settings', $mailbox) }}" 
                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-md">
                                 <svg class="inline-block mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

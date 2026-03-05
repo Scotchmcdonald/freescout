@@ -5,7 +5,7 @@ $styles = match($variant) {
     'success' => 'bg-success-50 border-success-200 text-success-800',
     'warning' => 'bg-warning-50 border-warning-200 text-warning-800',
     'danger' => 'bg-danger-50 border-danger-200 text-danger-800',
-    default => 'bg-blue-50 border-blue-200 text-blue-800',
+    default => 'bg-primary-50 border-primary-200 text-primary-800',
 };
 @endphp
 

@@ -32,7 +32,7 @@
                         Go to Dashboard
                     </a>
                     
-                    @if(!auth()->check() || !auth()->user()->isAdmin())
+                    @if(!auth()->check() || !method_exists(auth()->user(), 'isAdmin') || !auth()->user()->isAdmin())
                     <a href="mailto:{{ config('mail.from.address') }}" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
                         Contact Admin
                     </a>

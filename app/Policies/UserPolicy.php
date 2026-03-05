@@ -6,6 +6,14 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * UserPolicy — governs user management operations.
+ *
+ * Note: Gate::before grants super-admin roles (is_super_admin=true) a wildcard
+ * bypass, so these checks are effectively redundant for admins.
+ * We use hasPermission() so that non-admin roles with 'manage_users' can
+ * also perform these actions.
+ */
 class UserPolicy
 {
     /**
@@ -13,7 +21,11 @@ class UserPolicy
      */
     public function viewAny(?User $user): bool
     {
-        return $user?->isAdmin() ?? false;
+        if ($user === null) {
+            return false;
+        }
+
+        return $user->hasPermission('manage_users');
     }
 
     /**
@@ -25,7 +37,7 @@ class UserPolicy
             return false;
         }
 
-        return $user->isAdmin() || $user->id === $model->id;
+        return $user->id === $model->id || $user->hasPermission('manage_users');
     }
 
     /**
@@ -33,7 +45,11 @@ class UserPolicy
      */
     public function create(?User $user): bool
     {
-        return $user?->isAdmin() ?? false;
+        if ($user === null) {
+            return false;
+        }
+
+        return $user->hasPermission('manage_users');
     }
 
     /**
@@ -45,7 +61,7 @@ class UserPolicy
             return false;
         }
 
-        return $user->isAdmin() || $user->id === $model->id;
+        return $user->id === $model->id || $user->hasPermission('manage_users');
     }
 
     /**
@@ -57,7 +73,8 @@ class UserPolicy
             return false;
         }
 
-        return $user->isAdmin() && $user->id !== $model->id;
+        // Cannot delete yourself; must have manage_users permission
+        return $user->id !== $model->id && $user->hasPermission('manage_users');
     }
 
     /**

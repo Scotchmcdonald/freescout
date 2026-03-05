@@ -7,6 +7,12 @@ namespace App\Policies;
 use App\Models\Conversation;
 use App\Models\User;
 
+/**
+ * ConversationPolicy — governs conversation (ticket) operations.
+ *
+ * Admin bypass is handled by Gate::before. These checks allow
+ * non-admin users with 'manage_tickets' permission to interact with conversations.
+ */
 class ConversationPolicy
 {
     /**
@@ -14,7 +20,7 @@ class ConversationPolicy
      */
     public function view(User $user, Conversation $conversation): bool
     {
-        if ($user->isAdmin()) {
+        if ($user->hasPermission('manage_tickets')) {
             return true;
         }
 
@@ -34,7 +40,7 @@ class ConversationPolicy
      */
     public function viewCached(User $user, Conversation $conversation): bool
     {
-        if ($user->isAdmin()) {
+        if ($user->hasPermission('manage_tickets')) {
             return true;
         }
 
@@ -52,7 +58,7 @@ class ConversationPolicy
      */
     public function update(User $user, Conversation $conversation): bool
     {
-        if ($user->isAdmin()) {
+        if ($user->hasPermission('manage_tickets')) {
             return true;
         }
 
@@ -72,7 +78,7 @@ class ConversationPolicy
      */
     public function delete(User $user, Conversation $conversation): bool
     {
-        if ($user->isAdmin()) {
+        if ($user->hasPermission('manage_tickets')) {
             return true;
         }
 

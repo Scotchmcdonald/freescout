@@ -2,7 +2,7 @@
 
 **Date:** February 9, 2026  
 **Auditor:** Senior Staff Product Designer & Frontend Architect  
-**Source of Truth:** `docs/product/UX_STYLE_GUIDE.md`  
+**Source of Truth:** `docs/development/UX_STYLE_GUIDE.md`  
 **Golden Template:** `Modules/EmailMigration`
 
 ---

@@ -57,11 +57,11 @@ class TestEventSystem extends Command
 
         // Test CustomerCreatedConversation event
         $this->info('Firing CustomerCreatedConversation event...');
-        event(new CustomerCreatedConversation($conversation, $thread, $customer));
+        event(new CustomerCreatedConversation($conversation, $thread));
 
         // Test CustomerReplied event
         $this->info('Firing CustomerReplied event...');
-        event(new CustomerReplied($conversation, $thread, $customer));
+        event(new CustomerReplied($conversation, $thread));
 
         $this->info('Events dispatched. Check storage/logs/laravel.log for listener output.');
 

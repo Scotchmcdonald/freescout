@@ -3,7 +3,7 @@
 **Version:** 2.2
 **Last Updated:** February 13, 2026
 
-This guide defines the architecture, patterns, and best practices for developing and maintaining modular components in the application (Laravel 12 / PHP 8.3).
+This guide defines the architecture, patterns, and best practices for developing and maintaining modular components in the application (Laravel 12 / PHP 8.2+).
 
 ---
 
@@ -427,7 +427,7 @@ if (Schema::hasTable('companies')) {
 ```
 
 ### Foreign Key Standards
-Use `unsignedBigInteger` for foreign keys to match Laravel 11 defaults:
+Use `unsignedBigInteger` for foreign keys to match Laravel 12 defaults:
 
 ```php
 $table->foreignId('company_id')->constrained()->cascadeOnDelete();
@@ -591,7 +591,7 @@ Route::group([], function() {
 ```
 
 ### A.3 Database Migrations
-Ensure migrations use `bigIncrements` (or `id()`) and `unsignedBigInteger` for foreign keys to match Laravel 11 defaults.
+Ensure migrations use `bigIncrements` (or `id()`) and `unsignedBigInteger` for foreign keys to match Laravel 12 defaults.
 
 **Changes:**
 - `$table->increments('id');` -> `$table->id();`
@@ -607,8 +607,8 @@ Controllers should extend `App\Http\Controllers\Controller` to inherit middlewar
 ### A.6 Validation
 - Ensure `Validator` is imported via `use Illuminate\Support\Facades\Validator;`.
 
-### A.7 PHP 8.3 Compatibility (Type Safety)
-The platform strictly enforces PHP 8.3 standards.
+### A.7 PHP 8.2+ Type Safety
+The platform requires PHP 8.2+ and enforces strict type safety.
 - Add types to properties: `public string $name;`
 - Add return types to methods: `public function index(): View`
 - Use `readonly` classes for DTOs where appropriate.

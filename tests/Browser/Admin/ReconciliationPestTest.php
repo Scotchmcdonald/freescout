@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
-use App\Models\ReconciliationRun;
-use App\Models\ReconciliationDiscrepancy;
+use Modules\PIB\Models\ReconciliationRun;
+use Modules\PIB\Models\ReconciliationDiscrepancy;
 
 function getReconciliationAdmin(): User
 {

@@ -19,8 +19,9 @@
                     @auth
                         @php
                             $mailboxes = Auth::user()->mailboxesCanView(true);
+                            $canManageMailboxes = Auth::user()->hasAdminAccess();
                         @endphp
-                        @if ($mailboxes->count() > 0)
+                        @if ($mailboxes->count() > 0 || $canManageMailboxes)
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
                             <x-dropdown align="left" width="48">
                                 <x-slot name="trigger">
@@ -34,13 +35,19 @@
                                     </button>
                                 </x-slot>
                                 <x-slot name="content">
+                                    <x-menu-heading>{{ __('General') }}</x-menu-heading>
                                     <x-dropdown-link :href="route('mailboxes.index')">
                                         {{ __('All Mailboxes') }}
                                     </x-dropdown-link>
-                                    @if ($mailboxes->count() > 1)
-                                        <div class="border-t border-gray-100"></div>
+                                    @if ($canManageMailboxes)
+                                        <x-dropdown-link :href="route('mailboxes.create')">
+                                            {{ __('Create Mailbox') }}
+                                        </x-dropdown-link>
+                                    @endif
+                                    @if ($mailboxes->count() > 0)
+                                        <x-menu-heading bordered>{{ __('Mailboxes') }}</x-menu-heading>
                                         @foreach ($mailboxes as $mailbox)
-                                            <x-dropdown-link :href="route('mailboxes.view', ['mailbox' => $mailbox->id])">
+                                            <x-dropdown-link :href="route('mailboxes.view', ['mailbox' => $mailbox->id])" class="ps-6">
                                                 {{ $mailbox->name }}
                                             </x-dropdown-link>
                                         @endforeach
@@ -69,11 +76,14 @@
                                 <x-slot name="content">
                                     @foreach($navigationService->getGroupedItems() as $category => $items)
                                         @if($category === 'General')
+                                            @if(count($items) > 0)
+                                                <x-menu-heading>{{ __('General') }}</x-menu-heading>
+                                            @endif
                                             @foreach($items as $item)
                                                 @if($item['type'] === 'dropdown')
                                                      @foreach($item['children'] as $child)
                                                         @if(empty($child['permission']) || Gate::check($child['permission']))
-                                                            <x-dropdown-link :href="route($child['route'])">
+                                                            <x-dropdown-link :href="route($child['route'])" class="ps-6">
                                                                 {{ __($child['label']) }}
                                                             </x-dropdown-link>
                                                         @endif
@@ -88,7 +98,12 @@
                                             @endforeach
                                         @else
                                             <div class="relative group" x-data="{ subOpen: false }" @mouseenter="subOpen = true" @mouseleave="subOpen = false">
-                                                <button class="w-full text-start px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out flex justify-between items-center">
+                                                <button
+                                                    type="button"
+                                                    class="w-full text-start px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-500 hover:bg-gray-50 focus:outline-none focus:bg-gray-50 transition duration-150 ease-in-out flex justify-between items-center"
+                                                    aria-haspopup="menu"
+                                                    :aria-expanded="subOpen"
+                                                >
                                                     <span>{{ __($category) }}</span>
                                                     <svg class="h-4 w-4 text-gray-400 group-hover:text-gray-500 transform rotate-90 rtl:-rotate-90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -101,19 +116,26 @@
                                                      x-transition:leave="transition ease-in duration-75"
                                                      x-transition:leave-start="opacity-100 scale-100"
                                                      x-transition:leave-end="opacity-0 scale-95"
-                                                     class="absolute top-0 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
+                                                     class="absolute top-0 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1"
                                                      style="left: 100%; display: none;">
+                                                    @php
+                                                        $firstSubItem = $items[0] ?? null;
+                                                        $firstHasDesignatedHeading = is_array($firstSubItem)
+                                                            && ($firstSubItem['type'] ?? null) === 'dropdown'
+                                                            && ($firstSubItem['label'] ?? null) !== $category;
+                                                    @endphp
+                                                    @if(!$firstHasDesignatedHeading)
+                                                        <x-menu-heading>{{ __($category) }}</x-menu-heading>
+                                                    @endif
                                                     @foreach($items as $item)
                                                         @if($item['type'] === 'dropdown')
                                                             @if($item['label'] !== $category)
-                                                                <div class="px-4 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                                                    {{ __($item['label']) }}
-                                                                </div>
+                                                                <x-menu-heading>{{ __($item['label']) }}</x-menu-heading>
                                                             @endif
                                                             @foreach($item['children'] as $child)
                                                                  @if(empty($child['permission']) || Gate::check($child['permission']))
-                                                                    <x-dropdown-link :href="route($child['route'])">
-                                                                        {{ __($child['label']) }}
+                                                                    <x-dropdown-link :href="route($child['route'])" class="ps-6">
+                                                                        {{ __($category === 'Customers' && $item['label'] === 'Portal' && $child['label'] === 'Clients' ? 'CRM' : $child['label']) }}
                                                                     </x-dropdown-link>
                                                                 @endif
                                                             @endforeach
@@ -150,7 +172,12 @@
                                     </button>
                                 </x-slot>
                                 <x-slot name="content">
+                                    @php
+                                        $showAdminConfiguration = Auth::user()->isAdmin();
+                                    @endphp
+
                                     @if (Auth::user()->isAdmin())
+                                        <x-menu-heading>{{ __('Administration') }}</x-menu-heading>
                                         <x-dropdown-link :href="route('settings')">
                                             {{ __('Settings') }}
                                         </x-dropdown-link>
@@ -163,6 +190,7 @@
                                     @endif
 
                                     @if (Auth::user()->isAdmin() || Auth::user()->hasPermission(App\Models\User::PERM_EDIT_USERS))
+                                        <x-menu-heading :bordered="$showAdminConfiguration">{{ __('Access Control') }}</x-menu-heading>
                                         <x-dropdown-link :href="route('users.index')">
                                             {{ __('Users') }}
                                         </x-dropdown-link>
@@ -187,22 +215,25 @@
                                     </button>
                                 </x-slot>
                                 <x-slot name="content">
+                                    <x-menu-heading>{{ __('System') }}</x-menu-heading>
                                     <x-dropdown-link :href="route('modules')">
                                         {{ __('Modules') }}
                                     </x-dropdown-link>
                                     <x-dropdown-link :href="route('logs')">
                                         {{ __('Logs') }}
                                     </x-dropdown-link>
-                                    <x-dropdown-link :href="route('admin.resilience.index')">
-                                        {{ __('Resilience') }}
-                                    </x-dropdown-link>
                                     <x-dropdown-link :href="route('system')">
                                         {{ __('System') }}
                                     </x-dropdown-link>
 
+                                    <x-menu-heading bordered>{{ __('Resilience') }}</x-menu-heading>
+                                    <x-dropdown-link :href="route('admin.resilience.index')" class="ps-6">
+                                        {{ __('Resilience') }}
+                                    </x-dropdown-link>
+
                                     {{-- Infrastructure Resilience (Phase 6) --}}
                                     @if(Route::has('admin.resilience.events-audit'))
-                                    <x-dropdown-link :href="route('admin.resilience.events-audit')">
+                                    <x-dropdown-link :href="route('admin.resilience.events-audit')" class="ps-6">
                                         {{ __('Event Audit Log') }}
                                     </x-dropdown-link>
                                     @endif
@@ -254,15 +285,18 @@
                     </x-slot>
 
                     <x-slot name="content">
+                        <x-menu-heading>{{ __('Profile') }}</x-menu-heading>
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
                         </x-dropdown-link>
+
+                        <x-menu-heading bordered>{{ __('Session') }}</x-menu-heading>
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
-                            <x-dropdown-link :href="route('logout')"
+                            <x-dropdown-link :href="route('logout')" class="ps-6"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
                                 {{ __('Log Out') }}
@@ -288,6 +322,7 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            <x-menu-heading>{{ __('General') }}</x-menu-heading>
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
@@ -302,9 +337,12 @@
             </div>
 
             <div class="mt-3 space-y-1">
+                <x-menu-heading>{{ __('Profile') }}</x-menu-heading>
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
+
+                <x-menu-heading bordered>{{ __('Session') }}</x-menu-heading>
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">

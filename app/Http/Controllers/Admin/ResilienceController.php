@@ -25,7 +25,7 @@ class ResilienceController extends Controller
     {
         // --- Circuit Breaker Logic ---
         $breaker = app(CircuitBreakerService::class);
-        $cbServices = ['google_api', 'action1_api', 'helcim_api'];
+        $cbServices = ['google_api', 'action1_api', 'helcim_api', 'gemini_api'];
         $allStates = collect($breaker->getAllStates())->keyBy('service');
         $circuitBreakerStatus = [];
         $openCircuits = 0;
@@ -79,6 +79,11 @@ class ResilienceController extends Controller
                 'key' => 'helcim_api_hourly',
                 'limit' => 1000,
             ],
+            [
+                'name' => 'Gemini AI API',
+                'key' => 'gemini_api_hourly',
+                'limit' => 1500,
+            ],
         ];
         
         $rateLimitStatus = $rateLimiter->getUsageStats($rateLimitServicesConfig);
@@ -98,7 +103,7 @@ class ResilienceController extends Controller
     public function resetCircuit(string $service): RedirectResponse
     {
         // Validate service name
-        $allowedServices = ['google_api', 'action1_api', 'helcim_api'];
+        $allowedServices = ['google_api', 'action1_api', 'helcim_api', 'gemini_api'];
         if (!in_array($service, $allowedServices, true)) {
             return redirect()->back()->with('error', 'Invalid service name.');
         }
@@ -223,6 +228,7 @@ class ResilienceController extends Controller
             'google_api' => 'Google Workspace API',
             'action1_api' => 'Action1 RMM API',
             'helcim_api' => 'Helcim Payment Gateway',
+            'gemini_api' => 'Gemini AI API',
             default => ucwords(str_replace('_', ' ', $service)),
         };
     }

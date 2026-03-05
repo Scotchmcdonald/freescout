@@ -28,7 +28,7 @@
     </head>
     <body class="font-sans antialiased" x-data="dynamicFavicon">
         @action('layout.body_start')
-        <div class="min-h-screen bg-gray-100">
+        <div class="min-h-screen bg-gray-100" x-data="guidedTour" @start-tour.window="startTour($event.detail.tourId)" @dismiss-tour.window="dismissTour($event.detail.tourId)">
             <x-layouts.navigation />
             
             <!-- Impersonation Banner -->
@@ -77,6 +77,33 @@
         <x-activity-drawer />
         
         <!-- Contextual Help Trigger (Bottom Right) -->
+        @php
+            $currentRoute = Route::currentRouteName();
+            $suggestedTour = null;
+            $kbSections = config('knowledgebase.features.sections', []);
+            foreach ($kbSections as $section) {
+                foreach ($section['pages'] ?? [] as $page) {
+                    if (in_array($currentRoute, $page['routes'] ?? []) && isset($page['tour_id'])) {
+                        $suggestedTour = [
+                            'id' => $page['tour_id'],
+                            'name' => $page['name'] . ' Tour',
+                        ];
+                        break 2;
+                    }
+                }
+            }
+            
+            // Check if the user has completed this tour
+            $tourIsCompleted = false;
+            if ($suggestedTour && Auth::check()) {
+                $tourProgress = \Modules\KnowledgeBase\Models\UserTourProgress::where('user_id', Auth::id())
+                    ->where('tour_id', $suggestedTour['id'])
+                    ->first();
+                $tourIsCompleted = $tourProgress && $tourProgress->is_completed;
+            }
+        @endphp
+
+        @if($suggestedTour && !$tourIsCompleted)
         <div class="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-2" 
              x-data="{ showCard: false }" 
              @click.outside="showCard = false">
@@ -90,15 +117,35 @@
                  x-transition:leave-end="opacity-0 translate-y-2"
                  class="w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-gray-700"
                  style="display: none;">
-                <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">{{ __('Page Help') }}</h3>
+                <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">{{ __('Interactive Tour Available') }}</h3>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    {{ __('You are currently viewing:') }} <span class="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">{{ Route::currentRouteName() ?? 'Unknown Page' }}</span>
+                    {{ __('Learn about the features on this page with a guided tour.') }}
                 </p>
-                <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <a href="{{ route('knowledgebase.explore', ['context' => Route::currentRouteName()]) }}" target="_blank" class="text-primary-600 hover:text-primary-700 text-sm font-medium flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        {{ __('Explore Features') }}
-                    </a>
+
+                <div class="mb-4">
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{{ __($suggestedTour['name']) }}</p>
+                    
+                    <div class="flex flex-col gap-2">
+                        <button @click="$dispatch('start-tour', { tourId: '{{ $suggestedTour['id'] }}' }); showCard = false" 
+                                class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center justify-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ __('Start Tour') }}
+                        </button>
+                        
+                        <button @click="$dispatch('dismiss-tour', { tourId: '{{ $suggestedTour['id'] }}' }); showCard = false" 
+                                class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex items-center justify-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            {{ __('Mark as Complete') }}
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end items-center mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                     <button @click="showCard = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm">{{ __('Close') }}</button>
                 </div>
             </div>
@@ -109,6 +156,7 @@
                 </svg>
             </button>
         </div>
+        @endif
 
         <!-- Toast Container -->
         <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2" style="pointer-events: none;"></div>
@@ -226,6 +274,10 @@
                     window.showToast("{{ session('error') }}", 'error');
                 });
             </script>
+        @endif
+
+        @if(view()->exists('knowledgebase::partials.guided-tour'))
+            @include('knowledgebase::partials.guided-tour')
         @endif
 
         @action('layout.body_end')

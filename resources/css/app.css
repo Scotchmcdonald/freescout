@@ -265,3 +265,67 @@
     }
 }
 [x-cloak] { display: none !important; }
+
+/* ===========================================================================
+   Guided Tour (Driver.js) Custom Styles
+   =========================================================================== */
+
+/* Popover container */
+.guided-tour-popover {
+    @apply font-sans;
+
+    .driver-popover-title {
+        @apply text-base font-semibold text-gray-900;
+    }
+
+    .driver-popover-description {
+        @apply text-sm text-gray-600 leading-relaxed mt-1;
+    }
+
+    .driver-popover-progress-text {
+        @apply text-xs text-gray-400;
+    }
+
+    .driver-popover-navigation-btns {
+        @apply flex items-center gap-2 mt-4;
+    }
+
+    .driver-popover-prev-btn {
+        @apply px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg
+               hover:bg-gray-200 transition-colors;
+    }
+
+    .driver-popover-next-btn,
+    .driver-popover-done-btn {
+        @apply px-4 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg
+               hover:bg-primary-700 transition-colors shadow-sm;
+    }
+
+    .driver-popover-close-btn {
+        @apply text-gray-400 hover:text-gray-600 transition-colors;
+    }
+
+    /* Checkpoint buttons specifically */
+    .checkpoint-btn-primary {
+         @apply bg-primary-600 text-white hover:bg-primary-700;
+    }
+    
+    .checkpoint-btn-secondary {
+         @apply bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300;
+    }
+}
+
+/* Dark mode overrides */
+.dark .guided-tour-popover {
+    .driver-popover-title {
+        @apply text-white;
+    }
+
+    .driver-popover-description {
+        @apply text-gray-300;
+    }
+
+    .driver-popover-prev-btn {
+        @apply text-gray-300 bg-gray-700 hover:bg-gray-600;
+    }
+}

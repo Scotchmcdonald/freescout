@@ -6,8 +6,8 @@ namespace Tests\Unit;
 
 use App\Contracts\EntitlementResolver;
 use App\DataTransferObjects\EntitlementResult;
-use App\Services\EntitlementEngineService;
-use Modules\PIB\Models\BillingTemplate;
+use Modules\PIB\Services\EntitlementEngineService;
+use Modules\ContractManager\Models\BillingTemplate;
 use Tests\TestCase;
 
 /**

@@ -6,22 +6,29 @@
  */
 
 use App\Models\User;
-use Modules\Crm\Models\Client;
-use Modules\Crm\Models\ClientUser;
+use Modules\Crm\Models\Company;
 
-it('ticket form submission debug flow', function () {
-    $client = Client::factory()->create(['name' => 'Debug Ticket Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Debug Ticket User',
-        'email' => 'debug-ticket-' . uniqid() . '@example.com',
+function createDebugPortalUser(string $emailPrefix): User
+{
+    $company = Company::factory()->create(['is_active' => true]);
+    $user = User::factory()->create([
+        'type' => 2,
+        'first_name' => 'Debug',
+        'last_name' => 'User',
+        'email' => $emailPrefix . '-' . uniqid() . '@example.com',
         'password' => bcrypt('password'),
-        'is_active' => true,
+        'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
     ]);
+    $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
+    return $user;
+}
+
+it('ticket form submission debug flow', function () {
+    $user = createDebugPortalUser('debug-ticket');
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
@@ -30,18 +37,10 @@ it('ticket form submission debug flow', function () {
 })->group('debug', 'ticket');
 
 it('ticket number display after creation', function () {
-    $client = Client::factory()->create(['name' => 'Debug Number Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Debug Number User',
-        'email' => 'debug-number-' . uniqid() . '@example.com',
-        'password' => bcrypt('password'),
-        'is_active' => true,
-        'email_verified_at' => now(),
-    ]);
+    $user = createDebugPortalUser('debug-number');
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
@@ -51,18 +50,10 @@ it('ticket number display after creation', function () {
 })->group('debug', 'ticket');
 
 it('session flash after ticket submit', function () {
-    $client = Client::factory()->create(['name' => 'Debug Flash Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Debug Flash User',
-        'email' => 'debug-flash-' . uniqid() . '@example.com',
-        'password' => bcrypt('password'),
-        'is_active' => true,
-        'email_verified_at' => now(),
-    ]);
+    $user = createDebugPortalUser('debug-flash');
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 

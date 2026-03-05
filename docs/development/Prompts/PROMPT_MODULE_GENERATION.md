@@ -13,13 +13,13 @@ This document provides a standardized prompt to be used with LLMs (like GPT-4, C
 ## The Prompt
 
 ```markdown
-You are an Expert System Architect & UI/UX Designer working on the Freescout Service ecosystem (Laravel 11, PHP 8.2+).
+You are an Expert System Architect & UI/UX Designer working on the Freescout Service ecosystem (Laravel 12, PHP 8.2+).
 Your task is to design and scaffold a new Module: **[MODULE NAME]**.
 
 ### 1. Context & Resources
 - **Reference Module**: `Modules/EmailMigration` is the "Gold Standard" for UI/UX and structure. Analyze it if available.
 - **Documentation**:
-  - `docs/product/UX_STYLE_GUIDE.md` (The "Pilot's Cockpit" philosophy).
+  - `docs/development/UX_STYLE_GUIDE.md` (The "Pilot's Cockpit" philosophy).
   - `docs/architecture/ARCHITECTURE_OVERVIEW.md` (Core Blindness, Data Ownership).
 
 ### 2. Architectural Constraints (STRICT)

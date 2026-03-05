@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\DataTransferObjects\StoreWebhookChannelData;
+use App\Http\Requests\StoreWebhookChannelRequest;
 use App\Models\GooglePushChannel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -157,28 +159,23 @@ class WebhookGatewayController extends Controller
     /**
      * Create a new push notification channel.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreWebhookChannelRequest $request): RedirectResponse
     {
-        $request->validate([
-            'resource_type' => 'required|string|max:50',
-            'resource_id' => 'required|string|max:255',
-            'webhook_url' => 'required|url|max:512',
-            'duration_hours' => 'required|integer|min:1|max:43200',
-        ]);
+        $dto = StoreWebhookChannelData::fromRequest($request);
 
         try {
             $channel = GooglePushChannel::create([
-                'resource_type' => $request->resource_type,
-                'resource_id' => $request->resource_id,
-                'channel_id' => 'channel_' . Str::random(32),
-                'token' => Str::random(64),
-                'webhook_url' => $request->webhook_url,
-                'expiration_time' => now()->addHours($request->integer('duration_hours')),
-                'is_active' => true,
+                'resource_type'   => $dto->resourceType,
+                'resource_id'     => $dto->resourceId,
+                'channel_id'      => 'channel_' . Str::random(32),
+                'token'           => Str::random(64),
+                'webhook_url'     => $dto->webhookUrl,
+                'expiration_time' => now()->addHours($dto->durationHours),
+                'is_active'       => true,
             ]);
 
             Log::info('Webhook channel created', [
-                'channel_id' => $channel->channel_id,
+                'channel_id'    => $channel->channel_id,
                 'resource_type' => $channel->resource_type,
             ]);
 

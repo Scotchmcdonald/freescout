@@ -19,12 +19,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WebhookGatewayController;
-use App\Http\Controllers\ReconciliationController;
-use App\Http\Controllers\MilestoneController;
+use Modules\PIB\Http\Controllers\ReconciliationController;
+use Modules\ContractManager\Http\Controllers\MilestoneController;
 use App\Http\Controllers\AlertSubscriptionController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Api\ConversationController as ApiConversationController;
 use App\Http\Controllers\PublicAttachmentController;
+// use App\Http\Controllers\TourController;
 use App\Http\Controllers\TrackingController;
 
 Route::get('/', function () {
@@ -55,20 +56,41 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/impersonate/{user}', [ImpersonationController::class, 'impersonate'])->name('impersonate');
     Route::post('/impersonate/leave', [ImpersonationController::class, 'leave'])->name('impersonate.leave');
+    // Emergency GET exit — always available even if forms/CSRF break
+    Route::get('/impersonate/leave', [ImpersonationController::class, 'leave'])->name('impersonate.leave.emergency');
 });
 
 if (app()->environment('local', 'testing')) {
     // Chaos Testing
     Route::get('/chaos/network-timeout', [\App\Http\Controllers\ChaosController::class, 'networkTimeout'])->name('chaos.network_timeout');
     Route::get('/chaos/disk-full', [\App\Http\Controllers\ChaosController::class, 'diskFull'])->name('chaos.disk_full');
+
+    // CRM Staging fallback routes for browser test stability
+    if (class_exists(\Modules\Crm\Http\Controllers\StagingController::class)) {
+        Route::middleware(['auth', 'verified'])->group(function () {
+            Route::get('/crm/staging', [\Modules\Crm\Http\Controllers\StagingController::class, 'index'])->name('crm.staging.index');
+            Route::get('/crm/staging/list', [\Modules\Crm\Http\Controllers\StagingController::class, 'list'])->name('crm.staging.list');
+            Route::post('/crm/staging/{id}/{action}', [\Modules\Crm\Http\Controllers\StagingController::class, 'resolve'])->name('crm.staging.resolve');
+
+            if (class_exists(\Modules\Crm\Http\Controllers\CrmController::class)) {
+                Route::get('/customers/fields/ajax-search', [\Modules\Crm\Http\Controllers\CrmController::class, 'ajaxSearch'])
+                    ->name('crm.ajax_search');
+            }
+        });
+    }
 }
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // RBAC
-    Route::get('/rbac/matrix', [\App\Http\Controllers\RbacController::class, 'index'])->name('rbac.matrix');
-    Route::post('/rbac/update', [\App\Http\Controllers\RbacController::class, 'update'])->name('rbac.update');
-    Route::post('/rbac/roles', [\App\Http\Controllers\RbacController::class, 'storeRole'])->name('rbac.roles.store');
-    Route::delete('/rbac/roles/{role}', [\App\Http\Controllers\RbacController::class, 'destroyRole'])->name('rbac.roles.destroy');
+    // RBAC Management (protected — requires manage_rbac permission)
+    Route::middleware(['can:manage_rbac'])->group(function () {
+        Route::get('/rbac/matrix', [\App\Http\Controllers\RbacController::class, 'index'])->name('rbac.matrix');
+        Route::post('/rbac/update', [\App\Http\Controllers\RbacController::class, 'update'])->name('rbac.update');
+        Route::post('/rbac/roles', [\App\Http\Controllers\RbacController::class, 'storeRole'])->name('rbac.roles.store');
+        Route::delete('/rbac/roles/{role}', [\App\Http\Controllers\RbacController::class, 'destroyRole'])->name('rbac.roles.destroy');
+    });
+
+    // Guided Tours
+// Tour routes moved to KnowledgeBase module
 
         // Collision Detection
     Route::post('/conversations/{id}/viewing', [CollisionController::class, 'viewing'])->name('conversations.viewing');
@@ -212,72 +234,64 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/ajax', [UserController::class, 'ajax'])->name('users.ajax');
 
-    // Settings (admin only)
-    Route::middleware(['admin'])->group(function () {
+    // Settings — read-only views
+    Route::middleware(['can:view_settings'])->group(function () {
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
-        // Route::get('/settings/index', [SettingsController::class, 'index'])->name('settings.index'); // Alias for tests (Removed)
-        Route::get('/settings/general', [SettingsController::class, 'general'])->name('settings.general'); // New route for tests
-        Route::get('/settings/security', [SettingsController::class, 'security'])->name('settings.security'); // New route for tests
-        Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::get('/settings/general', [SettingsController::class, 'general'])->name('settings.general');
+        Route::get('/settings/security', [SettingsController::class, 'security'])->name('settings.security');
         Route::get('/settings/email', [SettingsController::class, 'email'])->name('settings.email');
-        Route::post('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email.update');
         Route::get('/settings/data-import', [SettingsController::class, 'dataImport'])->name('settings.data_import');
         Route::get('/settings/alerts', [SettingsController::class, 'alerts'])->name('settings.alerts');
-        Route::put('/settings/alerts', [SettingsController::class, 'updateAlerts'])->name('settings.alerts.update');
         Route::get('/settings/system', [SettingsController::class, 'system'])->name('settings.system');
+        Route::get('/settings/migrations', [SettingsController::class, 'migrations'])->name('settings.migrations');
+        Route::get('/settings/integrations', [SettingsController::class, 'integrations'])->name('settings.integrations');
+    });
+
+    // Settings — write/mutate actions
+    Route::middleware(['can:manage_settings'])->group(function () {
+        Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::post('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email.update');
+        Route::put('/settings/alerts', [SettingsController::class, 'updateAlerts'])->name('settings.alerts.update');
         Route::post('/settings/cache/clear', [SettingsController::class, 'clearCache'])->name('settings.cache.clear');
-        // Route::post('/settings/cache/clear-alias', [SettingsController::class, 'clearCache'])->name('system.clear-cache'); // Alias for tests (Removed)
         Route::post('/settings/migrate', [SettingsController::class, 'migrate'])->name('settings.migrate');
         Route::post('/settings/test-smtp', [SettingsController::class, 'testSmtp'])->name('settings.test-smtp');
         Route::post('/settings/test-imap', [SettingsController::class, 'testImap'])->name('settings.test-imap');
         Route::post('/settings/validate-smtp', [SettingsController::class, 'validateSmtp'])->name('settings.validate-smtp');
-        
-        // Migrations
-        Route::get('/settings/migrations', [SettingsController::class, 'migrations'])->name('settings.migrations');
     });
 
-    // System (admin only)
-    Route::middleware(['admin'])->group(function () {
+    // System — read-only views
+    Route::middleware(['can:view_settings'])->group(function () {
         Route::get('/system', [SystemController::class, 'index'])->name('system');
         Route::get('/system/update', [SystemController::class, 'update'])->name('system.update');
-        Route::post('/system/update', [SystemController::class, 'performUpdate'])->name('system.perform_update');
-        Route::post('/system/update/pull', [SystemController::class, 'pullUpdate'])->name('system.pull_update');
         Route::get('/system/update/check-banner', [SystemController::class, 'checkUpdateBanner'])->name('system.check_update_banner');
-        Route::post('/system/ajax', [SystemController::class, 'ajax'])->name('system.ajax');
         Route::get('/system/diagnostics', [SystemController::class, 'diagnostics'])->name('system.diagnostics');
         Route::get('/system/logs', [SystemController::class, 'logs'])->name('system.logs');
         Route::get('/system/logs/download', [SystemController::class, 'downloadLogs'])->name('system.logs.download');
-        
-        // Failed Jobs
         Route::get('/system/failed-jobs', [SystemController::class, 'failedJobs'])->name('system.failed_jobs');
+        Route::get('/system/tools', [SystemController::class, 'tools'])->name('system.tools');
+        Route::get('/logs', [SystemController::class, 'logs'])->name('logs');
+        Route::get('/logs/download', [SystemController::class, 'downloadLogs'])->name('logs.download');
+        Route::get('/permissions', [UserController::class, 'permissionsIndex'])->name('permissions');
+        Route::get('/webhooks', [WebhookController::class, 'index'])->name('webhooks');
+        Route::get('/webhooks/create', [WebhookController::class, 'create'])->name('webhooks.create');
+        Route::get('/conversations/import', [ConversationController::class, 'import'])->name('conversations.import');
+    });
+
+    // System — write/mutate actions
+    Route::middleware(['can:manage_settings'])->group(function () {
+        Route::post('/system/update', [SystemController::class, 'performUpdate'])->name('system.perform_update');
+        Route::post('/system/update/pull', [SystemController::class, 'pullUpdate'])->name('system.pull_update');
+        Route::post('/system/ajax', [SystemController::class, 'ajax'])->name('system.ajax');
         Route::post('/system/failed-jobs/{uuid}/retry', [SystemController::class, 'retryFailedJob'])->name('system.failed_jobs.retry');
         Route::delete('/system/failed-jobs/{uuid}', [SystemController::class, 'deleteFailedJob'])->name('system.failed_jobs.delete');
         Route::post('/system/failed-jobs/queue/delete', [SystemController::class, 'deleteFailedJobsForQueue'])->name('system.failed_jobs.delete_queue');
         Route::post('/system/failed-jobs/queue/retry', [SystemController::class, 'retryFailedJobsForQueue'])->name('system.failed_jobs.retry_queue');
-        
-        // System Tools
-        Route::get('/system/tools', [SystemController::class, 'tools'])->name('system.tools');
         Route::post('/system/tools', [SystemController::class, 'toolsExecute'])->name('system.tools.execute');
-        
-        // Logs clearing
         Route::post('/system/logs/clear', [SystemController::class, 'clearLogs'])->name('system.logs.clear');
-        
-        // Empty folder
         Route::post('/folder/{folder}/empty', [ConversationController::class, 'emptyFolder'])->name('folders.empty');
-        
-        // Added for tests
-        Route::get('/logs', [SystemController::class, 'logs'])->name('logs');
-        Route::get('/logs/download', [SystemController::class, 'downloadLogs'])->name('logs.download');
-        
-        Route::get('/permissions', [UserController::class, 'permissionsIndex'])->name('permissions');
         Route::post('/permissions', [UserController::class, 'permissionsSave'])->name('permissions.save');
-        
-        Route::get('/webhooks', [WebhookController::class, 'index'])->name('webhooks');
-        Route::get('/webhooks/create', [WebhookController::class, 'create'])->name('webhooks.create');
         Route::post('/webhooks', [WebhookController::class, 'store'])->name('webhooks.store');
-        
         Route::post('/conversations/export', [ConversationController::class, 'export'])->name('conversations.export');
-        Route::get('/conversations/import', [ConversationController::class, 'import'])->name('conversations.import');
     });
 
     // Admin - Infrastructure Resilience (Phase 6)
@@ -353,9 +367,9 @@ if (app()->environment('local', 'testing')) {
                 $client = \Modules\Crm\Models\Client::findOrFail($id);
                 $email = $client->email;
                 if (!$email) {
-                    /** @var \Modules\Crm\Models\ClientUser|null $clientUser */
-                    $clientUser = $client->users()->first();
-                    $email = $clientUser ? $clientUser->email : 'client-' . $client->id . '@portal.local';
+                    // Use Company→users() (unified User model) instead of Client→users() (legacy ClientUser)
+                    $companyUser = $client->company?->users()->first();
+                    $email = $companyUser ? $companyUser->email : 'client-' . $client->id . '@portal.local';
                 }
                 $customer = \App\Models\Customer::firstOrCreate(
                     ['email' => $email], /** @phpstan-ignore argument.type */
@@ -373,9 +387,8 @@ if (app()->environment('local', 'testing')) {
                 $client = \Modules\Crm\Models\Client::findOrFail($id);
                 $email = $client->email;
                 if (!$email) {
-                    /** @var \Modules\Crm\Models\ClientUser|null $clientUser */
-                    $clientUser = $client->users()->first();
-                    $email = $clientUser ? $clientUser->email : 'client-' . $client->id . '@portal.local';
+                    $companyUser = $client->company?->users()->first();
+                    $email = $companyUser ? $companyUser->email : 'client-' . $client->id . '@portal.local';
                 }
                 $customer = \App\Models\Customer::firstOrCreate(
                     ['email' => $email], /** @phpstan-ignore argument.type */

@@ -10,6 +10,8 @@ use App\Models\Mailbox;
 use App\Models\Option;
 use App\Services\ImapService;
 use App\Services\SmtpService;
+use App\DataTransferObjects\SmtpSettingsData;
+use App\Http\Requests\ValidateSmtpRequest;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -71,7 +73,7 @@ class SettingsController extends Controller
         ];
 
         // Allow modules to add/remove sections
-        \Eventy::filter('settings.sections', $sections);
+        $sections = \Eventy::filter('settings.sections', $sections);
         return $sections;
     }
 
@@ -431,9 +433,10 @@ class SettingsController extends Controller
     /**
      * Validate SMTP settings.
      */
-    public function validateSmtp(Request $request, SmtpService $smtpService): JsonResponse
+    public function validateSmtp(ValidateSmtpRequest $request, SmtpService $smtpService): JsonResponse
     {
-        $errors = $smtpService->validateSettings($request->all());
+        $dto = SmtpSettingsData::fromRequest($request);
+        $errors = $smtpService->validateSettings($dto);
 
         if (! empty($errors)) {
             return response()->json([
@@ -597,10 +600,22 @@ class SettingsController extends Controller
             'mail_from_name' => 'MAIL_FROM_NAME',
         ];
 
+        // Keys whose values should always be wrapped in quotes
+        $alwaysQuote = ['MAIL_PASSWORD', 'MAIL_USERNAME', 'MAIL_FROM_NAME', 'MAIL_FROM_ADDRESS'];
+
         foreach ($data as $key => $value) {
             if (isset($mapping[$key]) && ! empty($value)) {
                 $envKey = $mapping[$key];
                 $value = is_string($value) ? $value : (is_scalar($value) ? (string)$value : '');
+
+                // Quote passwords and values that contain special characters
+                $isSecret = in_array($envKey, $alwaysQuote, true) || str_contains($envKey, 'PASSWORD') || str_contains($envKey, 'SECRET');
+                $needsQuoting = $isSecret || str_contains($value, ' ') || str_contains($value, '#') || str_contains($value, '=');
+                if ($needsQuoting) {
+                    $value = trim($value, '"');
+                    $value = '"'.str_replace('"', '\\"', $value).'"';
+                }
+
                 $pattern = "/^{$envKey}=.*/m";
                 $content = $content ?: ''; // Ensure content is string
 
@@ -711,4 +726,69 @@ class SettingsController extends Controller
        ...
     }
     */
+
+    /**
+     * Display integrations settings with tabs for each installed integration.
+     */
+    public function integrations(Request $request): View|ViewFactory
+    {
+        $sections = $this->getSections();
+        $currentSection = 'integrations';
+        
+        // Get active tab from request, default to first available integration
+        $activeTab = $request->get('tab');
+        
+        // Determine available integrations
+        $integrations = [];
+        
+        if (Module::find('GoogleAdmin') && Module::find('GoogleAdmin')->isEnabled()) {
+            $integrations['googleadmin'] = [
+                'name' => 'Google Workspace',
+                'slug' => 'googleadmin',
+                'description' => 'Sync users and licenses from Google Workspace',
+            ];
+        }
+        
+        if (Module::find('Action1') && Module::find('Action1')->isEnabled()) {
+            $integrations['action1'] = [
+                'name' => 'Action1 RMM',
+                'slug' => 'action1',
+                'description' => 'Sync devices and endpoints from Action1 RMM',
+            ];
+        }
+        
+        // Set default active tab if not specified or invalid
+        if (!$activeTab || !isset($integrations[$activeTab])) {
+            $activeTab = array_key_first($integrations);
+        }
+        
+        // Load settings for active integration
+        $settings = [];
+        $clientConfigs = collect();
+        
+        if ($activeTab === 'googleadmin') {
+            $settings = [
+                'sync_enabled' => Option::where('name', 'googleadmin_sync_enabled')->value('value') ?? '1',
+                'sync_interval_hours' => Option::where('name', 'googleadmin_sync_interval_hours')->value('value') ?? '24',
+            ];
+        } elseif ($activeTab === 'action1') {
+            $settings = [
+                'sync_enabled' => Option::where('name', 'action1_sync_enabled')->value('value') === '1',
+                'sync_interval_hours' => (int) (Option::where('name', 'action1_sync_interval_hours')->value('value') ?? 24),
+                'oauth_client_id' => Option::where('name', 'action1_oauth_client_id')->value('value'),
+                'client_secret' => Option::where('name', 'action1_client_secret')->value('value') ? '••••••••' : null,
+                'region' => Option::where('name', 'action1_region')->value('value') ?? 'us',
+                'token_expires_at' => Option::where('name', 'action1_token_expires_at')->value('value'),
+            ];
+            
+            // Load client configurations for Action1
+            if (class_exists(\Modules\Action1\Models\Action1Config::class)) {
+                $clientConfigs = \Modules\Action1\Models\Action1Config::with('client')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            }
+        }
+        
+        return view('settings.integrations', compact('sections', 'currentSection', 'integrations', 'activeTab', 'settings', 'clientConfigs'));
+    }
 }

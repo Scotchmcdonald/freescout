@@ -7,6 +7,12 @@ namespace App\Policies;
 use App\Models\Folder;
 use App\Models\User;
 
+/**
+ * FolderPolicy — governs folder visibility.
+ *
+ * Admin bypass handled by Gate::before. Uses manage_tickets for
+ * broader folder access.
+ */
 class FolderPolicy
 {
     /**
@@ -14,8 +20,8 @@ class FolderPolicy
      */
     public function view(User $user, Folder $folder): bool
     {
-        // Admins can view all folders
-        if ($user->isAdmin()) {
+        // Users with manage_tickets can view all folders
+        if ($user->hasPermission('manage_tickets')) {
             return true;
         }
 

@@ -159,7 +159,7 @@ test('webhook rate limiting prevents abuse', function () {
             expect($response->status())->toBe(429);
         }
     }
-})->skip('Rate limiting test - enable for specific testing');
+});
 
 test('action1 webhook requires signature header', function () {
     config(['action1.webhook_secret' => 'test-secret']);

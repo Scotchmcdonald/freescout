@@ -9,7 +9,7 @@ The easiest way to deploy FreeScout is using our One-Click Docker script.
 
 1.  **Run the deployment script:**
     ```bash
-    ./docker_deploy.sh
+    ./deployment/docker_deploy.sh
     ```
 2.  **Follow the prompts** to select the repository branch.
 3.  **Access the app** at `http://<your-server-ip>`.
@@ -42,12 +42,12 @@ For custom servers (Ubuntu/Debian recommended):
 Once the application is running, log in with the default admin credentials (printed during seeding or provided by your installer).
 
 ### 1. Mail Configuration
-Navigate to **Manage > System > Mail Settings**.
+Navigate to **Admin > Settings > Email Settings**.
 - **Sending Mode**: Configure SMTP or Sendmail.
 - **Incoming Email**: Ensure the cron job is running (`php artisan schedule:run`) to process incoming mail.
 
 ### 2. Branding
-Navigate to **Manage > System > General**.
+Navigate to **Admin > Settings > General**.
 - Upload your organization's logo.
 - Set the support portal name.
 
@@ -60,7 +60,7 @@ Navigate to **Manage > System > General**.
 FreeScout's functionality can be extended using Modules.
 
 ### Installing a Module
-1.  Navigate to **Manage > Modules**.
+1.  Navigate to **System > Modules**.
 2.  You will see a list of available modules.
 3.  **Official Modules**: Click "Install" (requires license key if paid).
 4.  **Custom Modules**:
@@ -82,7 +82,7 @@ FreeScout's functionality can be extended using Modules.
 - **Agent**: Handling tickets and managing assigned mailboxes.
 
 ### Adding Users
-1.  Go to **Manage > Users**.
+1.  Go to **Admin > Users**.
 2.  Click **New User**.
 3.  Fill in the profile and assign a Role.
 4.  (Optional) Assign to specific Mailboxes.
@@ -91,7 +91,7 @@ FreeScout's functionality can be extended using Modules.
 
 ### Logs
 - Application logs are located at `storage/logs/laravel.log`.
-- View them via the UI at **Manage > Logs** (if enabled) or via SSH.
+- View them via the UI at **System > Logs** (if enabled) or via SSH.
 
 ### Queue Status
 - Check the status of background jobs (email sending, module installation).

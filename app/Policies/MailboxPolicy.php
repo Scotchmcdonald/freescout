@@ -7,6 +7,13 @@ namespace App\Policies;
 use App\Models\Mailbox;
 use App\Models\User;
 
+/**
+ * MailboxPolicy — governs mailbox operations.
+ *
+ * Uses a 3-tier access model: VIEW (10), REPLY (20), ADMIN (30).
+ * Admin bypass handled by Gate::before. Uses hasPermission()
+ * for manage_settings (CUD) to allow flexible role assignment.
+ */
 class MailboxPolicy
 {
     public const ACCESS_VIEW = 10;
@@ -30,7 +37,7 @@ class MailboxPolicy
             return false;
         }
 
-        if ($user->isAdmin()) {
+        if ($user->hasPermission('manage_settings')) {
             return true;
         }
 
@@ -45,7 +52,11 @@ class MailboxPolicy
      */
     public function create(?User $user): bool
     {
-        return $user?->isAdmin() ?? false;
+        if ($user === null) {
+            return false;
+        }
+
+        return $user->hasPermission('manage_settings');
     }
 
     /**
@@ -57,7 +68,7 @@ class MailboxPolicy
             return false;
         }
 
-        if ($user->isAdmin()) {
+        if ($user->hasPermission('manage_settings')) {
             return true;
         }
 
@@ -72,7 +83,11 @@ class MailboxPolicy
      */
     public function delete(?User $user, Mailbox $mailbox): bool
     {
-        return $user?->isAdmin() ?? false;
+        if ($user === null) {
+            return false;
+        }
+
+        return $user->hasPermission('manage_settings');
     }
 
     /**
@@ -80,7 +95,11 @@ class MailboxPolicy
      */
     public function restore(?User $user, Mailbox $mailbox): bool
     {
-        return $user?->isAdmin() ?? false;
+        if ($user === null) {
+            return false;
+        }
+
+        return $user->hasPermission('manage_settings');
     }
 
     /**
@@ -88,7 +107,11 @@ class MailboxPolicy
      */
     public function forceDelete(?User $user, Mailbox $mailbox): bool
     {
-        return $user?->isAdmin() ?? false;
+        if ($user === null) {
+            return false;
+        }
+
+        return $user->hasPermission('manage_settings');
     }
 
     /**
@@ -100,7 +123,7 @@ class MailboxPolicy
             return false;
         }
 
-        if ($user->isAdmin()) {
+        if ($user->hasPermission('manage_tickets')) {
             return true;
         }
 
@@ -120,7 +143,7 @@ class MailboxPolicy
             return false;
         }
 
-        if ($user->isAdmin()) {
+        if ($user->hasPermission('manage_settings')) {
             return true;
         }
 

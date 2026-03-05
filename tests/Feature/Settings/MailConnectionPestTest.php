@@ -91,8 +91,9 @@ test('admin can validate smtp settings', function () {
 
     $this->actingAs($admin)
         ->postJson(route('settings.validate-smtp'), [
-            'mail_driver' => 'smtp',
-            'mail_host' => 'smtp.example.com',
+            'out_server' => 'smtp.example.com',
+            'out_port'   => 587,
+            'email'      => 'test@example.com',
         ])
         ->assertOk()
         ->assertJson(['success' => true]);
@@ -104,10 +105,14 @@ test('validate smtp returns errors', function () {
     $this->mock(SmtpService::class)
         ->shouldReceive('validateSettings')
         ->once()
-        ->andReturn(['mail_host' => 'Required']);
+        ->andReturn(['out_server' => 'Required']);
 
     $this->actingAs($admin)
-        ->postJson(route('settings.validate-smtp'), ['mail_driver' => 'smtp'])
+        ->postJson(route('settings.validate-smtp'), [
+            'out_server' => 'smtp.example.com',
+            'out_port'   => 587,
+            'email'      => 'test@example.com',
+        ])
         ->assertStatus(422)
         ->assertJson(['success' => false]);
 });

@@ -132,17 +132,8 @@ test('modules log important actions', function () {
         ->once()
         ->with(\Mockery::pattern('/Module.*activated/'));
 
-    // Note: Use enable or activate route depending on what was in legacy
-    // Legacy used 'modules.activate' route in the log test, but 'modules.enable' in the first test.
-    // Let's check routes.
-    // Assuming 'modules.activate' refers to the same logic or route name alias?
-    // Route list earlier showed nothing about modules.
-    
-    // Legacy code: route('modules.activate', ...)
-    // But enable test uses: route('modules.enable', ...)
-    // If route('modules.activate') was used in legacy test 'test_controllers_log_important_actions', then I use that.
-    
-    $this->actingAs($admin)->post(route('modules.activate', $module->alias));
+    // Use the correct route name 'modules.enable' (formerly aliased as 'modules.activate')
+    $this->actingAs($admin)->post(route('modules.enable', $module->alias));
 });
 
 test('guest cannot view modules list', function () {

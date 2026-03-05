@@ -69,19 +69,69 @@
                             </div>
                             
                             @if(auth()->check() && auth()->user()->isAdmin())
+                                @php
+                                    $currentType = old('type', $user->type ?? 1);
+                                    $currentClientRole = old('client_role', $clientRoleName ?? 'Client User');
+                                @endphp
+
+                                {{-- User Type --}}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('User Type') }} *</label>
+                                    <div class="flex rounded-md shadow-sm" role="group">
+                                        <label class="flex-1 cursor-pointer">
+                                            <input type="radio" name="type" value="1" id="type_internal"
+                                                   class="sr-only peer"
+                                                   {{ $currentType == 1 ? 'checked' : '' }}>
+                                            <span class="block text-center px-4 py-2 text-sm font-medium border border-gray-300 rounded-l-md
+                                                         peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600
+                                                         hover:bg-gray-50 peer-checked:hover:bg-blue-700">
+                                                🏢 {{ __('Internal Staff') }}
+                                            </span>
+                                        </label>
+                                        <label class="flex-1 cursor-pointer">
+                                            <input type="radio" name="type" value="2" id="type_external"
+                                                   class="sr-only peer"
+                                                   {{ $currentType == 2 ? 'checked' : '' }}>
+                                            <span class="block text-center px-4 py-2 text-sm font-medium border border-gray-300 border-l-0 rounded-r-md
+                                                         peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600
+                                                         hover:bg-gray-50 peer-checked:hover:bg-indigo-700">
+                                                🌐 {{ __('External Client') }}
+                                            </span>
+                                        </label>
+                                    </div>
+                                    <p class="mt-1 text-sm text-gray-500 {{ $currentType == 2 ? 'hidden' : '' }}" id="type-hint-internal">Internal staff have access to mailboxes and helpdesk tools.</p>
+                                    <p class="mt-1 text-sm text-gray-500 {{ $currentType != 2 ? 'hidden' : '' }}" id="type-hint-external">External clients access the customer portal only.</p>
+                                </div>
+
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div>
+                                    {{-- Internal roles --}}
+                                    <div id="section-internal-role" class="{{ $currentType == 2 ? 'hidden' : '' }}">
                                         <label for="role" class="block text-sm font-medium text-gray-700 mb-2">
                                             {{ __('Role') }} *
                                         </label>
-                                        <select name="role" id="role" required
+                                        <select name="role" id="role"
                                                 class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                            <option value="1" {{ old('role', $user->role) == 1 ? 'selected' : '' }}>User</option>
-                                            <option value="2" {{ old('role', $user->role) == 2 ? 'selected' : '' }}>Admin</option>
-                                            <option value="3" {{ old('role', $user->role) == 3 ? 'selected' : '' }}>Reporter</option>
+                                            <option value="1" {{ old('role', $user->role) == 1 ? 'selected' : '' }}>Agent (Standard access)</option>
+                                            <option value="2" {{ old('role', $user->role) == 2 ? 'selected' : '' }}>Admin (Full access)</option>
+                                            <option value="3" {{ old('role', $user->role) == 3 ? 'selected' : '' }}>Reporter (Read-only)</option>
+                                            <option value="4" {{ old('role', $user->role) == 4 ? 'selected' : '' }}>Finance (Billing access)</option>
                                         </select>
                                     </div>
-                                    
+
+                                    {{-- External / Client roles --}}
+                                    <div id="section-external-role" class="{{ $currentType != 2 ? 'hidden' : '' }}">
+                                        <label for="client_role" class="block text-sm font-medium text-gray-700 mb-2">
+                                            {{ __('Client Role') }} *
+                                        </label>
+                                        <select name="client_role" id="client_role"
+                                                class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <option value="Client User" {{ $currentClientRole == 'Client User' ? 'selected' : '' }}>Client User (Standard)</option>
+                                            <option value="Client Admin" {{ $currentClientRole == 'Client Admin' ? 'selected' : '' }}>Client Admin (Manage team)</option>
+                                            <option value="Client Finance" {{ $currentClientRole == 'Client Finance' ? 'selected' : '' }}>Client Finance (Billing)</option>
+                                        </select>
+                                        <p class="mt-1 text-sm text-gray-500">Grants access to the client portal.</p>
+                                    </div>
+
                                     <div>
                                         <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
                                             {{ __('Status') }} *
@@ -165,3 +215,37 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+(function () {
+    const radios = document.querySelectorAll('input[name="type"]');
+    if (!radios.length) return;
+
+    const sectionInternal  = document.getElementById('section-internal-role');
+    const sectionExternal  = document.getElementById('section-external-role');
+    const hintInternal     = document.getElementById('type-hint-internal');
+    const hintExternal     = document.getElementById('type-hint-external');
+    const roleSelect       = document.getElementById('role');
+    const clientRoleSelect = document.getElementById('client_role');
+
+    function applyType(isExternal) {
+        if (sectionInternal) sectionInternal.classList.toggle('hidden', isExternal);
+        if (sectionExternal) sectionExternal.classList.toggle('hidden', !isExternal);
+        if (hintInternal) hintInternal.classList.toggle('hidden', isExternal);
+        if (hintExternal) hintExternal.classList.toggle('hidden', !isExternal);
+        if (roleSelect) roleSelect.required = !isExternal;
+        if (clientRoleSelect) clientRoleSelect.required = isExternal;
+    }
+
+    radios.forEach(function (r) {
+        r.addEventListener('change', function () {
+            applyType(this.value === '2');
+        });
+    });
+
+    // Initialise – the server-side @php already classes hidden/visible,
+    // but JS keeps required attributes in sync.
+    const checked = document.querySelector('input[name="type"]:checked');
+    if (checked) applyType(checked.value === '2');
+}());
+</script>

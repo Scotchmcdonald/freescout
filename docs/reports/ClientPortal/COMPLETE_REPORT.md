@@ -299,7 +299,7 @@ POST   /portal/invoices/{invoice}/pay
 ## Dependencies
 
 ### Required
-- Laravel 11+
+- Laravel 12+
 - PHP 8.2+
 - CRM Module (Client model)
 - Payment Module (HelcimService)

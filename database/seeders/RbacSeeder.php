@@ -1,99 +1,152 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Role;
 use App\Models\Permission;
 use Nwidart\Modules\Facades\Module;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * Idempotent RBAC Seeder — safe to run repeatedly.
+ *
+ * Three-pass approach:
+ *   Pass 1: Register all permissions (core + module)
+ *   Pass 2: Create/update all roles
+ *   Pass 3: Assign baseline permissions to roles (syncWithoutDetaching)
+ *
+ * @see config/rbac.php for the authoritative definitions.
+ */
 class RbacSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Core Permissions (Always Available)
-        $corePermissions = [
-            'view_tickets' => 'View Tickets',
-            'manage_tickets' => 'Manage Tickets',
-            'approve_users' => 'Approve Users',
-            'view_reports' => 'View Reports',
-            'access_admin_panel' => 'Access Admin Panel',
-        ];
+        /** @var array<string, mixed> $config */
+        $config = config('rbac');
 
-        foreach ($corePermissions as $name => $label) {
-            Permission::firstOrCreate(['name' => $name], ['label' => $label]);
+        $this->seedPermissions($config);
+        $this->seedRoles($config);
+        $this->seedRolePermissions($config);
+    }
+
+    /**
+     * Pass 1: Register all permissions.
+     *
+     * @param array<string, mixed> $config
+     */
+    protected function seedPermissions(array $config): void
+    {
+        // ── Core permissions from config/rbac.php ──
+        /** @var array<string, array{label: string, group?: string, sort_order?: int}> $corePerms */
+        $corePerms = $config['core_permissions'];
+
+        foreach ($corePerms as $name => $attrs) {
+            Permission::register(
+                name: $name,
+                label: $attrs['label'],
+                module: 'core',
+                group: $attrs['group'] ?? null,
+                sortOrder: $attrs['sort_order'] ?? 0,
+            );
         }
 
-        // 2. Dynamic Module Permissions & High Level Access
-        // We now iterate through all enabled modules and look for their 'permissions'
-        // config in module.json.
-        if (class_exists(Module::class)) {
-            foreach (Module::allEnabled() as $module) {
-                // Ensure alias is lowercase for consistency
-                $alias = strtolower((string) $module->getAlias());
-                
-                // A. Create High-Level Access Permission (The "All or Nothing" Switch)
-                Permission::firstOrCreate(
-                    ['name' => "access_{$alias}"], 
-                    ['label' => "Access " . $module->getName() . " Module"]
-                );
+        // ── Dynamic module permissions from module.json ──
+        if (!class_exists(Module::class)) {
+            return;
+        }
 
-                // B. Read Granular Permissions from module.json
-                // Expected format in module.json:
-                // "permissions": {
-                //    "view_assets": "View Assets",
-                //    "manage_assets": "Manage Assets"
-                // }
-                $definedPermissions = $module->get('permissions', []);
-                
-                if (is_array($definedPermissions)) {
-                    foreach ($definedPermissions as $permName => $permLabel) {
-                        Permission::firstOrCreate(['name' => $permName], ['label' => $permLabel]);
-                    }
-                }
+        foreach (Module::allEnabled() as $module) {
+            $alias = strtolower((string) $module->getAlias());
+            $displayName = $module->getName();
+
+            // Granular permissions declared in module.json "permissions" key
+            $definedPermissions = $module->get('permissions', []);
+            if (!is_array($definedPermissions)) {
+                continue;
+            }
+
+            $order = 10;
+            foreach ($definedPermissions as $permName => $permLabel) {
+                Permission::register(
+                    name: (string) $permName,
+                    label: is_string($permLabel) ? $permLabel : null,
+                    module: $alias,
+                    group: $displayName,
+                    sortOrder: $order,
+                );
+                $order += 10;
             }
         }
 
-        // 3. Create Roles
-        $mspAdmin = Role::firstOrCreate(['name' => 'MSP Admin'], ['label' => 'MSP Administrator']);
-        $mspFinance = Role::firstOrCreate(['name' => 'MSP Finance'], ['label' => 'MSP Finance']);
-        $mspTech = Role::firstOrCreate(['name' => 'MSP Technician'], ['label' => 'MSP Technician']);
-        
-        $clientAdmin = Role::firstOrCreate(['name' => 'Client Admin'], ['label' => 'Client Administrator']);
-        $clientUser = Role::firstOrCreate(['name' => 'Client User'], ['label' => 'Client User']);
+        Log::info('[RbacSeeder] Permissions synced — total: ' . Permission::count());
+    }
 
-        // 4. Assign Permissions to Roles
-        
-        // MSP Admin gets EVERYTHING
-        $mspAdmin->permissions()->sync(Permission::all());
+    /**
+     * Pass 2: Create/update all roles from config.
+     *
+     * @param array<string, mixed> $config
+     */
+    protected function seedRoles(array $config): void
+    {
+        /** @var array<string, array{label: string, is_super_admin?: bool, scope?: string, sort_order?: int}> $roles */
+        $roles = $config['roles'];
 
-        // MSP Tech gets Ticket, Asset, CRM access
-        $techPermissions = Permission::whereIn('name', [
-            'view_tickets', 'manage_tickets', 'access_admin_panel',
-            'access_crm', 'view_crm', 'manage_crm',
-            'access_assetmanagement', 'view_assets', 'manage_assets',
-            'access_emailmigration',
-            'access_pib', // Techs might need to see billing?
-        ])->pluck('id');
-        $mspTech->permissions()->sync($techPermissions);
+        foreach ($roles as $name => $attrs) {
+            $role = Role::firstOrCreate(
+                ['name' => $name],
+                [
+                    'label'          => $attrs['label'],
+                    'is_super_admin' => $attrs['is_super_admin'] ?? false,
+                    'scope'          => $attrs['scope'] ?? 'internal',
+                    'sort_order'     => $attrs['sort_order'] ?? 0,
+                ]
+            );
 
-        // MSP Finance gets Billing, Payment, CRM
-        $financePermissions = Permission::whereIn('name', [
-            'access_crm', 'view_crm',
-            'access_pib', 'view_billing', 'manage_billing',
-            'access_payment', 'manage_payments'
-        ])->pluck('id');
-        $mspFinance->permissions()->sync($financePermissions);
+            // Update attributes if they changed in config
+            $role->update([
+                'label'          => $attrs['label'],
+                'is_super_admin' => $attrs['is_super_admin'] ?? false,
+                'scope'          => $attrs['scope'] ?? 'internal',
+                'sort_order'     => $attrs['sort_order'] ?? 0,
+            ]);
+        }
 
-        // Client Admin gets access to their own data
-        $clientAdminPermissions = Permission::whereIn('name', [
-            'view_tickets', 'approve_users',
-            'access_assetmanagement', 'view_assets',
-            'access_pib', 'view_billing'
-        ])->pluck('id');
-        $clientAdmin->permissions()->sync($clientAdminPermissions);
+        Log::info('[RbacSeeder] Roles synced — total: ' . Role::count());
+    }
 
-        // Client User gets basic ticket access
-        $clientUser->permissions()->sync(Permission::whereIn('name', ['view_tickets'])->pluck('id'));
+    /**
+     * Pass 3: Assign baseline permissions to roles.
+     *
+     * Uses syncWithoutDetaching() so that permissions added manually via the UI
+     * are never removed, but the baseline defined in config is always present.
+     *
+     * @param array<string, mixed> $config
+     */
+    protected function seedRolePermissions(array $config): void
+    {
+        /** @var array<string, string|list<string>> $rolePermissions */
+        $rolePermissions = $config['role_permissions'];
+
+        foreach ($rolePermissions as $roleName => $permissions) {
+            $role = Role::where('name', $roleName)->first();
+            if (!$role) {
+                Log::warning("[RbacSeeder] Role '{$roleName}' not found — skipping assignment.");
+                continue;
+            }
+
+            if ($permissions === '*') {
+                // Super admin: sync ALL permissions
+                $role->permissions()->sync(Permission::pluck('id'));
+            } else {
+                // Specific role: merge baseline permissions without removing extras
+                $permissionIds = Permission::whereIn('name', $permissions)->pluck('id');
+                $role->permissions()->syncWithoutDetaching($permissionIds);
+            }
+        }
+
+        Log::info('[RbacSeeder] Role-permission assignments synced.');
     }
 }

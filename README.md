@@ -1,19 +1,19 @@
-# FreeScout Modernized - Laravel 11
+# FreeScout Modernized - Laravel 12
 
-[![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?logo=laravel)](https://laravel.com)
+[![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php)](https://php.net)
 [![License](https://img.shields.io/badge/License-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
-> **Modern Laravel 11 implementation of FreeScout - Free self-hosted helpdesk and shared mailbox**
+> **Modern Laravel 12 implementation of FreeScout - Free self-hosted helpdesk and shared mailbox**
 
 ## 🎯 Project Status
 
 **Branch**: `laravel-11-foundation`  
 **Progress**: **97% Complete** (Email and Core Modules Functional)  
-**Latest Update**: February 11, 2026
+**Latest Update**: February 28, 2026
 
 ### What's Working ✅
-- Laravel 11.x with PHP 8.2+ foundation
+- Laravel 12.x with PHP 8.2+ foundation
 - Complete database layer (Refactoring Planned)
 - All core controllers and business logic
 - **Full email system** with IMAP/SMTP, auto-replies, threading, attachments
@@ -30,15 +30,11 @@
 
 ### 📚 Documentation
 
-**🚀 Active Development Plans:**
-- **[Remaining Issues Plan](docs/WIP/REMAINING_ISSUES_PLAN.md)** - Current tactical plan for resolving test failures
-- **[Module Refactor Plan](docs/WIP/MODULE_DATABASE_REFACTOR_PLAN.md)** - Database schema modernization strategy
-
-**📖 Reference:**
+**� Reference:**
 - **[→ Complete Documentation Index](DOCUMENTATION_INDEX.md)** - Navigate all project documentation
 - **[System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md)** - Complete design specification
 - **[Module Development Guide](docs/development/MODULE_DEVELOPMENT_GUIDE.md)** - Architecture and best practices
-- **[UX Style Guide](docs/product/UX_STYLE_GUIDE.md)** - Design patterns and interface standards
+- **[UX Style Guide](docs/development/UX_STYLE_GUIDE.md)** - Design patterns and interface standards
 - **[MSP Product Definitions](docs/product/MSP_PRODUCT_DEFINITIONS.md)** - Billing products and rules
 
 **Current Development Phase:** Quality Assurance & Stabilization
@@ -205,7 +201,7 @@ We provide a "One-Click" Docker deployment script that sets up the entire stack 
 
 1.  **Run the deployment script:**
     ```bash
-    ./docker_deploy.sh
+    ./deployment/docker_deploy.sh
     ```
     Follow the interactive prompts to confirm the repository and branch.
 
@@ -222,7 +218,7 @@ We provide a "One-Click" Docker deployment script that sets up the entire stack 
 ### Customization
 The script allows you to override defaults by passing arguments:
 ```bash
-./docker_deploy.sh <REPO_URL> <BRANCH_NAME>
+./deployment/docker_deploy.sh <REPO_URL> <BRANCH_NAME>
 ```
 
 ---
@@ -267,5 +263,5 @@ To set up a local development environment manually (without Docker):
 ### Running Tests
 
 ```bash
-php ./scripts/test_runner.php ALL
+php artisan test
 ```

@@ -8,21 +8,23 @@ use Illuminate\Console\Command;
 
 /**
  * Generate application variables
- * TODO: Port full functionality from archive
+ * 
+ * Note: Legacy functionality. Previously generated JS variables.
+ * In the simplified/modern version, this primarily handles config caching.
  */
 class GenerateVars extends Command
 {
     protected $signature = 'freescout:generate-vars';
 
-    protected $description = 'Generate application variables';
+    protected $description = 'Generate application variables (Legacy Wrapper)';
 
     public function handle(): int
     {
-        // Stub implementation - regenerates config cache
+        // Regenerate config cache as this is the primary remaining utility
         $this->call('config:cache');
-        
+
         $this->info('Application variables generated successfully.');
-        
+
         return self::SUCCESS;
     }
 }

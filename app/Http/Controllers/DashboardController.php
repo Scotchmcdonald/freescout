@@ -9,17 +9,27 @@ use App\Models\Mailbox;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Modules\WidgetRegistry\Services\WidgetRegistryService;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        protected WidgetRegistryService $widgetRegistry
+    ) {}
+
     /**
      * Show the dashboard.
      */
-    public function index(Request $request): View|ViewFactory
+    public function index(Request $request): View|ViewFactory|RedirectResponse
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
+
+        if ($user->isClient()) {
+            return redirect()->route('portal.dashboard');
+        }
 
         // Get mailboxes the user has access to
         $mailboxes = $user->isAdmin()
@@ -27,7 +37,6 @@ class DashboardController extends Controller
             : $user->mailboxes;
 
         // Filter mailboxes (Eventy hook)
-        // Note: Eventy::filter returns void but modifies by reference
         \Eventy::filter('dashboard.mailboxes', $mailboxes);
 
         $mailboxIds = $mailboxes->pluck('id')->filter()->toArray();
@@ -65,12 +74,17 @@ class DashboardController extends Controller
             ];
         }
 
+        // Render role-differentiated dashboard widgets (zone: dashboard.main)
+        $widgetContext = compact('user', 'activeConversations', 'unassignedConversations', 'stats');
+        $dashboardWidgetsHtml = $this->widgetRegistry->renderZone('dashboard.main', $widgetContext);
+
         return view('dashboard', compact(
             'user',
             'mailboxes',
             'activeConversations',
             'unassignedConversations',
-            'stats'
+            'stats',
+            'dashboardWidgetsHtml',
         ));
     }
 }

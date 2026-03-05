@@ -27,6 +27,8 @@ import {
     subscriptionCreation,
     assignmentDeletion
 } from './components';
+import { guidedTour } from './guided-tour';
+import rbacMatrix from './rbac-matrix';
 
 // Register Alpine.js components
 Alpine.data('themeToggle', themeToggle);
@@ -54,6 +56,8 @@ Alpine.data('mergeConversationSearch', mergeConversationSearch);
 Alpine.data('licenseAssignment', licenseAssignment);
 Alpine.data('subscriptionCreation', subscriptionCreation);
 Alpine.data('assignmentDeletion', assignmentDeletion);
+Alpine.data('guidedTour', guidedTour);
+Alpine.data('rbacMatrix', rbacMatrix);
 
 window.Alpine = Alpine;
 
@@ -83,6 +87,8 @@ window.mergeConversationSearch = mergeConversationSearch;
 window.licenseAssignment = licenseAssignment;
 window.subscriptionCreation = subscriptionCreation;
 window.assignmentDeletion = assignmentDeletion;
+window.guidedTour = guidedTour;
+window.rbacMatrix = rbacMatrix;
 
 document.addEventListener('DOMContentLoaded', () => {
     Alpine.start();

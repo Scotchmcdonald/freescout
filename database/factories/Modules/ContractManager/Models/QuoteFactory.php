@@ -35,6 +35,8 @@ class QuoteFactory extends Factory
             // 'date_issued' removed, likely sent_at in model
             'sent_at' => $this->faker->optional(0.7)->dateTimeBetween('-30 days', 'now'),
             'valid_until' => $this->faker->dateTimeBetween('now', '+90 days'),
+            'billing_type' => $this->faker->randomElement(['monthly', 'quarterly', 'annual', 'one_time', 'usage_based']),
+            'billing_cycle' => $this->faker->randomElement(['monthly', 'quarterly', 'semi_annual', 'annual', 'one_time']),
             'subtotal' => $subtotal,
             'tax_amount' => $taxAmount,
             'total' => $total,

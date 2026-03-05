@@ -2,7 +2,7 @@
 
 use App\Models\User;
 use Modules\Crm\Models\Client;
-use Modules\Crm\Models\ClientUser;
+use Modules\Crm\Models\Company;
 
 it('upfront payment creates credit ledger', function () {
     $admin = User::firstOrCreate(['email' => 'credit-ledger-admin@example.com'], [
@@ -121,18 +121,20 @@ it('multiple prepayments aggregate credit', function () {
 })->group('billing', 'service-delivery', 'credit-ledger');
 
 it('client can view credit balance in portal', function () {
-    $client = Client::factory()->create(['name' => 'Credit Balance Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Credit Balance User',
+    $company = Company::factory()->create(['is_active' => true]);
+    $user = User::factory()->create([
+        'type' => 2,
+        'first_name' => 'Credit Balance',
+        'last_name' => 'User',
         'email' => 'credit-balance-' . uniqid() . '@example.com',
         'password' => bcrypt('password'),
-        'is_active' => true,
+        'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
     ]);
+    $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 

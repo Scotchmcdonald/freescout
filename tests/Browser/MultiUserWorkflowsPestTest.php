@@ -2,7 +2,7 @@
 
 use App\Models\User;
 use Modules\Crm\Models\Client;
-use Modules\Crm\Models\ClientUser;
+use Modules\Crm\Models\Company;
 use Modules\PIB\Models\Invoice;
 
 function getMultiUserAdmin(): User
@@ -54,15 +54,17 @@ it('quote lifecycle with client rejection and acceptance', function () {
 })->group('multi-user', 'quote-lifecycle');
 
 test('client portal invoice viewing', function () {
-    $client = Client::factory()->create(['name' => 'Invoice View Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Invoice View User',
+    $company = Company::factory()->create(['is_active' => true]);
+    $client = Client::factory()->create(['name' => 'Invoice View Client', 'company_id' => $company->id, 'status' => 'active']);
+
+    $user = User::factory()->create([
+        'type' => 2,
         'email' => 'invoiceview-' . uniqid() . '@example.com',
         'password' => bcrypt('password'),
-        'is_active' => true,
+        'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
     ]);
+    $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
 
     $invoiceNumber = 'INV-TEST-' . rand(1000, 9999);
     $invoice = Invoice::factory()->create([
@@ -73,7 +75,7 @@ test('client portal invoice viewing', function () {
     ]);
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
@@ -104,31 +106,33 @@ it('recurring quote to billing template', function () {
     $quote = \Modules\ContractManager\Models\Quote::factory()->approved()->create([
         'client_id' => $client->id,
         'title' => 'Recurring Service',
-        'billing_type' => 'recurring',
+        'billing_type' => 'monthly',
         'billing_cycle' => 'monthly',
     ]);
 
     // Verify approved quote can convert to billing template
     expect($quote->isApproved())->toBeTrue();
-    expect($quote->billing_type)->toBe('recurring');
+    expect($quote->billing_type)->toBe('monthly');
 
     $this->visit('/contracts/billing-templates')
         ->assertSee('Billing');
 })->group('multi-user', 'quote-lifecycle');
 
 it('client portal assets and subscriptions', function () {
-    $client = Client::factory()->create(['name' => 'Portal Assets Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Portal Assets User',
+    $company = Company::factory()->create(['is_active' => true]);
+    $client = Client::factory()->create(['name' => 'Portal Assets Client', 'company_id' => $company->id, 'status' => 'active']);
+
+    $user = User::factory()->create([
+        'type' => 2,
         'email' => 'portal-assets-' . uniqid() . '@example.com',
         'password' => bcrypt('password'),
-        'is_active' => true,
+        'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
     ]);
+    $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 

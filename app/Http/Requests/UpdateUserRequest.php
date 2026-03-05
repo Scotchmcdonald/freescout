@@ -30,12 +30,20 @@ class UpdateUserRequest extends FormRequest
         $routeUser = $this->route('user');
         $userId = $routeUser instanceof \App\Models\User ? $routeUser->id : (int) $routeUser;
 
+        $isExternal = (int) $this->input('type') === 2;
+
         return [
             'first_name' => 'required|string|max:255',
             'last_name' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$userId,
             'password' => 'nullable|string|min:8',
-            'role' => 'required|integer|in:'.UserRole::User->value.','.UserRole::Admin->value.','.UserRole::Reporter->value,
+            'type' => 'nullable|integer|in:1,2',
+            'role' => $isExternal
+                ? 'nullable|integer'
+                : 'required|integer|in:'.UserRole::User->value.','.UserRole::Admin->value.','.UserRole::Reporter->value.','.UserRole::Finance->value,
+            'client_role' => $isExternal
+                ? 'required|string|in:Client Admin,Client User,Client Finance'
+                : 'nullable|string',
             'status' => 'required|integer|in:'.UserStatus::Active->value.','.UserStatus::Inactive->value,
             'job_title' => 'nullable|string|max:100',
             'phone' => 'nullable|string|max:60',
@@ -61,6 +69,8 @@ class UpdateUserRequest extends FormRequest
             'password.min' => 'Password must be at least 8 characters.',
             'role.required' => 'User role is required.',
             'role.in' => 'Invalid user role selected.',
+            'client_role.required' => 'A client role is required for external users.',
+            'client_role.in' => 'Invalid client role selected.',
             'status.required' => 'User status is required.',
             'status.in' => 'Invalid user status selected.',
             'mailboxes.*.exists' => 'One or more selected mailboxes do not exist.',

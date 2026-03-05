@@ -801,7 +801,7 @@ class SystemController extends Controller
                     'commits_behind' => $commitsBehind,
                     'branch' => $branch,
                     'latest_message' => $latestCommitMessage,
-                    'has_update' => true,
+                    'has_update' => $commitsBehind > 0, // Only show update if actually behind
                 ];
             }
             

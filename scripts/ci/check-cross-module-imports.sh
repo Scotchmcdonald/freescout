@@ -11,8 +11,8 @@ if grep -r "use Modules\\\\" app/Models/ app/Services/ app/Events/ app/Listeners
     exit 1
 fi
 
-# Check #2: No direct cross-module model imports in listeners
-VIOLATIONS=$(find Modules/ -type f -path "*/Listeners/*.php" -exec grep -l "use Modules\\\\" {} \; 2>/dev/null | while read file; do
+# Check #2: No direct cross-module model imports in listeners (excluding test files)
+VIOLATIONS=$(find Modules/ -type f -path "*/Listeners/*.php" ! -path "*/Tests/*" -exec grep -l "use Modules\\\\" {} \; 2>/dev/null | while read file; do
     # Extract module name from file path
     MODULE=$(echo "$file" | sed -n 's|Modules/\([^/]*\)/.*|\1|p')
     

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use App\Services\ProrationService;
+use Modules\PIB\Services\ProrationService;
 use Carbon\Carbon;
 use Tests\TestCase;
 

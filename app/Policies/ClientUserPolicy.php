@@ -5,90 +5,85 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\User;
-use Modules\Crm\Models\ClientUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
- * Client User Policy
- * 
- * Enforces access control for client user management:
- * - Admin users can manage all client users
- * - Client users can only view/update their own profile
+ * Company User Policy (formerly ClientUserPolicy)
+ *
+ * Enforces access control for external (company-linked) user management:
+ * - Staff with view_crm/manage_crm can manage company users
+ * - External users can only view/update their own profile
+ * - Admin bypass handled by Gate::before
+ *
+ * @deprecated The ClientUser model has been merged into User. This policy
+ *             now operates on User instances typed as external (isClient()).
+ *             Will be consolidated into UserPolicy in a future phase.
  */
 class ClientUserPolicy
 {
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any client users
+     * Determine whether the user can view any company users.
      */
-    public function viewAny(User|ClientUser $user): bool
+    public function viewAny(User $user): bool
     {
-        // Admin users can view all client users
-        return $user instanceof User;
+        return $user->hasPermission('view_crm');
     }
 
     /**
-     * Determine whether the user can view the client user
+     * Determine whether the user can view the target user.
      */
-    public function view(User|ClientUser $user, ClientUser $clientUser): bool
+    public function view(User $user, User $targetUser): bool
     {
-        // Admin users can view any client user
-        if ($user instanceof User) {
+        if ($user->hasPermission('view_crm')) {
             return true;
         }
 
-        // Client users can only view themselves
-        return $user->id === $clientUser->id;
+        return $user->id === $targetUser->id;
     }
 
     /**
-     * Determine whether the user can create client users
+     * Determine whether the user can create company users.
      */
-    public function create(User|ClientUser $user): bool
+    public function create(User $user): bool
     {
-        // Only admin users can create client users
-        return $user instanceof User;
+        return $user->hasPermission('manage_crm');
     }
 
     /**
-     * Determine whether the user can update the client user
+     * Determine whether the user can update the target user.
      */
-    public function update(User|ClientUser $user, ClientUser $clientUser): bool
+    public function update(User $user, User $targetUser): bool
     {
-        // Admin users can update any client user
-        if ($user instanceof User) {
+        if ($user->hasPermission('manage_crm')) {
             return true;
         }
 
-        // Client users can only update their own profile
-        return $user->id === $clientUser->id && $user->is_active;
+        return $user->id === $targetUser->id && $user->isActive();
     }
 
     /**
-     * Determine whether the user can delete the client user
+     * Determine whether the user can delete the target user.
      */
-    public function delete(User|ClientUser $user, ClientUser $clientUser): bool
+    public function delete(User $user, User $targetUser): bool
     {
-        // Only admin users can delete client users
-        return $user instanceof User;
+        return $user->hasPermission('manage_crm');
     }
 
     /**
-     * Determine whether the user can toggle the client user's active status
+     * Determine whether the user can toggle the target user's active status.
      */
-    public function toggleActive(User|ClientUser $user, ClientUser $clientUser): bool
+    public function toggleActive(User $user, User $targetUser): bool
     {
-        // Only admin users can toggle active status
-        return $user instanceof User;
+        return $user->hasPermission('approve_users');
     }
 
     /**
-     * Determine whether the user can impersonate the client user
+     * Determine whether the user can impersonate the target user.
      */
-    public function impersonate(User $user, ClientUser $clientUser): bool
+    public function impersonate(User $user, User $targetUser): bool
     {
-        // Only admin users can impersonate client users
-        return $user->isAdmin() && $clientUser->is_active;
+        return $user->isAdmin() && $targetUser->isActive();
     }
 }

@@ -261,7 +261,7 @@ test('flush entity removes all caches for specific entity', function () {
     // This test requires cache tags support (Redis/Memcached)
     // If using array/file cache, this will skip
     if (!in_array(config('cache.default'), ['redis', 'memcached'])) {
-        $this->markTestSkipped('Cache tags require Redis or Memcached');
+        $this->markTestIncomplete('Cache tags require Redis or Memcached');
     }
     
     // Create multiple caches for same entity

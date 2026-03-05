@@ -6,22 +6,10 @@ namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Modules\Crm\Models\ClientUser;
+use App\Models\User;
 
 /**
  * Client Scope Trait
- * 
- * Automatically scopes queries to the authenticated client user's client.
- * Apply this trait to models that belong to a client and need isolation.
- * 
- * Usage:
- * - Add `use BelongsToClient;` to your model
- * - Ensure the model has a `client_id` column
- * 
- * The scope is automatically applied when:
- * - A client user is authenticated via the 'client' guard
- * 
- * Admin users (authenticated via 'web' guard) bypass this scope.
  */
 trait BelongsToClient
 {
@@ -31,23 +19,20 @@ trait BelongsToClient
     public static function bootBelongsToClient(): void
     {
         static::addGlobalScope('client', function (Builder $builder) {
-            // Only apply scope when client guard is active
-            if (Auth::guard('client')->check()) {
-                $clientUser = Auth::guard('client')->user();
-                
-                if ($clientUser instanceof ClientUser && $clientUser->client_id) {
-                    $builder->where($builder->getModel()->getTable() . '.client_id', $clientUser->client_id);
+            if (Auth::check()) {
+                $user = Auth::user();
+                if ($user->isClient() && $user->client_id) {
+                    $builder->where($builder->getModel()->getTable() . '.client_id', $user->client_id);
                 }
             }
         });
 
         // Automatically set client_id when creating records
         static::creating(function ($model) {
-            if (Auth::guard('client')->check() && empty($model->client_id)) {
-                $clientUser = Auth::guard('client')->user();
-                
-                if ($clientUser instanceof ClientUser) {
-                    $model->client_id = $clientUser->client_id;
+            if (Auth::check() && empty($model->client_id)) {
+                $user = Auth::user();
+                if ($user->isClient() && $user->client_id) {
+                    $model->client_id = $user->client_id;
                 }
             }
         });
@@ -66,15 +51,12 @@ trait BelongsToClient
      */
     public function scopeForCurrentClient(Builder $query): Builder
     {
-        if (Auth::guard('client')->check()) {
-            $clientUser = Auth::guard('client')->user();
-            
-            if ($clientUser instanceof ClientUser) {
-                return $query->where($this->getTable() . '.client_id', $clientUser->client_id);
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->isClient() && $user->client_id) {
+                return $query->where($this->getTable() . '.client_id', $user->client_id);
             }
         }
-
-        // If no client is authenticated, return empty result set
         return $query->whereRaw('1 = 0');
     }
 
@@ -99,13 +81,10 @@ trait BelongsToClient
      */
     public function belongsToAuthenticatedClient(): bool
     {
-        if (!Auth::guard('client')->check()) {
+        if (!Auth::check()) {
             return false;
         }
-
-        $clientUser = Auth::guard('client')->user();
-        
-        return $clientUser instanceof ClientUser 
-            && $this->client_id === $clientUser->client_id;
+        $user = Auth::user();
+        return $user->isClient() && $this->client_id === $user->client_id;
     }
 }

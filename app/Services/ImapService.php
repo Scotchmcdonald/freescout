@@ -310,21 +310,22 @@ class ImapService
         /** @var mixed $from - Can be Attribute object or array depending on library version */
         $from = $message->getFrom();
 
-        // Convert to array if it's an Attribute object
+        // Convert to array if it's an Attribute object (Webklex PHPIMAP library)
         if (is_object($from)) {
             $converted = false;
-            // Try get() method first (for Attribute objects)
-            if (method_exists($from, 'get')) {
+            // Use all() first — returns the full $values array (all addresses)
+            // NOTE: get() / get(0) only returns the first value, not an array; don't use it here.
+            if (method_exists($from, 'all')) {
                 try {
-                    $from = $from->get();
+                    $from = $from->all();
                     $converted = true;
                 } catch (\Throwable $e) {
                     // Ignore and try fallback
                 }
             }
 
-            if (! $converted && is_object($from) && method_exists($from, 'toArray')) {
-                // Try toArray() as fallback (for some mock setups)
+            if (! $converted && method_exists($from, 'toArray')) {
+                // toArray() fallback (for some mock setups)
                 try {
                     $from = $from->toArray();
                     $converted = true;
@@ -585,51 +586,13 @@ class ImapService
     }
 
     /**
-     * Create or find customer from email and name.
-     */
-    protected function createCustomerFromName(string $email, string $name): Customer
-    {
-        $name = trim($name);
-        $nameParts = explode(' ', $name, 2);
-        $firstName = trim($nameParts[0]);
-        $lastName = isset($nameParts[1]) ? trim($nameParts[1]) : '';
-
-        // Limit first name to 20 characters (database field size)
-        if (strlen($firstName) > 20) {
-            $firstName = mb_substr($firstName, 0, 20);
-        }
-        
-        // Limit last name to 30 characters (database field size)
-        if (strlen($lastName) > 30) {
-            $lastName = mb_substr($lastName, 0, 30);
-        }
-
-        $customer = Customer::create($email, [
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-        ]);
-
-        if (! $customer) {
-            throw new \Exception('Failed to create/find customer for email: '.$email);
-        }
-
-        Log::debug('Customer identified', [
-            'customer_id' => $customer->id,
-            'email' => $email,
-        ]);
-
-        return $customer;
-    }
-
-    /**
-     * Find or create conversation for message.
-     * 
-     * @return array{conversation: Conversation, is_new: bool}
+     * @param array{email: string, name: string, user: \App\Models\User|null} $senderInfo
+     * @return array{conversation: \App\Models\Conversation, is_new: bool}
      */
     protected function findOrCreateConversation(
         Mailbox $mailbox,
         \Webklex\PHPIMAP\Message $message,
-        Customer $customer,
+        array $senderInfo,
         string $subject,
         string $messageId,
         bool $isExtraImport
@@ -673,18 +636,32 @@ class ImapService
         $maxNumber = $mailbox->conversations()->lockForUpdate()->max('number');
         $number = (is_int($maxNumber) ? $maxNumber : 0) + 1;
 
+        $fromEmail = $senderInfo['email'] ?? '';
+        $fromName = $senderInfo['name'] ?? '';
+        $clientUserId = null;
+        
+        // If an internal/client user sent this (e.g. they forwarded it, or are writing via client portal)
+        if (isset($senderInfo['user']) && $senderInfo['user'] instanceof \App\Models\User) {
+            $user = $senderInfo['user'];
+            if ($user->isClient()) {
+                $clientUserId = $user->id;
+            }
+        }
+
         $conversation = Conversation::create([
             'mailbox_id' => $mailbox->id,
-            'customer_id' => $customer->id,
+            'client_user_id' => $clientUserId,
+            'sender_email' => $fromEmail,
+            'sender_name' => $fromName,
             'folder_id' => $folder->id,
             'number' => $number,
             'subject' => $subject,
             'type' => 1, // Email
             'status' => 1, // Active
             'state' => 2, // Published
-            'source_via' => 2, // Customer
+            'source_via' => 2, // Customer/External
             'source_type' => 1, // Email
-            'customer_email' => $customer->getMainEmail(),
+            'customer_email' => $fromEmail,
             'preview' => mb_substr(strip_tags($message->getTextBody()), 0, 255),
             'last_reply_at' => now(),
             'threads_count' => 0,
@@ -720,9 +697,8 @@ class ImapService
                 ]);
             }
 
-            // Create or find customer
-            $customer = $this->createCustomerFromName($fromEmail, $fromName);
-            /** @var \App\Models\Customer $customer */
+            // We no longer require a Customer model here
+            $clientUserId = ($senderUser && $senderUser->isClient()) ? $senderUser->id : null;
 
             // Check if conversation already exists by Message-ID
             $messageIdRaw = $message->getMessageId();
@@ -786,7 +762,7 @@ class ImapService
             $conversationData = $this->findOrCreateConversation(
                 $mailbox,
                 $message,
-                $customer,
+                $senderInfo,
                 $subject,
                 $messageId,
                 $isExtraImport
@@ -822,19 +798,14 @@ class ImapService
                     // Overwrite sender details
                     $fromEmail = $originalSender['email'];
                     $fromName = trim($originalSender['name']);
-                    $nameParts = explode(' ', $fromName, 2);
-                    $firstName = trim($nameParts[0]);
-                    $lastName = isset($nameParts[1]) ? trim($nameParts[1]) : '';
 
-                    // Recreate customer with original sender's details
-                    $customer = Customer::create($fromEmail, [
-                        'first_name' => $firstName,
-                        'last_name' => $lastName,
-                    ]);
-
-                    if (! $customer) {
-                        throw new \Exception('Failed to create customer from forwarded message');
-                    }
+                    // We no longer recreate customer with original sender's details.
+                    // Instead, look up if a User/Client User exists with this original email.
+                    $forwardedUser = \App\Models\User::where('email', $fromEmail)->first();
+                    $clientUserId = ($forwardedUser && $forwardedUser->isClient()) ? $forwardedUser->id : null;
+                    
+                    // We can also clear the original internal user flag for the "sender"
+                    $senderUser = $forwardedUser;
 
                     // Clean body
                     $body = trim((string) preg_replace("/@fwd([\s<]+)/su", '$1', $body));
@@ -849,17 +820,20 @@ class ImapService
             $cc = $this->parseAddresses($message->getCc());
             $bcc = $this->parseAddresses($message->getBcc());
 
-            // Create customer records for all participants (original FreeScout behavior)
-            $this->createCustomersFromMessage($message, $mailbox);
+            // Create customer records for all participants (original FreeScout behavior) is REMOVED
+            // $this->createCustomersFromMessage($message, $mailbox);
 
             // Update conversation if it's a reply to an existing one
             if ($conversation->exists) {
                 // Update conversation metadata
-                $conversation->customer_id = $customer->id;
+                $conversation->client_user_id = $clientUserId;
+                $conversation->sender_email = $fromEmail;
+                $conversation->sender_name = $fromName;
+
                 $conversation->customer_email = $fromEmail;
                 $conversation->status = 1; // Active
                 $conversation->last_reply_at = now();
-                $conversation->last_reply_from = 2; // Customer
+                $conversation->last_reply_from = 2; // Customer/External
 
                 // Clear follow-up date when customer replies
                 $conversation->follow_up_date = null;
@@ -901,7 +875,7 @@ class ImapService
             ];
 
             // If sender is an internal user, set created_by_user_id and mark as from user
-            if ($senderUser) {
+            if ($senderUser && ! $senderUser->isClient()) {
                 $threadData['created_by_user_id'] = $senderUser->id;
                 $threadData['user_id'] = $senderUser->id; // Assignee is the user who replied
                 $threadData['source_via'] = 1; // User
@@ -911,9 +885,11 @@ class ImapService
                 $conversation->last_reply_from = 1; // User
                 $conversation->save();
             } else {
-                // Reply from customer
-                $threadData['customer_id'] = $customer->id;
-                $threadData['source_via'] = 2; // Customer
+                // Reply from external sender or client user
+                $threadData['client_user_id'] = $clientUserId;
+                $threadData['sender_email'] = $fromEmail;
+                $threadData['sender_name'] = $fromName;
+                $threadData['source_via'] = 2; // Customer/External
                 $threadData['source_type'] = 1; // Email
             }
 
@@ -934,25 +910,6 @@ class ImapService
                 'last_reply_at' => now(),
             ]);
 
-            // Fire appropriate Laravel event
-            if ($isNewConversation) {
-                event(new \App\Events\CustomerCreatedConversation($conversation, $thread, $customer));
-                Log::debug('Fired CustomerCreatedConversation event');
-            } else {
-                // For replies (not new conversations)
-                if ($senderUser) {
-                    // Internal user replied via email - don't fire CustomerReplied event
-                    Log::debug('Internal user replied via email', ['user_id' => $senderUser->id]);
-                } else {
-                    event(new \App\Events\CustomerReplied($conversation, $thread, $customer));
-                    Log::debug('Fired CustomerReplied event');
-                }
-            }
-
-            // Broadcast real-time notification for new message
-            event(new \App\Events\NewMessageReceived($thread, $conversation));
-            Log::debug('Fired NewMessageReceived broadcast event');
-
             DB::commit();
 
             Log::info('Email processed successfully', [
@@ -961,7 +918,7 @@ class ImapService
                 'thread_id' => $thread->id,
                 'subject' => $subject,
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('Failed to process message', [
                 'mailbox_id' => $mailbox->id,
@@ -969,6 +926,39 @@ class ImapService
                 'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
+        }
+
+        // ── Fire events AFTER commit so module listener failures never roll back
+        // ── the core email storage. Each event is wrapped independently.
+        try {
+            if ($isNewConversation) {
+                event(new \App\Events\CustomerCreatedConversation($conversation, $thread, ['email' => $fromEmail, 'name' => $fromName]));
+                Log::debug('Fired CustomerCreatedConversation event');
+            } else {
+                if ($senderUser && ! $senderUser->isClient()) {
+                    Log::debug('Internal user replied via email', ['user_id' => $senderUser->id]);
+                } else {
+                    event(new \App\Events\CustomerReplied($conversation, $thread, ['email' => $fromEmail, 'name' => $fromName]));
+                    Log::debug('Fired CustomerReplied event');
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error('Event listener failed after email commit (conversation/reply event)', [
+                'mailbox_id'      => $mailbox->id,
+                'conversation_id' => $conversation->id,
+                'error'           => $e->getMessage(),
+            ]);
+        }
+
+        try {
+            event(new \App\Events\NewMessageReceived($thread, $conversation));
+            Log::debug('Fired NewMessageReceived broadcast event');
+        } catch (\Throwable $e) {
+            Log::error('Event listener failed after email commit (broadcast event)', [
+                'mailbox_id'      => $mailbox->id,
+                'conversation_id' => $conversation->id,
+                'error'           => $e->getMessage(),
+            ]);
         }
     }
 
@@ -1229,37 +1219,6 @@ class ImapService
         }
 
         return null;
-    }
-
-    /**
-     * Create customer records for all participants in an email.
-     * Matches original FreeScout implementation.
-     */
-    protected function createCustomersFromMessage(\Webklex\PHPIMAP\Message $message, Mailbox $mailbox): void
-    {
-        $mailboxEmails = [$mailbox->email];
-
-        // Collect all email addresses from the message
-        $allAddresses = array_merge(
-            $this->getAddressesWithNames($message->getFrom()),
-            $this->getAddressesWithNames($message->getReplyTo()),
-            $this->getAddressesWithNames($message->getTo()),
-            $this->getAddressesWithNames($message->getCc()),
-            $this->getAddressesWithNames($message->getBcc())
-        );
-
-        foreach ($allAddresses as $addressData) {
-            // Skip if this is the mailbox's own email
-            if (in_array($addressData['email'], $mailboxEmails)) {
-                continue;
-            }
-
-            // Create or update customer
-            Customer::create($addressData['email'], [
-                'first_name' => $addressData['first_name'],
-                'last_name' => $addressData['last_name'],
-            ]);
-        }
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\User;
-use App\Models\Milestone;
+use Modules\ContractManager\Models\Milestone;
 
 function getMilestoneAdmin(): User
 {

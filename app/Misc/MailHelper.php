@@ -130,7 +130,7 @@ class MailHelper
 
         // Allow modules to add custom variables via Eventy filters
         if (function_exists('eventy')) {
-            $vars = eventy('mail_vars.replace', $vars, $data);
+            $vars = eventy()->filter('mail_vars.replace', $vars, $data);
         }
 
         /**
@@ -161,7 +161,7 @@ class MailHelper
 
         // Allow modules to modify variables after fallback processing
         if (function_exists('eventy')) {
-            $vars = eventy('mail_vars.replace_after_fallback', $vars, $data);
+            $vars = eventy()->filter('mail_vars.replace_after_fallback', $vars, $data);
         }
 
         if ($escape) {

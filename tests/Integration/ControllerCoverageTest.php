@@ -642,26 +642,19 @@ class ControllerCoverageTest extends IntegrationTestCase
         $smtpService = $this->createMock(SmtpService::class);
         $smtpService->expects($this->once())
             ->method('validateSettings')
-            ->with([
-                'mail_host' => 'smtp.example.com',
-                'mail_port' => '587',
-                'mail_username' => 'user@example.com',
-                'mail_password' => 'password',
-            ])
             ->willReturn([]);
 
-        $request = Request::create('/settings/validate-smtp', 'POST', [
-            'mail_host' => 'smtp.example.com',
-            'mail_port' => '587',
-            'mail_username' => 'user@example.com',
-            'mail_password' => 'password',
-        ]);
+        $this->app->instance(SmtpService::class, $smtpService);
 
-        $controller = new SettingsController;
-        $response = $controller->validateSmtp($request, $smtpService);
+        $response = $this->actingAs($this->admin)
+            ->postJson(route('settings.validate-smtp'), [
+                'out_server' => 'smtp.example.com',
+                'out_port'   => 587,
+                'email'      => 'user@example.com',
+            ]);
 
         $this->assertEquals(200, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['success']);
         $this->assertEquals('SMTP settings are valid.', $data['message']);
@@ -673,20 +666,21 @@ class ControllerCoverageTest extends IntegrationTestCase
         $smtpService->expects($this->once())
             ->method('validateSettings')
             ->willReturn([
-                'mail_host' => 'Host is required',
-                'mail_port' => 'Invalid port number',
+                'out_server' => 'Host is required',
+                'out_port' => 'Invalid port number',
             ]);
 
-        $request = Request::create('/settings/validate-smtp', 'POST', [
-            'mail_host' => '',
-            'mail_port' => 'invalid',
-        ]);
+        $this->app->instance(SmtpService::class, $smtpService);
 
-        $controller = new SettingsController;
-        $response = $controller->validateSmtp($request, $smtpService);
+        $response = $this->actingAs($this->admin)
+            ->postJson(route('settings.validate-smtp'), [
+                'out_server' => 'smtp.example.com',
+                'out_port'   => 587,
+                'email'      => 'user@example.com',
+            ]);
 
         $this->assertEquals(422, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertFalse($data['success']);
         $this->assertArrayHasKey('errors', $data);

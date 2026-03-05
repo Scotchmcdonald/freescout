@@ -49,6 +49,7 @@
                 </div>
                 
                 <!-- Products Import Card -->
+                @if(Module::isEnabled('SoftwareSubscriptions'))
                 <div id="import-products-card" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Import Software Products') }}</h3>
@@ -62,7 +63,7 @@
                             </a>
                         </div>
                         
-                        <form method="POST" action="{{ route('products.import.process') }}" enctype="multipart/form-data" class="flex items-center gap-4">
+                        <form method="POST" action="{{ route('admin.softwaresubscriptions.products.import.process') }}" enctype="multipart/form-data" class="flex items-center gap-4">
                             @csrf
                             <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" type="file" name="csv_file" required accept=".csv" />
                             <x-primary-button>
@@ -71,6 +72,7 @@
                         </form>
                     </div>
                 </div>
+                @endif
 
             </div>
         </div>

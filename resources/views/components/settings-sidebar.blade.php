@@ -12,6 +12,7 @@
     </div>
     <nav class="flex flex-col p-2">
         @foreach($sections as $key => $section)
+            @if(isset($section['route']))
             <a href="{{ route($section['route']) }}" 
                class="flex items-center px-4 py-2 text-sm font-medium rounded-md mb-1 {{ $currentSection === $key ? '' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
                style="{{ $currentSection === $key ? 'background-color: var(--theme-primary-50); color: var(--theme-primary-700);' : '' }}">
@@ -30,6 +31,9 @@
                             @case('server')
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
                                 @break
+                            @case('plug')
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                @break
                             @default
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                         @endswitch
@@ -37,6 +41,7 @@
                 @endif
                 {{ $section['title'] }}
             </a>
+            @endif
         @endforeach
     </nav>
 </div>

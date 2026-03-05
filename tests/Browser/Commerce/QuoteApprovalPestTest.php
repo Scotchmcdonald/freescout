@@ -2,7 +2,6 @@
 
 use App\Models\User;
 use Modules\Crm\Models\Client;
-use Modules\Crm\Models\ClientUser;
 use Modules\ContractManager\Models\Quote;
 
 it('client can approve quote', function () {

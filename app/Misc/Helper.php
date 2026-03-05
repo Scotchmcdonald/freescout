@@ -250,9 +250,13 @@ class Helper
             return false;
         }
 
-        // Escape value if needed
-        if (str_contains($value, ' ') || str_contains($value, '#')) {
-            $value = '"'.$value.'"';
+        // Quote value if it contains special characters or if the key is a password/secret/token
+        $isSecret = (bool) preg_match('/PASSWORD|SECRET|TOKEN|KEY|PASS/i', $key);
+        $needsQuoting = $isSecret || str_contains($value, ' ') || str_contains($value, '#') || str_contains($value, '=') || str_contains($value, '\\');
+        if ($needsQuoting) {
+            // Strip any existing outer quotes before re-wrapping
+            $value = trim($value, '"');
+            $value = '"'.str_replace('"', '\\"', $value).'"';
         }
 
         // Check if key exists

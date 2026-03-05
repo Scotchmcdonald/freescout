@@ -6,7 +6,6 @@ namespace App\Jobs;
 
 use App\Mail\AutoReply;
 use App\Models\Conversation;
-use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\SendLog;
 use App\Models\Thread;
@@ -36,7 +35,7 @@ class SendAutoReplyJob implements ShouldQueue
         public Conversation $conversation,
         public Thread $thread,
         public Mailbox $mailbox,
-        public Customer $customer
+        public array $senderInfo
     ) {}
 
     /**
@@ -107,8 +106,8 @@ class SendAutoReplyJob implements ShouldQueue
             $exception = null;
 
             try {
-                Mail::to([['name' => $this->customer->getFullName(), 'email' => $customerEmail]])
-                    ->send(new AutoReply($this->conversation, $this->mailbox, $this->customer, $headers));
+                Mail::to([['name' => $this->senderInfo['name'], 'email' => $customerEmail]])
+                    ->send(new AutoReply($this->conversation, $this->mailbox, $headers));
 
                 Log::info('Auto-reply email sent successfully', [
                     'conversation_id' => $this->conversation->id,
@@ -138,7 +137,7 @@ class SendAutoReplyJob implements ShouldQueue
                     $status = 1; // SendLog::STATUS_ACCEPTED
                 }
 
-                $customerId = ($customerEmail == $recipient) ? $this->customer->id : null;
+                
 
                 SendLog::create([
                     'thread_id' => $this->thread->id,
@@ -146,7 +145,6 @@ class SendAutoReplyJob implements ShouldQueue
                     'email' => $recipient,
                     'mail_type' => 3, // SendLog::MAIL_TYPE_AUTO_REPLY
                     'status' => $status,
-                    'customer_id' => $customerId,
                     'status_message' => $statusMessage,
                 ]);
             }
@@ -172,7 +170,7 @@ class SendAutoReplyJob implements ShouldQueue
     {
         Log::error('SendAutoReply job failed permanently', [
             'conversation_id' => $this->conversation->id,
-            'customer_id' => $this->customer->id,
+            'customer_id' => ( $this->senderInfo['email'] ?? null ),
             'error' => $exception->getMessage(),
         ]);
     }

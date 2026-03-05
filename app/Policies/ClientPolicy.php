@@ -6,139 +6,150 @@ namespace App\Policies;
 
 use App\Models\User;
 use Modules\Crm\Models\Client;
-use Modules\Crm\Models\ClientUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
  * Client Policy
- * 
- * Enforces data isolation for client access:
- * - Client users can only view their own client record
- * - Admin users can view/manage all clients
+ *
+ * Enforces data isolation for client/company access:
+ * - External users can only view their own company's client record
+ * - Staff with view_crm/manage_crm can view/manage clients
+ * - Admin bypass handled by Gate::before
+ *
+ * @note During Phase 3 migration, Client will be fully replaced by Company.
+ *       For now, external users check via $user->company_id matching $client->id.
  */
 class ClientPolicy
 {
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any clients
+     * Determine whether the user can view any clients.
      */
-    public function viewAny(User|ClientUser $user): bool
+    public function viewAny(User $user): bool
     {
-        // Admin users can view all clients
-        if ($user instanceof User) {
-            return true;
+        if ($user->isClient()) {
+            return false;
         }
 
-        // Client users can only view their own client
-        return false;
+        return $user->hasPermission('view_crm');
     }
 
     /**
-     * Determine whether the user can view the client
+     * Determine whether the user can view the client.
      */
-    public function view(User|ClientUser $user, Client $client): bool
+    public function view(User $user, Client $client): bool
     {
         // Internal users (Staff)
-        if ($user instanceof User) {
-            // Admins can view everything
-            if ($user->role === User::ROLE_ADMIN) {
+        if (! $user->isClient()) {
+            if ($user->hasPermission('manage_crm')) {
                 return true;
             }
-            
-            // Technicians can only view clients belonging to companies they have access to
-            // If client has no company, it's considered restricted (or open? restricted is safer)
-            if (!$client->company_id) {
-                return false;
+
+            if ($user->hasPermission('view_crm')) {
+                if (! $client->company_id) {
+                    return false;
+                }
+
+                return $user->hasCompanyAccess($client->company_id);
             }
-            
-            return $user->hasCompanyAccess($client->company_id);
+
+            if ($client->company_id) {
+                return $user->hasCompanyAccess($client->company_id);
+            }
+
+            return false;
         }
 
-        // Client users can only view their own client
-        return $user->is_active && $user->client_id === $client->id;
+        // External users can only view their own company's client record
+        return $user->isActive() && $user->company_id === $client->id;
     }
 
     /**
-     * Determine whether the user can create clients
+     * Determine whether the user can create clients.
      */
-    public function create(User|ClientUser $user): bool
+    public function create(User $user): bool
     {
-        // Only admin users can create clients
-        return $user instanceof User && $user->isAdmin();
+        return ! $user->isClient() && $user->hasPermission('manage_crm');
     }
 
     /**
-     * Determine whether the user can update the client
+     * Determine whether the user can update the client.
      */
-    public function update(User|ClientUser $user, Client $client): bool
+    public function update(User $user, Client $client): bool
     {
-        // Only admin users can update clients
-        return $user instanceof User && $user->isAdmin();
+        return ! $user->isClient() && $user->hasPermission('manage_crm');
     }
 
     /**
-     * Determine whether the user can delete the client
+     * Determine whether the user can delete the client.
      */
-    public function delete(User|ClientUser $user, Client $client): bool
+    public function delete(User $user, Client $client): bool
     {
-        // Only admin users can delete clients
-        return $user instanceof User && $user->isAdmin();
+        return ! $user->isClient() && $user->hasPermission('manage_crm');
     }
 
     /**
-     * Determine whether the user can view client portal data
+     * Determine whether the user can view client portal data.
      */
-    public function viewPortal(User|ClientUser $user, Client $client): bool
+    public function viewPortal(User $user, Client $client): bool
     {
-        // Admin users can view any client portal
-        if ($user instanceof User) {
-            return true;
+        if (! $user->isClient()) {
+            return $user->hasPermission('view_crm');
         }
 
-        // Client users can only view their own client's portal
-        return $user->is_active 
-            && $user->client_id === $client->id
+        return $user->isActive()
+            && $user->company_id === $client->id
             && $client->isActive();
     }
 
     /**
-     * Determine whether the user can view client's invoices
+     * Determine whether the user can view client's invoices.
      */
-    public function viewInvoices(User|ClientUser $user, Client $client): bool
+    public function viewInvoices(User $user, Client $client): bool
     {
-        return $this->viewPortal($user, $client);
-    }
-
-    /**
-     * Determine whether the user can view client's assets
-     */
-    public function viewAssets(User|ClientUser $user, Client $client): bool
-    {
-        return $this->viewPortal($user, $client);
-    }
-
-    /**
-     * Determine whether the user can view client's subscriptions
-     */
-    public function viewSubscriptions(User|ClientUser $user, Client $client): bool
-    {
-        return $this->viewPortal($user, $client);
-    }
-
-    /**
-     * Determine whether the user can manage payment methods
-     */
-    public function managePayments(User|ClientUser $user, Client $client): bool
-    {
-        // Admin users can manage any client's payments
-        if ($user instanceof User) {
-            return true;
+        if (! $user->isClient()) {
+            return $user->hasPermission('view_billing');
         }
 
-        // Client users can manage their own client's payment methods
-        return $user->is_active 
-            && $user->client_id === $client->id
+        return $this->viewPortal($user, $client);
+    }
+
+    /**
+     * Determine whether the user can view client's assets.
+     */
+    public function viewAssets(User $user, Client $client): bool
+    {
+        if (! $user->isClient()) {
+            return $user->hasPermission('view_assets');
+        }
+
+        return $this->viewPortal($user, $client);
+    }
+
+    /**
+     * Determine whether the user can view client's subscriptions.
+     */
+    public function viewSubscriptions(User $user, Client $client): bool
+    {
+        if (! $user->isClient()) {
+            return $user->hasPermission('view_software_subscriptions');
+        }
+
+        return $this->viewPortal($user, $client);
+    }
+
+    /**
+     * Determine whether the user can manage payment methods.
+     */
+    public function managePayments(User $user, Client $client): bool
+    {
+        if (! $user->isClient()) {
+            return $user->hasPermission('manage_billing');
+        }
+
+        return $user->isActive()
+            && $user->company_id === $client->id
             && $client->isActive();
     }
 }

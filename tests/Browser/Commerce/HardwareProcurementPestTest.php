@@ -49,16 +49,16 @@ it('hardware invoice separate from service invoices', function () {
         'billing_type' => 'one_time',
     ]);
 
-    // Create service quote (recurring billing)
+    // Create service quote (monthly recurring billing)
     $svcQuote = Quote::factory()->approved()->create([
         'client_id' => $client->id,
         'title' => 'Monthly Service',
-        'billing_type' => 'recurring',
+        'billing_type' => 'monthly',
     ]);
 
     // Verify they are separate quotes with different billing types
     expect($hwQuote->billing_type)->toBe('one_time');
-    expect($svcQuote->billing_type)->toBe('recurring');
+    expect($svcQuote->billing_type)->toBe('monthly');
     expect($hwQuote->id)->not->toBe($svcQuote->id);
 
     $this->visit('/login')

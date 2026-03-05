@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\DataTransferObjects\SmtpSettingsData;
 use App\Models\Mailbox;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -224,33 +225,40 @@ class SmtpService
     /**
      * Validate SMTP settings without sending email.
      *
-     * @param array<string, mixed> $settings
+     * Accepts either a typed SmtpSettingsData DTO (preferred) or a legacy raw
+     * array for backward compatibility with existing callers and tests.
+     *
+     * @param SmtpSettingsData|array<string, mixed> $settings
      * @return array<string, string>
      */
-    public function validateSettings(array $settings): array
+    public function validateSettings(SmtpSettingsData|array $settings): array
     {
+        if (is_array($settings)) {
+            $settings = SmtpSettingsData::fromArray($settings);
+        }
+
         $errors = [];
 
-        if (empty($settings['out_server'])) {
+        if (empty($settings->outServer)) {
             $errors['out_server'] = 'SMTP server is required';
         }
 
-        if (empty($settings['out_port'])) {
+        if (empty($settings->outPort) && $settings->outPort !== -1) {
             $errors['out_port'] = 'SMTP port is required';
-        } elseif (! is_numeric($settings['out_port']) || $settings['out_port'] < 1 || $settings['out_port'] > 65535) {
+        } elseif ($settings->outPort < 1 || $settings->outPort > 65535) {
             $errors['out_port'] = 'SMTP port must be between 1 and 65535';
         }
 
-        if (empty($settings['email'])) {
+        if (empty($settings->email)) {
             $errors['email'] = 'Email address is required';
-        } elseif (! filter_var($settings['email'], FILTER_VALIDATE_EMAIL)) {
+        } elseif (! filter_var($settings->email, FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Invalid email address';
         }
 
         // Check common SMTP port/encryption combinations
-        if (! empty($settings['out_port']) && is_numeric($settings['out_port'])) {
-            $port = (int) $settings['out_port'];
-            $encryption = $settings['out_encryption'] ?? 0;
+        if ($settings->outPort >= 1) {
+            $port = $settings->outPort;
+            $encryption = $settings->outEncryption;
 
             if ($port === 465 && $encryption !== 1) {
                 $errors['out_encryption'] = 'Port 465 typically requires SSL encryption';
@@ -260,8 +268,12 @@ class SmtpService
         }
 
         Log::debug('SMTP settings validation', [
-            'errors' => $errors,
-            'settings' => array_merge($settings, ['out_password' => '***REDACTED***']),
+            'errors'          => $errors,
+            'out_server'      => $settings->outServer,
+            'out_port'        => $settings->outPort,
+            'out_encryption'  => $settings->outEncryption,
+            'email'           => $settings->email,
+            'out_password'    => '***REDACTED***',
         ]);
 
         return $errors;

@@ -1,0 +1,491 @@
+[
+  {
+    "comment": "========= INTEGRATION LAYER — External → Staging ======================="
+  },
+  {
+    "edge_id": "INT_01",
+    "source": "Action1 (RMM)",
+    "target": "CrmStagingRecord",
+    "label": "User Identity Staging",
+    "data_type": "Identity/Account",
+    "transport": "Laravel Event → Listener",
+    "event_class": "Modules\\Action1\\Events\\Action1DeviceDiscovered",
+    "listener_class": "Modules\\Crm\\Listeners\\Action1UserDiscoveredListener",
+    "service_class": "Modules\\Crm\\Services\\UserIdentityConflictResolver::upsertStaging()",
+    "storage": "crm_staging_records (status=pending_review)",
+    "logic": "Action1Service polls the Action1 API and fires Action1DeviceDiscovered for each device. The IdempotentListener deduplicates on event_id, extracts the assigned user email and identity hints (name, org_unit), and calls UserIdentityConflictResolver::upsertStaging(source='action1'). Cross-source conflicts with existing Google records are detected and flagged in proposed_changes._conflicts. Records scoring >= 0.95 confidence are auto-promoted.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "INT_02",
+    "source": "Action1 (RMM)",
+    "target": "AssetStagingRecord",
+    "label": "Windows/Linux Asset Staging",
+    "data_type": "Hardware/OS",
+    "transport": "Laravel Event → Listener",
+    "event_class": "Modules\\Action1\\Events\\Action1DeviceDiscovered | Action1DeviceUpdated",
+    "listener_class": "Modules\\AssetManagement\\Listeners (AssetManagementServiceProvider)",
+    "service_class": "Modules\\AssetManagement\\Services\\AssetStatusService",
+    "storage": "asset_staging_records → assets",
+    "logic": "Action1DeviceDiscovered/Updated events carry hardware metadata (OS, model, serial). The AssetManagement listener resolves device → Asset upsert via AssetStatusService. Asset-to-client allocation drives client_asset_counters for per-device billing.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "INT_03",
+    "source": "Action1 (RMM)",
+    "target": "SoftwareDiscovery",
+    "label": "Software Inventory Staging",
+    "data_type": "License/Package",
+    "transport": "Laravel Event → Listener",
+    "event_class": "Modules\\Action1\\Events\\Action1SoftwareDiscovered",
+    "service_class": "Modules\\SoftwareSubscriptions\\Services\\SoftwareReconciliationService",
+    "storage": "software_discoveries → software_products, software_assignments",
+    "logic": "Action1SoftwareDiscovered carries a discovered software catalogue for the endpoint. SoftwareReconciliationService normalises package names against the MSP's SoftwareProduct catalogue, creates SoftwareDiscovery records, and links them to the client via SoftwareAssignment. VendorReconciliationService reconciles discovered vs licensed counts.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "INT_04",
+    "source": "GoogleAdmin",
+    "target": "CrmStagingRecord",
+    "label": "Google Account Identity Staging",
+    "data_type": "Identity/Account",
+    "transport": "Laravel Event → Listener",
+    "event_class": "Modules\\GoogleAdmin\\Events\\GoogleUserSynced | GoogleUserChanged",
+    "listener_class": "Modules\\Crm\\Listeners\\GoogleUserSyncedListener",
+    "service_class": "Modules\\Crm\\Services\\UserIdentityConflictResolver::upsertStaging()",
+    "storage": "crm_staging_records (status=pending_review | auto-approved)",
+    "logic": "SyncGoogleUsersJob polls the Directory API and fires GoogleUserSynced for every workspace user (email, givenName, familyName, orgUnit, suspended, google_id). GoogleUserSyncedListener calls UserIdentityConflictResolver::upsertStaging(source='google'). High-confidence single-source records are auto-promoted. Cross-source name conflicts with Action1 records are flagged for manual review in the admin staging UI.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "INT_05",
+    "source": "GoogleAdmin",
+    "target": "AssetStagingRecord",
+    "label": "Chromebook Asset Staging",
+    "data_type": "Hardware/ChromeOS",
+    "transport": "Laravel Event → Listener",
+    "event_class": "Modules\\GoogleAdmin\\Events\\GoogleChromebookDiscovered | ChromeDeviceChanged",
+    "listener_class": "Modules\\AssetManagement\\Listeners (GoogleChromebookDiscoveredListener)",
+    "service_class": "Modules\\AssetManagement\\Services\\AssetStatusService",
+    "storage": "asset_staging_records → assets, client_asset_counters",
+    "logic": "SyncGoogleChromebooksJob polls the Admin SDK Chrome Devices API and fires GoogleChromebookDiscovered. The AssetManagement listener upserts an Asset record (type=chromebook), resolves the assigned user email to a CRM Contact where possible, and increments the pre-aggregated client_asset_counters counter via AssetCounterService.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "INT_06",
+    "source": "GoogleAdmin",
+    "target": "SoftwareDiscovery",
+    "label": "Google License/App Staging",
+    "data_type": "SaaS/License",
+    "transport": "Laravel Event → Service",
+    "event_class": "Modules\\GoogleAdmin\\Events\\GoogleLicenseDiscovered",
+    "service_class": "Modules\\SoftwareSubscriptions\\Services\\SoftwareReconciliationService",
+    "storage": "software_discoveries → software_products, software_assignments",
+    "logic": "GoogleLicenseDiscovered carries workspace licence data (SKU, seat counts, domain). SoftwareReconciliationService maps Google SKUs to MSP SoftwareProduct records and creates SoftwareDiscovery entries for subscription count reconciliation.",
+    "status": "IMPLEMENTED"
+  },
+
+  {
+    "comment": "========= RESOLUTION LAYER — Staging → Canonical Records ==============="
+  },
+  {
+    "edge_id": "RES_01",
+    "source": "CrmStagingRecord",
+    "target": "CRM (Contact/Client)",
+    "label": "Resolved Identity → CRM",
+    "data_type": "Client/Contact record",
+    "transport": "Admin action OR auto-resolve",
+    "service_class": "Modules\\Crm\\Services\\UserIdentityConflictResolver::resolve()",
+    "resolution_strategies": ["create_new", "merge_into_existing", "discard"],
+    "storage": "crm_contacts, app_customers (FreeScout), client_user_counters (via UpdateUserEntitlementCounterListener)",
+    "logic": "Admin reviews pending_review staging records that scored below 0.95 confidence. 'create_new' creates a new Customer + Contact. 'merge_into_existing' fills empty fields only, never clobbers existing data. 'discard' marks the record ignored. On resolve, UpdateUserEntitlementCounterListener rebuilds client_user_counters so the PIB billing engine sees the correct user count immediately.",
+    "side_effects": ["UpdateUserEntitlementCounterListener rebuilds client_user_counters", "ContactCreated event fired", "reviewed_by / reviewed_at audit trail stamped"],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "RES_02",
+    "source": "AssetStagingRecord",
+    "target": "InventoryManager (Asset)",
+    "label": "Resolved Asset → Inventory",
+    "data_type": "Hardware Record",
+    "transport": "Admin action OR auto-resolve",
+    "service_class": "Modules\\AssetManagement\\Services\\AssetStatusService",
+    "storage": "assets, asset_staging_records (status=resolved), client_asset_counters",
+    "logic": "Staging records for assets that cannot be confidently auto-assigned to a client are reviewed in the admin conflict UI (AssetController@conflicts). On approval, AssetStatusService transitions the Asset to 'active' and fires AssetStatusChanged. AssetCounterService updates client_asset_counters. Assets are also viewable via the portal asset tab.",
+    "side_effects": ["AssetCountChanged event fired", "client_asset_counters UPSERT"],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "RES_03",
+    "source": "SoftwareDiscovery",
+    "target": "SoftwareManager (ClientSoftwareSubscription)",
+    "label": "Reconciled Software → SoftwareManager",
+    "data_type": "License/Subscription Record",
+    "transport": "Service call + scheduled reconciliation",
+    "service_class": "Modules\\SoftwareSubscriptions\\Services\\VendorReconciliationService | SoftwareReconciliationService",
+    "storage": "client_software_subscriptions, software_subscription_snapshots, subscription_counter_snapshots",
+    "logic": "VendorReconciliationService compares discovered software counts against active ClientSoftwareSubscription records. Discrepancies surface as ReconciliationDiscrepancy records. SubscriptionCounterService maintains per-client licence counts that the SoftwareProductEntitlementResolver reads during billing runs.",
+    "side_effects": ["ReconciliationDiscrepancy records created for over/under-licensed states"],
+    "status": "IMPLEMENTED"
+  },
+
+  {
+    "comment": "========= BILLING INPUT LAYER — Canonical → PIB ========================"
+  },
+  {
+    "edge_id": "BIZ_01",
+    "source": "CRM (client_user_counters)",
+    "target": "PIB (ServicePlanEntitlementResolver)",
+    "label": "Active User Count for Billing",
+    "data_type": "int count (pre-aggregated)",
+    "transport": "Interface contract (App\\Contracts\\UserEntitlementCountProvider)",
+    "implementation_class": "Modules\\Crm\\Services\\CrmUserEntitlementCountProvider",
+    "consumer_class": "Modules\\PIB\\Resolvers\\ServicePlanEntitlementResolver",
+    "storage": "client_user_counters (O(1) read), fallback: COUNT(crm_contacts WHERE is_active)",
+    "logic": "ServicePlanEntitlementResolver is injected with UserEntitlementCountProvider (bound to CrmUserEntitlementCountProvider in CrmServiceProvider). During a billing run, it calls activeUserCountForClient(clientId) which reads the pre-aggregated client_user_counters row for O(1) performance. If no counter exists the live Contact count is used as fallback and the counter is rebuilt (self-healing). The count drives per-user-per-month pricing for service_plan / silver_plan / subscription_service_plan product types.",
+    "billing_product_types": ["service_plan", "silver_plan", "subscription_service_plan"],
+    "status": "IMPLEMENTED (interface decoupled)"
+  },
+  {
+    "edge_id": "BIZ_02",
+    "source": "InventoryManager (client_asset_counters)",
+    "target": "PIB (ServicePlanEntitlementResolver)",
+    "label": "Active Asset Count for Billing",
+    "data_type": "int count (pre-aggregated)",
+    "transport": "AtomicCounterService direct read",
+    "implementation_class": "Modules\\AssetManagement\\Services\\AssetCounterService",
+    "consumer_class": "Modules\\PIB\\Resolvers\\ServicePlanEntitlementResolver",
+    "storage": "client_asset_counters (UPSERT on AssetStatusChanged)",
+    "logic": "AssetCounterService maintains client_asset_counters via UPSERT when AssetStatusChanged or AssetCountChanged fires. PIBServiceProvider boots ServicePlanEntitlementResolver with the AtomicCounterService instance, which reads this table. The count is multiplied against the per-device rate in BillingTemplateLineItems for hardware billing items.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "BIZ_03",
+    "source": "SoftwareManager (subscription_counter_snapshots)",
+    "target": "PIB (SoftwareProductEntitlementResolver)",
+    "label": "Billable Licence Count for Billing",
+    "data_type": "int count per software product",
+    "transport": "EntitlementEngineService plugin (registerResolver)",
+    "implementation_class": "Modules\\SoftwareSubscriptions\\Resolvers\\SoftwareProductEntitlementResolver",
+    "consumer_class": "Modules\\PIB\\Services\\InvoiceGenerator",
+    "storage": "subscription_counter_snapshots, client_software_subscriptions",
+    "logic": "SoftwareSubscriptionsServiceProvider registers SoftwareProductEntitlementResolver with the EntitlementEngineService for 'software_product' / 'saas_licence' product types. During billing, InvoiceGenerator calls EntitlementEngineService::resolve(template) which dispatches to this resolver. The resolver reads SubscriptionCounterService for the per-SKU seat count and multiplies by the per-licence rate.",
+    "billing_product_types": ["software_product", "saas_licence"],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "BIZ_04",
+    "source": "ContractManager (BillingTemplate / ContractSchedule)",
+    "target": "PIB (InvoiceGenerator)",
+    "label": "Scheduled Billing Trigger",
+    "data_type": "BillingTemplate + start/end period dates",
+    "transport": "Scheduled Artisan command + BillingTemplateDue event",
+    "event_class": "Modules\\ContractManager\\Events\\BillingTemplateDue | MilestoneReadyForBilling",
+    "consumer_class": "Modules\\PIB\\Services\\InvoiceGenerator::generateFromTemplate()",
+    "storage": "cm_billing_templates, cm_contract_schedules → pib_invoices",
+    "logic": "ContractService::createBillingTemplates() produces BillingTemplate rows from recurring QuoteLineItems when a Contract is activated (ContractActivated event). The billing:generate-invoices Artisan command calls InvoiceGenerator::getDueTemplates() which queries BillingTemplates whose next_billing_date <= today. For each due template, generateFromTemplate() resolves entitlements (user count, asset count, licence count), applies proration if enabled, and emits InvoiceGenerated. MilestoneReadyForBilling triggers one-time milestone invoices outside the recurring schedule.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "BIZ_05",
+    "source": "PIB (ProrationService)",
+    "target": "PIB (InvoiceGenerator)",
+    "label": "Proration Calculation",
+    "data_type": "float ratio (0.0–1.0) per billing segment",
+    "transport": "Internal service call",
+    "service_class": "Modules\\PIB\\Services\\ProrationService",
+    "logic": "When proration_enabled is set on a BillingTemplate, InvoiceGenerator calls ProrationService to split the billing period at client join/leave dates. Each segment yields a line item with qty=ratio and full unit price. Ratios within ±0.5% of 1.0 are snapped to avoid micro-proration artefacts.",
+    "status": "IMPLEMENTED"
+  },
+
+  {
+    "comment": "========= FINANCIAL FLOW — PIB → Invoices → Payments ===================="
+  },
+  {
+    "edge_id": "FIN_01",
+    "source": "PIB (InvoiceGenerator)",
+    "target": "InvoiceManager (Invoice)",
+    "label": "Generated Invoice (draft → published)",
+    "data_type": "Financial Document + InvoiceLineItems",
+    "transport": "Direct model create + Laravel event",
+    "event_class": "Modules\\PIB\\Events\\InvoiceGenerated | InvoicePublished",
+    "storage": "pib_invoices, pib_invoice_line_items",
+    "logic": "InvoiceGenerator::generateFromTemplate() creates a pib_invoices row (status=draft) with full InvoiceLineItem breakdown (product, qty, rate, subtotal). InvoiceGenerator::publish() transitions draft → published, fires InvoicePublished, and stamps published_at. The invoice is now visible in vwInvoices and eligible for payment or dispute.",
+    "invoice_statuses": ["draft", "pending", "published", "sent", "overdue", "paid", "disputed", "cancelled"],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "FIN_02",
+    "source": "InvoiceManager (Invoice)",
+    "target": "Payment (HelcimService)",
+    "label": "Invoice → Payment Processing",
+    "data_type": "Payment Request (amount, payment_method_id)",
+    "transport": "Portal action → ClientPaymentController → HelcimService",
+    "service_class": "Modules\\Payment\\Services\\HelcimService::chargeVaultedCard()",
+    "event_class": "Modules\\Payment\\Events\\PaymentSucceeded | PaymentFailed",
+    "storage": "payments, transactions, payment_methods",
+    "logic": "ClientPaymentController::processInvoicePayment() validates the request, loads the vaulted PaymentMethod, calls HelcimService::chargeVaultedCard() against the Helcim v2 API. On success: Payment record created (status=success), Invoice transitioned to 'paid' (InvoicePaid event), credit ledger debited. On failure: PaymentFailed event fires, invoice status unchanged.",
+    "resilience": "HelcimService wraps calls in RateLimiterService + CircuitBreakerService for API fault tolerance",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "FIN_03",
+    "source": "PIB (ClientCredit / ClientCreditLedger)",
+    "target": "InvoiceManager (Invoice)",
+    "label": "Credit Applied to Invoice",
+    "data_type": "Decimal credit amount",
+    "transport": "ClientCreditService::applyToInvoice()",
+    "service_class": "Modules\\PIB\\Services\\ClientCreditService",
+    "storage": "pib_client_credits, pib_client_credit_ledger",
+    "logic": "When a client has a positive credit balance, ClientCreditService::applyToInvoice() reduces the invoice total by the available credit and appends a credit-application entry to the immutable credit ledger. Credits accumulate from overpayments, manual adjustments, and payment disputes resolved in the client's favour.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "FIN_04",
+    "source": "PIB (ReconciliationRun)",
+    "target": "PIB (ReconciliationDiscrepancy)",
+    "label": "Billing Reconciliation",
+    "data_type": "Discrepancy records (over/under-billed)",
+    "transport": "BillingAnalysisService",
+    "service_class": "Modules\\PIB\\Services\\BillingAnalysisService",
+    "storage": "pib_reconciliation_runs, pib_reconciliation_discrepancies",
+    "logic": "BillingAnalysisService compares billed entitlement counts against live asset/user/software counts for a completed billing period. Discrepancies drive credit notes or surcharges on the next cycle. ReconciliationRun records audit the comparison point-in-time.",
+    "status": "IMPLEMENTED"
+  },
+
+  {
+    "comment": "========= PORTAL VIEW LAYER — Read-only data projections ================"
+  },
+  {
+    "edge_id": "VW_01",
+    "source": "InventoryManager (Asset)",
+    "target": "vwAssets (ClientPortal)",
+    "label": "Display Client Assets",
+    "data_type": "UI View (read-only)",
+    "transport": "Blade view via PortalTabRegistry",
+    "controller": "Modules\\AssetManagement\\Http\\Controllers\\AssetController",
+    "view": "assetmanagement::portal.index",
+    "logic": "AssetManagementServiceProvider registers an 'Assets' tab with ClientPortal's PortalTabRegistry. The portal renders the ClientAssetsWidget which queries assets filtered to the ClientUser's client_id. Shows hardware type, status, assigned user, and last-seen date.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "VW_02",
+    "source": "CRM (Contact/ClientUser)",
+    "target": "vwUsers (ClientPortal)",
+    "label": "Display Portal Users",
+    "data_type": "UI View (read-only + action triggers)",
+    "transport": "Blade view via PortalTabRegistry",
+    "controller": "Modules\\ClientPortal\\Http\\Controllers\\UserProvisioningController",
+    "view": "clientportal::users.*",
+    "logic": "Portal admins see the full Client user roster from the CRM. Each user row exposes 'Provision' and 'Deprovision' action buttons (if GoogleAdmin is configured for the tenant) that post to the new UserProvisioningController routes.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "VW_03",
+    "source": "ContractManager (Contract / Quote)",
+    "target": "vwContracts (ClientPortal)",
+    "label": "Display Contracts + Quotes",
+    "data_type": "UI View (read-only + approval actions)",
+    "transport": "ApprovalController + ContractApiController",
+    "controller": "Modules\\ClientPortal\\Http\\Controllers\\ApprovalController",
+    "logic": "The portal renders pending approval requests for quotes and contracts. Clients can view terms, compare revisions, and execute the ACT_02 digital signature flow directly from this view.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "VW_04",
+    "source": "InvoiceManager (Invoice + InvoiceLineItems)",
+    "target": "vwInvoices (ClientPortal)",
+    "label": "Display Invoices",
+    "data_type": "UI View (read-only + dispute action)",
+    "transport": "Blade view",
+    "controller": "Modules\\ClientPortal\\Http\\Controllers\\InvoiceController",
+    "logic": "InvoiceController::index() shows paginated invoices for the client. ::show() renders full line-item detail. The 'Dispute' button is shown for invoices in disputable states (pending, sent, published, overdue) and posts to the ACT_04 flow.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "VW_05",
+    "source": "Payment (Payment / Transaction)",
+    "target": "vwPayments (ClientPortal)",
+    "label": "Display Payment History",
+    "data_type": "UI View (read-only + pay-now action)",
+    "transport": "Blade view",
+    "controller": "Modules\\ClientPortal\\Http\\Controllers\\ClientPaymentController",
+    "logic": "BillingController::index() shows a financial summary. ClientPaymentController::index() lists payment methods and payment history. The 'Pay Now' button on unpaid invoices initiates ACT_03.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "VW_06",
+    "source": "SoftwareManager (ClientSoftwareSubscription)",
+    "target": "vwSoftware (ClientPortal — KnowledgeBase/SoftwareSubscriptions tab)",
+    "label": "Display Software Subscriptions",
+    "data_type": "UI View (read-only)",
+    "transport": "PortalTabRegistry",
+    "logic": "SoftwareSubscriptionsServiceProvider registers a portal tab that shows the client's active software subscriptions, seat counts, and any reconciliation discrepancies visible to the client (e.g. discovered > licensed).",
+    "status": "IMPLEMENTED"
+  },
+
+  {
+    "comment": "========= ACTION LAYER — Bidirectional portal → backend commands ========"
+  },
+  {
+    "edge_id": "ACT_01",
+    "source": "vwUsers (ClientPortal)",
+    "target": "GoogleAdmin (Directory API)",
+    "label": "Provision / Deprovision Google User",
+    "data_type": "API Command",
+    "transport": "POST portal/users/{clientUser}/provision|deprovision → UserProvisioningController → Actions",
+    "controller": "Modules\\ClientPortal\\Http\\Controllers\\UserProvisioningController",
+    "action_classes": [
+      "Modules\\GoogleAdmin\\Actions\\ProvisionGoogleUser",
+      "Modules\\GoogleAdmin\\Actions\\DeprovisionGoogleUser"
+    ],
+    "service_class": "Modules\\GoogleAdmin\\Services\\GoogleWorkspaceService::provisionUser() | suspendUser() | deleteUser()",
+    "authorization": "Portal admin only (isAdmin() && same client_id). Aborts 422 if GoogleConfig not configured for tenant.",
+    "write_scope": "https://www.googleapis.com/auth/admin.directory.user",
+    "provision_result": "New Google Workspace account created; GoogleUserChanged event fires; CRM staging updated",
+    "deprovision_modes": ["suspend (default, reversible)", "permanently delete (bypassPolicy=true)"],
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "ACT_02",
+    "source": "vwContracts (ClientPortal)",
+    "target": "ContractManager",
+    "label": "Approve / Sign Contract or Quote",
+    "data_type": "State Change + Digital Signature",
+    "transport": "POST portal/approvals/{id}/sign|approve → ApprovalController",
+    "controller": "Modules\\ClientPortal\\Http\\Controllers\\ApprovalController",
+    "logic": "Client portal users with approval permissions can digitally sign quotes (approval_type=quote) or contracts. Signing calls ApprovalRequest::sign(signature, method) which stamps signature_data, then marks the request approved. QuoteApproved event fires, allowing ContractService::createFromQuote() to generate the Contract and its BillingTemplates — activating the BIZ_04 billing schedule.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "ACT_03",
+    "source": "vwInvoices / vwPayments (ClientPortal)",
+    "target": "Payment (HelcimService)",
+    "label": "Process Payment",
+    "data_type": "Transaction (amount, vaulted card token)",
+    "transport": "POST portal/billing/pay-invoice/{invoiceId} → ClientPaymentController → HelcimService",
+    "controller": "Modules\\ClientPortal\\Http\\Controllers\\ClientPaymentController",
+    "service_class": "Modules\\Payment\\Services\\HelcimService::chargeVaultedCard()",
+    "event_class": "Modules\\Payment\\Events\\PaymentSucceeded | PaymentFailed",
+    "flow": "Client selects vaulted payment method → HelcimService::chargeVaultedCard() → Helcim API v2 → PaymentSucceeded fires → Invoice.status = 'paid' + credit ledger debit",
+    "resilience": "RateLimiterService + CircuitBreakerService protecting Helcim API calls",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "ACT_04",
+    "source": "vwInvoices (ClientPortal)",
+    "target": "InvoiceManager + Payment module",
+    "label": "Dispute Invoice",
+    "data_type": "State Change + Audit Record",
+    "transport": "POST portal/invoices/{invoice}/dispute → InvoiceController → DisputeInvoiceAction",
+    "controller": "Modules\\ClientPortal\\Http\\Controllers\\InvoiceController",
+    "action_class": "App\\Actions\\DisputeInvoiceAction",
+    "policy_class": "Modules\\PIB\\Policies\\InvoicePolicy::dispute()",
+    "event_class": "Modules\\Payment\\Events\\PaymentDisputed",
+    "disputable_statuses": ["pending", "sent", "published", "overdue"],
+    "side_effects": [
+      "Invoice.status → 'disputed'",
+      "Invoice.metadata stamped with reason, initiated_by, pre_dispute_status",
+      "BillingAdjustment created (adjustment_type='dispute', status='pending')",
+      "PaymentDisputed event fired → halts any pending auto-pay job for this invoice"
+    ],
+    "resolution_path": "Admin reviews BillingAdjustment; manual credit note via ClientCreditService or invoice cancellation",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "ACT_05",
+    "source": "vwPayments (ClientPortal)",
+    "target": "Payment (HelcimService)",
+    "label": "Vault Payment Method",
+    "data_type": "Card token (PAN never stored)",
+    "transport": "POST portal/billing/payment-methods → ClientPaymentController::store() → HelcimService::vaultCustomer()",
+    "controller": "Modules\\ClientPortal\\Http\\Controllers\\ClientPaymentController",
+    "service_class": "Modules\\Payment\\Services\\HelcimService::vaultCustomer()",
+    "logic": "Client submits card details via Helcim.js (tokenised in-browser). Server receives helcimPayToken, calls HelcimService::vaultCustomer() which hits the Helcim v2 card-tokens API, stores the PaymentMethod record (helcim_card_token, last_four, brand, expiry) against the Company. First vaulted card is set as default.",
+    "status": "IMPLEMENTED"
+  },
+
+  {
+    "comment": "========= INTERNAL COUNTER / CACHE LAYER ===================================="
+  },
+  {
+    "edge_id": "CTR_01",
+    "source": "Modules\\Crm\\Events\\ContactCreated | UserStatusChanged | ClientStatusChanged",
+    "target": "client_user_counters (AtomicCounterService)",
+    "label": "Rebuild User Counter on CRM Event",
+    "data_type": "int (pre-aggregated user count)",
+    "transport": "UpdateUserEntitlementCounterListener → UserEntitlementCountProvider::rebuildCounterForClient()",
+    "listener_class": "Modules\\Crm\\Listeners\\UpdateUserEntitlementCounterListener",
+    "implementation_class": "Modules\\Crm\\Services\\CrmUserEntitlementCountProvider",
+    "logic": "Each CRM lifecycle event that changes a client's active user count triggers UpdateUserEntitlementCounterListener. The listener resolves the client_id from the event DTO (flat or nested shape), then calls rebuildCounterForClient() which issues a DB UPSERT from a live COUNT query. This keeps client_user_counters in sync for O(1) reads during billing.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "CTR_02",
+    "source": "Modules\\AssetManagement\\Events\\AssetStatusChanged | AssetCountChanged",
+    "target": "client_asset_counters (AtomicCounterService)",
+    "label": "Rebuild Asset Counter on Asset Event",
+    "data_type": "int (pre-aggregated asset count)",
+    "transport": "AssetCounterService::increment() / rebuild()",
+    "logic": "AssetStatusChanged fires when an Asset is activated, deactivated, or reallocated. AssetCounterService listens and runs an UPSERT on client_asset_counters. Concurrent updates use DB-level atomic operations (SELECT FOR UPDATE or UPSERT) via AtomicCounterService to prevent race conditions.",
+    "status": "IMPLEMENTED"
+  },
+
+  {
+    "comment": "========= SUPPORT / TICKETING LAYER ========================================="
+  },
+  {
+    "edge_id": "SUP_01",
+    "source": "FreeScout (Conversation)",
+    "target": "CRM (TicketLifecycleEvent)",
+    "label": "Support Ticket Lifecycle",
+    "data_type": "Status change / assignment event",
+    "transport": "ConversationStatusChanged / ConversationUserChanged → ConversationEventListener",
+    "listener_class": "Modules\\Crm\\Listeners\\ConversationEventListener",
+    "storage": "crm_ticket_lifecycle_events, crm_client_conversations",
+    "logic": "CrmServiceProvider registers listeners for FreeScout's ConversationStatusChanged and ConversationUserChanged events. ConversationEventListener::handleStatusChanged() writes a TicketLifecycleEvent for audit and SLA measurement. handleCreated() auto-links new conversations to the matching CRM Client based on requester email via CompanyDomain resolution.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "edge_id": "SUP_02",
+    "source": "CRM (TicketLifecycleEvent / Client)",
+    "target": "vwTickets (ClientPortal)",
+    "label": "Show Support Tickets in Portal",
+    "data_type": "UI View (read-only ticket list)",
+    "transport": "PortalTabRegistry → crm::portal.tickets",
+    "controller_service": "Modules\\Crm\\Services\\ClientTicketService::getPortalDashboardData()",
+    "logic": "CrmServiceProvider registers the 'Support Tickets' portal tab with PortalTabRegistry. A View composer injects ticket stats (open/closed/category breakdown/activity timeline) queried via ClientTicketService, scoped to the ClientUser's client_id.",
+    "status": "IMPLEMENTED"
+  },
+
+  {
+    "comment": "========= IMPLEMENTATION GAPS / KNOWN LIMITATIONS ========================="
+  },
+  {
+    "edge_id": "GAP_01",
+    "source": "AssetEventConflict",
+    "target": "PIB",
+    "label": "Rent-to-Own Asset Billing",
+    "data_type": "Hardware Billing Line",
+    "status": "PARTIAL",
+    "note": "RentToOwnEntitlementResolver is registered but only handles BillingTemplate-level rent_to_own product type. Hardware assets discovered via Action1/Google feed into client_asset_counters (BIZ_02) but a dedicated RentToOwn staging → approval → billing pipeline is not yet connected end-to-end. The resolver logic for tracking remaining payments and GoalReached transitions is implemented; the portal UI for client visibility is pending."
+  },
+  {
+    "edge_id": "GAP_02",
+    "source": "ContractManager",
+    "target": "Notifications",
+    "label": "Contract Expiry / Invoice Due Notifications",
+    "data_type": "Email / In-app notification",
+    "status": "PARTIAL",
+    "note": "ContractExpiring event fires 30/60/90 days before expiry but no Notification listener is registered at module boot. The Alerts module exists and supports custom notification rules but is not yet wired to ContractExpiring or InvoicePublished events."
+  },
+  {
+    "edge_id": "GAP_03",
+    "source": "INT_06 (GoogleLicenseDiscovered)",
+    "target": "SoftwareManager",
+    "label": "Google Workspace Licence → SoftwareManager full pipeline",
+    "data_type": "SaaS Seat Count",
+    "status": "PARTIAL",
+    "note": "GoogleLicenseDiscovered event is fired by SyncGoogleUsersJob but the SoftwareSubscriptions listener registration is not confirmed in SoftwareSubscriptionsServiceProvider. Manual reconciliation via VendorReconciliationService works but the automated event-driven path needs verification."
+  }
+]

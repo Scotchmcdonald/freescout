@@ -70,7 +70,7 @@
                                             </div>
                                             
                                             <div class="flex items-center space-x-4 text-sm text-gray-600">
-                                                <span>{{ $conversation->customer->getFullName() }}</span>
+                                                <span>{{ $conversation->customer?->getFullName() ?? $conversation->customer_email ?? 'Unknown' }}</span>
                                                 <span>•</span>
                                                 <span>{{ $conversation->customer_email }}</span>
                                                 @if($conversation->user)

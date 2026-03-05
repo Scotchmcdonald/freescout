@@ -1,21 +1,29 @@
 <?php
 
-use Modules\Crm\Models\Client;
-use Modules\Crm\Models\ClientUser;
+use App\Models\User;
+use Modules\Crm\Models\Company;
 
-it('portal dashboard shows client info', function () {
-    $client = Client::factory()->create(['name' => 'Portal Features Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Portal Dashboard User',
-        'email' => 'portal-dash-' . uniqid() . '@example.com',
+function createPortalFeatureUser(string $name, string $emailPrefix): User
+{
+    $company = Company::factory()->create(['name' => $name, 'is_active' => true]);
+    $user = User::factory()->create([
+        'type' => 2,
+        'first_name' => $name,
+        'last_name' => 'User',
+        'email' => $emailPrefix . '-' . uniqid() . '@example.com',
         'password' => bcrypt('password'),
-        'is_active' => true,
+        'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
     ]);
+    $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
+    return $user;
+}
+
+it('portal dashboard shows client info', function () {
+    $user = createPortalFeatureUser('Portal Features Client', 'portal-dash');
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
@@ -24,18 +32,10 @@ it('portal dashboard shows client info', function () {
 })->group('portal', 'features');
 
 it('portal invoices page loads', function () {
-    $client = Client::factory()->create(['name' => 'Portal Invoice Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Portal Invoice User',
-        'email' => 'portal-inv-' . uniqid() . '@example.com',
-        'password' => bcrypt('password'),
-        'is_active' => true,
-        'email_verified_at' => now(),
-    ]);
+    $user = createPortalFeatureUser('Portal Invoice Client', 'portal-inv');
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
@@ -44,18 +44,10 @@ it('portal invoices page loads', function () {
 })->group('portal', 'features');
 
 it('portal support page loads', function () {
-    $client = Client::factory()->create(['name' => 'Portal Support Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Portal Support User',
-        'email' => 'portal-support-' . uniqid() . '@example.com',
-        'password' => bcrypt('password'),
-        'is_active' => true,
-        'email_verified_at' => now(),
-    ]);
+    $user = createPortalFeatureUser('Portal Support Client', 'portal-support');
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
@@ -64,18 +56,10 @@ it('portal support page loads', function () {
 })->group('portal', 'features');
 
 it('portal approvals page loads', function () {
-    $client = Client::factory()->create(['name' => 'Portal Approvals Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Portal Approvals User',
-        'email' => 'portal-approvals-' . uniqid() . '@example.com',
-        'password' => bcrypt('password'),
-        'is_active' => true,
-        'email_verified_at' => now(),
-    ]);
+    $user = createPortalFeatureUser('Portal Approvals Client', 'portal-approvals');
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
@@ -84,18 +68,10 @@ it('portal approvals page loads', function () {
 })->group('portal', 'features');
 
 it('portal billing account page loads', function () {
-    $client = Client::factory()->create(['name' => 'Portal Billing Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Portal Billing User',
-        'email' => 'portal-billing-' . uniqid() . '@example.com',
-        'password' => bcrypt('password'),
-        'is_active' => true,
-        'email_verified_at' => now(),
-    ]);
+    $user = createPortalFeatureUser('Portal Billing Client', 'portal-billing');
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 

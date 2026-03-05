@@ -31,6 +31,19 @@ class Kernel extends ConsoleKernel
             ->onFailure(function () {
                 Log::error('Follow-up reminders scheduled task failed');
             });
+
+        // Prune stale demo accounts every hour
+        $schedule->command('demo:prune')->hourly();
+
+        // Mark submitted/partially-paid invoices as overdue once their due date has passed
+        $schedule->command('pib:mark-invoices-overdue')
+            ->dailyAt('01:00')
+            ->timezone($timezone);
+
+        // Purge CaseManager prompt & activity logs older than 30 days
+        $schedule->command('casemanager:purge-prompt-logs')
+            ->dailyAt('02:00')
+            ->timezone($timezone);
     }
 
     /**

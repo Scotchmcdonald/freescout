@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\DataTransferObjects;
 
+use App\Http\Requests\SaveDraftRequest;
+
 /**
  * Data Transfer Object for conversation draft operations.
  * 
@@ -30,6 +32,34 @@ readonly class DraftData
         public ?string $bcc = null,
         public array $attachmentIds = [],
     ) {}
+
+    /**
+     * Create from a SaveDraftRequest (new FormRequest-based factory).
+     * userId must be provided by the controller from the authenticated user —
+     * it is not part of the HTTP payload.
+     */
+    public static function fromSaveRequest(SaveDraftRequest $request, int $userId): self
+    {
+        /** @var array{conversation_id: int|string, body?: string|null, to?: string|null, cc?: string|null, bcc?: string|null, attachment_ids?: array<int, int|string>|null} $validated */
+        $validated = $request->validated();
+
+        $body = $validated['body'] ?? '';
+        if (!is_string($body)) {
+            $body = '';
+        }
+
+        return new self(
+            conversationId: (int) $validated['conversation_id'],
+            userId: $userId,
+            body: $body,
+            to: isset($validated['to']) && (is_string($validated['to']) || is_numeric($validated['to'])) ? (string) $validated['to'] : null,
+            cc: isset($validated['cc']) && (is_string($validated['cc']) || is_numeric($validated['cc'])) ? (string) $validated['cc'] : null,
+            bcc: isset($validated['bcc']) && (is_string($validated['bcc']) || is_numeric($validated['bcc'])) ? (string) $validated['bcc'] : null,
+            attachmentIds: isset($validated['attachment_ids']) && is_array($validated['attachment_ids'])
+                ? array_map(fn ($id) => is_numeric($id) ? intval($id) : 0, $validated['attachment_ids'])
+                : [],
+        );
+    }
 
     /**
      * Create from validated request data.

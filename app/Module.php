@@ -11,8 +11,6 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
  * Module helper class.
- * 
- * TODO: Port full implementation from archive/app/Module.php
  */
 class Module
 {
@@ -40,81 +38,16 @@ class Module
             return (self::$updateCallback)($alias);
         }
 
-        $result = [
+        // Return error since automatic updates are not supported without the archive implementations
+        return [
             'status' => 'error',
-            'msg' => '',
+            'msg' => 'Automatic module updates are disabled in this environment. Please update via composer or git.',
             'msg_success' => '',
             'download_error' => false,
             'download_msg' => '',
             'output' => '',
             'module_name' => $alias,
         ];
-
-        $moduleSource = app(\App\Services\ModuleSourceService::class);
-        $moduleInfo = $moduleSource->getModule($alias);
-
-        if (!$moduleInfo) {
-            $result['msg'] = 'Module not found in source';
-            return $result;
-        }
-
-        $moduleName = $moduleInfo['name'] ?? $alias;
-        $result['module_name'] = is_string($moduleName) ? $moduleName : $alias;
-        $downloadUrl = $moduleInfo['download_url'] ?? null;
-
-        if (!$downloadUrl) {
-            $result['msg'] = 'Download URL not found for module';
-            return $result;
-        }
-
-        $tempFile = tempnam(sys_get_temp_dir(), 'mod_');
-
-        try {
-            // Download the file
-            $downloadUrlStr = is_string($downloadUrl) ? $downloadUrl : '';
-            $response = Http::timeout(120)->sink($tempFile)->get($downloadUrlStr);
-
-            if (!$response->successful()) {
-                throw new \Exception('Failed to download module');
-            }
-
-            // Unzip
-            $zip = new \ZipArchive;
-            if ($zip->open($tempFile) === TRUE) {
-                $extractPath = base_path('Modules');
-                
-                if (!File::isDirectory($extractPath)) {
-                    File::makeDirectory($extractPath, 0755, true);
-                }
-
-                $zip->extractTo($extractPath);
-                $zip->close();
-                
-                // Clean up temp file
-                @unlink($tempFile);
-                
-                // Run install command
-                $outputLog = new BufferedOutput();
-                Artisan::call('freescout:module-install', ['module_alias' => $alias], $outputLog);
-                $result['output'] = $outputLog->fetch();
-                
-                // Clear cache
-                Artisan::call('cache:clear');
-                Artisan::call('config:clear');
-
-                $result['status'] = 'success';
-                $result['msg_success'] = 'Module updated successfully';
-
-            } else {
-                throw new \Exception('Failed to open zip file');
-            }
-
-        } catch (\Exception $e) {
-            if (file_exists($tempFile)) @unlink($tempFile);
-            $result['msg'] = $e->getMessage();
-            $result['download_error'] = true;
-        }
-
-        return $result;
     }
 }
+

@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\EntitlementEngineService;
+use Modules\PIB\Services\EntitlementEngineService;
 
 it('gold plan overage charge for extra assets', function () {
     // Verify EntitlementEngineService is resolvable

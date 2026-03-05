@@ -4,7 +4,7 @@ use App\Models\User;
 use Modules\ContractManager\Models\BillingTemplate;
 use Modules\ContractManager\Models\BillingTemplateLineItem;
 use Modules\Crm\Models\Client;
-use Modules\Crm\Models\ClientUser;
+use Modules\Crm\Models\Company;
 use Modules\PIB\Models\Invoice;
 use function Pest\Laravel\{actingAs};
 
@@ -62,20 +62,23 @@ it('admin can generate invoice from template', function () {
 })->group('billing', 'invoice');
 
 test('client can pay invoice', function () {
-    $client = Client::factory()->create();
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Payment Test User',
+    $company = Company::factory()->create(['is_active' => true]);
+    $client = Client::factory()->create(['company_id' => $company->id]);
+    $user = User::factory()->create([
+        'type' => 2,
+        'first_name' => 'Payment Test',
+        'last_name' => 'User',
         'email' => 'payment-' . uniqid() . '@example.com',
         'password' => bcrypt('password'),
-        'email_verified_at' => now(), // Important for login 
-        'is_active' => true,
+        'status' => User::STATUS_ACTIVE,
+        'email_verified_at' => now(),
     ]);
+    $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
 
     // Seed Invoice
     $invoice = Invoice::create([
         'client_id' => $client->id,
-        'company_id' => $client->company_id ?? 1,
+        'company_id' => $company->id,
         'invoice_number' => 'INV-' . uniqid(),
         'status' => 'sent',
         'invoice_date' => now(),
@@ -88,7 +91,7 @@ test('client can pay invoice', function () {
     // Client Login at /portal/login
     $this->visit('/portal/login')
         ->assertVisible('input[name="email"]')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]'); // Assuming standard button
 

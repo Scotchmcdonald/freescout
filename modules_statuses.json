@@ -13,5 +13,7 @@
     "GoogleAdmin": true,
     "WidgetRegistry": true,
     "KnowledgeBase": true,
+    "TreeScoutDeploymentManager": true,
+    "CaseManager": true,
     "TestModule": true
 }

@@ -37,6 +37,20 @@ abstract class TestCase extends BaseTestCase
         }
     }
 
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        
+        // Force garbage collection every 50 tests to free memory
+        // More frequent GC causes transaction state issues
+        static $testCount = 0;
+        $testCount++;
+        
+        if ($testCount % 50 === 0 && gc_enabled()) {
+            gc_collect_cycles();
+        }
+    }
+
     /**
      * Setup parallel testing support for SQLite databases.
      * This ensures each parallel worker gets its own database file.

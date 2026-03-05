@@ -49,10 +49,11 @@ class ModuleTest extends TestCase
 
     public function test_update_module_returns_error_for_nonexistent_module(): void
     {
+        // With automatic updates disabled, we expect a generic disabled message
         $result = Module::updateModule('nonexistent-module');
         
         $this->assertEquals('error', $result['status']);
-        $this->assertStringContainsString('not found', $result['msg']);
+        $this->assertStringContainsString('disabled', strtolower($result['msg']));
     }
 
     public function test_update_module_result_structure(): void
@@ -133,9 +134,11 @@ class ModuleTest extends TestCase
             }
         });
 
+        // With automatic updates disabled, the module source is never queried
+        // and we get a generic disabled message
         $result = Module::updateModule('testmodule');
 
         $this->assertEquals('error', $result['status']);
-        $this->assertStringContainsString('Download URL not found', $result['msg']);
+        $this->assertStringContainsString('disabled', strtolower($result['msg']));
     }
 }

@@ -1,13 +1,13 @@
 # Migration Path: Native Playwright (TypeScript)
 
-**Status:** Proposed / Experimental
-**Current State:** Not Adopted (Using Pest/Dusk)
+**Status:** Decision Document — For Future Reference
+**Current State:** Partially Adopted — `pestphp/pest-plugin-browser` (Playwright-backed) is in use for browser tests; native TypeScript Playwright is not yet adopted.
 
 ## Executive Summary
 
-Moving to Native Playwright (TypeScript) offers significant performance and debugging benefits but introduces a "Black Box" data problem. We currently use Pest (PHP) because it allows direct usage of Laravel Factories.
+Moving to Native Playwright (TypeScript) offers significant performance and debugging benefits but introduces a "Black Box" data problem. The current stack uses `pest-plugin-browser` which bridges PHP Pest tests with Playwright's browser engine, retaining access to Laravel Factories.
 
-This document outlines the architectural changes required if the team decides to migrate to Native Playwright in the future.
+This document outlines the architectural trade-offs if the team decides to migrate to a fully native TypeScript Playwright setup in the future.
 
 ## Pros & Cons
 

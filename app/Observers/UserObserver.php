@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Observers;
 
+use App\DataTransferObjects\UserStatusChangedData;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Subscription;
 use App\Models\User;
+use Modules\Crm\Events\UserStatusChanged;
 
 class UserObserver
 {
@@ -23,6 +25,36 @@ class UserObserver
 
         // Add default subscriptions
         $this->addDefaultSubscriptions($user);
+    }
+
+    /**
+     * Handle the User "updated" event.
+     *
+     * Dispatches UserStatusChanged when the user's status field changes.
+     * Previously this was handled by ClientUser::booted() — now unified here.
+     */
+    public function updated(User $user): void
+    {
+        if ($user->isDirty('status')) {
+            $oldStatusInt = (int) $user->getOriginal('status');
+            $newStatusInt = (int) $user->status;
+
+            $oldStatus = $oldStatusInt === User::STATUS_ACTIVE ? 'active' : 'inactive';
+            $newStatus = $newStatusInt === User::STATUS_ACTIVE ? 'active' : 'inactive';
+
+            if ($oldStatus !== $newStatus) {
+                event(new UserStatusChanged(
+                    new UserStatusChangedData(
+                        userId: $user->id,
+                        clientId: $user->company_id ?? 0,
+                        email: $user->email,
+                        oldStatus: $oldStatus,
+                        newStatus: $newStatus,
+                        reason: null,
+                    )
+                ));
+            }
+        }
     }
 
     /**

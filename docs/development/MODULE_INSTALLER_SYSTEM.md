@@ -85,7 +85,7 @@ A world-class, enterprise-grade module installation system for Laravel with real
                             │
                             ▼
 ┌──────────────────────────────────────────────────────────────┐
-│                   Backend (Laravel 11)                        │
+│                   Backend (Laravel 12)                        │
 │  ┌────────────────────────────────────────────────────────┐  │
 │  │  initiateInstall()                                     │  │
 │  │  1. Validate parameters                                │  │
@@ -259,8 +259,8 @@ Status: 403 Forbidden
 ## 🔧 Installation
 
 ### Requirements
-- PHP 8.1+
-- Laravel 11.x
+- PHP 8.2+
+- Laravel 12.x
 - Composer
 - Git
 - Node.js & NPM (for frontend assets)
@@ -717,12 +717,12 @@ This module installer is designed to be enterprise-grade. When contributing:
 
 ## 📄 License
 
-This module installer system is part of the Laravel 11 Foundation project.
+This module installer system is part of the Laravel 12 Foundation project.
 
 ## 🎓 Credits
 
 Built with:
-- Laravel 11.x
+- Laravel 12.x
 - Alpine.js 3.x
 - Tailwind CSS
 - Server-Sent Events API

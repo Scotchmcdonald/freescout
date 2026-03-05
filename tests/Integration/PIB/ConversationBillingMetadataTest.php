@@ -13,7 +13,7 @@ use Modules\Crm\Models\Client;
 use Modules\Crm\Models\ClientConversation;
 use Modules\Crm\Models\Company;
 use Modules\PIB\Listeners\ConversationLinkedToClientListener;
-use Modules\PIB\Models\BillingTemplate;
+use Modules\ContractManager\Models\BillingTemplate;
 use Modules\PIB\Models\ConversationBillingMetadata;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
@@ -179,9 +179,9 @@ class ConversationBillingMetadataTest extends TestCase
     {
         // Create service plan for client
         BillingTemplate::create([
-            'company_id' => $this->company->id,
             'client_id' => $this->client->id,
-            'product_type' => 'silver_plan',
+            'name' => 'Test Template',
+            'product_type' => 'subscription_service_plan',
             'status' => 'active',
             'product_config' => [],
         ]);

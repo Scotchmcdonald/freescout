@@ -155,7 +155,6 @@ class SendNotificationToUsersJob implements ShouldQueue
                     'thread_id' => $lastThread->id,
                 ]);
 
-                // TODO: Uncomment when UserNotification mailable is implemented
                 Mail::to([['name' => $user->getFullName(), 'email' => $user->email]])
                     ->send(new \App\Mail\UserNotification($user, $this->conversation, $this->threads, $mailbox, $headers, $from));
             } catch (\Exception $e) {

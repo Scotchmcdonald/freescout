@@ -26,7 +26,11 @@
                         @if($mailboxes->isEmpty())
                             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
                                 <p class="text-sm text-yellow-700">
-                                    You don't have access to any mailboxes yet.
+                                    @can('create', App\Models\Mailbox::class)
+                                        No mailboxes have been created yet. Use the <strong>Create Mailbox</strong> button above to add the first one.
+                                    @else
+                                        You don't have access to any mailboxes yet.
+                                    @endcan
                                 </p>
                             </div>
                         @else

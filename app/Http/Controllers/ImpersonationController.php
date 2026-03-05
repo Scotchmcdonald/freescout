@@ -12,6 +12,17 @@ use Illuminate\Support\Facades\Log;
 class ImpersonationController extends Controller
 {
     /**
+     * Maximum duration (in minutes) an impersonation session can last
+     * before being automatically terminated.
+     */
+    public const IMPERSONATION_TTL_MINUTES = 30;
+
+    /**
+     * Session key used to track when impersonation started.
+     */
+    public const SESSION_STARTED_AT_KEY = 'impersonation_started_at';
+
+    /**
      * Start impersonating a user
      */
     public function impersonate(Request $request, User $user): RedirectResponse
@@ -46,8 +57,9 @@ class ImpersonationController extends Controller
                 ->log('Started impersonation');
         }
 
-        // Start impersonation
+        // Start impersonation and record the start time for TTL enforcement
         $authUser->impersonate($user);
+        session()->put(self::SESSION_STARTED_AT_KEY, now()->timestamp);
 
         return redirect()->route('portal.dashboard')
             ->with('success', "✓ Now viewing portal as {$user->name}. You are in read-only mode.");
@@ -94,7 +106,8 @@ class ImpersonationController extends Controller
             }
         }
 
-        // Leave impersonation
+        // Leave impersonation and clean up TTL tracking
+        session()->forget(self::SESSION_STARTED_AT_KEY);
         $authUser->leaveImpersonation();
 
         return redirect()->route('dashboard')

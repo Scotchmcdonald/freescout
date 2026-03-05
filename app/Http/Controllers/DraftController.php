@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\DataTransferObjects\DraftData;
+use App\Http\Requests\SaveDraftRequest;
 use App\Misc\Draft;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +15,7 @@ class DraftController extends Controller
     /**
      * Save a draft.
      */
-    public function save(Request $request): \Illuminate\Http\JsonResponse
+    public function save(SaveDraftRequest $request): \Illuminate\Http\JsonResponse
     {
         $user = Auth::user();
         if (!($user instanceof \App\Models\User)) {
@@ -22,11 +24,11 @@ class DraftController extends Controller
                 'message' => __('Unauthorized'),
             ], 401);
         }
-        
-        $data = $request->all();
-        
-        $thread = Draft::save($data, $user);
-        
+
+        $dto = DraftData::fromSaveRequest($request, $user->id);
+
+        $thread = Draft::save($dto->toArray(), $user);
+
         if ($thread) {
             return response()->json([
                 'status' => 'success',
@@ -34,7 +36,7 @@ class DraftController extends Controller
                 'message' => __('Draft saved'),
             ]);
         }
-        
+
         return response()->json([
             'status' => 'error',
             'message' => __('Failed to save draft'),

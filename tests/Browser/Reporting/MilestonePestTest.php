@@ -50,7 +50,7 @@ it('tracks project milestones', function () {
         ->assertSee('0%');
         
     // 4. Update Progress
-    $this->visit(route('milestones.edit', \App\Models\Milestone::where('title', 'Phase 1 Completion')->firstOrFail()))
+        $this->visit(route('milestones.edit', \Modules\ContractManager\Models\Milestone::where('title', 'Phase 1 Completion')->firstOrFail()))
          ->assertSee('Edit Milestone')
          ->select('status', 'in_progress')
          ->type('sequence_order', '1') // Ensure sequence is sent

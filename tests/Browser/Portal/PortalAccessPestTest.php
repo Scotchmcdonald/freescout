@@ -1,39 +1,39 @@
 <?php
 
-use Modules\Crm\Models\Client;
-use Modules\Crm\Models\ClientUser;
+use App\Models\User;
+use Modules\Crm\Models\Company;
 
-test('client can login to portal', function () {
-    $client = Client::factory()->create(['name' => 'Portal Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Portal User',
-        'email' => 'portal-' . uniqid() . '@example.com',
+function createPortalAccessUser(string $name, string $emailPrefix): User
+{
+    $company = Company::factory()->create(['name' => $name, 'is_active' => true]);
+    $user = User::factory()->create([
+        'type' => 2,
+        'first_name' => $name,
+        'last_name' => 'User',
+        'email' => $emailPrefix . '-' . uniqid() . '@example.com',
         'password' => bcrypt('password'),
-        'is_active' => true,
+        'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
     ]);
+    $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
+    return $user;
+}
+
+test('client can login to portal', function () {
+    $user = createPortalAccessUser('Portal Client', 'portal');
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]')
         ->assertPathIs('/portal/dashboard');
 })->group('portal', 'auth');
 
 test('client dashboard displays after login', function () {
-    $client = Client::factory()->create(['name' => 'Dashboard Client']);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Dashboard User',
-        'email' => 'dashboard-' . uniqid() . '@example.com',
-        'password' => bcrypt('password'),
-        'is_active' => true,
-        'email_verified_at' => now(),
-    ]);
+    $user = createPortalAccessUser('Dashboard Client', 'dashboard');
 
     $this->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 

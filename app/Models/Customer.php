@@ -98,7 +98,20 @@ class Customer extends Model
      */
     public function companyRel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(\Modules\Crm\Models\Company::class, 'company_id');
+        return $this->belongsto(\Modules\Crm\Models\Company::class, 'company_id');
+    }
+
+    /**
+     * Set photo from remote URL.
+     *
+     * @param string $url
+     * @return void
+     */
+    public function setPhotoFromRemoteFile(string $url): void
+    {
+        $this->photo_url = $url;
+        // 0 = Unknown/Gravatar, 1 = Uploaded logic depends on system. 
+        // Assuming just setting URL is sufficient for imported contacts.
     }
 
     /**

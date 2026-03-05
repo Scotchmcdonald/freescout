@@ -71,7 +71,7 @@ class MailboxController extends Controller
         $user = $request->user();
 
         // Check access (admin only for settings)
-        if (! $user->isAdmin()) {
+        if (! $user->hasAdminAccess()) {
             abort(403);
         }
 
@@ -226,7 +226,7 @@ class MailboxController extends Controller
         $user = $request->user();
 
         // Check access (admin only)
-        if (! $user->isAdmin()) {
+        if (! $user->hasAdminAccess()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized access.',
@@ -241,7 +241,7 @@ class MailboxController extends Controller
                 'message' => "Successfully fetched {$stats['fetched']} emails. Created {$stats['created']} new conversations.",
                 'stats' => $stats,
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch emails: '.$e->getMessage(),

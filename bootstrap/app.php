@@ -53,6 +53,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\Localize::class,
             \App\Http\Middleware\LogoutIfDeleted::class,
             \App\Http\Middleware\CustomHandle::class,
+            \App\Http\Middleware\PreventImpersonatorWrites::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {})->create();

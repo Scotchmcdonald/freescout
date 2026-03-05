@@ -76,7 +76,7 @@
                                         <span class="font-medium text-gray-900">{{ $clientName }}</span>
                                         <span>•</span>
                                     @endif
-                                    <span>{{ $conversation->customer->getFullName() }}</span>
+                                    <span>{{ $conversation->customer?->getFullName() ?? $conversation->sender_name ?? __('Unknown') }}</span>
                                     <span>•</span>
                                     <span>{{ $conversation->customer_email }}</span>
                                     <span>•</span>
@@ -107,10 +107,10 @@
                                                     </div>
                                                 @else
                                                     <div class="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white font-semibold">
-                                                        {{ substr($conversation->customer->first_name ?? 'C', 0, 1) }}
+                                                        {{ substr($conversation->customer->first_name ?? $conversation->sender_name ?? 'C', 0, 1) }}
                                                     </div>
                                                     <div>
-                                                        <div class="font-medium text-gray-900">{{ $conversation->customer->getFullName() }}</div>
+                                                        <div class="font-medium text-gray-900">{{ $conversation->customer?->getFullName() ?? $conversation->sender_name ?? __('Unknown') }}</div>
                                                         <div class="text-sm text-gray-500">{{ $thread->created_at->diffForHumans() }}</div>
                                                     </div>
                                                 @endif
@@ -277,9 +277,13 @@
                             
                             <div>
                                 <div class="text-gray-500 mb-1">Customer</div>
+                                @if($conversation->customer)
                                 <a href="{{ route('customers.show', $conversation->customer) }}" class="font-medium text-blue-600 hover:underline">
                                     {{ $conversation->customer->getFullName() }}
                                 </a>
+                                @else
+                                <span class="font-medium">{{ $conversation->sender_name ?? $conversation->customer_email ?? __('Unknown') }}</span>
+                                @endif
                             </div>
 
                             @if($clientName)

@@ -48,7 +48,7 @@ class TechnicianScope implements Scope
              // Assuming ROLE_USER is strictly technician, but if clients share this role:
              /** @var int|null $clientId */
              $clientId = $user->getAttribute('client_id');
-             if ($clientId !== null) {
+             if (is_numeric($clientId) && (int) $clientId > 0) {
                  // It's a client user, let them see their own stuff
                  if ($model instanceof \Modules\Crm\Models\Client) {
                      $builder->getQuery()->where('id', $clientId);

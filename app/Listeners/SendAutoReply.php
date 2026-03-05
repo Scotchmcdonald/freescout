@@ -20,16 +20,17 @@ class SendAutoReply
      */
     public function handle(CustomerCreatedConversation $event): void
     {
+        $senderEmail = $event->senderInfo['email'] ?? $event->conversation->customer_email;
+
         Log::info('SendAutoReply listener triggered', [
             'conversation_id' => $event->conversation->id,
-            'customer_email' => $event->customer->getMainEmail(),
+            'customer_email' => $senderEmail,
             'mailbox_id' => $event->conversation->mailbox_id,
         ]);
 
         $conversation = $event->conversation;
         $thread = $event->thread;
         $mailbox = $conversation->mailbox;
-        $customer = $event->customer;
 
         if (! $mailbox) {
             return;
@@ -86,14 +87,14 @@ class SendAutoReply
         // So to prevent infinite loop, we are checking number of auto replies sent to the customer recently.
         $createdAt = now()->subMinutes(self::CHECK_PERIOD);
 
-        $autoRepliesSent = SendLog::where('customer_id', $customer->id)
+        $autoRepliesSent = SendLog::where('customer_email', $senderEmail)
             ->where('mail_type', 3) // SendLog::MAIL_TYPE_AUTO_REPLY
             ->where('created_at', '>', $createdAt)
             ->count();
 
         if ($autoRepliesSent >= 10) {
             Log::warning('Auto-reply rate limit exceeded (10)', [
-                'customer_id' => $customer->id,
+                'customer_email' => $senderEmail,
                 'auto_replies_sent' => $autoRepliesSent,
             ]);
 
@@ -103,7 +104,7 @@ class SendAutoReply
         if ($autoRepliesSent >= 2) {
             // Find conversations from this customer with same subject
             $prevConversations = Conversation::select('subject', 'id')
-                ->where('customer_id', $customer->id)
+                ->where('customer_email', $senderEmail)
                 ->where('created_at', '>', $createdAt)
                 ->get();
 
@@ -132,12 +133,12 @@ class SendAutoReply
         }
 
         // Dispatch the job to send the auto-reply
-        SendAutoReplyJob::dispatch($conversation, $thread, $mailbox, $customer)
+        SendAutoReplyJob::dispatch($conversation, $thread, $mailbox, $event->senderInfo)
             ->onQueue('emails');
 
         Log::info('SendAutoReply job dispatched', [
             'conversation_id' => $conversation->id,
-            'customer_email' => $customer->getMainEmail(),
+            'customer_email' => $senderEmail,
         ]);
     }
 }

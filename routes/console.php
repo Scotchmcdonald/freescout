@@ -24,9 +24,9 @@ Schedule::job(new RenewExpiringWebhooksJob)
     ->name('renew-expiring-webhooks');
 
 // Asset Management: Daily Reconciliation & High-Water Mark Snapshot (Phase 2.3)
-// TODO: Uncomment when AssetManagement module is implemented
-// Schedule::job(new \Modules\AssetManagement\Jobs\ReconcileAssetsJob)->dailyAt('01:00');
-// Schedule::job(new \Modules\AssetManagement\Jobs\RecordDailyAssetCountJob)->dailyAt('23:55');
+// Unblocked: AssetManagement jobs implemented
+Schedule::job(new \Modules\AssetManagement\Jobs\ReconcileAssetsJob)->dailyAt('01:00');
+Schedule::job(new \Modules\AssetManagement\Jobs\RecordDailyAssetCountJob)->dailyAt('23:55');
 
 // CRM: Monthly client service metrics calculation (1st of each month at 2:00 AM)
 Schedule::job(new \Modules\Crm\Jobs\CalculateClientServiceMetricsJob)

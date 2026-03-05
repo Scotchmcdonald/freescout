@@ -1,6 +1,6 @@
 # UI/UX Review & Refactor Prompt
 
-Use this prompt to review, refactor, or generate UI components that align with the application's design system. This prompt captures the essence of `docs/product/UX_STYLE_GUIDE.md` and the standards set by the `EmailMigration` module.
+Use this prompt to review, refactor, or generate UI components that align with the application's design system. This prompt captures the essence of `docs/development/UX_STYLE_GUIDE.md` and the standards set by the `EmailMigration` module.
 
 ---
 
@@ -11,7 +11,7 @@ Use this prompt to review, refactor, or generate UI components that align with t
 **Context:**
 You are working on a mission-critical Laravel application. The user is a "Pilot" in a "Cockpit" — they need density, precision, and resilience. 
 The "Gold Standard" for implementation is the `EmailMigration` module.
-You are to apply the standards defined in `docs/product/UX_STYLE_GUIDE.md`.
+You are to apply the standards defined in `docs/development/UX_STYLE_GUIDE.md`.
 
 **Core Design Principles (The "Cockpit" Philosophy):**
 1.  **Clinical & Precise:** No ambiguity. Every pixel serves a purpose.

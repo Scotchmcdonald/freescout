@@ -68,8 +68,8 @@ test('conversation assignment workflow', function () {
 
     $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
-    // Assign to user1
-    $this->actingAs($admin)->post(route('conversations.assign', $conversation->id), [
+    // Assign to user1 using the generic update route
+    $this->actingAs($admin)->patch(route('conversations.update', $conversation), [
         'user_id' => $user1->id,
     ]);
 
@@ -79,7 +79,7 @@ test('conversation assignment workflow', function () {
     ]);
 
     // Reassign to user2
-    $this->actingAs($admin)->post(route('conversations.assign', $conversation->id), [
+    $this->actingAs($admin)->patch(route('conversations.update', $conversation), [
         'user_id' => $user2->id,
     ]);
 
@@ -123,7 +123,7 @@ test('conversations isolated between mailboxes', function () {
     $conversation2 = Conversation::factory()->create(['mailbox_id' => $mailbox2->id]);
 
     // List conversations for mailbox1
-    $response = $this->actingAs($admin)->get(route('mailbox.conversations', $mailbox1->id));
+    $response = $this->actingAs($admin)->get(route('conversations.index', $mailbox1));
     
     $response->assertSuccessful();
     $response->assertSee($conversation1->subject);

@@ -1,7 +1,7 @@
 # MSP Product Definition Document
 **Version:** 1.0
 **Status:** Product Specification
-**Associated Architecture:** System Architecture v4.0
+**Associated Architecture:** System Architecture v4.7
 
 ## 1. Managed Service Plans
 

@@ -1,33 +1,35 @@
 <?php
 
-use Modules\Crm\Models\Client;
-use Modules\Crm\Models\ClientUser;
+use App\Models\User;
+use Modules\Crm\Models\Company;
 
 function createTicketPortalUser(): array
 {
-    $client = Client::factory()->create(['name' => 'Ticket Client ' . uniqid()]);
-    $clientUser = ClientUser::factory()->create([
-        'client_id' => $client->id,
-        'name' => 'Ticket User',
+    $company = Company::factory()->create(['name' => 'Ticket Client ' . uniqid(), 'is_active' => true]);
+    $user = User::factory()->create([
+        'type' => 2,
+        'first_name' => 'Ticket',
+        'last_name' => 'User',
         'email' => 'ticket-' . uniqid() . '@example.com',
         'password' => bcrypt('password'),
-        'is_active' => true,
+        'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
     ]);
-    return [$client, $clientUser];
+    $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
+    return [$company, $user];
 }
 
-function portalLogin($test, ClientUser $clientUser): void
+function portalLogin($test, User $user): void
 {
     $test->visit('/portal/login')
-        ->type('email', $clientUser->email)
+        ->type('email', $user->email)
         ->type('password', 'password')
         ->click('button[type="submit"]');
 }
 
 it('full ticket lifecycle', function () {
-    [$client, $clientUser] = createTicketPortalUser();
-    portalLogin($this, $clientUser);
+    [$client, $user] = createTicketPortalUser();
+    portalLogin($this, $user);
 
     $this->visit('/portal/support')
         ->assertSee('Support');
@@ -35,8 +37,8 @@ it('full ticket lifecycle', function () {
 
 it('ticket file attachments', function () {
     // Verify the support form supports file uploads (enctype or file input)
-    [$client, $clientUser] = createTicketPortalUser();
-    portalLogin($this, $clientUser);
+    [$client, $user] = createTicketPortalUser();
+    portalLogin($this, $user);
 
     $this->visit('/portal/support')
         ->assertSee('Support');
@@ -59,9 +61,9 @@ it('ticket email notifications', function () {
     $mailer = config('mail.default');
     expect($mailer)->not->toBeNull();
 
-    // Verify ClientUser has email field for receiving notifications
-    $clientUser = new \Modules\Crm\Models\ClientUser();
-    expect($clientUser->getFillable())->toContain('email');
+    // Verify User model has email field for receiving notifications
+    $user = new User();
+    expect($user->getFillable())->toContain('email');
 })->group('helpdesk', 'ticket');
 
 it('client self closing tickets', function () {

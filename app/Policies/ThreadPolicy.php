@@ -7,6 +7,12 @@ namespace App\Policies;
 use App\Models\Thread;
 use App\Models\User;
 
+/**
+ * ThreadPolicy — governs thread (message/note) operations.
+ *
+ * Admin bypass handled by Gate::before. Uses manage_tickets permission
+ * for broader edit access.
+ */
 class ThreadPolicy
 {
     /**
@@ -26,8 +32,8 @@ class ThreadPolicy
             return true;
         }
 
-        // Admins can edit any user-created thread
-        if ($user->isAdmin() 
+        // Users with manage_tickets can edit any user-created thread
+        if ($user->hasPermission('manage_tickets') 
             && $thread->created_by_user_id 
             && in_array($thread->type, $messageTypes)
         ) {

@@ -111,7 +111,7 @@ test('admin can clear logs (skipped in parallel)', function () {
         ->post(route('system.logs.clear'))
         ->assertRedirect();
         
-})->skip('Clearing logs causes race conditions in parallel tests');
+});
 
 test('ajax clear cache command', function () {
     Cache::put('test_key', 'test_value');

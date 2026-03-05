@@ -16,7 +16,7 @@ class DashboardControllerTest extends UnitTestCase
 
     public function test_controller_can_be_instantiated(): void
     {
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
 
         $this->assertInstanceOf(DashboardController::class, $controller);
     }
@@ -29,7 +29,7 @@ class DashboardControllerTest extends UnitTestCase
         $request = Request::create('/dashboard', 'GET');
         $request->setUserResolver(fn () => $admin);
 
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
         $view = $controller->index($request);
 
         $this->assertEquals('dashboard', $view->name());
@@ -44,7 +44,7 @@ class DashboardControllerTest extends UnitTestCase
         $request = Request::create('/dashboard', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
         $view = $controller->index($request);
 
         $this->assertEquals('dashboard', $view->name());
@@ -59,7 +59,7 @@ class DashboardControllerTest extends UnitTestCase
         $request = Request::create('/dashboard', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
         $view = $controller->index($request);
 
         $this->assertArrayHasKey('user', $view->getData());
@@ -75,7 +75,7 @@ class DashboardControllerTest extends UnitTestCase
         $request = Request::create('/dashboard', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
         $view = $controller->index($request);
 
         $this->assertArrayHasKey('mailboxes', $view->getData());
@@ -90,7 +90,7 @@ class DashboardControllerTest extends UnitTestCase
         $request = Request::create('/dashboard', 'GET');
         $request->setUserResolver(fn () => $admin);
 
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
         $view = $controller->index($request);
 
         $this->assertCount(3, $view->getData()['mailboxes']);
@@ -108,7 +108,7 @@ class DashboardControllerTest extends UnitTestCase
         $request = Request::create('/dashboard', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
         $view = $controller->index($request);
 
         $this->assertCount(1, $view->getData()['mailboxes']);
@@ -135,7 +135,7 @@ class DashboardControllerTest extends UnitTestCase
         $request = Request::create('/dashboard', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
         $view = $controller->index($request);
 
         $this->assertEquals(2, $view->getData()['activeConversations']);
@@ -158,7 +158,7 @@ class DashboardControllerTest extends UnitTestCase
         $request = Request::create('/dashboard', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
         $view = $controller->index($request);
 
         $this->assertEquals(1, $view->getData()['unassignedConversations']);
@@ -179,7 +179,7 @@ class DashboardControllerTest extends UnitTestCase
         $request = Request::create('/dashboard', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
         $view = $controller->index($request);
 
         $stats = $view->getData()['stats'];
@@ -211,7 +211,7 @@ class DashboardControllerTest extends UnitTestCase
         $request = Request::create('/dashboard', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
         $view = $controller->index($request);
 
         $this->assertEquals(1, $view->getData()['activeConversations']);
@@ -240,7 +240,7 @@ class DashboardControllerTest extends UnitTestCase
         $request = Request::create('/dashboard', 'GET');
         $request->setUserResolver(fn () => $user);
 
-        $controller = new DashboardController;
+        $controller = $this->app->make(DashboardController::class);
         $view = $controller->index($request);
 
         $this->assertEquals(1, $view->getData()['activeConversations']);

@@ -2,28 +2,29 @@
 
 use App\Models\User;
 use Modules\Crm\Models\Client;
-use Illuminate\Support\Facades\Hash;
+use Modules\Crm\Models\Company;
 
 /*
- * Helper to get or create a Client User for Portal Login
+ * Helper to get or create a portal User for Portal Login
  */
 function getPortalUser(): array
 {
-    // Create a client
+    $company = Company::factory()->create(['is_active' => true]);
     $client = Client::factory()->create([
+        'company_id' => $company->id,
         'name' => 'Portal Test Client ' . uniqid(),
+        'status' => 'active',
     ]);
 
-    $password = 'secret123';
-    
-    // Create Client User using the CRM model which is correct per codebase
-    $user = \Modules\Crm\Models\ClientUser::factory()->create([
-        'client_id' => $client->id,
+    $user = User::factory()->create([
+        'type' => 2,
         'email' => 'portal.' . uniqid() . '@example.com',
-        'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password,
-        'is_active' => true,
+        'password' => bcrypt('password'),
+        'status' => User::STATUS_ACTIVE,
+        'email_verified_at' => now(),
     ]);
-    
+    $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
+
     return [$user, $client, 'password'];
 }
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Mail;
 
 use App\Models\Conversation;
-use App\Models\Customer;
 use App\Models\Mailbox;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -25,7 +24,6 @@ class AutoReply extends Mailable
     public function __construct(
         public Conversation $conversation,
         public Mailbox $mailbox,
-        public Customer $customer,
         public array $headers = []
     ) {}
 
@@ -55,7 +53,6 @@ class AutoReply extends Mailable
                 'message' => $message,
                 'conversation' => $this->conversation,
                 'mailbox' => $this->mailbox,
-                'customer' => $this->customer,
             ],
         );
     }
@@ -74,7 +71,6 @@ class AutoReply extends Mailable
                 'message' => $message,
                 'conversation' => $this->conversation,
                 'mailbox' => $this->mailbox,
-                'customer' => $this->customer,
             ]);
 
         // Set custom headers

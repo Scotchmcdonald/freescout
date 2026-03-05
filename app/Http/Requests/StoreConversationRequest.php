@@ -74,11 +74,11 @@ class StoreConversationRequest extends FormRequest
             $client = \Modules\Crm\Models\Client::find($this->input('client_id'));
             if ($client) {
                 $email = $client->email;
-                // Fall back to client user email if client has no email
+                // Fall back to company user email if client has no email
                 if (!$email) {
-                    /** @var \Modules\Crm\Models\ClientUser|null $clientUser */
-                    $clientUser = $client->users()->first();
-                    $email = $clientUser ? $clientUser->email : 'client-' . $client->id . '@portal.local';
+                    /** @var \App\Models\User|null $companyUser */
+                    $companyUser = $client->company?->users()->first();
+                    $email = $companyUser ? $companyUser->email : 'client-' . $client->id . '@portal.local';
                 }
                 $this->merge([
                     'customer_email' => $email,

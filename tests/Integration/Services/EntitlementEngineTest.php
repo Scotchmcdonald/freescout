@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Services;
 
-use App\Services\EntitlementEngine;
+use Modules\PIB\Services\EntitlementEngineService as EntitlementEngine;
 use App\Contracts\EntitlementResolver;
 use App\Contracts\BillingTemplateInterface;
 use App\DataTransferObjects\EntitlementResult;

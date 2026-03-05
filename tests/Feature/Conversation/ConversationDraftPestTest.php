@@ -44,6 +44,7 @@ test('save draft updates existing draft', function () {
     ]);
 
     $response = $this->actingAs($this->user)->postJson(route('drafts.save'), [
+        'conversation_id' => $this->conversation->id,
         'thread_id' => $draft->id,
         'body' => 'Updated draft message',
         'to' => ['customer@example.com'],

@@ -28,18 +28,18 @@ test('after app update runs successfully', function () {
 test('clear cache command exists', function () {
     $result = Artisan::call('freescout:clear-cache');
     expect($result)->toBeInt();
-})->skip('Skipping clear cache test');
+});
 
 test('clear cache runs successfully', function () {
     $exitCode = Artisan::call('freescout:clear-cache');
     expect($exitCode)->toBe(0);
-})->skip('Skipping clear cache test');
+});
 
 test('clear cache outputs message', function () {
     Artisan::call('freescout:clear-cache');
     $output = Artisan::output();
     expect($output)->not->toBeEmpty();
-})->skip('Skipping clear cache test');
+});
 
 // ===== CREATE_USER TESTS =====
 
@@ -143,12 +143,12 @@ test('fetch emails with mailbox option', function () {
 test('generate vars command exists', function () {
     $result = Artisan::call('freescout:generate-vars');
     expect($result)->toBeInt();
-})->skip('Skipping to avoid config:cache');
+});
 
 test('generate vars runs successfully', function () {
     $exitCode = Artisan::call('freescout:generate-vars');
     expect($exitCode)->toBe(0);
-})->skip('Skipping to avoid config:cache');
+});
 
 // ===== UPDATE TESTS =====
 
@@ -235,13 +235,13 @@ test('multiple commands can run sequentially', function () {
     
     expect($exitCode1)->toBe(0)
         ->and($exitCode2)->toBe(0);
-})->skip('Skipping to avoid config:cache');
+});
 
 test('command output can be captured', function () {
     Artisan::call('freescout:clear-cache');
     $output = Artisan::output();
     expect($output)->toBeString();
-})->skip('Skipping to avoid config:cache');
+});
 
 test('create user with admin role', function () {
     $email = 'admin' . time() . '@example.com';
@@ -317,13 +317,13 @@ test('clear cache clears application cache', function () {
     
     // Cache might not be completely cleared depending on driver, but command should run
     expect(true)->toBeTrue();
-})->skip('Skipping to avoid config:cache');
+});
 
 test('generate vars creates output', function () {
     $this->artisan('freescout:generate-vars')
         ->expectsOutput('Application variables generated successfully.')
         ->assertExitCode(0);
-})->skip('Skipping to avoid config:cache');
+});
 
 test('update command with no updates available', function () {
     $exitCode = Artisan::call('freescout:update');

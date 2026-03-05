@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Role;
+use App\Models\Permission;
 
 /**
  * @property int $id
@@ -38,6 +40,7 @@ use Illuminate\Notifications\Notifiable;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Folder> $folders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conversation> $conversations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Thread> $threads
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role> $roles
  *
  * @method static \Illuminate\Database\Eloquent\Builder<User>|User create(array<string, mixed> $attributes = [])
  *
@@ -90,6 +93,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Global user permissions.
+     *
+     * @deprecated These legacy integer permissions will be replaced by RBAC string permissions.
      */
     public const PERM_DELETE_CONVERSATIONS = 1;
     public const PERM_EDIT_CONVERSATIONS = 2;
@@ -99,6 +104,29 @@ class User extends Authenticatable implements MustVerifyEmail
     public const PERM_EDIT_USERS = 10;
 
     /**
+     * Cached RBAC super-admin check result.
+     * Reset when roles are modified.
+     */
+    protected ?bool $cachedIsSuperAdmin = null;
+
+    /**
+     * Cached RBAC role IDs for permission checks.
+     *
+     * @var \Illuminate\Support\Collection<int, int>|null
+     */
+    protected $cachedRoleIds = null;
+
+    /**
+     * The RBAC roles assigned to this user.
+     *
+     * @return BelongsToMany<Role, $this>
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class)->withTimestamps();
+    }
+
+    /**
      * The companies that the user belongs to.
      *
      * @return BelongsToMany<\Modules\Crm\Models\Company, $this>
@@ -106,7 +134,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function companies(): BelongsToMany
     {
         return $this->belongsToMany(\Modules\Crm\Models\Company::class, 'company_user')
-            ->withPivot('role_id', 'status')
+            ->withPivot('role_id', 'status', 'is_primary', 'is_approver', 'approval_limit', 'manager_id')
             ->withTimestamps();
     }
 
@@ -125,7 +153,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $companyId = $company instanceof \Modules\Crm\Models\Company ? $company->id : $company;
 
         return $this->companies()
-            ->where('id', $companyId)
+            ->where('companies.id', $companyId)
             ->wherePivot('status', 'approved')
             ->exists();
     }
@@ -158,6 +186,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',
         'permissions', // Added missing fillable
         'email_verified_at',
+        'is_demo',
     ];
 
     /**
@@ -188,6 +217,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
             'dark_mode' => 'boolean',
+            'is_demo' => 'boolean',
         ];
     }
 
@@ -212,6 +242,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function folders(): HasMany
     {
         return $this->hasMany(Folder::class);
+    }
+
+    /**
+     * Get the user's tour progress records.
+     *
+     * @return HasMany<\Modules\KnowledgeBase\Models\UserTourProgress, $this>
+     */
+    public function tourProgress(): HasMany
+    {
+        return $this->hasMany('Modules\KnowledgeBase\Models\UserTourProgress');
     }
 
     /**
@@ -256,16 +296,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Get the notification subscriptions for this user.
-     *
-     * @return HasMany<NotificationSubscription, $this>
-     */
-    public function notificationSubscriptions(): HasMany
-    {
-        return $this->hasMany(NotificationSubscription::class);
-    }
-
-    /**
      * Get the saved searches for this user.
      *
      * @return HasMany<SavedSearch, $this>
@@ -288,11 +318,113 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Check if user is an admin.
+     * Check if user is a super admin via RBAC.
+     *
+     * This replaces the legacy `role === ROLE_ADMIN` check. A user is considered
+     * a super admin if any of their assigned RBAC roles has `is_super_admin = true`.
+     * Falls back to the legacy column during the transition period.
      */
     public function isAdmin(): bool
     {
-        return $this->role === self::ROLE_ADMIN;
+        if ($this->cachedIsSuperAdmin !== null) {
+            return $this->cachedIsSuperAdmin;
+        }
+
+        // Skip the DB query for model instances not persisted to the database.
+        // An unsaved user cannot have RBAC roles assigned, so fall through
+        // immediately to the legacy role check.
+        if (! $this->exists) {
+            $result = $this->role === self::ROLE_ADMIN;
+            $this->cachedIsSuperAdmin = $result;
+            return $result;
+        }
+
+        // Primary: Check RBAC roles for super_admin flag
+        $hasSuperAdminRole = $this->roles()->where('is_super_admin', true)->exists();
+
+        if ($hasSuperAdminRole) {
+            $this->cachedIsSuperAdmin = true;
+            return true;
+        }
+
+        // Fallback: Legacy column (transition period — will be removed)
+        /** @deprecated Remove this fallback once all users are migrated to RBAC roles */
+        if ($this->role === self::ROLE_ADMIN) {
+            $this->cachedIsSuperAdmin = true;
+            return true;
+        }
+
+        $this->cachedIsSuperAdmin = false;
+        return false;
+    }
+
+    /**
+     * Check if the user has a specific RBAC role by name.
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    /**
+     * Check if the user has any of the given RBAC roles.
+     *
+     * @param string|array<string> $roles
+     */
+    public function hasAnyRole(string|array $roles): bool
+    {
+        $roles = is_array($roles) ? $roles : [$roles];
+        return $this->roles()->whereIn('name', $roles)->exists();
+    }
+
+    /**
+     * Clear cached RBAC state. Call after modifying user roles.
+     */
+    public function clearRbacCache(): void
+    {
+        $this->cachedIsSuperAdmin = null;
+        $this->cachedRoleIds = null;
+    }
+
+    /**
+     * Get all RBAC role IDs for this user (cached).
+     *
+     * @return \Illuminate\Support\Collection<int, int>
+     */
+    protected function getRbacRoleIds(): \Illuminate\Support\Collection
+    {
+        if ($this->cachedRoleIds !== null) {
+            return $this->cachedRoleIds;
+        }
+
+        // Non-persisted models have no RBAC roles in the database.
+        if (! $this->exists) {
+            /** @var \Illuminate\Support\Collection<int, int> $empty */
+            $empty = collect();
+            $this->cachedRoleIds = $empty;
+            return $this->cachedRoleIds;
+        }
+
+        /** @var \Illuminate\Support\Collection<int, int> $ids */
+        $ids = $this->roles()->pluck('roles.id');
+        $this->cachedRoleIds = $ids;
+        return $this->cachedRoleIds;
+    }
+
+    /**
+     * Check if user is internal staff.
+     */
+    public function isInternalStaff(): bool
+    {
+        return (int) $this->type === 1;
+    }
+
+    /**
+     * Check if user has admin-equivalent access.
+     */
+    public function hasAdminAccess(): bool
+    {
+        return $this->isAdmin() || $this->isInternalStaff();
     }
 
     /**
@@ -301,7 +433,11 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isClient(): bool
     {
-        return false;
+        if ($this->hasAnyRole(['Client Admin', 'Client User', 'Client Finance'])) {
+            return true;
+        }
+
+        return (int) $this->type === 2;
     }
 
     /**
@@ -459,36 +595,39 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if user has permission.
      *
+     * For string permissions: checks via RBAC (role_user → permission_role → permissions).
+     * For integer permissions: legacy check via JSON column (deprecated).
+     *
      * @param int|string $permission
      * @param bool $checkOwnPermissions
      * @return bool
      */
     public function hasPermission($permission, bool $checkOwnPermissions = true): bool
     {
+        // Super admins bypass all permission checks
         if ($this->isAdmin()) {
             return true;
         }
 
-        // New RBAC String Permissions
+        // New RBAC String Permissions — uses role_user pivot
         if (is_string($permission)) {
-            // Get all role IDs for this user across all approved companies
-            $roleIds = $this->companies()
-                ->wherePivot('status', 'approved')
-                ->pluck('company_user.role_id')
-                ->filter()
-                ->unique();
-            
+            $roleIds = $this->getRbacRoleIds();
+
+            if ($roleIds->isEmpty() && !empty($this->role)) {
+                $roleIds = collect([(int) $this->role]);
+            }
+
             if ($roleIds->isEmpty()) {
                 return false;
             }
 
-            return \App\Models\Permission::where('name', $permission)
+            return Permission::where('name', $permission)
                 ->whereHas('roles', function ($query) use ($roleIds) {
                     $query->whereIn('roles.id', $roleIds);
                 })->exists();
         }
 
-        // Legacy Integer Permissions
+        // Legacy Integer Permissions (deprecated — will be removed)
         $hasPermission = false;
 
         $globalPermissions = self::getGlobalUserPermissions();
@@ -599,6 +738,37 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isDeleted(): bool
     {
         return $this->status === self::STATUS_DELETED;
+    }
+
+
+    /**
+     * Get the user's primary company.
+     *
+     * Replaces legacy `$user->client` — the Company IS the business entity.
+     * Prefers the company marked is_primary, falls back to first attached.
+     */
+    public function company(): ?\Modules\Crm\Models\Company
+    {
+        return $this->companies()->wherePivot('is_primary', true)->first()
+            ?? $this->companies()->first();
+    }
+
+    /**
+     * Get the primary company ID for this user.
+     */
+    public function getCompanyIdAttribute()
+    {
+        return $this->company()?->id;
+    }
+
+    /**
+     * Get the legacy client ID for this user (for Phase 1 temporary mapping).
+     * @deprecated Use company_id instead. Will be removed after Phase 3.
+     */
+    public function getClientIdAttribute()
+    {
+        // During transition, client_id maps through the company relationship
+        return $this->company_id;
     }
 
     /**

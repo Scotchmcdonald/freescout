@@ -61,6 +61,18 @@ class UserController extends Controller
         // Default to Dark Mode for new users
         $validated['dark_mode'] = true;
 
+        // Extract client_role before creating user (not a DB column)
+        $clientRole = $validated['client_role'] ?? null;
+        unset($validated['client_role']);
+
+        // External users always get the base User role; type column drives isClient()
+        if ((int) ($validated['type'] ?? 1) === 2) {
+            $validated['type'] = 2;
+            $validated['role'] = User::ROLE_USER;
+        } else {
+            $validated['type'] = 1;
+        }
+
         // Auto-verify if creating an admin
         if (isset($validated['role'])) {
             $roleValue = $validated['role'];
@@ -70,6 +82,15 @@ class UserController extends Controller
         }
 
         $user = User::create($validated);
+
+        // Sync RBAC client role for external users
+        if ((int) $user->type === 2 && $clientRole) {
+            $role = \App\Models\Role::where('name', $clientRole)->first();
+            if ($role) {
+                $user->roles()->sync([$role->id]);
+                $user->clearRbacCache();
+            }
+        }
 
         // Allow modules to modify user after creation
         \Eventy::filter('user.create_save', $user, $request);
@@ -98,7 +119,12 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        return view('users.edit', compact('user'));
+        // Determine current client RBAC role name (if any)
+        $clientRoleName = $user->roles()
+            ->whereIn('name', ['Client Admin', 'Client User', 'Client Finance'])
+            ->value('name');
+
+        return view('users.edit', compact('user', 'clientRoleName'));
     }
 
     /**
@@ -117,9 +143,20 @@ class UserController extends Controller
             unset($validated['password']);
         }
 
-        // Extract mailboxes before updating user
+        // Extract mailboxes and client_role before updating user
         $mailboxes = $validated['mailboxes'] ?? null;
         unset($validated['mailboxes']);
+
+        $clientRole = $validated['client_role'] ?? null;
+        unset($validated['client_role']);
+
+        // Normalise type and role for external users
+        if ((int) ($validated['type'] ?? 1) === 2) {
+            $validated['type'] = 2;
+            $validated['role'] = User::ROLE_USER;
+        } else {
+            $validated['type'] = 1;
+        }
 
         // Remove null values for timezone and locale to use database defaults or keep existing
         if (empty($validated['timezone'])) {
@@ -130,6 +167,28 @@ class UserController extends Controller
         }
 
         $user->update($validated);
+
+        // Sync RBAC client role for external users; clear any client roles for internal users
+        if ((int) $user->type === 2 && $clientRole) {
+            $role = \App\Models\Role::where('name', $clientRole)->first();
+            if ($role) {
+                // Preserve non-client RBAC roles and replace only client ones
+                $clientRoleIds = \App\Models\Role::whereIn('name', ['Client Admin', 'Client User', 'Client Finance'])
+                    ->pluck('id')->toArray();
+                $existingNonClientRoleIds = $user->roles()->whereNotIn('roles.id', $clientRoleIds)
+                    ->pluck('roles.id')->toArray();
+                $user->roles()->sync(array_merge($existingNonClientRoleIds, [$role->id]));
+                $user->clearRbacCache();
+            }
+        } elseif ((int) $user->type === 1) {
+            // Remove any lingering client RBAC roles from internal users
+            $clientRoleIds = \App\Models\Role::whereIn('name', ['Client Admin', 'Client User', 'Client Finance'])
+                ->pluck('id')->toArray();
+            if (count($clientRoleIds)) {
+                $user->roles()->detach($clientRoleIds);
+                $user->clearRbacCache();
+            }
+        }
 
         // Allow modules to modify user after save
         \Eventy::filter('user.save_profile', $user, $request);

@@ -3,7 +3,7 @@
     {{-- Mailbox Header with Dropdown --}}
     <div class="p-4 border-b border-gray-200">
         @php
-            $menu_mailboxes = auth()->check() && auth()->user()->isAdmin() 
+            $menu_mailboxes = auth()->check() && auth()->user()->hasAdminAccess() 
                 ? \App\Models\Mailbox::all()->sortBy('name') 
                 : (auth()->check() ? auth()->user()->mailboxes->sortBy('name') : collect());
         @endphp
@@ -45,7 +45,7 @@
     {{-- Settings Menu Items --}}
     <nav class="flex-1 px-2 py-4 space-y-1">
         @if (Auth::user()->can('update', $mailbox))
-            @if (Auth::user()->isAdmin())
+            @if (Auth::user()->hasAdminAccess())
                 <a href="{{ route('mailboxes.settings', $mailbox) }}" 
                    class="group flex items-center px-3 py-2 text-sm font-medium rounded-md {{ Route::currentRouteName() == 'mailboxes.settings' ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                     <svg class="mr-3 h-5 w-5 {{ Route::currentRouteName() == 'mailboxes.settings' ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -80,7 +80,7 @@
                 {{ __('Auto Reply') }}
             </a>
 
-            @if (Auth::user()->isAdmin())
+                @if (Auth::user()->hasAdminAccess())
             <a href="{{ route('mailboxes.advanced_settings', $mailbox) }}" 
                class="group flex items-center px-3 py-2 text-sm font-medium rounded-md {{ Route::currentRouteName() == 'mailboxes.advanced_settings' ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                 <svg class="mr-3 h-5 w-5 {{ Route::currentRouteName() == 'mailboxes.advanced_settings' ? 'text-gray-500' : 'text-gray-400 group-hover:text-gray-500' }}" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

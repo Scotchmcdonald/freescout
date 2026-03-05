@@ -2,18 +2,18 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Modules\Crm\Models\Client;
-use Modules\Crm\Models\ClientUser;
 use Modules\Crm\Models\Company;
 
 /**
  * Client Portal Test Seeder
  * 
  * Creates test data for Client Portal browser tests:
- * - Two active clients for data isolation testing
- * - Client users with known credentials for login testing
+ * - Two active companies/clients for data isolation testing
+ * - Users (type=2, external) with known credentials for login testing
  * - Test invoices for each client (if PIB module exists)
  * 
  * Usage:
@@ -40,10 +40,11 @@ class ClientPortalTestSeeder extends Seeder
             [
                 'address' => '123 Test St',
                 'phone' => '555-0000',
+                'is_active' => true,
             ]
         );
 
-        // Create Client A
+        // Create Client A (legacy entity — still needed for invoice FK)
         $clientA = Client::firstOrCreate(
             ['email' => 'billing-a@test.example.com'],
             [
@@ -54,24 +55,31 @@ class ClientPortalTestSeeder extends Seeder
                 'status' => 'active',
             ]
         );
-        // Ensure company_id is set
         if (!$clientA->company_id) {
             $clientA->update(['company_id' => $company->id]);
         }
 
-        // Create Client A user
-        $clientUserA = ClientUser::firstOrCreate(
+        // Create User A (unified identity)
+        $userA = User::firstOrCreate(
             ['email' => self::CLIENT_A_EMAIL],
             [
-                'client_id' => $clientA->id,
-                'name' => 'Alice Test',
+                'first_name' => 'Alice',
+                'last_name' => 'Test',
                 'password' => Hash::make(self::CLIENT_A_PASSWORD),
-                'is_active' => true,
+                'type' => 2, // External / Client
+                'status' => User::STATUS_ACTIVE,
                 'email_verified_at' => now(),
             ]
         );
+        if (!$company->users()->where('user_id', $userA->id)->exists()) {
+            $company->users()->attach($userA->id, [
+                'role_id' => 1,
+                'status' => 'approved',
+                'is_primary' => true,
+            ]);
+        }
 
-        // Create Client B
+        // Create Client B (legacy entity — still needed for invoice FK)
         $clientB = Client::firstOrCreate(
             ['email' => 'billing-b@test.example.com'],
             [
@@ -82,22 +90,29 @@ class ClientPortalTestSeeder extends Seeder
                 'status' => 'active',
             ]
         );
-        // Ensure company_id is set
         if (!$clientB->company_id) {
             $clientB->update(['company_id' => $company->id]);
         }
 
-        // Create Client B user
-        $clientUserB = ClientUser::firstOrCreate(
+        // Create User B (unified identity)
+        $userB = User::firstOrCreate(
             ['email' => self::CLIENT_B_EMAIL],
             [
-                'client_id' => $clientB->id,
-                'name' => 'Bob Test',
+                'first_name' => 'Bob',
+                'last_name' => 'Test',
                 'password' => Hash::make(self::CLIENT_B_PASSWORD),
-                'is_active' => true,
+                'type' => 2,
+                'status' => User::STATUS_ACTIVE,
                 'email_verified_at' => now(),
             ]
         );
+        if (!$company->users()->where('user_id', $userB->id)->exists()) {
+            $company->users()->attach($userB->id, [
+                'role_id' => 1,
+                'status' => 'approved',
+                'is_primary' => false,
+            ]);
+        }
 
         // Create test invoices if PIB module is available
         if (class_exists(\Modules\PIB\Models\Invoice::class)) {

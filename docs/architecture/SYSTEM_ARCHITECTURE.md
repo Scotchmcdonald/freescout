@@ -1,6 +1,6 @@
 # System Architecture
-**Version:** 4.7
-**Date:** February 13, 2026
+**Version:** 4.9
+**Date:** March 3, 2026
 **Status:** Production-Ready Design Document (Implementation-Tracked)
 
 ---
@@ -29,31 +29,16 @@
 
 ## 📚 Documentation Navigation
 
-**You are here:** System Architecture v4.7 (Design Specification)
+**You are here:** System Architecture v4.8 (Design Specification) — for the document index, see **[README.md](README.md)**.
 
-**Related Documents:**
-- � **[ARCHITECTURE_OVERVIEW.md](ARCHITECTURE_OVERVIEW.md)** - **START HERE** - Concise current state overview (recommended for new developers)
-- 🔍 **[ARCHITECTURAL_AUDIT_REPORT.md](ARCHITECTURAL_AUDIT_REPORT.md)** - Current implementation status, gaps, and compliance score
-- 🗺️ **[IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md)** - Phase-by-phase execution plan with current status
-- 📖 **[MODULE_DEVELOPMENT_GUIDE.md](MODULE_DEVELOPMENT_GUIDE.md)** - Patterns and best practices for module developers (v2.1)
-- 💰 **[MSP_PRODUCT_DEFINITIONS.md](MSP_PRODUCT_DEFINITIONS.md)** - Product catalog and billing rules
+**Recent Updates (v4.8 - March 2, 2026):**
+- ✅ **Architecture compliance**: All Core Blindness violations resolved — 9 components moved to their owning modules
+- ✅ **Queue isolation**: Confirmed all PIB jobs dispatch to the `billing` queue
 
-**Quick Start:**
-1. **New to the project?** Read [ARCHITECTURE_OVERVIEW.md](ARCHITECTURE_OVERVIEW.md) first (15 min read)
-2. **Implementing features?** Review [MODULE_DEVELOPMENT_GUIDE.md](MODULE_DEVELOPMENT_GUIDE.md) for patterns
-3. **Planning work?** Check [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) for current phase
-4. **Need details?** This document is the authoritative design reference
-
-**Recent Updates (v4.7 - Feb 13, 2026):**
-- ✅ **Infrastructure Standardization**: Standardized on PHP 8.3 execution environment across Docker and OrbStack
-- ✅ **Deployment Reliability**: Unified deployment flows and fixed SSL connectivity chain for database
-- ✅ **Module Deployment**: Standardized migration logic (`module:migrate --all --force`) for predictable rollouts
-- ✅ **Dependency Alignment**: Verified all 14 ecosystem modules are correctly deployed
-
-**Recent Updates (v4.6 - Feb 11, 2026):**
-- ✅ Validated Architectural Compliance (1 remaining violation)
-- ✅ Removed TestModule from status configuration
-- ✅ Aligned documentation status with codebase
+**Previous (v4.7 - Feb 13, 2026):**
+- ✅ Infrastructure Standardization: PHP 8.2 across Docker and OrbStack
+- ✅ Deployment Reliability: Unified deployment flows
+- ✅ Module Deployment: Standardized migration logic (`module:migrate --all --force`)
 
 **Previous Updates (v4.5 - Feb 8, 2026):**
 - ⭐ **Added Section 14: Performance & Scalability Architecture** - Horizontal scaling, caching strategy, performance targets
@@ -89,14 +74,14 @@
 
 This document defines the comprehensive architecture for an event-driven, modular MSP management platform. The system orchestrates customer relationship management, asset tracking, billing automation, contract management, and client portal interactions through loosely coupled modules communicating via Laravel Events and Reverb WebSockets.
 
-**Architectural Compliance Status (Feb 11, 2026):**
-- ❌ **Core blindness violations detected** - 1 architectural test failure (App depends on PIB - details in [ARCHITECTURAL_AUDIT_REPORT.md](ARCHITECTURAL_AUDIT_REPORT.md))
+**Architectural Compliance Status (March 2, 2026):**
+- ✅ **Core blindness** - No `app/` code imports feature module classes (violation resolved March 2, 2026 — see [ARCHITECTURAL_AUDIT_REPORT.md](ARCHITECTURAL_AUDIT_REPORT.md))
 - ✅ **Proper data ownership** - Financial data isolated in billing modules (PIB)
 - ✅ **Ticket billing separation** - CRM owns ticket↔client links, PIB owns billing metadata
 - ✅ **Controller organization** - Module controllers live in their respective modules
 - ✅ **Dynamic class checking** - Cross-module aggregators use graceful degradation
 - ✅ **Complete case study** - Credit system migration demonstrates all patterns
-- ⚠️ **Queue isolation** - Configured but not automatically enforced (PIB jobs define queue at dispatch time only)
+- ✅ **Queue isolation** - All PIB jobs (`GenerateInvoiceJob`, `GenerateRecurringInvoicesJob`, `MonthEndTimeAggregationJob`) dispatch to the `billing` queue
 
 ---
 
@@ -480,7 +465,7 @@ resources/css/design-tokens.css
 
 #### **ContractManager** (Evolved from QuoteWizard)
 - **Purpose**: Quote creation, contract management, and billing configuration
-- **Models**: `Quote`, `QuoteRevision`, `QuoteLineItem`, `Contract`, `ContractSchedule`, `BillingTemplate`
+- **Models**: `Quote`, `QuoteRevision`, `QuoteLineItem`, `Contract`, `ContractSchedule`, `BillingTemplate`, `Milestone`
 - **Dependencies**: CRM
 - **Responsibilities**:
   - Multi-step quote creation wizard
@@ -512,7 +497,7 @@ resources/css/design-tokens.css
 
 #### **PIB** (Partner Invoicing & Billing - Execution Engine)
 - **Purpose**: Billing execution engine + Financial Operations
-- **Models**: `Invoice`, `InvoiceLineItem`, `EntitlementSnapshot`, `ClientCredit`, `ClientCreditLedger`
+- **Models**: `Invoice`, `InvoiceLineItem`, `EntitlementSnapshot`, `ClientCredit`, `ClientCreditLedger`, `ReconciliationRun`, `ReconciliationDiscrepancy`
 - **Dependencies**: CRM, ContractManager, AssetManagement
 - **Responsibilities**:
   - Invoice generation from BillingTemplates (owned by ContractManager)
@@ -812,7 +797,7 @@ resources/css/design-tokens.css
 > **Status Update (Feb 2026):** This module has been fully implemented with multi-channel delivery, throttling, and digest support. See Modules/Alerts/README.md for API documentation.
 
 - **Purpose**: Centralized alert subscription and routing system
-- **Models**: `AlertType`, `AlertSubscription`, `AlertDeliveryLog`, `AlertThrottle`, `AlertDigestQueue`
+- **Models**: `AlertType`, `AlertSubscription`, `AlertDeliveryLog`, `AlertThrottle`, `AlertDigestQueue`, `NotificationSubscription`
 - **Dependencies**: None (infrastructure layer)
 - **Status**: ✅ **Fully Operational**
 - **Services**:
@@ -905,8 +890,6 @@ resources/css/design-tokens.css
   - Full-text search
   - Permission-based access control
   - Markdown support
-
-#### **DevFeedback** (✅ IMPLEMENTED)
 
 ### 3.1 User Synchronization Flow
 
@@ -5316,12 +5299,12 @@ class GoogleUserSyncedListener extends IdempotentListener
 #### Example 2: Quote Approval with Complex State Changes
 
 ```php
-// Modules\QuoteWizard\Events\QuoteApproved.php
-namespace Modules\QuoteWizard\Events;
+// Modules\ContractManager\Events\QuoteApproved.php
+namespace Modules\ContractManager\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Support\Str;
-use Modules\QuoteWizard\Models\Quote;
+use Modules\ContractManager\Models\Quote;
 
 class QuoteApproved
 {
@@ -5343,8 +5326,8 @@ class QuoteApproved
 namespace Modules\PIB\Listeners;
 
 use App\Listeners\IdempotentListener;
-use Modules\PIB\Models\BillingTemplate;
-use Modules\QuoteWizard\Events\QuoteApproved;
+use Modules\ContractManager\Models\BillingTemplate;
+use Modules\ContractManager\Events\QuoteApproved;
 
 class CreateBillingTemplateListener extends IdempotentListener
 {
@@ -5962,6 +5945,18 @@ INDEX(next_invoice_date, status)
 -- Product config examples:
 -- Service Plan: {"plan_tier": "gold", "base_rate_per_user": 75.00, "additional_asset_rate": 5.00, "included_assets_per_user": 2}
 -- Rent-To-Own: {"goal_amount": 5000.00, "monthly_installment": 250.00}
+
+-- cm_milestones (development project milestone billing - owned by ContractManager)
+id, milestone_id (UUID), client_id, billing_template_id,
+project_name, milestone_type (up_front|milestone|delivery|maintenance|change_request),
+milestone_name, milestone_description, sequence_order, amount,
+status (pending|in_progress|achieved|invoiced),
+achieved_at, achieved_by_user_id,
+invoice_id (FK → pib_invoices), invoiced_at,
+created_at, updated_at
+
+INDEX(client_id, project_name)
+INDEX(status)
 ```
 
 ### 5.6 PIB Module (Billing Execution Engine)
@@ -6003,6 +5998,24 @@ id, client_id, transaction_type (credit|debit), amount_cents,
 description, reference_type, reference_id, performed_by, created_at
 
 INDEX(client_id, created_at)
+
+-- reconciliation_runs (billing reconciliation runs - owned by PIB)
+id, client_id, billing_template_id, run_date,
+status (pending|running|completed|failed),
+discrepancy_count, total_discrepancy_amount_cents,
+started_at, completed_at, created_at, updated_at
+
+INDEX(client_id, run_date)
+INDEX(status)
+
+-- reconciliation_discrepancies (individual reconciliation line items - owned by PIB)
+id, reconciliation_run_id, line_item_type,
+expected_amount_cents, actual_amount_cents, variance_cents,
+description, resolution_status (unresolved|resolved|ignored),
+resolved_by, resolved_at, created_at, updated_at
+
+INDEX(reconciliation_run_id)
+INDEX(resolution_status)
 ```
 
 **Note:** `billing_template_id` references `cm_billing_templates` in ContractManager module.
@@ -6022,11 +6035,9 @@ PIB reads templates but does not own them - ContractManager is the source of tru
 ```sql
 -- portal_tabs (for tab registration)
 id, module_name, tab_label, route_name, permission_required, 
-sor7. Event Catalog
+sort_order, active, created_at, updated_at
 
-**All events MUST include an `eventId` property for idempotency protection.**
-
-### 7E(module_name, tab_label)
+INDEX(module_name, tab_label)
 
 -- portal_access_logs (optional)
 id, user_id, client_id, action, ip_address, created_at
@@ -6039,11 +6050,19 @@ id, user_id, client_id, action, ip_address, created_at
 id, user_id, alert_types (JSON array), client_ids (JSON array), 
 channels (JSON: email|slack|sms), active, created_at, updated_at
 
-INDE7(user_id, active)
+INDEX(user_id, active)
 
 -- alert_delivery_log
 id, alert_subscription_id, alert_type, client_id, recipient, 
 channel, status (sent|failed), error_message, sent_at
+
+-- notification_subscriptions (user-level notification preferences - owned by Alerts)
+id, user_id, notifiable_type, notifiable_id,
+channel (email|slack|sms|database), enabled, settings (JSON),
+created_at, updated_at
+
+UNIQUE(user_id, notifiable_type, notifiable_id, channel)
+INDEX(user_id)
 ```
 
 ### 5.10 SoftwareSubscriptions Module
@@ -6190,7 +6209,7 @@ INSERT INTO software_products (name, vendor, category, licensing_model, pricing_
 ### 10.1 CRM Module Events
 
 ```php
-namespace App\Events\Crm;
+namespace Modules\Crm\Events;
 
 // User events
 class UserCreated { public User $user; }
@@ -6258,7 +6277,7 @@ class GoogleChromebookDiscovered {
 }
 
 class GoogleSyncFailed {
-    7ublic int $clientId;
+    public int $clientId;
     public string $syncType;
     public string $errorMessage;
 }
@@ -6291,7 +6310,7 @@ namespace Modules\AssetManagement\Events;
 
 class AssetStatusChanged {
     public Asset $asset;
-    7ublic string $oldStatus;
+    public string $oldStatus;
     public string $newStatus;
 }
 
@@ -6303,7 +6322,7 @@ class AssetCountChanged {
 }
 
 class AssetAssignedToClient {
-    7ublic Asset $asset;
+    public Asset $asset;
     public int $clientId;
 }
 
@@ -6316,7 +6335,7 @@ class RequestEntitlementSnapshot {
     public int $clientId;
 }
 ```
-7
+
 ### 6.5 ContractManager Module Events (formerly QuoteWizard)
 
 ```php
@@ -6336,6 +6355,14 @@ class ContractTerminated { public Contract $contract; public string $reason; }
 
 // Billing template triggers (ContractManager publishes, PIB listens)
 class BillingTemplateDue { public BillingTemplate $template; }
+
+// Milestone billing (ContractManager triggers when milestone is ready to bill)
+class MilestoneReadyForBilling {
+    public int $milestoneId;
+    public int $clientId;
+    public float $amount;
+    public string $milestoneName;
+}
 ```
 
 ### 6.6 PIB Module Events
@@ -6556,10 +6583,10 @@ public function boot()
         );
     }
     
-    // Listen for QuoteWizard events (create subscriptions from approved quotes)
-    if (class_exists(\Modules\QuoteWizard\Events\QuoteApproved::class)) {
+    // Listen for ContractManager events (create subscriptions from approved quotes)
+    if (class_exists(\Modules\ContractManager\Events\QuoteApproved::class)) {
         Event::listen(
-            \Modules\QuoteWizard\Events\QuoteApproved::class,
+            \Modules\ContractManager\Events\QuoteApproved::class,
             \Modules\SoftwareSubscriptions\Listeners\CreateSubscriptionsFromQuote::class
         );
     }
@@ -6618,7 +6645,7 @@ class UpdateBillingOnSoftwareCountChange
 
 ### 11.1 Module Tab Registration Interface
 
-```p8p
+```php
 // Modules\ClientPortal\Contracts\PortalTabProvider.php
 interface PortalTabProvider {
     public function getTabLabel(): string;
@@ -6644,12 +6671,12 @@ class PIBServiceProvider extends ServiceProvider {
 }
 ```
 
-### 7.2 Entitlement Snapshot Interface
+### 11.2 Entitlement Snapshot Interface
 
 ```php
 // Modules\AssetManagement\Contracts\EntitlementProvider.php
 interface EntitlementProvider {
-    8ublic function getSnapshot(int $clientId, Carbon $date): EntitlementSnapshot;
+    public function getSnapshot(int $clientId, Carbon $date): EntitlementSnapshot;
     public function getCurrentCounts(int $clientId): array;
 }
 
@@ -6663,37 +6690,28 @@ class EntitlementService implements EntitlementProvider {
     
     public function getCurrentCounts(int $clientId): array {
         $client = Client::findOrFail($clientId);
-   9. Implementation Roadmap
-
-### Phase 0: Idempotency Infrastructure (Week 1)
-- [ ] Create `processed_events` table migration
-- [ ] Implement `IdempotentListener` base class
-- [ ] Create `events:archive` cleanup command
-- [ ] Create `events:monitor` monitoring command
-- [ ] Write idempotency tests
-- [ ] Update event base classes to include `eventId`
-4-5
-### Phase 1: Foundation (Weeks 2-3ers()->active()->count(),
+        return [
+            'users' => $client->users()->active()->count(),
             'chromebooks' => $client->assets()->where('asset_type', 'chromebook')->active()->count(),
             'windows' => $client->assets()->where('asset_type', 'windows')->active()->count(),
             'macos' => $client->assets()->where('asset_type', 'macos')->active()->count(),
             'linux' => $client->assets()->where('asset_type', 'linux')->active()->count(),
         ];
-    }6-7
+    }
 }
 ```
 
-### 7.3 Alert Subscription Interface
+### 11.3 Alert Subscription Interface
 
 ```php
-// Modules\Alerts\Contracts\AlertProvid8-9php
+// Modules\Alerts\Contracts\AlertProvider.php
 interface AlertProvider {
     public function subscribe(User $user, array $alertTypes, array $clientIds, array $channels): AlertSubscription;
     public function unsubscribe(User $user, string $alertType): void;
     public function isSubscribed(User $user, string $alertType, ?int $clientId = null): bool;
     public function dispatch(string $alertType, array $data, ?int $clientId = null): void;
 }
-```10-11
+```
 
 ---
 
@@ -6701,52 +6719,52 @@ interface AlertProvider {
 
 ### 12.1 Phased Approach (Updated for v4.0)
 
-**Phase 1: Idempotency Infrastructure** (Week 1-2)
-- [ ] `processed_events` table creation
-- [ ] `IdempotentListener` abstract base class
-- [ ] Update all listeners to extend `IdempotentListener`
-- [ ] Write idempotency tests
+**Phase 1: Idempotency Infrastructure** (Week 1-2) ✅
+- [x] `processed_events` table creation
+- [x] `IdempotentListener` abstract base class
+- [x] Update all listeners to extend `IdempotentListener`
+- [x] Write idempotency tests
 
-**Phase 2: Core Module Foundation** (Week 3-4)
-- [ ] CRM module (clients, contacts, companies)
-- [ ] AssetManagement module (asset registry)
-- [ ] Event-driven communication between modules
+**Phase 2: Core Module Foundation** (Week 3-4) ✅
+- [x] CRM module (clients, contacts, companies)
+- [x] AssetManagement module (asset registry)
+- [x] Event-driven communication between modules
 
-**Phase 3: External Integrations** (Week 5-6)
-- [ ] Google Workspace sync with circuit breaker
-- [ ] Action1 sync with circuit breaker
-- [ ] Webhook receivers for real-time updates
-- [ ] Rate limiting with resume capability
+**Phase 3: External Integrations** (Week 5-6) ✅
+- [x] Google Workspace sync with circuit breaker
+- [x] Action1 sync with circuit breaker
+- [x] Webhook receivers for real-time updates
+- [x] Rate limiting with resume capability
 
-**Phase 3.5: Advanced Product Logic** (Week 7-8) - NEW in v4.0
-- [ ] Billing Entitlement Engine infrastructure
-- [ ] `client_user_counters` table (atomic user tracking)
-- [ ] Extended `client_asset_counters` with allocation types
-- [ ] `service_usage` table (labor hours, ad-hoc tickets)
-- [ ] `credit_ledger` table and credit balance system
-- [ ] `milestones` table (development project tracking)
-- [ ] SilverPlanEntitlementResolver implementation
-- [ ] RentToOwnEntitlementResolver with cumulative payment tracking
-- [ ] Asset procurement with metadata (JSON column)
-- [ ] Month-end ad-hoc invoice generation job
-- [ ] Milestone-triggered invoicing workflow
+**Phase 3.5: Advanced Product Logic** (Week 7-8) ✅
+- [x] Billing Entitlement Engine infrastructure
+- [x] `client_user_counters` table (atomic user tracking)
+- [x] Extended `client_asset_counters` with allocation types
+- [x] `service_usage` table (labor hours, ad-hoc tickets)
+- [x] `credit_ledger` table and credit balance system
+- [x] `milestones` table (development project tracking)
+- [x] SilverPlanEntitlementResolver implementation
+- [x] RentToOwnEntitlementResolver with cumulative payment tracking
+- [x] Asset procurement with metadata (JSON column)
+- [x] Month-end ad-hoc invoice generation job
+- [x] Milestone-triggered invoicing workflow
 
-**Phase 4: Billing & Proration** (Week 9-11)
-- [ ] `asset_count_changes` table
-- [ ] `ProrationService` with formal formula
-- [ ] Dry-run billing preview job
-- [ ] Manual correction UI
+**Phase 4: Billing & Proration** (Week 9-11) ✅
+- [x] `asset_count_changes` table
+- [x] `ProrationService` with formal formula
+- [x] Dry-run billing preview job
+- [x] Manual correction UI
 
-**Phase 5: Client Portal** (Week 12-13)
-- [ ] Shared UI component library with design tokens
-- [ ] Module discovery pattern for portal tabs
-- [ ] Real-time updates via Reverb WebSockets
+**Phase 5: Client Portal** (Week 12-13) ✅
+- [x] Shared UI component library with design tokens
+- [x] Module discovery pattern for portal tabs
+- [x] Real-time updates via Reverb WebSockets
 
-**Phase 6-8: Advanced Features** (Week 14-17)
-- [ ] Payment processing (Helcim integration)
-- [ ] Quote management
-- [ ] Reporting & analytics
-- [ ] RBAC refinements
+**Phase 6-8: Advanced Features** (Week 14-17) ✅
+- [x] Payment processing (Helcim integration)
+- [x] Quote management
+- [x] Reporting & analytics
+- [x] RBAC refinements
 
 ---
 
@@ -6994,10 +7012,10 @@ class ClientPortalServiceProvider extends ServiceProvider
             );
         }
         
-        // Listen to QuoteWizard events
-        if (class_exists(\Modules\QuoteWizard\Events\QuoteSentToClient::class)) {
+        // Listen to ContractManager events
+        if (class_exists(\Modules\ContractManager\Events\QuoteSentToClient::class)) {
             Event::listen(
-                \Modules\QuoteWizard\Events\QuoteSentToClient::class,
+                \Modules\ContractManager\Events\QuoteSentToClient::class,
                 \Modules\ClientPortal\Listeners\NotifyClientOfNewQuoteListener::class
             );
         }
@@ -7226,7 +7244,7 @@ class InvoiceObserver {
 
 ## 14. Open Questions for Refinement
 
-1. **QuoteWizard Location**: Should it be part of PIB or separate? **Recommendation: Separate** for cleaner boundaries.
+1. **ContractManager / PIB Separation**: ✅ **Resolved (March 2026)** — QuoteWizard was renamed to ContractManager and kept separate from PIB. ContractManager owns billing configuration (quotes, contracts, billing templates, milestones); PIB is the stateless execution engine (invoice generation, proration, entitlement snapshots).
 
 2. **Alerts Module**: Build new or enhance existing notification infrastructure? **Recommendation: Build new** with advanced filtering.
 
@@ -7296,10 +7314,7 @@ This architecture provides:
 ❌ **Direct Module Dependencies**: No `use Modules\Other\...` in core modules  
 ❌ **Skipping Idempotency**: All critical listeners must be idempotent  
 ❌ **Synchronous Processing**: Use queued jobs for cross-module operations  
-❌ **TiBilling correction alerts to Finance team
-- [ ] Invoice recalculation notifications
-- [ ] Unusual variance alerts (>20% month-over-month)
-- [ ] ght Coupling**: Check for class existence before using cross-module features  
+❌ **Tight Coupling**: Check for class existence before using cross-module features  
 
 ### Monitoring Checklist
 

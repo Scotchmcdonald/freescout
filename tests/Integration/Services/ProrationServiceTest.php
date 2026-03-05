@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Services;
 
-use App\Services\ProrationService;
+use Modules\PIB\Services\ProrationService;
 use Carbon\Carbon;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;

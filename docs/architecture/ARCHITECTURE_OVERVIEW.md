@@ -1,6 +1,6 @@
 # Architecture Overview
 **Current State:** Production  
-**Last Updated:** February 10, 2026  
+**Last Updated:** March 2, 2026  
 **Audience:** Developers, Technical Leadership, New Team Members
 
 ---
@@ -71,7 +71,7 @@ event(new AssetStatusChanged($asset, 'active', 'retired'));
 Event::listen(AssetStatusChanged::class, UpdateBillingListener::class);
 ```
 
-### 6. Queue Isolation
+### 4. Queue Isolation
 **Rule:** High-volume background tasks (billing, syncing) must use dedicated queues.
 
 ```php
@@ -85,7 +85,7 @@ GenerateInvoiceJob::dispatch($template)->onQueue('billing');
 - ⏳ **Action Required:** PIB jobs need to be updated to use `->onQueue('billing')` when dispatched
 - 🎯 **Priority:** HIGH - Required to prevent system notification delays during bulk billing operations
 
-### 7. Service Interfaces
+### 5. Service Interfaces
 **Rule:** Define contracts in Core for critical feature module services.
 
 ```php
@@ -106,94 +106,7 @@ public function __construct(CreditLedgerInterface $ledger) { ... }
 
 ## Module Structure
 
-### Current Modules
-
-```
-Core Application (app/)
-├── Models: User, Thread, Conversation (FreeScout core)
-├── Services: AtomicCounterService, EntitlementEngine, RateLimiter, CircuitBreaker
-├── Traits: ExtensibleModel, HasAtomicCounters
-└── Http/Controllers/Admin: Cross-module aggregators only
-
-Modules/
-├── Crm/                    ✅ Foundation module (customer data) [REQUIRED] [CSV Import]
-│   NOTE: CRM is a "foundation module" - always enabled, other modules depend on it
-│   ├── Models: Client, Company, Contact, CustomField
-│   ├── Services: ClientService, ClientMetricsService
-│   ├── Listeners: ConversationCreated → link to client
-│   └── Http/Controllers: Client360Controller (uses dynamic loading)
-│
-├── AssetManagement/        ✅ Asset inventory & tracking
-│   ├── Entities: Asset, AssetStagingRecord
-│   ├── Services: AssetStatusService, AssetCounterService, AssetReconciliationService
-│   ├── Listeners: GoogleChromebookDiscoveredListener, Action1DeviceDiscoveredListener
-│   └── Http/Controllers: AssetController
-│
-├── GoogleAdmin/            ✅ Google Workspace integration
-│   ├── Services: GoogleWorkspaceService, GoogleUserProvider
-│   └── Events: GoogleUserSynced, GoogleChromebookDiscovered, GoogleSyncFailed
-│
-├── Action1/                ✅ RMM integration (Windows/Mac/Linux)
-│   ├── Services: Action1Service
-│   └── Events: Action1DeviceDiscovered, Action1DeviceUpdated, Action1SoftwareDiscovered, Action1SyncFailed
-│
-├── ContractManager/        ✅ Quotes, contracts, billing configuration
-│   ├── Models: Quote, Contract, BillingTemplate, ContractSchedule
-│   ├── Services: ContractService, QuoteService
-│   ├── Events: QuoteApproved, ContractActivated, BillingTemplateDue
-│   └── Http/Controllers: QuoteController, ContractController
-│
-├── PIB/                    ✅ Billing execution engine
-│   ├── Models: Invoice, InvoiceLineItem, EntitlementSnapshot, ClientCredit, ServiceUsage
-│   ├── Services: ClientCreditService, BillingService, InvoiceGenerator, TimeEntryService, BillingAnalysisService
-│   ├── Resolvers: SilverPlanEntitlementResolver, RentToOwnEntitlementResolver
-│   └── Http/Controllers: BillingController, ServiceUsageController
-│   Note: ProrationService lives in app/Services (shared infrastructure)
-│
-├── SoftwareSubscriptions/  ✅ Subscription lifecycle & license tracking [CSV Import]
-│   ├── Models: SoftwareProduct, ClientSoftwareSubscription, SoftwareAssignment
-│   ├── Services: SubscriptionCounterService, LicenseDeploymentService, SoftwareReconciliationService, VendorReconciliationService
-│   ├── Resolvers: SoftwareProductEntitlementResolver
-│   ├── Events: SoftwareAssignmentAdded, SoftwareCountChanged, SoftwareComplianceAlert
-│   └── Listeners: ContactCreated, ContactDeactivated, AssetCreated, AssetRetired, Action1SoftwareDiscovered, GoogleLicenseDiscovered
-│
-├── Payment/                ✅ Helcim payment processing
-│   ├── Models: PaymentMethod, Transaction
-│   └── Services: HelcimService
-│
-├── ClientPortal/           ✅ Client-facing portal
-│   ├── Services: PortalTabRegistry
-│   └── Http/Controllers: PortalController (uses dynamic loading)
-│
-├── DevFeedback/            ✅ Developer feedback collection
-│   ├── Purpose: In-app bug/feature feedback submission
-│   ├── Controllers: DevFeedbackController, SettingsController
-│   ├── Mail: DevFeedbackSubmitted
-│   └── Dependencies: None (standalone utility)
-│
-├── EmailMigration/         ✅ Enterprise email migration platform
-│   ├── Purpose: IMAP-to-IMAP email migration with Flight Deck UI
-│   ├── Models: MigrationProject, MigrationBatch, MigrationMapping, MigrationMessage
-│   ├── Services: ImapMigrationService, DiscoveryService, VerificationService
-│   ├── Features: 4-stage workflow (Discovery→Mapping→Verification→Execution)
-│   └── Dependencies: None (standalone tool)
-│
-├── Alerts/                 ✅ Centralized notification system [IMPLEMENTED]
-│   ├── Purpose: Alert subscription, routing, throttling, and digest support
-│   ├── Services: AlertService, AlertSubscriptionService
-│   ├── Models: AlertType, AlertSubscription, AlertDeliveryLog, AlertThrottle
-│   ├── Listeners: PaymentFailed, InvoiceUnusual, GoogleSyncFailed, Action1SyncFailed
-│   └── Dependencies: None (infrastructure layer)
-│
-├── WidgetRegistry/         ✅ UI composition infrastructure [IMPLEMENTED]
-│   ├── Purpose: Dynamic widget registration for cross-module views
-│   ├── Services: WidgetRegistryService
-│   └── Dependencies: None (infrastructure module)
-│
-└── KnowledgeBase/          ✅ Help article management [IMPLEMENTED]
-    ├── Purpose: Internal knowledge base and documentation
-    └── Dependencies: None (standalone utility)
-```
+For the full per-module component inventory (models, services, events, controllers), see **[APP_OVERVIEW.md](APP_OVERVIEW.md)**.
 
 ### Module Dependencies
 
@@ -1030,13 +943,12 @@ if (Schema::hasColumn('table', 'column')) {
 
 ## Reference Documents
 
-- **[SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md)** - Complete design specification (7500+ lines)
-- **[MODULE_DEVELOPMENT_GUIDE.md](MODULE_DEVELOPMENT_GUIDE.md)** - Detailed patterns and examples
-- **[IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md)** - Phase-by-phase implementation plan
-- **[MSP_PRODUCT_DEFINITIONS.md](MSP_PRODUCT_DEFINITIONS.md)** - Billing products and rules
+- **[APP_OVERVIEW.md](APP_OVERVIEW.md)** - Component inventory by owning module (canonical reference for where code lives)
+- **[SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md)** - Complete design specification
+- **[../development/MODULE_DEVELOPMENT_GUIDE.md](../development/MODULE_DEVELOPMENT_GUIDE.md)** - Detailed patterns and examples
 
 ---
 
 **Document Owner:** Development Team  
 **Review Frequency:** After major architectural changes  
-**Last Reviewed:** January 19, 2026
+**Last Reviewed:** March 2, 2026

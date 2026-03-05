@@ -50,7 +50,7 @@ test('controllers handle concurrent requests', function () {
 
     $responses = [];
     for ($i = 0; $i < 5; $i++) {
-        $responses[] = $this->actingAs($user)->get(route('mailboxes.show', $mailbox));
+        $responses[] = $this->actingAs($user)->get(route('mailboxes.view', $mailbox));
     }
 
     foreach ($responses as $response) {

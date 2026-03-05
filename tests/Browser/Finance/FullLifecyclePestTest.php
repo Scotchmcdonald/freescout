@@ -53,19 +53,6 @@ it('completes the finance lifecycle: quote to invoice with credit', function () 
         'billing_cycle' => 'monthly',
         'product_config' => ['plan_id' => 1],
     ]);
-    
-    // Fix for Schema mismatch: pib_invoices checks FK against pib_billing_templates, but code uses cm_billing_templates.
-    // We expect ID 2 to be used (ID 1 is the one above).
-    \Illuminate\Support\Facades\DB::table('pib_billing_templates')->insert([
-        'id' => 2,
-        'client_id' => $client->id,
-        'product_type' => 'service_plan',
-        'product_config' => '{}',
-        'name' => 'Dummy for FK',
-        'company_id' => $client->company_id,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
 
     // Manual Login Flow
     $this->visit('/login')

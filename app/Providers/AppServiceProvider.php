@@ -9,9 +9,14 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Folder;
 use App\Models\Mailbox;
+use App\Models\Permission;
 use App\Models\Thread;
 use App\Models\User;
 use App\Services\Ui\WidgetRegistryService;
+use App\Widgets\Dashboard\AdminDashboardWidget;
+use App\Widgets\Dashboard\AgentDashboardWidget;
+use App\Widgets\Dashboard\FinanceDashboardWidget;
+use App\Widgets\Dashboard\ReporterDashboardWidget;
 use App\Observers\AttachmentObserver;
 use App\Observers\ConversationObserver;
 use App\Observers\CustomerObserver;
@@ -59,10 +64,11 @@ class AppServiceProvider extends ServiceProvider
             return $sections;
         });
 
-        $this->app->singleton(\App\Services\EntitlementEngineService::class, function ($app) {
-            return new \App\Services\EntitlementEngineService();
+        // Canonical EntitlementEngine singleton — lives in PIB module.
+        $this->app->singleton(\Modules\PIB\Services\EntitlementEngineService::class, function ($app) {
+            return new \Modules\PIB\Services\EntitlementEngineService();
         });
-        $this->app->alias(\App\Services\EntitlementEngineService::class, 'App\Services\EntitlementEngine');
+        $this->app->alias(\Modules\PIB\Services\EntitlementEngineService::class, \App\Services\EntitlementEngine::class);
 
         $this->app->singleton(\App\Services\UserDirectoryRegistryService::class, function ($app) {
              return new \App\Services\UserDirectoryRegistryService();
@@ -98,14 +104,20 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Register authorization policies
+        // Super-admin wildcard bypass: if ANY of the user's RBAC roles
+        // has `is_super_admin = true`, they pass every gate check.
+        // Falls back to legacy `role === ROLE_ADMIN` during transition.
         Gate::before(function ($user, $ability) {
             if ($user instanceof \App\Models\User) {
-                // Only log and check admin for internal users
-                // Log::info("Gate Check: $ability for user " . $user->id . " Role: " . $user->role);
                 return $user->isAdmin() ? true : null;
             }
             return null;
         });
+
+        // Dynamically register a Gate for every RBAC permission in the database.
+        // This ensures `can:permission_name` middleware works for all permissions
+        // without requiring per-module Gate::define() calls.
+        $this->registerDynamicGates();
 
         Gate::policy(Conversation::class, ConversationPolicy::class);
         Gate::policy(Mailbox::class, MailboxPolicy::class);
@@ -117,12 +129,23 @@ class AppServiceProvider extends ServiceProvider
         
         // Client Portal policies for data isolation
         Gate::policy(\Modules\Crm\Models\Client::class, ClientPolicy::class);
-        Gate::policy(\Modules\Crm\Models\ClientUser::class, ClientUserPolicy::class);
+        // ClientUserPolicy now operates on User instances (ClientUser merged into User)
+        Gate::policy(User::class, ClientUserPolicy::class);
 
         // Monitor queue health
         Event::listen(JobProcessed::class, function (JobProcessed $event) {
             Cache::put('last_run_queue', now()->timestamp);
         });
+
+        // Register role-differentiated dashboard widgets
+        if ($this->app->bound(\Modules\WidgetRegistry\Services\WidgetRegistryService::class)) {
+            /** @var \Modules\WidgetRegistry\Services\WidgetRegistryService $registry */
+            $registry = $this->app->make(\Modules\WidgetRegistry\Services\WidgetRegistryService::class);
+            $registry->register(new AdminDashboardWidget());
+            $registry->register(new FinanceDashboardWidget());
+            $registry->register(new AgentDashboardWidget());
+            $registry->register(new ReporterDashboardWidget());
+        }
     }
 
     /**
@@ -139,5 +162,41 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('action1_webhooks', function ($request) {
             return Limit::perMinute(60)->by($request->ip());
         });
+    }
+
+    /**
+     * Register a Gate::define for every RBAC permission in the database.
+     *
+     * This is called during boot() and ensures that `can:permission_name`
+     * middleware resolves correctly for all permissions. The Gate::before
+     * callback handles the super-admin bypass, so these definitions only
+     * need to check the user's RBAC roles.
+     */
+    protected function registerDynamicGates(): void
+    {
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('permissions')) {
+                return;
+            }
+
+            /** @var \Illuminate\Support\Collection<int, string> $permissions */
+            $permissions = Permission::pluck('name');
+
+            foreach ($permissions as $permissionName) {
+                $permissionName = (string) $permissionName;
+
+                // Skip if a gate with this name is already defined (e.g., by a module)
+                if (Gate::has($permissionName)) {
+                    continue;
+                }
+
+                Gate::define($permissionName, function (User $user) use ($permissionName) {
+                    return $user->hasPermission($permissionName);
+                });
+            }
+        } catch (\Exception $e) {
+            // Silently fail during migrations or when DB is not yet available
+            Log::debug('[RBAC] Could not register dynamic gates: ' . $e->getMessage());
+        }
     }
 }

@@ -17,6 +17,7 @@
         </testsuite>
         <testsuite name="Modules">
             <directory>Modules/*/tests</directory>
+            <directory>Modules/*/Tests</directory>
         </testsuite>
     </testsuites>
     <groups>
@@ -34,6 +35,8 @@
     <php>
         <env name="APP_ENV" value="testing"/>
         <ini name="memory_limit" value="4096M"/>
+        <ini name="zend.enable_gc" value="1"/>
+        <ini name="report_memleaks" value="0"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>

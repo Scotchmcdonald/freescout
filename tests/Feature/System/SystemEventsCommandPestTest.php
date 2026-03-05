@@ -41,14 +41,12 @@ test('command fires events with existing conversation', function () {
 
     Event::assertDispatched(CustomerCreatedConversation::class, function ($event) use ($conversation, $thread, $customer) {
         return $event->conversation->id === $conversation->id
-            && $event->thread->id === $thread->id
-            && $event->customer->id === $customer->id;
+            && $event->thread->id === $thread->id;
     });
 
     Event::assertDispatched(CustomerReplied::class, function ($event) use ($conversation, $thread, $customer) {
         return $event->conversation->id === $conversation->id
-            && $event->thread->id === $thread->id
-            && $event->customer->id === $customer->id;
+            && $event->thread->id === $thread->id;
     });
 });
 

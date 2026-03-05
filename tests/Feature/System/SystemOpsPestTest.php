@@ -28,7 +28,7 @@ test('system can run migrations', function () {
     $response = $this->actingAs($admin)->post(route('settings.migrate'));
 
     $response->assertRedirect();
-})->skip('Running migrations in test environment can be slow and time out');
+});
 
 test('system shows logs for admin', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);

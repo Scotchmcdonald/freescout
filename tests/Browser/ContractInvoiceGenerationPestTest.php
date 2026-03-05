@@ -3,10 +3,9 @@
 use App\Models\User;
 use Modules\ContractManager\Models\Contract;
 use Modules\Crm\Models\Client;
-use Modules\Crm\Models\ClientUser;
 
 // Helper to log in a user via the UI
-function loginContractAdmin(object $browser, User|ClientUser $user, string $password = 'password') {
+function loginContractAdmin(object $browser, User $user, string $password = 'password') {
     $browser->visit('/login')
         ->assertVisible('input[name="email"]')
         ->type('email', $user->email)
