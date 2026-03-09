@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ModulesCrmTestsIntegrationCrossModule;
+namespace Modules\Crm\Tests\Integration\CrossModule;
 
 use Illuminate\Support\Facades\Event;
 use Modules\Crm\Events\ClientCreated;

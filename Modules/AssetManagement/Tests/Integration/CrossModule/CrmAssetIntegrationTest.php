@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ModulesAssetManagementTestsIntegrationCrossModule;
+namespace Modules\AssetManagement\Tests\Integration\CrossModule;
 
 use Illuminate\Support\Facades\Event;
 use Modules\AssetManagement\Entities\Asset;

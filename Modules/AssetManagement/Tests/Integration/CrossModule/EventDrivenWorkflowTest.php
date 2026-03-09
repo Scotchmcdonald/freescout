@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ModulesAssetManagementTestsIntegrationCrossModule;
+namespace Modules\AssetManagement\Tests\Integration\CrossModule;
 
 use App\DataTransferObjects\ClientCreatedData;
 use App\DataTransferObjects\ClientUpdatedData;

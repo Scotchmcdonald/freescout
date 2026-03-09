@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ModulesPaymentTestsIntegrationCrossModule;
+namespace Modules\Payment\Tests\Integration\CrossModule;
 
 use Illuminate\Support\Facades\Event;
 use Modules\Crm\Models\Client;

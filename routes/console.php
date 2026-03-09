@@ -17,25 +17,24 @@ Schedule::command('security:audit')
     ->runInBackground();
 
 // Webhook: Daily webhook renewal check (renew channels expiring within 48 hours)
-Schedule::job(new RenewExpiringWebhooksJob)
+Schedule::job(RenewExpiringWebhooksJob::class)
     ->dailyAt('02:00')
     ->withoutOverlapping()
     ->onOneServer()
     ->name('renew-expiring-webhooks');
 
 // Asset Management: Daily Reconciliation & High-Water Mark Snapshot (Phase 2.3)
-// Unblocked: AssetManagement jobs implemented
-Schedule::job(new \Modules\AssetManagement\Jobs\ReconcileAssetsJob)->dailyAt('01:00');
-Schedule::job(new \Modules\AssetManagement\Jobs\RecordDailyAssetCountJob)->dailyAt('23:55');
+Schedule::job(\Modules\AssetManagement\Jobs\ReconcileAssetsJob::class)->dailyAt('01:00');
+Schedule::job(\Modules\AssetManagement\Jobs\RecordDailyAssetCountJob::class)->dailyAt('23:55');
 
 // CRM: Monthly client service metrics calculation (1st of each month at 2:00 AM)
-Schedule::job(new \Modules\Crm\Jobs\CalculateClientServiceMetricsJob)
+Schedule::job(\Modules\Crm\Jobs\CalculateClientServiceMetricsJob::class)
     ->monthlyOn(1, '02:00')
     ->withoutOverlapping()
     ->onOneServer();
 
 // PIB: Monthly time entry aggregation into service_usage (1st of each month at 3:00 AM)
-Schedule::job(new \Modules\PIB\Jobs\MonthEndTimeAggregationJob)
+Schedule::job(\Modules\PIB\Jobs\MonthEndTimeAggregationJob::class)
     ->monthlyOn(1, '03:00')
     ->withoutOverlapping()
     ->onOneServer();

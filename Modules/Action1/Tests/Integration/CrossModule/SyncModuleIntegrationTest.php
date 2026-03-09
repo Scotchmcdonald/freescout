@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ModulesAction1TestsIntegrationCrossModule;
+namespace Modules\Action1\Tests\Integration\CrossModule;
 
 use Illuminate\Support\Facades\Event;
 use App\DataTransferObjects\GoogleUserSyncedData;
