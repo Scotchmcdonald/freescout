@@ -51,7 +51,10 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules/"
-        }
+        },
+        "exclude-from-classmap": [
+            "./Modules/CaseManager/Tests/Unit/Traits/AiPipelineFailureHandlerTest.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
