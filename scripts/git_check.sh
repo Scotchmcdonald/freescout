@@ -15,6 +15,14 @@ if [ -d ".git" ]; then
     echo "========================================="
     git status
     echo ""
+
+    tracked_module_files=$(git ls-files Modules 2>/dev/null || true)
+    if [ -n "$tracked_module_files" ]; then
+        echo -e "${RED}WARNING: Root repo is tracking module-owned files under Modules/.${NC}"
+        echo "These should live only in their module repositories:"
+        echo "$tracked_module_files"
+        echo ""
+    fi
 else
     echo -e "${RED}Root directory is not a git repository.${NC}\n"
 fi
