@@ -29,6 +29,7 @@ use App\Policies\ConversationPolicy;
 use App\Policies\FolderPolicy;
 use App\Policies\MailboxPolicy;
 use App\Policies\ThreadPolicy;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -88,6 +89,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register billing UI component namespace (x-billing::tabs, x-billing::tab-panel)
+        Blade::componentNamespace('App\\View\\Components\\Billing', 'billing');
+
         // Add REGEXP support for SQLite (testing env)
         if (DB::connection() instanceof \Illuminate\Database\SQLiteConnection) {
             DB::connection()->getPdo()->sqliteCreateFunction('REGEXP', function ($pattern, $value) {

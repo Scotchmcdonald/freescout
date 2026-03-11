@@ -14,6 +14,5 @@
     "WidgetRegistry": true,
     "KnowledgeBase": true,
     "DeploymentManager": true,
-    "CaseManager": true,
-    "TestModule": true
+    "CaseManager": true
 }
