@@ -6,6 +6,7 @@ namespace App\Jobs;
 
 use App\Mail\AutoReply;
 use App\Models\Conversation;
+use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\SendLog;
 use App\Models\Thread;
@@ -28,15 +29,32 @@ class SendAutoReplyJob implements ShouldQueue
      */
     public int $timeout = 120;
 
+    public Conversation $conversation;
+    public Thread $thread;
+    public Mailbox $mailbox;
+    /** Always stored as an array regardless of what was passed to the constructor. */
+    public array $senderInfo;
+
     /**
      * Create a new job instance.
+     *
+     * @param  Customer|array  $senderInfo  Either a Customer model (transformed to an array
+     *                                      internally) or a plain array with 'email'/'name'.
      */
     public function __construct(
-        public Conversation $conversation,
-        public Thread $thread,
-        public Mailbox $mailbox,
-        public array $senderInfo
-    ) {}
+        Conversation $conversation,
+        Thread $thread,
+        Mailbox $mailbox,
+        Customer|array $senderInfo
+    ) {
+        $this->conversation = $conversation;
+        $this->thread       = $thread;
+        $this->mailbox      = $mailbox;
+
+        $this->senderInfo = $senderInfo instanceof Customer
+            ? ['email' => $senderInfo->getMainEmail() ?? '', 'name' => $senderInfo->getFullName()]
+            : $senderInfo;
+    }
 
     /**
      * Execute the job.

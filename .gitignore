@@ -20,6 +20,11 @@
 .env
 .env.backup
 .env.production
+.env.docker
+.env.dusk.local
+.env.*.local
+.env.*.docker
+.env.*.dusk
 
 # IDE & Editor
 /.idea
@@ -41,8 +46,14 @@ composer.phar
 .phpunit.result.cache
 /.phpunit.cache
 /database/database.sqlite
+/database/testing.sqlite
+/database/testing.sqlite-shm
+/database/testing.sqlite-wal
+/database/*.sqlite
+/database/*.sqlite-shm
+/database/*.sqlite-wal
 /coverage-report/*
-/reports/coverage-report/*
+/reports/*
 
 # Logs
 npm-debug.log
@@ -57,16 +68,40 @@ app/Console/Commands/Test*
 /public/.well-known
 .well-known
 
-# Modules (if dynamically managed)
-/Modules
-/modules
+# Module language overrides (generated at runtime)
 /resources/lang/module.*
 
 # Reports
 /reports/
 
+# TLS / SSL Certificates and Private Keys (NEVER track)
+nginx/ssl/*.pem
+nginx/ssl/*.crt
+nginx/ssl/*.key
+*.pem
+
+# Leftover editor/patch/backup files
+*.bak
+*.orig
+*.old
+*.tmp
+
+# SQL dumps
+*.sql
+dump.sql
+
+# Docker local data volumes
+.docker/data/
+docker-data/
+
+# Legacy Debian nginx placeholder (deleted, keeping ignore for safety)
+index.nginx-debian.html
+
+# Empty upstream clone placeholder (deleted)
+/freescout/
+
 # Optional: Uncomment if you want to track these
 #composer.lock
 #/.htaccess/reports/
-deploy.conf
-deployment/
+deployment/deploy.conf
+

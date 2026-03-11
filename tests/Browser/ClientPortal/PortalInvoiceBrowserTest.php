@@ -53,7 +53,7 @@ it('displays invoice with tabs and PDF download link', function () {
         'invoice_number' => 'INV-PTAB-001',
         'invoice_date' => now(),
         'due_date' => now()->addDays(30),
-        'status' => 'pending',
+        'status' => 'sent',
         'metadata' => [],
     ]);
 

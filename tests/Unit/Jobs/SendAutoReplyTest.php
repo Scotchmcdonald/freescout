@@ -33,7 +33,8 @@ class SendAutoReplyTest extends UnitTestCase
         $this->assertEquals($conversation->id, $job->conversation->id);
         $this->assertEquals($thread->id, $job->thread->id);
         $this->assertEquals($mailbox->id, $job->mailbox->id);
-        $this->assertEquals($customer->id, $job->customer->id);
+        $this->assertIsArray($job->senderInfo);
+        $this->assertEquals($customer->getMainEmail(), $job->senderInfo['email']);
     }
 
     public function test_job_aborts_when_auto_reply_disabled_via_meta(): void
@@ -145,7 +146,6 @@ class SendAutoReplyTest extends UnitTestCase
             'email' => 'customer@example.com',
             'mail_type' => 3, // SendLog::MAIL_TYPE_AUTO_REPLY
             'status' => 1, // SendLog::STATUS_ACCEPTED
-            'customer_id' => $customer->id,
         ]);
     }
 

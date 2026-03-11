@@ -30,6 +30,8 @@
 - **Proactive Notifications:** As a User, I want to receive a portal notification or email when a system affecting me has an active incident — so I am not surprised when something stops working.
 - **Automated Ticket Creation:** As a User, I want the system to automatically raise a ticket on my behalf when monitoring detects a critical issue on a device I use (e.g., server offline, disk full), with the issue pre-described — so I don't have to report something I may not know how to explain.
 - **Hardware/Software Request:** As a User, I want to submit a request for new equipment or software from a simple catalog, knowing it will go to my manager for approval before being actioned.
+- **Project Tasks & Approvals:** As a User, I want to see project tasks assigned to me directly in the portal (e.g., complete paperwork, approve a phase), so I can directly participate in project workflows.
+- **Task File Uploads:** As a User, I want to be able to securely upload files and documents directly to my assigned project tasks, so the project team gets what they need without email chains.
 - **Future Multi-Tenancy (Planned):** As an IT Consultant User, I want my single login email to span multiple Companies, with the system prompting me via dropdown which Company a new ticket/email applies to if it's ambiguous.
 
 ### Proposed / Nice-to-Have
@@ -61,6 +63,7 @@
 - **Software Licence Review:** As a Client Admin, I want to see which software licences are unassigned so I can request their removal and reduce our costs.
 - **Company Health Summary:** As a Client Admin, I want a monthly summary dashboard showing open tickets, average resolution time, user count, and assets under management so I can review our partnership with the MSP.
 - **User Activity Report:** As a Client Admin, I want to see which team members raise the most tickets and for what categories so I can identify training opportunities.
+- **Project Visibility & Oversight:** As a Client Admin, I want to view the high-level progress, status, and milestones of active projects for my company in the portal, so I stay informed on delivery timelines.
 
 ### Proposed / Nice-to-Have
 - **Onboarding Checklist:** When a new user is invited, a visible checklist for the MSP technician (Create email, Assign laptop, Add to Groups) that the Admin can track in real time.
@@ -117,6 +120,11 @@
     - applicable diagnostic scripts to have been run automatically and already be available in the ticket
     - pre-research to be appended to the ticket and relevant knowledgebase noted
     - quick-win and easy first steps already sent to the client (ie, reboot your computer if uptime is large)
+- **Project Template Usage:** As a Technician, I want to deploy best-practice templates for standardized projects so that setup and administration are not time-consuming burdens.
+- **Project Task Breakdown:** As a Technician, I want to easily break down complex parent tasks into subtasks, so I can manage and track granular progress during a project.
+- **Task Scratch Pad:** As a Technician, I want a quick, inline 'scratch pad' on a task to easily add, edit, or remove text spots with checkboxes for ad-hoc steps that don't need to be formal subtasks.
+- **Task Auto-Completion Requirement:** As a Technician, when I complete all subtasks, or all scratch pad checkboxes on a task, I want the system to automatically complete, or prompt me to auto-complete, the parent task.
+- **Client Project Collaboration:** As a Technician, I want to assign specific tasks (e.g., complete paperwork, approve design) securely to a client and have it appear in their portal, where they can pass files into the task to keep the workflow moving.
 
 ### Proposed / Nice-to-Have
 - **Conflict Resolution UI:** A side-by-side `UserEventConflictTable` viewer with "Keep Left" / "Keep Right" / "Merge" actions and automatic CRM update on resolution.
@@ -164,6 +172,8 @@
 - **Company Assignment:** As an Admin creating a new user, I want the system to dynamically show Company assignment fields when I select an "External" Role, allowing me to attach them to an existing company or create a new one inline if no collision exists.
 - **Unknown Contact Moderation:** As an Admin, I want inbound tickets from completely unknown domains to remain unlinked strings until a human chooses to quickly spin up a Company and User for them, preventing spam from bloating the CRM database.
 - **Onboarding Link:** As an Admin, I want a simple checkbox to "Send Invitation Email" when adding users—whether new internal hires or external clients—so they handle their own password creation securely.
+- **Project Dashboard & Reporting:** As an Admin, I want a complete, robust project dashboard and reporting feature set to oversee project health, resource allocation, and timelines across all clients easily and reliably.
+- **Project Governance:** As an Admin, I want to manage robust project templates to ensure best practices are followed platform-wide, preventing administration from becoming a time-consuming burden.
 
 ### Proposed / Nice-to-Have
 - **NOC Dashboard:** Drag-and-drop widget layout showing real-time ticket queues, device health alerts, and billing exceptions across all clients.
@@ -203,6 +213,7 @@
 7. **In-Portal Dispute Flow:** Allow `Client Finance` to dispute individual invoice line items from the invoice view, with status visible to internal Finance.
 
 ### Medium-Term (Depth & Intelligence)
-8. **Conflict Resolution UI:** Frontend for `UserEventConflictTable` with side-by-side merge view for `MSP Technician` role.
-9. **Budget Threshold Alerts:** Configurable spend alerts for `Client Finance` users when variable-cost line items exceed a defined monthly limit.
-10. **Offboarding Wizard:** Guided checklist for `Client Admin` when deactivating a user — revoke licences, unassign assets, archive tickets.
+8. **Project Management Module:** Fully featured project administration module including project dashboard, templates, reporting, and a client portal integration (for view status, completing specific tasks, and uploading files). Features include granular subtasks, the "scratch pad" checklist on tasks, and task auto-completion logic.
+9. **Conflict Resolution UI:** Frontend for `UserEventConflictTable` with side-by-side merge view for `MSP Technician` role.
+10. **Budget Threshold Alerts:** Configurable spend alerts for `Client Finance` users when variable-cost line items exceed a defined monthly limit.
+11. **Offboarding Wizard:** Guided checklist for `Client Admin` when deactivating a user — revoke licences, unassign assets, archive tickets.

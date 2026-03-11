@@ -2,7 +2,7 @@
 
 > **Status:** ✅ Implemented (March 2026)  
 > **Scope:** All queued event listeners across the entire application  
-> **Related:** [CaseManager Architecture](../../modules/CASE_MANAGER_ARCHITECTURE.md) · [CaseManager Critique](../../modules/CASE_MANAGER_CRITIQUE.md)
+> **Related:** [CaseManager Architecture](../modules/CASE_MANAGER_ARCHITECTURE.md) · [CaseManager Critique](../modules/CASE_MANAGER_CRITIQUE.md)
 
 ---
 

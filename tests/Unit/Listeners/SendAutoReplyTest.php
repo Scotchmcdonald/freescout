@@ -126,18 +126,22 @@ class SendAutoReplyTest extends UnitTestCase
 
         $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
         $customer = Customer::factory()->create();
+        $senderEmail = $customer->getMainEmail();
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
+            'customer_email' => $senderEmail,
             'imported' => false,
         ]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
-        // Create 10 recent auto-reply send logs
+        // Create 10 recent auto-reply send logs matching the sender email
         for ($i = 0; $i < 10; $i++) {
-            SendLog::factory()->create([
+            SendLog::create([
                 'customer_id' => $customer->id,
+                'email' => $senderEmail,
                 'mail_type' => 3, // SendLog::MAIL_TYPE_AUTO_REPLY
+                'status' => SendLog::STATUS_SENT,
                 'created_at' => now()->subMinutes(30),
             ]);
         }
@@ -159,30 +163,37 @@ class SendAutoReplyTest extends UnitTestCase
 
         $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
         $customer = Customer::factory()->create();
+        $senderEmail = $customer->getMainEmail();
         
         // Create previous conversation with same subject
         $prevConversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
+            'customer_email' => $senderEmail,
             'subject' => 'Duplicate Subject',
             'created_at' => now()->subMinutes(30),
         ]);
 
         // Create 2 recent auto-reply logs to trigger duplicate check
-        SendLog::factory()->create([
+        SendLog::create([
             'customer_id' => $customer->id,
+            'email' => $senderEmail,
             'mail_type' => 3,
+            'status' => SendLog::STATUS_SENT,
             'created_at' => now()->subMinutes(30),
         ]);
-        SendLog::factory()->create([
+        SendLog::create([
             'customer_id' => $customer->id,
+            'email' => $senderEmail,
             'mail_type' => 3,
+            'status' => SendLog::STATUS_SENT,
             'created_at' => now()->subMinutes(25),
         ]);
 
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
+            'customer_email' => $senderEmail,
             'subject' => 'Duplicate Subject',
             'imported' => false,
         ]);
@@ -304,9 +315,11 @@ class SendAutoReplyTest extends UnitTestCase
 
         $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
         $customer = Customer::factory()->create();
+        $senderEmail = $customer->getMainEmail();
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
+            'customer_email' => $senderEmail,
             'imported' => false,
         ]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
@@ -316,7 +329,7 @@ class SendAutoReplyTest extends UnitTestCase
             SendLog::create([
                 'customer_id' => $customer->id,
                 'mail_type' => 3, // MAIL_TYPE_AUTO_REPLY
-                'email' => 'test@example.com',
+                'email' => $senderEmail,
                 'status' => 1,
                 'created_at' => now()->subMinutes(30),
             ]);
@@ -339,10 +352,12 @@ class SendAutoReplyTest extends UnitTestCase
 
         $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
         $customer = Customer::factory()->create();
+        $senderEmail = $customer->getMainEmail();
         
         // Create previous conversation with same subject
         $prevConversation = Conversation::factory()->create([
             'customer_id' => $customer->id,
+            'customer_email' => $senderEmail,
             'subject' => 'Test Subject',
             'created_at' => now()->subMinutes(30),
         ]);
@@ -352,7 +367,7 @@ class SendAutoReplyTest extends UnitTestCase
             SendLog::create([
                 'customer_id' => $customer->id,
                 'mail_type' => 3,
-                'email' => 'test@example.com',
+                'email' => $senderEmail,
                 'status' => 1,
                 'created_at' => now()->subMinutes(60),
             ]);
@@ -361,6 +376,7 @@ class SendAutoReplyTest extends UnitTestCase
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
+            'customer_email' => $senderEmail,
             'subject' => 'Test Subject', // Same subject
             'imported' => false,
             'created_at' => now(),
@@ -383,10 +399,12 @@ class SendAutoReplyTest extends UnitTestCase
 
         $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
         $customer = Customer::factory()->create();
+        $senderEmail = $customer->getMainEmail();
         
         // Create previous conversation with different subject
         $prevConversation = Conversation::factory()->create([
             'customer_id' => $customer->id,
+            'customer_email' => $senderEmail,
             'subject' => 'Different Subject',
             'created_at' => now()->subMinutes(30),
         ]);
@@ -396,7 +414,7 @@ class SendAutoReplyTest extends UnitTestCase
             SendLog::create([
                 'customer_id' => $customer->id,
                 'mail_type' => 3,
-                'email' => 'test@example.com',
+                'email' => $senderEmail,
                 'status' => 1,
                 'created_at' => now()->subMinutes(60),
             ]);
@@ -405,6 +423,7 @@ class SendAutoReplyTest extends UnitTestCase
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
+            'customer_email' => $senderEmail,
             'subject' => 'Test Subject', // Different subject
             'imported' => false,
         ]);

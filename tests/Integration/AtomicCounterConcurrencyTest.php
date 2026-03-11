@@ -16,9 +16,14 @@ use Tests\TestCase;
  */
 class AtomicCounterConcurrencyTest extends TestCase
 {
+    protected string $originalDefaultConnection;
+
     protected function setUp(): void
     {
         parent::setUp();
+        
+        // Save original default connection so we can restore it in tearDown
+        $this->originalDefaultConnection = config('database.default');
         
         // Use file-based SQLite for concurrent process testing
         $dbPath = database_path('testing.sqlite');
@@ -47,8 +52,11 @@ class AtomicCounterConcurrencyTest extends TestCase
             '--force' => true
         ]);
         
-        // Switch DB facade to use the test database
-        DB::purge('sqlite');
+        // Switch DB facade to use the file-based test database.
+        // IMPORTANT: Do NOT purge the 'sqlite' connection — RefreshDatabase
+        // holds an open transaction on the in-memory :memory: connection.
+        // Purging it would orphan that transaction, causing VACUUM errors
+        // and "table migrations already exists" cascading failures.
         DB::setDefaultConnection('sqlite_testing');
     }
     
@@ -59,6 +67,15 @@ class AtomicCounterConcurrencyTest extends TestCase
         if (file_exists($dbPath)) {
             unlink($dbPath);
         }
+        
+        // Restore original default connection BEFORE parent::tearDown()
+        // so RefreshDatabase's rollback callback operates on the correct connection.
+        // Without this, the in-memory sqlite transaction is never rolled back,
+        // RefreshDatabaseState::$migrated gets reset, and ALL subsequent tests
+        // fail with "table migrations already exists".
+        DB::purge('sqlite_testing');
+        config(['database.default' => $this->originalDefaultConnection]);
+        DB::setDefaultConnection($this->originalDefaultConnection);
         
         parent::tearDown();
     }

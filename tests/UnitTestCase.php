@@ -2,9 +2,7 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
 abstract class UnitTestCase extends TestCase
 {
-    use RefreshDatabase;
+    // RefreshDatabase is inherited from the base TestCase.
 }

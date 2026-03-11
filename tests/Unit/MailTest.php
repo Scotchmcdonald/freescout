@@ -7,7 +7,6 @@ namespace Tests\Unit;
 use App\Mail\AutoReply;
 use App\Mail\ConversationReplyNotification;
 use App\Models\Conversation;
-use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use Tests\TestCase;
@@ -18,22 +17,19 @@ class MailTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1]);
         $mailbox = new Mailbox(['id' => 1, 'name' => 'Support']);
-        $customer = new Customer(['id' => 1, 'first_name' => 'John']);
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
 
         $this->assertSame($conversation, $mail->conversation);
         $this->assertSame($mailbox, $mail->mailbox);
-        $this->assertSame($customer, $mail->customer);
     }
 
     public function test_auto_reply_envelope_has_subject(): void
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test Subject']);
         $mailbox = new Mailbox(['id' => 1, 'name' => 'Support', 'auto_reply_subject' => null]);
-        $customer = new Customer(['id' => 1]);
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $envelope = $mail->envelope();
 
         $this->assertEquals('Re: Test Subject', $envelope->subject);

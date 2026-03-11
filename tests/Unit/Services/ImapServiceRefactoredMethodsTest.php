@@ -34,8 +34,11 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     {
         restore_error_handler();
         restore_exception_handler();
-        Mockery::close();
-        parent::tearDown();
+        try {
+            Mockery::close();
+        } finally {
+            parent::tearDown();
+        }
     }
 
     // ========================================================================
@@ -162,65 +165,6 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     }
 
     // ========================================================================
-    // Tests for createCustomerFromName method
-    // ========================================================================
-
-    public function test_create_customer_from_name_creates_customer(): void
-    {
-        $customer = $this->invokeMethod($this->service, 'createCustomerFromName', [
-            'newuser@example.com',
-            'John Doe',
-        ]);
-
-        $this->assertInstanceOf(Customer::class, $customer);
-        // Customer->emails is a HasMany relation, so we access the first item
-        $this->assertEquals('newuser@example.com', $customer->emails[0]->email);
-    }
-
-    public function test_create_customer_from_name_limits_first_name_length(): void
-    {
-        Log::shouldReceive('debug')->once();
-
-        $longName = str_repeat('a', 25).' '.str_repeat('b', 35);
-        
-        $customer = $this->invokeMethod($this->service, 'createCustomerFromName', [
-            'test@example.com',
-            $longName,
-        ]);
-
-        $this->assertInstanceOf(Customer::class, $customer);
-        // First name should be limited to 20 chars
-        $this->assertLessThanOrEqual(20, strlen($customer->first_name));
-    }
-
-    public function test_create_customer_from_name_handles_empty_name(): void
-    {
-        Log::shouldReceive('debug')->once();
-
-        $customer = $this->invokeMethod($this->service, 'createCustomerFromName', [
-            'noname@example.com',
-            '',
-        ]);
-
-        $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('', $customer->first_name);
-    }
-
-    public function test_create_customer_from_name_handles_single_name(): void
-    {
-        Log::shouldReceive('debug')->once();
-
-        $customer = $this->invokeMethod($this->service, 'createCustomerFromName', [
-            'single@example.com',
-            'Madonna',
-        ]);
-
-        $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('Madonna', $customer->first_name);
-        $this->assertEquals('', $customer->last_name);
-    }
-
-    // ========================================================================
     // Tests for findOrCreateConversation method
     // ========================================================================
 
@@ -231,7 +175,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
             'mailbox_id' => $mailbox->id,
             'type' => 1, // Inbox
         ]);
-        $customer = Customer::factory()->create();
+        $senderInfo = ['email' => 'sender@example.com', 'name' => 'Test Sender', 'user' => null];
         
         $message = Mockery::mock(Message::class);
         $message->shouldReceive('getHeader')->andReturn(null);
@@ -240,7 +184,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
         $result = $this->invokeMethod($this->service, 'findOrCreateConversation', [
             $mailbox,
             $message,
-            $customer,
+            $senderInfo,
             'Test Subject',
             '<test@example.com>',
             false,
@@ -260,12 +204,11 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
             'mailbox_id' => $mailbox->id,
             'type' => 1,
         ]);
-        $customer = Customer::factory()->create();
+        $senderInfo = ['email' => 'sender@example.com', 'name' => 'Test Sender', 'user' => null];
         
         // Create existing conversation and thread
         $existingConversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
-            'customer_id' => $customer->id,
         ]);
         
         $parentThread = Thread::factory()->create([
@@ -291,7 +234,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
         $result = $this->invokeMethod($this->service, 'findOrCreateConversation', [
             $mailbox,
             $message,
-            $customer,
+            $senderInfo,
             'Re: Test Subject',
             '<reply@example.com>',
             false,
@@ -310,7 +253,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
         // Ensure no folders exist for this mailbox
         Folder::where('mailbox_id', $mailbox->id)->delete();
         
-        $customer = Customer::factory()->create();
+        $senderInfo = ['email' => 'sender@example.com', 'name' => 'Test Sender', 'user' => null];
         
         $message = Mockery::mock(Message::class);
         $message->shouldReceive('getHeader')->andReturn(null);
@@ -319,7 +262,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
         $this->invokeMethod($this->service, 'findOrCreateConversation', [
             $mailbox,
             $message,
-            $customer,
+            $senderInfo,
             'Test',
             '<test@example.com>',
             false,

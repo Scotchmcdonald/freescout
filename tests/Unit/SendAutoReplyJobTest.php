@@ -25,7 +25,9 @@ class SendAutoReplyJobTest extends TestCase
         $this->assertSame($conversation, $job->conversation);
         $this->assertSame($thread, $job->thread);
         $this->assertSame($mailbox, $job->mailbox);
-        $this->assertSame($customer, $job->customer);
+        $this->assertIsArray($job->senderInfo);
+        $this->assertArrayHasKey('email', $job->senderInfo);
+        $this->assertArrayHasKey('name', $job->senderInfo);
     }
 
     public function test_job_has_timeout_property(): void

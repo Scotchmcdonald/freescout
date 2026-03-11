@@ -32,14 +32,12 @@ class MailablesComprehensiveTest extends UnitTestCase
     {
         $conversation = Conversation::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        $customer = Customer::factory()->create();
         
-        $mailable = new AutoReply($conversation, $mailbox, $customer);
+        $mailable = new AutoReply($conversation, $mailbox);
         
         $this->assertInstanceOf(AutoReply::class, $mailable);
         $this->assertEquals($conversation->id, $mailable->conversation->id);
         $this->assertEquals($mailbox->id, $mailable->mailbox->id);
-        $this->assertEquals($customer->id, $mailable->customer->id);
     }
 
     public function test_auto_reply_has_default_subject(): void
@@ -48,7 +46,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create(['auto_reply_subject' => null]);
         $customer = Customer::factory()->create();
         
-        $mailable = new AutoReply($conversation, $mailbox, $customer);
+        $mailable = new AutoReply($conversation, $mailbox);
         $envelope = $mailable->envelope();
         
         $this->assertEquals('Re: Test Subject', $envelope->subject);
@@ -60,7 +58,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create(['auto_reply_subject' => 'Custom Auto Reply']);
         $customer = Customer::factory()->create();
         
-        $mailable = new AutoReply($conversation, $mailbox, $customer);
+        $mailable = new AutoReply($conversation, $mailbox);
         $envelope = $mailable->envelope();
         
         $this->assertEquals('Custom Auto Reply', $envelope->subject);
@@ -73,7 +71,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $customer = Customer::factory()->create();
         $headers = ['X-Custom-Header' => 'value'];
         
-        $mailable = new AutoReply($conversation, $mailbox, $customer, $headers);
+        $mailable = new AutoReply($conversation, $mailbox, $headers);
         
         $this->assertEquals($headers, $mailable->headers);
     }
@@ -86,7 +84,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create(['email' => 'customer@example.com']);
         
-        Mail::to('customer@example.com')->send(new AutoReply($conversation, $mailbox, $customer));
+        Mail::to('customer@example.com')->send(new AutoReply($conversation, $mailbox));
         
         Mail::assertSent(AutoReply::class);
     }
@@ -359,7 +357,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
         
-        $mailable = new AutoReply($conversation, $mailbox, $customer, []);
+        $mailable = new AutoReply($conversation, $mailbox, []);
         
         $this->assertEquals([], $mailable->headers);
     }
@@ -389,7 +387,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
         
-        $mailable = new AutoReply($conversation, $mailbox, $customer);
+        $mailable = new AutoReply($conversation, $mailbox);
         
         $this->assertObjectHasProperty('connection', $mailable);
         $this->assertObjectHasProperty('queue', $mailable);
@@ -430,7 +428,7 @@ class MailablesComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create(['auto_reply_subject' => null]);
         $customer = Customer::factory()->create();
         
-        $mailable = new AutoReply($conversation, $mailbox, $customer);
+        $mailable = new AutoReply($conversation, $mailbox);
         $envelope = $mailable->envelope();
         
         $this->assertStringContainsString('Test & <Special> "Subject"', $envelope->subject);

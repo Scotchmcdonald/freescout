@@ -71,7 +71,8 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
 
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 
-        $this->assertEquals($customer->id, $job->customer->id);
+        $this->assertIsArray($job->senderInfo);
+        $this->assertEquals($customer->getMainEmail(), $job->senderInfo['email']);
     }
 
     public function test_job_can_be_dispatched_to_queue(): void
@@ -133,7 +134,7 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         $this->assertTrue($property->isPublic());
     }
 
-    public function test_job_has_public_customer_property(): void
+    public function test_job_has_public_senderInfo_property(): void
     {
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
@@ -143,7 +144,7 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 
         $reflection = new \ReflectionClass($job);
-        $property = $reflection->getProperty('customer');
+        $property = $reflection->getProperty('senderInfo');
 
         $this->assertTrue($property->isPublic());
     }

@@ -280,20 +280,35 @@ class JobFailureRecoveryTest extends UnitTestCase
         $conversation = Conversation::factory()->for($mailbox)->create();
         $thread = Thread::factory()->for($conversation)->create();
         $customer = Customer::factory()->create();
-        
-        DB::beginTransaction();
-        
-        $smtpService = app(\App\Services\SmtpService::class);
-        $job = new SendAutoReplyJob($conversation, $thread, $mailbox, $customer);
-        $job->handle($smtpService);
-        
-        DB::rollBack();
-        
-        // Send log should not exist after rollback
-        $this->assertDatabaseMissing('send_logs', [
-            'customer_id' => $customer->id,
-            'mail_type' => SendLog::MAIL_TYPE_AUTO_REPLY,
-        ]);
+
+        // Use DB::transaction() with an intentional rollback so Laravel's savepoint
+        // mechanism is used. This avoids nesting a raw PDO beginTransaction() inside
+        // the transaction that RefreshDatabase has already opened, which SQLite does
+        // not support and throws "There is already an active transaction".
+        $sendLogCreated = false;
+        try {
+            DB::transaction(function () use ($conversation, $thread, $mailbox, $customer, &$sendLogCreated): void {
+                $smtpService = app(\App\Services\SmtpService::class);
+                $senderInfo = [
+                    'email' => $conversation->customer_email ?? '',
+                    'name' => $customer->getFullName(),
+                ];
+                $job = new SendAutoReplyJob($conversation, $thread, $mailbox, $senderInfo);
+                $job->handle($smtpService);
+
+                $sendLogCreated = SendLog::where('mail_type', SendLog::MAIL_TYPE_AUTO_REPLY)->exists();
+
+                // Force the savepoint to roll back so the send_log write is undone.
+                throw new \RuntimeException('Intentional rollback to test transaction isolation');
+            });
+        } catch (\RuntimeException $e) {
+            // Expected — the rollback happened; continue to assertions below.
+        }
+
+        // After the rolled-back savepoint the send log should not exist.
+        $this->assertFalse($sendLogCreated === false || SendLog::where('mail_type', SendLog::MAIL_TYPE_AUTO_REPLY)->exists(),
+            'Send log should not persist after transaction rollback'
+        );
     }
 
     public function test_job_unique_id_for_deduplication(): void

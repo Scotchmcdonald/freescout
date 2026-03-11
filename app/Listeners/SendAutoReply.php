@@ -87,7 +87,7 @@ class SendAutoReply
         // So to prevent infinite loop, we are checking number of auto replies sent to the customer recently.
         $createdAt = now()->subMinutes(self::CHECK_PERIOD);
 
-        $autoRepliesSent = SendLog::where('customer_email', $senderEmail)
+        $autoRepliesSent = SendLog::where('email', $senderEmail)
             ->where('mail_type', 3) // SendLog::MAIL_TYPE_AUTO_REPLY
             ->where('created_at', '>', $createdAt)
             ->count();

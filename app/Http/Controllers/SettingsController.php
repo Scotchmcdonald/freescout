@@ -765,7 +765,8 @@ class SettingsController extends Controller
         // Load settings for active integration
         $settings = [];
         $clientConfigs = collect();
-        
+        $roleStatus = [];
+
         if ($activeTab === 'googleadmin') {
             $settings = [
                 'sync_enabled' => Option::where('name', 'googleadmin_sync_enabled')->value('value') ?? '1',
@@ -775,12 +776,23 @@ class SettingsController extends Controller
             $settings = [
                 'sync_enabled' => Option::where('name', 'action1_sync_enabled')->value('value') === '1',
                 'sync_interval_hours' => (int) (Option::where('name', 'action1_sync_interval_hours')->value('value') ?? 24),
-                'oauth_client_id' => Option::where('name', 'action1_oauth_client_id')->value('value'),
-                'client_secret' => Option::where('name', 'action1_client_secret')->value('value') ? '••••••••' : null,
-                'region' => Option::where('name', 'action1_region')->value('value') ?? 'us',
-                'token_expires_at' => Option::where('name', 'action1_token_expires_at')->value('value'),
+                'region' => config('action1.region', 'us'),
             ];
-            
+
+            // Role-based credential status (read-only from .env)
+            $roleStatus = [];
+            if (class_exists(\Modules\Action1\Enums\Action1Role::class)) {
+                foreach (\Modules\Action1\Enums\Action1Role::cases() as $role) {
+                    $key = $role->configKey();
+                    $roleStatus[$key] = [
+                        'label'       => $role->label(),
+                        'description' => $role->description(),
+                        'client_id'   => config("action1.roles.{$key}.client_id"),
+                        'configured'  => !empty(config("action1.roles.{$key}.client_id"))
+                                      && !empty(config("action1.roles.{$key}.client_secret")),
+                    ];
+                }
+            }
             // Load client configurations for Action1
             if (class_exists(\Modules\Action1\Models\Action1Config::class)) {
                 $clientConfigs = \Modules\Action1\Models\Action1Config::with('client')
@@ -789,6 +801,6 @@ class SettingsController extends Controller
             }
         }
         
-        return view('settings.integrations', compact('sections', 'currentSection', 'integrations', 'activeTab', 'settings', 'clientConfigs'));
+        return view('settings.integrations', compact('sections', 'currentSection', 'integrations', 'activeTab', 'settings', 'clientConfigs', 'roleStatus'));
     }
 }

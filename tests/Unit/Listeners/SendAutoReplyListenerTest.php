@@ -37,7 +37,7 @@ class SendAutoReplyListenerTest extends TestCase
             'auto_reply_message' => 'We have received your message.',
         ]);
 
-        $this->customer = Customer::factory()->create();
+        $this->customer = Customer::factory()->withoutEmail()->create();
         Email::factory()->create([
             'customer_id' => $this->customer->id,
             'email' => 'customer@example.com',
@@ -47,6 +47,7 @@ class SendAutoReplyListenerTest extends TestCase
             ->for($this->mailbox)
             ->create([
                 'customer_id' => $this->customer->id,
+                'customer_email' => 'customer@example.com',
                 'imported' => false,
             ]);
 
@@ -190,6 +191,7 @@ class SendAutoReplyListenerTest extends TestCase
         Conversation::factory()->create([
             'mailbox_id' => $this->mailbox->id,
             'customer_id' => $this->customer->id,
+            'customer_email' => 'customer@example.com',
             'subject' => $this->conversation->subject,
             'created_at' => now()->subMinutes(30),
         ]);

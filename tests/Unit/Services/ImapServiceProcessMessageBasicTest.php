@@ -48,8 +48,11 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
 
     protected function tearDown(): void
     {
-        Mockery::close();
-        parent::tearDown();
+        try {
+            Mockery::close();
+        } finally {
+            parent::tearDown();
+        }
     }
 
     /**
@@ -169,15 +172,12 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
             'status' => 1, // Active
         ]);
 
-        // Check customer exists with email in emails table
-        $customer = Customer::where('first_name', 'Jane')
-            ->where('last_name', 'Customer')
+        // Verify conversation stores sender email directly (no Customer creation)
+        $conversation = Conversation::where('mailbox_id', $mailbox->id)
+            ->where('subject', 'Need help with my account')
             ->first();
-        $this->assertNotNull($customer);
-        $this->assertDatabaseHas('emails', [
-            'customer_id' => $customer->id,
-            'email' => 'customer@example.com',
-        ]);
+        $this->assertNotNull($conversation);
+        $this->assertEquals('customer@example.com', $conversation->customer_email);
 
         $this->assertDatabaseHas('threads', [
             'type' => 1, // Message
@@ -242,22 +242,13 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
             'from' => [(object)['mail' => 'newcustomer@example.com', 'personal' => 'New Customer']],
         ]);
 
-        $this->assertDatabaseMissing('customers', [
-            'email' => 'newcustomer@example.com',
-        ]);
-
         // Act
         $this->invokeProcessMessage($mailbox, $message);
 
-        // Assert - Check customer and email exist
-        $customer = Customer::where('first_name', 'New')
-            ->where('last_name', 'Customer')
-            ->first();
-        $this->assertNotNull($customer);
-        $this->assertDatabaseHas('emails', [
-            'customer_id' => $customer->id,
-            'email' => 'newcustomer@example.com',
-        ]);
+        // Assert - Conversation stores sender email directly
+        $conversation = Conversation::where('mailbox_id', $mailbox->id)->first();
+        $this->assertNotNull($conversation);
+        $this->assertEquals('newcustomer@example.com', $conversation->customer_email);
     }
 
     public function test_process_message_links_existing_customer_to_conversation(): void
@@ -287,11 +278,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
         // Assert
         $conversation = Conversation::where('mailbox_id', $mailbox->id)->first();
         $this->assertNotNull($conversation);
-        $this->assertEquals($existingCustomer->id, $conversation->customer_id);
-
-        // Ensure no duplicate customer was created
-        $customerCount = Customer::whereHas('emails', fn($q) => $q->where('email', 'existing@example.com'))->count();
-        $this->assertEquals(1, $customerCount);
+        $this->assertEquals('existing@example.com', $conversation->customer_email);
     }
 
     public function test_process_message_stores_message_body_correctly(): void
@@ -531,10 +518,7 @@ This is the forwarded message content';
         // Act
         $this->invokeProcessMessage($mailbox, $message);
 
-        // Assert - Should extract original sender
-        $customer = Customer::whereHas('emails', fn($q) => $q->where('email', 'original@customer.com'))->first();
-        $this->assertNotNull($customer);
-
+        // Assert - Should extract original sender and store email directly
         $conversation = Conversation::where('mailbox_id', $mailbox->id)->first();
         $this->assertNotNull($conversation);
         $this->assertEquals('original@customer.com', $conversation->customer_email);
@@ -817,11 +801,7 @@ This is the forwarded message content';
         $conversation = Conversation::where('mailbox_id', $mailbox->id)->first();
         $this->assertNotNull($conversation);
         $this->assertEquals('你好 Hello Привет 🎉 Emoji Test', $conversation->subject);
-
-        $customer = Customer::whereHas('emails', fn($q) => $q->where('email', 'customer@example.com'))->first();
-        $this->assertNotNull($customer);
-        $this->assertEquals('José', $customer->first_name);
-        $this->assertEquals('García', $customer->last_name);
+        $this->assertEquals('customer@example.com', $conversation->customer_email);
     }
 
     public function test_process_message_respects_mailbox_configuration(): void
@@ -877,11 +857,10 @@ This is the forwarded message content';
         // Act
         $this->invokeProcessMessage($mailbox, $message);
 
-        // Assert - Names should be truncated
-        $customer = Customer::whereHas('emails', fn($q) => $q->where('email', 'customer@example.com'))->first();
-        $this->assertNotNull($customer);
-        $this->assertEquals(20, strlen($customer->first_name)); // Truncated to 20
-        $this->assertEquals(30, strlen($customer->last_name)); // Truncated to 30
+        // Assert - Conversation stores email directly
+        $conversation = Conversation::where('mailbox_id', $mailbox->id)->first();
+        $this->assertNotNull($conversation);
+        $this->assertEquals('customer@example.com', $conversation->customer_email);
     }
 
     public function test_process_message_handles_duplicate_message_id(): void
@@ -1045,23 +1024,24 @@ This is the forwarded message content';
         // Act
         $this->invokeProcessMessage($mailbox, $message);
 
-        // Assert
-        $this->assertDatabaseHas('emails', ['email' => 'attr@example.com']);
+        // Assert - conversation stores sender email directly
+        $conversation = Conversation::where('mailbox_id', $mailbox->id)->first();
+        $this->assertNotNull($conversation);
+        $this->assertEquals('attr@example.com', $conversation->customer_email);
     }
 
-    public function test_process_message_handles_from_as_attribute_object_with_get(): void
+    public function test_process_message_handles_from_as_attribute_object_with_all(): void
     {
         // Arrange
         Event::fake();
         $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
-        // Mock Attribute object with get method (not toArray)
-        // Use anonymous class to ensure method_exists returns true
+        // Mock Attribute object with all() method (the preferred method in parseFromAddress)
         $fromAttribute = new class {
-            public function get() {
+            public function all() {
                 return [
-                    (object)['mail' => 'getmethod@example.com', 'personal' => 'Get User']
+                    (object)['mail' => 'allmethod@example.com', 'personal' => 'All User']
                 ];
             }
         };
@@ -1079,7 +1059,7 @@ This is the forwarded message content';
         $message->shouldReceive('hasHTMLBody')->andReturn(true);
         $message->shouldReceive('hasAttachments')->andReturn(false);
         $message->shouldReceive('getAttachments')->andReturn(new AttachmentCollection());
-        $message->shouldReceive('getRawHeader')->andReturn('From: getmethod@example.com');
+        $message->shouldReceive('getRawHeader')->andReturn('From: allmethod@example.com');
         
         // Mock Header with Attribute returns
         $emptyAttribute = Mockery::mock(Attribute::class);
@@ -1093,8 +1073,10 @@ This is the forwarded message content';
         // Act
         $this->invokeProcessMessage($mailbox, $message);
 
-        // Assert
-        $this->assertDatabaseHas('emails', ['email' => 'getmethod@example.com']);
+        // Assert - conversation stores sender email directly
+        $conversation = Conversation::where('mailbox_id', $mailbox->id)->first();
+        $this->assertNotNull($conversation);
+        $this->assertEquals('allmethod@example.com', $conversation->customer_email);
     }
 
     public function test_process_message_handles_from_address_as_array_format(): void
@@ -1111,8 +1093,10 @@ This is the forwarded message content';
         // Act
         $this->invokeProcessMessage($mailbox, $message);
 
-        // Assert
-        $this->assertDatabaseHas('emails', ['email' => 'array@example.com']);
+        // Assert - conversation stores sender email directly
+        $conversation = Conversation::where('mailbox_id', $mailbox->id)->first();
+        $this->assertNotNull($conversation);
+        $this->assertEquals('array@example.com', $conversation->customer_email);
     }
 
     public function test_process_message_handles_from_address_as_string(): void
@@ -1129,8 +1113,10 @@ This is the forwarded message content';
         // Act
         $this->invokeProcessMessage($mailbox, $message);
 
-        // Assert
-        $this->assertDatabaseHas('emails', ['email' => 'string@example.com']);
+        // Assert - conversation stores sender email directly
+        $conversation = Conversation::where('mailbox_id', $mailbox->id)->first();
+        $this->assertNotNull($conversation);
+        $this->assertEquals('string@example.com', $conversation->customer_email);
     }
 
     public function test_process_message_handles_from_with_name_email_format(): void
@@ -1172,8 +1158,10 @@ This is the forwarded message content';
         // Act
         $this->invokeProcessMessage($mailbox, $message);
 
-        // Assert
-        $this->assertDatabaseHas('emails', ['email' => 'parsed@example.com']);
+        // Assert - conversation stores sender email directly
+        $conversation = Conversation::where('mailbox_id', $mailbox->id)->first();
+        $this->assertNotNull($conversation);
+        $this->assertEquals('parsed@example.com', $conversation->customer_email);
     }
 
     public function test_process_message_throws_exception_when_no_sender_found(): void

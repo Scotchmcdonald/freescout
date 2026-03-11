@@ -6,7 +6,7 @@ namespace Tests\Unit\Mail;
 
 use App\Mail\AutoReply;
 use App\Models\Conversation;
-use App\Models\Customer;
+
 use App\Models\Mailbox;
 use Tests\TestCase;
 
@@ -16,25 +16,24 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $content = $mail->content();
 
         $this->assertEquals('emails.auto-reply', $content->text);
         $this->assertArrayHasKey('message', $content->with);
         $this->assertArrayHasKey('conversation', $content->with);
         $this->assertArrayHasKey('mailbox', $content->with);
-        $this->assertArrayHasKey('customer', $content->with);
     }
 
     public function test_auto_reply_content_uses_default_message_when_none_set(): void
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1, 'auto_reply_message' => null]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $content = $mail->content();
 
         $this->assertEquals('We have received your message and will get back to you shortly.', $content->with['message']);
@@ -47,9 +46,9 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_message' => 'Custom auto-reply message',
         ]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $content = $mail->content();
 
         $this->assertEquals('Custom auto-reply message', $content->with['message']);
@@ -59,9 +58,9 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Original Subject']);
         $mailbox = new Mailbox(['id' => 1, 'auto_reply_subject' => null]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $envelope = $mail->envelope();
 
         $this->assertEquals('Re: Original Subject', $envelope->subject);
@@ -74,9 +73,9 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_subject' => 'Custom Auto Reply Subject',
         ]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $envelope = $mail->envelope();
 
         $this->assertEquals('Custom Auto Reply Subject', $envelope->subject);
@@ -86,9 +85,9 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
 
         $this->assertInstanceOf(AutoReply::class, $result);
@@ -98,10 +97,10 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
         $headers = ['X-Custom-Header' => 'Custom Value'];
 
-        $mail = new AutoReply($conversation, $mailbox, $customer, $headers);
+        $mail = new AutoReply($conversation, $mailbox, $headers);
 
         $this->assertEquals($headers, $mail->headers);
     }
@@ -110,9 +109,9 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer, []);
+        $mail = new AutoReply($conversation, $mailbox, []);
 
         $this->assertEquals([], $mail->headers);
         $this->assertInstanceOf(AutoReply::class, $mail->build());
@@ -128,9 +127,9 @@ class AutoReplyEnhancedTest extends TestCase
             'email' => 'support@example.com',
             'name' => 'Support Team',
         ]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
 
         $this->assertInstanceOf(AutoReply::class, $result);
@@ -140,9 +139,9 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Help Request']);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
 
         // Subject is set via the subject() method in build()
@@ -156,9 +155,9 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_message' => 'Custom message for you',
         ]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
 
         // The text() method is called with the view data
@@ -169,13 +168,13 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
         $headers = [
             'X-Auto-Reply' => 'true',
             'X-Conversation-ID' => '123',
         ];
 
-        $mail = new AutoReply($conversation, $mailbox, $customer, $headers);
+        $mail = new AutoReply($conversation, $mailbox, $headers);
         $result = $mail->build();
 
         $this->assertInstanceOf(AutoReply::class, $result);
@@ -185,13 +184,13 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
         $headers = [
             'Message-ID' => '<custom-id@example.com>',
             'X-Custom-Header' => 'value',
         ];
 
-        $mail = new AutoReply($conversation, $mailbox, $customer, $headers);
+        $mail = new AutoReply($conversation, $mailbox, $headers);
         $result = $mail->build();
 
         // Message-ID should be skipped but X-Custom-Header should be added
@@ -202,14 +201,14 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
         $headers = [
             'X-Header-1' => 'value1',
             'X-Header-2' => 'value2',
             'X-Header-3' => 'value3',
         ];
 
-        $mail = new AutoReply($conversation, $mailbox, $customer, $headers);
+        $mail = new AutoReply($conversation, $mailbox, $headers);
         $result = $mail->build();
 
         $this->assertInstanceOf(AutoReply::class, $result);
@@ -219,9 +218,9 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
 
         // The text() method should be called with 'emails.auto-reply'
@@ -234,9 +233,9 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => '']);
         $mailbox = new Mailbox(['id' => 1, 'auto_reply_subject' => null]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
 
         // Should handle empty subject gracefully
@@ -248,9 +247,9 @@ class AutoReplyEnhancedTest extends TestCase
         $longSubject = str_repeat('This is a very long subject line ', 20);
         $conversation = new Conversation(['id' => 1, 'subject' => $longSubject]);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
 
         $this->assertInstanceOf(AutoReply::class, $result);
@@ -261,9 +260,9 @@ class AutoReplyEnhancedTest extends TestCase
         $unicodeSubject = '件名: テストメール 🎉';
         $conversation = new Conversation(['id' => 1, 'subject' => $unicodeSubject]);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
 
         $this->assertInstanceOf(AutoReply::class, $result);
@@ -277,24 +276,22 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_message' => $specialMessage,
         ]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
 
         $this->assertInstanceOf(AutoReply::class, $result);
     }
 
-    public function test_build_handles_null_customer(): void
+    public function test_build_handles_minimal_args(): void
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => null]);
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
 
-        // Should handle null customer ID gracefully
         $this->assertInstanceOf(AutoReply::class, $result);
     }
 
@@ -306,9 +303,9 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_subject' => $longCustomSubject,
         ]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $envelope = $mail->envelope();
 
         $this->assertEquals($longCustomSubject, $envelope->subject);
@@ -322,9 +319,9 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_message' => $multilineMessage,
         ]);
-        $customer = new Customer(['id' => 1]);
+        
 
-        $mail = new AutoReply($conversation, $mailbox, $customer);
+        $mail = new AutoReply($conversation, $mailbox);
         $content = $mail->content();
 
         $this->assertEquals($multilineMessage, $content->with['message']);
@@ -334,12 +331,12 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        $customer = new Customer(['id' => 1]);
+        
         $headers = [
             'X-Custom-Header' => 'value:with:colons',
         ];
 
-        $mail = new AutoReply($conversation, $mailbox, $customer, $headers);
+        $mail = new AutoReply($conversation, $mailbox, $headers);
         $result = $mail->build();
 
         // Should handle header values with colons
