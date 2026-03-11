@@ -1,7 +1,7 @@
 # TSDM Deployment Pipeline — Remaining Work
 
 > **Last Updated:** 2026-03-11  
-> **Context:** `Modules/TreeScoutDeploymentManager` core is built. DB migrations
+> **Context:** `Modules/DeploymentManager` core is built. DB migrations
 > (4 tables), web CRUD UI under Tools, and the `/api/tsdm/activate` gateway are
 > all live. What remains is the CI/CD integration, multi-tenant isolation,
 > security hardening, and operational improvements.

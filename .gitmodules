@@ -46,3 +46,6 @@
 [submodule "deployment"]
 	path = deployment
 	url = https://github.com/Scotchmcdonald/freescout.git
+[submodule "Modules/DeploymentManager"]
+	path = Modules/DeploymentManager
+	url = https://github.com/BorealTek/DeploymentManager-Module.git

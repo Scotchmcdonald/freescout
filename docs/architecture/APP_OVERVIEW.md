@@ -30,7 +30,7 @@ RBAC roles (seeded at first run via `RbacSeeder`):
 | `Client Admin` | Client portal | Company-scoped — manages their own company data |
 | `Client User` | Client portal | Company-scoped — read / limited access |
 
-> **Note on `TreeScoutDeploymentManager`:** This module operates *outside* the client-company model. It is a **vendor-side fleet management** tool used by the software vendor (TreeScout) to track, license, and deliver module updates to multiple MSP instances across its customer base. `DeploymentRecord.client_id` refers to a vendor-side customer, not a local `companies` row.
+> **Note on `DeploymentManager`:** This module operates *outside* the client-company model. It is a **vendor-side fleet management** tool used by the software vendor (TreeScout) to track, license, and deliver module updates to multiple MSP instances across its customer base. `DeploymentRecord.client_id` refers to a vendor-side customer, not a local `companies` row.
 
 ### Core Business Capabilities
 
@@ -97,7 +97,7 @@ RBAC roles (seeded at first run via `RbacSeeder`):
 
 ========================================================================
 ┌────────────────────────────────────────────────────────────────────────┐
-│                    TreeScoutDeploymentManager (TSDM)                   │
+│                    DeploymentManager (TSDM)                   │
 │   (Vendor-side Management. Exists outside the Client-Company scope)    │
 └────────────────────────────────────────────────────────────────────────┘
 ```
@@ -331,7 +331,7 @@ No models, services, events, or contracts (UI-only module).
 | **Services** | `LicenseDeploymentService`, `SoftwareReconciliationService`, `SubscriptionCounterService`, `VendorReconciliationService` |
 | **Events** | `SoftwareAssignmentAdded`, `SoftwareAssignmentRevoked`, `SoftwareComplianceAlert`, `SoftwareCountChanged`, `SoftwareCountersReconciled`, `SoftwareDeploymentCompleted`, `SoftwareDeploymentFailed`, `SoftwareReconciled`, `SoftwareSubscriptionCreated`, `UnrecognizedSoftwareDetected` |
 
-#### TreeScoutDeploymentManager — Module deployment management
+#### DeploymentManager — Module deployment management
 
 **Scope:** Vendor-side only — `MSP Admin` role exclusively. **Not part of the client-company model.** Used by the software vendor (TreeScout) to track and manage activations across its MSP customer base. Each `DeploymentRecord` represents a distinct customer MSP instance (`client_id` is a vendor-side reference, not a local `companies` row). Handles One-Time Activation Code (OTAC) issuance and Git provider token delivery for module deployments.
 
