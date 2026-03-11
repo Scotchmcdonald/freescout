@@ -1,0 +1,25 @@
+{
+    "name": "freescout-modules/treescout-deployment-manager",
+    "type": "laravel-module",
+    "description": "TreeScout Deployment Manager - OTAC & Git Token Broker",
+    "authors": [
+        {
+            "name": "Freescout Modern",
+            "email": "dev@freescout-modern.local"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Modules\\TreeScoutDeploymentManager\\": ""
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\TreeScoutDeploymentManager\\Providers\\TreeScoutDeploymentManagerServiceProvider"
+            ],
+            "aliases": {}
+        }
+    }
+}

@@ -1,0 +1,48 @@
+[submodule "Modules/Action1"]
+	path = Modules/Action1
+	url = https://github.com/BorealTek/Action1-Module.git
+[submodule "Modules/Alerts"]
+	path = Modules/Alerts
+	url = https://github.com/BorealTek/Alerts-Module.git
+[submodule "Modules/AssetManagement"]
+	path = Modules/AssetManagement
+	url = https://github.com/BorealTek/AssetManagement-Module.git
+[submodule "Modules/CaseManager"]
+	path = Modules/CaseManager
+	url = https://github.com/BorealTek/CaseManager-Module.git
+[submodule "Modules/ClientPortal"]
+	path = Modules/ClientPortal
+	url = https://github.com/BorealTek/ClientPortal-Module.git
+[submodule "Modules/ContractManager"]
+	path = Modules/ContractManager
+	url = https://github.com/BorealTek/ContractManager-Module.git
+[submodule "Modules/Crm"]
+	path = Modules/Crm
+	url = https://github.com/BorealTek/Crm-Module.git
+[submodule "Modules/DevFeedback"]
+	path = Modules/DevFeedback
+	url = https://github.com/BorealTek/DevFeedback-Module.git
+[submodule "Modules/EmailMigration"]
+	path = Modules/EmailMigration
+	url = https://github.com/BorealTek/EmailMigration-Module.git
+[submodule "Modules/GoogleAdmin"]
+	path = Modules/GoogleAdmin
+	url = https://github.com/BorealTek/GoogleAdmin-Module.git
+[submodule "Modules/KnowledgeBase"]
+	path = Modules/KnowledgeBase
+	url = https://github.com/BorealTek/KnowledgeBase-Module.git
+[submodule "Modules/PIB"]
+	path = Modules/PIB
+	url = https://github.com/BorealTek/PIB-Module.git
+[submodule "Modules/Payment"]
+	path = Modules/Payment
+	url = https://github.com/BorealTek/Payment-Module.git
+[submodule "Modules/SoftwareSubscriptions"]
+	path = Modules/SoftwareSubscriptions
+	url = https://github.com/BorealTek/SoftwareSubscriptions-Module.git
+[submodule "Modules/WidgetRegistry"]
+	path = Modules/WidgetRegistry
+	url = https://github.com/BorealTek/WidgetRegistry-Module.git
+[submodule "deployment"]
+	path = deployment
+	url = https://github.com/Scotchmcdonald/freescout.git
