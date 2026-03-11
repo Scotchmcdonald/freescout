@@ -28,9 +28,7 @@ use App\Http\Controllers\PublicAttachmentController;
 // use App\Http\Controllers\TourController;
 use App\Http\Controllers\TrackingController;
 
-Route::get('/', function () {
-    return redirect()->route('dashboard');
-});
+Route::redirect('/', '/dashboard');
 
 // Public Attachment Download
 Route::get('/attachments/{id}/public-download', [PublicAttachmentController::class, 'download'])->name('attachments.public_download');

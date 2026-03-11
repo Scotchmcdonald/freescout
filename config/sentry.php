@@ -121,28 +121,8 @@ return [
     |
     */
 
-    'before_send' => function (\Sentry\Event $event) {
-        // Scrub sensitive data from breadcrumbs
-        $breadcrumbs = $event->getBreadcrumbs();
-        foreach ($breadcrumbs as $breadcrumb) {
-            $data = $breadcrumb->getMetadata();
-            
-            // Remove password fields
-            if (isset($data['bindings'])) {
-                /** @var array<mixed, mixed> $bindings */
-                $bindings = $data['bindings'];
-                foreach ($bindings as $key => $value) {
-                    if (preg_match('/password|token|secret|api_key/i', (string) $key)) {
-                        $bindings[$key] = '[REDACTED]';
-                    }
-                }
-                $data['bindings'] = $bindings;
-                $breadcrumb->setMetadata($data);
-            }
-        }
-        
-        return $event;
-    },
+    // Must be an invokable class string (not a closure) to support php artisan config:cache
+    'before_send' => \App\Services\SentryBeforeSend::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -180,16 +160,7 @@ return [
     |
     */
 
-    'before_breadcrumb' => function (\Sentry\Breadcrumb $breadcrumb) {
-        // Limit SQL query length in breadcrumbs
-        if ($breadcrumb->getCategory() === 'sql.query') {
-            $message = $breadcrumb->getMessage();
-            if (strlen((string) $message) > 1000) {
-                $breadcrumb->setMessage(substr((string) $message, 0, 1000) . '... [truncated]');
-            }
-        }
-        
-        return $breadcrumb;
-    },
+    // Must be an invokable class string (not a closure) to support php artisan config:cache
+    'before_breadcrumb' => \App\Services\SentryBeforeBreadcrumb::class,
 
 ];
