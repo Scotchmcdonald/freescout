@@ -71,7 +71,7 @@ return [
     |
     */
 
-    'release' => env('SENTRY_RELEASE', trim(exec('git log --pretty="%h" -n1 HEAD 2>/dev/null') ?: '')),
+    'release' => env('SENTRY_RELEASE'),
 
     /*
     |--------------------------------------------------------------------------
@@ -121,8 +121,10 @@ return [
     |
     */
 
-    // Must be an invokable class string (not a closure) to support php artisan config:cache
-    'before_send' => \App\Services\SentryBeforeSend::class,
+    // Array callables [ClassName, 'method'] are serializable (two plain strings)
+    // and satisfy is_callable() for static methods — compatible with both
+    // config:cache (var_export) and Sentry's OptionsResolver validation.
+    'before_send' => [\App\Services\SentryBeforeSend::class, 'handle'],
 
     /*
     |--------------------------------------------------------------------------
@@ -160,7 +162,6 @@ return [
     |
     */
 
-    // Must be an invokable class string (not a closure) to support php artisan config:cache
-    'before_breadcrumb' => \App\Services\SentryBeforeBreadcrumb::class,
+    'before_breadcrumb' => [\App\Services\SentryBeforeBreadcrumb::class, 'handle'],
 
 ];

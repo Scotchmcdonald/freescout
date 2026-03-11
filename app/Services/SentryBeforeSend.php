@@ -5,19 +5,20 @@ namespace App\Services;
 use Sentry\Event;
 
 /**
- * Invokable Sentry before_send callback.
- * Must be a class (not a closure) to support php artisan config:cache.
+ * Sentry before_send callback.
+ * Uses a static method so it can be referenced as [Class::class, 'handle'] —
+ * an array of two strings is serializable by var_export (config:cache)
+ * and satisfies is_callable() (Sentry's OptionsResolver).
  */
 class SentryBeforeSend
 {
-    public function __invoke(Event $event): Event
+    public static function handle(Event $event): Event
     {
         // Scrub sensitive data from breadcrumbs
         $breadcrumbs = $event->getBreadcrumbs();
         foreach ($breadcrumbs as $breadcrumb) {
             $data = $breadcrumb->getMetadata();
 
-            // Remove password fields from query bindings
             if (isset($data['bindings'])) {
                 /** @var array<mixed, mixed> $bindings */
                 $bindings = $data['bindings'];

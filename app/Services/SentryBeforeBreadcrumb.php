@@ -5,12 +5,14 @@ namespace App\Services;
 use Sentry\Breadcrumb;
 
 /**
- * Invokable Sentry before_breadcrumb callback.
- * Must be a class (not a closure) to support php artisan config:cache.
+ * Sentry before_breadcrumb callback.
+ * Uses a static method so it can be referenced as [Class::class, 'handle'] —
+ * an array of two strings is serializable by var_export (config:cache)
+ * and satisfies is_callable() (Sentry's OptionsResolver).
  */
 class SentryBeforeBreadcrumb
 {
-    public function __invoke(Breadcrumb $breadcrumb): Breadcrumb
+    public static function handle(Breadcrumb $breadcrumb): Breadcrumb
     {
         // Limit SQL query length in breadcrumbs to avoid large payloads
         if ($breadcrumb->getCategory() === 'sql.query') {
