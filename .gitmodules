@@ -45,7 +45,7 @@
 	url = https://github.com/BorealTek/WidgetRegistry-Module.git
 [submodule "deployment"]
 	path = deployment
-	url = https://github.com/Scotchmcdonald/freescout.git
+	url = https://github.com/BorealTek/Treescout-Deployments
 [submodule "Modules/DeploymentManager"]
 	path = Modules/DeploymentManager
 	url = https://github.com/BorealTek/DeploymentManager-Module.git
