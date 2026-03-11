@@ -23,11 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Trust proxies - Configure for load balancer deployments
-        // Uncomment and configure if deploying behind nginx, HAProxy, AWS ALB, etc.
-        // $middleware->trustProxies(at: '*');
-        // Or specify trusted proxy IPs:
-        // $middleware->trustProxies(at: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']);
+        // Trust proxies — required for OrbStack/Docker/Cloudflare Tunnel deployments.
+        // Set TRUSTED_PROXIES=* in .env to trust all proxies (safe behind a Cloudflare Tunnel).
+        // Restrict to specific IPs in production: TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12
+        $middleware->trustProxies(at: env('TRUSTED_PROXIES', '*'));
         
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,

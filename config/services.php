@@ -71,6 +71,32 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Action1 RMM API Keys (Role-Based)
+    |--------------------------------------------------------------------------
+    |
+    | Canonical references to the three role-scoped Action1 API credentials.
+    | The authoritative config lives in config/action1.php (module config);
+    | these entries provide a standard config/services.php lookup point.
+    |
+    */
+    'action1' => [
+        'region' => env('ACTION1_REGION', 'us'),
+        'sync_key' => [
+            'client_id'     => env('ACTION1_SYNC_CLIENT_ID'),
+            'client_secret' => env('ACTION1_SYNC_CLIENT_SECRET'),
+        ],
+        'run_key' => [
+            'client_id'     => env('ACTION1_RUN_CLIENT_ID'),
+            'client_secret' => env('ACTION1_RUN_CLIENT_SECRET'),
+        ],
+        'manage_key' => [
+            'client_id'     => env('ACTION1_MANAGE_CLIENT_ID'),
+            'client_secret' => env('ACTION1_MANAGE_CLIENT_SECRET'),
+        ],
+    ],
+
     'circuit_breaker' => [
         'threshold' => env('CIRCUIT_BREAKER_THRESHOLD', 5),
         'timeout' => env('CIRCUIT_BREAKER_TIMEOUT', 60), // seconds
