@@ -21,6 +21,7 @@
 .env.backup
 .env.production
 .env.docker
+.env.testing
 .env.dusk.local
 .env.*.local
 .env.*.docker
