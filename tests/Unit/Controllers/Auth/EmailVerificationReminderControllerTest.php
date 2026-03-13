@@ -7,7 +7,6 @@ use Tests\UnitTestCase;
 
 class EmailVerificationReminderControllerTest extends UnitTestCase
 {
-
     public function test_user_can_request_verification_email()
     {
         $user = User::factory()->create(['email_verified_at' => null]);

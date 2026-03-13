@@ -130,12 +130,12 @@ test('reply updates conversation last reply at timestamp', function () {
     )->assertRedirect();
 
     $this->conversation->refresh();
-    
+
     // Depending on DB precision, sometimes sleep(1) is enough.
     // However, if last_reply_at was null initially, it will definitely change.
     // If it was set, it should update.
     // The legacy test asserts NotEquals.
-    
+
     expect($this->conversation->last_reply_at)->not->toBe($originalTime);
 });
 

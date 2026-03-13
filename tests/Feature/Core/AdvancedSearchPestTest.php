@@ -25,7 +25,7 @@ test('customer search by phone', function () {
 test('conversation search by customer phone', function () {
     $mailbox = Mailbox::factory()->create();
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $customer = Customer::create('test@example.com', [
         'first_name' => 'Jane',
         'last_name' => 'Doe',
@@ -49,7 +49,7 @@ test('conversation search by customer phone', function () {
 test('conversation search scoping', function () {
     $mailbox1 = Mailbox::factory()->create();
     $mailbox2 = Mailbox::factory()->create();
-    
+
     $user = User::factory()->create();
     $user->mailboxes()->attach($mailbox1->id);
     // User NOT attached to mailbox2

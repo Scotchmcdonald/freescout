@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Http\Controllers\SettingsController;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SettingsControllerTest extends TestCase
@@ -159,16 +158,16 @@ class SettingsControllerTest extends TestCase
 
     public function test_send_test_alert_method_exists(): void
     {
-        $controller = new SettingsController();
-        
+        $controller = new SettingsController;
+
         $this->assertTrue(method_exists($controller, 'sendTestAlert'));
     }
 
     public function test_send_test_alert_returns_error_with_no_recipients(): void
     {
         \Mail::fake();
-        
-        $controller = new SettingsController();
+
+        $controller = new SettingsController;
         $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
         $request->merge(['alert_recipients' => '']);
 
@@ -185,8 +184,8 @@ class SettingsControllerTest extends TestCase
     public function test_send_test_alert_sends_email_to_valid_recipient(): void
     {
         \Mail::fake();
-        
-        $controller = new SettingsController();
+
+        $controller = new SettingsController;
         $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
         $request->merge(['alert_recipients' => 'test@example.com']);
 
@@ -206,8 +205,8 @@ class SettingsControllerTest extends TestCase
     public function test_send_test_alert_sends_to_multiple_recipients(): void
     {
         \Mail::fake();
-        
-        $controller = new SettingsController();
+
+        $controller = new SettingsController;
         $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
         $request->merge(['alert_recipients' => "test1@example.com\ntest2@example.com"]);
 
@@ -224,8 +223,8 @@ class SettingsControllerTest extends TestCase
     public function test_send_test_alert_skips_invalid_email_addresses(): void
     {
         \Mail::fake();
-        
-        $controller = new SettingsController();
+
+        $controller = new SettingsController;
         $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
         $request->merge(['alert_recipients' => "valid@example.com\ninvalid-email\ntest@example.com"]);
 
@@ -242,8 +241,8 @@ class SettingsControllerTest extends TestCase
     public function test_send_test_alert_handles_mail_exception(): void
     {
         \Mail::shouldReceive('to')->andThrow(new \Exception('Mail server error'));
-        
-        $controller = new SettingsController();
+
+        $controller = new SettingsController;
         $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
         $request->merge(['alert_recipients' => 'test@example.com']);
 
@@ -259,8 +258,8 @@ class SettingsControllerTest extends TestCase
     public function test_send_test_alert_trims_whitespace_from_recipients(): void
     {
         \Mail::fake();
-        
-        $controller = new SettingsController();
+
+        $controller = new SettingsController;
         $request = \Illuminate\Http\Request::create('/settings/test-alert', 'POST');
         $request->merge(['alert_recipients' => "  test@example.com  \n  another@example.com  "]);
 
@@ -280,7 +279,7 @@ class SettingsControllerTest extends TestCase
 
     public function test_clear_cache_method_exists(): void
     {
-        $controller = new SettingsController();
+        $controller = new SettingsController;
         $this->assertTrue(method_exists($controller, 'clearCache'));
     }
 
@@ -303,7 +302,7 @@ class SettingsControllerTest extends TestCase
             ->once()
             ->andReturn(0);
 
-        $controller = new SettingsController();
+        $controller = new SettingsController;
         $response = $controller->clearCache();
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -317,7 +316,7 @@ class SettingsControllerTest extends TestCase
             ->once()
             ->andThrow(new \Exception('Cache clear failed'));
 
-        $controller = new SettingsController();
+        $controller = new SettingsController;
         $response = $controller->clearCache();
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -328,7 +327,7 @@ class SettingsControllerTest extends TestCase
 
     public function test_migrate_method_exists(): void
     {
-        $controller = new SettingsController();
+        $controller = new SettingsController;
         $this->assertTrue(method_exists($controller, 'migrate'));
     }
 
@@ -344,7 +343,7 @@ class SettingsControllerTest extends TestCase
             ->once()
             ->andReturn(0);
 
-        $controller = new SettingsController();
+        $controller = new SettingsController;
         $response = $controller->migrate();
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -358,7 +357,7 @@ class SettingsControllerTest extends TestCase
             ->once()
             ->andThrow(new \Exception('Migration failed: table already exists'));
 
-        $controller = new SettingsController();
+        $controller = new SettingsController;
         $response = $controller->migrate();
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
@@ -369,7 +368,7 @@ class SettingsControllerTest extends TestCase
 
     public function test_security_method_exists(): void
     {
-        $controller = new SettingsController();
+        $controller = new SettingsController;
         $this->assertTrue(method_exists($controller, 'security'));
     }
 
@@ -384,7 +383,7 @@ class SettingsControllerTest extends TestCase
             ->once()
             ->andReturn(\Mockery::mock(\Illuminate\Contracts\View\View::class));
 
-        $controller = new SettingsController();
+        $controller = new SettingsController;
         $request = \Illuminate\Http\Request::create('/settings/security', 'GET');
         $response = $controller->security($request);
 
@@ -397,13 +396,13 @@ class SettingsControllerTest extends TestCase
             ->with('settings.security')
             ->once()
             ->andReturn(false);
-        
+
         \View::shouldReceive('make')
             ->with('settings.index', \Mockery::any(), \Mockery::any())
             ->once()
             ->andReturn(\Mockery::mock(\Illuminate\Contracts\View\View::class));
 
-        $controller = new SettingsController();
+        $controller = new SettingsController;
         $request = \Illuminate\Http\Request::create('/settings/security', 'GET');
         $response = $controller->security($request);
 

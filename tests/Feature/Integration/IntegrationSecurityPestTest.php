@@ -4,8 +4,8 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Support\Facades\Hash;
 
 test('users cannot access other mailbox conversations', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
@@ -82,11 +82,11 @@ test('csrf protection is enabled', function () {
 
     // Should successfully redirect (CSRF token is automatically included in tests)
     expect(in_array($response->status(), [302, 303]))->toBeTrue();
-    
+
     // Verify CSRF middleware is registered in kernel
     $kernel = app(Kernel::class);
     $middlewareGroups = $kernel->getMiddlewareGroups();
-    
+
     expect($middlewareGroups)->toHaveKey('web')
         ->and($middlewareGroups['web'])->toContain(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
 });
@@ -142,7 +142,7 @@ test('xss protection in customer data', function () {
         ->get(route('customers.show', $customer));
 
     $content = $response->getContent();
-    
+
     // Check that the actual <img tag is not present (should be escaped)
     expect($content)->not->toContain('<img src=x onerror')
         // The escaped version should be present
@@ -162,7 +162,7 @@ test('sql injection is prevented in search', function () {
             'q' => "' OR '1'='1",
         ]))
         ->assertOk();
-    
+
     // Should not return all conversations (SQL injection failed)
     // Laravel's query builder prevents SQL injection by default
     // If it worked, we might get more results or an error, but assertOk confirms no crash
@@ -272,6 +272,6 @@ test('mailbox permissions are enforced', function () {
     $this->actingAs($user)
         ->get(route('conversations.index', $mailbox1))
         ->assertOk();
-        
+
     // Verification of mailbox2 access denial is implicit in other tests or could be added
 });

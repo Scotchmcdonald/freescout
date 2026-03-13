@@ -30,9 +30,9 @@ class AdditionalListenersTest extends UnitTestCase
     public function test_remember_user_locale_handles_login_event_without_locale(): void
     {
         $user = User::factory()->create();
-        
+
         $event = new Login('web', $user, false);
-        $listener = new RememberUserLocale();
+        $listener = new RememberUserLocale;
 
         $listener->handle($event);
 
@@ -44,7 +44,7 @@ class AdditionalListenersTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $event = new Login('web', $user, false);
-        $listener = new RememberUserLocale();
+        $listener = new RememberUserLocale;
 
         $listener->handle($event);
 
@@ -55,7 +55,7 @@ class AdditionalListenersTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $event = new Login('api', $user, false);
-        $listener = new RememberUserLocale();
+        $listener = new RememberUserLocale;
 
         $listener->handle($event);
 
@@ -66,7 +66,7 @@ class AdditionalListenersTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $event = new Login('web', $user, true);
-        $listener = new RememberUserLocale();
+        $listener = new RememberUserLocale;
 
         $listener->handle($event);
 
@@ -77,7 +77,7 @@ class AdditionalListenersTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $event = new Login('web', $user, false);
-        $listener = new RememberUserLocale();
+        $listener = new RememberUserLocale;
 
         $listener->handle($event);
 
@@ -91,7 +91,7 @@ class AdditionalListenersTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $event = new PasswordReset($user);
-        $listener = new SendPasswordChanged();
+        $listener = new SendPasswordChanged;
 
         $listener->handle($event);
 
@@ -103,7 +103,7 @@ class AdditionalListenersTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $event = new PasswordReset($user);
-        $listener = new SendPasswordChanged();
+        $listener = new SendPasswordChanged;
 
         $listener->handle($event);
 
@@ -115,7 +115,7 @@ class AdditionalListenersTest extends UnitTestCase
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $event = new PasswordReset($admin);
-        $listener = new SendPasswordChanged();
+        $listener = new SendPasswordChanged;
 
         $listener->handle($event);
 
@@ -126,7 +126,7 @@ class AdditionalListenersTest extends UnitTestCase
     {
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $event = new PasswordReset($user);
-        $listener = new SendPasswordChanged();
+        $listener = new SendPasswordChanged;
 
         $listener->handle($event);
 
@@ -143,7 +143,7 @@ class AdditionalListenersTest extends UnitTestCase
         ]);
 
         $event = new ConversationStatusChanged($conversation);
-        $listener = new UpdateMailboxCounters();
+        $listener = new UpdateMailboxCounters;
 
         $listener->handle($event);
 
@@ -160,7 +160,7 @@ class AdditionalListenersTest extends UnitTestCase
         ]);
 
         $event = new ConversationUserChanged($conversation, null, null, $user);
-        $listener = new UpdateMailboxCounters();
+        $listener = new UpdateMailboxCounters;
 
         $listener->handle($event);
 
@@ -175,7 +175,7 @@ class AdditionalListenersTest extends UnitTestCase
         ]);
 
         $event = new ConversationStatusChanged($conversation);
-        $listener = new UpdateMailboxCounters();
+        $listener = new UpdateMailboxCounters;
 
         $listener->handle($event);
 
@@ -191,7 +191,7 @@ class AdditionalListenersTest extends UnitTestCase
         ]);
 
         $event = new ConversationStatusChanged($conversation);
-        $listener = new UpdateMailboxCounters();
+        $listener = new UpdateMailboxCounters;
 
         $listener->handle($event);
 
@@ -207,7 +207,7 @@ class AdditionalListenersTest extends UnitTestCase
         ]);
 
         $event = new ConversationStatusChanged($conversation);
-        $listener = new UpdateMailboxCounters();
+        $listener = new UpdateMailboxCounters;
 
         $listener->handle($event);
 
@@ -219,7 +219,7 @@ class AdditionalListenersTest extends UnitTestCase
     public function test_send_reply_to_customer_handles_user_replied_event(): void
     {
         Queue::fake();
-        
+
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -234,7 +234,7 @@ class AdditionalListenersTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
 
         $listener->handle($event);
 
@@ -244,7 +244,7 @@ class AdditionalListenersTest extends UnitTestCase
     public function test_send_reply_to_customer_handles_user_created_conversation_event(): void
     {
         Queue::fake();
-        
+
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -259,7 +259,7 @@ class AdditionalListenersTest extends UnitTestCase
         ]);
 
         $event = new UserCreatedConversation($conversation, $thread);
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
 
         $listener->handle($event);
 
@@ -269,7 +269,7 @@ class AdditionalListenersTest extends UnitTestCase
     public function test_send_reply_to_customer_with_imported_thread(): void
     {
         Queue::fake();
-        
+
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -282,7 +282,7 @@ class AdditionalListenersTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
 
         $listener->handle($event);
 
@@ -307,7 +307,7 @@ class AdditionalListenersTest extends UnitTestCase
     public function test_send_reply_to_customer_handles_note_thread(): void
     {
         Queue::fake();
-        
+
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -320,7 +320,7 @@ class AdditionalListenersTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
 
         $listener->handle($event);
 
@@ -330,7 +330,7 @@ class AdditionalListenersTest extends UnitTestCase
     public function test_send_reply_to_customer_dispatches_with_delay(): void
     {
         Queue::fake();
-        
+
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -343,7 +343,7 @@ class AdditionalListenersTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
 
         $listener->handle($event);
 

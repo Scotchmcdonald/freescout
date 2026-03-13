@@ -11,7 +11,6 @@ use Tests\UnitTestCase;
 
 class FolderHierarchyTest extends UnitTestCase
 {
-
     /**
      * Test that folder type helper methods work correctly.
      */

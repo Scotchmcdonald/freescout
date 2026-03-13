@@ -79,7 +79,7 @@ class UserPolicy
 
     /**
      * Determine if the user can impersonate another user.
-     * 
+     *
      * Security rules:
      * - Only admins can impersonate
      * - Cannot impersonate yourself
@@ -93,7 +93,7 @@ class UserPolicy
         }
 
         // Must be an admin
-        if (!$user->isAdmin()) {
+        if (! $user->isAdmin()) {
             return false;
         }
 

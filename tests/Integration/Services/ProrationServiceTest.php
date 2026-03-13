@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Services;
 
-use Modules\PIB\Services\ProrationService;
 use Carbon\Carbon;
+use Modules\PIB\Services\ProrationService;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 /**
  * ProrationService Integration Tests
- * 
+ *
  * Tests mid-month proration calculations used for billing adjustments.
  * Accurate proration is critical for:
  * - Mid-cycle subscription starts
@@ -150,7 +150,7 @@ class ProrationServiceTest extends TestCase
     public function test_daily_rate_varies_by_month(): void
     {
         $monthlyRate = 100.00;
-        
+
         $januaryRate = $this->service->calculateDailyRate($monthlyRate, Carbon::create(2026, 1, 1));
         $februaryRate = $this->service->calculateDailyRate($monthlyRate, Carbon::create(2026, 2, 1));
         $aprilRate = $this->service->calculateDailyRate($monthlyRate, Carbon::create(2026, 4, 1));

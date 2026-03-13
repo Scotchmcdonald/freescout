@@ -17,8 +17,8 @@ test('password can be confirmed', function () {
     $this->actingAs($user)->post('/confirm-password', [
         'password' => 'password',
     ])
-    ->assertRedirect()
-    ->assertSessionHasNoErrors();
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
 });
 
 test('password is not confirmed with invalid password', function () {
@@ -27,5 +27,5 @@ test('password is not confirmed with invalid password', function () {
     $this->actingAs($user)->post('/confirm-password', [
         'password' => 'wrong-password',
     ])
-    ->assertSessionHasErrors();
+        ->assertSessionHasErrors();
 });

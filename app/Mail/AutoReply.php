@@ -19,7 +19,7 @@ class AutoReply extends Mailable
     /**
      * Create a new message instance.
      *
-     * @param array<string, string> $headers
+     * @param  array<string, string>  $headers
      */
     public function __construct(
         public Conversation $conversation,

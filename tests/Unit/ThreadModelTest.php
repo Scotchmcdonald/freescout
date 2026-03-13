@@ -12,7 +12,6 @@ use Tests\UnitTestCase;
 
 class ThreadModelTest extends UnitTestCase
 {
-
     public function test_thread_has_conversation_id(): void
     {
         $thread = new Thread(['conversation_id' => 123]);

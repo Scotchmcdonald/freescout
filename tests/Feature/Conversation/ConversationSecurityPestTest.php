@@ -21,7 +21,7 @@ test('user cannot view conversation in unauthorized mailbox', function () {
 test('user cannot reply to unauthorized conversation', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $mailbox = Mailbox::factory()->create();
-    
+
     $conversation = Conversation::factory()->for($mailbox)->create();
 
     $this->actingAs($user)
@@ -41,7 +41,7 @@ test('reporter cannot close conversation', function () {
         ->postJson(route('conversations.ajax'), [
             'action' => 'change_status',
             'conversation_id' => $conversation->id,
-            'status' => Conversation::STATUS_CLOSED
+            'status' => Conversation::STATUS_CLOSED,
         ])
         ->assertForbidden()
         ->assertJsonFragment(['message' => 'Reporters cannot close tickets']);
@@ -56,7 +56,7 @@ test('user cannot update unauthorized conversation', function () {
 
     $this->actingAs($user)
         ->patch(route('conversations.update', $conversation), [
-            'status' => Conversation::STATUS_CLOSED
+            'status' => Conversation::STATUS_CLOSED,
         ])
         ->assertForbidden();
 });
@@ -95,7 +95,7 @@ test('conversation subject handles xss payload', function () {
     $customer = Customer::factory()->create();
 
     $xssPayload = '<script>alert("xss")</script>';
-    
+
     // Create customer email to avoid validation error
     $email = \App\Models\Email::factory()->create(['customer_id' => $customer->id]);
 
@@ -105,7 +105,7 @@ test('conversation subject handles xss payload', function () {
         'body' => 'Test body',
         'to' => [$email->email],
     ])->assertRedirect();
-    
+
     $conversation = Conversation::latest('id')->first();
     // We expect it to be stored (DB usually stores raw), but typically we'd test view escaping.
     // Legacy test just asserted it exists and contains script.

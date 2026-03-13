@@ -6,8 +6,6 @@ use App\Models\Email;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -40,7 +38,7 @@ test('web cron rejects invalid hash', function () {
     $isRejected = $response->status() === 404 ||
         $response->status() === 403 ||
         $response->status() === 401;
-    
+
     expect($isRejected)->toBeTrue();
 });
 

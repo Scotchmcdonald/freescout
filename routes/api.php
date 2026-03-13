@@ -25,7 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 |--------------------------------------------------------------------------
 |
 | Webhook endpoints for external service integrations.
-| 
+|
 | Security:
 | - VerifyWebhookSignature middleware validates signatures
 | - Rate limiting per source (60/minute)

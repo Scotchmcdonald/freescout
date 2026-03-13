@@ -103,14 +103,11 @@ class Customer extends Model
 
     /**
      * Set photo from remote URL.
-     *
-     * @param string $url
-     * @return void
      */
     public function setPhotoFromRemoteFile(string $url): void
     {
         $this->photo_url = $url;
-        // 0 = Unknown/Gravatar, 1 = Uploaded logic depends on system. 
+        // 0 = Unknown/Gravatar, 1 = Uploaded logic depends on system.
         // Assuming just setting URL is sufficient for imported contacts.
     }
 
@@ -167,13 +164,13 @@ class Customer extends Model
 
     /**
      * Get the customer's full name.
-     * 
+     *
      * @return Attribute<string, never>
      */
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn() => trim("{$this->first_name} {$this->last_name}")
+            get: fn () => trim("{$this->first_name} {$this->last_name}")
         );
     }
 
@@ -189,26 +186,26 @@ class Customer extends Model
      * Get the customer's first name.
      *
      * @param  bool  $ucfirst  Whether to uppercase the first letter
-     * @return string
      */
     public function getFirstName(bool $ucfirst = false): string
     {
         $firstName = $this->first_name ?? '';
-        
+
         return $ucfirst && $firstName ? ucfirst($firstName) : $firstName;
     }
 
     /**
      * Get the customer's primary email.
-     * 
+     *
      * @return Attribute<string|null, never>
      */
     protected function primaryEmail(): Attribute
     {
         return Attribute::make(
-            get: function(): ?string {
+            get: function (): ?string {
                 /** @var \App\Models\Email|null $email */
                 $email = $this->emails()->where('type', 1)->first();
+
                 return $email?->email;
             }
         );
@@ -236,7 +233,7 @@ class Customer extends Model
      * Create or get a customer by email address.
      * This matches the original FreeScout implementation.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function create(string $email, array $data = []): ?self
     {
@@ -299,7 +296,7 @@ class Customer extends Model
      * Set empty fields from data array.
      * This matches the original FreeScout implementation.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function setData(array $data, bool $replace_data = true, bool $save = false): bool
     {
@@ -354,20 +351,20 @@ class Customer extends Model
     /**
      * Sync customer emails from array.
      *
-     * @param array<int, string> $emails
+     * @param  array<int, string>  $emails
      */
     public function syncEmails(array $emails): void
     {
         // Remove empty emails
-        $emails = array_filter($emails, fn($email) => !empty($email));
-        
+        $emails = array_filter($emails, fn ($email) => ! empty($email));
+
         // Get existing emails
         $existing = $this->emails->pluck('email')->toArray();
-        
+
         // Add new emails
         foreach ($emails as $index => $email) {
             $sanitized = Email::sanitizeEmail($email);
-            if ($sanitized && !in_array($sanitized, $existing)) {
+            if ($sanitized && ! in_array($sanitized, $existing)) {
                 Email::create([
                     'customer_id' => $this->id,
                     'email' => $sanitized,
@@ -383,7 +380,7 @@ class Customer extends Model
     public static function getByEmail(string $email): ?Customer
     {
         $sanitized = Email::sanitizeEmail($email);
-        if (!$sanitized) {
+        if (! $sanitized) {
             return null;
         }
 
@@ -398,15 +395,14 @@ class Customer extends Model
     /**
      * Create customer without email.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function createWithoutEmail(array $data): ?Customer
     {
-        $customer = new Customer();
+        $customer = new Customer;
         $customer->fill($data);
         $customer->save();
 
         return $customer;
     }
 }
-

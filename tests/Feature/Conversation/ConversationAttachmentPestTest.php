@@ -40,7 +40,7 @@ test('user can download attachment', function () {
 
     // Create a fake file
     Storage::disk('attachments')->put(
-        $attachment->file_dir . '/' . $attachment->file_name,
+        $attachment->file_dir.'/'.$attachment->file_name,
         'Test file content'
     );
 
@@ -49,7 +49,7 @@ test('user can download attachment', function () {
     // Should either download the file or return appropriate response
     // Legacy test was satisfied with 200, 302, or 404
     expect($response->status())->toBeIn([200, 302, 404]);
-    
+
     // If it's a download, it might display inline or as attachment
     // We won't rigorously check headers if the legacy test didn't
 });

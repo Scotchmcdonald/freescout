@@ -43,6 +43,7 @@ class SendFollowUpReminders extends Command
 
         if ($conversations->isEmpty()) {
             $this->info('✓ No conversations with due follow-ups found.');
+
             return Command::SUCCESS;
         }
 
@@ -57,7 +58,7 @@ class SendFollowUpReminders extends Command
         foreach ($conversations as $conversation) {
             try {
                 // Ensure conversation has an assigned user
-                if (!$conversation->user) {
+                if (! $conversation->user) {
                     $this->warn("⚠️  Conversation #{$conversation->number} has no assigned user. Skipping.");
                     $skippedCount++;
                     continue;

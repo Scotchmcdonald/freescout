@@ -12,7 +12,7 @@ test('admin can view dashboard with all mailboxes', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox1 = Mailbox::factory()->create();
     $mailbox2 = Mailbox::factory()->create();
-    
+
     Folder::factory()->create(['mailbox_id' => $mailbox1->id, 'type' => Folder::TYPE_INBOX]);
     Folder::factory()->create(['mailbox_id' => $mailbox2->id, 'type' => Folder::TYPE_INBOX]);
 
@@ -28,7 +28,7 @@ test('user can view dashboard with assigned mailboxes only', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $mailbox1 = Mailbox::factory()->create();
     $mailbox2 = Mailbox::factory()->create();
-    
+
     Folder::factory()->create(['mailbox_id' => $mailbox1->id, 'type' => Folder::TYPE_INBOX]);
     Folder::factory()->create(['mailbox_id' => $mailbox2->id, 'type' => Folder::TYPE_INBOX]);
 
@@ -101,7 +101,7 @@ test('dashboard provides per mailbox statistics', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $mailbox1 = Mailbox::factory()->create();
     $mailbox2 = Mailbox::factory()->create();
-    
+
     $mailbox1->users()->attach($user);
     $mailbox2->users()->attach($user);
 
@@ -118,7 +118,7 @@ test('dashboard provides per mailbox statistics', function () {
         'state' => 2,
         'user_id' => null,
     ]);
-    
+
     // Mailbox 2: 1 active unassigned
     Conversation::factory()->create([
         'mailbox_id' => $mailbox2->id,

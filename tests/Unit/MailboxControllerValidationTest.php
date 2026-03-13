@@ -10,7 +10,6 @@ use Tests\UnitTestCase;
 
 class MailboxControllerValidationTest extends UnitTestCase
 {
-
     /**
      * Test that mailbox name is required for creation.
      */

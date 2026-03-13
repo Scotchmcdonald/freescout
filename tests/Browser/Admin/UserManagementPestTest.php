@@ -11,7 +11,11 @@ function getUserMgmtAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -48,7 +52,7 @@ it('user detail page loads', function () {
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
-    $this->visit('/user/' . $testUser->id)
+    $this->visit('/user/'.$testUser->id)
         ->assertSee('TestDetail');
 })->group('admin', 'users');
 
@@ -63,7 +67,7 @@ it('user edit page loads', function () {
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
-    $this->visit('/user/' . $testUser->id . '/edit')
+    $this->visit('/user/'.$testUser->id.'/edit')
         ->assertSee('Edit User');
 })->group('admin', 'users');
 
@@ -78,6 +82,6 @@ it('user permissions page loads', function () {
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
-    $this->visit('/user/' . $testUser->id . '/permissions')
+    $this->visit('/user/'.$testUser->id.'/permissions')
         ->assertSee('User Permissions');
 })->group('admin', 'users');

@@ -12,7 +12,6 @@ use Tests\UnitTestCase;
 
 class ConversationPolicyTest extends UnitTestCase
 {
-
     public function test_admin_can_view_conversation(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);

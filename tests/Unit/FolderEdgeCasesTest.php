@@ -15,7 +15,6 @@ use Tests\UnitTestCase;
  */
 class FolderEdgeCasesTest extends UnitTestCase
 {
-
     /**
      * Test that deleting a mailbox cascades to its folders.
      * Note: This depends on database foreign key constraints.

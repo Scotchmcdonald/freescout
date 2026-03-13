@@ -27,15 +27,15 @@ class LogoutUsersTest extends TestCase
     public function test_command_deletes_session_files(): void
     {
         $sessionsPath = storage_path('framework/sessions');
-        
+
         // Create test session files
-        if (!is_dir($sessionsPath)) {
+        if (! is_dir($sessionsPath)) {
             mkdir($sessionsPath, 0755, true);
         }
-        
-        $testFile1 = $sessionsPath . '/test_session_1';
-        $testFile2 = $sessionsPath . '/test_session_2';
-        
+
+        $testFile1 = $sessionsPath.'/test_session_1';
+        $testFile2 = $sessionsPath.'/test_session_2';
+
         file_put_contents($testFile1, 'session data 1');
         file_put_contents($testFile2, 'session data 2');
 
@@ -50,13 +50,13 @@ class LogoutUsersTest extends TestCase
     public function test_command_reports_deleted_sessions_count(): void
     {
         $sessionsPath = storage_path('framework/sessions');
-        
-        if (!is_dir($sessionsPath)) {
+
+        if (! is_dir($sessionsPath)) {
             mkdir($sessionsPath, 0755, true);
         }
-        
+
         // Create test session files
-        $testFile = $sessionsPath . '/test_session_count';
+        $testFile = $sessionsPath.'/test_session_count';
         file_put_contents($testFile, 'session data');
 
         $this->artisan('freescout:logout-users')
@@ -67,12 +67,12 @@ class LogoutUsersTest extends TestCase
     public function test_command_handles_empty_sessions_directory(): void
     {
         $sessionsPath = storage_path('framework/sessions');
-        
+
         // Ensure directory exists but is empty
-        if (!is_dir($sessionsPath)) {
+        if (! is_dir($sessionsPath)) {
             mkdir($sessionsPath, 0755, true);
         }
-        
+
         // Clean all existing sessions
         $files = File::files($sessionsPath);
         foreach ($files as $file) {
@@ -87,7 +87,7 @@ class LogoutUsersTest extends TestCase
     public function test_command_handles_missing_sessions_directory(): void
     {
         $sessionsPath = storage_path('framework/sessions');
-        
+
         // Temporarily rename directory if it exists
         $backupPath = storage_path('framework/sessions_backup');
         if (is_dir($sessionsPath)) {
@@ -108,13 +108,13 @@ class LogoutUsersTest extends TestCase
     public function test_command_continues_on_individual_file_errors(): void
     {
         $sessionsPath = storage_path('framework/sessions');
-        
-        if (!is_dir($sessionsPath)) {
+
+        if (! is_dir($sessionsPath)) {
             mkdir($sessionsPath, 0755, true);
         }
 
         // Create a valid file
-        $testFile = $sessionsPath . '/test_session_error';
+        $testFile = $sessionsPath.'/test_session_error';
         file_put_contents($testFile, 'session data');
 
         $this->artisan('freescout:logout-users')
@@ -124,15 +124,15 @@ class LogoutUsersTest extends TestCase
     public function test_command_deletes_multiple_session_files(): void
     {
         $sessionsPath = storage_path('framework/sessions');
-        
-        if (!is_dir($sessionsPath)) {
+
+        if (! is_dir($sessionsPath)) {
             mkdir($sessionsPath, 0755, true);
         }
 
         // Create multiple test session files
         for ($i = 1; $i <= 5; $i++) {
-            $testFile = $sessionsPath . '/test_session_multi_' . $i;
-            file_put_contents($testFile, 'session data ' . $i);
+            $testFile = $sessionsPath.'/test_session_multi_'.$i;
+            file_put_contents($testFile, 'session data '.$i);
         }
 
         $this->artisan('freescout:logout-users')
@@ -140,7 +140,7 @@ class LogoutUsersTest extends TestCase
 
         // Verify all test files are deleted
         for ($i = 1; $i <= 5; $i++) {
-            $testFile = $sessionsPath . '/test_session_multi_' . $i;
+            $testFile = $sessionsPath.'/test_session_multi_'.$i;
             $this->assertFileDoesNotExist($testFile);
         }
     }
@@ -148,14 +148,14 @@ class LogoutUsersTest extends TestCase
     public function test_command_only_deletes_files_not_directories(): void
     {
         $sessionsPath = storage_path('framework/sessions');
-        
-        if (!is_dir($sessionsPath)) {
+
+        if (! is_dir($sessionsPath)) {
             mkdir($sessionsPath, 0755, true);
         }
 
         // Create a subdirectory
-        $subDir = $sessionsPath . '/test_subdir';
-        if (!is_dir($subDir)) {
+        $subDir = $sessionsPath.'/test_subdir';
+        if (! is_dir($subDir)) {
             mkdir($subDir, 0755, true);
         }
 

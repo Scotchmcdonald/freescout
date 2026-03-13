@@ -19,7 +19,7 @@ class SmtpServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->smtpService = new SmtpService();
+        $this->smtpService = new SmtpService;
     }
 
     public function test_validate_settings_requires_smtp_server(): void

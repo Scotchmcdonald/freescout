@@ -31,15 +31,16 @@ class Update extends Command
      */
     public function handle(): int
     {
-        if (!$this->confirmToProceed()) {
+        if (! $this->confirmToProceed()) {
             return 1;
         }
 
         // Prevent concurrent updates
         $lock = Cache::lock('freescout_update_process', 600); // 10 minute lock
 
-        if (!$lock->get()) {
+        if (! $lock->get()) {
             $this->error('Another update process is currently running. Please wait.');
+
             return 1;
         }
 
@@ -73,7 +74,8 @@ class Update extends Command
 
                 return 0;
             } catch (\Exception $e) {
-                $this->error('Error occurred during update: ' . $e->getMessage());
+                $this->error('Error occurred during update: '.$e->getMessage());
+
                 return 1;
             }
         } finally {

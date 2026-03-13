@@ -7,7 +7,6 @@ use Tests\UnitTestCase;
 
 class ConfirmablePasswordControllerTest extends UnitTestCase
 {
-
     public function test_show_displays_confirmation_form()
     {
         $user = User::factory()->create();

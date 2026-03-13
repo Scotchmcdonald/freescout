@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Console\Commands;
 
-use App\Console\Commands\CreateUser;
-use App\Console\Commands\LogoutUsers;
 use App\Console\Commands\ModuleBuild;
 use App\Console\Commands\ModuleInstall;
 use App\Console\Commands\ModuleUpdate;
 use App\Console\Commands\Update;
-use App\Console\Commands\UpdateFolderCounters;
 use App\Console\Kernel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel as KernelContract;
@@ -36,15 +33,15 @@ use Tests\UnitTestCase;
  * - Concurrent execution scenarios
  * - Performance and resource limits
  * - Integration with various Laravel services
+ *
  * @group console
  */
 class KernelAndEdgeCasesTest extends UnitTestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Ensure clean state
         Cache::flush();
 
@@ -59,7 +56,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     protected function tearDown(): void
     {
         $this->cleanupTestArtifacts();
-        
+
         parent::tearDown();
     }
 
@@ -109,21 +106,21 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     public function test_kernel_can_be_resolved_from_container(): void
     {
         $kernel = app(Kernel::class);
-        
+
         $this->assertInstanceOf(Kernel::class, $kernel);
     }
 
     public function test_kernel_extends_console_kernel(): void
     {
         $kernel = app(Kernel::class);
-        
+
         $this->assertInstanceOf(\Illuminate\Foundation\Console\Kernel::class, $kernel);
     }
 
     public function test_kernel_implements_kernel_contract(): void
     {
         $kernel = app(Kernel::class);
-        
+
         $this->assertInstanceOf(\Illuminate\Contracts\Console\Kernel::class, $kernel);
     }
 
@@ -139,9 +136,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // The Kernel is registered as a singleton via the Kernel contract interface
         $kernel1 = $this->app->make(KernelContract::class);
         $kernel2 = $this->app->make(KernelContract::class);
-        
+
         $this->assertSame($kernel1, $kernel2, 'Kernel should be a singleton within the application instance');
-        
+
         // Verify it's bound as singleton in the container
         $this->assertTrue($this->app->isShared(KernelContract::class), 'Kernel contract should be registered as shared/singleton');
     }
@@ -149,7 +146,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     public function test_kernel_has_schedule_method(): void
     {
         $kernel = app(Kernel::class);
-        
+
         $this->assertTrue(
             method_exists($kernel, 'schedule'),
             'Kernel must have schedule method'
@@ -160,7 +157,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         $reflection = new \ReflectionClass(Kernel::class);
         $method = $reflection->getMethod('schedule');
-        
+
         $parameters = $method->getParameters();
         $this->assertCount(1, $parameters);
         $this->assertEquals('schedule', $parameters[0]->getName());
@@ -170,7 +167,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         $reflection = new \ReflectionClass(Kernel::class);
         $method = $reflection->getMethod('schedule');
-        
+
         $returnType = $method->getReturnType();
         $this->assertNotNull($returnType);
         $this->assertEquals('void', $returnType->getName());
@@ -179,7 +176,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     public function test_kernel_has_commands_method(): void
     {
         $kernel = app(Kernel::class);
-        
+
         $this->assertTrue(
             method_exists($kernel, 'commands'),
             'Kernel must have commands method'
@@ -190,7 +187,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         $reflection = new \ReflectionClass(Kernel::class);
         $method = $reflection->getMethod('commands');
-        
+
         $returnType = $method->getReturnType();
         $this->assertNotNull($returnType);
         $this->assertEquals('void', $returnType->getName());
@@ -200,7 +197,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         // Kernel should load commands from app/Console/Commands
         $kernel = app(Kernel::class);
-        
+
         $this->assertInstanceOf(Kernel::class, $kernel);
     }
 
@@ -208,14 +205,14 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         // Kernel should require routes/console.php
         $kernel = app(Kernel::class);
-        
+
         $this->assertTrue(File::exists(base_path('routes/console.php')));
     }
 
     public function test_schedule_can_be_resolved(): void
     {
         $schedule = $this->app->make(Schedule::class);
-        
+
         $this->assertInstanceOf(Schedule::class, $schedule);
     }
 
@@ -223,7 +220,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         $schedule1 = $this->app->make(Schedule::class);
         $schedule2 = $this->app->make(Schedule::class);
-        
+
         $this->assertSame($schedule1, $schedule2);
     }
 
@@ -231,7 +228,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('freescout', $output);
     }
 
@@ -239,7 +236,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('freescout:module-build', $output);
     }
 
@@ -247,7 +244,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('freescout:module-install', $output);
     }
 
@@ -255,7 +252,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('freescout:module-update', $output);
     }
 
@@ -263,14 +260,14 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('freescout:update', $output);
     }
 
     public function test_kernel_can_run_artisan_commands(): void
     {
         $kernel = $this->app->make(\Illuminate\Contracts\Console\Kernel::class);
-        
+
         // Kernel can execute commands
         $this->assertInstanceOf(\Illuminate\Contracts\Console\Kernel::class, $kernel);
     }
@@ -287,9 +284,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should catch exceptions when creating directories
         try {
             $exitCode = Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             // Command should complete (either success or graceful failure)
             $this->assertIsInt($exitCode);
             $output = Artisan::output();
@@ -306,9 +303,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should catch exceptions during view rendering
         try {
             $exitCode = Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->assertContainsOnly('int', [$exitCode]);
             $output = Artisan::output();
             // Verify output contains expected content or error message
@@ -324,8 +321,8 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     public function test_module_build_creates_directory_with_correct_permissions(): void
     {
         // Should create directories with 0755 permissions
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         $this->assertTrue(method_exists($command, 'buildVars'));
     }
 
@@ -334,9 +331,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should check is_dir before creating
         try {
             $exitCode = Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             // Verify command completes successfully
             $this->assertIsInt($exitCode);
             // Directory should be created if it didn't exist
@@ -354,8 +351,8 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     public function test_module_build_uses_filesystem_put_to_write_file(): void
     {
         // Should use Filesystem::put() to write files
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         $this->assertTrue(class_exists(\Illuminate\Filesystem\Filesystem::class));
     }
 
@@ -364,9 +361,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should show info message with file path
         try {
             Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
             // Verify output contains path information
@@ -383,9 +380,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should show comment and skip if view doesn't exist
         try {
             $exitCode = Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->assertIsInt($exitCode);
             $output = Artisan::output();
             $this->assertIsString($output);
@@ -401,9 +398,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should check if $compiled is truthy before writing
         try {
             Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -413,8 +410,8 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     public function test_module_build_uses_dirname_to_get_directory_path(): void
     {
         // Should use dirname() to get parent directory
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         $this->assertTrue(function_exists('dirname'));
     }
 
@@ -423,9 +420,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should show error message with exception details
         try {
             Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -437,12 +434,12 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         // Should pass locales config to view params
         Config::set('app.locales', ['en', 'fr', 'de']);
-        
+
         try {
             Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -453,12 +450,12 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         // Should handle empty locales array
         Config::set('app.locales', []);
-        
+
         try {
             Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -469,12 +466,12 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         // Should use default empty array if config missing
         Config::set('app.locales', null);
-        
+
         try {
             Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -486,9 +483,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should construct view path as {alias}::js/vars
         try {
             Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -500,9 +497,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should construct file path as public/modules/{alias}/js/vars.js
         try {
             Artisan::call('freescout:module-build', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -514,8 +511,8 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     public function test_module_install_uses_directory_separator_constant(): void
     {
         // Should use DIRECTORY_SEPARATOR for cross-platform compatibility
-        $command = new ModuleInstall();
-        
+        $command = new ModuleInstall;
+
         $this->assertTrue(defined('DIRECTORY_SEPARATOR'));
     }
 
@@ -524,9 +521,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should check is_link($from) before operations
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -538,9 +535,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should check is_dir($from) before renaming
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -552,9 +549,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should rename to {name}_{timestamp}
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->assertTrue(function_exists('date'));
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -566,9 +563,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should use YmdHis format
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -580,9 +577,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should unlink if not a directory
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->assertTrue(function_exists('unlink'));
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -594,9 +591,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should check is_link($to) for broken symlink
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -608,9 +605,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should use Helper::DIR_PERMISSIONS
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->assertTrue(class_exists(\Illuminate\Support\Facades\File::class));
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -622,9 +619,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should unlink broken symlink at target
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -636,9 +633,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should use symlink() function
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->assertTrue(function_exists('symlink'));
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -650,9 +647,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should catch exceptions from symlink()
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -664,9 +661,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should show both paths in error message
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -679,9 +676,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should show success message with path
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -694,9 +691,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should catch open_basedir exceptions
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -708,9 +705,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should return early with info message
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -722,9 +719,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should call getExtraPath('Public')
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -736,9 +733,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should use public_path() helper
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->assertTrue(function_exists('public_path'));
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -752,7 +749,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should call WpApi::getModules()
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -764,7 +761,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should check WpApi::$lastError
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -776,7 +773,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should show error message and code
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -789,7 +786,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should return without proceeding
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -801,7 +798,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should loop through dir_module
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -813,9 +810,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should skip if alias doesn't match
         try {
             Artisan::call('freescout:module-update', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -827,9 +824,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should set $found = true when module matched
         try {
             Artisan::call('freescout:module-update', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -841,7 +838,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should compare aliases between dir and installed
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -853,7 +850,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should check !empty($dir_module['version'])
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -865,7 +862,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should use version_compare(..., '>')
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->assertTrue(function_exists('version_compare'));
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -877,7 +874,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should call Module::updateModule()
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -889,7 +886,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should show [ModuleName Module]
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -902,7 +899,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should check if status == 'success'
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -914,7 +911,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should show msg_success
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -927,7 +924,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should show msg on failure
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -940,7 +937,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should append download_msg if present
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -952,7 +949,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should prefix output lines with "> "
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -965,7 +962,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should trim output
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->assertTrue(function_exists('trim'));
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -977,7 +974,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should increment $counter
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -989,7 +986,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should use Module::isOfficial()
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1001,7 +998,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should continue if official
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1013,7 +1010,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should get latestVersionUrl
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1025,7 +1022,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should continue if no URL
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1037,7 +1034,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should instantiate GuzzleHttp\Client
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->assertTrue(class_exists(\GuzzleHttp\Client::class));
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1049,7 +1046,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should call client->request('GET', ...)
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1061,7 +1058,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should use Helper::setGuzzleDefaultOptions()
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1073,7 +1070,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should trim latest version
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1085,7 +1082,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should continue if empty
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1097,7 +1094,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should get module->get('version')
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1109,7 +1106,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should catch \Exception
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1121,7 +1118,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should continue to next module
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1133,9 +1130,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should show alias not found
         try {
             Artisan::call('freescout:module-update', [
-                'module_alias' => 'NonExistent'
+                'module_alias' => 'NonExistent',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertStringContainsString('not found', strtolower($output));
         } catch (\Exception $e) {
@@ -1149,7 +1146,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should show "All modules are up-to-date"
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -1162,7 +1159,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should call Artisan::call('freescout:clear-cache')
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1176,9 +1173,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should call ini_set('memory_limit', '256M')
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $this->assertTrue(function_exists('ini_set'));
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1190,9 +1187,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should catch exceptions
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1204,9 +1201,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should return 1 on error
         try {
             $exitCode = Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $this->assertContains($exitCode, [0, 1]);
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1218,9 +1215,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should return 0 on success
         try {
             $exitCode = Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             if ($exitCode === 0) {
                 $this->assertEquals(0, $exitCode);
             } else {
@@ -1236,9 +1233,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should call confirmToProceed()
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1250,9 +1247,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         // Should return 1 without force in production
         try {
             $exitCode = Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $this->assertIsInt($exitCode);
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -1265,7 +1262,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     {
         $exitCode = Artisan::call('list');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('freescout:module-build', $output);
         $this->assertStringContainsString('freescout:module-install', $output);
         $this->assertStringContainsString('freescout:module-update', $output);
@@ -1280,14 +1277,14 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             'freescout:module-update',
             'freescout:update',
         ];
-        
+
         foreach ($commands as $command) {
             try {
                 $exitCode = Artisan::call($command, [
                     'module_alias' => 'test',
-                    '--force' => true
+                    '--force' => true,
                 ]);
-                
+
                 $this->assertIsInt($exitCode);
             } catch (\Exception $e) {
                 // Expected for some commands
@@ -1303,9 +1300,9 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             ModuleInstall::class,
             Update::class,
         ];
-        
+
         foreach ($commands as $commandClass) {
-            $command = new $commandClass();
+            $command = new $commandClass;
             $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
         }
 
@@ -1323,7 +1320,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
             ModuleUpdate::class,
             Update::class,
         ];
-        
+
         foreach ($commands as $commandClass) {
             $this->assertTrue(
                 method_exists($commandClass, 'handle'),
@@ -1337,15 +1334,15 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
 
         $commands = [
-            new ModuleBuild(),
-            new ModuleInstall(),
+            new ModuleBuild,
+            new ModuleInstall,
             new ModuleUpdate($mockModuleSource),
-            new Update(),
+            new Update,
         ];
-        
+
         foreach ($commands as $command) {
             $description = $command->getDescription();
-            $this->assertNotEmpty($description, get_class($command) . ' must have description');
+            $this->assertNotEmpty($description, get_class($command).' must have description');
         }
     }
 
@@ -1354,12 +1351,12 @@ class KernelAndEdgeCasesTest extends UnitTestCase
         $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
 
         $commands = [
-            new ModuleBuild(),
-            new ModuleInstall(),
+            new ModuleBuild,
+            new ModuleInstall,
             new ModuleUpdate($mockModuleSource),
-            new Update(),
+            new Update,
         ];
-        
+
         $signatures = [];
         foreach ($commands as $command) {
             $signature = $command->getName();
@@ -1371,7 +1368,7 @@ class KernelAndEdgeCasesTest extends UnitTestCase
     public function test_kernel_is_properly_configured(): void
     {
         $kernel = app(Kernel::class);
-        
+
         // Kernel should be configured correctly
         $this->assertInstanceOf(\Illuminate\Foundation\Console\Kernel::class, $kernel);
         $this->assertTrue(method_exists($kernel, 'schedule'));

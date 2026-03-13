@@ -92,7 +92,8 @@ test('create form displays user folders only', function () {
     $response->assertOk();
     $response->assertViewHas('folders', function ($folders) use ($userFolder, $otherUserFolder) {
         $folderIds = $folders->pluck('id')->toArray();
-        return in_array($userFolder->id, $folderIds) && !in_array($otherUserFolder->id, $folderIds);
+
+        return in_array($userFolder->id, $folderIds) && ! in_array($otherUserFolder->id, $folderIds);
     });
 });
 

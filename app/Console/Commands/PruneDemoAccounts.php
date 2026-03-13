@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\User;
+use Illuminate\Console\Command;
 use Modules\Crm\Models\Company;
 
 class PruneDemoAccounts extends Command
@@ -43,6 +45,7 @@ class PruneDemoAccounts extends Command
         } elseif (! $this->option('force')) {
             if (! $this->confirm('This will also delete persistent sandbox accounts. Continue?')) {
                 $this->info('Aborted.');
+
                 return 0;
             }
         }
@@ -51,6 +54,7 @@ class PruneDemoAccounts extends Command
 
         if ($expiredUsers->isEmpty()) {
             $this->info('No expired demo accounts found.');
+
             return 0;
         }
 
@@ -61,6 +65,7 @@ class PruneDemoAccounts extends Command
         }
 
         $this->info('Cleanup complete.');
+
         return 0;
     }
 
@@ -90,8 +95,8 @@ class PruneDemoAccounts extends Command
         } catch (\Exception $e) {
             $user->delete();
         }
-        
-        $this->line("  - User deleted.");
+
+        $this->line('  - User deleted.');
     }
 
     /**

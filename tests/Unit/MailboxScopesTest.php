@@ -10,7 +10,6 @@ use Tests\UnitTestCase;
 
 class MailboxScopesTest extends UnitTestCase
 {
-
     /**
      * Test that mailboxes can be filtered by user access.
      * This tests the forUser scope if implemented.

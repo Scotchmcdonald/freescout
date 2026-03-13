@@ -6,12 +6,12 @@ namespace Tests\Unit\Console\Commands;
 
 use App\Console\Commands\ClearCache;
 use Illuminate\Support\Facades\Artisan;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 /**
  * Cache clearing tests are skipped when running with code coverage
  * because they interfere with PCOV's coverage collection and cause hangs.
+ *
  * @group console
  */
 class ClearCacheTest extends UnitTestCase
@@ -23,37 +23,37 @@ class ClearCacheTest extends UnitTestCase
 
     public function test_command_can_be_instantiated(): void
     {
-        $command = new ClearCache();
-        
+        $command = new ClearCache;
+
         $this->assertInstanceOf(ClearCache::class, $command);
     }
 
     public function test_command_has_correct_signature(): void
     {
-        $command = new ClearCache();
-        
+        $command = new ClearCache;
+
         $this->assertEquals('freescout:clear-cache', $command->getName());
     }
 
     public function test_command_has_description(): void
     {
-        $command = new ClearCache();
-        
+        $command = new ClearCache;
+
         $this->assertNotEmpty($command->getDescription());
         $this->assertStringContainsString('cache', $command->getDescription());
     }
 
     public function test_command_has_do_not_cache_config_option(): void
     {
-        $command = new ClearCache();
-        
+        $command = new ClearCache;
+
         $this->assertTrue($command->getDefinition()->hasOption('doNotCacheConfig'));
     }
 
     public function test_command_has_do_not_generate_vars_option(): void
     {
-        $command = new ClearCache();
-        
+        $command = new ClearCache;
+
         $this->assertTrue($command->getDefinition()->hasOption('doNotGenerateVars'));
     }
 
@@ -63,7 +63,7 @@ class ClearCacheTest extends UnitTestCase
             '--doNotCacheConfig' => true,
             '--doNotGenerateVars' => true,
         ]);
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -74,7 +74,7 @@ class ClearCacheTest extends UnitTestCase
             '--doNotCacheConfig' => true,
             '--doNotGenerateVars' => true,
         ]);
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -85,7 +85,7 @@ class ClearCacheTest extends UnitTestCase
             '--doNotCacheConfig' => true,
             '--doNotGenerateVars' => true,
         ]);
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -96,7 +96,7 @@ class ClearCacheTest extends UnitTestCase
             '--doNotCacheConfig' => true,
             '--doNotGenerateVars' => true,
         ]);
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -106,7 +106,7 @@ class ClearCacheTest extends UnitTestCase
         $exitCode = Artisan::call('freescout:clear-cache', [
             '--doNotGenerateVars' => true,
         ]);
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -117,7 +117,7 @@ class ClearCacheTest extends UnitTestCase
             '--doNotCacheConfig' => true,
             '--doNotGenerateVars' => true,
         ]);
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -127,7 +127,7 @@ class ClearCacheTest extends UnitTestCase
         $exitCode = Artisan::call('freescout:clear-cache', [
             '--doNotCacheConfig' => true,
         ]);
-        
+
         // May fail if freescout:generate-vars doesn't exist, that's OK
         $this->assertContains($exitCode, [0, 1]);
     }
@@ -138,7 +138,7 @@ class ClearCacheTest extends UnitTestCase
             '--doNotCacheConfig' => true,
             '--doNotGenerateVars' => true,
         ]);
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -148,7 +148,7 @@ class ClearCacheTest extends UnitTestCase
         $exitCode = Artisan::call('freescout:clear-cache', [
             '--doNotGenerateVars' => true,
         ]);
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -159,7 +159,7 @@ class ClearCacheTest extends UnitTestCase
             '--doNotCacheConfig' => true,
             '--doNotGenerateVars' => true,
         ]);
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -170,7 +170,7 @@ class ClearCacheTest extends UnitTestCase
             '--doNotCacheConfig' => true,
             '--doNotGenerateVars' => true,
         ]);
-        
+
         $this->assertEquals(0, $exitCode);
     }
 }

@@ -1,11 +1,10 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 test('user email is sanitized against xss', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->post(route('users.store'), [
             'first_name' => 'Test',
@@ -25,7 +24,7 @@ test('user email is sanitized against xss', function () {
 
 test('user name fields handle html tags properly', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->post(route('users.store'), [
             'first_name' => '<b>Bold</b>',
@@ -46,7 +45,7 @@ test('user name fields handle html tags properly', function () {
 
 test('mass assignment protection prevents role escalation', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     // Attempting to hit the patch route manually with extra fields
     // Assuming /profile route exists or we use users.update
     $this->actingAs($user)
@@ -55,7 +54,7 @@ test('mass assignment protection prevents role escalation', function () {
             'email' => $user->email,
             'role' => User::ROLE_ADMIN, // Escalation attempt
         ]);
-        
+
     // Standard User update controller likely filters 'role' or authorizes it
     $user->refresh();
     expect($user->role)->toBe(User::ROLE_USER);

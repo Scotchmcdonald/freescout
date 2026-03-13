@@ -20,12 +20,12 @@ class ValidateSmtpRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'out_server'     => ['required', 'string', 'max:255'],
-            'out_port'       => ['required', 'integer', 'min:1', 'max:65535'],
-            'email'          => ['required', 'email', 'max:255'],
+            'out_server' => ['required', 'string', 'max:255'],
+            'out_port' => ['required', 'integer', 'min:1', 'max:65535'],
+            'email' => ['required', 'email', 'max:255'],
             'out_encryption' => ['nullable', 'integer', 'in:0,1,2'],
-            'out_username'   => ['nullable', 'string', 'max:255'],
-            'out_password'   => ['nullable', 'string', 'max:1024'],
+            'out_username' => ['nullable', 'string', 'max:255'],
+            'out_password' => ['nullable', 'string', 'max:1024'],
         ];
     }
 }

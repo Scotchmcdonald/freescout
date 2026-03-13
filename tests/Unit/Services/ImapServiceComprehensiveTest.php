@@ -11,7 +11,6 @@ use Tests\UnitTestCase;
 
 class ImapServiceComprehensiveTest extends UnitTestCase
 {
-
     public function test_fetch_emails_returns_stats_array_with_required_keys(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -218,17 +217,17 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test parsing of plain text emails
         $mailbox = Mailbox::factory()->create();
-        
+
         // Since we can't easily mock the IMAP client fully, we'll test the service behavior
         // by verifying it handles empty/missing messages gracefully
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Service should complete without crashing
         $this->assertArrayHasKey('fetched', $stats);
         $this->assertArrayHasKey('created', $stats);
@@ -242,15 +241,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_port' => 993,
         ]);
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // HTML sanitization happens during message processing
         $this->assertIsArray($stats);
         $this->assertArrayHasKey('messages', $stats);
@@ -263,15 +262,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_port' => 993,
         ]);
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Service should handle multipart messages without errors
         $this->assertIsArray($stats);
         $this->assertGreaterThanOrEqual(0, $stats['fetched']);
@@ -286,15 +285,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_port' => 993,
         ]);
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Forward detection happens during message processing
         $this->assertArrayHasKey('fetched', $stats);
     }
@@ -303,15 +302,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test Outlook-style forwarded message handling
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Service processes various forward formats
         $this->assertIsArray($stats);
     }
@@ -320,15 +319,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test regular emails are not treated as forwards
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Regular messages processed normally
         $this->assertArrayHasKey('created', $stats);
     }
@@ -339,15 +338,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test duplicate Message-ID handling
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Service handles duplicates gracefully
         $this->assertIsArray($stats);
         $this->assertArrayHasKey('errors', $stats);
@@ -357,15 +356,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test BCC scenario handling
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // BCC messages are processed appropriately
         $this->assertGreaterThanOrEqual(0, $stats['created']);
     }
@@ -376,15 +375,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test regular attachment processing
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Attachments are saved and linked to threads
         $this->assertIsArray($stats);
     }
@@ -393,15 +392,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test inline image (CID) handling
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // CID references are replaced with proper URLs
         $this->assertArrayHasKey('fetched', $stats);
     }
@@ -410,15 +409,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test multiple CID reference handling
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // All CID references are processed
         $this->assertIsArray($stats);
     }
@@ -427,15 +426,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test empty body handling
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Empty bodies handled gracefully
         $this->assertArrayHasKey('errors', $stats);
     }
@@ -444,15 +443,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test malformed address handling
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Invalid addresses are handled safely
         $this->assertIsArray($stats);
         $this->assertArrayHasKey('messages', $stats);
@@ -462,15 +461,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test large attachment handling
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Large attachments don't crash the service
         $this->assertIsArray($stats);
     }
@@ -479,15 +478,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test Unicode/UTF-8 content handling
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Unicode characters are preserved
         $this->assertArrayHasKey('fetched', $stats);
     }
@@ -496,15 +495,15 @@ class ImapServiceComprehensiveTest extends UnitTestCase
     {
         // Test special character handling in subjects
         $mailbox = Mailbox::factory()->create();
-        
+
         Log::shouldReceive('info')->atLeast()->once();
         Log::shouldReceive('error')->once();
         Log::shouldReceive('debug')->zeroOrMoreTimes();
         Log::shouldReceive('warning')->zeroOrMoreTimes();
-        
+
         $service = new ImapService;
         $stats = $service->fetchEmails($mailbox);
-        
+
         // Special characters handled correctly
         $this->assertIsArray($stats);
     }

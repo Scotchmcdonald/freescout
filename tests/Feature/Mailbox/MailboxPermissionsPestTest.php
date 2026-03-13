@@ -59,7 +59,7 @@ test('admin can update permissions', function () {
 test('user with view access can view mailbox', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $mailbox = Mailbox::factory()->create();
-    
+
     $mailbox->users()->attach($user, ['access' => MailboxPolicy::ACCESS_VIEW]);
 
     $this->actingAs($user)
@@ -79,37 +79,37 @@ test('user without view access cannot view mailbox', function () {
 test('user with reply access can reply', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $mailbox = Mailbox::factory()->create();
-    
+
     $mailbox->users()->attach($user, ['access' => MailboxPolicy::ACCESS_REPLY]);
     $user->refresh(); // Refresh to load relationships/permissions if necessary
-    
+
     expect($user->can('reply', $mailbox))->toBeTrue();
 });
 
 test('user with view access cannot reply', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $mailbox = Mailbox::factory()->create();
-    
+
     $mailbox->users()->attach($user, ['access' => MailboxPolicy::ACCESS_VIEW]);
     $user->refresh();
-    
+
     expect($user->can('reply', $mailbox))->toBeFalse();
 });
 
 test('user with admin access can update mailbox settings', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $mailbox = Mailbox::factory()->create();
-    
+
     $mailbox->users()->attach($user, ['access' => MailboxPolicy::ACCESS_ADMIN]);
-    
+
     expect($user->can('update', $mailbox))->toBeTrue();
 });
 
 test('user with reply access cannot update mailbox settings', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $mailbox = Mailbox::factory()->create();
-    
+
     $mailbox->users()->attach($user, ['access' => MailboxPolicy::ACCESS_REPLY]);
-    
+
     expect($user->can('update', $mailbox))->toBeFalse();
 });

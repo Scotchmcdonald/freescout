@@ -19,18 +19,18 @@ use Tests\UnitTestCase;
 class RemainingCommandsTest extends UnitTestCase
 {
     // AfterAppUpdate Tests
-    
+
     public function test_after_app_update_command_can_be_instantiated(): void
     {
-        $command = new AfterAppUpdate();
-        
+        $command = new AfterAppUpdate;
+
         $this->assertInstanceOf(AfterAppUpdate::class, $command);
     }
 
     public function test_after_app_update_has_correct_signature(): void
     {
-        $command = new AfterAppUpdate();
-        
+        $command = new AfterAppUpdate;
+
         $this->assertEquals('freescout:after-app-update', $command->getName());
     }
 
@@ -41,42 +41,42 @@ class RemainingCommandsTest extends UnitTestCase
     }
 
     // CheckRequirements Tests
-    
+
     public function test_check_requirements_command_can_be_instantiated(): void
     {
-        $command = new CheckRequirements();
-        
+        $command = new CheckRequirements;
+
         $this->assertInstanceOf(CheckRequirements::class, $command);
     }
 
     public function test_check_requirements_has_correct_signature(): void
     {
-        $command = new CheckRequirements();
-        
+        $command = new CheckRequirements;
+
         $this->assertEquals('freescout:check-requirements', $command->getName());
     }
 
     public function test_check_requirements_handle_executes_successfully(): void
     {
         config(['installer.permissions' => []]);
-        
+
         $this->artisan('freescout:check-requirements')
             ->assertExitCode(0);
     }
 
     // ClearCache Tests
-    
+
     public function test_clear_cache_command_can_be_instantiated(): void
     {
-        $command = new ClearCache();
-        
+        $command = new ClearCache;
+
         $this->assertInstanceOf(ClearCache::class, $command);
     }
 
     public function test_clear_cache_has_correct_signature(): void
     {
-        $command = new ClearCache();
-        
+        $command = new ClearCache;
+
         $this->assertEquals('freescout:clear-cache', $command->getName());
     }
 
@@ -87,34 +87,34 @@ class RemainingCommandsTest extends UnitTestCase
     }
 
     // CreateUser Tests
-    
+
     public function test_create_user_command_can_be_instantiated(): void
     {
-        $command = new CreateUser();
-        
+        $command = new CreateUser;
+
         $this->assertInstanceOf(CreateUser::class, $command);
     }
 
     public function test_create_user_has_correct_signature(): void
     {
-        $command = new CreateUser();
-        
+        $command = new CreateUser;
+
         $this->assertEquals('freescout:create-user', $command->getName());
     }
 
     // GenerateVars Tests
-    
+
     public function test_generate_vars_command_can_be_instantiated(): void
     {
-        $command = new GenerateVars();
-        
+        $command = new GenerateVars;
+
         $this->assertInstanceOf(GenerateVars::class, $command);
     }
 
     public function test_generate_vars_has_correct_signature(): void
     {
-        $command = new GenerateVars();
-        
+        $command = new GenerateVars;
+
         $this->assertEquals('freescout:generate-vars', $command->getName());
     }
 
@@ -125,18 +125,18 @@ class RemainingCommandsTest extends UnitTestCase
     }
 
     // LogoutUsers Tests
-    
+
     public function test_logout_users_command_can_be_instantiated(): void
     {
-        $command = new LogoutUsers();
-        
+        $command = new LogoutUsers;
+
         $this->assertInstanceOf(LogoutUsers::class, $command);
     }
 
     public function test_logout_users_has_correct_signature(): void
     {
-        $command = new LogoutUsers();
-        
+        $command = new LogoutUsers;
+
         $this->assertEquals('freescout:logout-users', $command->getName());
     }
 
@@ -147,28 +147,28 @@ class RemainingCommandsTest extends UnitTestCase
     }
 
     // ModuleBuild Tests
-    
+
     public function test_module_build_command_can_be_instantiated(): void
     {
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         $this->assertInstanceOf(ModuleBuild::class, $command);
     }
 
     public function test_module_build_has_correct_signature(): void
     {
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         $this->assertEquals('freescout:module-build', $command->getName());
     }
 
     // ModuleUpdate Tests
-    
+
     public function test_module_update_command_can_be_instantiated(): void
     {
         $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
-        
+
         $this->assertInstanceOf(ModuleUpdate::class, $command);
     }
 
@@ -176,23 +176,23 @@ class RemainingCommandsTest extends UnitTestCase
     {
         $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
-        
+
         $this->assertEquals('freescout:module-update', $command->getName());
     }
 
     // UpdateFolderCounters Tests
-    
+
     public function test_update_folder_counters_command_can_be_instantiated(): void
     {
-        $command = new UpdateFolderCounters();
-        
+        $command = new UpdateFolderCounters;
+
         $this->assertInstanceOf(UpdateFolderCounters::class, $command);
     }
 
     public function test_update_folder_counters_has_correct_signature(): void
     {
-        $command = new UpdateFolderCounters();
-        
+        $command = new UpdateFolderCounters;
+
         $this->assertEquals('freescout:update-folder-counters', $command->getName());
     }
 

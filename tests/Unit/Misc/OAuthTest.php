@@ -119,7 +119,7 @@ class OAuthTest extends TestCase
     public function test_get_access_token_handles_network_exception(): void
     {
         Http::fake([
-            'login.microsoftonline.com/*' => fn() => throw new \Exception('Network error'),
+            'login.microsoftonline.com/*' => fn () => throw new \Exception('Network error'),
         ]);
 
         $params = [

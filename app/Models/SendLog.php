@@ -148,7 +148,7 @@ class SendLog extends Model
             self::STATUS_ACCEPTED,
             self::STATUS_DELIVERY_SUCCESS,
             self::STATUS_OPENED,
-            self::STATUS_CLICKED
+            self::STATUS_CLICKED,
         ]);
     }
 

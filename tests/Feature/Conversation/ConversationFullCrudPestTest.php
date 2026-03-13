@@ -232,10 +232,10 @@ test('reply creates thread', function () {
     ]);
 
     $response->assertRedirect();
-    
+
     // Retrieve the created thread to check body content flexibly
     $thread = Thread::where('conversation_id', $conversation->id)->first();
-    
+
     expect($thread)->not->toBeNull();
     expect($thread->body)->toContain('Reply content');
 });

@@ -13,7 +13,6 @@ use Tests\UnitTestCase;
 
 class ConversationObserverTest extends UnitTestCase
 {
-
     public function test_creating_sets_read_by_user_when_created_by_user(): void
     {
         $conversation = Conversation::factory()->create([

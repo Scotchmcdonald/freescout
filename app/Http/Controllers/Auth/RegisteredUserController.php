@@ -58,9 +58,9 @@ class RegisteredUserController extends Controller
         ]);
 
         // Auto-Enrollment Logic
-        $domain = substr((string) strrchr($user->email, "@"), 1);
+        $domain = substr((string) strrchr($user->email, '@'), 1);
         $companyDomainClass = 'Modules\Crm\Models\CompanyDomain';
-        
+
         if (class_exists($companyDomainClass)) {
             $companyDomain = $companyDomainClass::where('domain', $domain)->first();
 

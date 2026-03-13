@@ -85,7 +85,7 @@ test('conversation folder relationship matches l5', function () {
     $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
 
     expect(method_exists($folder, 'conversationsViaFolder'))->toBeTrue();
-    
+
     $relationship = $folder->conversationsViaFolder();
     expect($relationship)->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class)
         ->and($relationship->getTable())->toBe('conversation_folder');
@@ -112,7 +112,7 @@ test('mailbox passwords are encrypted', function () {
         ->assertRedirect();
 
     $mailbox = Mailbox::where('email', 'test@example.com')->first();
-    
+
     expect($mailbox)->not->toBeNull()
         ->and($mailbox->getRawOriginal('in_password'))->not->toBe($plainPassword)
         ->and($mailbox->getRawOriginal('out_password'))->not->toBe($plainPassword)
@@ -130,11 +130,11 @@ test('mailbox get mail from matches l5 behavior', function () {
     ]);
 
     $from = $mailbox->getMailFrom();
-    
+
     // In L5, 1 meant "Use Mailbox Name", but implementation might return int 1
     // The legacy test asserted it equals 1.
     expect($from['address'])->toBe('support@example.com')
-        ->and($from['name'])->toBe(1); 
+        ->and($from['name'])->toBe(1);
 });
 
 test('mailbox uses custom from name when set', function () {

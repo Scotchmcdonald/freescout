@@ -31,7 +31,7 @@ class TicketCreatedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Support Ticket Created: ' . $this->subject,
+            subject: 'Support Ticket Created: '.$this->subject,
         );
     }
 

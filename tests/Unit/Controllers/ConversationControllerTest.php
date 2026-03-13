@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Controllers;
 
+use App\Actions\Conversations\ReplyToConversationAction;
 use App\Http\Controllers\ConversationController;
+use App\Http\Requests\ReplyConversationRequest;
 use App\Http\Requests\StoreConversationRequest;
 use App\Http\Requests\UpdateConversationRequest;
-use App\Http\Requests\ReplyConversationRequest;
-use App\Actions\Conversations\ReplyToConversationAction;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Folder;
@@ -20,7 +20,6 @@ use Tests\UnitTestCase;
 
 class ConversationControllerTest extends UnitTestCase
 {
-
     public function test_controller_can_be_instantiated(): void
     {
         $controller = new ConversationController;
@@ -311,7 +310,7 @@ class ConversationControllerTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $user->mailboxes()->attach($mailbox->id);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        
+
         $this->actingAs($user);
 
         $request = \Mockery::mock(ReplyConversationRequest::class);
@@ -377,7 +376,7 @@ class ConversationControllerTest extends UnitTestCase
     public function test_ajax_requires_conversation_id(): void
     {
         $user = User::factory()->create();
-        
+
         $request = Request::create('/conversations/ajax', 'POST');
         $request->setUserResolver(fn () => $user);
         $request->merge(['action' => 'change_status']);
@@ -559,7 +558,7 @@ class ConversationControllerTest extends UnitTestCase
         ]);
 
         $controller = new ConversationController;
-        
+
         // This will fail if view doesn't exist - that's OK for testing
         try {
             $view = $controller->ajaxHtml($request);
@@ -597,10 +596,10 @@ class ConversationControllerTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         // Grant user access to mailbox
         $user->mailboxes()->attach($mailbox->id);
-        
+
         $originalCustomer = Customer::factory()->create(['email' => 'old@example.com']);
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -610,7 +609,7 @@ class ConversationControllerTest extends UnitTestCase
 
         // Ensure no customer with new email exists yet
         $this->assertDatabaseMissing('emails', ['email' => 'newcustomer@example.com']);
-        
+
         $request = Request::create('/conversations/'.$conversation->id.'/change-customer', 'POST');
         $request->setUserResolver(fn () => $user);
         $request->merge([
@@ -630,7 +629,7 @@ class ConversationControllerTest extends UnitTestCase
         ]);
 
         // Verify new customer was created/found with the correct email
-        $newCustomer = Customer::whereHas('emails', fn($q) => $q->where('email', 'newcustomer@example.com'))->first();
+        $newCustomer = Customer::whereHas('emails', fn ($q) => $q->where('email', 'newcustomer@example.com'))->first();
         $this->assertNotNull($newCustomer);
         $this->assertEquals('John', $newCustomer->first_name);
         $this->assertEquals('Doe', $newCustomer->last_name);
@@ -745,5 +744,4 @@ class ConversationControllerTest extends UnitTestCase
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->upload($request);
     }
-
 }

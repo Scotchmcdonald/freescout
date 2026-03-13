@@ -5,17 +5,18 @@ use Modules\Crm\Models\Company;
 
 function createTicketPortalUser(): array
 {
-    $company = Company::factory()->create(['name' => 'Ticket Client ' . uniqid(), 'is_active' => true]);
+    $company = Company::factory()->create(['name' => 'Ticket Client '.uniqid(), 'is_active' => true]);
     $user = User::factory()->create([
         'type' => 2,
         'first_name' => 'Ticket',
         'last_name' => 'User',
-        'email' => 'ticket-' . uniqid() . '@example.com',
+        'email' => 'ticket-'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
     ]);
     $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
+
     return [$company, $user];
 }
 
@@ -62,7 +63,7 @@ it('ticket email notifications', function () {
     expect($mailer)->not->toBeNull();
 
     // Verify User model has email field for receiving notifications
-    $user = new User();
+    $user = new User;
     expect($user->getFillable())->toContain('email');
 })->group('helpdesk', 'ticket');
 
@@ -101,7 +102,7 @@ it('ticket list filtering and search', function () {
 it('ticket history timeline display', function () {
     // Verify ticket show route exists and accepts a ticket ID
     $routes = collect(\Illuminate\Support\Facades\Route::getRoutes()->getRoutes());
-    $showRoute = $routes->first(fn ($r) => str_contains($r->uri(), 'portal/support/tickets/{ticket}') && !str_contains($r->uri(), '/close') && !str_contains($r->uri(), '/reopen') && !str_contains($r->uri(), '/reply') && !str_contains($r->uri(), '/rate'));
+    $showRoute = $routes->first(fn ($r) => str_contains($r->uri(), 'portal/support/tickets/{ticket}') && ! str_contains($r->uri(), '/close') && ! str_contains($r->uri(), '/reopen') && ! str_contains($r->uri(), '/reply') && ! str_contains($r->uri(), '/rate'));
     expect($showRoute)->not->toBeNull('Ticket show route should exist');
     expect(in_array('GET', $showRoute->methods()))->toBeTrue();
 })->group('helpdesk', 'ticket');

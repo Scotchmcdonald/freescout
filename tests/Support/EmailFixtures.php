@@ -14,15 +14,16 @@ class EmailFixtures
     /**
      * Load an email fixture by name
      *
-     * @param string $name The fixture name (without .eml extension)
+     * @param  string  $name  The fixture name (without .eml extension)
      * @return string The email content
+     *
      * @throws RuntimeException if fixture not found
      */
     public static function load(string $name): string
     {
-        $path = __DIR__ . '/../Fixtures/emails/' . $name . '.eml';
+        $path = __DIR__.'/../Fixtures/emails/'.$name.'.eml';
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             throw new RuntimeException("Email fixture not found: {$name}");
         }
 
@@ -32,15 +33,16 @@ class EmailFixtures
     /**
      * Get the path to a fixture file
      *
-     * @param string $name The fixture name (without .eml extension)
+     * @param  string  $name  The fixture name (without .eml extension)
      * @return string The absolute path
+     *
      * @throws RuntimeException if fixture not found
      */
     public static function path(string $name): string
     {
-        $path = __DIR__ . '/../Fixtures/emails/' . $name . '.eml';
+        $path = __DIR__.'/../Fixtures/emails/'.$name.'.eml';
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             throw new RuntimeException("Email fixture not found: {$name}");
         }
 
@@ -50,12 +52,12 @@ class EmailFixtures
     /**
      * Check if a fixture exists
      *
-     * @param string $name The fixture name (without .eml extension)
-     * @return bool
+     * @param  string  $name  The fixture name (without .eml extension)
      */
     public static function exists(string $name): bool
     {
-        $path = __DIR__ . '/../Fixtures/emails/' . $name . '.eml';
+        $path = __DIR__.'/../Fixtures/emails/'.$name.'.eml';
+
         return file_exists($path);
     }
 
@@ -66,8 +68,8 @@ class EmailFixtures
      */
     public static function all(): array
     {
-        $directory = __DIR__ . '/../Fixtures/emails/';
-        $files = glob($directory . '*.eml');
+        $directory = __DIR__.'/../Fixtures/emails/';
+        $files = glob($directory.'*.eml');
 
         return array_map(function ($file) {
             return basename($file, '.eml');

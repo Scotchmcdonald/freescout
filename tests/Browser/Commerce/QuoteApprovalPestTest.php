@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
-use Modules\Crm\Models\Client;
 use Modules\ContractManager\Models\Quote;
+use Modules\Crm\Models\Client;
 
 it('client can approve quote', function () {
     $client = Client::factory()->create(['name' => 'Approve Quote Client']);
@@ -18,7 +18,10 @@ it('client can approve quote', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $this->visit('/login')
         ->type('email', $admin->email)
@@ -44,7 +47,10 @@ it('client can reject quote', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $this->visit('/login')
         ->type('email', $admin->email)

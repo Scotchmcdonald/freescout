@@ -18,7 +18,7 @@ class LogoutUsersCommandTest extends TestCase
     {
         // Ensure session directory exists
         $sessionPath = storage_path('framework/sessions');
-        if (!File::exists($sessionPath)) {
+        if (! File::exists($sessionPath)) {
             File::makeDirectory($sessionPath, 0755, true);
         }
 
@@ -29,16 +29,16 @@ class LogoutUsersCommandTest extends TestCase
     public function test_logout_users_command_clears_session_files(): void
     {
         $sessionPath = storage_path('framework/sessions');
-        
+
         // Ensure directory exists
-        if (!File::exists($sessionPath)) {
+        if (! File::exists($sessionPath)) {
             File::makeDirectory($sessionPath, 0755, true);
         }
 
         // Create a test session file
-        $testFile = $sessionPath . '/test_session_' . uniqid();
+        $testFile = $sessionPath.'/test_session_'.uniqid();
         File::put($testFile, 'test session data');
-        
+
         $this->assertTrue(File::exists($testFile));
 
         $this->artisan('freescout:logout-users')
@@ -51,9 +51,9 @@ class LogoutUsersCommandTest extends TestCase
     public function test_logout_users_command_handles_empty_sessions_directory(): void
     {
         $sessionPath = storage_path('framework/sessions');
-        
+
         // Ensure directory exists and is empty
-        if (!File::exists($sessionPath)) {
+        if (! File::exists($sessionPath)) {
             File::makeDirectory($sessionPath, 0755, true);
         }
 
@@ -71,9 +71,9 @@ class LogoutUsersCommandTest extends TestCase
     public function test_logout_users_command_reports_deleted_count(): void
     {
         $sessionPath = storage_path('framework/sessions');
-        
+
         // Ensure directory exists
-        if (!File::exists($sessionPath)) {
+        if (! File::exists($sessionPath)) {
             File::makeDirectory($sessionPath, 0755, true);
         }
 
@@ -85,8 +85,8 @@ class LogoutUsersCommandTest extends TestCase
 
         // Create multiple test session files
         for ($i = 0; $i < 3; $i++) {
-            $testFile = $sessionPath . '/test_session_' . uniqid() . '_' . $i;
-            File::put($testFile, 'test session data ' . $i);
+            $testFile = $sessionPath.'/test_session_'.uniqid().'_'.$i;
+            File::put($testFile, 'test session data '.$i);
         }
 
         $this->artisan('freescout:logout-users')

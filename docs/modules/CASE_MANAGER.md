@@ -14,7 +14,7 @@ The Decision Engine analyzes incoming support tickets (conversations) to intelli
 ### Processing Pipeline
 
 1.  **History Lookup (`HistoryService`)**: Automatically retrieves the customer's past tickets (up to a configurable limit) and detects recurring issues based on keyword overlap (default $\ge$ 30%).
-2.  **KB Concierge (`KnowledgeEngine`)**: 
+2.  **KB Concierge (`KnowledgeEngine`)**:
     - Extracts distinct keywords from the ticket subject and body.
     - Queries the KnowledgeBase module using a fast semantic search.
     - Evaluates and ranks the results using a Gemini AI model to find high-confidence article matches.
@@ -72,7 +72,74 @@ The module's behavior can be toggled via the Case Manager Settings -> Decision E
 *   **KB Concierge Enabled**: Toggles advanced pre-search against the Knowledge Base.
 *   **History Lookup Enabled**: Toggles automatic retrieval of a user's previous support tickets.
 *   **Thought Signatures Enabled**: Toggles capturing the AI's intermediate reasoning string.
+*   **Auto Respond Clarity** (`casemanager_features.auto_respond_clarity`): Default `false`. When disabled, clarifying questions produced by `triage_and_clarify` are held as draft replies awaiting technician approval. When enabled, clarifying questions are sent to the customer automatically.
 *   **Auto Respond Split** (`casemanager_features.auto_respond_split`): Default `false`. When disabled, ticket split proposals produced by `propose_ticket_split` require human approval before the message is sent to the customer. When enabled, split proposals are sent automatically.
+
+## Decision Engine Scope
+
+### What It Can Do
+
+The Decision Engine is an **assessment and routing system**. On every incoming email it:
+
+1. **Assesses** the ticket — extracts structured data (category, confidence, business impact, affected users, asset mapping) from unstructured email text.
+2. **Enriches** with context — gathers customer history, Knowledge Base matches, and endpoint health telemetry.
+3. **Routes** to a strategy — selects the optimal resolution path from 6 strategies.
+4. **Drafts** a client-facing response — when the strategy calls for customer communication (clarifying questions, split proposals, KB article links).
+5. **Briefs** the technician — generates a structured markdown briefing summarizing everything the AI has gathered.
+
+### What It Decides
+
+The AI produces a structured intake result containing:
+
+| Field | Maps To | Description |
+|---|---|---|
+| `has_clear_problem` | Is the problem clear? | Whether the issue can be understood without further questions. |
+| `issues[].includes_requester` | Is the issue on behalf of someone else? | Whether the requester is the person affected, or asking for another user/group. |
+| `issues[].category` | Hardware, software, or something else? | Categorized as `OS`, `App`, `Hardware`, `Network`, `Account`, or other. |
+| `issues[].impact_radius` | Who is affected? (blast radius) | `one` (individual), `several` (team), or `all` (organization-wide). |
+| `issues[].business_impact` | Is there a work stoppage? | `work_halted`, `work_degraded`, or `informational`. |
+| `category` + AI reasoning | Is this a security event? | If the AI detects security indicators, it sets category accordingly and routes to `route_to_technician` for immediate human review. |
+| `confidence` | How certain is the AI? | 0.0–1.0 score driving strategy selection thresholds. |
+| `suggested_strategy` | What should happen next? | The AI's recommendation, which may be overridden by rule-based priority logic. |
+
+These fields are the structured equivalent of the original triage intake matrix — the AI extracts them from free-text emails automatically rather than requiring a form.
+
+### How It Responds
+
+The Decision Engine has **two response modes** controlled by feature flags:
+
+#### Mode 1: Draft & Approve (Default — Human-in-the-Loop)
+
+When `auto_respond_clarity` and `auto_respond_split` are `false` (default):
+
+1. The strategy generates a `clientFacingMessage` (e.g., clarifying questions).
+2. The message is stored as a `draft_reply_generated` entry in the activity log.
+3. **No email is sent** to the customer.
+4. A technician reviews the draft in the sidebar and approves it via the `POST /case-manager/cases/{caseId}/approve-draft` endpoint.
+5. On approval, the message is sent as a real email reply via `ReplyToConversationAction`.
+
+#### Mode 2: Auto-Respond (Opt-In)
+
+When `auto_respond_clarity` is `true`:
+
+1. The strategy generates the message with `needsHumanApproval = false`.
+2. The message is sent immediately as an email reply.
+3. Activity log records `ai_reply_sent`.
+
+| Strategy | Auto-Respond Flag | Default | What Gets Sent |
+|---|---|---|---|
+| `triage_and_clarify` | `auto_respond_clarity` | `false` | Up to 3 targeted clarifying questions |
+| `propose_ticket_split` | `auto_respond_split` | `false` | Split confirmation request listing detected issues |
+| `provide_kb_article` | — | Always draft | KB article link + explanation |
+| `immediate_remediation` | — | Always draft | Remediation acknowledgement |
+| `reopen_and_link` | — | Always draft | Recurrence notification |
+| `route_to_technician` | — | Always draft | Routing acknowledgement |
+
+#### Draft Approval API
+
+**Endpoint:** `POST /case-manager/cases/{caseId}/approve-draft`
+**Permission:** `manage_case_manager`
+**Behavior:** Reads the most recent `draft_reply_generated` activity log entry for the case, sends it as a customer-facing email via `ReplyToConversationAction`, and records a `draft_reply_approved` activity log entry with the approving user's identity.
 
 ## Commands
 

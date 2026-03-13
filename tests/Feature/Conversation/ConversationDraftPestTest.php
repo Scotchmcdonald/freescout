@@ -52,7 +52,7 @@ test('save draft updates existing draft', function () {
 
     $response->assertOk();
     $response->assertJson(['status' => 'success']);
-    
+
     // Check if the thread was actually updated
     // Note: use fresh() or refresh() to reload from DB
     expect($draft->fresh()->body)->toBe('Updated draft message');
@@ -131,4 +131,3 @@ test('cannot discard other users draft', function () {
     // The current implementation returns 500 on failure to discard (generic error).
     $response->assertStatus(500);
 });
-

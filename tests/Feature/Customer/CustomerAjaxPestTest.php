@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\Customer;
-use App\Models\User;
-use App\Models\Email;
 use App\Models\Conversation;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Customer;
+use App\Models\Email;
+use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 // --- Search & Conversations ---
 
@@ -52,13 +52,13 @@ test('ajax search limits results', function () {
     ]);
 
     $results = $response->json('results');
-    expect($results)->toHaveCount(25); 
+    expect($results)->toHaveCount(25);
 });
 
 test('ajax conversation fetch', function () {
     $user = User::factory()->create();
     $customer = Customer::factory()->create();
-    
+
     Conversation::factory()->count(2)->create([
         'customer_id' => $customer->id,
         'state' => Conversation::STATE_PUBLISHED,
@@ -101,7 +101,7 @@ test('ajax conversation ordering', function () {
     ]);
 
     $conversations = $response->json('conversations');
-    expect($conversations[0]['subject'])->toBe('New'); 
+    expect($conversations[0]['subject'])->toBe('New');
 });
 
 // --- Email Management ---
@@ -147,9 +147,9 @@ test('add email prevents duplicates', function () {
         'email' => 'existing@example.com',
     ]);
 
-    expect($response->status() >= 400 || 
-           $response->json('success') === false || 
-           $response->json('error') !== null || 
+    expect($response->status() >= 400 ||
+           $response->json('success') === false ||
+           $response->json('error') !== null ||
            $response->json('status') === 'exists')->toBeTrue();
 });
 
@@ -234,7 +234,7 @@ test('admin can delete customer photo', function () {
         'customer_id' => $customer->id,
         'action' => 'delete_photo',
     ])->assertOk();
-    
+
     // Note: Database verification depends on implementation details (field nulling?)
 });
 

@@ -221,11 +221,11 @@ class ImapService
         // Check for OAuth
         $meta = is_array($mailbox->meta) ? $mailbox->meta : [];
         $oauth = $meta['oauth'] ?? null;
-        if (is_array($oauth) && !empty($oauth['a_token'])) {
+        if (is_array($oauth) && ! empty($oauth['a_token'])) {
             // Check if token is expired
             $issuedOn = $oauth['issued_on'] ?? null;
             $expiresIn = $oauth['expires_in'] ?? 0;
-            
+
             if ($issuedOn && (strtotime($issuedOn) + $expiresIn) < time()) {
                 // Refresh token
                 $provider = $oauth['provider'] ?? \App\Misc\OAuth::PROVIDER_MICROSOFT;
@@ -234,17 +234,18 @@ class ImapService
                     'client_secret' => $mailbox->in_password ?? '', // Assuming incoming password is client secret
                     'refresh_token' => $oauth['r_token'] ?? null,
                 ];
-                
+
                 // Decrypt secret if needed
                 try {
                     if ($params['client_secret']) {
                         $params['client_secret'] = decrypt($params['client_secret']);
                     }
-                } catch (\Exception $e) {}
-                
+                } catch (\Exception $e) {
+                }
+
                 $tokenData = \App\Misc\OAuth::getAccessToken($provider, $params);
-                
-                if (!empty($tokenData['a_token'])) {
+
+                if (! empty($tokenData['a_token'])) {
                     $meta['oauth'] = $tokenData;
                     $mailbox->meta = $meta;
                     $mailbox->save();
@@ -253,7 +254,7 @@ class ImapService
                     Log::error('Failed to refresh OAuth token', ['mailbox_id' => $mailbox->id, 'error' => $tokenData['error'] ?? 'Unknown']);
                 }
             }
-            
+
             // Use OAuth token - already validated in outer if block
             $config['username'] = $mailbox->email;
             $config['password'] = $oauth['a_token'];
@@ -284,8 +285,6 @@ class ImapService
 
     /**
      * Decrypt password safely.
-     *
-     * @return string
      */
     protected function decryptPassword(?string $password): string
     {
@@ -294,6 +293,7 @@ class ImapService
         }
         try {
             $decrypted = decrypt($password);
+
             return is_string($decrypted) ? $decrypted : '';
         } catch (\Exception $e) {
             return $password;
@@ -302,7 +302,7 @@ class ImapService
 
     /**
      * Extract sender information from message.
-     * 
+     *
      * @return array{email: string, name: string, user: \App\Models\User|null}
      */
     protected function extractSenderInfo(\Webklex\PHPIMAP\Message $message): array
@@ -346,7 +346,7 @@ class ImapService
 
         // Get first sender
         $fromAddress = reset($from);
-        
+
         // Extract email and name from address
         [$fromEmail, $fromName] = $this->parseFromAddress($fromAddress);
 
@@ -378,7 +378,7 @@ class ImapService
 
     /**
      * Parse email and name from address object/array/string.
-     * 
+     *
      * @return array{0: string|null, 1: string}
      */
     protected function parseFromAddress(mixed $fromAddress): array
@@ -395,7 +395,7 @@ class ImapService
             } catch (\Throwable $e) {
                 $fromEmail = null;
             }
-            
+
             /** @var object{mail?: string, personal?: string} $fromAddress */
             $personal = $fromAddress->personal ?? '';
             $fromName = $personal;
@@ -420,7 +420,7 @@ class ImapService
             /** @var mixed $mail */
             $mail = $fromAddress['mail'] ?? $fromAddress['email'] ?? null;
             $fromEmail = is_string($mail) ? $mail : null;
-            
+
             /** @var mixed $personal */
             $personal = $fromAddress['personal'] ?? $fromAddress['name'] ?? '';
             $fromName = is_string($personal) ? $personal : '';
@@ -552,7 +552,7 @@ class ImapService
     /**
      * Replace CID references in body with attachment URLs.
      *
-     * @param array<int, array{model: \App\Models\Attachment, content_id: string|null, is_embedded: bool}> $savedAttachments
+     * @param  array<int, array{model: \App\Models\Attachment, content_id: string|null, is_embedded: bool}>  $savedAttachments
      */
     protected function replaceCidReferences(
         array $savedAttachments,
@@ -586,7 +586,7 @@ class ImapService
     }
 
     /**
-     * @param array{email: string, name: string, user: \App\Models\User|null} $senderInfo
+     * @param  array{email: string, name: string, user: \App\Models\User|null}  $senderInfo
      * @return array{conversation: \App\Models\Conversation, is_new: bool}
      */
     protected function findOrCreateConversation(
@@ -618,7 +618,7 @@ class ImapService
                 Log::debug('Found existing conversation for reply', [
                     'conversation_id' => $conversation->id,
                 ]);
-                
+
                 return ['conversation' => $conversation, 'is_new' => false];
             } else {
                 Log::debug('Could not find parent thread, will create new conversation');
@@ -639,7 +639,7 @@ class ImapService
         $fromEmail = $senderInfo['email'] ?? '';
         $fromName = $senderInfo['name'] ?? '';
         $clientUserId = null;
-        
+
         // If an internal/client user sent this (e.g. they forwarded it, or are writing via client portal)
         if (isset($senderInfo['user']) && $senderInfo['user'] instanceof \App\Models\User) {
             $user = $senderInfo['user'];
@@ -767,7 +767,7 @@ class ImapService
                 $messageId,
                 $isExtraImport
             );
-            
+
             $conversation = $conversationData['conversation'];
             $isNewConversation = $conversationData['is_new'];
 
@@ -803,7 +803,7 @@ class ImapService
                     // Instead, look up if a User/Client User exists with this original email.
                     $forwardedUser = \App\Models\User::where('email', $fromEmail)->first();
                     $clientUserId = ($forwardedUser && $forwardedUser->isClient()) ? $forwardedUser->id : null;
-                    
+
                     // We can also clear the original internal user flag for the "sender"
                     $senderUser = $forwardedUser;
 
@@ -944,9 +944,9 @@ class ImapService
             }
         } catch (\Throwable $e) {
             Log::error('Event listener failed after email commit (conversation/reply event)', [
-                'mailbox_id'      => $mailbox->id,
+                'mailbox_id' => $mailbox->id,
                 'conversation_id' => $conversation->id,
-                'error'           => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
         }
 
@@ -955,9 +955,9 @@ class ImapService
             Log::debug('Fired NewMessageReceived broadcast event');
         } catch (\Throwable $e) {
             Log::error('Event listener failed after email commit (broadcast event)', [
-                'mailbox_id'      => $mailbox->id,
+                'mailbox_id' => $mailbox->id,
                 'conversation_id' => $conversation->id,
-                'error'           => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -1126,12 +1126,12 @@ class ImapService
 
     /**
      * Get message headers as a string for storage.
-     * 
-     * @param mixed $message Message object (dynamic type from IMAP library)
+     *
+     * @param  mixed  $message  Message object (dynamic type from IMAP library)
      */
     protected function getMessageHeaders(mixed $message): string
     {
-        if (!is_object($message)) {
+        if (! is_object($message)) {
             return '';
         }
 
@@ -1147,7 +1147,7 @@ class ImapService
                 // getRawHeader() not available or failed, continue to fallback
             }
         }
-        
+
         // Fallback to getHeader() if available
         if (method_exists($message, 'getHeader')) {
             try {
@@ -1172,7 +1172,7 @@ class ImapService
                 // getHeader() failed
             }
         }
-        
+
         return '';
     }
 
@@ -1266,7 +1266,7 @@ class ImapService
             if (empty($addr)) {
                 continue;
             }
-            
+
             $email = null;
             $name = '';
 
@@ -1353,7 +1353,7 @@ class ImapService
             if (empty($addr)) {
                 continue;
             }
-            
+
             if (is_object($addr)) {
                 // Try to get email as property
                 $email = $addr->mail ?? $addr->email ?? null;

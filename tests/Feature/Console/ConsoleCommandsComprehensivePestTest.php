@@ -4,10 +4,10 @@ use App\Models\Conversation;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 
 uses(RefreshDatabase::class);
 
@@ -51,18 +51,18 @@ test('create user with valid input', function () {
     $this->artisan('freescout:create-user', [
         '--firstName' => 'John',
         '--lastName' => 'Doe',
-        '--email' => 'john.doe' . time() . '@example.com',
+        '--email' => 'john.doe'.time().'@example.com',
         '--password' => 'password123',
         '--role' => 'admin',
     ])
-    ->expectsConfirmation('Mark email as verified?', 'yes')
-    ->expectsConfirmation('Do you want to create/update the user?', 'yes')
-    ->assertExitCode(0);
+        ->expectsConfirmation('Mark email as verified?', 'yes')
+        ->expectsConfirmation('Do you want to create/update the user?', 'yes')
+        ->assertExitCode(0);
 });
 
 test('create user creates database record', function () {
-    $email = 'testuser' . time() . '@example.com';
-    
+    $email = 'testuser'.time().'@example.com';
+
     $this->artisan('freescout:create-user', [
         '--firstName' => 'Test',
         '--lastName' => 'User',
@@ -70,10 +70,10 @@ test('create user creates database record', function () {
         '--password' => 'password',
         '--role' => 'user',
     ])
-    ->expectsConfirmation('Mark email as verified?', 'yes')
-    ->expectsConfirmation('Do you want to create/update the user?', 'yes')
-    ->assertExitCode(0);
-    
+        ->expectsConfirmation('Mark email as verified?', 'yes')
+        ->expectsConfirmation('Do you want to create/update the user?', 'yes')
+        ->assertExitCode(0);
+
     $this->assertDatabaseHas('users', [
         'first_name' => 'Test',
         'last_name' => 'User',
@@ -103,18 +103,18 @@ test('update folder counters command exists', function () {
 test('update folder counters runs successfully', function () {
     $mailbox = Mailbox::factory()->create();
     Folder::factory()->count(3)->create(['mailbox_id' => $mailbox->id]);
-    
+
     $exitCode = Artisan::call('freescout:update-folder-counters');
     expect($exitCode)->toBe(0);
 })->skip('Skipping to prevent potential hangs');
 
 test('update folder counters with mailbox option', function () {
     $mailbox = Mailbox::factory()->create();
-    
+
     $exitCode = Artisan::call('freescout:update-folder-counters', [
         '--mailbox_id' => $mailbox->id,
     ]);
-    
+
     expect($exitCode)->toBe(0);
 })->skip('Skipping to prevent potential hangs');
 
@@ -129,12 +129,12 @@ test('fetch emails with mailbox option', function () {
         'in_server' => 'imap.example.com',
         'in_port' => 993,
     ]);
-    
+
     // Command will try to connect, but we're just testing it runs
     $exitCode = Artisan::call('freescout:fetch-emails', [
         '--mailbox_id' => $mailbox->id,
     ]);
-    
+
     expect($exitCode)->toBeInt();
 })->skip('Skipping fetch emails test as it attempts real connection');
 
@@ -189,12 +189,12 @@ test('test event system command exists', function () {
 
 test('test event system runs successfully', function () {
     Event::fake();
-    
+
     // Create required data for the command
     $mailbox = Mailbox::factory()->create();
     $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
     \App\Models\Thread::factory()->create(['conversation_id' => $conversation->id]);
-    
+
     $exitCode = Artisan::call('freescout:test-events');
     expect($exitCode)->toBe(0);
 })->skip('Skipping to prevent potential hangs');
@@ -232,7 +232,7 @@ test('configure gmail mailbox command exists', function () {
 test('multiple commands can run sequentially', function () {
     $exitCode1 = Artisan::call('freescout:clear-cache');
     $exitCode2 = Artisan::call('freescout:generate-vars');
-    
+
     expect($exitCode1)->toBe(0)
         ->and($exitCode2)->toBe(0);
 });
@@ -244,8 +244,8 @@ test('command output can be captured', function () {
 });
 
 test('create user with admin role', function () {
-    $email = 'admin' . time() . '@example.com';
-    
+    $email = 'admin'.time().'@example.com';
+
     $this->artisan('freescout:create-user', [
         '--firstName' => 'Admin',
         '--lastName' => 'User',
@@ -253,18 +253,18 @@ test('create user with admin role', function () {
         '--password' => 'adminpass',
         '--role' => 'admin',
     ])
-    ->expectsConfirmation('Mark email as verified?', 'yes')
-    ->expectsConfirmation('Do you want to create/update the user?', 'yes')
-    ->assertExitCode(0);
-    
+        ->expectsConfirmation('Mark email as verified?', 'yes')
+        ->expectsConfirmation('Do you want to create/update the user?', 'yes')
+        ->assertExitCode(0);
+
     $user = User::where('first_name', 'Admin')->first();
     expect($user)->not->toBeNull()
         ->and($user->role)->toBe(User::ROLE_ADMIN);
 });
 
 test('create user with user role', function () {
-    $email = 'regularuser' . time() . '@example.com';
-    
+    $email = 'regularuser'.time().'@example.com';
+
     $this->artisan('freescout:create-user', [
         '--firstName' => 'Regular',
         '--lastName' => 'User',
@@ -272,10 +272,10 @@ test('create user with user role', function () {
         '--password' => 'userpass',
         '--role' => 'user',
     ])
-    ->expectsConfirmation('Mark email as verified?', 'yes')
-    ->expectsConfirmation('Do you want to create/update the user?', 'yes')
-    ->assertExitCode(0);
-    
+        ->expectsConfirmation('Mark email as verified?', 'yes')
+        ->expectsConfirmation('Do you want to create/update the user?', 'yes')
+        ->assertExitCode(0);
+
     $user = User::where('first_name', 'Regular')->first();
     expect($user)->not->toBeNull()
         ->and($user->role)->toBe(User::ROLE_USER);
@@ -288,11 +288,11 @@ test('update folder counters with conversations', function () {
         'mailbox_id' => $mailbox->id,
         'folder_id' => $folder->id,
     ]);
-    
+
     $exitCode = Artisan::call('freescout:update-folder-counters', [
         '--mailbox_id' => $mailbox->id,
     ]);
-    
+
     expect($exitCode)->toBe(0);
 })->skip('Skipping potential hang');
 
@@ -305,16 +305,16 @@ test('logout users with active sessions', function () {
 test('commands handle empty database', function () {
     $exitCode1 = Artisan::call('freescout:logout-users');
     $exitCode2 = Artisan::call('freescout:update-folder-counters');
-    
+
     expect($exitCode1)->toBe(0)
         ->and($exitCode2)->toBe(0);
 })->skip('Skipping potential hang');
 
 test('clear cache clears application cache', function () {
     Cache::put('test_key', 'test_value', 60);
-    
+
     Artisan::call('freescout:clear-cache');
-    
+
     // Cache might not be completely cleared depending on driver, but command should run
     expect(true)->toBeTrue();
 });
@@ -346,8 +346,8 @@ test('check requirements checks php version', function () {
 });
 
 test('create user with long names', function () {
-    $email = 'longname' . time() . '@example.com';
-    
+    $email = 'longname'.time().'@example.com';
+
     $this->artisan('freescout:create-user', [
         '--firstName' => 'VeryLongFirstNameThatExceedsNormalLengthButIsStillValidUnder255Chars',
         '--lastName' => 'VeryLongLastNameThatExceedsNormalLengthButIsStillValidUnder255Chars',
@@ -355,14 +355,14 @@ test('create user with long names', function () {
         '--password' => 'password',
         '--role' => 'user',
     ])
-    ->expectsConfirmation('Mark email as verified?', 'yes')
-    ->expectsConfirmation('Do you want to create/update the user?', 'yes')
-    ->assertExitCode(0);
+        ->expectsConfirmation('Mark email as verified?', 'yes')
+        ->expectsConfirmation('Do you want to create/update the user?', 'yes')
+        ->assertExitCode(0);
 });
 
 test('artisan commands are registered', function () {
     $commands = Artisan::all();
-    
+
     expect($commands)->toHaveKey('freescout:clear-cache')
         ->toHaveKey('freescout:update-folder-counters');
 });

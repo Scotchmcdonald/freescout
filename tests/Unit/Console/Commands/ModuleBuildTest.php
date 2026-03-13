@@ -9,41 +9,42 @@ use Tests\UnitTestCase;
 
 /**
  * Test ModuleBuild Command
- * 
+ *
  * Target: 90-95% coverage for App\Console\Commands\ModuleBuild
  * Current coverage: 50%
+ *
  * @group console
  */
 class ModuleBuildTest extends UnitTestCase
 {
     public function test_command_can_be_instantiated(): void
     {
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         $this->assertInstanceOf(ModuleBuild::class, $command);
     }
 
     public function test_command_extends_command_class(): void
     {
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
     }
 
     public function test_command_has_correct_signature(): void
     {
-        $command = new ModuleBuild();
+        $command = new ModuleBuild;
         $reflection = new \ReflectionClass($command);
         $property = $reflection->getProperty('signature');
         $signature = $property->getValue($command);
-        
+
         $this->assertEquals('freescout:module-build {module_alias?}', $signature);
     }
 
     public function test_command_has_description(): void
     {
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         $description = $command->getDescription();
         $this->assertNotEmpty($description);
         $this->assertStringContainsString('module', strtolower($description));
@@ -53,15 +54,15 @@ class ModuleBuildTest extends UnitTestCase
     {
         $kernel = $this->app->make(\Illuminate\Contracts\Console\Kernel::class);
         $commands = $kernel->all();
-        
+
         $this->assertArrayHasKey('freescout:module-build', $commands);
     }
 
     public function test_command_accepts_optional_module_alias_argument(): void
     {
-        $command = new ModuleBuild();
+        $command = new ModuleBuild;
         $definition = $command->getDefinition();
-        
+
         $this->assertTrue($definition->hasArgument('module_alias'));
         $argument = $definition->getArgument('module_alias');
         $this->assertFalse($argument->isRequired());
@@ -69,8 +70,8 @@ class ModuleBuildTest extends UnitTestCase
 
     public function test_command_has_handle_method(): void
     {
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         $this->assertTrue(method_exists($command, 'handle'));
     }
 
@@ -78,14 +79,14 @@ class ModuleBuildTest extends UnitTestCase
     {
         $reflection = new \ReflectionClass(ModuleBuild::class);
         $method = $reflection->getMethod('handle');
-        
+
         $this->assertTrue($method->isPublic());
     }
 
     public function test_command_has_build_module_method(): void
     {
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         $this->assertTrue(method_exists($command, 'buildModule'));
     }
 
@@ -93,14 +94,14 @@ class ModuleBuildTest extends UnitTestCase
     {
         $reflection = new \ReflectionClass(ModuleBuild::class);
         $method = $reflection->getMethod('buildModule');
-        
+
         $this->assertTrue($method->isProtected());
     }
 
     public function test_command_has_build_vars_method(): void
     {
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         $this->assertTrue(method_exists($command, 'buildVars'));
     }
 
@@ -108,7 +109,7 @@ class ModuleBuildTest extends UnitTestCase
     {
         $reflection = new \ReflectionClass(ModuleBuild::class);
         $method = $reflection->getMethod('buildVars');
-        
+
         $this->assertTrue($method->isProtected());
     }
 
@@ -130,7 +131,7 @@ class ModuleBuildTest extends UnitTestCase
         $reflection = new \ReflectionClass(ModuleBuild::class);
         $method = $reflection->getMethod('handle');
         $returnType = $method->getReturnType();
-        
+
         $this->assertEquals('int', $returnType->getName());
     }
 
@@ -139,7 +140,7 @@ class ModuleBuildTest extends UnitTestCase
         $reflection = new \ReflectionClass(ModuleBuild::class);
         $method = $reflection->getMethod('buildModule');
         $params = $method->getParameters();
-        
+
         $this->assertCount(1, $params);
         $this->assertEquals('module', $params[0]->getName());
     }
@@ -149,7 +150,7 @@ class ModuleBuildTest extends UnitTestCase
         $reflection = new \ReflectionClass(ModuleBuild::class);
         $method = $reflection->getMethod('buildVars');
         $params = $method->getParameters();
-        
+
         $this->assertCount(1, $params);
         $this->assertEquals('module', $params[0]->getName());
     }
@@ -159,7 +160,7 @@ class ModuleBuildTest extends UnitTestCase
         $reflection = new \ReflectionClass(ModuleBuild::class);
         $method = $reflection->getMethod('buildModule');
         $returnType = $method->getReturnType();
-        
+
         $this->assertEquals('void', $returnType->getName());
     }
 
@@ -168,17 +169,17 @@ class ModuleBuildTest extends UnitTestCase
         $reflection = new \ReflectionClass(ModuleBuild::class);
         $method = $reflection->getMethod('buildVars');
         $returnType = $method->getReturnType();
-        
+
         $this->assertEquals('void', $returnType->getName());
     }
 
     public function test_command_signature_includes_module_alias_argument(): void
     {
-        $command = new ModuleBuild();
+        $command = new ModuleBuild;
         $reflection = new \ReflectionClass($command);
         $property = $reflection->getProperty('signature');
         $signature = $property->getValue($command);
-        
+
         $this->assertStringContainsString('module_alias', $signature);
         $this->assertStringContainsString('?', $signature); // Optional argument
     }
@@ -222,12 +223,12 @@ class ModuleBuildTest extends UnitTestCase
         // Create temp public/modules directory for test
         $publicModulesPath = public_path('modules/test-module');
         $publicModulesDir = dirname($publicModulesPath);
-        
-        if (!is_dir($publicModulesDir)) {
+
+        if (! is_dir($publicModulesDir)) {
             mkdir($publicModulesDir, 0755, true);
         }
-        
-        if (!is_link($publicModulesPath) && !file_exists($publicModulesPath)) {
+
+        if (! is_link($publicModulesPath) && ! file_exists($publicModulesPath)) {
             symlink(__DIR__, $publicModulesPath);
         }
 
@@ -275,12 +276,12 @@ class ModuleBuildTest extends UnitTestCase
         // Create temp symlink
         $publicModulesPath = public_path('modules/no-view-module');
         $publicModulesDir = dirname($publicModulesPath);
-        
-        if (!is_dir($publicModulesDir)) {
+
+        if (! is_dir($publicModulesDir)) {
             mkdir($publicModulesDir, 0755, true);
         }
-        
-        if (!is_link($publicModulesPath) && !file_exists($publicModulesPath)) {
+
+        if (! is_link($publicModulesPath) && ! file_exists($publicModulesPath)) {
             symlink(__DIR__, $publicModulesPath);
         }
 
@@ -297,7 +298,7 @@ class ModuleBuildTest extends UnitTestCase
     public function test_command_uses_app_locales_config(): void
     {
         config(['app.locales' => ['en', 'es', 'fr']]);
-        
+
         $mockModule = \Mockery::mock();
         $mockModule->shouldReceive('getName')->andReturn('LocaleModule');
         $mockModule->shouldReceive('getAlias')->andReturn('locale-module');
@@ -309,12 +310,12 @@ class ModuleBuildTest extends UnitTestCase
 
         $publicModulesPath = public_path('modules/locale-module');
         $publicModulesDir = dirname($publicModulesPath);
-        
-        if (!is_dir($publicModulesDir)) {
+
+        if (! is_dir($publicModulesDir)) {
             mkdir($publicModulesDir, 0755, true);
         }
-        
-        if (!is_link($publicModulesPath) && !file_exists($publicModulesPath)) {
+
+        if (! is_link($publicModulesPath) && ! file_exists($publicModulesPath)) {
             symlink(__DIR__, $publicModulesPath);
         }
 
@@ -336,18 +337,18 @@ class ModuleBuildTest extends UnitTestCase
 
         $publicModulesPath = public_path('modules/reflection-test');
         $publicModulesDir = dirname($publicModulesPath);
-        
-        if (!is_dir($publicModulesDir)) {
+
+        if (! is_dir($publicModulesDir)) {
             mkdir($publicModulesDir, 0755, true);
         }
-        
-        if (!is_link($publicModulesPath) && !file_exists($publicModulesPath)) {
+
+        if (! is_link($publicModulesPath) && ! file_exists($publicModulesPath)) {
             symlink(__DIR__, $publicModulesPath);
         }
 
         try {
-            $command = new ModuleBuild();
-            
+            $command = new ModuleBuild;
+
             // Mock the output property
             $output = \Mockery::mock(\Symfony\Component\Console\Output\OutputInterface::class);
             $output->shouldReceive('writeln')->andReturn(null);
@@ -355,7 +356,7 @@ class ModuleBuildTest extends UnitTestCase
             $outputProperty = $reflection->getProperty('output');
             $outputProperty->setAccessible(true);
             $outputProperty->setValue($command, $output);
-            
+
             $method = $reflection->getMethod('buildModule');
             $method->setAccessible(true);
 
@@ -377,8 +378,8 @@ class ModuleBuildTest extends UnitTestCase
         $mockModule->shouldReceive('getName')->andReturn('VarsModule');
         $mockModule->shouldReceive('getAlias')->andReturn('vars-test');
 
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         // Mock the output property
         $output = \Mockery::mock(\Symfony\Component\Console\Output\OutputInterface::class);
         $output->shouldReceive('writeln')->andReturn(null);
@@ -386,7 +387,7 @@ class ModuleBuildTest extends UnitTestCase
         $outputProperty = $reflection->getProperty('output');
         $outputProperty->setAccessible(true);
         $outputProperty->setValue($command, $output);
-        
+
         $method = $reflection->getMethod('buildVars');
         $method->setAccessible(true);
 
@@ -404,7 +405,7 @@ class ModuleBuildTest extends UnitTestCase
         $mockModule->shouldReceive('getAlias')->andReturn('dir-test');
 
         $publicModulesPath = public_path('modules/dir-test');
-        $jsPath = $publicModulesPath . '/js';
+        $jsPath = $publicModulesPath.'/js';
 
         // Ensure directory doesn't exist
         if (is_dir($jsPath)) {
@@ -417,9 +418,9 @@ class ModuleBuildTest extends UnitTestCase
         try {
             // Create view to trigger file generation
             view()->addNamespace('dir-test', __DIR__);
-            
-            $command = new ModuleBuild();
-            
+
+            $command = new ModuleBuild;
+
             // Mock the output property
             $output = \Mockery::mock(\Symfony\Component\Console\Output\OutputInterface::class);
             $output->shouldReceive('writeln')->andReturn(null);
@@ -427,7 +428,7 @@ class ModuleBuildTest extends UnitTestCase
             $outputProperty = $reflection->getProperty('output');
             $outputProperty->setAccessible(true);
             $outputProperty->setValue($command, $output);
-            
+
             $method = $reflection->getMethod('buildVars');
             $method->setAccessible(true);
 
@@ -439,8 +440,8 @@ class ModuleBuildTest extends UnitTestCase
             $this->assertTrue(true);
         } finally {
             // Cleanup
-            if (is_file($jsPath . '/vars.js')) {
-                @unlink($jsPath . '/vars.js');
+            if (is_file($jsPath.'/vars.js')) {
+                @unlink($jsPath.'/vars.js');
             }
             if (is_dir($jsPath)) {
                 @rmdir($jsPath);
@@ -457,8 +458,8 @@ class ModuleBuildTest extends UnitTestCase
         $mockModule->shouldReceive('getName')->andReturn('ExceptionModule');
         $mockModule->shouldReceive('getAlias')->andReturn('exception-test');
 
-        $command = new ModuleBuild();
-        
+        $command = new ModuleBuild;
+
         // Mock the output property
         $output = \Mockery::mock(\Symfony\Component\Console\Output\OutputInterface::class);
         $output->shouldReceive('writeln')->andReturn(null);
@@ -466,7 +467,7 @@ class ModuleBuildTest extends UnitTestCase
         $outputProperty = $reflection->getProperty('output');
         $outputProperty->setAccessible(true);
         $outputProperty->setValue($command, $output);
-        
+
         $method = $reflection->getMethod('buildVars');
         $method->setAccessible(true);
 

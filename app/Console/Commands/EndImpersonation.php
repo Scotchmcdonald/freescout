@@ -22,7 +22,7 @@ class EndImpersonation extends Command
 
         if ($driver !== 'database') {
             $this->error("This command only supports the 'database' session driver. Current driver: {$driver}");
-            $this->info("For file sessions, delete files in: " . storage_path('framework/sessions'));
+            $this->info('For file sessions, delete files in: '.storage_path('framework/sessions'));
 
             return self::FAILURE;
         }
@@ -88,7 +88,7 @@ class EndImpersonation extends Command
         $this->table(
             ['Session ID', 'User ID', 'Last Activity'],
             $sessions->map(fn ($s) => [
-                substr($s->id, 0, 12) . '...',
+                substr($s->id, 0, 12).'...',
                 $s->user_id ?? 'N/A',
                 date('Y-m-d H:i:s', $s->last_activity),
             ])

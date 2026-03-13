@@ -38,7 +38,7 @@ readonly class UserData
     {
         $firstName = $validated['first_name'] ?? '';
         $email = $validated['email'] ?? '';
-        
+
         return new self(
             firstName: is_string($firstName) || is_int($firstName) || is_float($firstName) ? (string) $firstName : '',
             email: is_string($email) || is_int($email) || is_float($email) ? (string) $email : '',

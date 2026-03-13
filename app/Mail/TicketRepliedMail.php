@@ -31,7 +31,7 @@ class TicketRepliedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Reply on Ticket: ' . $this->subject,
+            subject: 'New Reply on Ticket: '.$this->subject,
         );
     }
 

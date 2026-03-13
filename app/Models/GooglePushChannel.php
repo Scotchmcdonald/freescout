@@ -71,7 +71,7 @@ class GooglePushChannel extends Model
      */
     public function isExpiringSoon(): bool
     {
-        return $this->expiration_time->isFuture() && 
+        return $this->expiration_time->isFuture() &&
                $this->expiration_time->lte(now()->addHours(24));
     }
 
@@ -82,7 +82,7 @@ class GooglePushChannel extends Model
      */
     public function getHealthStatus(): array
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return [
                 'status' => 'inactive',
                 'color' => 'gray',
@@ -94,7 +94,7 @@ class GooglePushChannel extends Model
             return [
                 'status' => 'expired',
                 'color' => 'danger',
-                'message' => 'Channel expired ' . $this->expiration_time->diffForHumans(),
+                'message' => 'Channel expired '.$this->expiration_time->diffForHumans(),
             ];
         }
 
@@ -102,7 +102,7 @@ class GooglePushChannel extends Model
             return [
                 'status' => 'expiring',
                 'color' => 'warning',
-                'message' => 'Expires ' . $this->expiration_time->diffForHumans(),
+                'message' => 'Expires '.$this->expiration_time->diffForHumans(),
             ];
         }
 
@@ -136,7 +136,7 @@ class GooglePushChannel extends Model
     /**
      * Scope to get active channels.
      *
-     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
      */
     public function scopeActive(\Illuminate\Database\Eloquent\Builder $query): void
     {
@@ -146,7 +146,7 @@ class GooglePushChannel extends Model
     /**
      * Scope to get expired channels.
      *
-     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
      */
     public function scopeExpired(\Illuminate\Database\Eloquent\Builder $query): void
     {
@@ -156,11 +156,11 @@ class GooglePushChannel extends Model
     /**
      * Scope to get expiring soon channels.
      *
-     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
      */
     public function scopeExpiringSoon(\Illuminate\Database\Eloquent\Builder $query): void
     {
         $query->where('expiration_time', '>', now())
-                    ->where('expiration_time', '<=', now()->addHours(24));
+            ->where('expiration_time', '<=', now()->addHours(24));
     }
 }

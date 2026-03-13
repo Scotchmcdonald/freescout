@@ -16,13 +16,13 @@ class FrameGuardTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->middleware = new FrameGuard();
+        $this->middleware = new FrameGuard;
     }
 
     public function test_handle_sets_x_frame_options_header(): void
     {
         $request = Request::create('/test', 'GET');
-        
+
         $response = $this->middleware->handle($request, function ($req) {
             return new Response('Test content');
         });
@@ -34,7 +34,7 @@ class FrameGuardTest extends UnitTestCase
     public function test_handle_sets_content_security_policy_header(): void
     {
         $request = Request::create('/test', 'GET');
-        
+
         $response = $this->middleware->handle($request, function ($req) {
             return new Response('Test content');
         });
@@ -48,7 +48,7 @@ class FrameGuardTest extends UnitTestCase
     {
         $request = Request::create('/test', 'GET');
         $expectedContent = 'Test response content';
-        
+
         $response = $this->middleware->handle($request, function ($req) use ($expectedContent) {
             return new Response($expectedContent);
         });
@@ -61,10 +61,11 @@ class FrameGuardTest extends UnitTestCase
     {
         $request = Request::create('/test', 'GET');
         $existingCsp = "default-src 'self'";
-        
+
         $response = $this->middleware->handle($request, function ($req) use ($existingCsp) {
             $response = new Response('Test content');
             $response->headers->set('Content-Security-Policy', $existingCsp);
+
             return $response;
         });
 
@@ -77,10 +78,11 @@ class FrameGuardTest extends UnitTestCase
     {
         $request = Request::create('/test', 'GET');
         $existingCsp = "default-src 'self'; frame-ancestors 'self'";
-        
+
         $response = $this->middleware->handle($request, function ($req) use ($existingCsp) {
             $response = new Response('Test content');
             $response->headers->set('Content-Security-Policy', $existingCsp);
+
             return $response;
         });
 
@@ -91,7 +93,7 @@ class FrameGuardTest extends UnitTestCase
     public function test_handle_preserves_response_status_code(): void
     {
         $request = Request::create('/test', 'GET');
-        
+
         $response = $this->middleware->handle($request, function ($req) {
             return new Response('Not Found', 404);
         });
@@ -104,7 +106,7 @@ class FrameGuardTest extends UnitTestCase
     {
         $request = Request::create('/api/test', 'GET');
         $jsonData = ['status' => 'success', 'data' => ['id' => 1]];
-        
+
         $response = $this->middleware->handle($request, function ($req) use ($jsonData) {
             return response()->json($jsonData);
         });

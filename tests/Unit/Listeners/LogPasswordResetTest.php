@@ -18,12 +18,12 @@ class LogPasswordResetTest extends UnitTestCase
         $user = User::factory()->create();
         $request = Request::create('/reset-password', 'POST');
         $request->server->set('REMOTE_ADDR', '192.168.1.1');
-        
+
         $event = new PasswordReset($user);
-        $listener = new LogPasswordReset();
+        $listener = new LogPasswordReset;
 
         $this->app->instance('request', $request);
-        
+
         $listener->handle($event);
 
         $this->assertDatabaseHas('activity_log', [
@@ -39,12 +39,12 @@ class LogPasswordResetTest extends UnitTestCase
         $user = User::factory()->create();
         $request = Request::create('/reset-password', 'POST');
         $request->server->set('REMOTE_ADDR', '10.0.0.5');
-        
+
         $event = new PasswordReset($user);
-        $listener = new LogPasswordReset();
+        $listener = new LogPasswordReset;
 
         $this->app->instance('request', $request);
-        
+
         $listener->handle($event);
 
         $log = ActivityLog::where('description', ActivityLog::DESCRIPTION_USER_PASSWORD_RESET)
@@ -52,7 +52,7 @@ class LogPasswordResetTest extends UnitTestCase
             ->latest()
             ->first();
         $properties = $log->properties;
-        
+
         $this->assertEquals('10.0.0.5', $properties['ip']);
     }
 
@@ -64,18 +64,18 @@ class LogPasswordResetTest extends UnitTestCase
         ]);
         $request = Request::create('/reset-password', 'POST');
         $request->server->set('REMOTE_ADDR', '192.168.1.1');
-        
+
         $event = new PasswordReset($user);
-        $listener = new LogPasswordReset();
+        $listener = new LogPasswordReset;
 
         $this->app->instance('request', $request);
-        
+
         $listener->handle($event);
 
         $log = ActivityLog::where('description', ActivityLog::DESCRIPTION_USER_PASSWORD_RESET)
             ->latest()
             ->first();
-        
+
         $this->assertEquals($user->id, $log->causer_id);
         $this->assertEquals(get_class($user), $log->causer_type);
     }
@@ -84,9 +84,9 @@ class LogPasswordResetTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $request = Request::create('/reset-password', 'POST');
-        
+
         $event = new PasswordReset($user);
-        $listener = new LogPasswordReset();
+        $listener = new LogPasswordReset;
 
         $this->app->instance('request', $request);
 
@@ -95,14 +95,14 @@ class LogPasswordResetTest extends UnitTestCase
             $listener->handle($event);
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->fail('Listener should not throw exception: ' . $e->getMessage());
+            $this->fail('Listener should not throw exception: '.$e->getMessage());
         }
     }
 
     public function test_listener_can_be_instantiated(): void
     {
-        $listener = new LogPasswordReset();
-        
+        $listener = new LogPasswordReset;
+
         $this->assertInstanceOf(LogPasswordReset::class, $listener);
     }
 }

@@ -1,13 +1,13 @@
 <?php
 
-use App\Models\User;
 use App\Models\Mailbox;
+use App\Models\User;
 use App\Services\ImapService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
@@ -43,13 +43,13 @@ test('queue job updates cache', function () {
 
     // Manually fire the event
     $event = new \Illuminate\Queue\Events\JobProcessed(
-        'sync', 
+        'sync',
         Mockery::mock(\Illuminate\Contracts\Queue\Job::class)
     );
     event($event);
 
     // If this fails, it means the listener is not registered.
-    if (!Cache::has('last_run_queue')) {
+    if (! Cache::has('last_run_queue')) {
         $this->markTestSkipped('Queue listener not triggering in test environment.');
     }
 
@@ -58,7 +58,7 @@ test('queue job updates cache', function () {
 
 test('system index shows timestamps', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     Cache::put('last_run_fetch', 1234567890);
     Cache::put('last_run_queue', 0123456745);
 
@@ -66,7 +66,7 @@ test('system index shows timestamps', function () {
         ->get(route('system'))
         ->assertOk()
         ->assertViewHas('systemInfo', function ($info) {
-            return $info['last_run_fetch'] == 1234567890 
+            return $info['last_run_fetch'] == 1234567890
                 && $info['last_run_queue'] == 0123456745;
         });
 });

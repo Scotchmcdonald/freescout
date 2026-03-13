@@ -170,7 +170,7 @@ class UserMethodsTest extends UnitTestCase
 
         $inviteUser = User::factory()->create([
             'invite_state' => User::INVITE_STATE_NOT_INVITED,
-            'invite_hash' => 'test-hash-' . uniqid(),
+            'invite_hash' => 'test-hash-'.uniqid(),
         ]);
 
         $result = $inviteUser->sendInvite();
@@ -185,7 +185,7 @@ class UserMethodsTest extends UnitTestCase
         \Illuminate\Support\Facades\Mail::fake();
 
         $inviteUser = User::factory()->create([
-            'invite_hash' => 'test-hash-' . uniqid(),
+            'invite_hash' => 'test-hash-'.uniqid(),
         ]);
 
         $inviteUser->sendInvite();

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Services;
 
 use App\Models\Conversation;
-use App\Models\Customer;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
@@ -27,7 +26,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImapService();
+        $this->service = new ImapService;
     }
 
     protected function tearDown(): void
@@ -83,14 +82,23 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     {
         $message = Mockery::mock(Message::class);
         $addressObj = (object) ['mail' => 'user@test.com', 'personal' => 'User Name'];
-        
+
         // Use anonymous class to satisfy method_exists check
-        $from = new class($addressObj) {
+        $from = new class($addressObj)
+        {
             private $addr;
-            public function __construct($addr) { $this->addr = $addr; }
-            public function get() { return [$this->addr]; }
+
+            public function __construct($addr)
+            {
+                $this->addr = $addr;
+            }
+
+            public function get()
+            {
+                return [$this->addr];
+            }
         };
-        
+
         $message->shouldReceive('getFrom')->andReturn($from);
 
         Log::shouldReceive('debug')->once(); // Only "Processing message from" is logged, user not found
@@ -137,7 +145,8 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_parse_from_address_handles_email_with_name_format(): void
     {
-        $address = new class {
+        $address = new class
+        {
             public function __toString(): string
             {
                 return 'John Doe <john@example.com>';
@@ -152,7 +161,8 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_parse_from_address_handles_object_without_mail_property(): void
     {
-        $address = new class {
+        $address = new class
+        {
             public function __toString(): string
             {
                 return 'plain@example.com';
@@ -176,7 +186,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
             'type' => 1, // Inbox
         ]);
         $senderInfo = ['email' => 'sender@example.com', 'name' => 'Test Sender', 'user' => null];
-        
+
         $message = Mockery::mock(Message::class);
         $message->shouldReceive('getHeader')->andReturn(null);
         $message->shouldReceive('getTextBody')->andReturn('Test body');
@@ -205,12 +215,12 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
             'type' => 1,
         ]);
         $senderInfo = ['email' => 'sender@example.com', 'name' => 'Test Sender', 'user' => null];
-        
+
         // Create existing conversation and thread
         $existingConversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
         ]);
-        
+
         $parentThread = Thread::factory()->create([
             'conversation_id' => $existingConversation->id,
             'message_id' => '<parent@example.com>',
@@ -218,10 +228,10 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
         $message = Mockery::mock(Message::class);
         $header = Mockery::mock(\Webklex\PHPIMAP\Header::class);
-        
+
         $inReplyTo = Mockery::mock(\Webklex\PHPIMAP\Attribute::class);
         $inReplyTo->shouldReceive('first')->andReturn('<parent@example.com>');
-        
+
         $references = Mockery::mock(\Webklex\PHPIMAP\Attribute::class);
         $references->shouldReceive('first')->andReturn(null);
 
@@ -252,9 +262,9 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         // Ensure no folders exist for this mailbox
         Folder::where('mailbox_id', $mailbox->id)->delete();
-        
+
         $senderInfo = ['email' => 'sender@example.com', 'name' => 'Test Sender', 'user' => null];
-        
+
         $message = Mockery::mock(Message::class);
         $message->shouldReceive('getHeader')->andReturn(null);
         $message->shouldReceive('getTextBody')->andReturn('Test');
@@ -277,7 +287,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     {
         $attachment = Mockery::mock(Attachment::class);
         $attachment->disposition = 'attachment';
-        
+
         $result = $this->invokeMethod($this->service, 'isEmbeddedAttachment', [
             $attachment,
             'image123',
@@ -289,11 +299,13 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_is_embedded_attachment_returns_true_for_inline_disposition(): void
     {
-        $attachment = new class extends \Webklex\PHPIMAP\Attachment {
+        $attachment = new class extends \Webklex\PHPIMAP\Attachment
+        {
             public $disposition = 'inline';
+
             public function __construct() {}
         };
-        
+
         $result = $this->invokeMethod($this->service, 'isEmbeddedAttachment', [
             $attachment,
             null,
@@ -307,7 +319,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     {
         $attachment = Mockery::mock(Attachment::class);
         $attachment->disposition = 'attachment';
-        
+
         $result = $this->invokeMethod($this->service, 'isEmbeddedAttachment', [
             $attachment,
             'file123',
@@ -482,8 +494,12 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_get_message_headers_returns_raw_header(): void
     {
-        $mockMessage = new class {
-            public function getRawHeader() { return 'Header: Value'; }
+        $mockMessage = new class
+        {
+            public function getRawHeader()
+            {
+                return 'Header: Value';
+            }
         };
 
         $result = $this->invokeMethod($this->service, 'getMessageHeaders', [$mockMessage]);
@@ -493,9 +509,17 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
 
     public function test_get_message_headers_falls_back_to_get_header(): void
     {
-        $mockMessage = new class {
-            public function getRawHeader() { return ''; }
-            public function getHeader() { return 'Fallback Header'; }
+        $mockMessage = new class
+        {
+            public function getRawHeader()
+            {
+                return '';
+            }
+
+            public function getHeader()
+            {
+                return 'Fallback Header';
+            }
         };
 
         $result = $this->invokeMethod($this->service, 'getMessageHeaders', [$mockMessage]);
@@ -517,7 +541,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     public function test_get_original_sender_from_fwd_parses_from_with_name_and_email(): void
     {
         $body = 'Some text From: John Doe <john@example.com> more text';
-        
+
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
         $this->assertNotNull($result);
@@ -528,7 +552,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     public function test_get_original_sender_from_fwd_parses_from_with_email_only(): void
     {
         $body = 'Some text From: john@example.com more text';
-        
+
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
         $this->assertNotNull($result);
@@ -539,7 +563,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     public function test_get_original_sender_from_fwd_finds_email_in_body(): void
     {
         $body = 'Check this email: test@example.com for info';
-        
+
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
         $this->assertNotNull($result);
@@ -549,7 +573,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     public function test_get_original_sender_from_fwd_returns_null_when_no_email_found(): void
     {
         $body = 'This body has no email address';
-        
+
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
         $this->assertNull($result);
@@ -558,7 +582,7 @@ class ImapServiceRefactoredMethodsTest extends UnitTestCase
     public function test_get_original_sender_from_fwd_handles_cid_and_fwd_cleanup(): void
     {
         $body = 'Text with "cid:image123" and @fwd<link> From: sender@example.com';
-        
+
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
         // Should handle cleanup and still try to find email

@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Illuminate\Support\Facades\DB;
 use App\Models\Conversation;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Modules\Crm\Models\Client; // Assuming client model location
-use Modules\KnowledgeBase\Models\Article;
 
 class GlobalSearchController extends Controller
 {
@@ -48,7 +46,7 @@ class GlobalSearchController extends Controller
             ->orWhere('email', 'like', "%{$query}%")
             ->limit(5)
             ->get();
-        
+
         // 4. Search Knowledge Base (if module exists)
         if (class_exists(\Modules\KnowledgeBase\Models\Article::class)) {
             $results['articles'] = \Modules\KnowledgeBase\Models\Article::where('title', 'like', "%{$query}%")

@@ -13,7 +13,11 @@ function getBillAdjAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -58,7 +62,7 @@ it('billing adjustment detail loads', function () {
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
-    $this->visit('/billing/adjustments/' . $adjustment->id)
+    $this->visit('/billing/adjustments/'.$adjustment->id)
         ->assertSee('Billing Adjustment');
 })->group('billing', 'adjustments');
 

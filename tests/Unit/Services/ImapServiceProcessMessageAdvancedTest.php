@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services;
 
-use App\Services\ImapService;
-use App\Models\Mailbox;
+use App\Models\Attachment;
 use App\Models\Conversation;
 use App\Models\Customer;
+use App\Models\Folder;
+use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use App\Models\Folder;
-use App\Models\Attachment;
-use Illuminate\Support\Facades\Event;
+use App\Services\ImapService;
 use Illuminate\Support\Facades\DB;
-use Tests\UnitTestCase;
+use Illuminate\Support\Facades\Event;
 use Mockery;
-use Webklex\PHPIMAP\Message;
+use Tests\UnitTestCase;
+use Webklex\PHPIMAP\Attachment as ImapAttachment;
 use Webklex\PHPIMAP\Attribute;
 use Webklex\PHPIMAP\Header;
-use Webklex\PHPIMAP\Attachment as ImapAttachment;
+use Webklex\PHPIMAP\Message;
 use Webklex\PHPIMAP\Support\AttachmentCollection;
 
 /**
@@ -42,7 +42,7 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImapService();
+        $this->service = new ImapService;
     }
 
     protected function tearDown(): void
@@ -77,7 +77,7 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
             'message_id' => '<test-'.uniqid().'@example.com>',
             'subject' => 'Test Subject',
             'from' => [
-                (object)['mail' => 'customer@example.com', 'personal' => 'John Doe']
+                (object) ['mail' => 'customer@example.com', 'personal' => 'John Doe'],
             ],
             'to' => [],
             'cc' => [],
@@ -87,7 +87,7 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
             'html_body' => '<p>Test email body content</p>',
             'has_html' => false, // Default to text body for simpler testing
             'has_attachments' => false,
-            'attachments' => new AttachmentCollection(),
+            'attachments' => new AttachmentCollection,
             'in_reply_to' => null,
             'references' => null,
             'raw_header' => 'From: customer@example.com',
@@ -112,7 +112,7 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
 
         // Mock header for In-Reply-To and References
         $header = Mockery::mock(Header::class);
-        
+
         if ($params['in_reply_to']) {
             $inReplyToAttr = Mockery::mock(Attribute::class);
             $inReplyToAttr->shouldReceive('first')->andReturn($params['in_reply_to']);
@@ -143,7 +143,6 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
     /**
      * Priority 1: Happy Path Tests
      */
-
     public function test_process_message_creates_new_conversation_from_customer_email(): void
     {
         // Arrange
@@ -155,7 +154,7 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'Jane Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'Jane Customer']],
             'subject' => 'Need help with my account',
             'text_body' => 'I need help resetting my password',
         ]);
@@ -183,7 +182,7 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
         $attachment->disposition = 'inline';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'html_body' => '<p><img src="cid:img1"></p>',
             'has_html' => true,
             'has_attachments' => true,
@@ -196,13 +195,12 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
         // Assert
         $conversation = Conversation::first();
         $this->assertNotNull($conversation);
-        $this->assertFalse((bool)$conversation->has_attachments);
+        $this->assertFalse((bool) $conversation->has_attachments);
     }
 
     /**
      * COMPREHENSIVE - Customer Creation from All Participants
      */
-
     public function test_process_message_creates_customers_from_all_recipients(): void
     {
         // Arrange
@@ -211,13 +209,13 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'from@example.com', 'personal' => 'From User']],
+            'from' => [(object) ['mail' => 'from@example.com', 'personal' => 'From User']],
             'to' => [
-                (object)['mail' => 'support@example.com', 'personal' => ''],
-                (object)['mail' => 'to@example.com', 'personal' => 'To User']
+                (object) ['mail' => 'support@example.com', 'personal' => ''],
+                (object) ['mail' => 'to@example.com', 'personal' => 'To User'],
             ],
-            'cc' => [(object)['mail' => 'cc@example.com', 'personal' => 'CC User']],
-            'reply_to' => [(object)['mail' => 'replyto@example.com', 'personal' => 'ReplyTo User']],
+            'cc' => [(object) ['mail' => 'cc@example.com', 'personal' => 'CC User']],
+            'reply_to' => [(object) ['mail' => 'replyto@example.com', 'personal' => 'ReplyTo User']],
         ]);
 
         // Act
@@ -232,7 +230,6 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
     /**
      * COMPREHENSIVE - Forward Command (@fwd)
      */
-
     public function test_process_message_extracts_original_sender_from_fwd_with_angle_brackets(): void
     {
         // Arrange
@@ -246,7 +243,7 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
 This is the forwarded message';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'agent@example.com', 'personal' => 'Agent']],
+            'from' => [(object) ['mail' => 'agent@example.com', 'personal' => 'Agent']],
             'subject' => 'Fwd: Customer Issue',
             'text_body' => $forwardedBody,
             'has_html' => false,
@@ -274,7 +271,7 @@ This is the forwarded message';
 This is the forwarded message';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'agent@example.com', 'personal' => 'Agent']],
+            'from' => [(object) ['mail' => 'agent@example.com', 'personal' => 'Agent']],
             'subject' => 'Fwd: Issue',
             'text_body' => $forwardedBody,
             'has_html' => false,
@@ -301,7 +298,7 @@ This is the forwarded message';
 Message';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'random@example.com', 'personal' => 'Random']],
+            'from' => [(object) ['mail' => 'random@example.com', 'personal' => 'Random']],
             'subject' => 'Fwd: Test',
             'text_body' => $forwardedBody,
             'has_html' => false,
@@ -330,7 +327,7 @@ Message';
 Clean message content';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'agent@example.com', 'personal' => 'Agent']],
+            'from' => [(object) ['mail' => 'agent@example.com', 'personal' => 'Agent']],
             'subject' => 'Fwd: Test',
             'text_body' => $forwardedBody,
             'has_html' => false,
@@ -349,7 +346,6 @@ Clean message content';
     /**
      * COMPREHENSIVE - Event Firing
      */
-
     public function test_process_message_fires_customer_created_conversation_event(): void
     {
         // Arrange
@@ -358,7 +354,7 @@ Clean message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act
@@ -392,7 +388,7 @@ Clean message content';
         $conversation->update(['threads_count' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
         ]);
 
@@ -423,7 +419,7 @@ Clean message content';
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'agent@example.com', 'personal' => 'Agent Smith']],
+            'from' => [(object) ['mail' => 'agent@example.com', 'personal' => 'Agent Smith']],
             'in_reply_to' => '<original@example.com>',
         ]);
 
@@ -443,7 +439,7 @@ Clean message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act
@@ -456,18 +452,17 @@ Clean message content';
     /**
      * COMPREHENSIVE - Database Transaction and Error Handling
      */
-
     public function test_process_message_rolls_back_transaction_on_error(): void
     {
         // Arrange
         $mailbox = Mailbox::factory()->create(['email' => 'support@example.com']);
-        
+
         // Observer creates default folders on mailbox creation, delete ALL of them
         // to simulate scenario where inbox folder is missing
         $mailbox->folders()->delete();
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act & Assert
@@ -486,7 +481,6 @@ Clean message content';
     /**
      * COMPREHENSIVE - Text vs HTML Body Handling
      */
-
     public function test_process_message_prefers_html_body_when_available(): void
     {
         // Arrange
@@ -495,7 +489,7 @@ Clean message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'text_body' => 'Plain text version',
             'html_body' => '<p><strong>HTML</strong> version</p>',
             'has_html' => true,
@@ -519,7 +513,7 @@ Clean message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'text_body' => 'Plain text only',
             'html_body' => '',
             'has_html' => false,
@@ -537,7 +531,6 @@ Clean message content';
     /**
      * COMPREHENSIVE - Conversation Preview
      */
-
     public function test_process_message_creates_conversation_preview_from_text_body(): void
     {
         // Arrange
@@ -546,9 +539,9 @@ Clean message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $longBody = str_repeat('A', 300);
-        
+
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'text_body' => $longBody,
             'has_html' => false,
         ]);
@@ -570,7 +563,7 @@ Clean message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'text_body' => '<strong>Bold</strong> text with <a href="#">link</a>',
             'has_html' => false,
         ]);
@@ -588,7 +581,6 @@ Clean message content';
     /**
      * COMPREHENSIVE - Conversation Numbering
      */
-
     public function test_process_message_assigns_sequential_conversation_numbers(): void
     {
         // Arrange
@@ -603,7 +595,7 @@ Clean message content';
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act
@@ -625,7 +617,7 @@ Clean message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act
@@ -640,7 +632,6 @@ Clean message content';
     /**
      * COMPREHENSIVE - Internal User Thread Handling
      */
-
     public function test_process_message_sets_user_id_for_internal_user_thread(): void
     {
         // Arrange
@@ -650,7 +641,7 @@ Clean message content';
         $user = User::factory()->create(['email' => 'agent@example.com']);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'agent@example.com', 'personal' => 'Agent Smith']],
+            'from' => [(object) ['mail' => 'agent@example.com', 'personal' => 'Agent Smith']],
         ]);
 
         // Act
@@ -672,7 +663,7 @@ Clean message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
         ]);
 
         // Act
@@ -706,7 +697,7 @@ Clean message content';
 
         // User replies
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'agent@example.com', 'personal' => 'Agent']],
+            'from' => [(object) ['mail' => 'agent@example.com', 'personal' => 'Agent']],
             'in_reply_to' => '<original@example.com>',
         ]);
 
@@ -721,7 +712,6 @@ Clean message content';
     /**
      * COMPREHENSIVE - Reply Separation and Quoted Text
      */
-
     public function test_process_message_separates_reply_with_protonmail_quote(): void
     {
         // Arrange
@@ -742,7 +732,7 @@ Clean message content';
         $replyBody = '<p>This is my new reply</p><div class="protonmail_quote">Original quoted text</div>';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
             'html_body' => $replyBody,
             'has_html' => true,
@@ -784,7 +774,7 @@ Clean message content';
 Previous conversation';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
             'text_body' => $replyBody,
             'has_html' => false,
@@ -825,7 +815,7 @@ On Mon, Jan 1, 2024 at 10:00 AM, Support wrote:
 > Line 2';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
             'text_body' => $replyBody,
             'has_html' => false,
@@ -867,7 +857,7 @@ To: customer@example.com
 Original message';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
             'text_body' => $replyBody,
             'has_html' => false,
@@ -907,7 +897,7 @@ ________
 Previous message';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
             'text_body' => $replyBody,
             'has_html' => false,
@@ -944,7 +934,7 @@ Previous message';
         $htmlBody = '<html><head><style>body{color:red;}</style></head><body><p>Actual content</p><div class="protonmail_quote">Quote</div></body></html>';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
             'html_body' => $htmlBody,
             'has_html' => true,
@@ -974,7 +964,7 @@ On some date wrote:
 Some text that looks like quote but is not';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'text_body' => $bodyWithSeparator,
             'has_html' => false,
             // Not a reply - no in_reply_to
@@ -1011,7 +1001,7 @@ Some text that looks like quote but is not';
         $replyBody = 'This is a complete reply without any separator markers at all';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
             'text_body' => $replyBody,
             'has_html' => false,
@@ -1031,7 +1021,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Empty Name Handling
      */
-
     public function test_process_message_handles_customer_with_empty_name(): void
     {
         // Arrange
@@ -1040,7 +1029,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'noname@example.com', 'personal' => '']],
+            'from' => [(object) ['mail' => 'noname@example.com', 'personal' => '']],
         ]);
 
         // Act
@@ -1060,7 +1049,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'single@example.com', 'personal' => 'Madonna']],
+            'from' => [(object) ['mail' => 'single@example.com', 'personal' => 'Madonna']],
         ]);
 
         // Act
@@ -1080,7 +1069,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John van der Berg Smith']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John van der Berg Smith']],
         ]);
 
         // Act
@@ -1095,7 +1084,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Folder Type and Mailbox Configuration
      */
-
     public function test_process_message_throws_exception_when_inbox_folder_missing(): void
     {
         // Arrange
@@ -1106,20 +1094,19 @@ Some text that looks like quote but is not';
         // Don't create inbox folder
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act & Assert
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('No inbox folder found');
-        
+
         $this->invokeProcessMessage($mailbox, $message);
     }
 
     /**
      * COMPREHENSIVE - Attachment Error Handling
      */
-
     public function test_process_message_continues_processing_other_attachments_on_error(): void
     {
         // Arrange
@@ -1148,7 +1135,7 @@ Some text that looks like quote but is not';
         $attachment3->disposition = 'attachment';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'has_attachments' => true,
             'attachments' => new AttachmentCollection([$attachment1, $attachment2, $attachment3]),
         ]);
@@ -1164,7 +1151,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Subject Edge Cases
      */
-
     public function test_process_message_handles_very_long_subject(): void
     {
         // Arrange
@@ -1175,7 +1161,7 @@ Some text that looks like quote but is not';
         $longSubject = str_repeat('A', 1000);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'subject' => $longSubject,
         ]);
 
@@ -1197,7 +1183,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'subject' => "Subject with\nnewlines\rand\r\ntabs\there",
         ]);
 
@@ -1213,7 +1199,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Special Email Formats
      */
-
     public function test_process_message_handles_email_with_plus_addressing(): void
     {
         // Arrange
@@ -1222,7 +1207,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer+tag@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer+tag@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act
@@ -1242,7 +1227,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'user@mail.subdomain.example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'user@mail.subdomain.example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act
@@ -1257,7 +1242,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Conversation Customer Switching
      */
-
     public function test_process_message_updates_conversation_customer_on_reply(): void
     {
         // Arrange
@@ -1280,7 +1264,7 @@ Some text that looks like quote but is not';
 
         // Customer 2 replies to the conversation
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer2@example.com', 'personal' => 'Customer Two']],
+            'from' => [(object) ['mail' => 'customer2@example.com', 'personal' => 'Customer Two']],
             'in_reply_to' => '<original@example.com>',
         ]);
 
@@ -1296,7 +1280,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Thread Type and Status
      */
-
     public function test_process_message_sets_correct_thread_type(): void
     {
         // Arrange
@@ -1305,7 +1288,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act
@@ -1323,7 +1306,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Conversation Type and Status
      */
-
     public function test_process_message_sets_correct_conversation_attributes(): void
     {
         // Arrange
@@ -1332,7 +1314,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'subject' => 'Test Conversation',
         ]);
 
@@ -1353,7 +1335,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Multiple Recipients Scenarios
      */
-
     public function test_process_message_handles_multiple_to_recipients(): void
     {
         // Arrange
@@ -1362,11 +1343,11 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'to' => [
-                (object)['mail' => 'support@example.com', 'personal' => ''],
-                (object)['mail' => 'sales@example.com', 'personal' => ''],
-                (object)['mail' => 'info@example.com', 'personal' => '']
+                (object) ['mail' => 'support@example.com', 'personal' => ''],
+                (object) ['mail' => 'sales@example.com', 'personal' => ''],
+                (object) ['mail' => 'info@example.com', 'personal' => ''],
             ],
         ]);
 
@@ -1401,13 +1382,13 @@ Some text that looks like quote but is not';
 
         // Reply with multiple recipients
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
             'to' => [
-                (object)['mail' => 'support@example.com', 'personal' => ''],
-                (object)['mail' => 'newperson@example.com', 'personal' => '']
+                (object) ['mail' => 'support@example.com', 'personal' => ''],
+                (object) ['mail' => 'newperson@example.com', 'personal' => ''],
             ],
-            'cc' => [(object)['mail' => 'ccperson@example.com', 'personal' => '']],
+            'cc' => [(object) ['mail' => 'ccperson@example.com', 'personal' => '']],
         ]);
 
         // Act
@@ -1424,7 +1405,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Whitespace and Special Character Handling
      */
-
     public function test_process_message_trims_whitespace_from_names(): void
     {
         // Arrange
@@ -1433,7 +1413,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => '  John   Doe  ']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => '  John   Doe  ']],
         ]);
 
         // Act
@@ -1453,7 +1433,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => "O'Brien-Smith, Jr."]],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => "O'Brien-Smith, Jr."]],
         ]);
 
         // Act
@@ -1468,7 +1448,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - NULL and Empty Value Handling
      */
-
     public function test_process_message_handles_null_cc_in_thread(): void
     {
         // Arrange
@@ -1477,7 +1456,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'cc' => [],
         ]);
 
@@ -1498,7 +1477,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'bcc' => [],
         ]);
 
@@ -1514,7 +1493,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Message ID Format Variations
      */
-
     public function test_process_message_handles_message_id_with_whitespace(): void
     {
         // Arrange
@@ -1524,7 +1502,7 @@ Some text that looks like quote but is not';
 
         $message = $this->createMockMessage([
             'message_id' => '  <whitespace@example.com>  ',
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act
@@ -1539,7 +1517,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Attachment Disposition Variations
      */
-
     public function test_process_message_handles_attachment_with_no_disposition(): void
     {
         // Arrange
@@ -1555,7 +1532,7 @@ Some text that looks like quote but is not';
         // No disposition property set
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'has_attachments' => true,
             'attachments' => new AttachmentCollection([$attachment]),
         ]);
@@ -1582,7 +1559,7 @@ Some text that looks like quote but is not';
         $attachment->disposition = 'attachment'; // Not inline, but referenced by CID
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'html_body' => '<p>Image: <img src="cid:cid123"></p>',
             'has_html' => true,
             'has_attachments' => true,
@@ -1595,14 +1572,13 @@ Some text that looks like quote but is not';
         // Assert
         $this->assertDatabaseHas('attachments', [
             'embedded' => true,
-            'mime_type' => 'image/png'
+            'mime_type' => 'image/png',
         ]);
     }
 
     /**
      * COMPREHENSIVE - Reply-To Header Handling
      */
-
     public function test_process_message_creates_customer_from_reply_to_address(): void
     {
         // Arrange
@@ -1611,8 +1587,8 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'from@example.com', 'personal' => 'From User']],
-            'reply_to' => [(object)['mail' => 'replyto@example.com', 'personal' => 'Reply To User']],
+            'from' => [(object) ['mail' => 'from@example.com', 'personal' => 'From User']],
+            'reply_to' => [(object) ['mail' => 'replyto@example.com', 'personal' => 'Reply To User']],
         ]);
 
         // Act
@@ -1627,7 +1603,6 @@ Some text that looks like quote but is not';
     /**
      * COMPREHENSIVE - Case Insensitivity Tests
      */
-
     public function test_process_message_handles_mixed_case_email_addresses(): void
     {
         // Arrange
@@ -1636,7 +1611,7 @@ Some text that looks like quote but is not';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'Customer@Example.COM', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'Customer@Example.COM', 'personal' => 'John Doe']],
         ]);
 
         // Act

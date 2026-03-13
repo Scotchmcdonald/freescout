@@ -321,7 +321,7 @@ test('attachment handling workflow', function () {
     // Create attachment directly (using database schema names, not model properties)
     $attachment = DB::table('attachments')->insert([
         'thread_id' => $thread->id,
-        //'conversation_id' => null, // Can be omitted if default is null
+        // 'conversation_id' => null, // Can be omitted if default is null
         'file_name' => 'screenshot.png',
         'file_dir' => 'attachments/test',
         'file_size' => 12345,
@@ -619,7 +619,7 @@ test('thread can handle multiple attachments', function () {
         ->where('thread_id', $thread->id)
         ->get();
     expect($attachmentRecords)->toHaveCount(3);
-    
+
     // Check filenames (order might not be guaranteed but likely insertion order)
     $files = $attachmentRecords->pluck('file_name')->toArray();
     expect($files)->toContain('document1.pdf')

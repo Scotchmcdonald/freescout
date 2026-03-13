@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 /**
  * Generate application variables
- * 
+ *
  * Note: Legacy functionality. Previously generated JS variables.
  * In the simplified/modern version, this primarily handles config caching.
  */

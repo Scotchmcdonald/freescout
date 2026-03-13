@@ -10,7 +10,6 @@ use Tests\UnitTestCase;
 
 class VerifyEmailControllerTest extends UnitTestCase
 {
-
     public function test_email_can_be_verified()
     {
         Event::fake();

@@ -5,7 +5,6 @@ use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\User;
 
-
 test('admin can complete full ticket lifecycle', function () {
     // 1. Create admin user
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -28,7 +27,7 @@ test('admin can complete full ticket lifecycle', function () {
     // 4. Create conversation
     $customerEmail = $customer->getMainEmail();
     expect($customerEmail)->not->toBeNull('Customer should have email');
-    
+
     $response = $this->actingAs($admin)
         ->post(route('conversations.store', $mailbox), [
             'mailbox_id' => $mailbox->id,
@@ -37,7 +36,7 @@ test('admin can complete full ticket lifecycle', function () {
             'body' => 'This is a test message',
             'to' => [$customerEmail],
         ]);
-    
+
     $response->assertRedirect();
 
     $conversation = Conversation::first();

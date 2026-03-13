@@ -46,7 +46,7 @@ return [
         'account_id' => env('HELCIM_ACCOUNT_ID'),
         'webhook_secret' => env('HELCIM_WEBHOOK_SECRET'),
         'timeout' => env('HELCIM_TIMEOUT', 30),
-        
+
         // Convenience fee settings
         'convenience_fee_enabled' => env('HELCIM_CONVENIENCE_FEE_ENABLED', false),
         'convenience_fee_percent' => env('HELCIM_CONVENIENCE_FEE_PERCENT', 2.9),
@@ -84,15 +84,15 @@ return [
     'action1' => [
         'region' => env('ACTION1_REGION', 'us'),
         'sync_key' => [
-            'client_id'     => env('ACTION1_SYNC_CLIENT_ID'),
+            'client_id' => env('ACTION1_SYNC_CLIENT_ID'),
             'client_secret' => env('ACTION1_SYNC_CLIENT_SECRET'),
         ],
         'run_key' => [
-            'client_id'     => env('ACTION1_RUN_CLIENT_ID'),
+            'client_id' => env('ACTION1_RUN_CLIENT_ID'),
             'client_secret' => env('ACTION1_RUN_CLIENT_SECRET'),
         ],
         'manage_key' => [
-            'client_id'     => env('ACTION1_MANAGE_CLIENT_ID'),
+            'client_id' => env('ACTION1_MANAGE_CLIENT_ID'),
             'client_secret' => env('ACTION1_MANAGE_CLIENT_SECRET'),
         ],
     ],

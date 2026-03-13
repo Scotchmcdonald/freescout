@@ -7,13 +7,11 @@ namespace Tests\Unit\Jobs;
 use App\Jobs\SendConversationReplyJob as SendConversationReply;
 use App\Models\Conversation;
 use App\Models\Thread;
-use App\Models\User;
 use Illuminate\Support\Facades\Queue;
 use Tests\UnitTestCase;
 
 class SendConversationReplyComprehensiveTest extends UnitTestCase
 {
-
     public function test_job_stores_conversation_correctly(): void
     {
         $customer = \App\Models\Customer::factory()->create();

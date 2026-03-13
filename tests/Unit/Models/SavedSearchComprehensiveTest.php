@@ -322,7 +322,7 @@ class SavedSearchComprehensiveTest extends UnitTestCase
         $this->assertIsString($url);
         // URL should include filter parameters
         $this->assertTrue(
-            str_contains($url, 'status') || 
+            str_contains($url, 'status') ||
             str_contains($url, 'filter') ||
             str_contains($url, 'mailbox')
         );
@@ -373,7 +373,7 @@ class SavedSearchComprehensiveTest extends UnitTestCase
         $this->assertTrue(
             str_contains(strtolower($summary), 'status') ||
             str_contains(strtolower($summary), 'active') ||
-            !empty($summary)
+            ! empty($summary)
         );
     }
 

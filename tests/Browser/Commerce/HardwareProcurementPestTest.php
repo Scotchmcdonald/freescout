@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
-use Modules\Crm\Models\Client;
 use Modules\ContractManager\Models\Quote;
+use Modules\Crm\Models\Client;
 
 it('approved quote auto generates invoice', function () {
     $admin = User::firstOrCreate(['email' => 'hw-procure-admin@example.com'], [
@@ -12,7 +12,10 @@ it('approved quote auto generates invoice', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $client = Client::factory()->create(['name' => 'HW Procurement Client']);
     $quote = Quote::factory()->approved()->create([
@@ -38,7 +41,10 @@ it('hardware invoice separate from service invoices', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $client = Client::factory()->create(['name' => 'HW Separate Client']);
 
@@ -78,7 +84,10 @@ it('rejected quote no invoice', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $client = Client::factory()->create(['name' => 'HW Reject Client']);
     $rejectedQuote = Quote::factory()->rejected()->create([

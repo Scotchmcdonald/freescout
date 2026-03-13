@@ -12,7 +12,7 @@ enum ThreadType: int
 
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::MESSAGE => 'Reply',
             self::NOTE => 'Internal Note',
             self::DRAFT => 'Draft',

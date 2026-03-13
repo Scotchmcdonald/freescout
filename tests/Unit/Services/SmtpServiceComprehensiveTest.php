@@ -11,7 +11,6 @@ use Tests\UnitTestCase;
 
 class SmtpServiceComprehensiveTest extends UnitTestCase
 {
-
     public function test_test_connection_returns_result_array_with_required_keys(): void
     {
         $mailbox = Mailbox::factory()->create([
@@ -541,7 +540,7 @@ class SmtpServiceComprehensiveTest extends UnitTestCase
         Log::shouldReceive('debug')->zeroOrMoreTimes();
 
         $service = new SmtpService;
-        
+
         // Test port 25 (standard SMTP)
         $settings25 = [
             'out_server' => 'smtp.example.com',
@@ -550,7 +549,7 @@ class SmtpServiceComprehensiveTest extends UnitTestCase
         ];
         $errors25 = $service->validateSettings($settings25);
         $this->assertArrayNotHasKey('out_port', $errors25);
-        
+
         // Test port 2525 (alternative SMTP)
         $settings2525 = [
             'out_server' => 'smtp.example.com',
@@ -583,7 +582,7 @@ class SmtpServiceComprehensiveTest extends UnitTestCase
         Log::shouldReceive('debug')->zeroOrMoreTimes();
 
         $service = new SmtpService;
-        
+
         // Test port 1 (minimum valid)
         $settingsMin = [
             'out_server' => 'smtp.example.com',
@@ -592,7 +591,7 @@ class SmtpServiceComprehensiveTest extends UnitTestCase
         ];
         $errorsMin = $service->validateSettings($settingsMin);
         $this->assertArrayNotHasKey('out_port', $errorsMin);
-        
+
         // Test port 65535 (maximum valid)
         $settingsMax = [
             'out_server' => 'smtp.example.com',

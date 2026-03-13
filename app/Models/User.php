@@ -11,8 +11,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Role;
-use App\Models\Permission;
 
 /**
  * @property int $id
@@ -50,8 +48,8 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
-    use Notifiable;
     use \Lab404\Impersonate\Models\Impersonate;
+    use Notifiable;
 
     /**
      * Determine if the user has verified their email address.
@@ -141,7 +139,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if the user has access to the given company.
      *
-     * @param int|string|\Modules\Crm\Models\Company $company
+     * @param  int|string|\Modules\Crm\Models\Company  $company
      */
     public function hasCompanyAccess($company): bool
     {
@@ -307,13 +305,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the user's full name.
-     * 
+     *
      * @return Attribute<string, never>
      */
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: fn() => trim("{$this->first_name} {$this->last_name}")
+            get: fn () => trim("{$this->first_name} {$this->last_name}")
         );
     }
 
@@ -336,6 +334,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if (! $this->exists) {
             $result = $this->role === self::ROLE_ADMIN;
             $this->cachedIsSuperAdmin = $result;
+
             return $result;
         }
 
@@ -344,6 +343,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         if ($hasSuperAdminRole) {
             $this->cachedIsSuperAdmin = true;
+
             return true;
         }
 
@@ -351,10 +351,12 @@ class User extends Authenticatable implements MustVerifyEmail
         /** @deprecated Remove this fallback once all users are migrated to RBAC roles */
         if ($this->role === self::ROLE_ADMIN) {
             $this->cachedIsSuperAdmin = true;
+
             return true;
         }
 
         $this->cachedIsSuperAdmin = false;
+
         return false;
     }
 
@@ -369,11 +371,12 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Check if the user has any of the given RBAC roles.
      *
-     * @param string|array<string> $roles
+     * @param  string|array<string>  $roles
      */
     public function hasAnyRole(string|array $roles): bool
     {
         $roles = is_array($roles) ? $roles : [$roles];
+
         return $this->roles()->whereIn('name', $roles)->exists();
     }
 
@@ -402,12 +405,14 @@ class User extends Authenticatable implements MustVerifyEmail
             /** @var \Illuminate\Support\Collection<int, int> $empty */
             $empty = collect();
             $this->cachedRoleIds = $empty;
+
             return $this->cachedRoleIds;
         }
 
         /** @var \Illuminate\Support\Collection<int, int> $ids */
         $ids = $this->roles()->pluck('roles.id');
         $this->cachedRoleIds = $ids;
+
         return $this->cachedRoleIds;
     }
 
@@ -487,13 +492,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the name attribute (accessor for compatibility).
-     * 
+     *
      * @return Attribute<string, never>
      */
     protected function name(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->getFullName()
+            get: fn () => $this->getFullName()
         );
     }
 
@@ -517,7 +522,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         $mailbox = $this->mailboxes()->find($mailboxId);
-        
+
         if ($mailbox === null) {
             return false;
         }
@@ -542,7 +547,6 @@ class User extends Authenticatable implements MustVerifyEmail
      * @param  \DateTime|string|null  $date
      * @param  string  $format
      * @param  User|null  $user
-     * @return string
      */
     public static function dateFormat($date, $format = 'M j, Y', $user = null): string
     {
@@ -580,7 +584,6 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get mailboxes user can view.
      *
-     * @param bool $checkPermission
      * @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mailbox>
      */
     public function mailboxesCanView(bool $checkPermission = false)
@@ -598,9 +601,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * For string permissions: checks via RBAC (role_user → permission_role → permissions).
      * For integer permissions: legacy check via JSON column (deprecated).
      *
-     * @param int|string $permission
-     * @param bool $checkOwnPermissions
-     * @return bool
+     * @param  int|string  $permission
      */
     public function hasPermission($permission, bool $checkOwnPermissions = true): bool
     {
@@ -613,7 +614,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if (is_string($permission)) {
             $roleIds = $this->getRbacRoleIds();
 
-            if ($roleIds->isEmpty() && !empty($this->role)) {
+            if ($roleIds->isEmpty() && ! empty($this->role)) {
                 $roleIds = collect([(int) $this->role]);
             }
 
@@ -632,13 +633,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $globalPermissions = self::getGlobalUserPermissions();
 
-        if (!empty($globalPermissions) && in_array($permission, $globalPermissions)) {
+        if (! empty($globalPermissions) && in_array($permission, $globalPermissions)) {
             $hasPermission = true;
         }
 
-        if ($checkOwnPermissions && !empty($this->permissions)) {
+        if ($checkOwnPermissions && ! empty($this->permissions)) {
             if (isset($this->permissions[$permission])) {
-                $hasPermission = (bool)$this->permissions[$permission];
+                $hasPermission = (bool) $this->permissions[$permission];
             }
         }
 
@@ -647,7 +648,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get global user permissions.
-     * 
+     *
      * @return array<int>
      */
     public static function getGlobalUserPermissions(): array
@@ -740,7 +741,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->status === self::STATUS_DELETED;
     }
 
-
     /**
      * Get the user's primary company.
      *
@@ -763,6 +763,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get the legacy client ID for this user (for Phase 1 temporary mapping).
+     *
      * @deprecated Use company_id instead. Will be removed after Phase 3.
      */
     public function getClientIdAttribute()

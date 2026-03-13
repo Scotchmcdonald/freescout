@@ -28,7 +28,7 @@ interface UserEntitlementCountProvider
      * to avoid full table scans during invoice generation runs.
      *
      * @param  int  $clientId  CRM client ID
-     * @return int  Active user count (0 if no record exists)
+     * @return int Active user count (0 if no record exists)
      */
     public function activeUserCountForClient(int $clientId): int;
 
@@ -36,7 +36,7 @@ interface UserEntitlementCountProvider
      * Return the sum of active, billable users across all clients in a company.
      *
      * @param  int  $companyId  Company ID
-     * @return int  Active user count (0 if no clients exist)
+     * @return int Active user count (0 if no clients exist)
      */
     public function activeUserCountForCompany(int $companyId): int;
 
@@ -46,7 +46,7 @@ interface UserEntitlementCountProvider
      * Called by event listeners when contact state changes to keep the counter fresh.
      *
      * @param  int  $clientId  CRM client ID
-     * @return int  The newly computed count
+     * @return int The newly computed count
      */
     public function rebuildCounterForClient(int $clientId): int;
 }

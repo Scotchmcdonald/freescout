@@ -96,25 +96,25 @@ class TrackPerformanceMetrics
             return;
         }
 
-        $transactionContext = new \Sentry\Tracing\TransactionContext();
-        $transactionContext->setName($request->method() . ' ' . $request->path());
+        $transactionContext = new \Sentry\Tracing\TransactionContext;
+        $transactionContext->setName($request->method().' '.$request->path());
         $transactionContext->setOp('http.request');
 
         $transaction = \Sentry\startTransaction($transactionContext);
-        
+
         // Set tags for better filtering
         \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($request, $response, $duration): void {
             $scope->setTag('http.method', $request->method());
             $scope->setTag('http.status_code', (string) $response->getStatusCode());
             $scope->setTag('route', (string) $request->route()?->getName());
-            
+
             if ($request->user()) {
                 $scope->setUser([
                     'id' => $request->user()->id,
                     'email' => $request->user()->email,
                 ]);
             }
-            
+
             // Add custom measurements
             $scope->setContext('performance', [
                 'duration_ms' => round($duration, 2),

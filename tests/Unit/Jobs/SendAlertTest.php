@@ -10,7 +10,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class SendAlertTest extends UnitTestCase

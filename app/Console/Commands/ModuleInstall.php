@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Symfony\Component\Filesystem\Filesystem;
 
 class ModuleInstall extends Command
 {
@@ -55,20 +54,23 @@ class ModuleInstall extends Command
                     $module = null;
                 }
 
-                if (!$module) {
+                if (! $module) {
                     $this->error('Module with the specified alias not found: '.$module_alias);
+
                     return 0; // Not a failure, just an informational message.
                 }
+
                 return $this->installModule($module);
             }
 
             $modules = \Module::all();
             if (empty($modules)) {
                 $this->info('No modules found.');
+
                 return 0;
             }
 
-            $moduleNames = array_map(fn($m) => $m->getName(), $modules);
+            $moduleNames = array_map(fn ($m) => $m->getName(), $modules);
             if ($this->confirm('Install all modules ('.implode(', ', $moduleNames).')?')) {
                 foreach ($modules as $module) {
                     if ($this->installModule($module) !== 0) {
@@ -76,10 +78,11 @@ class ModuleInstall extends Command
                     }
                 }
             }
-            
+
             return 0;
         } catch (\Exception $e) {
             $this->error($e->getMessage());
+
             return 1;
         }
     }
@@ -90,18 +93,18 @@ class ModuleInstall extends Command
 
         try {
             $module->enable();
-            
+
             $this->call('module:migrate', ['module' => $module->getName(), '--force' => true]);
-            
+
             $this->createModulePublicSymlink($module);
 
             $this->line('Clearing cache...');
             $this->call('freescout:clear-cache', [
-                '--doNotCacheConfig' => app()->runningUnitTests()
+                '--doNotCacheConfig' => app()->runningUnitTests(),
             ]);
-
         } catch (\Exception $e) {
             $this->error($e->getMessage());
+
             return 1;
         }
 
@@ -111,8 +114,9 @@ class ModuleInstall extends Command
     /**
      * Create a public symlink for the module.
      *
-     * @param \Nwidart\Modules\Module $module
+     * @param  \Nwidart\Modules\Module  $module
      * @return void
+     *
      * @throws \Exception
      */
     public function createModulePublicSymlink($module)
@@ -120,14 +124,14 @@ class ModuleInstall extends Command
         $target = $module->getExtraPath('Resources/assets');
         $link = public_path('modules/'.$module->getLowerName());
 
-        if (!file_exists($target)) {
+        if (! file_exists($target)) {
             return;
         }
 
         if (file_exists($link) || is_link($link)) {
             app('files')->delete($link);
         }
-        
+
         app('files')->link($target, $link);
         $this->info('The ['.$link.'] symlink has been created.');
     }

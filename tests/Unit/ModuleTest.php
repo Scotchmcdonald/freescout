@@ -24,7 +24,7 @@ class ModuleTest extends TestCase
     public function test_is_official_returns_false_by_default(): void
     {
         $result = Module::isOfficial('https://example.com/author');
-        
+
         $this->assertFalse($result);
     }
 
@@ -32,18 +32,18 @@ class ModuleTest extends TestCase
     {
         // First call sets the cache
         Module::isOfficial('https://example.com');
-        
+
         // Second call should use cached result
         Module::$isOfficialResult = true;
         $result = Module::isOfficial('https://different.com');
-        
+
         $this->assertTrue($result);
     }
 
     public function test_is_official_with_null_url(): void
     {
         $result = Module::isOfficial(null);
-        
+
         $this->assertFalse($result);
     }
 
@@ -51,7 +51,7 @@ class ModuleTest extends TestCase
     {
         // With automatic updates disabled, we expect a generic disabled message
         $result = Module::updateModule('nonexistent-module');
-        
+
         $this->assertEquals('error', $result['status']);
         $this->assertStringContainsString('disabled', strtolower($result['msg']));
     }
@@ -59,7 +59,7 @@ class ModuleTest extends TestCase
     public function test_update_module_result_structure(): void
     {
         $result = Module::updateModule('samplemodule');
-        
+
         $this->assertArrayHasKey('status', $result);
         $this->assertArrayHasKey('msg', $result);
         $this->assertArrayHasKey('msg_success', $result);
@@ -111,7 +111,7 @@ class ModuleTest extends TestCase
         $result = Module::updateModule('samplemodule');
 
         $this->assertEquals('error', $result['status']);
-        $this->assertTrue($result['download_error'] || !empty($result['msg']));
+        $this->assertTrue($result['download_error'] || ! empty($result['msg']));
     }
 
     public function test_module_class_has_static_properties(): void
@@ -123,7 +123,8 @@ class ModuleTest extends TestCase
     public function test_update_module_with_missing_download_url(): void
     {
         // Mock module source to return module without download URL
-        $this->app->instance(ModuleSourceService::class, new class extends ModuleSourceService {
+        $this->app->instance(ModuleSourceService::class, new class extends ModuleSourceService
+        {
             public function getModule(string $alias): ?array
             {
                 return [

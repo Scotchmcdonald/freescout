@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 test('profile page is displayed', function () {
     $user = User::factory()->create([
@@ -76,7 +75,7 @@ test('user can delete account', function () {
         ->assertRedirect('/');
 
     $this->assertGuest();
-    
+
     // ProfileController uses hard delete ($user->delete() without SoftDeletes trait)
     expect($user->fresh())->toBeNull();
 });

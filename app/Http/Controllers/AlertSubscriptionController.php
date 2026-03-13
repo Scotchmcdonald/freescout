@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Modules\Alerts\Models\NotificationSubscription;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Modules\Alerts\Models\NotificationSubscription;
 
 class AlertSubscriptionController extends Controller
 {
@@ -18,7 +18,7 @@ class AlertSubscriptionController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $definitions = NotificationSubscription::getAlertTypes();
-        
+
         // Get existing subscriptions keyed by alert_type
         $subscriptions = $user->notificationSubscriptions()
             ->get()
@@ -44,7 +44,7 @@ class AlertSubscriptionController extends Controller
 
         foreach ($input as $alertType => $data) {
             // Only process valid alert types
-            if (!array_key_exists((string) $alertType, NotificationSubscription::getAlertTypes())) {
+            if (! array_key_exists((string) $alertType, NotificationSubscription::getAlertTypes())) {
                 continue;
             }
 
@@ -61,7 +61,7 @@ class AlertSubscriptionController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'message' => 'Subscriptions updated successfully',
-                'status' => 'success'
+                'status' => 'success',
             ]);
         }
 

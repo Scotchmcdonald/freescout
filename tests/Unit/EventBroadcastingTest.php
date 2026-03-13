@@ -16,7 +16,6 @@ use Tests\UnitTestCase;
 
 class EventBroadcastingTest extends UnitTestCase
 {
-
     /** Test CustomerCreatedConversation event can be dispatched */
     public function test_customer_created_conversation_event_dispatched(): void
     {

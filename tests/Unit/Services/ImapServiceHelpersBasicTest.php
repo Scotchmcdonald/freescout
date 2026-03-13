@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Tests\Unit\Services;
 
 use App\Services\ImapService;
-use Tests\UnitTestCase;
 use Mockery;
+use Tests\UnitTestCase;
 
-interface MockAttribute {
+interface MockAttribute
+{
     public function get();
 }
 
@@ -29,7 +30,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImapService();
+        $this->service = new ImapService;
     }
 
     protected function tearDown(): void
@@ -110,7 +111,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_parses_object_with_mail_property(): void
     {
-        $address = new \stdClass();
+        $address = new \stdClass;
         $address->mail = 'john@example.com';
         $address->personal = 'John Doe';
 
@@ -124,7 +125,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_parses_object_with_email_property(): void
     {
-        $address = new \stdClass();
+        $address = new \stdClass;
         $address->email = 'jane@example.com';
         $address->name = 'Jane Smith';
 
@@ -169,8 +170,8 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
     public function test_get_addresses_with_names_handles_multiple_addresses(): void
     {
         $addresses = [
-            (object)['mail' => 'john@example.com', 'personal' => 'John Doe'],
-            (object)['mail' => 'jane@example.com', 'personal' => 'Jane Smith'],
+            (object) ['mail' => 'john@example.com', 'personal' => 'John Doe'],
+            (object) ['mail' => 'jane@example.com', 'personal' => 'Jane Smith'],
             'bob@example.com',
         ];
 
@@ -186,7 +187,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_truncates_long_first_name(): void
     {
-        $address = (object)[
+        $address = (object) [
             'mail' => 'test@example.com',
             'personal' => str_repeat('FirstNameTooLong', 5).' LastName',
         ];
@@ -200,7 +201,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_truncates_long_last_name(): void
     {
-        $address = (object)[
+        $address = (object) [
             'mail' => 'test@example.com',
             'personal' => 'FirstName '.str_repeat('LastNameTooLong', 5),
         ];
@@ -214,7 +215,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_truncates_both_long_names(): void
     {
-        $address = (object)[
+        $address = (object) [
             'mail' => 'test@example.com',
             'personal' => str_repeat('FirstNameTooLong', 5).' '.str_repeat('LastNameTooLong', 5),
         ];
@@ -228,7 +229,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_handles_single_name(): void
     {
-        $address = (object)[
+        $address = (object) [
             'mail' => 'test@example.com',
             'personal' => 'SingleName',
         ];
@@ -242,7 +243,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_handles_three_part_name(): void
     {
-        $address = (object)[
+        $address = (object) [
             'mail' => 'test@example.com',
             'personal' => 'First Middle Last',
         ];
@@ -256,7 +257,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_handles_empty_personal_name(): void
     {
-        $address = (object)[
+        $address = (object) [
             'mail' => 'test@example.com',
             'personal' => '',
         ];
@@ -270,9 +271,11 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_converts_attribute_object(): void
     {
-        $attribute = new class {
-            public function get() {
-                return [(object)['mail' => 'attr@example.com', 'personal' => 'Attr User']];
+        $attribute = new class
+        {
+            public function get()
+            {
+                return [(object) ['mail' => 'attr@example.com', 'personal' => 'Attr User']];
             }
         };
 
@@ -313,8 +316,8 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
     public function test_get_addresses_with_names_skips_invalid_entries(): void
     {
         $addresses = [
-            (object)['mail' => 'valid@example.com', 'personal' => 'Valid User'],
-            (object)['personal' => 'No Email'], // No email
+            (object) ['mail' => 'valid@example.com', 'personal' => 'Valid User'],
+            (object) ['personal' => 'No Email'], // No email
             null, // Null entry
             '', // Empty string
         ];
@@ -329,11 +332,11 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
     public function test_get_addresses_with_names_handles_mixed_valid_and_invalid(): void
     {
         $addresses = [
-            (object)['mail' => 'first@example.com', 'personal' => 'First User'],
-            (object)['personal' => 'No Email'],
-            (object)['mail' => 'second@example.com', 'personal' => 'Second User'],
+            (object) ['mail' => 'first@example.com', 'personal' => 'First User'],
+            (object) ['personal' => 'No Email'],
+            (object) ['mail' => 'second@example.com', 'personal' => 'Second User'],
             false,
-            (object)['mail' => 'third@example.com', 'personal' => 'Third User'],
+            (object) ['mail' => 'third@example.com', 'personal' => 'Third User'],
         ];
 
         $result = $this->invokeMethod($this->service, 'getAddressesWithNames', [$addresses]);
@@ -346,7 +349,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_handles_unicode_names(): void
     {
-        $address = (object)[
+        $address = (object) [
             'mail' => 'test@example.com',
             'personal' => 'José García',
         ];
@@ -360,7 +363,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_handles_special_characters_in_names(): void
     {
-        $address = (object)[
+        $address = (object) [
             'mail' => 'test@example.com',
             'personal' => "O'Brien-Smith",
         ];
@@ -374,7 +377,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_get_addresses_with_names_handles_non_string_email(): void
     {
-        $address = (object)[
+        $address = (object) [
             'mail' => 123, // Non-string email
             'personal' => 'Test User',
         ];
@@ -441,7 +444,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_parse_addresses_handles_object_with_mail_property(): void
     {
-        $address = (object)['mail' => 'john@example.com'];
+        $address = (object) ['mail' => 'john@example.com'];
 
         $result = $this->invokeMethod($this->service, 'parseAddresses', [[$address]]);
 
@@ -451,7 +454,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_parse_addresses_handles_object_with_email_property(): void
     {
-        $address = (object)['email' => 'jane@example.com'];
+        $address = (object) ['email' => 'jane@example.com'];
 
         $result = $this->invokeMethod($this->service, 'parseAddresses', [[$address]]);
 
@@ -461,7 +464,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_parse_addresses_prefers_mail_over_email_property(): void
     {
-        $address = (object)['mail' => 'primary@example.com', 'email' => 'secondary@example.com'];
+        $address = (object) ['mail' => 'primary@example.com', 'email' => 'secondary@example.com'];
 
         $result = $this->invokeMethod($this->service, 'parseAddresses', [[$address]]);
 
@@ -501,9 +504,11 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_parse_addresses_converts_attribute_object(): void
     {
-        $attribute = new class {
-            public function get() {
-                return [(object)['mail' => 'attr@example.com']];
+        $attribute = new class
+        {
+            public function get()
+            {
+                return [(object) ['mail' => 'attr@example.com']];
             }
         };
 
@@ -515,11 +520,13 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_parse_addresses_converts_attribute_object_with_multiple_addresses(): void
     {
-        $attribute = new class {
-            public function get() {
+        $attribute = new class
+        {
+            public function get()
+            {
                 return [
-                    (object)['mail' => 'attr1@example.com'],
-                    (object)['mail' => 'attr2@example.com'],
+                    (object) ['mail' => 'attr1@example.com'],
+                    (object) ['mail' => 'attr2@example.com'],
                 ];
             }
         };
@@ -570,8 +577,8 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
     public function test_parse_addresses_handles_multiple_addresses(): void
     {
         $addresses = [
-            (object)['mail' => 'john@example.com'],
-            (object)['email' => 'jane@example.com'],
+            (object) ['mail' => 'john@example.com'],
+            (object) ['email' => 'jane@example.com'],
             'bob@example.com',
         ];
 
@@ -587,7 +594,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
     {
         $addresses = [];
         for ($i = 0; $i < 50; $i++) {
-            $addresses[] = (object)['mail' => "user{$i}@example.com"];
+            $addresses[] = (object) ['mail' => "user{$i}@example.com"];
         }
 
         $result = $this->invokeMethod($this->service, 'parseAddresses', [$addresses]);
@@ -600,8 +607,8 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
     public function test_parse_addresses_skips_invalid_entries(): void
     {
         $addresses = [
-            (object)['mail' => 'valid@example.com'],
-            (object)['name' => 'No Email'], // No email property
+            (object) ['mail' => 'valid@example.com'],
+            (object) ['name' => 'No Email'], // No email property
             null,
             '',
         ];
@@ -615,9 +622,9 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
     public function test_parse_addresses_skips_non_string_email(): void
     {
         $addresses = [
-            (object)['mail' => 123], // Non-string
-            (object)['mail' => true], // Boolean
-            (object)['mail' => ['array']], // Array
+            (object) ['mail' => 123], // Non-string
+            (object) ['mail' => true], // Boolean
+            (object) ['mail' => ['array']], // Array
         ];
 
         $result = $this->invokeMethod($this->service, 'parseAddresses', [$addresses]);
@@ -628,12 +635,12 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
     public function test_parse_addresses_handles_mixed_valid_and_invalid(): void
     {
         $addresses = [
-            (object)['mail' => 'first@example.com'],
+            (object) ['mail' => 'first@example.com'],
             null,
-            (object)['email' => 'second@example.com'],
+            (object) ['email' => 'second@example.com'],
             false,
             'third@example.com',
-            (object)['name' => 'No Email'],
+            (object) ['name' => 'No Email'],
         ];
 
         $result = $this->invokeMethod($this->service, 'parseAddresses', [$addresses]);
@@ -655,7 +662,7 @@ class ImapServiceHelpersBasicTest extends UnitTestCase
 
     public function test_parse_addresses_handles_object_with_null_mail(): void
     {
-        $address = (object)['mail' => null, 'email' => 'fallback@example.com'];
+        $address = (object) ['mail' => null, 'email' => 'fallback@example.com'];
 
         $result = $this->invokeMethod($this->service, 'parseAddresses', [[$address]]);
 

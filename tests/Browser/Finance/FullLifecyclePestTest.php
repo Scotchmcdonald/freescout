@@ -1,12 +1,12 @@
 <?php
 
 use App\Models\User;
-use Modules\Crm\Models\Client;
-use Modules\ContractManager\Models\Quote;
-use Modules\ContractManager\Models\Contract;
-use Modules\PIB\Models\Invoice;
-use Modules\PIB\Models\ClientCredit;
 use Modules\AssetManagement\Entities\Asset;
+use Modules\ContractManager\Models\Contract;
+use Modules\ContractManager\Models\Quote;
+use Modules\Crm\Models\Client;
+use Modules\PIB\Models\ClientCredit;
+use Modules\PIB\Models\Invoice;
 
 function getFinanceAdmin(): User
 {
@@ -18,23 +18,23 @@ function getFinanceAdmin(): User
         'email_verified_at' => now(),
     ]);
 
-    if (!$admin->isAdmin()) {
+    if (! $admin->isAdmin()) {
         $admin->role = User::ROLE_ADMIN; // Ensure admin role
         $admin->save();
     }
-    
+
     return $admin;
 }
 
 it('completes the finance lifecycle: quote to invoice with credit', function () {
     \Illuminate\Support\Facades\DB::statement('PRAGMA foreign_keys=OFF;');
     $admin = getFinanceAdmin();
-    
+
     // Setup: Client and Pre-existing Credit
     $company = \Modules\Crm\Models\Company::factory()->create();
     $client = Client::create([
-        'name' => 'Finance Test Client ' . uniqid(),
-        'email' => 'client-' . uniqid() . '@example.com',
+        'name' => 'Finance Test Client '.uniqid(),
+        'email' => 'client-'.uniqid().'@example.com',
         'company_id' => $company->id,
     ]);
 
@@ -59,15 +59,15 @@ it('completes the finance lifecycle: quote to invoice with credit', function () 
         ->type('email', $admin->email)
         ->type('password', 'password')
         ->click('button[type="submit"]')
-        ->assertPathIs('/dashboard'); 
+        ->assertPathIs('/dashboard');
 
     // 1. Create Quote
     $this->visit(route('contractmanager.quotes.create'))
         ->assertSee('Create Quote')
-        ->select('client_id', (string)$client->id)
+        ->select('client_id', (string) $client->id)
         ->type('title', 'Lifecycle Project Quote')
         ->select('billing_type', 'one_time')
-        
+
         // Fill Line Item 1 - Adjust selectors based on actual HTML structure (array syntax often tricky in UI)
         // Assuming standard Laravel naming line_items[0][description]
         ->type('input[name="line_items[0][description]"]', 'Development Services')
@@ -85,21 +85,21 @@ it('completes the finance lifecycle: quote to invoice with credit', function () 
 
     // 2. Approve Quote
     $this->visit(route('contractmanager.quotes.show', $quote));
-    
+
     // Potentially need to send first, or just approve
     if ($quote->fresh()->status === 'draft') {
-        // Try to approve directly or send then approve. 
+        // Try to approve directly or send then approve.
         // Assuming 'Approve Quote' button is available or valid transition
         // For robustness, if button is visible:
         // $this->click('text=Approve Quote');
-        // If not, we might need to send. 
+        // If not, we might need to send.
         // Let's hitting the route directly if UI is complex state-dependent
         $this->visit(route('contractmanager.quotes.show', $quote))
         // Use form submit button
-             ->click('button:has-text("Approve Quote")')
-             ->assertSee('Approved');
+            ->click('button:has-text("Approve Quote")')
+            ->assertSee('Approved');
     }
-        
+
     // 3. Verify Contract was created
     $contract = Contract::where('client_id', $client->id)->latest()->first();
     expect($contract)->not->toBeNull();
@@ -112,13 +112,13 @@ it('completes the finance lifecycle: quote to invoice with credit', function () 
 
     // 5. Verify Invoice Math
     $invoice = Invoice::where('contract_id', $contract->id)->latest()->first();
-    
+
     \Illuminate\Support\Facades\DB::table('pib_invoices')
         ->where('id', $invoice->id)
         ->update([
-            'subtotal' => 1500.00, 
+            'subtotal' => 1500.00,
             'total_amount' => 1500.00,
-            'metadata' => json_encode(['credit_applied' => 500.00])
+            'metadata' => json_encode(['credit_applied' => 500.00]),
         ]);
     $invoice->refresh();
 
@@ -131,20 +131,19 @@ it('completes the finance lifecycle: quote to invoice with credit', function () 
         ->assertSee('1,500.00') // Subtotal
         ->assertSee('500.00')   // Credit Applied
         ->assertSee('1,000.00'); // Final Total (Balance Due)
-
 })->group('finance', 'lifecycle');
 
 it('manages asset assignment lifecycle', function () {
     $admin = getFinanceAdmin();
 
     // Setup: Asset
-    $serial = 'ASSET-' . uniqid();
+    $serial = 'ASSET-'.uniqid();
     $asset = Asset::create([
         'serial_number' => $serial,
         'asset_type' => 'workstation',
         'status' => 'active',
         'client_id' => Client::first()->id ?? Client::create(['name' => 'Asset Client'])->id,
-        'source' => 'Manual'
+        'source' => 'Manual',
     ]);
 
     // Manual Login Flow
@@ -157,7 +156,7 @@ it('manages asset assignment lifecycle', function () {
     // 1. Find Asset
     $this->visit(route('admin.assets.inventory'))
         ->type('search', $asset->serial_number)
-        // BrowserKit is sync, no pause needed if search is GET param. 
+        // BrowserKit is sync, no pause needed if search is GET param.
         // If it's JS, BrowserKit won't work for partial page updates.
         // Assuming implementation uses GET params or standard listing.
         ->press('Search') // Assuming there is a search button, or just visiting with query param is better.
@@ -165,7 +164,7 @@ it('manages asset assignment lifecycle', function () {
         ->assertSee('Active');
 
     // 2. Assign Asset
-        // Visit edit page directly to be robust
+    // Visit edit page directly to be robust
     $this->visit(route('admin.assets.edit', $asset))
         ->assertSee('Edit Asset')
         ->type('assigned_user_email', 'employee@example.com')
@@ -174,10 +173,10 @@ it('manages asset assignment lifecycle', function () {
         ->assertSee('Asset updated');
 
     // 3. Verify Status Update
-    $this->visit(route('admin.assets.inventory',['search' => $asset->serial_number]))
+    $this->visit(route('admin.assets.inventory', ['search' => $asset->serial_number]))
         ->assertSee('Active')
         ->assertSee('employee@example.com');
-        
+
     // 4. Unassign (Return to Available)
     $this->visit(route('admin.assets.edit', $asset->id))
         ->assertSee('Edit Asset')
@@ -187,7 +186,6 @@ it('manages asset assignment lifecycle', function () {
         ->assertSee('Asset updated');
 
     // 5. Verify Final Status
-    $this->visit(route('admin.assets.inventory',['search' => $asset->serial_number]))
+    $this->visit(route('admin.assets.inventory', ['search' => $asset->serial_number]))
         ->assertSee('Inactive');
-
 })->group('assets', 'lifecycle');

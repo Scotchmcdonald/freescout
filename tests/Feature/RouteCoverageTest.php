@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 
 test('all registered GET routes load without error', function () {
     // Only refreshing the database will ensure tables exist for all modules
@@ -10,7 +10,7 @@ test('all registered GET routes load without error', function () {
     // Better to use the trait in the file or skip the test if not set up.
     // However, Route::getRoutes() works without DB.
     // The previous run failed on SQL error.
-    
+
     $routes = Route::getRoutes()->getRoutes();
     $tested = 0;
     $failures = [];
@@ -19,7 +19,7 @@ test('all registered GET routes load without error', function () {
     $user = User::factory()->create(['role' => 2]);
 
     foreach ($routes as $route) {
-        if (!in_array('GET', $route->methods())) {
+        if (! in_array('GET', $route->methods())) {
             continue;
         }
 
@@ -34,7 +34,7 @@ test('all registered GET routes load without error', function () {
         if (str_starts_with($uri, '_') || str_starts_with($uri, 'sanctum')) {
             continue;
         }
-        
+
         // Skip debugbar/telescope/horizon if present and we don't want to test them
         if (str_starts_with($uri, 'telescope') || str_starts_with($uri, 'horizon')) {
             continue;
@@ -76,24 +76,26 @@ test('all registered GET routes load without error', function () {
             'tours', // Log file permission issues in test env
             'action1/audit', // Log file permission issues in test env
         ];
-        if (in_array($uri, $brokenRoutes)) continue;
+        if (in_array($uri, $brokenRoutes)) {
+            continue;
+        }
 
         // Skip billing routes which seem to have missing views generally
-        if (str_starts_with($uri, 'billing/') && !str_starts_with($uri, 'billing/credit-ledger')) {
-             // Assuming broadly broken
-             continue; 
+        if (str_starts_with($uri, 'billing/') && ! str_starts_with($uri, 'billing/credit-ledger')) {
+            // Assuming broadly broken
+            continue;
         }
 
         // Skip flightdeck routes with ID parameter issue
         if (str_starts_with($uri, 'email-migration/flight-deck')) {
             continue;
         }
-        
+
         // Skip slow email migration lab routes or destructive ones
         if (str_starts_with($uri, 'email-migration/lab')) {
             continue;
         }
-        
+
         // Skip test routes designed to fail
         if ($uri === 'test-sentry') {
             continue;
@@ -101,45 +103,48 @@ test('all registered GET routes load without error', function () {
 
         try {
             // Check if route URI is valid to visit
-            if (empty($uri)) continue;
+            if (empty($uri)) {
+                continue;
+            }
 
             try {
                 $testResponse = $this->actingAs($user)->withoutExceptionHandling()->get($uri);
-                
+
                 // Handle TestResponse wrapper vs raw response
                 if (method_exists($testResponse, 'status')) {
                     $statusCode = $testResponse->status();
                 } elseif (method_exists($testResponse, 'getStatusCode')) {
-                     // In some edge cases or older Laravel versions, or if TestResponse isn't wrapped correctly
-                     $statusCode = $testResponse->getStatusCode();
+                    // In some edge cases or older Laravel versions, or if TestResponse isn't wrapped correctly
+                    $statusCode = $testResponse->getStatusCode();
                 } else {
-                     // Assume success if we got a response object but can't check status easily
-                     // Realistically, TestResponse always has status() in Laravel 11
-                     $statusCode = 200; 
+                    // Assume success if we got a response object but can't check status easily
+                    // Realistically, TestResponse always has status() in Laravel 11
+                    $statusCode = 200;
                 }
-
             } catch (\Throwable $e) {
                 // If exception is thrown (because of withoutExceptionHandling), catch it here
-                $failures[] = "Route /{$uri} failed with exception: " . $e->getMessage();
-                
+                $failures[] = "Route /{$uri} failed with exception: ".$e->getMessage();
+
                 // If failure count is high, stop to avoid spamming
-                if (count($failures) >= 20) break; 
+                if (count($failures) >= 20) {
+                    break;
+                }
                 continue;
             }
 
             if ($statusCode === 500) {
-                 $failures[] = "Route /{$uri} returned 500 without exception";
+                $failures[] = "Route /{$uri} returned 500 without exception";
             }
             $tested++;
         } catch (\Exception $e) {
-            $failures[] = "Route /{$uri} threw exception: " . $e->getMessage();
+            $failures[] = "Route /{$uri} threw exception: ".$e->getMessage();
         }
     }
 
-    if (!empty($failures)) {
-        $this->fail("The following routes failed:\n" . implode("\n", $failures));
+    if (! empty($failures)) {
+        $this->fail("The following routes failed:\n".implode("\n", $failures));
     }
-    
+
     // Ensure we actually tested something
     expect($tested)->toBeGreaterThan(0);
 });

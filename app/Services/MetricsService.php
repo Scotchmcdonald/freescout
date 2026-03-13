@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Service for tracking custom business metrics and events.
- * 
+ *
  * Use this to log important business events that need to be tracked
  * for analytics, auditing, or monitoring purposes.
  */
@@ -17,9 +17,9 @@ class MetricsService
     /**
      * Track a business event with context.
      *
-     * @param string $event Event name (e.g., 'invoice.generated', 'payment.processed')
-     * @param array<string, mixed> $context Additional context data
-     * @param string $level Log level (info, warning, error)
+     * @param  string  $event  Event name (e.g., 'invoice.generated', 'payment.processed')
+     * @param  array<string, mixed>  $context  Additional context data
+     * @param  string  $level  Log level (info, warning, error)
      */
     public function trackEvent(string $event, array $context = [], string $level = 'info'): void
     {
@@ -44,9 +44,7 @@ class MetricsService
     /**
      * Track invoice generation metrics.
      *
-     * @param int $clientId
-     * @param int $invoiceId
-     * @param float $durationMs Duration in milliseconds
+     * @param  float  $durationMs  Duration in milliseconds
      */
     public function trackInvoiceGeneration(int $clientId, int $invoiceId, float $durationMs): void
     {
@@ -68,10 +66,8 @@ class MetricsService
     /**
      * Track payment processing metrics.
      *
-     * @param int $invoiceId
-     * @param int $amountCents
-     * @param string $gateway Payment gateway used
-     * @param bool $success Whether payment was successful
+     * @param  string  $gateway  Payment gateway used
+     * @param  bool  $success  Whether payment was successful
      */
     public function trackPaymentProcessed(int $invoiceId, int $amountCents, string $gateway, bool $success): void
     {
@@ -86,15 +82,15 @@ class MetricsService
     /**
      * Track API call performance.
      *
-     * @param string $service External service name (e.g., 'action1', 'google', 'helcim')
-     * @param string $endpoint API endpoint called
-     * @param float $durationMs Duration in milliseconds
-     * @param int $statusCode HTTP status code
+     * @param  string  $service  External service name (e.g., 'action1', 'google', 'helcim')
+     * @param  string  $endpoint  API endpoint called
+     * @param  float  $durationMs  Duration in milliseconds
+     * @param  int  $statusCode  HTTP status code
      */
     public function trackApiCall(string $service, string $endpoint, float $durationMs, int $statusCode): void
     {
         $level = 'info';
-        
+
         // Determine log level based on performance and status
         if ($statusCode >= 500) {
             $level = 'error';
@@ -115,8 +111,8 @@ class MetricsService
     /**
      * Track security events (login attempts, permission failures, etc.)
      *
-     * @param string $event Security event name
-     * @param array<string, mixed> $context Additional context
+     * @param  string  $event  Security event name
+     * @param  array<string, mixed>  $context  Additional context
      */
     public function trackSecurityEvent(string $event, array $context = []): void
     {
@@ -139,11 +135,6 @@ class MetricsService
 
     /**
      * Track queue job metrics.
-     *
-     * @param string $jobClass
-     * @param float $durationMs
-     * @param bool $success
-     * @param string|null $errorMessage
      */
     public function trackQueueJob(string $jobClass, float $durationMs, bool $success, ?string $errorMessage = null): void
     {
@@ -167,8 +158,8 @@ class MetricsService
     /**
      * Track cache hit/miss metrics.
      *
-     * @param string $key Cache key
-     * @param bool $hit Whether it was a cache hit
+     * @param  string  $key  Cache key
+     * @param  bool  $hit  Whether it was a cache hit
      */
     public function trackCacheAccess(string $key, bool $hit): void
     {
@@ -181,8 +172,7 @@ class MetricsService
     /**
      * Track database query performance.
      *
-     * @param string $query SQL query (truncated)
-     * @param float $durationMs
+     * @param  string  $query  SQL query (truncated)
      */
     public function trackSlowQuery(string $query, float $durationMs): void
     {
@@ -203,12 +193,12 @@ class MetricsService
             }
         }
     }
-    
+
     /**
      * Track webhook received.
      *
-     * @param string $source Webhook source (google, action1, etc.)
-     * @param string $type Webhook type (directory, devices, etc.)
+     * @param  string  $source  Webhook source (google, action1, etc.)
+     * @param  string  $type  Webhook type (directory, devices, etc.)
      */
     public function trackWebhookReceived(string $source, string $type): void
     {
@@ -221,14 +211,14 @@ class MetricsService
     /**
      * Track webhook processed successfully.
      *
-     * @param string $source Webhook source (google, action1, etc.)
-     * @param string $type Webhook type (directory, devices, etc.)
-     * @param float $durationSeconds Processing duration in seconds
+     * @param  string  $source  Webhook source (google, action1, etc.)
+     * @param  string  $type  Webhook type (directory, devices, etc.)
+     * @param  float  $durationSeconds  Processing duration in seconds
      */
     public function trackWebhookProcessed(string $source, string $type, float $durationSeconds): void
     {
         $durationMs = $durationSeconds * 1000;
-        
+
         $level = 'info';
         if ($durationMs > 1000) { // Warn if processing takes more than 1 second
             $level = 'warning';
@@ -250,9 +240,9 @@ class MetricsService
     /**
      * Track webhook processing failure.
      *
-     * @param string $source Webhook source (google, action1, etc.)
-     * @param string $type Webhook type (directory, devices, etc.)
-     * @param string $reason Failure reason
+     * @param  string  $source  Webhook source (google, action1, etc.)
+     * @param  string  $type  Webhook type (directory, devices, etc.)
+     * @param  string  $reason  Failure reason
      */
     public function trackWebhookFailed(string $source, string $type, string $reason): void
     {

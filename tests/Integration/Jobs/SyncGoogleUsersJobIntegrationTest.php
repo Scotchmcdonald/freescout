@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Tests\Integration\Jobs;
 
 use App\DataTransferObjects\GoogleUserSyncedData;
+use Illuminate\Support\Facades\Event;
 use Modules\GoogleAdmin\Events\GoogleUserSynced;
 use Modules\GoogleAdmin\Jobs\SyncGoogleUsersJob;
-use Illuminate\Support\Facades\Event;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 /**
  * SyncGoogleUsersJob Integration Tests
- * 
+ *
  * Tests the Google Workspace user sync job infrastructure without requiring
  * actual Google API connections. Focuses on:
  * - DTO validation and data integrity

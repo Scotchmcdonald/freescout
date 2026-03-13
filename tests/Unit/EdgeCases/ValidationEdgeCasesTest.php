@@ -10,7 +10,6 @@ use Tests\UnitTestCase;
 
 class ValidationEdgeCasesTest extends UnitTestCase
 {
-
     public function test_email_validation_rejects_invalid_formats(): void
     {
         $invalidEmails = [

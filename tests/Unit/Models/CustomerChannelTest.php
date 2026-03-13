@@ -25,40 +25,34 @@ class CustomerChannelTest extends UnitTestCase
         $this->assertEquals('test@example.com', $channel->channel_id);
     }
 
-
     public function test_customer_channel_uses_correct_table(): void
     {
-        $channel = new CustomerChannel();
+        $channel = new CustomerChannel;
 
         $this->assertEquals('customer_channel', $channel->getTable());
     }
 
-
     public function test_customer_channel_has_fillable_attributes(): void
     {
-        $channel = new CustomerChannel();
+        $channel = new CustomerChannel;
 
         $this->assertEquals(['customer_id', 'channel', 'channel_id'], $channel->getFillable());
     }
-
 
     public function test_customer_channel_has_email_constant(): void
     {
         $this->assertEquals(1, CustomerChannel::CHANNEL_EMAIL);
     }
 
-
     public function test_customer_channel_has_phone_constant(): void
     {
         $this->assertEquals(2, CustomerChannel::CHANNEL_PHONE);
     }
 
-
     public function test_customer_channel_has_chat_constant(): void
     {
         $this->assertEquals(3, CustomerChannel::CHANNEL_CHAT);
     }
-
 
     public function test_customer_channel_casts_customer_id_to_integer(): void
     {
@@ -71,7 +65,6 @@ class CustomerChannelTest extends UnitTestCase
 
         $this->assertIsInt($channel->customer_id);
     }
-
 
     public function test_customer_channel_casts_channel_to_integer(): void
     {
@@ -86,7 +79,6 @@ class CustomerChannelTest extends UnitTestCase
         $this->assertEquals(2, $channel->channel);
     }
 
-
     public function test_customer_channel_casts_timestamps(): void
     {
         $customer = Customer::factory()->create();
@@ -99,7 +91,6 @@ class CustomerChannelTest extends UnitTestCase
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $channel->created_at);
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $channel->updated_at);
     }
-
 
     public function test_customer_channel_belongs_to_customer(): void
     {
@@ -115,16 +106,14 @@ class CustomerChannelTest extends UnitTestCase
         $this->assertEquals('Doe', $channel->customer->last_name);
     }
 
-
     public function test_customer_channel_relationship_is_belongs_to(): void
     {
-        $channel = new CustomerChannel();
+        $channel = new CustomerChannel;
 
         $relation = $channel->customer();
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $relation);
     }
-
 
     public function test_customer_channel_can_be_updated(): void
     {
@@ -140,7 +129,6 @@ class CustomerChannelTest extends UnitTestCase
         $this->assertEquals('new@example.com', $channel->fresh()->channel_id);
     }
 
-
     public function test_customer_channel_can_be_deleted(): void
     {
         $customer = Customer::factory()->create();
@@ -155,7 +143,6 @@ class CustomerChannelTest extends UnitTestCase
 
         $this->assertNull(CustomerChannel::find($id));
     }
-
 
     public function test_customer_can_have_multiple_channels(): void
     {
@@ -184,7 +171,6 @@ class CustomerChannelTest extends UnitTestCase
         $this->assertCount(3, $channels);
     }
 
-
     public function test_customer_channel_can_store_email_channel(): void
     {
         $customer = Customer::factory()->create();
@@ -197,7 +183,6 @@ class CustomerChannelTest extends UnitTestCase
         $this->assertEquals(CustomerChannel::CHANNEL_EMAIL, $channel->channel);
         $this->assertEquals('customer@example.com', $channel->channel_id);
     }
-
 
     public function test_customer_channel_can_store_phone_channel(): void
     {
@@ -212,7 +197,6 @@ class CustomerChannelTest extends UnitTestCase
         $this->assertEquals('+1234567890', $channel->channel_id);
     }
 
-
     public function test_customer_channel_can_store_chat_channel(): void
     {
         $customer = Customer::factory()->create();
@@ -226,24 +210,22 @@ class CustomerChannelTest extends UnitTestCase
         $this->assertEquals('chat_user_123', $channel->channel_id);
     }
 
-
     public function test_customer_channel_records_timestamps(): void
     {
         $customer = Customer::factory()->create();
         $before = now()->subSecond();
-        
+
         $channel = CustomerChannel::create([
             'customer_id' => $customer->id,
             'channel' => CustomerChannel::CHANNEL_EMAIL,
             'channel_id' => 'test@example.com',
         ]);
-        
+
         $after = now()->addSecond();
 
         $this->assertTrue($channel->created_at->between($before, $after));
         $this->assertTrue($channel->updated_at->between($before, $after));
     }
-
 
     public function test_customer_channel_can_be_queried_by_channel_type(): void
     {
@@ -272,7 +254,6 @@ class CustomerChannelTest extends UnitTestCase
 
         $this->assertCount(2, $emailChannels);
     }
-
 
     public function test_customer_channel_can_be_queried_by_channel_id(): void
     {

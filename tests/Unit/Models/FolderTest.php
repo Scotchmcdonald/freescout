@@ -12,7 +12,7 @@ use Tests\TestCase;
 
 /**
  * Test Folder model
- * 
+ *
  * Focus: Types, relationships, basic CRUD
  */
 class FolderTest extends TestCase
@@ -54,7 +54,7 @@ class FolderTest extends TestCase
 
     public function test_folder_has_required_fillable_fields(): void
     {
-        $folder = new Folder();
+        $folder = new Folder;
         $fillable = $folder->getFillable();
 
         $this->assertContains('name', $fillable);
@@ -145,7 +145,7 @@ class FolderTest extends TestCase
     public function test_multiple_folders_can_belong_to_same_mailbox(): void
     {
         $mailbox = Mailbox::factory()->create();
-        
+
         $folder1 = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
         $folder2 = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 2]);
 

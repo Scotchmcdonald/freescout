@@ -21,12 +21,12 @@ class AttachmentControllerTest extends IntegrationTestCase
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($user->id);
-        
+
         $conversation = Conversation::factory()->for($mailbox)->create();
         $thread = Thread::factory()->for($conversation)->create();
         $attachment = Attachment::factory()->for($thread)->create();
 
-        Storage::disk('attachments')->put($attachment->file_dir . '/' . $attachment->file_name, 'content');
+        Storage::disk('attachments')->put($attachment->file_dir.'/'.$attachment->file_name, 'content');
 
         $response = $this->actingAs($user)->get("/attachments/{$attachment->id}/download");
 
@@ -39,12 +39,12 @@ class AttachmentControllerTest extends IntegrationTestCase
 
         $user = User::factory()->create();
         $otherMailbox = Mailbox::factory()->create();
-        
+
         $conversation = Conversation::factory()->for($otherMailbox)->create();
         $thread = Thread::factory()->for($conversation)->create();
         $attachment = Attachment::factory()->for($thread)->create();
 
-        Storage::disk('attachments')->put($attachment->file_dir . '/' . $attachment->file_name, 'content');
+        Storage::disk('attachments')->put($attachment->file_dir.'/'.$attachment->file_name, 'content');
 
         $response = $this->actingAs($user)->get("/attachments/{$attachment->id}/download");
 
@@ -57,12 +57,12 @@ class AttachmentControllerTest extends IntegrationTestCase
 
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
-        
+
         $conversation = Conversation::factory()->for($mailbox)->create();
         $thread = Thread::factory()->for($conversation)->create();
         $attachment = Attachment::factory()->for($thread)->create();
 
-        Storage::disk('attachments')->put($attachment->file_dir . '/' . $attachment->file_name, 'content');
+        Storage::disk('attachments')->put($attachment->file_dir.'/'.$attachment->file_name, 'content');
 
         $response = $this->actingAs($admin)->get("/attachments/{$attachment->id}/download");
 
@@ -73,7 +73,7 @@ class AttachmentControllerTest extends IntegrationTestCase
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
-        $response = $this->actingAs($user)->get("/attachments/999999/download");
+        $response = $this->actingAs($user)->get('/attachments/999999/download');
 
         $response->assertStatus(404);
     }

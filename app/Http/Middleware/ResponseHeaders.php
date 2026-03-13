@@ -41,7 +41,7 @@ class ResponseHeaders
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('X-XSS-Protection', '1; mode=block');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        
+
         // Content Security Policy - Development-friendly for Alpine.js/Vue + Laravel Reverb
         // In production, tighten this based on your specific needs
         $csp = implode('; ', [
@@ -55,12 +55,12 @@ class ResponseHeaders
             "base-uri 'self'",
             "form-action 'self'",
         ]);
-        
+
         // Only add upgrade-insecure-requests if we're already on HTTPS
         if ($request->secure()) {
-            $csp .= "; upgrade-insecure-requests";
+            $csp .= '; upgrade-insecure-requests';
         }
-        
+
         $response->headers->set('Content-Security-Policy', $csp);
 
         // Permissions Policy (formerly Feature-Policy)

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 test('admin can delete user photo', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $user = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     $this->actingAs($admin);
     Storage::fake('public');
 
@@ -23,7 +23,7 @@ test('admin can delete user photo', function () {
 
 test('user can delete own photo', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     $this->actingAs($user);
     Storage::fake('public');
 
@@ -39,7 +39,7 @@ test('user can delete own photo', function () {
 test('user cannot delete other user photo', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $otherUser = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     $this->actingAs($user);
 
     $this->postJson(route('users.ajax'), [
@@ -51,7 +51,7 @@ test('user cannot delete other user photo', function () {
 test('admin can upload user photo', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $user = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     $this->actingAs($admin);
     Storage::fake('public');
 
@@ -64,7 +64,7 @@ test('admin can upload user photo', function () {
 
 test('user can upload own photo', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     $this->actingAs($user);
     Storage::fake('public');
 
@@ -78,7 +78,7 @@ test('user can upload own photo', function () {
 test('upload photo rejects non image', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $user = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     $this->actingAs($admin);
     Storage::fake('public');
 
@@ -94,7 +94,7 @@ test('upload photo rejects non image', function () {
 test('upload photo rejects oversized image', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $user = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     $this->actingAs($admin);
     Storage::fake('public');
 
@@ -114,7 +114,7 @@ test('admin can resend invite', function () {
         'invite_hash' => 'test-hash',
         'invite_state' => User::INVITE_STATE_SENT,
     ]);
-    
+
     $this->actingAs($admin);
     Mail::fake();
 
@@ -132,7 +132,7 @@ test('non admin cannot resend invite', function () {
         'role' => User::ROLE_USER,
         'invite_hash' => 'test-hash',
     ]);
-    
+
     $this->actingAs($user);
 
     $this->postJson(route('users.ajax'), [
@@ -144,7 +144,7 @@ test('non admin cannot resend invite', function () {
 test('admin can send password reset', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $user = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     $this->actingAs($admin);
     Mail::fake();
 
@@ -157,7 +157,7 @@ test('admin can send password reset', function () {
 test('non admin cannot send password reset', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $targetUser = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     $this->actingAs($user);
 
     $this->postJson(route('users.ajax'), [
@@ -176,7 +176,7 @@ test('guest cannot access user ajax', function () {
 test('invalid action returns error', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $user = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     $this->actingAs($admin);
 
     $response = $this->postJson(route('users.ajax'), [
@@ -189,7 +189,7 @@ test('invalid action returns error', function () {
 
 test('missing user id returns error', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin);
 
     $response = $this->postJson(route('users.ajax'), [
@@ -201,7 +201,7 @@ test('missing user id returns error', function () {
 
 test('nonexistent user returns error', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin);
 
     $response = $this->postJson(route('users.ajax'), [

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class ModuleSourceService
@@ -16,6 +16,7 @@ class ModuleSourceService
     protected function getSourceUrl(): string
     {
         $url = config('modules.source_url');
+
         return is_string($url) ? $url : 'https://raw.githubusercontent.com/freescout-helpdesk/modules/main/modules.json';
     }
 
@@ -31,7 +32,7 @@ class ModuleSourceService
                 $url = $this->getSourceUrl();
                 // For testing purposes, if the URL is the default placeholder and it doesn't exist, return empty array
                 // In a real scenario, we would expect a valid JSON response
-                
+
                 // If we are in a test environment or the URL is dummy, return a sample list
                 if (app()->environment('testing') || str_contains($url, 'example.com')) {
                     return $this->getSampleModules();
@@ -41,17 +42,20 @@ class ModuleSourceService
 
                 if ($response->successful()) {
                     $modules = $response->json('modules');
+
                     return is_array($modules) ? $modules : [];
                 }
-                
-                Log::warning('Failed to fetch modules from source: ' . $response->status());
+
+                Log::warning('Failed to fetch modules from source: '.$response->status());
+
                 return [];
             } catch (\Exception $e) {
-                Log::error('Exception fetching modules: ' . $e->getMessage());
+                Log::error('Exception fetching modules: '.$e->getMessage());
+
                 return [];
             }
         });
-        
+
         /** @var array<int, array<string, mixed>> $result */
         return $result;
     }
@@ -64,6 +68,7 @@ class ModuleSourceService
     public function getModule(string $alias): ?array
     {
         $modules = $this->getModules();
+
         return collect($modules)->firstWhere('alias', $alias);
     }
 
@@ -92,7 +97,7 @@ class ModuleSourceService
                 'download_url' => 'https://example.com/modules/customreports.zip',
                 'icon' => null,
                 'price' => 'Free',
-            ]
+            ],
         ];
     }
 }

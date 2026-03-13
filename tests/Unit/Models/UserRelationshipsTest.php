@@ -11,7 +11,6 @@ use Tests\UnitTestCase;
 
 class UserRelationshipsTest extends UnitTestCase
 {
-
     public function test_user_has_many_mailboxes(): void
     {
         $user = User::factory()->create();

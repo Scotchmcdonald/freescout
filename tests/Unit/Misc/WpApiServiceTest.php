@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 /**
  * Unit tests for WpApi service.
- * 
+ *
  * Uses mocked HTTP responses to test the marketplace API integration.
  */
 class WpApiServiceTest extends TestCase
@@ -42,6 +42,7 @@ class WpApiServiceTest extends TestCase
     {
         Http::fake(function ($request) {
             $this->assertEquals('my-license-key', $request['license']);
+
             return Http::response(['success' => true], 200);
         });
 
@@ -350,6 +351,7 @@ class WpApiServiceTest extends TestCase
         Http::fake(function ($request) {
             // Verify the correct API endpoint is being used
             $this->assertStringContainsString('freescout', $request->url());
+
             return Http::response(['success' => true], 200);
         });
 

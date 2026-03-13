@@ -39,9 +39,9 @@ class CheckRequirements extends Command
         $minVersion = config('installer.core.minPhpVersion', '8.2.0');
         $versionOk = version_compare($phpVersion, $minVersion, '>=');
 
-        $this->line(' ' . str_pad($phpVersion, 30, '.') . ' ' . ($versionOk ? '<fg=green>OK</>' : '<fg=red>FAILED (>= ' . $minVersion . ' required)</>'));
+        $this->line(' '.str_pad($phpVersion, 30, '.').' '.($versionOk ? '<fg=green>OK</>' : '<fg=red>FAILED (>= '.$minVersion.' required)</>'));
 
-        if (!$versionOk) {
+        if (! $versionOk) {
             $hasErrors = true;
         }
 
@@ -82,10 +82,12 @@ class CheckRequirements extends Command
 
         if ($hasErrors) {
             $this->error('Some requirements are not met. Please fix the issues above.');
+
             return 1;
         }
 
         $this->info('All requirements met!');
+
         return 0;
     }
 
@@ -164,12 +166,12 @@ class CheckRequirements extends Command
     /**
      * Output items with status.
      *
-     * @param array<string, bool> $items
+     * @param  array<string, bool>  $items
      */
     protected function outputItems(array $items): void
     {
         foreach ($items as $item => $status) {
-            $this->line(' ' . str_pad($item, 30, '.') . ' ' . ($status ? '<fg=green>OK</>' : '<fg=red>NOT FOUND</>'));
+            $this->line(' '.str_pad($item, 30, '.').' '.($status ? '<fg=green>OK</>' : '<fg=red>NOT FOUND</>'));
         }
     }
 }

@@ -17,14 +17,14 @@ class ThemeEditorController extends Controller
     public function index(): View|ViewFactory
     {
         $themes = Theme::all();
-        
+
         // Get active theme
         $user = Auth::user();
         $userTheme = $user instanceof \App\Models\User ? $user->theme : null;
         $configTheme = config('theme.active', 'default');
         $configThemeStr = is_string($configTheme) || is_int($configTheme) || is_float($configTheme) ? (string) $configTheme : 'default';
         $currentTheme = $userTheme ?? $configThemeStr;
-        
+
         // Normalize legacy theme names if necessary
         $themeMap = [
             'light-classic' => 'classic', 'dark-classic' => 'classic',
@@ -57,8 +57,8 @@ class ThemeEditorController extends Controller
         ]);
 
         $baseTheme = Theme::findOrFail($validated['base_theme']);
-        
-        if (!($baseTheme instanceof Theme)) {
+
+        if (! ($baseTheme instanceof Theme)) {
             return redirect()->back()->with('error', 'Invalid base theme');
         }
 
@@ -71,8 +71,8 @@ class ThemeEditorController extends Controller
         ]);
 
         // Create theme directory structure
-        $themePath = base_path('themes/' . $theme->name . '/views');
-        if (!File::exists($themePath)) {
+        $themePath = base_path('themes/'.$theme->name.'/views');
+        if (! File::exists($themePath)) {
             File::makeDirectory($themePath, 0755, true);
         }
 
@@ -84,6 +84,7 @@ class ThemeEditorController extends Controller
         if ($theme->is_system) {
             return redirect()->route('themes.editor.show', $theme)->with('error', 'System themes cannot be edited directly. Clone it to make changes.');
         }
+
         return view('themes.editor.edit', compact('theme'));
     }
 
@@ -118,7 +119,7 @@ class ThemeEditorController extends Controller
         $theme->delete();
 
         // Remove theme directory
-        $themePath = base_path('themes/' . $theme->name);
+        $themePath = base_path('themes/'.$theme->name);
         if (File::exists($themePath)) {
             File::deleteDirectory($themePath);
         }

@@ -315,7 +315,7 @@ class HelperEdgeCasesTest extends UnitTestCase
     {
         // This should throw CommandNotFoundException
         $this->expectException(\Symfony\Component\Console\Exception\CommandNotFoundException::class);
-        
+
         Helper::runCommand('nonexistent-command');
     }
 
@@ -326,7 +326,7 @@ class HelperEdgeCasesTest extends UnitTestCase
         $tempDir = sys_get_temp_dir();
         $zipPath = $tempDir.'/test_'.uniqid().'.zip';
         $sourceDir = $tempDir.'/source_'.uniqid();
-        
+
         mkdir($sourceDir);
         file_put_contents($sourceDir.'/test.txt', 'content');
 
@@ -347,7 +347,7 @@ class HelperEdgeCasesTest extends UnitTestCase
         $tempDir = sys_get_temp_dir();
         $zipPath = $tempDir.'/test_'.uniqid().'.zip';
         $sourceDir = $tempDir.'/empty_'.uniqid();
-        
+
         mkdir($sourceDir);
 
         // Passing empty array of files
@@ -372,7 +372,7 @@ class HelperEdgeCasesTest extends UnitTestCase
 
         // It should skip the file and return true (created empty zip)
         $this->assertTrue($result);
-        
+
         @unlink($zipPath);
     }
 
@@ -408,7 +408,7 @@ class HelperEdgeCasesTest extends UnitTestCase
         $tempDir = sys_get_temp_dir();
         $zipPath = $tempDir.'/test_'.uniqid().'.zip';
         $sourceDir = $tempDir.'/source_'.uniqid();
-        
+
         mkdir($sourceDir);
         file_put_contents($sourceDir.'/test.txt', 'content');
         Helper::createZipArchive($zipPath, [$sourceDir.'/test.txt'], $sourceDir);

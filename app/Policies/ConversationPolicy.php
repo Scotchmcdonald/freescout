@@ -26,7 +26,7 @@ class ConversationPolicy
 
         // Check if user has access to the conversation's mailbox
         $hasAccess = $user->mailboxes()->where('mailboxes.id', $conversation->mailbox_id)->exists();
-        
+
         if ($hasAccess) {
             // Maybe user can see only assigned conversations
             return $this->checkIsOnlyAssigned($conversation, $user);
@@ -64,7 +64,7 @@ class ConversationPolicy
 
         // Check if user has access to the conversation's mailbox
         $hasAccess = $user->mailboxes()->where('mailboxes.id', $conversation->mailbox_id)->exists();
-        
+
         if ($hasAccess) {
             // Maybe user can see only assigned conversations
             return $this->checkIsOnlyAssigned($conversation, $user);
@@ -90,7 +90,7 @@ class ConversationPolicy
 
         // Check if user has access to the conversation's mailbox
         $hasAccess = $user->mailboxes()->where('mailboxes.id', $conversation->mailbox_id)->exists();
-        
+
         if ($hasAccess) {
             // Maybe user can see only assigned conversations
             return $this->checkIsOnlyAssigned($conversation, $user);
@@ -125,7 +125,7 @@ class ConversationPolicy
         // If user can only see assigned conversations, check if they are assignee or creator
         // For now, we'll allow all users to see conversations they have access to
         // This logic can be extended based on user permissions
-        
+
         return true;
     }
 }

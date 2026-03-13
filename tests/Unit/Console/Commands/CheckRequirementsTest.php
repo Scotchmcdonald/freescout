@@ -6,31 +6,29 @@ namespace Tests\Unit\Console\Commands;
 
 use App\Console\Commands\CheckRequirements;
 use Illuminate\Support\Facades\Artisan;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 /** @group console */
 class CheckRequirementsTest extends UnitTestCase
 {
-
     public function test_command_can_be_instantiated(): void
     {
-        $command = new CheckRequirements();
-        
+        $command = new CheckRequirements;
+
         $this->assertInstanceOf(CheckRequirements::class, $command);
     }
 
     public function test_command_has_correct_signature(): void
     {
-        $command = new CheckRequirements();
-        
+        $command = new CheckRequirements;
+
         $this->assertEquals('freescout:check-requirements', $command->getName());
     }
 
     public function test_command_has_description(): void
     {
-        $command = new CheckRequirements();
-        
+        $command = new CheckRequirements;
+
         $this->assertNotEmpty($command->getDescription());
         $this->assertStringContainsString('requirements', $command->getDescription());
     }
@@ -39,7 +37,7 @@ class CheckRequirementsTest extends UnitTestCase
     {
         Artisan::call('freescout:check-requirements');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('PHP Version', $output);
         $this->assertStringContainsString(phpversion(), $output);
     }
@@ -48,7 +46,7 @@ class CheckRequirementsTest extends UnitTestCase
     {
         Artisan::call('freescout:check-requirements');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('PHP Extensions', $output);
     }
 
@@ -56,7 +54,7 @@ class CheckRequirementsTest extends UnitTestCase
     {
         Artisan::call('freescout:check-requirements');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('Required Functions', $output);
     }
 
@@ -64,14 +62,14 @@ class CheckRequirementsTest extends UnitTestCase
     {
         Artisan::call('freescout:check-requirements');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('Directory Permissions', $output);
     }
 
     public function test_command_returns_zero_when_requirements_met(): void
     {
         $exitCode = Artisan::call('freescout:check-requirements');
-        
+
         // May return 0 or 1 depending on environment
         $this->assertContains($exitCode, [0, 1]);
     }
@@ -80,7 +78,7 @@ class CheckRequirementsTest extends UnitTestCase
     {
         Artisan::call('freescout:check-requirements');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('proc_open', $output);
     }
 
@@ -88,7 +86,7 @@ class CheckRequirementsTest extends UnitTestCase
     {
         Artisan::call('freescout:check-requirements');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('fsockopen', $output);
     }
 
@@ -96,7 +94,7 @@ class CheckRequirementsTest extends UnitTestCase
     {
         Artisan::call('freescout:check-requirements');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('iconv', $output);
     }
 
@@ -104,7 +102,7 @@ class CheckRequirementsTest extends UnitTestCase
     {
         Artisan::call('freescout:check-requirements');
         $output = Artisan::output();
-        
+
         // Should contain OK or FAILED status indicators
         $hasStatus = str_contains($output, 'OK') || str_contains($output, 'FAILED') || str_contains($output, 'NOT FOUND');
         $this->assertTrue($hasStatus);
@@ -114,7 +112,7 @@ class CheckRequirementsTest extends UnitTestCase
     {
         Artisan::call('freescout:check-requirements');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('intl', $output);
     }
 
@@ -122,7 +120,7 @@ class CheckRequirementsTest extends UnitTestCase
     {
         Artisan::call('freescout:check-requirements');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('pcntl', $output);
     }
 
@@ -130,7 +128,7 @@ class CheckRequirementsTest extends UnitTestCase
     {
         Artisan::call('freescout:check-requirements');
         $output = Artisan::output();
-        
+
         // Should show either success or error message
         $hasSummary = str_contains($output, 'All requirements met') || str_contains($output, 'not met');
         $this->assertTrue($hasSummary);

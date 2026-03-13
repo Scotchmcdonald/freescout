@@ -15,7 +15,6 @@ use Tests\UnitTestCase;
 
 class SystemControllerTest extends UnitTestCase
 {
-
     public function test_controller_can_be_instantiated(): void
     {
         $controller = new SystemController;
@@ -250,11 +249,11 @@ class SystemControllerTest extends UnitTestCase
         // Create a temp log file for testing
         $logPath = storage_path('logs/laravel.log');
         $logDir = dirname($logPath);
-        
-        if (!is_dir($logDir)) {
+
+        if (! is_dir($logDir)) {
             mkdir($logDir, 0755, true);
         }
-        
+
         file_put_contents($logPath, "Test log content\n");
 
         try {
@@ -274,7 +273,7 @@ class SystemControllerTest extends UnitTestCase
     {
         $controller = new SystemController;
         $response = $controller->diagnostics();
-        
+
         $data = $response->getData(true);
         // Diagnostics returns checks as array
         $this->assertIsArray($data);
@@ -285,7 +284,7 @@ class SystemControllerTest extends UnitTestCase
     {
         $controller = new SystemController;
         $response = $controller->diagnostics();
-        
+
         $data = $response->getData(true);
         // Diagnostics returns various system checks
         $this->assertIsArray($data);
@@ -296,7 +295,7 @@ class SystemControllerTest extends UnitTestCase
     {
         $controller = new SystemController;
         $response = $controller->diagnostics();
-        
+
         $data = $response->getData(true);
         $this->assertArrayHasKey('checks', $data);
         $this->assertArrayHasKey('cache', $data['checks']);
@@ -305,9 +304,9 @@ class SystemControllerTest extends UnitTestCase
     public function test_ajax_handles_multiple_actions(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        
+
         $actions = ['clear_cache', 'system_info'];
-        
+
         foreach ($actions as $action) {
             $request = Request::create('/system/ajax', 'POST');
             $request->setUserResolver(fn () => $admin);
@@ -350,7 +349,7 @@ class SystemControllerTest extends UnitTestCase
         $request->setUserResolver(fn () => $admin);
 
         $controller = new SystemController;
-        
+
         // GET requests should not be processed the same way
         $this->assertInstanceOf(SystemController::class, $controller);
     }
@@ -458,10 +457,10 @@ class SystemControllerTest extends UnitTestCase
         \Artisan::shouldReceive('call')->with('cache:clear')
             ->andThrow(new \Exception('Cache clear failed'));
 
-        // Other calls might happen or not depending on implementation loop, but usually it continues? 
+        // Other calls might happen or not depending on implementation loop, but usually it continues?
         // Based on controller code: `foreach ($commands as $command => $label)` it continues even if one fails.
         // So we should expect other calls or allow them.
-        \Artisan::shouldReceive('call'); 
+        \Artisan::shouldReceive('call');
 
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $request = Request::create('/system/ajax', 'POST');
@@ -481,7 +480,7 @@ class SystemControllerTest extends UnitTestCase
     {
         \Artisan::shouldReceive('call')->with('optimize')
             ->andThrow(new \Exception('Optimize failed'));
-        
+
         \Illuminate\Support\Facades\Log::shouldReceive('error')
             ->twice()
             ->andReturn(null);
@@ -506,7 +505,7 @@ class SystemControllerTest extends UnitTestCase
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
-        
+
         // Diagnostics should run and return data
         $this->assertIsArray($data);
         $this->assertNotEmpty($data);
@@ -518,7 +517,7 @@ class SystemControllerTest extends UnitTestCase
         $response = $controller->diagnostics();
 
         $data = $response->getData(true);
-        
+
         // Should have multiple diagnostic checks
         $this->assertGreaterThan(0, count($data));
     }

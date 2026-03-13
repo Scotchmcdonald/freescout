@@ -27,13 +27,11 @@ class CreateUser extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int
      */
     public function handle(): int
     {
         $role = $this->option('role');
-        if (!$role) {
+        if (! $role) {
             $role = $this->choice('User role', ['admin', 'user'], 'admin');
         }
 
@@ -68,19 +66,21 @@ class CreateUser extends Command
             foreach ($validator->errors()->all() as $error) {
                 $this->error($error);
             }
+
             return 1;
         }
 
         $user = User::where('email', $email)->first();
-        if ($user && !$this->option('overwrite')) {
-            if (!$this->confirm("User with email '$email' already exists. Do you want to overwrite it?", false)) {
+        if ($user && ! $this->option('overwrite')) {
+            if (! $this->confirm("User with email '$email' already exists. Do you want to overwrite it?", false)) {
                 $this->error('User already exists.');
+
                 return 1;
             }
         }
-        
-        if (!$user) {
-            $user = new User();
+
+        if (! $user) {
+            $user = new User;
             $user->email = $email;
         }
 
@@ -91,15 +91,15 @@ class CreateUser extends Command
         $user->status = User::STATUS_ACTIVE;
 
         $verify = true;
-        
-        // If --verified is present, we force verify. 
+
+        // If --verified is present, we force verify.
         // If running interactively and not specified, we ask.
         // If not interactive and not specified, we assume verified (default true).
-        
+
         if ($this->option('verified')) {
             $verify = true;
         } elseif ($this->option('no-interaction')) {
-            $verify = true; 
+            $verify = true;
         } else {
             $verify = $this->confirm('Mark email as verified?', true);
         }
@@ -113,9 +113,10 @@ class CreateUser extends Command
         if ($this->confirm('Do you want to create/update the user?', true)) {
             try {
                 $user->save();
-                $this->info('User saved with id: ' . $user->id);
+                $this->info('User saved with id: '.$user->id);
             } catch (\Exception $e) {
-                $this->error('Error creating user: ' . $e->getMessage());
+                $this->error('Error creating user: '.$e->getMessage());
+
                 return 1;
             }
         }

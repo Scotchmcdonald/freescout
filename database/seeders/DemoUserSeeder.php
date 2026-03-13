@@ -37,7 +37,7 @@ class DemoUserSeeder extends Seeder
 
         // 1. Create a shared sandbox company
         $company = Company::firstOrCreate(
-            ['email' => 'info@' . self::DOMAIN],
+            ['email' => 'info@'.self::DOMAIN],
             [
                 'name' => 'Demo Sandbox Inc.',
                 'is_active' => true,
@@ -48,25 +48,25 @@ class DemoUserSeeder extends Seeder
         $definitions = [
             [
                 'role' => UserRole::Admin,
-                'email' => 'demo-admin@' . self::DOMAIN,
+                'email' => 'demo-admin@'.self::DOMAIN,
                 'first_name' => 'Demo',
                 'last_name' => 'Admin',
             ],
             [
                 'role' => UserRole::User,
-                'email' => 'demo-agent@' . self::DOMAIN,
+                'email' => 'demo-agent@'.self::DOMAIN,
                 'first_name' => 'Demo',
                 'last_name' => 'Agent',
             ],
             [
                 'role' => UserRole::Finance,
-                'email' => 'demo-finance@' . self::DOMAIN,
+                'email' => 'demo-finance@'.self::DOMAIN,
                 'first_name' => 'Demo',
                 'last_name' => 'Finance',
             ],
             [
                 'role' => UserRole::Reporter,
-                'email' => 'demo-reporter@' . self::DOMAIN,
+                'email' => 'demo-reporter@'.self::DOMAIN,
                 'first_name' => 'Demo',
                 'last_name' => 'Reporter',
             ],
@@ -92,14 +92,14 @@ class DemoUserSeeder extends Seeder
             // Set primary_contact_id on company to first user created (Admin)
             if ($firstUser === null) {
                 $firstUser = $user;
-                if (!$company->primary_contact_id) {
+                if (! $company->primary_contact_id) {
                     $company->update(['primary_contact_id' => $user->id]);
                 }
             }
 
             // Attach user ↔ company if not already linked
             try {
-                if (!$company->users()->where('user_id', $user->id)->exists()) {
+                if (! $company->users()->where('user_id', $user->id)->exists()) {
                     $company->users()->attach($user->id, [
                         'role_id' => 1,
                         'status' => 'approved',
@@ -117,7 +117,7 @@ class DemoUserSeeder extends Seeder
 
         // 3. Create a demo Client under the sandbox company
         $client = Client::firstOrCreate(
-            ['email' => 'acme@' . self::DOMAIN],
+            ['email' => 'acme@'.self::DOMAIN],
             [
                 'name' => 'Acme Logistics (Sandbox)',
                 'company_id' => $company->id,
@@ -128,7 +128,7 @@ class DemoUserSeeder extends Seeder
         // 4. Create a Client Portal user (unified identity)
         try {
             $portalUser = User::firstOrCreate(
-                ['email' => 'demo-portal@' . self::DOMAIN],
+                ['email' => 'demo-portal@'.self::DOMAIN],
                 [
                     'first_name' => 'Demo',
                     'last_name' => 'Portal User',
@@ -141,7 +141,7 @@ class DemoUserSeeder extends Seeder
                 ]
             );
 
-            if (!$company->users()->where('user_id', $portalUser->id)->exists()) {
+            if (! $company->users()->where('user_id', $portalUser->id)->exists()) {
                 $company->users()->attach($portalUser->id, [
                     'role_id' => 1,
                     'status' => 'approved',
@@ -155,6 +155,6 @@ class DemoUserSeeder extends Seeder
         }
 
         $this->command->newLine();
-        $this->command->info('Sandbox accounts ready. Password for all: ' . self::PASSWORD);
+        $this->command->info('Sandbox accounts ready. Password for all: '.self::PASSWORD);
     }
 }

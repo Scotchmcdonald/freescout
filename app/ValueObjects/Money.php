@@ -27,12 +27,14 @@ class Money implements JsonSerializable
     public function add(Money $other): self
     {
         $this->assertSameCurrency($other);
+
         return new self($this->amount + $other->amount, $this->currency);
     }
 
     public function subtract(Money $other): self
     {
         $this->assertSameCurrency($other);
+
         return new self($this->amount - $other->amount, $this->currency);
     }
 
@@ -47,7 +49,6 @@ class Money implements JsonSerializable
     }
 
     /**
-     * @param int $ratios
      * @return array<int, self>
      */
     public function allocate(int $ratios): array
@@ -55,7 +56,7 @@ class Money implements JsonSerializable
         if ($ratios <= 0) {
             throw new InvalidArgumentException('Cannot allocate to 0 or fewer targets');
         }
-        
+
         $remainder = $this->amount % $ratios;
         $base = ($this->amount - $remainder) / $ratios;
         $results = [];
@@ -97,7 +98,7 @@ class Money implements JsonSerializable
     private function assertSameCurrency(Money $other): void
     {
         if ($this->currency !== $other->currency) {
-            throw new InvalidArgumentException('Currencies must match: ' . $this->currency . ' vs ' . $other->currency);
+            throw new InvalidArgumentException('Currencies must match: '.$this->currency.' vs '.$other->currency);
         }
     }
 }

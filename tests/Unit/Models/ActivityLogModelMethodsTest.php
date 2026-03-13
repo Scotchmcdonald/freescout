@@ -296,7 +296,7 @@ class ActivityLogModelMethodsTest extends UnitTestCase
         // Let's check the implementation again.
         // public static function getAvailableLogs(bool $checkExisting = true): array { ... return array_values(array_unique($availableLogs)); }
         // So it returns ['log1', 'log2'].
-        
+
         $this->assertContains(ActivityLog::NAME_EMAILS_SENDING, $logs);
     }
 

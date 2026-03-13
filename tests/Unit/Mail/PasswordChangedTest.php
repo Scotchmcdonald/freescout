@@ -7,12 +7,10 @@ namespace Tests\Unit\Mail;
 use App\Mail\PasswordChanged;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class PasswordChangedTest extends UnitTestCase
 {
-
     public function test_mailable_can_be_instantiated(): void
     {
         $user = User::factory()->create();
@@ -25,7 +23,7 @@ class PasswordChangedTest extends UnitTestCase
     public function test_envelope_contains_password_updated_message(): void
     {
         config(['app.name' => 'FreeScout']);
-        
+
         $user = User::factory()->create();
         $mailable = new PasswordChanged($user);
         $envelope = $mailable->envelope();
@@ -37,7 +35,7 @@ class PasswordChangedTest extends UnitTestCase
     public function test_envelope_uses_company_name_from_options(): void
     {
         config(['app.name' => 'Support Desk']);
-        
+
         $user = User::factory()->create();
         $mailable = new PasswordChanged($user);
         $envelope = $mailable->envelope();
@@ -71,7 +69,7 @@ class PasswordChangedTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $mailable = new PasswordChanged($user);
-        
+
         $this->assertTrue(method_exists($mailable, 'onQueue'));
         $this->assertTrue(method_exists($mailable, 'onConnection'));
     }

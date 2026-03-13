@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\User;
-use Modules\Crm\Models\Client;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Modules\Crm\Models\Client;
 
 /**
  * Client Policy

@@ -27,8 +27,8 @@ class WebhookGatewayController extends Controller
         $metrics = [
             'total' => $channels->count(),
             'active' => $channels->where('is_active', true)->count(),
-            'expired' => $channels->filter(fn($ch) => $ch->isExpired())->count(),
-            'expiring_soon' => $channels->filter(fn($ch) => $ch->isExpiringSoon())->count(),
+            'expired' => $channels->filter(fn ($ch) => $ch->isExpired())->count(),
+            'expiring_soon' => $channels->filter(fn ($ch) => $ch->isExpiringSoon())->count(),
             'total_notifications' => $channels->sum('notification_count'),
         ];
 
@@ -69,14 +69,14 @@ class WebhookGatewayController extends Controller
             ]);
 
             return redirect()->route('webhooks.gateway.index')
-                ->with('success', 'Channel renewed successfully. New expiration: ' . $newExpiration->format('M d, Y H:i'));
+                ->with('success', 'Channel renewed successfully. New expiration: '.$newExpiration->format('M d, Y H:i'));
         } catch (\Exception $e) {
             Log::error('Failed to renew webhook channel', [
                 'channel_id' => $channel->channel_id,
                 'error' => $e->getMessage(),
             ]);
 
-            return back()->with('error', 'Failed to renew channel: ' . $e->getMessage());
+            return back()->with('error', 'Failed to renew channel: '.$e->getMessage());
         }
     }
 
@@ -102,7 +102,7 @@ class WebhookGatewayController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return back()->with('error', 'Failed to stop channel: ' . $e->getMessage());
+            return back()->with('error', 'Failed to stop channel: '.$e->getMessage());
         }
     }
 
@@ -151,7 +151,7 @@ class WebhookGatewayController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Test failed: ' . $e->getMessage(),
+                'message' => 'Test failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -165,17 +165,17 @@ class WebhookGatewayController extends Controller
 
         try {
             $channel = GooglePushChannel::create([
-                'resource_type'   => $dto->resourceType,
-                'resource_id'     => $dto->resourceId,
-                'channel_id'      => 'channel_' . Str::random(32),
-                'token'           => Str::random(64),
-                'webhook_url'     => $dto->webhookUrl,
+                'resource_type' => $dto->resourceType,
+                'resource_id' => $dto->resourceId,
+                'channel_id' => 'channel_'.Str::random(32),
+                'token' => Str::random(64),
+                'webhook_url' => $dto->webhookUrl,
                 'expiration_time' => now()->addHours($dto->durationHours),
-                'is_active'       => true,
+                'is_active' => true,
             ]);
 
             Log::info('Webhook channel created', [
-                'channel_id'    => $channel->channel_id,
+                'channel_id' => $channel->channel_id,
                 'resource_type' => $channel->resource_type,
             ]);
 
@@ -186,7 +186,7 @@ class WebhookGatewayController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return back()->with('error', 'Failed to create channel: ' . $e->getMessage());
+            return back()->with('error', 'Failed to create channel: '.$e->getMessage());
         }
     }
 }

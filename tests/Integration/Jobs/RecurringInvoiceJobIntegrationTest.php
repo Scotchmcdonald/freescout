@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Jobs;
 
-use Modules\PIB\Services\EntitlementEngineService as EntitlementEngine;
-use App\Contracts\EntitlementResolver;
 use App\Contracts\BillingTemplateInterface;
+use App\Contracts\EntitlementResolver;
 use App\DataTransferObjects\EntitlementResult;
-use Modules\Crm\Models\Client;
-use Modules\Crm\Models\Company;
-use Modules\PIB\Jobs\GenerateRecurringInvoicesJob;
-use Modules\ContractManager\Models\BillingTemplate;
-use Modules\PIB\Models\Invoice;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Modules\ContractManager\Models\BillingTemplate;
+use Modules\Crm\Models\Client;
+use Modules\Crm\Models\Company;
+use Modules\PIB\Jobs\GenerateRecurringInvoicesJob;
+use Modules\PIB\Models\Invoice;
+use Modules\PIB\Services\EntitlementEngineService as EntitlementEngine;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 /**
  * GenerateRecurringInvoicesJob Integration Tests
- * 
+ *
  * Tests job instantiation and basic functionality.
  * Tests billing template model and its relationships.
  */
@@ -39,9 +39,9 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->createRequiredTables();
-        
+
         $this->company = Company::factory()->create();
         $this->client = Client::factory()->create(['company_id' => $this->company->id]);
     }
@@ -118,7 +118,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
         }
 
         $id = DB::table('cm_billing_templates')->insertGetId($data);
-        
+
         return BillingTemplate::find($id);
     }
 
@@ -127,7 +127,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
         $data = array_merge([
             'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'invoice_number' => 'INV-' . uniqid(),
+            'invoice_number' => 'INV-'.uniqid(),
             'status' => 'draft',
             'invoice_date' => today(),
             'due_date' => today()->addDays(30),
@@ -139,7 +139,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
         ], $attributes);
 
         $id = DB::table('pib_invoices')->insertGetId($data);
-        
+
         return Invoice::find($id);
     }
 
@@ -148,8 +148,8 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
      */
     public function test_job_can_be_instantiated(): void
     {
-        $job = new GenerateRecurringInvoicesJob();
-        
+        $job = new GenerateRecurringInvoicesJob;
+
         $this->assertInstanceOf(GenerateRecurringInvoicesJob::class, $job);
     }
 
@@ -159,7 +159,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
     public function test_billing_template_can_be_created(): void
     {
         $template = $this->createBillingTemplate();
-        
+
         $this->assertNotNull($template);
         $this->assertEquals($this->client->id, $template->client_id);
         $this->assertEquals('test_product', $template->product_type);
@@ -210,7 +210,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
         ]);
 
         $nextDate = $template->next_invoice_date->copy()->addMonth();
-        
+
         $this->assertEquals(today()->addMonth()->toDateString(), $nextDate->toDateString());
     }
 
@@ -225,7 +225,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
         ]);
 
         $nextDate = $template->next_invoice_date->copy()->addMonths(3);
-        
+
         $this->assertEquals(today()->addMonths(3)->toDateString(), $nextDate->toDateString());
     }
 
@@ -240,7 +240,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
         ]);
 
         $nextDate = $template->next_invoice_date->copy()->addYear();
-        
+
         $this->assertEquals(today()->addYear()->toDateString(), $nextDate->toDateString());
     }
 
@@ -251,7 +251,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
     {
         $template = $this->createBillingTemplate();
         $invoice = $this->createInvoice(['billing_template_id' => $template->id]);
-        
+
         $this->assertNotNull($invoice);
         $this->assertEquals($template->id, $invoice->billing_template_id);
         $this->assertEquals($this->client->id, $invoice->client_id);
@@ -277,8 +277,8 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
      */
     public function test_entitlement_engine_can_be_created(): void
     {
-        $engine = new EntitlementEngine();
-        
+        $engine = new EntitlementEngine;
+
         $this->assertInstanceOf(EntitlementEngine::class, $engine);
     }
 
@@ -287,9 +287,10 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
      */
     public function test_entitlement_resolver_can_be_registered(): void
     {
-        $engine = new EntitlementEngine();
-        
-        $resolver = new class implements EntitlementResolver {
+        $engine = new EntitlementEngine;
+
+        $resolver = new class implements EntitlementResolver
+        {
             public function calculate(BillingTemplateInterface $template): EntitlementResult
             {
                 return new EntitlementResult(
@@ -301,7 +302,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
         };
 
         $engine->registerResolver('test_product', $resolver);
-        
+
         $this->assertTrue($engine->hasResolver('test_product'));
     }
 
@@ -352,7 +353,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
         $invoice3 = $this->createInvoice(['invoice_number' => 'INV-003']);
 
         $numbers = Invoice::pluck('invoice_number')->toArray();
-        
+
         $this->assertCount(3, array_unique($numbers));
     }
 
@@ -365,7 +366,7 @@ class RecurringInvoiceJobIntegrationTest extends TestCase
         $template = $this->createBillingTemplate(['product_config' => $config]);
 
         $refreshed = BillingTemplate::find($template->id);
-        
+
         $this->assertIsArray($refreshed->product_config);
         $this->assertEquals('value', $refreshed->product_config['key']);
     }

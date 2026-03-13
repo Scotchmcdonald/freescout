@@ -1,10 +1,8 @@
 <?php
 
 use App\Models\Conversation;
-use App\Models\Thread;
-use App\Models\User;
 use App\Models\Mailbox;
-use App\Models\Folder;
+use App\Models\Thread;
 
 test('conversation increments thread count', function () {
     $mailbox = Mailbox::factory()->create();
@@ -15,7 +13,7 @@ test('conversation increments thread count', function () {
     ]);
 
     $conversation->refresh();
-    
+
     // Check if logic exists. Often this is handled by Model Events/Observers.
     // Legacy test expected it to work.
     expect($conversation->threads_count)->toBe(1);

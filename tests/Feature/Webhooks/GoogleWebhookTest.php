@@ -3,24 +3,20 @@
 declare(strict_types=1);
 
 use App\Models\GooglePushChannel;
-use App\Jobs\RenewExpiringWebhooksJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Event;
-use Modules\GoogleAdmin\Services\GoogleWorkspaceService;
 
 uses(RefreshDatabase::class);
 
 /**
  * Google Webhook Tests
- * 
+ *
  * Tests Google-specific webhook functionality:
  * - Channel creation and management
  * - Resource type handling (users, groups, orgunits)
  * - Event dispatching
  * - Automatic renewal
  */
-
 beforeEach(function () {
     // Create test webhook channel
     $this->channel = GooglePushChannel::create([
@@ -81,7 +77,7 @@ test('google webhook handles chrome device notifications', function () {
     ])->postJson('/api/webhooks/google/chrome-devices', []);
 
     expect($response->status())->toBe(200);
-    
+
     $chromeChannel->refresh();
     expect($chromeChannel->notification_count)->toBe(1);
 });
@@ -111,7 +107,7 @@ test('google webhook dispatches user changed event', function () {
     ])->postJson('/api/webhooks/google/directory', []);
 
     expect($response->status())->toBe(200);
-    
+
     // Note: Event will only dispatch if event class exists in GoogleAdmin module
     // Event::assertDispatched('Modules\\GoogleAdmin\\Events\\GoogleUserChanged');
 });
@@ -177,17 +173,17 @@ test('channel health status reflects expiration', function () {
 
 test('channel reports correct time until expiration', function () {
     $this->channel->update(['expiration_time' => now()->addDays(3)]);
-    
+
     $expiresIn = $this->channel->getExpiresInAttribute();
-    
+
     expect($expiresIn)->toContain('day');
 });
 
 test('expired channel reports as expired', function () {
     $this->channel->update(['expiration_time' => now()->subDay()]);
-    
+
     $expiresIn = $this->channel->getExpiresInAttribute();
-    
+
     expect($expiresIn)->toBe('Expired');
 });
 
@@ -205,7 +201,7 @@ test('channel scopes work correctly', function () {
     ]);
 
     $activeChannels = GooglePushChannel::active()->get();
-    
+
     expect($activeChannels)->toHaveCount(1)
         ->and($activeChannels->first()->channel_id)->toBe($this->channel->channel_id);
 });

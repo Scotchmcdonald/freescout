@@ -15,7 +15,7 @@ class UserPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new UserPolicy();
+        $this->policy = new UserPolicy;
     }
 
     public function test_admin_can_view_any_users(): void
@@ -144,13 +144,11 @@ class UserPolicyTest extends TestCase
 
     public function test_null_user_cannot_view_any_users(): void
     {
-
         $this->assertFalse($this->policy->viewAny(null));
     }
 
     public function test_null_user_cannot_create_user(): void
     {
-
         $this->assertFalse($this->policy->create(null));
     }
 

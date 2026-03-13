@@ -55,7 +55,7 @@ class UserFactory extends Factory
             'role' => 1, // User
             'type' => 1, // Internal
             'job_title' => 'Finance Manager',
-            // Assuming permissions are handled via roles/permissions tables, 
+            // Assuming permissions are handled via roles/permissions tables,
             // but for factory purposes we just set the title/type
         ]);
     }

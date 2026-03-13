@@ -10,7 +10,6 @@ use Tests\UnitTestCase;
 
 class AdvancedPolicyTest extends UnitTestCase
 {
-
     public function test_admin_can_manage_all_mailboxes()
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);

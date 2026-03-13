@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use Tests\UnitTestCase;
 use App\Models\Conversation;
-use App\Models\Thread;
-use App\Models\User;
-use App\Models\Mailbox;
 use App\Models\Folder;
-use App\Models\Customer;
-use Illuminate\Support\Facades\DB;
+use App\Models\Mailbox;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Tests\UnitTestCase;
 
 class PerformanceAndOptimizationTest extends UnitTestCase
 {
@@ -20,25 +18,25 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     public function test_select_only_needed_columns(): void
     {
         Conversation::factory()->count(10)->create();
-        
+
         DB::enableQueryLog();
-        
+
         $conversations = Conversation::select('id', 'subject', 'status')->get();
-        
+
         $queries = DB::getQueryLog();
         // Normalize quotes for cross-database compatibility (MySQL uses backticks, SQLite/Postgres use double quotes)
         $normalizedQuery = str_replace(['"', '`'], '', strtolower($queries[0]['query']));
         $this->assertStringContainsString('select id, subject, status', $normalizedQuery);
-        
+
         DB::disableQueryLog();
     }
 
     public function test_pagination_limits_results(): void
     {
         Conversation::factory()->count(100)->create();
-        
+
         $paginated = Conversation::paginate(10);
-        
+
         $this->assertCount(10, $paginated->items());
         $this->assertEquals(100, $paginated->total());
     }
@@ -47,42 +45,42 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     {
         $mailboxIds = Mailbox::factory()->count(5)->create()->pluck('id');
         Conversation::factory()->count(20)->create();
-        
+
         DB::enableQueryLog();
-        
+
         $conversations = Conversation::whereIn('mailbox_id', $mailboxIds)->get();
-        
+
         $queryCount = count(DB::getQueryLog());
         $this->assertEquals(1, $queryCount);
-        
+
         DB::disableQueryLog();
     }
 
     public function test_exists_is_more_efficient_than_count(): void
     {
         Conversation::factory()->count(1000)->create();
-        
+
         DB::enableQueryLog();
-        
+
         $exists = Conversation::where('status', Conversation::STATUS_ACTIVE)->exists();
-        
+
         $queries = DB::getQueryLog();
         $this->assertStringContainsString('exists', strtolower($queries[0]['query']));
-        
+
         DB::disableQueryLog();
     }
 
     public function test_first_is_more_efficient_than_get_first(): void
     {
         Conversation::factory()->count(100)->create();
-        
+
         DB::enableQueryLog();
-        
+
         $conversation = Conversation::where('status', Conversation::STATUS_ACTIVE)->first();
-        
+
         $queries = DB::getQueryLog();
         $this->assertStringContainsString('limit', strtolower($queries[0]['query']));
-        
+
         DB::disableQueryLog();
     }
 
@@ -90,27 +88,27 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     public function test_cache_remember_reduces_queries(): void
     {
         $mailbox = Mailbox::factory()->create();
-        
-        Cache::forget('mailbox_' . $mailbox->id);
-        
+
+        Cache::forget('mailbox_'.$mailbox->id);
+
         DB::enableQueryLog();
-        
-        $cached1 = Cache::remember('mailbox_' . $mailbox->id, 60, function () use ($mailbox) {
+
+        $cached1 = Cache::remember('mailbox_'.$mailbox->id, 60, function () use ($mailbox) {
             return Mailbox::find($mailbox->id);
         });
-        
+
         $queriesFirst = count(DB::getQueryLog());
-        
-        $cached2 = Cache::remember('mailbox_' . $mailbox->id, 60, function () use ($mailbox) {
+
+        $cached2 = Cache::remember('mailbox_'.$mailbox->id, 60, function () use ($mailbox) {
             return Mailbox::find($mailbox->id);
         });
-        
+
         $queriesSecond = count(DB::getQueryLog());
-        
+
         $this->assertEquals($queriesFirst, $queriesSecond);
-        
+
         DB::disableQueryLog();
-        Cache::forget('mailbox_' . $mailbox->id);
+        Cache::forget('mailbox_'.$mailbox->id);
     }
 
     // Batch Operations
@@ -135,14 +133,14 @@ class PerformanceAndOptimizationTest extends UnitTestCase
                 'source_type' => 1,
             ];
         }
-        
+
         DB::enableQueryLog();
-        
+
         Conversation::insert($data);
-        
+
         $queryCount = count(DB::getQueryLog());
         $this->assertEquals(1, $queryCount);
-        
+
         DB::disableQueryLog();
     }
 
@@ -151,15 +149,15 @@ class PerformanceAndOptimizationTest extends UnitTestCase
         $conversations = Conversation::factory()->count(10)->create([
             'status' => Conversation::STATUS_ACTIVE,
         ]);
-        
+
         DB::enableQueryLog();
-        
+
         Conversation::whereIn('id', $conversations->pluck('id'))
             ->update(['status' => Conversation::STATUS_CLOSED]);
-        
+
         $queryCount = count(DB::getQueryLog());
         $this->assertEquals(1, $queryCount);
-        
+
         DB::disableQueryLog();
     }
 
@@ -167,30 +165,30 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     public function test_primary_key_lookup_is_fast(): void
     {
         $conversation = Conversation::factory()->create();
-        
+
         DB::enableQueryLog();
-        
+
         $found = Conversation::find($conversation->id);
-        
+
         $queries = DB::getQueryLog();
         $normalizedQuery = str_replace(['"', '`'], '', strtolower($queries[0]['query']));
         // Eloquent adds table name to the query
         $this->assertStringContainsString('conversations.id =', $normalizedQuery);
-        
+
         DB::disableQueryLog();
     }
 
     public function test_indexed_column_lookup_is_efficient(): void
     {
         Conversation::factory()->count(100)->create();
-        
+
         DB::enableQueryLog();
-        
+
         $conversations = Conversation::where('status', Conversation::STATUS_ACTIVE)->get();
-        
+
         $queryCount = count(DB::getQueryLog());
         $this->assertEquals(1, $queryCount);
-        
+
         DB::disableQueryLog();
     }
 
@@ -198,22 +196,24 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     public function test_cursor_reduces_memory_for_large_datasets(): void
     {
         Conversation::factory()->count(1000)->create();
-        
+
         $processedCount = 0;
         foreach (Conversation::cursor() as $conversation) {
             $processedCount++;
-            if ($processedCount >= 10) break;
+            if ($processedCount >= 10) {
+                break;
+            }
         }
-        
+
         $this->assertEquals(10, $processedCount);
     }
 
     public function test_lazy_collection_for_memory_efficiency(): void
     {
         Conversation::factory()->count(100)->create();
-        
+
         $lazy = Conversation::lazy();
-        
+
         $this->assertInstanceOf(\Illuminate\Support\LazyCollection::class, $lazy);
     }
 
@@ -222,17 +222,17 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     {
         Conversation::factory()->count(50)->create(['status' => Conversation::STATUS_ACTIVE]);
         Conversation::factory()->count(50)->create(['status' => Conversation::STATUS_CLOSED]);
-        
+
         DB::enableQueryLog();
-        
+
         $conversations = Conversation::where('status', Conversation::STATUS_ACTIVE)
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
-        
+
         $queryCount = count(DB::getQueryLog());
         $this->assertEquals(1, $queryCount);
-        
+
         DB::disableQueryLog();
     }
 
@@ -241,14 +241,14 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         Conversation::factory()->count(5)->create(['mailbox_id' => $mailbox->id]);
-        
+
         DB::enableQueryLog();
-        
+
         $mailboxes = Mailbox::has('conversations')->get();
-        
+
         $queryCount = count(DB::getQueryLog());
         $this->assertLessThanOrEqual(2, $queryCount);
-        
+
         DB::disableQueryLog();
     }
 
@@ -256,16 +256,16 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     {
         $user = User::factory()->create();
         Conversation::factory()->count(5)->create();
-        
+
         DB::enableQueryLog();
-        
+
         $conversations = Conversation::whereHas('threads', function ($query) use ($user) {
             $query->where('user_id', $user->id);
         })->get();
-        
+
         $queryCount = count(DB::getQueryLog());
         $this->assertLessThanOrEqual(2, $queryCount);
-        
+
         DB::disableQueryLog();
     }
 
@@ -273,14 +273,14 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     public function test_count_uses_optimized_query(): void
     {
         Conversation::factory()->count(100)->create();
-        
+
         DB::enableQueryLog();
-        
+
         $count = Conversation::count();
-        
+
         $queries = DB::getQueryLog();
         $this->assertStringContainsString('count(*)', strtolower($queries[0]['query']));
-        
+
         DB::disableQueryLog();
     }
 
@@ -288,15 +288,15 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     public function test_pluck_only_retrieves_specified_column(): void
     {
         Conversation::factory()->count(50)->create();
-        
+
         DB::enableQueryLog();
-        
+
         $ids = Conversation::pluck('id');
-        
+
         $queries = DB::getQueryLog();
         $normalizedQuery = str_replace(['"', '`'], '', strtolower($queries[0]['query']));
         $this->assertStringContainsString('select id', $normalizedQuery);
-        
+
         DB::disableQueryLog();
     }
 
@@ -305,16 +305,16 @@ class PerformanceAndOptimizationTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         Conversation::factory()->count(10)->create(['mailbox_id' => $mailbox->id]);
-        
+
         DB::enableQueryLog();
-        
+
         $mailboxes = Mailbox::select('id', 'name')
             ->withCount('conversations')
             ->get();
-        
+
         $queryCount = count(DB::getQueryLog());
         $this->assertEquals(1, $queryCount);
-        
+
         DB::disableQueryLog();
     }
 }

@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Tests\Integration\Jobs;
 
 use App\DataTransferObjects\Action1DeviceDiscoveredData;
+use Illuminate\Support\Facades\Event;
 use Modules\Action1\Events\Action1DeviceDiscovered;
 use Modules\Action1\Jobs\SyncAction1DevicesJob;
-use Illuminate\Support\Facades\Event;
 use PHPUnit\Framework\Attributes\Group;
-use Tests\TestCase;
 use ReflectionMethod;
+use Tests\TestCase;
 
 /**
  * SyncAction1DevicesJob Integration Tests
- * 
+ *
  * Tests the Action1 RMM device sync job infrastructure without requiring
  * actual Action1 API connections. Focuses on:
  * - DTO validation and data integrity

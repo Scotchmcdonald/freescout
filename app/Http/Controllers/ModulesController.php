@@ -53,8 +53,8 @@ class ModulesController extends Controller
         foreach ($modules as $module) {
             $commitHash = $this->getModuleCommitHash($module->getPath());
             $githubUrl = $this->getModuleGithubUrl($module->getPath());
-            $commitUrl = $githubUrl && $commitHash ? $githubUrl . '/commit/' . $commitHash : null;
-            
+            $commitUrl = $githubUrl && $commitHash ? $githubUrl.'/commit/'.$commitHash : null;
+
             $modulesData[] = [
                 'name' => $module->getName(),
                 'alias' => $module->getLowerName(),
@@ -210,7 +210,7 @@ class ModulesController extends Controller
 
         try {
             $moduleName = $module->getName();
-            
+
             // Disable module first
             if ($module->isEnabled()) {
                 $module->disable();
@@ -246,7 +246,7 @@ class ModulesController extends Controller
         $repositories = config('modules_catalog.repositories', []);
         $encryptedToken = \App\Models\Option::get('github_personal_access_token');
         $savedToken = ($encryptedToken && is_string($encryptedToken)) ? \Illuminate\Support\Facades\Crypt::decryptString($encryptedToken) : null;
-        
+
         return view('modules.install', [
             'repositories' => $repositories,
             'savedToken' => $savedToken,
@@ -263,7 +263,7 @@ class ModulesController extends Controller
         ]);
 
         $token = $request->token;
-        if (!is_string($token)) {
+        if (! is_string($token)) {
             return response()->json(['message' => __('Invalid token format')], 400);
         }
 
@@ -296,8 +296,8 @@ class ModulesController extends Controller
     {
         $url = $request->input('url');
         $token = $request->input('token');
-        
-        if (!$url) {
+
+        if (! $url) {
             return response()->json(['message' => __('Repository URL is required')], 400);
         }
 
@@ -307,17 +307,17 @@ class ModulesController extends Controller
             if (preg_match('/github\.com[\/:]([^\/]+)\/([^\/\.]+)/', $urlStr, $matches)) {
                 $owner = $matches[1];
                 $repo = preg_replace('/\.git$/', '', $matches[2]);
-                
+
                 // Test API access
                 $headers = ['Accept' => 'application/vnd.github.v3+json'];
                 if ($token && is_string($token)) {
-                    $headers['Authorization'] = 'Bearer ' . $token;
+                    $headers['Authorization'] = 'Bearer '.$token;
                 }
-                
+
                 $response = \Illuminate\Support\Facades\Http::withHeaders($headers)
                     ->timeout(10)
                     ->get("https://api.github.com/repos/{$owner}/{$repo}");
-                
+
                 if ($response->status() === 404) {
                     return response()->json([
                         'success' => false,
@@ -326,10 +326,10 @@ class ModulesController extends Controller
                             __('Verify the repository exists and is spelled correctly'),
                             __('Check that you have access permissions'),
                             __('For private repos, provide a valid Personal Access Token'),
-                        ]
+                        ],
                     ], 404);
                 }
-                
+
                 if ($response->status() === 401 || $response->status() === 403) {
                     return response()->json([
                         'success' => false,
@@ -338,21 +338,22 @@ class ModulesController extends Controller
                             __('This appears to be a private repository'),
                             __('Provide a Personal Access Token with repo access'),
                             __('Verify your token has not expired'),
-                        ]
+                        ],
                     ], 403);
                 }
-                
-                if (!$response->successful()) {
+
+                if (! $response->successful()) {
                     return response()->json([
                         'success' => false,
-                        'message' => __('We couldn\'t connect to the module server. Please verify your network settings. Error: :error', ['error' => $response->status()])
+                        'message' => __('We couldn\'t connect to the module server. Please verify your network settings. Error: :error', ['error' => $response->status()]),
                     ], 500);
                 }
-                
+
                 $data = $response->json();
-                if (!is_array($data)) {
+                if (! is_array($data)) {
                     $data = [];
                 }
+
                 return response()->json([
                     'success' => true,
                     'message' => __('✓ Connection successful'),
@@ -361,19 +362,18 @@ class ModulesController extends Controller
                         'description' => $data['description'] ?? '',
                         'default_branch' => $data['default_branch'] ?? 'main',
                         'private' => $data['private'] ?? false,
-                    ]
+                    ],
                 ]);
             }
-            
+
             return response()->json([
                 'success' => false,
-                'message' => __('Invalid repository URL format')
+                'message' => __('Invalid repository URL format'),
             ], 400);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => __('Connection test failed: :error', ['error' => $e->getMessage()])
+                'message' => __('Connection test failed: :error', ['error' => $e->getMessage()]),
             ], 500);
         }
     }
@@ -401,7 +401,7 @@ class ModulesController extends Controller
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => __('Invalid GitHub repository URL')
+                    'message' => __('Invalid GitHub repository URL'),
                 ], 400);
             }
 
@@ -411,7 +411,7 @@ class ModulesController extends Controller
             if ($token && is_string($token)) {
                 try {
                     $decryptedToken = \Illuminate\Support\Facades\Crypt::decryptString($token);
-                    $headers['Authorization'] = 'token ' . $decryptedToken;
+                    $headers['Authorization'] = 'token '.$decryptedToken;
                 } catch (\Exception $e) {
                     // Token decryption failed, proceed without auth
                 }
@@ -454,7 +454,7 @@ class ModulesController extends Controller
                     $decoded = base64_decode($content['content']);
                     $composerData = json_decode($decoded, true);
                     // Ensure associative array (not list) for composer.json structure
-                    if (is_array($composerData) && !array_is_list($composerData)) {
+                    if (is_array($composerData) && ! array_is_list($composerData)) {
                         /** @var array<string, mixed> $composerInfo */
                         $composerInfo = $composerData;
                     }
@@ -469,11 +469,10 @@ class ModulesController extends Controller
                 'current_php_version' => PHP_VERSION,
                 'php_version_compatible' => $this->checkPhpVersionCompatibility($composerInfo),
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => __('Failed to fetch module preview: :error', ['error' => $e->getMessage()])
+                'message' => __('Failed to fetch module preview: :error', ['error' => $e->getMessage()]),
             ], 500);
         }
     }
@@ -482,21 +481,21 @@ class ModulesController extends Controller
      * Check if current PHP version is compatible with module requirements.
      * Handles Composer version constraints: ^, ~, >=, <=, >, <, ||, |, ,
      *
-     * @param array<string, mixed>|null $composerInfo
+     * @param  array<string, mixed>|null  $composerInfo
      */
     private function checkPhpVersionCompatibility(?array $composerInfo): bool
     {
-        if (!$composerInfo || !isset($composerInfo['require'])) {
+        if (! $composerInfo || ! isset($composerInfo['require'])) {
             return true; // No specific requirement
         }
-        
+
         $require = $composerInfo['require'];
-        if (!is_array($require) || !isset($require['php'])) {
+        if (! is_array($require) || ! isset($require['php'])) {
             return true; // No PHP requirement
         }
 
         $required = $require['php'];
-        if (!is_string($required)) {
+        if (! is_string($required)) {
             return true; // Invalid requirement format
         }
         $current = PHP_VERSION;
@@ -506,7 +505,7 @@ class ModulesController extends Controller
         if ($orParts === false) {
             return true; // Cannot parse, assume compatible
         }
-        
+
         foreach ($orParts as $orPart) {
             // Handle AND conditions (comma or space)
             $andParts = preg_split('/[,\\s]+/', trim($orPart));
@@ -514,17 +513,19 @@ class ModulesController extends Controller
                 continue;
             }
             $allAndsSatisfied = true;
-            
+
             foreach ($andParts as $constraint) {
                 $constraint = trim($constraint);
-                if (empty($constraint)) continue;
-                
-                if (!$this->satisfiesPhpConstraint($current, $constraint)) {
+                if (empty($constraint)) {
+                    continue;
+                }
+
+                if (! $this->satisfiesPhpConstraint($current, $constraint)) {
                     $allAndsSatisfied = false;
                     break;
                 }
             }
-            
+
             if ($allAndsSatisfied) {
                 return true; // At least one OR branch satisfied
             }
@@ -542,35 +543,39 @@ class ModulesController extends Controller
         if (str_starts_with($constraint, '^')) {
             $minVersion = ltrim($constraint, '^');
             $parts = explode('.', $minVersion);
-            $maxVersion = ((int)$parts[0] + 1) . '.0.0';
+            $maxVersion = ((int) $parts[0] + 1).'.0.0';
+
             return version_compare($version, $minVersion, '>=') && version_compare($version, $maxVersion, '<');
         }
-        
+
         // Tilde (~8.1.0 = >=8.1.0 <8.2.0)
         if (str_starts_with($constraint, '~')) {
             $minVersion = ltrim($constraint, '~');
             $parts = explode('.', $minVersion);
             if (count($parts) >= 2) {
-                $maxVersion = $parts[0] . '.' . ((int)$parts[1] + 1) . '.0';
+                $maxVersion = $parts[0].'.'.((int) $parts[1] + 1).'.0';
             } else {
-                $maxVersion = ((int)$parts[0] + 1) . '.0.0';
+                $maxVersion = ((int) $parts[0] + 1).'.0.0';
             }
+
             return version_compare($version, $minVersion, '>=') && version_compare($version, $maxVersion, '<');
         }
-        
+
         // Operators (>=, <=, >, <, =)
         if (preg_match('/^(>=|<=|>|<|=)(.+)$/', $constraint, $matches)) {
             $operator = $matches[1];
             $compareVersion = $matches[2];
+
             return version_compare($version, $compareVersion, $operator);
         }
-        
+
         // Exact version or wildcard
         if (str_contains($constraint, '*')) {
             $pattern = str_replace(['*', '.'], ['[0-9]+', '\\.'], $constraint);
-            return (bool) preg_match('/^' . $pattern . '/', $version);
+
+            return (bool) preg_match('/^'.$pattern.'/', $version);
         }
-        
+
         // Default: exact match or minimum version
         return version_compare($version, $constraint, '>=');
     }
@@ -592,13 +597,13 @@ class ModulesController extends Controller
         if (Cache::has($lockKey)) {
             return response()->json([
                 'error' => true,
-                'message' => __('Another module installation is already in progress. Please wait for it to complete.')
+                'message' => __('Another module installation is already in progress. Please wait for it to complete.'),
             ], 409);
         }
 
         // Create cryptographically secure session ID
-        $sessionId = 'install_' . bin2hex(random_bytes(16)) . '_' . time();
-        
+        $sessionId = 'install_'.bin2hex(random_bytes(16)).'_'.time();
+
         // Store installation parameters in session (not in URL)
         session([
             $sessionId => [
@@ -608,7 +613,7 @@ class ModulesController extends Controller
                 'branch' => $request->input('branch'),
                 'user_id' => auth()->id(),
                 'initiated_at' => now()->toIso8601String(),
-            ]
+            ],
         ]);
 
         return response()->json([
@@ -625,39 +630,41 @@ class ModulesController extends Controller
     public function installWithProgress(\Illuminate\Http\Request $request)
     {
         $sessionId = $request->input('session_id');
-        
-        if (!is_string($sessionId) || !session()->has($sessionId)) {
+
+        if (! is_string($sessionId) || ! session()->has($sessionId)) {
             return response()->json([
                 'error' => true,
                 'message' => __('Invalid or expired installation session'),
                 'suggestions' => [
                     __('Your session may have expired. Please start the installation again.'),
                     __('Ensure cookies are enabled in your browser.'),
-                ]
+                ],
             ], 403);
         }
-        
+
         // Check session expiration (max 2 hours)
         $params = session($sessionId);
-        if (!is_array($params) || !isset($params['initiated_at'])) {
+        if (! is_array($params) || ! isset($params['initiated_at'])) {
             session()->forget($sessionId);
+
             return response()->json([
                 'error' => true,
                 'message' => __('Invalid installation session'),
-                'suggestions' => [__('Please start the installation again.')]
+                'suggestions' => [__('Please start the installation again.')],
             ], 403);
         }
         $initiatedAtValue = $params['initiated_at'];
         $initiatedAt = \Carbon\Carbon::parse(is_string($initiatedAtValue) || $initiatedAtValue instanceof \DateTimeInterface ? $initiatedAtValue : now());
         if ($initiatedAt->diffInHours(now()) > 2) {
             session()->forget($sessionId);
+
             return response()->json([
                 'error' => true,
                 'message' => __('Installation session expired'),
-                'suggestions' => [__('Sessions expire after 2 hours. Please start the installation again.')]
+                'suggestions' => [__('Sessions expire after 2 hours. Please start the installation again.')],
             ], 403);
         }
-        
+
         // Set installation lock
         $lockKey = 'module_install_lock';
         Cache::put($lockKey, $sessionId, now()->addMinutes(30));
@@ -666,50 +673,54 @@ class ModulesController extends Controller
         return response()->stream(function () use ($params, $sessionId, $lockKey) {
             // Disable time limit for long operations
             set_time_limit(0);
-            
+
             // Helper to send SSE event
             $sendEvent = function ($stage, $percentage, $message) {
-                echo "data: " . json_encode([
+                echo 'data: '.json_encode([
                     'stage' => $stage,
                     'percentage' => $percentage,
                     'message' => $message,
                     'timestamp' => now()->toIso8601String(),
-                ]) . "\n\n";
+                ])."\n\n";
                 if (ob_get_level() > 0) {
                     ob_flush();
                 }
                 flush();
             };
-            
+
             $url = is_string($params['url'] ?? null) ? $params['url'] : '';
             $token = isset($params['token']) && is_string($params['token']) ? $params['token'] : null;
             $commit = isset($params['commit']) && is_string($params['commit']) ? $params['commit'] : null;
             $branch = isset($params['branch']) && is_string($params['branch']) ? $params['branch'] : null;
-            
+
             if (empty($url)) {
                 $sendEvent('error', 0, __('Invalid repository URL in session'));
+
                 return;
             }
-            
+
             try {
                 $sendEvent('validating', 5, __('Validating repository URL...'));
 
                 // Validate URL
                 if (! filter_var($url, FILTER_VALIDATE_URL)) {
                     $sendEvent('error', 0, __('Invalid GitHub URL'));
+
                     return;
                 }
 
                 // Extract repo name
                 $path = parse_url($url, PHP_URL_PATH);
-                if (!is_string($path)) {
+                if (! is_string($path)) {
                     $sendEvent('error', 0, __('Invalid GitHub URL path'));
+
                     return;
                 }
 
                 $pathParts = explode('/', trim($path, '/'));
                 if (count($pathParts) < 2) {
                     $sendEvent('error', 0, __('Invalid GitHub repository URL'));
+
                     return;
                 }
 
@@ -719,6 +730,7 @@ class ModulesController extends Controller
                 $moduleName = preg_replace('/[^a-zA-Z0-9_]/', '', $moduleName);
                 if (empty($moduleName)) {
                     $sendEvent('error', 0, __('Invalid module name derived from URL'));
+
                     return;
                 }
                 $moduleName = ucfirst($moduleName);
@@ -732,7 +744,7 @@ class ModulesController extends Controller
 
                 if (str_starts_with($url, 'git@') || str_contains($url, 'ssh://')) {
                     $sendEvent('connecting', 20, __('Using SSH authentication...'));
-                    
+
                     $deployKey = \App\Models\Option::get('ssh_deploy_key');
                     if ($deployKey && is_string($deployKey)) {
                         try {
@@ -743,6 +755,7 @@ class ModulesController extends Controller
                             $envVars['GIT_SSH_COMMAND'] = "ssh -i {$sshKeyFile} -o StrictHostKeyChecking=no";
                         } catch (\Exception $e) {
                             $sendEvent('error', 0, __('Failed to decrypt SSH key'));
+
                             return;
                         }
                     }
@@ -755,13 +768,14 @@ class ModulesController extends Controller
 
                 // Clone repository
                 $modulesPath = base_path('Modules');
-                $targetPath = $modulesPath . '/' . $moduleName;
+                $targetPath = $modulesPath.'/'.$moduleName;
 
                 if (File::exists($targetPath)) {
                     if ($sshKeyFile) {
                         @unlink($sshKeyFile);
                     }
                     $sendEvent('error', 0, __('Module directory already exists'));
+
                     return;
                 }
 
@@ -778,18 +792,19 @@ class ModulesController extends Controller
                     try {
                         File::delete($sshKeyFile);
                     } catch (\Exception $e) {
-                        \Log::warning('Failed to delete SSH key file: ' . $e->getMessage());
+                        \Log::warning('Failed to delete SSH key file: '.$e->getMessage());
                     }
                 }
 
-                if (!$cloneProcess->isSuccessful()) {
+                if (! $cloneProcess->isSuccessful()) {
                     $errorOutput = $cloneProcess->getErrorOutput();
                     $suggestions = $this->getGitCloneErrorSuggestions($errorOutput);
                     $sendEvent('error', 0, __('Git clone failed: :error', ['error' => $errorOutput]));
-                    
-                    if (!empty($suggestions)) {
-                        $sendEvent('error', 0, __('Suggestions: ') . implode(' ', $suggestions));
+
+                    if (! empty($suggestions)) {
+                        $sendEvent('error', 0, __('Suggestions: ').implode(' ', $suggestions));
                     }
+
                     return;
                 }
 
@@ -798,14 +813,15 @@ class ModulesController extends Controller
                 // Checkout specific commit if provided
                 if ($commit) {
                     $sendEvent('checkout', 50, __('Checking out commit...'));
-                    
+
                     $checkoutProcess = new \Symfony\Component\Process\Process(['git', 'checkout', $commit], $targetPath);
                     $checkoutProcess->setTimeout(30);
                     $checkoutProcess->run();
-                    
-                    if (!$checkoutProcess->isSuccessful()) {
+
+                    if (! $checkoutProcess->isSuccessful()) {
                         File::deleteDirectory($targetPath);
                         $sendEvent('error', 0, __('Git checkout failed'));
+
                         return;
                     }
                 }
@@ -814,9 +830,10 @@ class ModulesController extends Controller
 
                 // Health check
                 $healthCheck = $this->validateModuleHealth($targetPath);
-                if (!$healthCheck['success']) {
+                if (! $healthCheck['success']) {
                     File::deleteDirectory($targetPath);
                     $sendEvent('error', 0, __('Health check failed: :errors', ['errors' => implode(', ', $healthCheck['errors'])]));
+
                     return;
                 }
 
@@ -831,9 +848,10 @@ class ModulesController extends Controller
                 // Find and enable module
                 /** @var \Nwidart\Modules\Module|null $module */
                 $module = Module::find($moduleName);
-                if (!$module) {
+                if (! $module) {
                     File::deleteDirectory($targetPath);
                     $sendEvent('error', 0, __('Module not found after installation'));
+
                     return;
                 }
 
@@ -844,23 +862,23 @@ class ModulesController extends Controller
                 // Run install command
                 $outputLog = new BufferedOutput;
                 Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
-                
+
                 // Clear all caches to ensure menu items and routes are registered
                 Artisan::call('optimize:clear');
 
                 // Build assets if package.json exists and npm is available
-                if (File::exists($targetPath . '/package.json')) {
+                if (File::exists($targetPath.'/package.json')) {
                     $sendEvent('installing', 90, __('Building assets...'));
-                    
+
                     $npmCheck = new \Symfony\Component\Process\Process(['npm', '-v']);
                     $npmCheck->run();
-                    
+
                     if ($npmCheck->isSuccessful()) {
                         // npm install
                         $npmInstall = new \Symfony\Component\Process\Process(['npm', 'install'], $targetPath);
                         $npmInstall->setTimeout(600);
                         $npmInstall->run();
-                        
+
                         // npm run build
                         $npmBuild = new \Symfony\Component\Process\Process(['npm', 'run', 'build'], $targetPath);
                         $npmBuild->setTimeout(600);
@@ -879,14 +897,13 @@ class ModulesController extends Controller
                 ]);
 
                 // Send final success event
-                echo "data: " . json_encode([
+                echo 'data: '.json_encode([
                     'stage' => 'done',
                     'percentage' => 100,
                     'message' => __('Installation complete'),
                     'success' => true,
                     'redirect' => route('modules'),
-                ]) . "\n\n";
-
+                ])."\n\n";
             } catch (\Exception $e) {
                 // Log failed installation
                 $this->logActivity($moduleName, 'install', [
@@ -896,12 +913,12 @@ class ModulesController extends Controller
                     'method' => 'streaming',
                 ]);
 
-                echo "data: " . json_encode([
+                echo 'data: '.json_encode([
                     'stage' => 'error',
                     'percentage' => 0,
                     'message' => $e->getMessage(),
                     'error' => true,
-                ]) . "\n\n";
+                ])."\n\n";
             } finally {
                 // Cleanup: remove lock and session data
                 Cache::forget($lockKey);
@@ -925,7 +942,8 @@ class ModulesController extends Controller
     public function checkDeployKey(): \Illuminate\Http\JsonResponse
     {
         $key = \App\Models\Option::get('ssh_deploy_key');
-        return response()->json(['exists' => !empty($key)]);
+
+        return response()->json(['exists' => ! empty($key)]);
     }
 
     /**
@@ -939,9 +957,9 @@ class ModulesController extends Controller
 
         // Basic validation of SSH key format
         $key = $request->key;
-        if (!is_string($key) || !str_contains($key, 'BEGIN') || !str_contains($key, 'PRIVATE KEY')) {
+        if (! is_string($key) || ! str_contains($key, 'BEGIN') || ! str_contains($key, 'PRIVATE KEY')) {
             return response()->json([
-                'message' => __('Invalid SSH private key format')
+                'message' => __('Invalid SSH private key format'),
             ], 400);
         }
 
@@ -953,7 +971,6 @@ class ModulesController extends Controller
             'message' => __('Deploy key saved securely'),
         ]);
     }
-
 
     /**
      * Install a module from the marketplace or GitHub.
@@ -971,6 +988,7 @@ class ModulesController extends Controller
             $githubCommitStr = ($githubCommit && (is_string($githubCommit) || is_int($githubCommit) || is_float($githubCommit))) ? (string) $githubCommit : null;
             $githubBranchStr = ($githubBranch && (is_string($githubBranch) || is_int($githubBranch) || is_float($githubBranch))) ? (string) $githubBranch : null;
             $result = $this->installFromGithub($githubUrlStr, $githubTokenStr, $githubCommitStr, $githubBranchStr);
+
             return $result instanceof \Illuminate\Http\RedirectResponse ? $result : redirect()->back()->with('error', __('Installation failed'));
         }
 
@@ -986,9 +1004,9 @@ class ModulesController extends Controller
 
         foreach ($remoteModules as $module) {
             if (is_array($module) && isset($module['alias']) && $module['alias'] === $alias) {
-                    $moduleInfo = $module;
-                    break;
-                }
+                $moduleInfo = $module;
+                break;
+            }
         }
 
         if (! is_array($moduleInfo)) {
@@ -1002,50 +1020,55 @@ class ModulesController extends Controller
         }
 
         $aliasStr = is_string($alias) || is_int($alias) || is_float($alias) ? (string) $alias : '';
+
         return $this->installFromUrl($downloadUrl, $aliasStr);
     }
 
     private function installFromGithub(string $url, ?string $token = null, ?string $commit = null, ?string $branch = null): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
     {
         $isAjax = request()->wantsJson() || request()->ajax();
-        
+
         if (! filter_var($url, FILTER_VALIDATE_URL)) {
             $message = __('Invalid GitHub URL');
-            return $isAjax 
+
+            return $isAjax
                 ? response()->json(['message' => $message], 400)
                 : redirect()->back()->with('error', $message);
         }
 
         // Extract repo name
         $path = parse_url($url, PHP_URL_PATH);
-        if (!is_string($path)) {
+        if (! is_string($path)) {
             $message = __('Invalid GitHub URL path');
-            return $isAjax 
+
+            return $isAjax
                 ? response()->json(['message' => $message], 400)
                 : redirect()->back()->with('error', $message);
         }
         $parts = explode('/', trim($path, '/'));
         if (count($parts) < 2) {
             $message = __('Invalid GitHub URL format');
-            return $isAjax 
+
+            return $isAjax
                 ? response()->json(['message' => $message], 400)
                 : redirect()->back()->with('error', $message);
         }
         $repoName = end($parts);
         $repoName = preg_replace('/\.git$/', '', strval($repoName));
-        
+
         // Build authenticated URL if token provided
         if ($token) {
             $parsedUrl = parse_url($url);
-            if (!is_array($parsedUrl)) {
+            if (! is_array($parsedUrl)) {
                 $message = __('Invalid GitHub URL');
-                return $isAjax 
+
+                return $isAjax
                     ? response()->json(['message' => $message], 400)
                     : redirect()->back()->with('error', $message);
             }
             // Ensure .git suffix for authenticated clone
             $path = $parsedUrl['path'] ?? '';
-            if (!str_ends_with($path, '.git')) {
+            if (! str_ends_with($path, '.git')) {
                 $path .= '.git';
             }
             $url = sprintf(
@@ -1056,14 +1079,14 @@ class ModulesController extends Controller
                 $path
             );
         }
-        
-        // Convert kebab-case to PascalCase for module name if needed, 
+
+        // Convert kebab-case to PascalCase for module name if needed,
         // but usually we clone into the repo name and let the module.json define the name.
         // However, Nwidart modules expects the folder name to match the module name in module.json usually.
-        // Let's clone into a temp dir first to read module.json? 
+        // Let's clone into a temp dir first to read module.json?
         // Or just clone into Modules/$repoName and hope for the best.
         // Let's try to be smart and convert "crm-module" to "Crm".
-        
+
         $moduleName = \Illuminate\Support\Str::studly(strval($repoName));
         // Remove "Module" suffix if present to avoid "CrmModuleModule" but keep if it's just "Module"
         if (str_ends_with($moduleName, 'Module') && strlen($moduleName) > 6) {
@@ -1074,7 +1097,8 @@ class ModulesController extends Controller
 
         if (File::exists($targetPath)) {
             $message = __('Module directory already exists: :path', ['path' => $targetPath]);
-            return $isAjax 
+
+            return $isAjax
                 ? response()->json(['message' => $message], 400)
                 : redirect()->back()->with('error', $message);
         }
@@ -1085,21 +1109,22 @@ class ModulesController extends Controller
             if (preg_match('/^git@|^ssh:\/\//', $url)) {
                 // Get deploy key from options
                 $encryptedKey = \App\Models\Option::get('ssh_deploy_key');
-                if (!$encryptedKey || !is_string($encryptedKey)) {
+                if (! $encryptedKey || ! is_string($encryptedKey)) {
                     $message = __('SSH URL detected but no deploy key is configured. Please add a deploy key in the settings.');
-                    return $isAjax 
+
+                    return $isAjax
                         ? response()->json(['message' => $message], 400)
                         : redirect()->back()->with('error', $message);
                 }
-                
+
                 $deployKey = \Illuminate\Support\Facades\Crypt::decryptString($encryptedKey);
-                
+
                 // Create temporary key file
                 $sshKeyFile = tempnam(sys_get_temp_dir(), 'git_key_');
                 file_put_contents($sshKeyFile, $deployKey);
                 chmod($sshKeyFile, 0600);
             }
-            
+
             // Build clone command with optional branch
             $cloneCmd = ['git', 'clone'];
             if ($branch) {
@@ -1108,18 +1133,18 @@ class ModulesController extends Controller
             }
             $cloneCmd[] = $url;
             $cloneCmd[] = $targetPath;
-            
+
             // Use git clone
             $process = new \Symfony\Component\Process\Process($cloneCmd);
             $process->setTimeout(120); // 2 minutes timeout
-            
+
             // Set SSH key if needed
             if ($sshKeyFile) {
                 $process->setEnv([
-                    'GIT_SSH_COMMAND' => "ssh -i {$sshKeyFile} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+                    'GIT_SSH_COMMAND' => "ssh -i {$sshKeyFile} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null",
                 ]);
             }
-            
+
             $process->run();
 
             // Clean up SSH key file
@@ -1131,7 +1156,7 @@ class ModulesController extends Controller
                 $errorOutput = $process->getErrorOutput();
                 $standardOutput = $process->getOutput();
                 $fullError = trim($errorOutput ?: $standardOutput);
-                
+
                 // Log the full error but show a sanitized version (don't expose token)
                 \Log::error('Git clone failed', [
                     'target' => $targetPath,
@@ -1139,10 +1164,10 @@ class ModulesController extends Controller
                     'stdout' => $standardOutput,
                     'exit_code' => $process->getExitCode(),
                 ]);
-                
+
                 // Remove token from error message if present
                 $sanitizedError = preg_replace('/https:\/\/[^@]+@/', 'https://*****@/', $fullError);
-                
+
                 // Provide helpful error messages
                 $suggestions = [];
                 if (str_contains($fullError, 'Repository not found') || str_contains($fullError, '404')) {
@@ -1157,37 +1182,37 @@ class ModulesController extends Controller
                     $suggestions[] = __('Network timeout - check your internet connection');
                     $suggestions[] = __('Try again in a few moments');
                 }
-                
+
                 $errorMsg = __('❌ Git clone failed: :error', ['error' => $sanitizedError ?: __('Unknown error')]);
-                if (!empty($suggestions)) {
-                    $errorMsg .= "\n\n" . __('Suggestions:') . "\n• " . implode("\n• ", $suggestions);
+                if (! empty($suggestions)) {
+                    $errorMsg .= "\n\n".__('Suggestions:')."\n• ".implode("\n• ", $suggestions);
                 }
-                
+
                 throw new \Exception($errorMsg);
             }
-            
+
             // Checkout specific commit if provided
             if ($commit) {
                 $checkoutProcess = new \Symfony\Component\Process\Process(['git', 'checkout', $commit], $targetPath);
                 $checkoutProcess->setTimeout(30);
                 $checkoutProcess->run();
-                
-                if (!$checkoutProcess->isSuccessful()) {
+
+                if (! $checkoutProcess->isSuccessful()) {
                     // Clean up the cloned directory on checkout failure
                     File::deleteDirectory($targetPath);
                     throw new \Exception(__('Git checkout to commit :commit failed: :error', [
                         'commit' => $commit,
-                        'error' => $checkoutProcess->getErrorOutput()
+                        'error' => $checkoutProcess->getErrorOutput(),
                     ]));
                 }
             }
 
             // Validate module health
             $healthCheck = $this->validateModuleHealth($targetPath);
-            if (!$healthCheck['success']) {
+            if (! $healthCheck['success']) {
                 // Clean up on health check failure
                 File::deleteDirectory($targetPath);
-                $errorMsg = __('Module health check failed:') . "\n• " . implode("\n• ", $healthCheck['errors']);
+                $errorMsg = __('Module health check failed:')."\n• ".implode("\n• ", $healthCheck['errors']);
                 throw new \Exception($errorMsg);
             }
 
@@ -1199,9 +1224,9 @@ class ModulesController extends Controller
             $folderName = $moduleName;
             $moduleAlias = null;
 
-            if (File::exists($targetPath . '/module.json')) {
+            if (File::exists($targetPath.'/module.json')) {
                 /** @var array<string, mixed>|null $moduleJson */
-                $moduleJson = json_decode(File::get($targetPath . '/module.json'), true);
+                $moduleJson = json_decode(File::get($targetPath.'/module.json'), true);
                 if (isset($moduleJson['name']) && is_string($moduleJson['name'])) {
                     $moduleName = $moduleJson['name'];
                 }
@@ -1218,33 +1243,33 @@ class ModulesController extends Controller
             // Try to find the module
             $module = Module::find((string) $moduleName);
 
-            if (!$module && $moduleAlias) {
+            if (! $module && $moduleAlias) {
                 $module = Module::findByAlias((string) $moduleAlias);
             }
 
-            if (!$module) {
+            if (! $module) {
                 $module = Module::find($folderName);
             }
 
             // Fallback: If module is still not found, try to register it manually for this request
-            if (!$module && File::exists($targetPath . '/module.json')) {
+            if (! $module && File::exists($targetPath.'/module.json')) {
                 try {
                     // Manually register the module if it wasn't picked up by scan()
                     // This is a workaround for when the repository cache isn't clearing properly
                     $module = new \Nwidart\Modules\Laravel\Module(app(), (string) $moduleName, $targetPath);
                 } catch (\Exception $e) {
-                    \Log::warning("Failed to manually instantiate module: " . $e->getMessage());
+                    \Log::warning('Failed to manually instantiate module: '.$e->getMessage());
                 }
             }
 
-            if (!$module) {
+            if (! $module) {
                 // Gather debug info
-                $allModules = collect(Module::all())->map(function($m) {
-                    return $m->getName() . ' [' . $m->getLowerName() . ']';
+                $allModules = collect(Module::all())->map(function ($m) {
+                    return $m->getName().' ['.$m->getLowerName().']';
                 })->implode(', ');
 
-                $moduleJsonContent = File::exists($targetPath . '/module.json') 
-                    ? substr(File::get($targetPath . '/module.json'), 0, 100) . '...' 
+                $moduleJsonContent = File::exists($targetPath.'/module.json')
+                    ? substr(File::get($targetPath.'/module.json'), 0, 100).'...'
                     : 'NOT FOUND';
 
                 $debugInfo = [
@@ -1259,39 +1284,39 @@ class ModulesController extends Controller
                 \Log::error('Module installation failed - Module not found after clone', $debugInfo);
 
                 throw new \Exception(__("Module installed to :path but could not be found. \nExpected Name: :name \nExpected Alias: :alias \nFolder: :folder \n\nLoaded Modules: :modules \n\nCheck laravel.log for more details.", [
-                    'path' => $targetPath, 
+                    'path' => $targetPath,
                     'name' => $moduleName,
                     'alias' => $moduleAlias ?? 'N/A',
                     'folder' => $folderName,
-                    'modules' => $allModules ?: 'None'
+                    'modules' => $allModules ?: 'None',
                 ]));
             }
 
             $module->enable();
-            
+
             // Run install command
             $outputLog = new BufferedOutput;
             Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
-            
+
             // Clear all caches
             Artisan::call('optimize:clear');
 
             // Build assets if package.json exists
-            if (File::exists($targetPath . '/package.json')) {
+            if (File::exists($targetPath.'/package.json')) {
                 $npmCheck = new \Symfony\Component\Process\Process(['npm', '-v']);
                 $npmCheck->run();
-                
+
                 if ($npmCheck->isSuccessful()) {
                     $npmInstall = new \Symfony\Component\Process\Process(['npm', 'install'], $targetPath);
                     $npmInstall->setTimeout(600);
                     $npmInstall->run();
-                    
+
                     $npmBuild = new \Symfony\Component\Process\Process(['npm', 'run', 'build'], $targetPath);
                     $npmBuild->setTimeout(600);
                     $npmBuild->run();
                 }
             }
-            
+
             // Log successful installation
             $this->logActivity((string) $moduleName, 'install', [
                 'repo_url' => $url,
@@ -1299,12 +1324,12 @@ class ModulesController extends Controller
                 'commit' => $commit,
                 'method' => 'github',
             ]);
-            
+
             $message = __('Module installed from GitHub successfully');
-            return $isAjax 
+
+            return $isAjax
                 ? response()->json(['message' => $message, 'success' => true])
                 : redirect()->back()->with('success', $message);
-
         } catch (\Exception $e) {
             // Log failed installation
             $this->logActivity((string) $moduleName, 'install', [
@@ -1312,9 +1337,10 @@ class ModulesController extends Controller
                 'error' => $e->getMessage(),
                 'failed' => true,
             ]);
-            
+
             $message = $e->getMessage();
-            return $isAjax 
+
+            return $isAjax
                 ? response()->json(['message' => $message], 500)
                 : redirect()->back()->with('error', $message);
         }
@@ -1371,15 +1397,15 @@ class ModulesController extends Controller
 
                 // Build assets if package.json exists
                 $modulePath = $module->getPath();
-                if (File::exists($modulePath . '/package.json')) {
+                if (File::exists($modulePath.'/package.json')) {
                     $npmCheck = new \Symfony\Component\Process\Process(['npm', '-v']);
                     $npmCheck->run();
-                    
+
                     if ($npmCheck->isSuccessful()) {
                         $npmInstall = new \Symfony\Component\Process\Process(['npm', 'install'], $modulePath);
                         $npmInstall->setTimeout(600);
                         $npmInstall->run();
-                        
+
                         $npmBuild = new \Symfony\Component\Process\Process(['npm', 'run', 'build'], $modulePath);
                         $npmBuild->setTimeout(600);
                         $npmBuild->run();
@@ -1390,7 +1416,6 @@ class ModulesController extends Controller
             } else {
                 throw new \Exception(__('Failed to open zip file'));
             }
-
         } catch (\Exception $e) {
             if (file_exists($tempFile)) {
                 try {
@@ -1458,7 +1483,7 @@ class ModulesController extends Controller
         if (! $alias || ! $license) {
             return response()->json(['success' => false, 'message' => __('Module alias and license are required')]);
         }
-        
+
         $aliasStr = is_string($alias) || is_int($alias) || is_float($alias) ? (string) $alias : '';
         $licenseStr = is_string($license) || is_int($license) || is_float($license) ? (string) $license : '';
 
@@ -1497,7 +1522,7 @@ class ModulesController extends Controller
         if (! $alias) {
             return response()->json(['success' => false, 'message' => __('Module alias is required')]);
         }
-        
+
         $aliasStr = is_string($alias) || is_int($alias) || is_float($alias) ? (string) $alias : '';
 
         $license = $this->getModuleLicense($aliasStr);
@@ -1531,7 +1556,7 @@ class ModulesController extends Controller
         if (! $alias) {
             return response()->json(['success' => false, 'message' => __('Module alias is required')]);
         }
-        
+
         $aliasStr = is_string($alias) || is_int($alias) || is_float($alias) ? (string) $alias : '';
 
         $license = $this->getModuleLicense($aliasStr);
@@ -1573,7 +1598,7 @@ class ModulesController extends Controller
             $modulePath = $module->getPath();
 
             // Check GitHub updates if it's a git repo
-            if (File::isDirectory($modulePath . '/.git')) {
+            if (File::isDirectory($modulePath.'/.git')) {
                 $gitUpdate = $this->checkGithubUpdate($modulePath, $currentVersion);
                 if ($gitUpdate) {
                     $updates[$alias] = $gitUpdate;
@@ -1607,7 +1632,7 @@ class ModulesController extends Controller
 
     /**
      * Check for updates from GitHub.
-     * 
+     *
      * @return array{current: string, available: string, commits_behind: int, type: string, branch: string}|null
      */
     private function checkGithubUpdate(string $modulePath, string $currentVersion): ?array
@@ -1616,7 +1641,7 @@ class ModulesController extends Controller
             // Get current branch
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $modulePath);
             $process->run();
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 return null;
             }
             $branch = trim($process->getOutput());
@@ -1624,7 +1649,7 @@ class ModulesController extends Controller
             // Get current commit hash
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', 'HEAD'], $modulePath);
             $process->run();
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 return null;
             }
             $localHash = trim($process->getOutput());
@@ -1633,14 +1658,14 @@ class ModulesController extends Controller
             $process = new \Symfony\Component\Process\Process(['git', 'fetch', 'origin', $branch], $modulePath);
             $process->setTimeout(30);
             $process->run();
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 return null;
             }
 
             // Get remote commit hash
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', "origin/$branch"], $modulePath);
             $process->run();
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 return null;
             }
             $remoteHash = trim($process->getOutput());
@@ -1657,26 +1682,25 @@ class ModulesController extends Controller
 
                 // Get GitHub URL for commit links
                 $githubUrl = $this->getModuleGithubUrl($modulePath);
-                
+
                 return [
-                    'current' => $currentVersion . ' (' . substr($localHash, 0, 7) . ')',
-                    'available' => $currentVersion . ' (' . substr($remoteHash, 0, 7) . ')',
+                    'current' => $currentVersion.' ('.substr($localHash, 0, 7).')',
+                    'available' => $currentVersion.' ('.substr($remoteHash, 0, 7).')',
                     'current_commit' => substr($localHash, 0, 7),
                     'remote_commit' => substr($remoteHash, 0, 7),
-                    'remote_commit_url' => $githubUrl ? $githubUrl . '/commit/' . substr($remoteHash, 0, 7) : null,
+                    'remote_commit_url' => $githubUrl ? $githubUrl.'/commit/'.substr($remoteHash, 0, 7) : null,
                     'commits_behind' => $commitsBehind,
                     'type' => 'github',
                     'branch' => $branch,
                 ];
             }
-            
         } catch (\Exception $e) {
             \Log::error('GitHub update check failed', [
                 'path' => $modulePath,
                 'error' => $e->getMessage(),
             ]);
         }
-        
+
         return null;
     }
 
@@ -1695,7 +1719,7 @@ class ModulesController extends Controller
         $module = Module::find($aliasStr);
 
         // Check if it's a git repo
-        if (File::isDirectory($module->getPath() . '/.git')) {
+        if (File::isDirectory($module->getPath().'/.git')) {
             return $this->updateFromGithub($module);
         }
 
@@ -1774,7 +1798,6 @@ class ModulesController extends Controller
                 'message' => __('Module updated successfully'),
                 'new_version' => $result['version'] ?? '',
             ]);
-
         } catch (\Exception $e) {
             if (file_exists($tempFile)) {
                 try {
@@ -1813,7 +1836,7 @@ class ModulesController extends Controller
         $module = Module::find($aliasStr);
 
         // Check if it's a git repo
-        if (File::isDirectory($module->getPath() . '/.git')) {
+        if (File::isDirectory($module->getPath().'/.git')) {
             return $this->resetFromGithub($module);
         }
 
@@ -1827,66 +1850,66 @@ class ModulesController extends Controller
     {
         try {
             $path = $module->getPath();
-            
+
             // Get current branch
             $branchProcess = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $path);
             $branchProcess->run();
             $branch = $branchProcess->isSuccessful() ? trim($branchProcess->getOutput()) : 'master';
-            
+
             // Fetch latest changes
             $fetchProcess = new \Symfony\Component\Process\Process(['git', 'fetch', 'origin', $branch], $path);
             $fetchProcess->setTimeout(60);
             $fetchProcess->run();
-            
-            if (!$fetchProcess->isSuccessful()) {
+
+            if (! $fetchProcess->isSuccessful()) {
                 throw new \Exception(__('Git fetch failed: :error', ['error' => $fetchProcess->getErrorOutput()]));
             }
-            
+
             // Reset hard to origin branch - this will discard all local changes and always succeed
             $resetProcess = new \Symfony\Component\Process\Process(['git', 'reset', '--hard', "origin/$branch"], $path);
             $resetProcess->setTimeout(30);
             $resetProcess->run();
-            
-            if (!$resetProcess->isSuccessful()) {
+
+            if (! $resetProcess->isSuccessful()) {
                 throw new \Exception(__('Git reset failed: :error', ['error' => $resetProcess->getErrorOutput()]));
             }
-            
+
             // Check for pending migrations
-            $hasMigrations = File::isDirectory($path . '/Database/Migrations');
-            
+            $hasMigrations = File::isDirectory($path.'/Database/Migrations');
+
             // Run install command (includes migrations)
             $outputLog = new BufferedOutput;
             Artisan::call('freescout:module-install', ['module_alias' => $module->getName()], $outputLog);
-            
+
             // Clear all caches to ensure menu items and routes are registered
             Artisan::call('optimize:clear');
 
             // Build assets if package.json exists and npm is available
-            if (File::exists($path . '/package.json')) {
+            if (File::exists($path.'/package.json')) {
                 $npmCheck = new \Symfony\Component\Process\Process(['npm', '-v']);
                 $npmCheck->run();
-                
+
                 if ($npmCheck->isSuccessful()) {
                     $npmInstall = new \Symfony\Component\Process\Process(['npm', 'install'], $path);
                     $npmInstall->setTimeout(600);
                     $npmInstall->run();
-                    
+
                     $npmBuild = new \Symfony\Component\Process\Process(['npm', 'run', 'build'], $path);
                     $npmBuild->setTimeout(600);
                     $npmBuild->run();
                 }
             }
-            
+
             $message = __('Module updated from GitHub successfully');
             if ($hasMigrations) {
-                $message .= '. ' . __('Database migrations have been run.');
+                $message .= '. '.__('Database migrations have been run.');
             }
-            $message .= ' ' . __('All local changes were discarded to ensure a clean update.');
-            
+            $message .= ' '.__('All local changes were discarded to ensure a clean update.');
+
             // Get the new commit hash after update
             $newCommit = $this->getModuleCommitHash($path);
             $githubUrl = $this->getModuleGithubUrl($path);
-            
+
             // Log successful update
             $this->logActivity($module->getName(), 'update', [
                 'repo_url' => $githubUrl,
@@ -1894,14 +1917,13 @@ class ModulesController extends Controller
                 'branch' => $branch,
                 'method' => 'github',
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => $message,
                 'new_commit' => $newCommit,
-                'new_commit_url' => $githubUrl ? $githubUrl . '/commit/' . $newCommit : null,
+                'new_commit_url' => $githubUrl ? $githubUrl.'/commit/'.$newCommit : null,
             ]);
-            
         } catch (\Exception $e) {
             // Log failed update
             $this->logActivity($module->getName(), 'update', [
@@ -1909,7 +1931,7 @@ class ModulesController extends Controller
                 'failed' => true,
                 'method' => 'github',
             ]);
-            
+
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
@@ -1920,26 +1942,26 @@ class ModulesController extends Controller
     private function resetFromGithub(\Nwidart\Modules\Module $module): JsonResponse
     {
         $tempPath = null;
-        
+
         try {
             $path = $module->getPath();
             $moduleName = $module->getName();
-            
+
             // Get GitHub URL before moving
             $githubUrl = $this->getModuleGithubUrl($path);
-            if (!$githubUrl) {
+            if (! $githubUrl) {
                 throw new \Exception(__('Cannot determine GitHub URL for this module'));
             }
-            
+
             // Get current branch
             $branchProcess = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $path);
             $branchProcess->run();
             $branch = $branchProcess->isSuccessful() ? trim($branchProcess->getOutput()) : 'master';
-            
+
             // Check if we need authentication (stored token)
             $hasToken = false;
             $token = null;
-            
+
             // Try to extract token from git config
             $configProcess = new \Symfony\Component\Process\Process(['git', 'config', '--get', 'credential.helper'], $path);
             $configProcess->run();
@@ -1956,20 +1978,20 @@ class ModulesController extends Controller
                     }
                 }
             }
-            
+
             // Move module to temporary location instead of deleting
             // Use storage path to avoid cross-device link errors and permission issues
             $backupDir = storage_path('app/temp/module_backups');
-            if (!File::exists($backupDir)) {
+            if (! File::exists($backupDir)) {
                 File::makeDirectory($backupDir, 0755, true);
             }
-            $tempPath = $backupDir . '/' . $moduleName . '_' . time();
+            $tempPath = $backupDir.'/'.$moduleName.'_'.time();
 
             if (File::isDirectory($path)) {
                 // Try to move first (suppress warnings for cross-device link errors)
                 $moved = @File::moveDirectory($path, $tempPath);
-                
-                if (!$moved) {
+
+                if (! $moved) {
                     // Fallback: Copy and Delete
                     if (File::copyDirectory($path, $tempPath)) {
                         File::deleteDirectory($path);
@@ -1978,16 +2000,16 @@ class ModulesController extends Controller
                     }
                 }
             }
-            
+
             // Get parent directory (Modules/)
             $modulesDir = dirname($path);
-            
+
             // Prepare clone URL with token if available
             $cloneUrl = $githubUrl;
             if ($hasToken && $token) {
                 $cloneUrl = str_replace('https://github.com/', "https://{$token}@github.com/", $githubUrl);
             }
-            
+
             // Clone fresh from GitHub
             $cloneProcess = new \Symfony\Component\Process\Process(
                 ['git', 'clone', '-b', $branch, $cloneUrl, $moduleName],
@@ -1995,8 +2017,8 @@ class ModulesController extends Controller
             );
             $cloneProcess->setTimeout(120);
             $cloneProcess->run();
-            
-            if (!$cloneProcess->isSuccessful()) {
+
+            if (! $cloneProcess->isSuccessful()) {
                 // Restore backup on failure
                 if ($tempPath && File::isDirectory($tempPath)) {
                     File::moveDirectory($tempPath, $path);
@@ -2004,7 +2026,7 @@ class ModulesController extends Controller
                 }
                 throw new \Exception(__('Git clone failed: :error', ['error' => $cloneProcess->getErrorOutput()]));
             }
-            
+
             // Successfully cloned, safe to delete backup
             if (File::isDirectory($tempPath)) {
                 try {
@@ -2014,24 +2036,23 @@ class ModulesController extends Controller
                 }
                 $tempPath = null;
             }
-            
+
             // Run install command
             $outputLog = new BufferedOutput;
             Artisan::call('freescout:module-install', ['module_alias' => $moduleName], $outputLog);
-            
+
             Artisan::call('cache:clear');
-            
+
             // Get the new commit hash
             $newCommit = $this->getModuleCommitHash($path);
             $newGithubUrl = $this->getModuleGithubUrl($path);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => __('Module hard refreshed and re-installed from GitHub successfully'),
                 'new_commit' => $newCommit,
-                'new_commit_url' => $newGithubUrl ? $newGithubUrl . '/commit/' . $newCommit : null,
+                'new_commit_url' => $newGithubUrl ? $newGithubUrl.'/commit/'.$newCommit : null,
             ]);
-            
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
@@ -2046,7 +2067,7 @@ class ModulesController extends Controller
 
         return $licenses[$alias] ?? null;
     }
-    
+
     /**
      * Get the git commit hash for a module.
      */
@@ -2055,7 +2076,7 @@ class ModulesController extends Controller
         try {
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--short', 'HEAD'], $modulePath);
             $process->run();
-            
+
             if ($process->isSuccessful()) {
                 return trim($process->getOutput());
             }
@@ -2063,10 +2084,10 @@ class ModulesController extends Controller
             // Module might not be a git repository
             return null;
         }
-        
+
         return null;
     }
-    
+
     /**
      * Get the GitHub URL for a module from git remote.
      */
@@ -2075,20 +2096,20 @@ class ModulesController extends Controller
         try {
             $process = new \Symfony\Component\Process\Process(['git', 'remote', 'get-url', 'origin'], $modulePath);
             $process->run();
-            
+
             if ($process->isSuccessful()) {
                 $remoteUrl = trim($process->getOutput());
-                
+
                 // Convert git URL to HTTPS GitHub URL
                 // Handle: git@github.com:user/repo.git or https://github.com/user/repo.git
                 if (preg_match('/github\.com[:\/]([^\/]+\/[^\/]+?)(\.git)?$/', $remoteUrl, $matches)) {
-                    return 'https://github.com/' . $matches[1];
+                    return 'https://github.com/'.$matches[1];
                 }
             }
         } catch (\Exception $e) {
             return null;
         }
-        
+
         return null;
     }
 
@@ -2139,6 +2160,7 @@ class ModulesController extends Controller
                         $result[$key] = (string) $value;
                     }
                 }
+
                 return $result;
             }
         }
@@ -2159,7 +2181,6 @@ class ModulesController extends Controller
     /**
      * Log a module activity to the database.
      *
-     * @param  string  $moduleName
      * @param  string  $action  One of: install, update, enable, disable, delete
      * @param  array<string, mixed>  $metadata  Additional context (repo_url, version, error, etc.)
      */
@@ -2187,7 +2208,6 @@ class ModulesController extends Controller
      * Validate module health after installation.
      * Checks for required files and basic structure.
      *
-     * @param  string  $modulePath
      * @return array{success: bool, errors: array<string>}
      */
     protected function validateModuleHealth(string $modulePath): array
@@ -2195,29 +2215,29 @@ class ModulesController extends Controller
         $errors = [];
 
         // Check if module.json exists
-        $moduleJsonPath = $modulePath . '/module.json';
-        if (!File::exists($moduleJsonPath)) {
+        $moduleJsonPath = $modulePath.'/module.json';
+        if (! File::exists($moduleJsonPath)) {
             $errors[] = 'module.json file is missing';
         } else {
             // Validate JSON
             $content = File::get($moduleJsonPath);
             $decoded = json_decode($content, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                $errors[] = 'module.json contains invalid JSON: ' . json_last_error_msg();
+                $errors[] = 'module.json contains invalid JSON: '.json_last_error_msg();
             }
         }
 
         // Check if composer.json exists (optional but recommended)
-        $composerJsonPath = $modulePath . '/composer.json';
-        if (!File::exists($composerJsonPath)) {
+        $composerJsonPath = $modulePath.'/composer.json';
+        if (! File::exists($composerJsonPath)) {
             // This is not a critical error, just a warning
             // \Illuminate\Support\Facades\Log::info("Module at {$modulePath} does not have composer.json (optional)");
         }
 
         // Check if Providers directory exists (common structure)
-        if (!File::exists($modulePath . '/Providers') && !File::exists($modulePath . '/src/Providers')) {
-             // This might be a valid module structure without Providers, but it's rare in this system
-             // We won't fail on it, but it's good to know
+        if (! File::exists($modulePath.'/Providers') && ! File::exists($modulePath.'/src/Providers')) {
+            // This might be a valid module structure without Providers, but it's rare in this system
+            // We won't fail on it, but it's good to know
         }
 
         return [
@@ -2229,7 +2249,6 @@ class ModulesController extends Controller
     /**
      * Generate helpful error suggestions based on git clone error output.
      *
-     * @param  string  $errorOutput
      * @return array<string>
      */
     protected function getGitCloneErrorSuggestions(string $errorOutput): array
@@ -2274,4 +2293,3 @@ class ModulesController extends Controller
         return $suggestions;
     }
 }
-

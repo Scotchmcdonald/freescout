@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Option;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 test('option handles null values correctly', function () {
     Option::setValue('nullable_option', null);

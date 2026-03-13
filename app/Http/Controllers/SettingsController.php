@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\DataTransferObjects\SmtpSettingsData;
 use App\Http\Requests\UpdateGeneralSettingsRequest;
+use App\Http\Requests\ValidateSmtpRequest;
 use App\Mail\Alert;
 use App\Models\Mailbox;
 use App\Models\Option;
 use App\Services\ImapService;
 use App\Services\SmtpService;
-use App\DataTransferObjects\SmtpSettingsData;
-use App\Http\Requests\ValidateSmtpRequest;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -19,16 +19,15 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 use Nwidart\Modules\Facades\Module;
 
 class SettingsController extends Controller
 {
     /**
      * Get all settings sections.
-     * 
+     *
      * @return array<string, array{title: string, route: string, icon: string, order: int}>
      */
     public function getSections(): array
@@ -38,42 +37,43 @@ class SettingsController extends Controller
                 'title' => __('General'),
                 'route' => 'settings',
                 'icon' => 'cog',
-                'order' => 100
+                'order' => 100,
             ],
             'email' => [
                 'title' => __('Email Settings'),
                 'route' => 'settings.email',
                 'icon' => 'mail',
-                'order' => 200
+                'order' => 200,
             ],
             'alerts' => [
                 'title' => __('Alerts'),
                 'route' => 'settings.alerts',
                 'icon' => 'bell',
-                'order' => 300
+                'order' => 300,
             ],
             'system' => [
                 'title' => __('System'),
                 'route' => 'settings.system',
                 'icon' => 'server',
-                'order' => 400
+                'order' => 400,
             ],
             'migrations' => [
                 'title' => __('Migrations'),
                 'route' => 'settings.migrations',
                 'icon' => 'database',
-                'order' => 500
+                'order' => 500,
             ],
             'rbac' => [
                 'title' => __('Permissions & Roles'),
                 'route' => 'rbac.matrix',
                 'icon' => 'shield-check',
-                'order' => 700
+                'order' => 700,
             ],
         ];
 
         // Allow modules to add/remove sections
         $sections = \Eventy::filter('settings.sections', $sections);
+
         return $sections;
     }
 
@@ -119,7 +119,7 @@ class SettingsController extends Controller
     public function update(UpdateGeneralSettingsRequest $request): RedirectResponse
     {
         $currentSection = 'general';
-        
+
         // Hook for modules to perform actions before saving settings
         \Eventy::action('settings.before_save', $request, $currentSection, []);
 
@@ -129,14 +129,14 @@ class SettingsController extends Controller
             if ($value === null) {
                 continue;
             }
-            
+
             // Handle arrays (like user_permissions)
             if (is_array($value)) {
                 $value = json_encode($value);
             } elseif (is_bool($value)) {
                 $value = (int) $value;
             }
-            
+
             Option::updateOrCreate(
                 ['name' => $name],
                 ['value' => $value]
@@ -233,18 +233,18 @@ class SettingsController extends Controller
 
     /**
      * Check for application updates from git repository.
-     * 
+     *
      * @return array{current_commit: string, remote_commit?: string, commits_behind?: int, branch: string, has_update: bool}|null
      */
     private function checkForAppUpdates(): ?array
     {
         try {
             $appPath = base_path();
-            
+
             // Get current branch
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $appPath);
             $process->run();
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 return null;
             }
             $branch = trim($process->getOutput());
@@ -252,7 +252,7 @@ class SettingsController extends Controller
             // Get current commit hash
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', 'HEAD'], $appPath);
             $process->run();
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 return null;
             }
             $localHash = trim($process->getOutput());
@@ -266,7 +266,7 @@ class SettingsController extends Controller
             // Get remote commit hash
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', "origin/$branch"], $appPath);
             $process->run();
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 return [
                     'current_commit' => $localHashShort,
                     'branch' => $branch,
@@ -279,7 +279,7 @@ class SettingsController extends Controller
             // Compare hashes
             $hasUpdate = $localHash !== $remoteHash;
             $commitsBehind = 0;
-            
+
             if ($hasUpdate) {
                 // Count commits behind
                 $process = new \Symfony\Component\Process\Process(
@@ -297,7 +297,6 @@ class SettingsController extends Controller
                 'branch' => $branch,
                 'has_update' => $hasUpdate,
             ];
-            
         } catch (\Exception $e) {
             return null;
         }
@@ -496,27 +495,27 @@ class SettingsController extends Controller
         // Update alert settings
         /** @var array<string, bool> $alerts */
         $alerts = $validated['alerts'] ?? [];
-        
+
         Option::updateOrCreate(
             ['name' => 'alert_system_errors'],
             ['value' => (int) ($alerts['system_errors'] ?? false)]
         );
-        
+
         Option::updateOrCreate(
             ['name' => 'alert_high_queue'],
             ['value' => (int) ($alerts['high_queue'] ?? false)]
         );
-        
+
         Option::updateOrCreate(
             ['name' => 'alert_failed_jobs'],
             ['value' => (int) ($alerts['failed_jobs'] ?? false)]
         );
-        
+
         Option::updateOrCreate(
             ['name' => 'alert_disk_space'],
             ['value' => (int) ($alerts['disk_space'] ?? false)]
         );
-        
+
         Option::updateOrCreate(
             ['name' => 'alert_db_connection'],
             ['value' => (int) ($alerts['db_connection'] ?? false)]
@@ -568,9 +567,9 @@ class SettingsController extends Controller
                 return back()->with('error', 'No valid email addresses found in recipients.');
             }
 
-            return back()->with('success', 'Test alert sent successfully to ' . $sentCount . ' recipient(s).');
+            return back()->with('success', 'Test alert sent successfully to '.$sentCount.' recipient(s).');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to send test alert: ' . $e->getMessage());
+            return back()->with('error', 'Failed to send test alert: '.$e->getMessage());
         }
     }
 
@@ -606,7 +605,7 @@ class SettingsController extends Controller
         foreach ($data as $key => $value) {
             if (isset($mapping[$key]) && ! empty($value)) {
                 $envKey = $mapping[$key];
-                $value = is_string($value) ? $value : (is_scalar($value) ? (string)$value : '');
+                $value = is_string($value) ? $value : (is_scalar($value) ? (string) $value : '');
 
                 // Quote passwords and values that contain special characters
                 $isSecret = in_array($envKey, $alwaysQuote, true) || str_contains($envKey, 'PASSWORD') || str_contains($envKey, 'SECRET');
@@ -648,10 +647,10 @@ class SettingsController extends Controller
         $currentSection = 'security';
 
         // Use security view if it exists, otherwise fall back to index
-        $viewName = \Illuminate\Support\Facades\View::exists('settings.security') 
-            ? 'settings.security' 
+        $viewName = \Illuminate\Support\Facades\View::exists('settings.security')
+            ? 'settings.security'
             : 'settings.index';
-        
+
         /** @var view-string $viewName */
         return view($viewName, compact('settings', 'sections', 'currentSection'));
     }
@@ -666,19 +665,19 @@ class SettingsController extends Controller
 
         $migrator = app('migrator');
         $repository = $migrator->getRepository();
-        
-        if (!$repository->repositoryExists()) {
+
+        if (! $repository->repositoryExists()) {
             $repository->createRepository();
         }
 
         $ran = $repository->getRan();
-        
+
         $migrations = [];
-        
+
         // App Migrations
         $appPath = database_path('migrations');
         $appFiles = $migrator->getMigrationFiles([$appPath]);
-        
+
         foreach ($appFiles as $file => $path) {
             $migrations[] = [
                 'name' => $file,
@@ -690,7 +689,7 @@ class SettingsController extends Controller
 
         // Module Migrations
         foreach (Module::all() as $module) {
-            $modulePath = $module->getPath() . '/Database/Migrations';
+            $modulePath = $module->getPath().'/Database/Migrations';
             if (File::exists($modulePath)) {
                 $moduleFiles = $migrator->getMigrationFiles([$modulePath]);
                 foreach ($moduleFiles as $file => $path) {
@@ -703,7 +702,7 @@ class SettingsController extends Controller
                 }
             }
         }
-        
+
         // Sort by name (timestamp)
         usort($migrations, function ($a, $b) {
             return strcmp($b['name'], $a['name']); // Descending
@@ -720,7 +719,7 @@ class SettingsController extends Controller
     {
         ...
     }
-    
+
     public function runSeeder(Request $request): RedirectResponse
     {
        ...
@@ -734,13 +733,13 @@ class SettingsController extends Controller
     {
         $sections = $this->getSections();
         $currentSection = 'integrations';
-        
+
         // Get active tab from request, default to first available integration
         $activeTab = $request->get('tab');
-        
+
         // Determine available integrations
         $integrations = [];
-        
+
         if (Module::find('GoogleAdmin') && Module::find('GoogleAdmin')->isEnabled()) {
             $integrations['googleadmin'] = [
                 'name' => 'Google Workspace',
@@ -748,7 +747,7 @@ class SettingsController extends Controller
                 'description' => 'Sync users and licenses from Google Workspace',
             ];
         }
-        
+
         if (Module::find('Action1') && Module::find('Action1')->isEnabled()) {
             $integrations['action1'] = [
                 'name' => 'Action1 RMM',
@@ -756,12 +755,12 @@ class SettingsController extends Controller
                 'description' => 'Sync devices and endpoints from Action1 RMM',
             ];
         }
-        
+
         // Set default active tab if not specified or invalid
-        if (!$activeTab || !isset($integrations[$activeTab])) {
+        if (! $activeTab || ! isset($integrations[$activeTab])) {
             $activeTab = array_key_first($integrations);
         }
-        
+
         // Load settings for active integration
         $settings = [];
         $clientConfigs = collect();
@@ -785,11 +784,11 @@ class SettingsController extends Controller
                 foreach (\Modules\Action1\Enums\Action1Role::cases() as $role) {
                     $key = $role->configKey();
                     $roleStatus[$key] = [
-                        'label'       => $role->label(),
+                        'label' => $role->label(),
                         'description' => $role->description(),
-                        'client_id'   => config("action1.roles.{$key}.client_id"),
-                        'configured'  => !empty(config("action1.roles.{$key}.client_id"))
-                                      && !empty(config("action1.roles.{$key}.client_secret")),
+                        'client_id' => config("action1.roles.{$key}.client_id"),
+                        'configured' => ! empty(config("action1.roles.{$key}.client_id"))
+                                      && ! empty(config("action1.roles.{$key}.client_secret")),
                     ];
                 }
             }
@@ -800,7 +799,7 @@ class SettingsController extends Controller
                     ->get();
             }
         }
-        
+
         return view('settings.integrations', compact('sections', 'currentSection', 'integrations', 'activeTab', 'settings', 'clientConfigs', 'roleStatus'));
     }
 }

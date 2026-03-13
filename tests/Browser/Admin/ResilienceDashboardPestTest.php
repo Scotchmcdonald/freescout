@@ -11,7 +11,11 @@ function getResilienceAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 

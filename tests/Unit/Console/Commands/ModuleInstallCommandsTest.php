@@ -24,6 +24,7 @@ use Tests\UnitTestCase;
  * - Installation workflows (15 tests)
  *
  * Total: 54 tests targeting 95%+ coverage of ModuleInstall command
+ *
  * @group console
  */
 class ModuleInstallCommandsTest extends UnitTestCase
@@ -73,47 +74,47 @@ class ModuleInstallCommandsTest extends UnitTestCase
 
     public function test_module_install_command_can_be_instantiated(): void
     {
-        $command = new ModuleInstall();
-        
+        $command = new ModuleInstall;
+
         $this->assertInstanceOf(ModuleInstall::class, $command);
         $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
     }
 
     public function test_module_install_has_correct_signature(): void
     {
-        $command = new ModuleInstall();
-        
+        $command = new ModuleInstall;
+
         $this->assertEquals('freescout:module-install', $command->getName());
     }
 
     public function test_module_install_signature_has_optional_module_alias(): void
     {
-        $command = new ModuleInstall();
+        $command = new ModuleInstall;
         $definition = $command->getDefinition();
-        
+
         $this->assertTrue($definition->hasArgument('module_alias'));
         $this->assertFalse($definition->getArgument('module_alias')->isRequired());
     }
 
     public function test_module_install_has_description(): void
     {
-        $command = new ModuleInstall();
-        
+        $command = new ModuleInstall;
+
         $this->assertNotEmpty($command->getDescription());
         $this->assertStringContainsString('install', strtolower($command->getDescription()));
     }
 
     public function test_module_install_has_handle_method(): void
     {
-        $command = new ModuleInstall();
-        
+        $command = new ModuleInstall;
+
         $this->assertTrue(method_exists($command, 'handle'));
     }
 
     public function test_module_install_has_create_module_public_symlink_method(): void
     {
-        $command = new ModuleInstall();
-        
+        $command = new ModuleInstall;
+
         $this->assertTrue(
             method_exists($command, 'createModulePublicSymlink'),
             'createModulePublicSymlink method must exist'
@@ -124,7 +125,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         $reflection = new \ReflectionClass(ModuleInstall::class);
         $method = $reflection->getMethod('createModulePublicSymlink');
-        
+
         $this->assertTrue($method->isPublic());
     }
 
@@ -136,9 +137,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             $exitCode = Artisan::call('freescout:module-install', [
-                'module_alias' => 'test'
+                'module_alias' => 'test',
             ]);
-            
+
             $this->assertIsInt($exitCode);
         } catch (\Exception $e) {
             // Expected if module doesn't exist
@@ -150,15 +151,15 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         // Command should call cache:clear at the beginning
         Cache::put('test_key', 'test_value', 60);
-        
+
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'test'
+                'module_alias' => 'test',
             ]);
         } catch (\Exception $e) {
             // Expected
         }
-        
+
         // Cache should have been cleared (or attempted)
         $this->expectNotToPerformAssertions();
     }
@@ -166,11 +167,11 @@ class ModuleInstallCommandsTest extends UnitTestCase
     public function test_module_install_shows_error_for_non_existent_module(): void
     {
         Artisan::call('freescout:module-install', [
-            'module_alias' => 'CompletelyNonExistentModule12345'
+            'module_alias' => 'CompletelyNonExistentModule12345',
         ]);
-        
+
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('not found', strtolower($output));
     }
 
@@ -181,8 +182,8 @@ class ModuleInstallCommandsTest extends UnitTestCase
     public function test_module_install_creates_public_symlink(): void
     {
         // Method should attempt to create symlink
-        $command = new ModuleInstall();
-        
+        $command = new ModuleInstall;
+
         $this->assertTrue(method_exists($command, 'createModulePublicSymlink'));
     }
 
@@ -191,9 +192,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Should handle case where symlink already exists
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -205,9 +206,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Should handle broken symlinks gracefully
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -217,8 +218,8 @@ class ModuleInstallCommandsTest extends UnitTestCase
     public function test_module_install_creates_public_directory_if_missing(): void
     {
         // Should attempt to create Public directory if it doesn't exist
-        $command = new ModuleInstall();
-        
+        $command = new ModuleInstall;
+
         // Method exists to handle this
         $this->assertTrue(method_exists($command, 'createModulePublicSymlink'));
     }
@@ -228,9 +229,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // If a directory exists at symlink location, should rename it
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -242,9 +243,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Should catch and display symlink creation errors
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->assertInstanceOf(\Exception::class, $e);
@@ -256,9 +257,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Should handle open_basedir restrictions gracefully
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -270,9 +271,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Should check if symlink already exists
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -282,8 +283,8 @@ class ModuleInstallCommandsTest extends UnitTestCase
     public function test_module_install_uses_correct_directory_separator(): void
     {
         // Should use DIRECTORY_SEPARATOR for cross-platform compatibility
-        $command = new ModuleInstall();
-        
+        $command = new ModuleInstall;
+
         $this->assertTrue(defined('DIRECTORY_SEPARATOR'));
     }
 
@@ -291,9 +292,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -310,9 +311,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Command should call module:migrate
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             // Expected
@@ -325,9 +326,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Single module installation should use --force flag
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -339,9 +340,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Should call freescout:clear-cache at the end
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -356,9 +357,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -371,9 +372,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Module aliases might be case-sensitive
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'testmodule'
+                'module_alias' => 'testmodule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -384,8 +385,8 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         // When no module_alias, should ask for confirmation
         // This is interactive, so we just verify structure
-        $command = new ModuleInstall();
-        
+        $command = new ModuleInstall;
+
         $this->assertTrue(method_exists($command, 'handle'));
     }
 
@@ -395,7 +396,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
         try {
             // Without interaction, should handle gracefully
             $exitCode = Artisan::call('freescout:module-install', ['--no-interaction' => true]);
-            
+
             $this->assertIsInt($exitCode);
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -406,7 +407,7 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', ['--no-interaction' => true]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -419,9 +420,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-install', [
                 'module_alias' => null,
-                '--no-interaction' => true
+                '--no-interaction' => true,
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -433,9 +434,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         try {
             Artisan::call('freescout:module-install', [
                 'module_alias' => '',
-                '--no-interaction' => true
+                '--no-interaction' => true,
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -446,9 +447,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'test@#$%'
+                'module_alias' => 'test@#$%',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -459,9 +460,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => str_repeat('a', 256)
+                'module_alias' => str_repeat('a', 256),
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -472,9 +473,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'モジュール'
+                'module_alias' => 'モジュール',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -485,9 +486,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => '../../../etc/passwd'
+                'module_alias' => '../../../etc/passwd',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -499,9 +500,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Multiple calls should handle race conditions
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -513,9 +514,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Installing should not overwrite existing configuration
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -527,9 +528,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Should validate that module has required structure
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -541,9 +542,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
         // Should handle filesystem permission errors gracefully
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -558,9 +559,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -571,9 +572,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -584,9 +585,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -597,9 +598,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -610,9 +611,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -623,9 +624,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -636,9 +637,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -649,9 +650,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -662,9 +663,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -675,9 +676,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -688,9 +689,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'FailModule'
+                'module_alias' => 'FailModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -701,9 +702,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -715,9 +716,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -729,9 +730,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'NonExistent'
+                'module_alias' => 'NonExistent',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertStringContainsString('not found', strtolower($output));
         } catch (\Exception $e) {
@@ -743,9 +744,9 @@ class ModuleInstallCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();

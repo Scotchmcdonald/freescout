@@ -11,7 +11,6 @@ use Tests\UnitTestCase;
 
 class CustomerModelTest extends UnitTestCase
 {
-
     public function test_customer_has_first_name_attribute(): void
     {
         $customer = new Customer(['first_name' => 'John']);

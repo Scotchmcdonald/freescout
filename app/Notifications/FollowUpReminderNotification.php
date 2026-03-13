@@ -19,8 +19,7 @@ class FollowUpReminderNotification extends Notification implements ShouldQueue
      */
     public function __construct(
         public Conversation $conversation
-    ) {
-    }
+    ) {}
 
     /**
      * Get the notification's delivery channels.
@@ -47,7 +46,7 @@ class FollowUpReminderNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject("⏰ Follow-up Reminder: #{$this->conversation->number}")
             ->greeting("Hello {$firstName}!")
-            ->line("This is a reminder to follow up on a conversation that requires your attention.")
+            ->line('This is a reminder to follow up on a conversation that requires your attention.')
             ->line('')
             ->line("**Conversation #:** {$this->conversation->number}")
             ->line("**Subject:** {$subject}")

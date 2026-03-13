@@ -71,8 +71,7 @@ class SavedSearch extends Model
     /**
      * Scope a query to only include searches for a specific user.
      *
-     * @param \Illuminate\Database\Eloquent\Builder<SavedSearch> $query
-     * @param int $userId
+     * @param  \Illuminate\Database\Eloquent\Builder<SavedSearch>  $query
      * @return \Illuminate\Database\Eloquent\Builder<SavedSearch>
      */
     public function scopeForUser($query, int $userId)
@@ -83,7 +82,7 @@ class SavedSearch extends Model
     /**
      * Scope a query to order by sort order.
      *
-     * @param \Illuminate\Database\Eloquent\Builder<SavedSearch> $query
+     * @param  \Illuminate\Database\Eloquent\Builder<SavedSearch>  $query
      * @return \Illuminate\Database\Eloquent\Builder<SavedSearch>
      */
     public function scopeOrdered($query)
@@ -93,9 +92,6 @@ class SavedSearch extends Model
 
     /**
      * Get the default saved search for a user.
-     *
-     * @param int $userId
-     * @return self|null
      */
     public static function getDefaultForUser(int $userId): ?self
     {
@@ -104,8 +100,6 @@ class SavedSearch extends Model
 
     /**
      * Set this search as the default for the user.
-     *
-     * @return void
      */
     public function setAsDefault(): void
     {
@@ -119,14 +113,12 @@ class SavedSearch extends Model
 
     /**
      * Build the URL for this saved search.
-     *
-     * @return string
      */
     public function getUrl(): string
     {
         $params = ['q' => $this->query];
 
-        if (!empty($this->filters)) {
+        if (! empty($this->filters)) {
             $params = array_merge($params, $this->filters);
         }
 
@@ -135,8 +127,6 @@ class SavedSearch extends Model
 
     /**
      * Get the display name for the saved search.
-     *
-     * @return string
      */
     public function getDisplayName(): string
     {
@@ -145,8 +135,6 @@ class SavedSearch extends Model
 
     /**
      * Get filters as a string summary.
-     *
-     * @return string
      */
     public function getFiltersSummary(): string
     {
@@ -156,32 +144,32 @@ class SavedSearch extends Model
 
         $parts = [];
 
-        if (!empty($this->filters['mailbox'])) {
+        if (! empty($this->filters['mailbox'])) {
             $mailboxId = $this->filters['mailbox'];
             $parts[] = __('Mailbox: :id', ['id' => is_scalar($mailboxId) ? $mailboxId : '']);
         }
 
-        if (!empty($this->filters['assigned'])) {
+        if (! empty($this->filters['assigned'])) {
             $assignedId = $this->filters['assigned'];
             $parts[] = __('Assigned: :id', ['id' => is_scalar($assignedId) ? $assignedId : '']);
         }
 
-        if (!empty($this->filters['status'])) {
+        if (! empty($this->filters['status'])) {
             $statusVal = $this->filters['status'];
             $parts[] = __('Status: :status', ['status' => is_scalar($statusVal) ? $statusVal : '']);
         }
 
-        if (!empty($this->filters['type'])) {
+        if (! empty($this->filters['type'])) {
             $typeVal = $this->filters['type'];
             $parts[] = __('Type: :type', ['type' => is_scalar($typeVal) ? $typeVal : '']);
         }
 
-        if (!empty($this->filters['date_from'])) {
+        if (! empty($this->filters['date_from'])) {
             $dateFrom = $this->filters['date_from'];
             $parts[] = __('From: :date', ['date' => is_scalar($dateFrom) ? $dateFrom : '']);
         }
 
-        if (!empty($this->filters['date_to'])) {
+        if (! empty($this->filters['date_to'])) {
             $dateTo = $this->filters['date_to'];
             $parts[] = __('To: :date', ['date' => is_scalar($dateTo) ? $dateTo : '']);
         }

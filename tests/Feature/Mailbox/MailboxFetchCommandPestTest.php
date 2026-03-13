@@ -64,7 +64,7 @@ test('connection test mode works correctly', function () {
             'success' => true,
             'message' => 'Connected successfully. Found 15 messages.',
         ]);
-        
+
     $mock->shouldNotReceive('fetchEmails');
 
     $this->artisan('freescout:fetch-emails', [

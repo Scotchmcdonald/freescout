@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Single Responsibility Action: Create a reply thread to a conversation.
- * 
+ *
  * This encapsulates ALL business logic for replying to conversations,
  * making it testable, reusable, and maintainable.
  */
@@ -27,7 +27,7 @@ class ReplyToConversationAction
     /**
      * Execute the reply action.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function execute(
         Conversation $conversation,
@@ -36,11 +36,11 @@ class ReplyToConversationAction
     ): Thread {
         return DB::transaction(function () use ($conversation, $user, $data) {
             // Ensure mailbox is loaded
-            if (!$conversation->relationLoaded('mailbox')) {
+            if (! $conversation->relationLoaded('mailbox')) {
                 $conversation->load('mailbox');
             }
 
-            if (!$conversation->mailbox) {
+            if (! $conversation->mailbox) {
                 throw new \RuntimeException('Conversation mailbox not found');
             }
 
@@ -61,15 +61,15 @@ class ReplyToConversationAction
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function createThread(Conversation $conversation, User $user, array $data): Thread
     {
         $mailbox = $conversation->mailbox;
-        if (!$mailbox || !$mailbox->email) {
+        if (! $mailbox || ! $mailbox->email) {
             throw new \RuntimeException('Conversation mailbox email not found');
         }
-        
+
         return Thread::create([
             'conversation_id' => $conversation->id,
             'user_id' => $user->id,
@@ -86,7 +86,7 @@ class ReplyToConversationAction
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function updateConversation(Conversation $conversation, User $user, array $data): void
     {
@@ -94,7 +94,7 @@ class ReplyToConversationAction
         // auto-set status to Pending (2) = "Awaiting Client Response"
         $isReply = ($data['type'] ?? ThreadType::MESSAGE->value) === ThreadType::MESSAGE->value;
         $defaultStatus = $conversation->status;
-        if ($isReply && !isset($data['status']) && $user->isAdmin()) {
+        if ($isReply && ! isset($data['status']) && $user->isAdmin()) {
             $defaultStatus = ConversationStatus::Pending->value;
         }
 
@@ -113,12 +113,12 @@ class ReplyToConversationAction
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function dispatchEmailIfNeeded(Conversation $conversation, Thread $thread, array $data): void
     {
         $isReply = ($data['type'] ?? ThreadType::MESSAGE->value) === ThreadType::MESSAGE->value;
-        
+
         if ($isReply) {
             SendConversationReplyJob::dispatch($conversation, $thread)
                 ->delay(now()->addSeconds(10));

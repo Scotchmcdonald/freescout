@@ -6,7 +6,7 @@ namespace App\DataTransferObjects;
 
 /**
  * UserStatusChangedData
- * 
+ *
  * Immutable data transfer object for UserStatusChanged event.
  * Contains user status change information.
  */

@@ -34,12 +34,12 @@ class ConversationUpdatedTest extends UnitTestCase
 
         $this->assertIsArray($channels);
         $this->assertContainsOnlyInstancesOf(PrivateChannel::class, $channels);
-        
+
         // Find mailbox channel
         $mailboxChannel = collect($channels)->first(function ($channel) {
             return str_contains($channel->name, 'mailbox.');
         });
-        
+
         $this->assertNotNull($mailboxChannel);
         $this->assertStringContainsString('mailbox.5', $mailboxChannel->name);
     }
@@ -58,12 +58,12 @@ class ConversationUpdatedTest extends UnitTestCase
         $channels = $event->broadcastOn();
 
         $this->assertCount(2, $channels);
-        
+
         // Find user channel
         $userChannel = collect($channels)->first(function ($channel) {
             return str_contains($channel->name, 'user.');
         });
-        
+
         $this->assertNotNull($userChannel);
         $this->assertStringContainsString('user.10', $userChannel->name);
     }
@@ -81,11 +81,11 @@ class ConversationUpdatedTest extends UnitTestCase
         $channels = $event->broadcastOn();
 
         $this->assertCount(1, $channels);
-        
+
         $userChannel = collect($channels)->first(function ($channel) {
             return str_contains($channel->name, 'user.');
         });
-        
+
         $this->assertNull($userChannel);
     }
 
@@ -140,13 +140,13 @@ class ConversationUpdatedTest extends UnitTestCase
     public function test_event_accepts_different_update_types(): void
     {
         $conversation = Conversation::factory()->create(['id' => 1]);
-        
+
         $statusEvent = new ConversationUpdated($conversation, 'status_changed');
         $this->assertEquals('status_changed', $statusEvent->broadcastWith()['update_type']);
-        
+
         $assignedEvent = new ConversationUpdated($conversation, 'assigned');
         $this->assertEquals('assigned', $assignedEvent->broadcastWith()['update_type']);
-        
+
         $threadEvent = new ConversationUpdated($conversation, 'new_thread');
         $this->assertEquals('new_thread', $threadEvent->broadcastWith()['update_type']);
     }
@@ -155,7 +155,7 @@ class ConversationUpdatedTest extends UnitTestCase
     {
         $conversation = Conversation::factory()->create(['id' => 1]);
         $meta = ['custom_field' => 'custom_value', 'count' => 5];
-        
+
         $event = new ConversationUpdated($conversation, 'custom_update', $meta);
 
         $data = $event->broadcastWith();
@@ -165,7 +165,7 @@ class ConversationUpdatedTest extends UnitTestCase
     public function test_event_has_default_update_type(): void
     {
         $conversation = Conversation::factory()->create(['id' => 1]);
-        
+
         $event = new ConversationUpdated($conversation);
 
         $data = $event->broadcastWith();
@@ -175,7 +175,7 @@ class ConversationUpdatedTest extends UnitTestCase
     public function test_event_meta_can_be_null(): void
     {
         $conversation = Conversation::factory()->create(['id' => 1]);
-        
+
         $event = new ConversationUpdated($conversation, 'status_changed', null);
 
         $data = $event->broadcastWith();

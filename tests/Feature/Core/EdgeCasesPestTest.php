@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
 use App\Models\Mailbox;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 test('controllers handle missing route parameters', function () {
@@ -27,7 +27,7 @@ test('controllers validate csrf tokens', function () {
         ->actingAs($admin)
         ->post(route('settings.cache.clear'))
         ->assertRedirect(); // Should succeed if CSRF middleware is disabled for this test?
-        
+
     // Wait, the legacy test:
     // $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)...
     // implies it's testing that it works WITHOUT csrf verification?
@@ -37,7 +37,7 @@ test('controllers validate csrf tokens', function () {
     // This seems to verify that the route works (redirects) when CSRF IS REMOVED (or maybe it's testing something else?).
     // Actually, `withoutMiddleware` disables the checking. So if we disable it, it should proceed.
     // If the test name is "validate csrf tokens", it usually checks 419 on failure.
-    // But the legacy code: 
+    // But the legacy code:
     // $response = $this->withoutMiddleware(...)->post(...) -> assertRedirect().
     // This confirms the route functions when we bypass CSRF.
     // To properly replicate, I'll do the same.
@@ -66,7 +66,7 @@ test('controllers handle special characters in input', function () {
     ]));
 
     $response->assertOk();
-    
+
     // The payload is not reflected, so we just check it's not executed
     expect($response->getContent())->not->toContain('<script>alert("xss")</script>');
 });
@@ -80,6 +80,7 @@ test('controllers respect rate limiting', function () {
 
         if ($response->status() === 429) {
             expect($response->status())->toBe(429);
+
             return;
         }
     }

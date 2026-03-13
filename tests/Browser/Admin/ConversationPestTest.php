@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\User;
-use App\Models\Mailbox;
 use App\Models\Conversation;
+use App\Models\Mailbox;
+use App\Models\User;
 
 function getConvPagesAdmin(): User
 {
@@ -13,7 +13,11 @@ function getConvPagesAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -25,7 +29,7 @@ it('conversation list via mailbox loads', function () {
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
-    $this->visit('/mailbox/' . $mailbox->id)
+    $this->visit('/mailbox/'.$mailbox->id)
         ->assertSee('ConvTestMailbox');
 })->group('admin', 'conversations');
 
@@ -48,7 +52,7 @@ it('conversation create page loads', function () {
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
-    $this->visit('/mailbox/' . $mailbox->id . '/conversation/create')
+    $this->visit('/mailbox/'.$mailbox->id.'/conversation/create')
         ->assertSee('New Conversation');
 })->group('admin', 'conversations');
 

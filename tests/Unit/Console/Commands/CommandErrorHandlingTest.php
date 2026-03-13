@@ -9,7 +9,6 @@ use App\Console\Commands\FetchEmails;
 use App\Console\Commands\ModuleInstall;
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Tests\UnitTestCase;
 
@@ -20,7 +19,7 @@ class CommandErrorHandlingTest extends UnitTestCase
     {
         // Clean up any command instances
         gc_collect_cycles();
-        
+
         parent::tearDown();
     }
 
@@ -34,14 +33,14 @@ class CommandErrorHandlingTest extends UnitTestCase
     public function test_command_validates_email_format(): void
     {
         // Commands have validation logic
-        $command = new CreateUser();
+        $command = new CreateUser;
         $this->assertTrue(method_exists($command, 'handle'));
     }
 
     public function test_command_handles_duplicate_user_email(): void
     {
         $user = User::factory()->create();
-        
+
         // Test that duplicate email exists
         $exists = User::where('email', $user->email)->exists();
         $this->assertTrue($exists);
@@ -63,7 +62,7 @@ class CommandErrorHandlingTest extends UnitTestCase
     public function test_command_provides_helpful_error_messages(): void
     {
         // Commands should provide output
-        $command = new CreateUser();
+        $command = new CreateUser;
         $this->assertNotNull($command->getDescription());
     }
 
@@ -99,7 +98,7 @@ class CommandErrorHandlingTest extends UnitTestCase
     public function test_command_logs_start_and_finish(): void
     {
         // Commands can log activity
-        $command = new FetchEmails();
+        $command = new FetchEmails;
         $this->assertTrue(method_exists($command, 'handle'));
     }
 
@@ -113,7 +112,7 @@ class CommandErrorHandlingTest extends UnitTestCase
     public function test_command_handles_invalid_option_values(): void
     {
         // Commands should validate options - test that definition exists
-        $command = new CreateUser();
+        $command = new CreateUser;
         $definition = $command->getDefinition();
         $this->assertNotNull($definition);
     }
@@ -121,15 +120,15 @@ class CommandErrorHandlingTest extends UnitTestCase
     public function test_command_handles_concurrent_execution(): void
     {
         // Test that commands can be instantiated multiple times
-        $command1 = new CreateUser();
-        $command2 = new CreateUser();
+        $command1 = new CreateUser;
+        $command2 = new CreateUser;
         $this->assertNotSame($command1, $command2);
     }
 
     public function test_command_provides_exit_code(): void
     {
         // Commands return exit codes
-        $command = new CreateUser();
+        $command = new CreateUser;
         $this->assertNotNull($command);
     }
 }

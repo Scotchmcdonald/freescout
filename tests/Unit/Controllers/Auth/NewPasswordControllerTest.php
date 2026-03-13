@@ -5,16 +5,14 @@ namespace Tests\Unit\Controllers\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use PHPUnit\Framework\Attributes\Group;
 use Tests\UnitTestCase;
 
 class NewPasswordControllerTest extends UnitTestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Force route list refresh to avoid caching issues in parallel tests
         $this->app['router']->getRoutes()->refreshNameLookups();
         $this->app['router']->getRoutes()->refreshActionLookups();

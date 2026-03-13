@@ -7,7 +7,6 @@ use Tests\UnitTestCase;
 
 class ProfileControllerTest extends UnitTestCase
 {
-
     public function test_edit_shows_profile_form()
     {
         $user = User::factory()->create();
@@ -127,7 +126,7 @@ class ProfileControllerTest extends UnitTestCase
 
         $response->assertSessionHas('status', 'password-updated');
         $user->refresh();
-        
+
         // Verify password was changed
         $this->assertTrue(
             \Illuminate\Support\Facades\Hash::check('newpassword123', $user->password)
@@ -265,7 +264,7 @@ class ProfileControllerTest extends UnitTestCase
         $this->actingAs($user);
 
         $specialPassword = 'P@ssw0rd!#$%^&*()_+-=[]{}|;:,.<>?';
-        
+
         $response = $this->put(route('password.update'), [
             'current_password' => 'oldpassword123',
             'password' => $specialPassword,
@@ -274,7 +273,7 @@ class ProfileControllerTest extends UnitTestCase
 
         $response->assertSessionHas('status', 'password-updated');
         $user->refresh();
-        
+
         $this->assertTrue(
             \Illuminate\Support\Facades\Hash::check($specialPassword, $user->password)
         );
@@ -288,7 +287,7 @@ class ProfileControllerTest extends UnitTestCase
         $this->actingAs($user);
 
         $unicodePassword = 'パスワード123!@#';
-        
+
         $response = $this->put(route('password.update'), [
             'current_password' => 'oldpassword123',
             'password' => $unicodePassword,
@@ -297,7 +296,7 @@ class ProfileControllerTest extends UnitTestCase
 
         $response->assertSessionHas('status', 'password-updated');
         $user->refresh();
-        
+
         $this->assertTrue(
             \Illuminate\Support\Facades\Hash::check($unicodePassword, $user->password)
         );
@@ -345,7 +344,7 @@ class ProfileControllerTest extends UnitTestCase
         $this->actingAs($user);
 
         $passwordWithSpaces = '  newpassword123  ';
-        
+
         $response = $this->put(route('password.update'), [
             'current_password' => 'oldpassword123',
             'password' => $passwordWithSpaces,
@@ -355,7 +354,7 @@ class ProfileControllerTest extends UnitTestCase
         // Password with leading/trailing spaces should be accepted
         $response->assertSessionHas('status', 'password-updated');
         $user->refresh();
-        
+
         $this->assertTrue(
             \Illuminate\Support\Facades\Hash::check($passwordWithSpaces, $user->password)
         );

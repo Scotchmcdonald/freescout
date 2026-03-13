@@ -17,7 +17,6 @@ use Tests\UnitTestCase;
 
 class SendReplyToCustomerTest extends UnitTestCase
 {
-
     public function test_listener_handles_user_replied_event(): void
     {
         $user = User::factory()->create();
@@ -34,8 +33,8 @@ class SendReplyToCustomerTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
-        
+        $listener = new SendReplyToCustomer;
+
         // Should handle without exception
         $listener->handle($event);
         $this->expectNotToPerformAssertions();
@@ -57,8 +56,8 @@ class SendReplyToCustomerTest extends UnitTestCase
         ]);
 
         $event = new UserCreatedConversation($conversation, $thread);
-        $listener = new SendReplyToCustomer();
-        
+        $listener = new SendReplyToCustomer;
+
         $listener->handle($event);
         $this->expectNotToPerformAssertions();
     }
@@ -70,7 +69,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $conversation = Conversation::factory()->create([
             'customer_id' => $customer->id,
         ]);
-        
+
         $importedThread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'created_by_user_id' => $user->id,
@@ -78,8 +77,8 @@ class SendReplyToCustomerTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $importedThread);
-        $listener = new SendReplyToCustomer();
-        
+        $listener = new SendReplyToCustomer;
+
         // Should skip imported threads
         $listener->handle($event);
         $this->expectNotToPerformAssertions();
@@ -101,8 +100,8 @@ class SendReplyToCustomerTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
-        
+        $listener = new SendReplyToCustomer;
+
         // Should process phone conversation with customer email
         $listener->handle($event);
         $this->expectNotToPerformAssertions();
@@ -113,7 +112,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
-        
+
         // Create the most recent thread to use
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
@@ -123,8 +122,8 @@ class SendReplyToCustomerTest extends UnitTestCase
         ]);
 
         $event = new UserCreatedConversation($conversation, $thread);
-        $listener = new SendReplyToCustomer();
-        
+        $listener = new SendReplyToCustomer;
+
         $listener->handle($event);
         $this->expectNotToPerformAssertions();
     }
@@ -139,8 +138,8 @@ class SendReplyToCustomerTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
-        
+        $listener = new SendReplyToCustomer;
+
         // Should process thread from event
         $listener->handle($event);
         $this->assertInstanceOf(Thread::class, $event->thread);
@@ -161,8 +160,8 @@ class SendReplyToCustomerTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new UserCreatedConversation($conversation, $thread);
-        $listener = new SendReplyToCustomer();
-        
+        $listener = new SendReplyToCustomer;
+
         // Should handle conversation with thread
         $listener->handle($event);
         $this->expectNotToPerformAssertions();
@@ -183,15 +182,15 @@ class SendReplyToCustomerTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
-        
+        $listener = new SendReplyToCustomer;
+
         $listener->handle($event);
         $this->assertNotNull($conversation->customer_id);
     }
 
     public function test_listener_can_be_instantiated(): void
     {
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
         $this->assertInstanceOf(SendReplyToCustomer::class, $listener);
     }
 
@@ -215,7 +214,7 @@ class SendReplyToCustomerTest extends UnitTestCase
 
         // Use real conversation object as it has the necessary methods and data
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
 
         // Should handle without exception and skip sending
         $listener->handle($event);
@@ -238,12 +237,12 @@ class SendReplyToCustomerTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
-        
+        $listener = new SendReplyToCustomer;
+
         $listener->handle($event);
 
         \Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, function ($job) {
-            return !is_null($job->delay);
+            return ! is_null($job->delay);
         });
     }
 
@@ -262,8 +261,8 @@ class SendReplyToCustomerTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
-        
+        $listener = new SendReplyToCustomer;
+
         $listener->handle($event);
 
         \Queue::assertPushedOn('emails', \App\Jobs\SendConversationReplyJob::class);
@@ -291,8 +290,8 @@ class SendReplyToCustomerTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
-        
+        $listener = new SendReplyToCustomer;
+
         $listener->handle($event);
 
         \Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, function ($job) use ($conversation, $thread) {

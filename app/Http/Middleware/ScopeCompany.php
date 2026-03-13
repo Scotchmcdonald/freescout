@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\User;
 
 class ScopeCompany
 {
@@ -35,9 +35,9 @@ class ScopeCompany
 
         // Get company from route parameter
         $company = $request->route('company');
-        
+
         if (! $company) {
-             return $next($request);
+            return $next($request);
         }
 
         $companyId = $company instanceof \Modules\Crm\Models\Company ? $company->id : (int) $company;

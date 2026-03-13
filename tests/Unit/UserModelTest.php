@@ -9,7 +9,6 @@ use Tests\UnitTestCase;
 
 class UserModelTest extends UnitTestCase
 {
-
     public function test_user_is_admin_returns_true_for_admin_role(): void
     {
         $user = User::factory()->create([

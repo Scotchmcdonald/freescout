@@ -13,7 +13,11 @@ function getKbAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -34,7 +38,7 @@ it('admin can create article', function () {
 
     $category = Category::create([
         'name' => 'Getting Started',
-        'slug' => 'getting-started-' . uniqid(),
+        'slug' => 'getting-started-'.uniqid(),
         'description' => 'Introductory articles',
         'order' => 1,
     ]);
@@ -53,7 +57,7 @@ it('article show page renders', function () {
 
     $category = Category::create([
         'name' => 'Tutorials',
-        'slug' => 'tutorials-' . uniqid(),
+        'slug' => 'tutorials-'.uniqid(),
         'description' => 'Tutorial articles',
         'order' => 1,
     ]);
@@ -61,7 +65,7 @@ it('article show page renders', function () {
     $article = Article::create([
         'category_id' => $category->id,
         'title' => 'How to Configure Email',
-        'slug' => 'how-to-configure-email-' . uniqid(),
+        'slug' => 'how-to-configure-email-'.uniqid(),
         'content' => 'This guide explains how to configure email settings.',
         'excerpt' => 'Email configuration guide',
         'is_published' => true,
@@ -125,7 +129,7 @@ it('article model has required methods', function () {
 
     $category = Category::create([
         'name' => 'Model Test',
-        'slug' => 'model-test-' . uniqid(),
+        'slug' => 'model-test-'.uniqid(),
         'description' => 'For model testing',
         'order' => 3,
     ]);
@@ -133,7 +137,7 @@ it('article model has required methods', function () {
     $article = Article::create([
         'category_id' => $category->id,
         'title' => 'Test Article Methods',
-        'slug' => 'test-article-methods-' . uniqid(),
+        'slug' => 'test-article-methods-'.uniqid(),
         'content' => 'Article content for testing.',
         'is_published' => true,
         'author_id' => $admin->id,

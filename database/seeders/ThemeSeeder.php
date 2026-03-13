@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Theme;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 
@@ -241,8 +240,8 @@ class ThemeSeeder extends Seeder
             );
 
             // Ensure theme directory exists to prevent optimization errors
-            $themePath = base_path('themes/' . $key . '/views');
-            if (!File::exists($themePath)) {
+            $themePath = base_path('themes/'.$key.'/views');
+            if (! File::exists($themePath)) {
                 File::makeDirectory($themePath, 0755, true);
             }
         }

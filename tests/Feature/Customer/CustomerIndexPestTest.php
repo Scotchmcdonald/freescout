@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\Customer;
-use App\Models\User;
 use App\Models\Email;
+use App\Models\User;
 
 test('customers index requires authentication', function () {
     $this->get(route('customers.index'))
@@ -20,7 +20,7 @@ test('authenticated user can view customers list', function () {
 
 test('customers list displays created customers', function () {
     $user = User::factory()->create();
-    
+
     // Create specific customers to check for logic
     $customer1 = Customer::factory()->withoutEmail()->create(['first_name' => 'Alpha']);
     Email::factory()->create(['customer_id' => $customer1->id, 'email' => 'alpha@example.com']);
@@ -31,9 +31,9 @@ test('customers list displays created customers', function () {
     $response = $this->actingAs($user)->get(route('customers.index'));
 
     $response->assertSee('Alpha')
-             ->assertSee('alpha@example.com')
-             ->assertSee('Beta')
-             ->assertSee('beta@example.com');
+        ->assertSee('alpha@example.com')
+        ->assertSee('Beta')
+        ->assertSee('beta@example.com');
 });
 
 test('customers list supports search by first name', function () {

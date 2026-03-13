@@ -5,7 +5,8 @@ use Modules\ContractManager\Models\Contract;
 use Modules\Crm\Models\Client;
 
 // Helper to log in a user via the UI
-function loginContractAdmin(object $browser, User $user, string $password = 'password') {
+function loginContractAdmin(object $browser, User $user, string $password = 'password')
+{
     $browser->visit('/login')
         ->assertVisible('input[name="email"]')
         ->type('email', $user->email)
@@ -15,20 +16,20 @@ function loginContractAdmin(object $browser, User $user, string $password = 'pas
 }
 
 test('can generate invoice for contract', function () {
-    $admin = User::firstOrCreate(['email' => 'contract-admin-' . uniqid() . '@example.com'], [
+    $admin = User::firstOrCreate(['email' => 'contract-admin-'.uniqid().'@example.com'], [
         'password' => bcrypt('password'),
         'role' => User::ROLE_ADMIN,
         'first_name' => 'Contract',
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    
+
     $client = Client::factory()->create(['name' => 'Invoice Test Corp']);
-    
+
     $contract = Contract::create([
         'client_id' => $client->id,
         'title' => 'Test Service Contract',
-        'contract_number' => 'CON-TEST-' . uniqid(),
+        'contract_number' => 'CON-TEST-'.uniqid(),
         'status' => 'active',
         'start_date' => now(),
         'contract_type' => 'standard',
@@ -46,23 +47,25 @@ test('can generate invoice for contract', function () {
         ->assertSee('Invoice generated');
 });
 
-
 test('rent to own stops at purchase cap', function () {
-    $admin = User::firstOrCreate(['email' => 'rto-admin-' . uniqid() . '@example.com'], [
+    $admin = User::firstOrCreate(['email' => 'rto-admin-'.uniqid().'@example.com'], [
         'password' => bcrypt('password'),
         'role' => User::ROLE_ADMIN,
         'first_name' => 'RTO',
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
-    
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     $client = Client::factory()->create(['name' => 'RTO Test Corp']);
 
     $contract = Contract::create([
         'client_id' => $client->id,
         'title' => 'RTO Equipment',
-        'contract_number' => 'CON-RTO-' . uniqid(),
+        'contract_number' => 'CON-RTO-'.uniqid(),
         'status' => 'active',
         'start_date' => now(),
         'contract_type' => 'rent_to_own',
@@ -80,7 +83,7 @@ test('rent to own stops at purchase cap', function () {
     $browser->click('[dusk="generate-invoice-button"]')
         ->waitForText('Invoice generated', 10)
         ->assertSee('Invoice generated');
-    
+
     // Reload to clear toast
     $browser = $this->visit("/contracts/agreements/{$contract->id}");
 
@@ -105,23 +108,25 @@ test('rent to own stops at purchase cap', function () {
         ->assertSee('purchase price cap reached');
 });
 
-
 test('can generate buyout invoice', function () {
-    $admin = User::firstOrCreate(['email' => 'buyout-admin-' . uniqid() . '@example.com'], [
+    $admin = User::firstOrCreate(['email' => 'buyout-admin-'.uniqid().'@example.com'], [
         'password' => bcrypt('password'),
         'role' => User::ROLE_ADMIN,
         'first_name' => 'Buyout',
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $client = Client::factory()->create(['name' => 'Buyout Test Corp']);
 
     $contract = Contract::create([
         'client_id' => $client->id,
         'title' => 'Buyout Equipment',
-        'contract_number' => 'CON-BUYOUT-' . uniqid(),
+        'contract_number' => 'CON-BUYOUT-'.uniqid(),
         'status' => 'active',
         'start_date' => now(),
         'contract_type' => 'rent_to_own',
@@ -141,11 +146,11 @@ test('can generate buyout invoice', function () {
     $browser->click('[dusk="generate-invoice-button"]')
         ->waitForText('Invoice generated')
         ->assertSee('Invoice generated');
-        
+
     $browser = $this->visit("/contracts/agreements/{$contract->id}");
 
     // Override window.confirm to auto-accept
-    $browser->script("window.confirm = () => true");
+    $browser->script('window.confirm = () => true');
 
     // Generate buyout invoice for remaining $400
     $browser->assertVisible('[dusk="generate-buyout-button"]')

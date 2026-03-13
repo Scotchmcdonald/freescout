@@ -6,7 +6,7 @@ namespace App\DataTransferObjects;
 
 /**
  * AssetCountChangedData - Immutable DTO for AssetCountChanged event
- * 
+ *
  * Represents changes to asset counts for billing integration.
  * Used to trigger PIB entitlement recalculations.
  */
@@ -20,11 +20,12 @@ final readonly class AssetCountChangedData
         public string $changeReason, // 'asset_added', 'asset_removed', 'asset_reassigned', 'sync_reconciliation'
         public ?int $assetId = null, // Optional: specific asset that triggered the change
     ) {}
-    
+
     /**
      * Factory method for array construction
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
+     *
      * @phpstan-param array{
      *     client_id?: int, clientId?: int,
      *     asset_type?: string, assetType?: string,
@@ -45,7 +46,7 @@ final readonly class AssetCountChangedData
             assetId: $data['asset_id'] ?? $data['assetId'] ?? null,
         );
     }
-    
+
     /**
      * @return array<string, mixed>
      */
@@ -60,7 +61,7 @@ final readonly class AssetCountChangedData
             'asset_id' => $this->assetId,
         ];
     }
-    
+
     /**
      * Calculate the delta (change in count)
      */
@@ -68,7 +69,7 @@ final readonly class AssetCountChangedData
     {
         return $this->newCount - $this->previousCount;
     }
-    
+
     /**
      * Check if count increased
      */
@@ -76,7 +77,7 @@ final readonly class AssetCountChangedData
     {
         return $this->newCount > $this->previousCount;
     }
-    
+
     /**
      * Check if count decreased
      */

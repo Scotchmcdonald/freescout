@@ -22,9 +22,9 @@ test('system can run migrations', function () {
     // If it runs actually, it might be slow.
     // Ideally we mock Artisan::call if the controller calls it.
     // But for feature test, we often let it run if harmless (migrate --force is usually what it does).
-    
+
     // Let's modify to mock if possible, but first let's try mimicking legacy behavior.
-    
+
     $response = $this->actingAs($admin)->post(route('settings.migrate'));
 
     $response->assertRedirect();

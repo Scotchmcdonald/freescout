@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\Log;
 use Mockery;
 use Tests\TestCase;
 use Webklex\PHPIMAP\Client;
+use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 use Webklex\PHPIMAP\Folder;
 use Webklex\PHPIMAP\Message;
 use Webklex\PHPIMAP\Query\WhereQuery;
-use Webklex\PHPIMAP\Support\MessageCollection;
 use Webklex\PHPIMAP\Support\FolderCollection;
-use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
+use Webklex\PHPIMAP\Support\MessageCollection;
 
 /**
  * Integration smoke tests for ImapService to validate all methods work together.
@@ -26,7 +26,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Mock all logging
         Log::shouldReceive('debug')->byDefault();
         Log::shouldReceive('info')->byDefault();
@@ -65,7 +65,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
 
     public function test_service_can_be_instantiated(): void
     {
-        $service = new ImapService();
+        $service = new ImapService;
 
         $this->assertInstanceOf(ImapService::class, $service);
     }
@@ -73,7 +73,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
     public function test_complete_workflow_with_no_server_configured(): void
     {
         $mailbox = $this->createMockMailbox(['in_server' => null]);
-        $service = new ImapService();
+        $service = new ImapService;
 
         $result = $service->fetchEmails($mailbox);
 
@@ -87,7 +87,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
     public function test_complete_workflow_with_connection_failure(): void
     {
         $mailbox = $this->createMockMailbox();
-        
+
         $mockClient = Mockery::mock(Client::class);
         $mockClient->shouldReceive('connect')
             ->once()
@@ -109,7 +109,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
 
         $folder1 = Mockery::mock(Folder::class);
         $folder1->full_name = 'INBOX';
-        
+
         $folder2 = Mockery::mock(Folder::class);
         $folder2->full_name = 'Sent';
 
@@ -163,7 +163,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
     public function test_all_public_methods_return_expected_types(): void
     {
         $mailbox = $this->createMockMailbox(['in_server' => null]);
-        $service = new ImapService();
+        $service = new ImapService;
 
         // fetchEmails returns array with specific keys
         $fetchResult = $service->fetchEmails($mailbox);
@@ -188,7 +188,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
 
     public function test_encryption_types_are_handled_correctly(): void
     {
-        $service = new ImapService();
+        $service = new ImapService;
         $reflection = new \ReflectionClass($service);
         $method = $reflection->getMethod('getEncryption');
         $method->setAccessible(true);
@@ -198,7 +198,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
         $this->assertEquals('ssl', $method->invoke($service, 1));
         $this->assertEquals('tls', $method->invoke($service, 2));
         $this->assertNull($method->invoke($service, null));
-        
+
         // Test string conversions
         $this->assertEquals('ssl', $method->invoke($service, '1'));
         $this->assertEquals('tls', $method->invoke($service, '2'));
@@ -206,15 +206,15 @@ class ImapServiceIntegrationSmokeTest extends TestCase
 
     public function test_service_handles_various_mailbox_configurations(): void
     {
-        $service = new ImapService();
+        $service = new ImapService;
 
         // Various encryption types
         foreach ([0, 1, 2, null] as $encryption) {
             $mailbox = $this->createMockMailbox([
                 'in_server' => null,
-                'in_encryption' => $encryption
+                'in_encryption' => $encryption,
             ]);
-            
+
             $result = $service->fetchEmails($mailbox);
             $this->assertIsArray($result);
         }
@@ -223,9 +223,9 @@ class ImapServiceIntegrationSmokeTest extends TestCase
         foreach ([null, '', 'INBOX', 'INBOX,Sent', ['INBOX']] as $folders) {
             $mailbox = $this->createMockMailbox([
                 'in_server' => null,
-                'in_imap_folders' => $folders
+                'in_imap_folders' => $folders,
             ]);
-            
+
             $result = $service->fetchEmails($mailbox);
             $this->assertIsArray($result);
         }
@@ -243,9 +243,9 @@ class ImapServiceIntegrationSmokeTest extends TestCase
             ->atLeast()
             ->once();
 
-        $service = new ImapService();
+        $service = new ImapService;
         $result = $service->fetchEmails($mailbox);
-        
+
         // Verify that fetchEmails returns expected structure
         $this->assertIsArray($result);
         $this->assertArrayHasKey('errors', $result);
@@ -254,7 +254,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
     public function test_service_returns_consistent_error_structures(): void
     {
         $mailbox = $this->createMockMailbox();
-        
+
         // Create separate mock clients for each test
         $mockClient1 = Mockery::mock(Client::class);
         $mockClient1->shouldReceive('connect')
@@ -275,10 +275,10 @@ class ImapServiceIntegrationSmokeTest extends TestCase
         $mockClient2->shouldReceive('connect')
             ->once()
             ->andThrow(new \Exception('Test error'));
-            
+
         $service2 = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service2->shouldReceive('createClient')->with($mailbox)->andReturn($mockClient2);
-        
+
         $foldersResult = $service2->getFolders($mailbox);
         $this->assertFalse($foldersResult['success']);
         $this->assertIsString($foldersResult['message']);
@@ -288,10 +288,10 @@ class ImapServiceIntegrationSmokeTest extends TestCase
         $mockClient3->shouldReceive('connect')
             ->once()
             ->andThrow(new \Exception('Test error'));
-            
+
         $service3 = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service3->shouldReceive('createClient')->with($mailbox)->andReturn($mockClient3);
-        
+
         $connectionResult = $service3->testConnection($mailbox);
         $this->assertFalse($connectionResult['success']);
         $this->assertIsString($connectionResult['message']);
@@ -299,7 +299,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
 
     public function test_service_handles_edge_case_inputs_gracefully(): void
     {
-        $service = new ImapService();
+        $service = new ImapService;
 
         // Empty server
         $mailbox = $this->createMockMailbox(['in_server' => '']);
@@ -309,7 +309,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
         // Null username
         $mailbox = $this->createMockMailbox([
             'in_server' => null,
-            'in_username' => null
+            'in_username' => null,
         ]);
         $result = $service->fetchEmails($mailbox);
         $this->assertIsArray($result);
@@ -317,7 +317,7 @@ class ImapServiceIntegrationSmokeTest extends TestCase
         // Invalid port (will fail connection but not crash)
         $mailbox = $this->createMockMailbox([
             'in_server' => null,
-            'in_port' => 0
+            'in_port' => 0,
         ]);
         $result = $service->fetchEmails($mailbox);
         $this->assertIsArray($result);

@@ -13,7 +13,6 @@ use Tests\UnitTestCase;
 
 class ConversationRelationshipsTest extends UnitTestCase
 {
-
     public function test_conversation_belongs_to_mailbox(): void
     {
         $mailbox = Mailbox::factory()->create();

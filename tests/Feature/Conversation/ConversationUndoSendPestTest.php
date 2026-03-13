@@ -33,15 +33,15 @@ test('reply dispatches job with delay', function () {
     ]);
 
     $response->assertRedirect();
-    
+
     Queue::assertPushed(SendConversationReplyJob::class, function ($job) {
-        return !is_null($job->delay);
+        return ! is_null($job->delay);
     });
 });
 
 test('undo send changes thread to draft', function () {
     // Removed Queue::fake() to isolate issues
-    
+
     // Create a thread that was just "sent"
     $thread = Thread::factory()->create([
         'conversation_id' => $this->conversation->id,
@@ -57,7 +57,7 @@ test('undo send changes thread to draft', function () {
     $response->assertSessionHas('success');
 
     $thread->refresh();
-    
+
     expect($thread->state)->toBe(Thread::STATE_DRAFT);
     expect($thread->type)->toBe(Thread::TYPE_DRAFT);
 });
@@ -75,7 +75,7 @@ test('undo send fails after timeout', function () {
 
     $response->assertRedirect();
     $response->assertSessionHasErrors('error');
-    
+
     $thread->refresh();
     expect($thread->state)->toBe(Thread::STATE_PUBLISHED);
 });

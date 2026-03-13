@@ -114,9 +114,10 @@ test('audit service gets recent sensitive operations', function () {
 });
 
 test('trait audits sensitive operations', function () {
-    $service = new class {
+    $service = new class
+    {
         use AuditsSensitiveOperations;
-        
+
         public function performSensitiveOperation($user, $data): void
         {
             $this->auditSensitiveOperation(
@@ -137,9 +138,10 @@ test('trait audits sensitive operations', function () {
 });
 
 test('trait audits bulk operations', function () {
-    $service = new class {
+    $service = new class
+    {
         use AuditsSensitiveOperations;
-        
+
         public function performBulkOperation(int $count): void
         {
             $this->auditBulkOperation('bulk_update', $count, ['type' => 'test']);
@@ -156,9 +158,10 @@ test('trait audits bulk operations', function () {
 });
 
 test('trait audits financial operations', function () {
-    $service = new class {
+    $service = new class
+    {
         use AuditsSensitiveOperations;
-        
+
         public function performFinancialOperation($user, int $cents): void
         {
             $this->auditFinancialOperation(
@@ -181,9 +184,10 @@ test('trait audits financial operations', function () {
 });
 
 test('trait audits data access operations', function () {
-    $service = new class {
+    $service = new class
+    {
         use AuditsSensitiveOperations;
-        
+
         public function exportData(string $dataType, array $filters, int $count): void
         {
             $this->auditDataAccess('data_export', $dataType, $filters, $count);
@@ -217,7 +221,7 @@ test('audit logs are written to database', function () {
 test('audit logs can be filtered by date range', function () {
     // Create logs at different times
     $this->auditService->logSensitiveOperation('old_op', null, [], 'test', $this->user);
-    
+
     $oldActivity = Activity::latest()->first();
     $oldActivity->created_at = now()->subDays(5);
     $oldActivity->save();

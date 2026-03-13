@@ -72,10 +72,10 @@ trait ResilientListener
         $eventClass = get_class($event);
 
         Log::error("[ResilientListener] {$listenerClass} failed permanently.", [
-            'listener'  => $listenerClass,
-            'event'     => $eventClass,
-            'error'     => $exception->getMessage(),
-            'trace'     => mb_substr($exception->getTraceAsString(), 0, 2000),
+            'listener' => $listenerClass,
+            'event' => $eventClass,
+            'error' => $exception->getMessage(),
+            'trace' => mb_substr($exception->getTraceAsString(), 0, 2000),
         ]);
 
         $this->dispatchListenerFailureAlert($listenerClass, $eventClass, $exception);
@@ -103,19 +103,19 @@ trait ResilientListener
                 alertTypeCode: $this->resilientListenerAlertTypeCode(),
                 title: "Listener Failure: {$shortListener}",
                 message: "The queued listener {$shortListener} failed permanently after all retries "
-                    . "while processing {$shortEvent}.\n\n"
-                    . "Error: {$exception->getMessage()}",
-                eventId: 'listener_failure_' . md5($listenerClass . $eventClass . time()),
+                    ."while processing {$shortEvent}.\n\n"
+                    ."Error: {$exception->getMessage()}",
+                eventId: 'listener_failure_'.md5($listenerClass.$eventClass.time()),
                 metadata: [
                     'listener_class' => $listenerClass,
-                    'event_class'    => $eventClass,
-                    'error'          => $exception->getMessage(),
+                    'event_class' => $eventClass,
+                    'error' => $exception->getMessage(),
                 ],
             ));
         } catch (\Throwable $alertError) {
             Log::error('[ResilientListener] Failed to dispatch failure alert.', [
                 'listener' => $listenerClass,
-                'error'    => $alertError->getMessage(),
+                'error' => $alertError->getMessage(),
             ]);
         }
     }

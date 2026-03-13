@@ -52,6 +52,7 @@ class CreateConversationAction
 
             // Allow modules to modify conversation after creation
             \Eventy::filter('conversation.create', $conversation);
+
             return $conversation;
         });
 
@@ -61,21 +62,22 @@ class CreateConversationAction
     /**
      * Resolve or create a customer from the provided data.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function resolveCustomer(array $data): Customer
     {
         if (! empty($data['customer_id'])) {
             $customerId = $data['customer_id'];
-            if (!is_int($customerId) && !is_numeric($customerId)) {
+            if (! is_int($customerId) && ! is_numeric($customerId)) {
                 throw new \Exception('Invalid customer_id');
             }
+
             /** @var Customer */
             return Customer::findOrFail(intval($customerId));
         }
 
         $email = $data['customer_email'] ?? '';
-        if (!is_string($email) && !is_int($email) && !is_float($email)) {
+        if (! is_string($email) && ! is_int($email) && ! is_float($email)) {
             throw new \Exception('Invalid customer_email');
         }
 
@@ -94,7 +96,7 @@ class CreateConversationAction
     /**
      * Get the customer email address.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function getCustomerEmail(Customer $customer, array $data): string
     {
@@ -102,11 +104,12 @@ class CreateConversationAction
         if ($mainEmail !== null) {
             return $mainEmail;
         }
-        
+
         $email = $data['customer_email'] ?? '';
-        if (!is_string($email) && !is_int($email) && !is_float($email)) {
+        if (! is_string($email) && ! is_int($email) && ! is_float($email)) {
             return '';
         }
+
         return (string) $email;
     }
 
@@ -137,7 +140,7 @@ class CreateConversationAction
     /**
      * Create the conversation record.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function createConversation(
         Mailbox $mailbox,
@@ -149,10 +152,10 @@ class CreateConversationAction
         array $data
     ): Conversation {
         $body = $data['body'] ?? '';
-        if (!is_string($body) && !is_int($body) && !is_float($body)) {
+        if (! is_string($body) && ! is_int($body) && ! is_float($body)) {
             $body = '';
         }
-        
+
         return Conversation::create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
@@ -175,7 +178,7 @@ class CreateConversationAction
     /**
      * Create the initial thread for the conversation.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function createInitialThread(
         Conversation $conversation,

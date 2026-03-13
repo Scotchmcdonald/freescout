@@ -1,8 +1,8 @@
 # Case Manager Module — Implementation Critique
 
-> **Audience:** Engineering Team, Technical Leadership  
-> **Last Updated:** 2026-03-05  
-> **Scope:** Honest assessment of the current implementation — strengths, weaknesses, incomplete features, and recommended improvements.  
+> **Audience:** Engineering Team, Technical Leadership
+> **Last Updated:** 2026-03-05
+> **Scope:** Honest assessment of the current implementation — strengths, weaknesses, incomplete features, and recommended improvements.
 
 ---
 
@@ -153,6 +153,29 @@ However, the implementation has significant gaps in feature completeness, test c
 
 ---
 
+## 14. ~~No Draft Reply Approval Endpoint~~ — ~~High~~ RESOLVED
+
+**Status:** **Resolved.** `TicketSidebarController::approveDraftReply()` now provides an API endpoint for technicians to approve and send AI-generated draft replies.
+
+**Implementation (March 2026):**
+- `POST /case-manager/cases/{caseId}/approve-draft` reads the most recent `draft_reply_generated` activity log entry.
+- Sends the message as a customer-facing email via `ReplyToConversationAction`.
+- Records a `draft_reply_approved` activity log entry with the approving technician's identity.
+- Permission-gated via `manage_case_manager`.
+- Test coverage: 7 tests (happy path, no-draft 404, empty message 422, missing conversation 404, multiple drafts picks latest, non-existent case 404, auth guard).
+
+**Previously:** When `auto_respond_clarity = false` (default), draft replies were stored in the activity log but had no mechanism for approval or sending. Technicians had to manually compose and send replies, losing the AI-generated content.
+
+---
+
+## 15. ~~`auto_respond_split` Missing From Config~~ — ~~Low~~ RESOLVED
+
+**Status:** **Resolved.** `casemanager.features.auto_respond_split` added to `Config/config.php` with env var `CASEMANAGER_AUTO_RESPOND_SPLIT` and default `false`.
+
+**Previously:** `ProposeTicketSplitStrategy` referenced this config key, but it was not declared in the config file. The fallback default (`false`) meant it worked correctly, but the omission was inconsistent with how all other feature flags were declared.
+
+---
+
 ## 6. Code Duplication Between AI Services — ~~Medium~~ RESOLVED
 
 **Status:** **Resolved.** `GeminiClient` now provides shared Gemini HTTP transport, payload construction, response parsing (with markdown fence stripping), rate limiting, circuit breaking, context caching, and prompt logging. `FernAiService` has been deleted. `CaseManagerAiService` is the unified AI service for both pipelines, delegating all API calls to `GeminiClient`. Fern triage is handled via `CaseManagerAiService::runFernTriage()`. Audience targeting has been extracted to `AudienceTargetingService`.
@@ -265,3 +288,5 @@ Not everything is a problem. The following architectural choices should be maint
 | ~~8~~ | ~~Add `StrategyResult::with*()` methods (#13)~~ | ~~Small~~ | **RESOLVED** — `withMetadata()` + `withBriefing()` added |
 | ~~9~~ | ~~Fix feature flag check (#9)~~ | ~~Trivial~~ | **RESOLVED** — guard added to `CheckGeminiModelsCommand` |
 | ~~10~~ | ~~Update existing documentation (#11, #12)~~ | ~~Small~~ | **RESOLVED** — both `DOCUMENTATION_INDEX.md` entries and `CASE_MANAGER.md` content updated |
+| ~~11~~ | ~~Add draft reply approval endpoint (#14)~~ | ~~Small~~ | **RESOLVED** — `approveDraftReply()` endpoint + route + tests |
+| ~~12~~ | ~~Add `auto_respond_split` to config (#15)~~ | ~~Trivial~~ | **RESOLVED** — added to features config array |

@@ -11,7 +11,11 @@ function getRbacAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -96,13 +100,13 @@ test('client portal permissions', function () {
     $client = \Modules\Crm\Models\Client::factory()->create([
         'company_id' => $company->id,
         'name' => 'Security Test Client',
-        'email' => 'security_client_' . uniqid() . '@example.com',
+        'email' => 'security_client_'.uniqid().'@example.com',
         'status' => 'active',
     ]);
 
     $portalUser = User::factory()->create([
         'type' => 2,
-        'email' => 'security_user_' . uniqid() . '@example.com',
+        'email' => 'security_user_'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
@@ -127,7 +131,7 @@ test('client portal permissions', function () {
 it('permission changes take immediate effect', function () {
     // Create a user with regular role
     $user = \App\Models\User::factory()->create([
-        'email' => 'rbac-perm-change-' . uniqid() . '@example.com',
+        'email' => 'rbac-perm-change-'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'role' => \App\Models\User::ROLE_USER,
         'email_verified_at' => now(),
@@ -156,7 +160,7 @@ it('enforces API token permissions', function () {
     expect($guards)->toHaveKey('web');
 
     // Verify User model has API-related capabilities
-    $user = new \App\Models\User();
+    $user = new \App\Models\User;
     expect(method_exists($user, 'getAuthIdentifier'))->toBeTrue();
 
     // Verify API middleware is configured in the kernel
@@ -167,7 +171,7 @@ it('enforces API token permissions', function () {
 
 it('prevents mass assignment on sensitive fields', function () {
     // Verify User model has guarded or fillable defined
-    $user = new \App\Models\User();
+    $user = new \App\Models\User;
     $guarded = $user->getGuarded();
     $fillable = $user->getFillable();
 
@@ -182,7 +186,7 @@ it('prevents mass assignment on sensitive fields', function () {
     }
 
     // Verify User model also has protection for portal users
-    $portalUser = new \App\Models\User();
+    $portalUser = new \App\Models\User;
     $portalGuarded = $portalUser->getGuarded();
     expect($portalGuarded)->not->toBeEmpty();
 })->group('rbac', 'security', 'mass-assignment');

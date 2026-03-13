@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\User;
-
 test('registration screen can be rendered', function () {
     $this->get('/register')
         ->assertStatus(200)

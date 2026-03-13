@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 /**
  * Test Email model
- * 
+ *
  * Focus: Email validation, sanitization, types
  */
 class EmailTest extends TestCase
@@ -47,35 +47,35 @@ class EmailTest extends TestCase
         $this->assertEquals(3, $email->type);
     }
 
-    public function test_sanitizeEmail_converts_to_lowercase(): void
+    public function test_sanitize_email_converts_to_lowercase(): void
     {
         $result = Email::sanitizeEmail('TEST@EXAMPLE.COM');
 
         $this->assertEquals('test@example.com', $result);
     }
 
-    public function test_sanitizeEmail_trims_whitespace(): void
+    public function test_sanitize_email_trims_whitespace(): void
     {
         $result = Email::sanitizeEmail('  test@example.com  ');
 
         $this->assertEquals('test@example.com', $result);
     }
 
-    public function test_sanitizeEmail_returns_null_for_empty_string(): void
+    public function test_sanitize_email_returns_null_for_empty_string(): void
     {
         $result = Email::sanitizeEmail('');
 
         $this->assertFalse($result);
     }
 
-    public function test_sanitizeEmail_returns_null_for_whitespace_only(): void
+    public function test_sanitize_email_returns_null_for_whitespace_only(): void
     {
         $result = Email::sanitizeEmail('   ');
 
         $this->assertFalse($result);
     }
 
-    public function test_sanitizeEmail_handles_unicode_domain(): void
+    public function test_sanitize_email_handles_unicode_domain(): void
     {
         $result = Email::sanitizeEmail('test@例え.jp');
 
@@ -83,21 +83,21 @@ class EmailTest extends TestCase
         $this->assertStringContainsString('@', $result);
     }
 
-    public function test_sanitizeEmail_preserves_plus_addressing(): void
+    public function test_sanitize_email_preserves_plus_addressing(): void
     {
         $result = Email::sanitizeEmail('user+tag@example.com');
 
         $this->assertEquals('user+tag@example.com', $result);
     }
 
-    public function test_sanitizeEmail_preserves_dots_in_local_part(): void
+    public function test_sanitize_email_preserves_dots_in_local_part(): void
     {
         $result = Email::sanitizeEmail('first.last@example.com');
 
         $this->assertEquals('first.last@example.com', $result);
     }
 
-    public function test_sanitizeEmail_preserves_subdomain(): void
+    public function test_sanitize_email_preserves_subdomain(): void
     {
         $result = Email::sanitizeEmail('user@mail.example.com');
 
@@ -106,7 +106,7 @@ class EmailTest extends TestCase
 
     public function test_email_has_required_fillable_fields(): void
     {
-        $email = new Email();
+        $email = new Email;
         $fillable = $email->getFillable();
 
         $this->assertContains('email', $fillable);
@@ -137,13 +137,13 @@ class EmailTest extends TestCase
     public function test_customer_can_have_multiple_emails(): void
     {
         $customer = Customer::factory()->create();
-        
+
         Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'primary@example.com',
             'type' => 1,
         ]);
-        
+
         Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'work@example.com',
@@ -156,32 +156,32 @@ class EmailTest extends TestCase
     public function test_email_address_must_be_unique_per_customer(): void
     {
         $customer = Customer::factory()->create();
-        
+
         Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'test@example.com',
         ]);
 
         $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
         Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'test@example.com',
         ]);
     }
 
-    public function test_sanitizeEmail_handles_mixed_case(): void
+    public function test_sanitize_email_handles_mixed_case(): void
     {
         $result = Email::sanitizeEmail('TeSt@ExAmPlE.CoM');
 
         $this->assertEquals('test@example.com', $result);
     }
 
-    public function test_sanitizeEmail_with_very_long_email(): void
+    public function test_sanitize_email_with_very_long_email(): void
     {
         $longLocal = str_repeat('a', 64);
         $email = "{$longLocal}@example.com";
-        
+
         $result = Email::sanitizeEmail($email);
 
         $this->assertNotNull($result);

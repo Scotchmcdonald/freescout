@@ -26,7 +26,7 @@ class DraftTest extends TestCase
 
         $this->user = User::factory()->create();
         $this->mailbox = Mailbox::factory()->create();
-        
+
         $this->conversation = Conversation::factory()
             ->for($this->mailbox)
             ->create();
@@ -120,7 +120,7 @@ class DraftTest extends TestCase
     public function test_save_does_not_update_another_users_draft(): void
     {
         $otherUser = User::factory()->create();
-        
+
         $existingDraft = Thread::factory()->create([
             'conversation_id' => $this->conversation->id,
             'created_by_user_id' => $otherUser->id,
@@ -137,7 +137,7 @@ class DraftTest extends TestCase
 
         // Should return null since this user doesn't own the draft
         $this->assertNull($thread);
-        
+
         // Original draft should be unchanged
         $existingDraft->refresh();
         $this->assertEquals('Other users draft', $existingDraft->body);
@@ -160,7 +160,7 @@ class DraftTest extends TestCase
     public function test_discard_does_not_delete_another_users_draft(): void
     {
         $otherUser = User::factory()->create();
-        
+
         $draft = Thread::factory()->create([
             'conversation_id' => $this->conversation->id,
             'created_by_user_id' => $otherUser->id,

@@ -2,8 +2,6 @@
 
 use App\Models\Option;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -86,7 +84,7 @@ test('email settings require supported driver', function () {
 test('settings page displays existing options', function () {
     Option::create(['name' => 'company_name', 'value' => 'Test Corp']);
     // Option 'next_ticket' might not be visible on general settings page, but company_name likely is
-    
+
     $response = $this->actingAs($this->admin)->get(route('settings'));
 
     $response->assertOk();

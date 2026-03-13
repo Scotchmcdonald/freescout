@@ -12,7 +12,7 @@ class ResponseHeadersTest extends TestCase
     public function test_csp_headers_contain_cloudflare_insights()
     {
         $request = Request::create('/', 'GET');
-        $middleware = new ResponseHeaders();
+        $middleware = new ResponseHeaders;
 
         $response = $middleware->handle($request, function ($req) {
             return new Response('Content');

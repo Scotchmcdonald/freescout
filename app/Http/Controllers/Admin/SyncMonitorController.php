@@ -6,8 +6,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SyncOperation;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -66,7 +66,7 @@ class SyncMonitorController extends Controller
      */
     public function resume(SyncOperation $operation): RedirectResponse
     {
-        if (!in_array($operation->status, ['stalled', 'paused'])) {
+        if (! in_array($operation->status, ['stalled', 'paused'])) {
             return back()->with('error', 'Only stalled or paused operations can be resumed.');
         }
 
@@ -78,8 +78,9 @@ class SyncMonitorController extends Controller
 
             return back()->with('success', "Sync operation #{$operation->id} has been resumed.");
         } catch (\Exception $e) {
-            Log::error("Failed to resume sync operation #{$operation->id}: " . $e->getMessage());
-            return back()->with('error', 'Failed to resume operation: ' . $e->getMessage());
+            Log::error("Failed to resume sync operation #{$operation->id}: ".$e->getMessage());
+
+            return back()->with('error', 'Failed to resume operation: '.$e->getMessage());
         }
     }
 
@@ -107,8 +108,9 @@ class SyncMonitorController extends Controller
                 ->route('admin.sync-monitor.show', $newOperation)
                 ->with('success', "New sync operation #{$newOperation->id} has been started.");
         } catch (\Exception $e) {
-            Log::error("Failed to retry sync operation: " . $e->getMessage());
-            return back()->with('error', 'Failed to retry operation: ' . $e->getMessage());
+            Log::error('Failed to retry sync operation: '.$e->getMessage());
+
+            return back()->with('error', 'Failed to retry operation: '.$e->getMessage());
         }
     }
 

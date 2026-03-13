@@ -33,11 +33,10 @@ use Tests\UnitTestCase;
 /** @group console */
 class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Ensure clean state
         Cache::flush();
 
@@ -52,7 +51,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     protected function tearDown(): void
     {
         $this->cleanupTestArtifacts();
-        
+
         // Ensure route cache is cleared after tests
         Artisan::call('optimize:clear');
 
@@ -96,7 +95,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
-        
+
         $this->assertInstanceOf(ModuleUpdate::class, $command);
         $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
     }
@@ -105,7 +104,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
-        
+
         $this->assertEquals('freescout:module-update', $command->getName());
     }
 
@@ -114,7 +113,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
         $definition = $command->getDefinition();
-        
+
         $this->assertTrue($definition->hasArgument('module_alias'));
         $this->assertFalse($definition->getArgument('module_alias')->isRequired());
     }
@@ -123,7 +122,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
-        
+
         $this->assertNotEmpty($command->getDescription());
         $this->assertStringContainsString('update', strtolower($command->getDescription()));
     }
@@ -132,7 +131,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
         $command = new ModuleUpdate($mockModuleSource);
-        
+
         $this->assertTrue(method_exists($command, 'handle'));
     }
 
@@ -142,7 +141,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             $exitCode = Artisan::call('freescout:module-update');
-            
+
             $this->assertIsInt($exitCode);
         } catch (\Exception $e) {
             // May fail if external API unavailable
@@ -154,7 +153,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -166,7 +165,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should check modules directory via WpApi
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -178,7 +177,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should handle WpApi errors gracefully
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -191,7 +190,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should compare current vs available versions
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -202,7 +201,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -214,7 +213,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             // Should show success or error message
             $this->assertNotEmpty($output);
@@ -227,9 +226,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-update', [
-                'module_alias' => 'NonExistentModule'
+                'module_alias' => 'NonExistentModule',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertStringContainsString('not found', strtolower($output));
         } catch (\Exception $e) {
@@ -241,7 +240,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -253,7 +252,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             $this->assertNotEmpty($output);
         } catch (\Exception $e) {
@@ -265,7 +264,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-update');
-            
+
             // Should call freescout:clear-cache at end
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
@@ -277,7 +276,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             // May show "All modules are up-to-date"
             $this->assertIsString($output);
@@ -291,7 +290,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should update custom (non-official) modules
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -309,7 +308,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should catch HTTP exceptions
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -321,7 +320,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should fetch latest version from URL
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -333,7 +332,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should skip official modules when checking custom updates
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -345,7 +344,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should handle empty latest version response
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -357,7 +356,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should track how many modules were updated
         try {
             Artisan::call('freescout:module-update');
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -370,9 +369,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should be able to update just one module
         try {
             Artisan::call('freescout:module-update', [
-                'module_alias' => 'TestModule'
+                'module_alias' => 'TestModule',
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -383,9 +382,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:module-update', [
-                'module_alias' => 'CompletelyNonExistentModule'
+                'module_alias' => 'CompletelyNonExistentModule',
             ]);
-            
+
             $output = Artisan::output();
             $this->assertStringContainsString('not found', strtolower($output));
         } catch (\Exception $e) {
@@ -398,7 +397,7 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should use version_compare for checking versions
         try {
             Artisan::call('freescout:module-update');
-            
+
             $this->assertTrue(function_exists('version_compare'));
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -422,40 +421,40 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
 
     public function test_update_command_can_be_instantiated(): void
     {
-        $command = new Update();
-        
+        $command = new Update;
+
         $this->assertInstanceOf(Update::class, $command);
         $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
     }
 
     public function test_update_has_correct_signature(): void
     {
-        $command = new Update();
-        
+        $command = new Update;
+
         $this->assertEquals('freescout:update', $command->getName());
     }
 
     public function test_update_has_force_option(): void
     {
-        $command = new Update();
+        $command = new Update;
         $definition = $command->getDefinition();
-        
+
         $this->assertTrue($definition->hasOption('force'));
     }
 
     public function test_update_force_option_is_not_required(): void
     {
-        $command = new Update();
+        $command = new Update;
         $definition = $command->getDefinition();
-        
+
         $option = $definition->getOption('force');
         $this->assertFalse($option->isValueRequired());
     }
 
     public function test_update_has_description(): void
     {
-        $command = new Update();
-        
+        $command = new Update;
+
         $this->assertNotEmpty($command->getDescription());
         $this->assertStringContainsString('update', strtolower($command->getDescription()));
     }
@@ -463,15 +462,15 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     public function test_update_uses_confirmable_trait(): void
     {
         $reflection = new \ReflectionClass(Update::class);
-        
+
         $traits = $reflection->getTraitNames();
         $this->assertContains(\Illuminate\Console\ConfirmableTrait::class, $traits);
     }
 
     public function test_update_has_handle_method(): void
     {
-        $command = new Update();
-        
+        $command = new Update;
+
         $this->assertTrue(method_exists($command, 'handle'));
     }
 
@@ -481,9 +480,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             $exitCode = Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $this->assertIsInt($exitCode);
         } catch (\Exception $e) {
             // May fail in test environment
@@ -495,9 +494,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $output = Artisan::output();
             // Should mention migrations
             $this->assertIsString($output);
@@ -510,9 +509,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             // Should call cache:clear
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
@@ -524,9 +523,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             // Should call config:clear
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
@@ -538,9 +537,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             // Should call route:clear
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
@@ -552,9 +551,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             // Should call view:clear
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
@@ -566,9 +565,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             // Should call optimize
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
@@ -580,9 +579,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             // Should call freescout:after-app-update
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
@@ -594,9 +593,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -609,9 +608,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             $exitCode = Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             if ($exitCode === 0) {
                 $output = Artisan::output();
                 $this->assertStringContainsString('completed', strtolower($output));
@@ -628,9 +627,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should set memory_limit to 256M
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -641,9 +640,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             $exitCode = Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $this->assertIsInt($exitCode);
         } catch (\Exception $e) {
             // Should catch and display error
@@ -655,9 +654,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             $exitCode = Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             // Should return 0 on success or 1 on error
             $this->assertContains($exitCode, [0, 1]);
         } catch (\Exception $e) {
@@ -669,9 +668,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -684,9 +683,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
         // Should call migrate with --force flag
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
             $this->expectNotToPerformAssertions();
@@ -697,9 +696,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $output = Artisan::output();
             $this->assertNotEmpty($output);
         } catch (\Exception $e) {
@@ -711,9 +710,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -725,9 +724,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $output = Artisan::output();
             $this->assertIsString($output);
         } catch (\Exception $e) {
@@ -739,9 +738,9 @@ class ModuleUpdateAndUpdateCommandsTest extends UnitTestCase
     {
         try {
             Artisan::call('freescout:update', [
-                '--force' => true
+                '--force' => true,
             ]);
-            
+
             $output = Artisan::output();
             $this->assertNotEmpty($output);
         } catch (\Exception $e) {

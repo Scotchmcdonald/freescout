@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AnalyticsController extends Controller
@@ -18,16 +18,16 @@ class AnalyticsController extends Controller
     {
         // Calculate key metrics
         $metrics = $this->calculateMetrics();
-        
+
         // Get revenue trends (last 12 months)
         $revenueTrends = $this->getRevenueTrends();
-        
+
         // Get client growth trends (last 12 months)
         $clientTrends = $this->getClientTrends();
-        
+
         // Get forecasts for next 6 months
         $forecasts = $this->generateForecasts($revenueTrends);
-        
+
         // Get top insights
         $insights = $this->generateInsights($metrics, $revenueTrends);
 
@@ -115,7 +115,7 @@ class AnalyticsController extends Controller
 
         return $trends->map(function ($item) {
             return [
-                'month' => Carbon::parse($item->month . '-01')->format('M Y'),
+                'month' => Carbon::parse($item->month.'-01')->format('M Y'),
                 'revenue' => (float) $item->revenue,
                 'invoice_count' => $item->invoice_count,
             ];
@@ -130,14 +130,14 @@ class AnalyticsController extends Controller
     private function getClientTrends(): array
     {
         $trends = [];
-        
+
         for ($i = 11; $i >= 0; $i--) {
             $month = now()->subMonths($i);
             $count = DB::table('customers')
                 ->where('created_at', '<=', $month->endOfMonth())
                 ->whereNull('deleted_at')
                 ->count();
-            
+
             $trends[] = [
                 'month' => $month->format('M Y'),
                 'clients' => $count,
@@ -150,7 +150,7 @@ class AnalyticsController extends Controller
     /**
      * Generate forecasts for next 6 months using linear regression
      *
-     * @param array<string, mixed> $revenueTrends
+     * @param  array<string, mixed>  $revenueTrends
      * @return list<array<string, mixed>>
      */
     private function generateForecasts(array $revenueTrends): array
@@ -162,7 +162,7 @@ class AnalyticsController extends Controller
         // Calculate simple moving average and growth rate
         $recentRevenues = array_slice(array_column($revenueTrends, 'revenue'), -3);
         $avgRevenue = array_sum($recentRevenues) / count($recentRevenues);
-        
+
         // Calculate growth rate from last 3 months
         $growthRate = 0;
         if (count($recentRevenues) >= 2) {
@@ -172,11 +172,11 @@ class AnalyticsController extends Controller
         // Generate forecasts
         $forecasts = [];
         $lastRevenue = end($recentRevenues);
-        
+
         for ($i = 1; $i <= 6; $i++) {
             $forecastDate = now()->addMonths($i);
             $forecastRevenue = $lastRevenue * (1 + ($growthRate * $i));
-            
+
             $forecasts[] = [
                 'month' => $forecastDate->format('M Y'),
                 'forecast' => round($forecastRevenue, 2),
@@ -190,8 +190,8 @@ class AnalyticsController extends Controller
     /**
      * Generate actionable insights
      *
-     * @param array<string, mixed> $metrics
-     * @param array<string, mixed> $revenueTrends
+     * @param  array<string, mixed>  $metrics
+     * @param  array<string, mixed>  $revenueTrends
      * @return list<array<string, mixed>>
      */
     private function generateInsights(array $metrics, array $revenueTrends): array
@@ -245,7 +245,7 @@ class AnalyticsController extends Controller
         if (count($revenueTrends) >= 3) {
             $recentRevenues = array_slice(array_column($revenueTrends, 'revenue'), -3);
             $isIncreasing = $recentRevenues[2] > $recentRevenues[1] && $recentRevenues[1] > $recentRevenues[0];
-            
+
             if ($isIncreasing) {
                 $insights[] = [
                     'type' => 'success',

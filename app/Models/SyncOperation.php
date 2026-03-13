@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 class SyncOperation extends Model
 {
@@ -75,7 +74,7 @@ class SyncOperation extends Model
             'reason' => $reason,
             'failed_at' => now()->toIso8601String(),
         ];
-        
+
         $this->update([
             'failures' => $failures,
             'failed_items' => count($failures),
@@ -85,7 +84,7 @@ class SyncOperation extends Model
     /**
      * Save checkpoint for resume capability
      *
-     * @param array<string, mixed> $checkpointData
+     * @param  array<string, mixed>  $checkpointData
      */
     public function saveCheckpoint(array $checkpointData): void
     {
@@ -143,7 +142,7 @@ class SyncOperation extends Model
      */
     protected function calculateItemsPerSecond(): float
     {
-        if (!$this->started_at || $this->processed_items === 0) {
+        if (! $this->started_at || $this->processed_items === 0) {
             return 0;
         }
 
@@ -172,7 +171,7 @@ class SyncOperation extends Model
      */
     public function isStalled(): bool
     {
-        if (!$this->last_progress_at || $this->status !== 'running') {
+        if (! $this->last_progress_at || $this->status !== 'running') {
             return false;
         }
 
@@ -192,18 +191,18 @@ class SyncOperation extends Model
         $secondsRemaining = $remainingItems / $this->items_per_second;
 
         if ($secondsRemaining < 60) {
-            return round($secondsRemaining) . 's';
+            return round($secondsRemaining).'s';
         } elseif ($secondsRemaining < 3600) {
-            return round($secondsRemaining / 60) . 'm';
+            return round($secondsRemaining / 60).'m';
         } else {
-            return round($secondsRemaining / 3600, 1) . 'h';
+            return round($secondsRemaining / 3600, 1).'h';
         }
     }
 
     /**
      * Scope to get recent operations
      *
-     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
      */
     public function scopeRecent(\Illuminate\Database\Eloquent\Builder $query, int $hours = 24): void
     {
@@ -214,7 +213,7 @@ class SyncOperation extends Model
     /**
      * Scope to get active operations
      *
-     * @param \Illuminate\Database\Eloquent\Builder<static> $query
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
      */
     public function scopeActive(\Illuminate\Database\Eloquent\Builder $query): void
     {

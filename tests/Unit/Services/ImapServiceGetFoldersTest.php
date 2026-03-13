@@ -9,9 +9,9 @@ use App\Services\ImapService;
 use Mockery;
 use Tests\TestCase;
 use Webklex\PHPIMAP\Client;
+use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 use Webklex\PHPIMAP\Folder;
 use Webklex\PHPIMAP\Support\FolderCollection;
-use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 
 /**
  * Comprehensive tests for ImapService::getFolders() method.
@@ -24,7 +24,7 @@ class ImapServiceGetFoldersTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImapService();
+        $this->service = new ImapService;
     }
 
     protected function tearDown(): void
@@ -60,10 +60,10 @@ class ImapServiceGetFoldersTest extends TestCase
         // Create mock folders
         $folder1 = Mockery::mock(Folder::class);
         $folder1->full_name = 'INBOX';
-        
+
         $folder2 = Mockery::mock(Folder::class);
         $folder2->full_name = 'Sent';
-        
+
         $folder3 = Mockery::mock(Folder::class);
         $folder3->full_name = 'Drafts';
 
@@ -155,10 +155,10 @@ class ImapServiceGetFoldersTest extends TestCase
         // Create folders with nested paths
         $folder1 = Mockery::mock(Folder::class);
         $folder1->full_name = 'INBOX';
-        
+
         $folder2 = Mockery::mock(Folder::class);
         $folder2->full_name = 'INBOX/Archive';
-        
+
         $folder3 = Mockery::mock(Folder::class);
         $folder3->full_name = 'INBOX/Archive/2024';
 
@@ -187,10 +187,10 @@ class ImapServiceGetFoldersTest extends TestCase
 
         $folder1 = Mockery::mock(Folder::class);
         $folder1->full_name = 'INBOX';
-        
+
         $folder2 = Mockery::mock(Folder::class);
         $folder2->full_name = '[Gmail]/Sent Mail';
-        
+
         $folder3 = Mockery::mock(Folder::class);
         $folder3->full_name = '[Gmail]/All Mail';
 

@@ -11,7 +11,10 @@ it('manual invoice creation', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $client = Client::factory()->create(['name' => 'Invoice Gen Client']);
 
@@ -32,7 +35,10 @@ it('recurring invoice generation', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $client = Client::factory()->create(['name' => 'Recurring Invoice Client']);
     $template = \Modules\ContractManager\Models\BillingTemplate::factory()->create([

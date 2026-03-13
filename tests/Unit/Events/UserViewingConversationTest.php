@@ -23,7 +23,7 @@ class UserViewingConversationTest extends UnitTestCase
     {
         $user = User::factory()->create(['id' => 1]);
         $conversationId = 42;
-        
+
         $event = new UserViewingConversation($conversationId, $user);
 
         $channels = $event->broadcastOn();
@@ -37,7 +37,7 @@ class UserViewingConversationTest extends UnitTestCase
     {
         $user = User::factory()->create(['id' => 1]);
         $conversationId = 42;
-        
+
         $event = new UserViewingConversation($conversationId, $user);
 
         $channels = $event->broadcastOn();
@@ -50,7 +50,7 @@ class UserViewingConversationTest extends UnitTestCase
     {
         $user = User::factory()->create(['id' => 1]);
         $conversationId = 42;
-        
+
         $event = new UserViewingConversation($conversationId, $user);
 
         $data = $event->broadcastWith();
@@ -67,17 +67,17 @@ class UserViewingConversationTest extends UnitTestCase
             'last_name' => 'Doe',
             'email' => 'john.doe@example.com',
         ]);
-        
+
         $event = new UserViewingConversation(42, $user);
 
         $data = $event->broadcastWith();
 
         $this->assertArrayHasKey('user_id', $data);
         $this->assertEquals(10, $data['user_id']);
-        
+
         $this->assertArrayHasKey('user_name', $data);
         $this->assertEquals('John Doe', $data['user_name']);
-        
+
         $this->assertArrayHasKey('user_email', $data);
         $this->assertEquals('john.doe@example.com', $data['user_email']);
     }
@@ -85,23 +85,23 @@ class UserViewingConversationTest extends UnitTestCase
     public function test_broadcast_with_includes_is_replying_flag(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $viewingEvent = new UserViewingConversation(42, $user, false);
         $viewingData = $viewingEvent->broadcastWith();
-        
+
         $this->assertArrayHasKey('is_replying', $viewingData);
         $this->assertFalse($viewingData['is_replying']);
-        
+
         $replyingEvent = new UserViewingConversation(42, $user, true);
         $replyingData = $replyingEvent->broadcastWith();
-        
+
         $this->assertTrue($replyingData['is_replying']);
     }
 
     public function test_broadcast_with_includes_timestamp(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $event = new UserViewingConversation(42, $user);
 
         $data = $event->broadcastWith();
@@ -114,18 +114,18 @@ class UserViewingConversationTest extends UnitTestCase
     public function test_event_defaults_is_replying_to_false(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $event = new UserViewingConversation(42, $user);
 
         $data = $event->broadcastWith();
-        
+
         $this->assertFalse($data['is_replying']);
     }
 
     public function test_event_can_track_replying_state(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $event = new UserViewingConversation(42, $user, true);
 
         $this->assertTrue($event->isReplying);
@@ -135,7 +135,7 @@ class UserViewingConversationTest extends UnitTestCase
     {
         $user = User::factory()->create(['id' => 1]);
         $conversationId = 123;
-        
+
         $event = new UserViewingConversation($conversationId, $user);
 
         $this->assertEquals(123, $event->conversationId);
@@ -147,7 +147,7 @@ class UserViewingConversationTest extends UnitTestCase
             'id' => 1,
             'first_name' => 'Jane',
         ]);
-        
+
         $event = new UserViewingConversation(42, $user);
 
         $this->assertInstanceOf(User::class, $event->user);
@@ -158,7 +158,7 @@ class UserViewingConversationTest extends UnitTestCase
     {
         $user1 = User::factory()->create(['id' => 1, 'first_name' => 'Alice']);
         $user2 = User::factory()->create(['id' => 2, 'first_name' => 'Bob']);
-        
+
         $event1 = new UserViewingConversation(42, $user1);
         $event2 = new UserViewingConversation(42, $user2);
 
@@ -168,7 +168,7 @@ class UserViewingConversationTest extends UnitTestCase
         // Both target same conversation
         $this->assertEquals(42, $data1['conversation_id']);
         $this->assertEquals(42, $data2['conversation_id']);
-        
+
         // But different users
         $this->assertEquals(1, $data1['user_id']);
         $this->assertEquals(2, $data2['user_id']);

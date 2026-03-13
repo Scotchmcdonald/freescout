@@ -555,7 +555,7 @@ class MailboxController extends Controller
         $validated['ratings'] = $request->has('ratings');
 
         // Process aliases (convert newlines to commas)
-        if (!empty($validated['aliases'])) {
+        if (! empty($validated['aliases'])) {
             $aliasLines = preg_split('/[\r\n,]+/', $validated['aliases']);
             if ($aliasLines === false) {
                 $aliasLines = [];
@@ -563,7 +563,7 @@ class MailboxController extends Controller
             $cleanAliases = [];
             foreach ($aliasLines as $alias) {
                 $alias = trim($alias);
-                if (!empty($alias) && filter_var($alias, FILTER_VALIDATE_EMAIL)) {
+                if (! empty($alias) && filter_var($alias, FILTER_VALIDATE_EMAIL)) {
                     $cleanAliases[] = $alias;
                 }
             }
@@ -582,38 +582,38 @@ class MailboxController extends Controller
     public function oauthConnect(Request $request, string $provider): \Illuminate\Http\RedirectResponse
     {
         $mailboxId = $request->input('mailbox_id');
-        if (!$mailboxId) {
+        if (! $mailboxId) {
             return redirect()->back()->with('error', 'Mailbox ID is missing');
         }
-        
+
         $mailbox = Mailbox::findOrFail($mailboxId);
-        if (!($mailbox instanceof Mailbox)) {
+        if (! ($mailbox instanceof Mailbox)) {
             return redirect()->back()->with('error', 'Mailbox not found');
         }
         $this->authorize('update', $mailbox);
-        
+
         session(['oauth_mailbox_id' => $mailbox->id]);
-        
+
         $type = $request->input('type', 'incoming');
         session(['oauth_type' => $type]);
-        
+
         if ($type == 'incoming') {
             $clientId = $mailbox->in_username;
         } else {
             $clientId = $mailbox->out_username;
         }
-        
-        if (!$clientId) {
-             return redirect()->back()->with('error', 'Client ID is missing in settings');
+
+        if (! $clientId) {
+            return redirect()->back()->with('error', 'Client ID is missing in settings');
         }
-        
+
         $params = [
             'client_id' => $clientId,
             'state' => $mailbox->id,
         ];
-        
+
         $url = \App\Misc\OAuth::getAuthorizationUrl($provider, $params);
-        
+
         return redirect()->away($url);
     }
 
@@ -625,29 +625,30 @@ class MailboxController extends Controller
         $code = $request->input('code');
         $state = $request->input('state');
         $error = $request->input('error');
-        
+
         if ($error) {
             $errorMessage = is_string($error) ? $error : 'Unknown error';
-            return redirect()->route('mailboxes.index')->with('error', 'OAuth Error: ' . $errorMessage);
+
+            return redirect()->route('mailboxes.index')->with('error', 'OAuth Error: '.$errorMessage);
         }
-        
-        if (!$state) {
-             $state = session('oauth_mailbox_id');
+
+        if (! $state) {
+            $state = session('oauth_mailbox_id');
         }
-        
-        if (!$state) {
+
+        if (! $state) {
             return redirect()->route('mailboxes.index')->with('error', 'Unknown mailbox');
         }
-        
+
         $mailbox = Mailbox::findOrFail($state);
-        if (!($mailbox instanceof Mailbox)) {
+        if (! ($mailbox instanceof Mailbox)) {
             return redirect()->route('mailboxes.index')->with('error', 'Mailbox not found');
         }
         $this->authorize('update', $mailbox);
-        
+
         $sessionType = session('oauth_type', 'incoming');
         $type = is_string($sessionType) || is_int($sessionType) || is_float($sessionType) ? (string) $sessionType : 'incoming';
-        
+
         if ($type == 'incoming') {
             $clientId = $mailbox->in_username;
             $encryptedPassword = $mailbox->in_password;
@@ -665,49 +666,50 @@ class MailboxController extends Controller
                 $clientSecret = $mailbox->out_password;
             }
         }
-        
+
         $params = [
             'client_id' => $clientId,
             'client_secret' => $clientSecret,
             'code' => $code,
         ];
-        
+
         $provider = \App\Misc\OAuth::PROVIDER_MICROSOFT;
-        
+
         $tokenData = \App\Misc\OAuth::getAccessToken($provider, $params);
-        
-        if (!empty($tokenData['error'])) {
+
+        if (! empty($tokenData['error'])) {
             $errorMsg = is_string($tokenData['error']) || is_int($tokenData['error']) || is_float($tokenData['error']) ? (string) $tokenData['error'] : 'Unknown error';
-            return redirect()->route('mailboxes.connection.'.$type, $mailbox)->with('error', 'Failed to get access token: ' . $errorMsg);
+
+            return redirect()->route('mailboxes.connection.'.$type, $mailbox)->with('error', 'Failed to get access token: '.$errorMsg);
         }
-        
+
         $meta = (array) ($mailbox->meta ?? []);
         $meta['oauth'] = $tokenData;
         $mailbox->meta = $meta;
         $mailbox->save();
-        
+
         return redirect()->route('mailboxes.connection.'.$type, $mailbox)->with('success', 'Connected successfully');
     }
-    
+
     /**
      * Disconnect OAuth.
      */
     public function oauthDisconnect(Request $request, Mailbox $mailbox): \Illuminate\Http\RedirectResponse
     {
         $this->authorize('update', $mailbox);
-        
+
         // Meta is stored as array or null
         $meta = is_array($mailbox->meta) ? $mailbox->meta : [];
-        
+
         if (isset($meta['oauth'])) {
             unset($meta['oauth']);
         }
         $mailbox->meta = $meta;
         $mailbox->save();
-        
+
         return redirect()->back()->with('success', 'Disconnected successfully');
     }
-    
+
     /**
      * Send a test email to verify SMTP settings.
      */

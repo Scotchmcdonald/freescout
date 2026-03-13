@@ -42,9 +42,9 @@ test('user can forward conversation', function () {
     // Use flexible checking for attributes that might differ in factory vs implementation
     // Ideally check type
     // expect($newThread->type)->toBe(Thread::TYPE_NOTE); // Type 5 is often used for drafts? The legacy test said 5=Draft?
-    
+
     // Legacy test: 'type' => 5. Let's assume it matches unless we see constants.
-    // Actually, looking at Conversation model constants usually helps. 
+    // Actually, looking at Conversation model constants usually helps.
     // But sticking to AssertDatabaseHas is safer if constants aren't imported.
     $this->assertDatabaseHas('threads', [
         'conversation_id' => $newConversation->id,

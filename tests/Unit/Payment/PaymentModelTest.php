@@ -1,7 +1,7 @@
 <?php
 
-use Modules\Payment\Models\Payment;
 use Modules\Crm\Models\Company;
+use Modules\Payment\Models\Payment;
 
 beforeEach(function () {
     $this->company = Company::factory()->create();

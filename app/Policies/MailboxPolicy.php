@@ -43,7 +43,7 @@ class MailboxPolicy
 
         /** @var (Mailbox&object{pivot: \App\Models\MailboxUser})|null $mailboxWithPivot */
         $mailboxWithPivot = $user->mailboxes->find($mailbox->id);
-        
+
         return $mailboxWithPivot && $mailboxWithPivot->pivot->access >= self::ACCESS_VIEW;
     }
 

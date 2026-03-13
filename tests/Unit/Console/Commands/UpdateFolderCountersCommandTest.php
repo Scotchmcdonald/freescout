@@ -19,12 +19,12 @@ class UpdateFolderCountersCommandTest extends TestCase
     public function test_update_folder_counters_updates_all_folders(): void
     {
         $mailbox = Mailbox::factory()->create();
-        
+
         $folder1 = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
             'type' => Folder::TYPE_INBOX,
         ]);
-        
+
         $folder2 = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
             'type' => Folder::TYPE_DRAFTS,
@@ -38,12 +38,12 @@ class UpdateFolderCountersCommandTest extends TestCase
     {
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
-        
+
         $folder1 = Folder::factory()->create([
             'mailbox_id' => $mailbox1->id,
             'type' => Folder::TYPE_INBOX,
         ]);
-        
+
         $folder2 = Folder::factory()->create([
             'mailbox_id' => $mailbox2->id,
             'type' => Folder::TYPE_INBOX,
@@ -67,7 +67,7 @@ class UpdateFolderCountersCommandTest extends TestCase
     public function test_update_folder_counters_with_conversations(): void
     {
         $mailbox = Mailbox::factory()->create();
-        
+
         $folder = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
             'type' => Folder::TYPE_INBOX,
@@ -95,17 +95,17 @@ class UpdateFolderCountersCommandTest extends TestCase
     {
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
-        
+
         Folder::factory()->create([
             'mailbox_id' => $mailbox1->id,
             'type' => Folder::TYPE_INBOX,
         ]);
-        
+
         Folder::factory()->create([
             'mailbox_id' => $mailbox1->id,
             'type' => Folder::TYPE_DRAFTS,
         ]);
-        
+
         Folder::factory()->create([
             'mailbox_id' => $mailbox2->id,
             'type' => Folder::TYPE_INBOX,

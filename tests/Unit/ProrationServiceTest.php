@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use Modules\PIB\Services\ProrationService;
 use Carbon\Carbon;
+use Modules\PIB\Services\ProrationService;
 use Tests\TestCase;
 
 /**
  * ProrationServiceTest
- * 
+ *
  * Tests proration calculations for mid-month billing changes
  */
 class ProrationServiceTest extends TestCase
@@ -20,8 +20,8 @@ class ProrationServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->service = new ProrationService();
+
+        $this->service = new ProrationService;
     }
 
     public function test_calculates_full_month_proration(): void
@@ -154,10 +154,10 @@ class ProrationServiceTest extends TestCase
 
         // January: 31 days
         $jan = $this->service->calculateDailyRate($monthlyRate, Carbon::parse('2026-01-01'));
-        
+
         // February: 28 days
         $feb = $this->service->calculateDailyRate($monthlyRate, Carbon::parse('2026-02-01'));
-        
+
         // April: 30 days
         $apr = $this->service->calculateDailyRate($monthlyRate, Carbon::parse('2026-04-01'));
 

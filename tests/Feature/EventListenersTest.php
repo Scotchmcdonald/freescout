@@ -7,10 +7,10 @@ use Modules\ContractManager\Events\ContractRevised;
 use Modules\ContractManager\Models\BillingTemplate;
 use Modules\ContractManager\Models\Contract;
 use Modules\Crm\Models\Client;
+use Modules\PIB\Listeners\AdjustBillingOnSoftwareCountChange;
 use Modules\PIB\Listeners\RecalculateProrationOnContractChange;
 use Modules\SoftwareSubscriptions\DataTransferObjects\SoftwareCountChangedData;
 use Modules\SoftwareSubscriptions\Events\SoftwareCountChanged;
-use Modules\PIB\Listeners\AdjustBillingOnSoftwareCountChange;
 
 uses(RefreshDatabase::class);
 
@@ -42,7 +42,7 @@ test('contract revised event triggers proration recalculation for active contrac
     ]);
 
     $event = new ContractRevised($contract, ['monthly_cost' => 100], 'test-event-1');
-    $listener = new RecalculateProrationOnContractChange();
+    $listener = new RecalculateProrationOnContractChange;
 
     // Handle event
     $listener->handle($event);
@@ -70,7 +70,7 @@ test('contract revised event skips proration for inactive contracts', function (
     $contract->status = 'terminated';
 
     $event = new ContractRevised($contract, ['monthly_cost' => 100], 'test-event-2');
-    $listener = new RecalculateProrationOnContractChange();
+    $listener = new RecalculateProrationOnContractChange;
 
     // Handle event
     $listener->handle($event);
@@ -105,7 +105,7 @@ test('contract revised event skips proration when no active templates exist', fu
     ]);
 
     $event = new ContractRevised($contract, ['monthly_cost' => 100], 'test-event-3');
-    $listener = new RecalculateProrationOnContractChange();
+    $listener = new RecalculateProrationOnContractChange;
 
     // Handle event
     $listener->handle($event);
@@ -140,16 +140,16 @@ test('software count changed event adjusts billing template license count', func
     );
 
     $event = new SoftwareCountChanged($data, 'test-event-4');
-    $listener = new AdjustBillingOnSoftwareCountChange();
+    $listener = new AdjustBillingOnSoftwareCountChange;
 
     // Handle event
     $listener->handle($event);
-    
+
     // Verify logging occurred
     Log::shouldHaveReceived('info')
         ->with('PIB: Software count changed, adjusting billing', Mockery::type('array'))
         ->once();
-    
+
     // Refresh template and verify update
     $template->refresh();
     expect($template->product_config['license_count'])->toBe(15);
@@ -180,7 +180,7 @@ test('software count changed event ignores templates without matching subscripti
     );
 
     $event = new SoftwareCountChanged($data, 'test-event-5');
-    $listener = new AdjustBillingOnSoftwareCountChange();
+    $listener = new AdjustBillingOnSoftwareCountChange;
 
     // Handle event
     $listener->handle($event);

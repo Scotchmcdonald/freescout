@@ -18,12 +18,12 @@ class LogLockoutTest extends UnitTestCase
             'email' => 'locked@example.com',
         ]);
         $request->server->set('REMOTE_ADDR', '192.168.1.1');
-        
+
         $event = new Lockout($request);
-        $listener = new LogLockout();
+        $listener = new LogLockout;
 
         $this->app->instance('request', $request);
-        
+
         $listener->handle($event);
 
         $this->assertDatabaseHas('activity_log', [
@@ -38,17 +38,17 @@ class LogLockoutTest extends UnitTestCase
             'email' => 'locked@example.com',
         ]);
         $request->server->set('REMOTE_ADDR', '192.168.1.100');
-        
+
         $event = new Lockout($request);
-        $listener = new LogLockout();
+        $listener = new LogLockout;
 
         $this->app->instance('request', $request);
-        
+
         $listener->handle($event);
 
         $log = ActivityLog::where('description', ActivityLog::DESCRIPTION_USER_LOCKED)->latest()->first();
         $properties = $log->properties;
-        
+
         $this->assertEquals('192.168.1.100', $properties['ip']);
     }
 
@@ -58,17 +58,17 @@ class LogLockoutTest extends UnitTestCase
             'email' => 'test@example.com',
         ]);
         $request->server->set('REMOTE_ADDR', '192.168.1.1');
-        
+
         $event = new Lockout($request);
-        $listener = new LogLockout();
+        $listener = new LogLockout;
 
         $this->app->instance('request', $request);
-        
+
         $listener->handle($event);
 
         $log = ActivityLog::where('description', ActivityLog::DESCRIPTION_USER_LOCKED)->latest()->first();
         $properties = $log->properties;
-        
+
         $this->assertEquals('test@example.com', $properties['email']);
     }
 
@@ -77,9 +77,9 @@ class LogLockoutTest extends UnitTestCase
         $request = Request::create('/login', 'POST', [
             'email' => 'test@example.com',
         ]);
-        
+
         $event = new Lockout($request);
-        $listener = new LogLockout();
+        $listener = new LogLockout;
 
         $this->app->instance('request', $request);
 
@@ -88,14 +88,14 @@ class LogLockoutTest extends UnitTestCase
             $listener->handle($event);
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->fail('Listener should not throw exception: ' . $e->getMessage());
+            $this->fail('Listener should not throw exception: '.$e->getMessage());
         }
     }
 
     public function test_listener_can_be_instantiated(): void
     {
-        $listener = new LogLockout();
-        
+        $listener = new LogLockout;
+
         $this->assertInstanceOf(LogLockout::class, $listener);
     }
 }

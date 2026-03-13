@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Cached Mailbox Service
- * 
+ *
  * Provides cached access to mailbox data to reduce database queries.
  * Uses cache tagging for efficient invalidation.
  */
@@ -27,7 +27,7 @@ class CachedMailboxService
             ->remember(
                 key: "mailbox:{$id}",
                 ttl: self::CACHE_TTL,
-                callback: fn() => Mailbox::with(['folders', 'users'])->find($id)
+                callback: fn () => Mailbox::with(['folders', 'users'])->find($id)
             );
     }
 
@@ -42,7 +42,7 @@ class CachedMailboxService
             ->remember(
                 key: 'mailboxes:all',
                 ttl: self::CACHE_TTL,
-                callback: fn() => Mailbox::with(['folders'])->get()
+                callback: fn () => Mailbox::with(['folders'])->get()
             );
     }
 
@@ -57,7 +57,7 @@ class CachedMailboxService
             ->remember(
                 key: "mailboxes:user:{$userId}",
                 ttl: self::CACHE_TTL,
-                callback: fn() => Mailbox::whereHas('users', function ($query) use ($userId) {
+                callback: fn () => Mailbox::whereHas('users', function ($query) use ($userId) {
                     $query->where('users.id', $userId);
                 })->with(['folders'])->get()
             );
@@ -94,7 +94,7 @@ class CachedMailboxService
     public function warmUp(): void
     {
         $this->all();
-        
+
         $mailboxes = Mailbox::all();
         foreach ($mailboxes as $mailbox) {
             $this->get($mailbox->id);

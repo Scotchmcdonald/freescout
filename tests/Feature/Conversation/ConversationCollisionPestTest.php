@@ -27,7 +27,7 @@ test('viewing updates cache and returns viewers', function () {
     // User 2 views the conversation
     $response2 = $this->actingAs($user2)->postJson(route('collision.viewing', $conversation->id));
     $response2->assertStatus(200);
-    
+
     // User 2 should see User 1
     // The response structure typically contains an array of viewers or similar
     // We check for fragment
@@ -36,7 +36,7 @@ test('viewing updates cache and returns viewers', function () {
     // User 1 views again
     $response3 = $this->actingAs($this->user)->postJson(route('collision.viewing', $conversation->id));
     $response3->assertStatus(200);
-    
+
     // User 1 should see User 2
     $response3->assertJsonFragment(['id' => $user2->id]);
 });

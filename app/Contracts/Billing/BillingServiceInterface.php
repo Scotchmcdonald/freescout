@@ -10,8 +10,7 @@ interface BillingServiceInterface
 {
     /**
      * Get invoices for a specific client.
-     * 
-     * @param int $clientId
+     *
      * @return Collection<int, mixed>
      */
     public function getInvoicesForClient(int $clientId): Collection;

@@ -156,7 +156,7 @@ test('save signature', function () {
 test('save before reply text', function () {
     $adminUser = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
-    $beforeReply = "--- Original Message ---";
+    $beforeReply = '--- Original Message ---';
 
     $this->actingAs($adminUser)
         ->post(route('mailboxes.save_advanced_settings', $mailbox), [

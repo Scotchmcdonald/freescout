@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Console\Commands;
 
-use App\Console\Commands\CreateUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Artisan;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
@@ -35,7 +33,7 @@ class CreateUserCommandTest extends TestCase
             'last_name' => 'Doe',
             'role' => User::ROLE_ADMIN,
         ]);
-        
+
         $this->assertNotNull(User::where('email', 'john.doe@example.com')->first()->email_verified_at);
     }
 

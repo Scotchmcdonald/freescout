@@ -1,10 +1,10 @@
 <?php
 
 use App\Models\User;
-use Modules\PIB\Models\Invoice;
-use Modules\Payment\Models\Payment;
 use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Company;
+use Modules\Payment\Models\Payment;
+use Modules\PIB\Models\Invoice;
 
 beforeEach(function () {
     $this->company = Company::factory()->create();

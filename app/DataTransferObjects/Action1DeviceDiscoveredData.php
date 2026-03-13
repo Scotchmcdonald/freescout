@@ -6,14 +6,14 @@ namespace App\DataTransferObjects;
 
 /**
  * Action1DeviceDiscoveredData - Immutable DTO for Action1DeviceDiscovered event
- * 
+ *
  * Represents device data discovered from Action1 RMM.
  * Uses readonly properties to prevent mutation after creation.
  */
 final readonly class Action1DeviceDiscoveredData
 {
     /**
-     * @param array<string, mixed> $metadata
+     * @param  array<string, mixed>  $metadata
      */
     public function __construct(
         public int $clientId,
@@ -25,11 +25,12 @@ final readonly class Action1DeviceDiscoveredData
         public ?string $assignedUserEmail,
         public array $metadata,
     ) {}
-    
+
     /**
      * Factory method for backward compatibility
-     * 
-     * @param array<string, mixed> $data Raw array data
+     *
+     * @param  array<string, mixed>  $data  Raw array data
+     *
      * @phpstan-param array{
      *     client_id?: int,
      *     hostname?: string,
@@ -40,7 +41,6 @@ final readonly class Action1DeviceDiscoveredData
      *     assigned_user_email?: string|null, assignedUserEmail?: string|null,
      *     metadata?: array<string, mixed>,
      * } $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -55,10 +55,10 @@ final readonly class Action1DeviceDiscoveredData
             metadata: $data['metadata'] ?? [],
         );
     }
-    
+
     /**
      * Convert to array representation
-     * 
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Models;
 
 use App\Models\Mailbox;
-use App\Models\User;
 use Tests\UnitTestCase;
 
 /**
@@ -104,7 +103,7 @@ class MailboxMethodsTest extends UnitTestCase
 
     public function test_get_aliases_handles_comma_separated(): void
     {
-        $this->mailbox->aliases = "first@example.com, second@example.com, third@example.com";
+        $this->mailbox->aliases = 'first@example.com, second@example.com, third@example.com';
         $this->mailbox->save();
 
         $aliases = $this->mailbox->getAliases();
@@ -132,7 +131,7 @@ class MailboxMethodsTest extends UnitTestCase
 
     public function test_remove_mailbox_emails_from_list_removes_aliases(): void
     {
-        $this->mailbox->aliases = "alias@example.com";
+        $this->mailbox->aliases = 'alias@example.com';
         $this->mailbox->save();
 
         $emails = [
@@ -207,7 +206,7 @@ class MailboxMethodsTest extends UnitTestCase
 
     public function test_get_aliases_handles_special_characters_in_name(): void
     {
-        $this->mailbox->aliases = "John Doe (Sales) <sales@example.com>";
+        $this->mailbox->aliases = 'John Doe (Sales) <sales@example.com>';
         $this->mailbox->save();
 
         $aliases = $this->mailbox->getAliases();
@@ -217,7 +216,7 @@ class MailboxMethodsTest extends UnitTestCase
 
     public function test_get_aliases_handles_unicode_in_name(): void
     {
-        $this->mailbox->aliases = "日本語 <japanese@example.com>";
+        $this->mailbox->aliases = '日本語 <japanese@example.com>';
         $this->mailbox->save();
 
         $aliases = $this->mailbox->getAliases();

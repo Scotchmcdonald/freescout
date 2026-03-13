@@ -19,15 +19,15 @@ class UpdateMailboxCountersTest extends UnitTestCase
 {
     public function test_listener_can_be_instantiated(): void
     {
-        $listener = new UpdateMailboxCounters();
-        
+        $listener = new UpdateMailboxCounters;
+
         $this->assertInstanceOf(UpdateMailboxCounters::class, $listener);
     }
 
     public function test_listener_has_handle_method(): void
     {
-        $listener = new UpdateMailboxCounters();
-        
+        $listener = new UpdateMailboxCounters;
+
         $this->assertTrue(method_exists($listener, 'handle'));
     }
 
@@ -35,7 +35,7 @@ class UpdateMailboxCountersTest extends UnitTestCase
     {
         $reflection = new \ReflectionClass(UpdateMailboxCounters::class);
         $method = $reflection->getMethod('handle');
-        
+
         $this->assertTrue($method->isPublic());
     }
 
@@ -43,12 +43,12 @@ class UpdateMailboxCountersTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        
+
         $event = new ConversationStatusChanged($conversation);
-        $listener = new UpdateMailboxCounters();
-        
+        $listener = new UpdateMailboxCounters;
+
         $listener->handle($event);
-        
+
         // Mailbox doesn't have updateFoldersCounters method
         $this->assertFalse(method_exists($mailbox, 'updateFoldersCounters'));
     }
@@ -60,13 +60,13 @@ class UpdateMailboxCountersTest extends UnitTestCase
             'mailbox_id' => $mailbox->id,
             'status' => Conversation::STATUS_ACTIVE,
         ]);
-        
+
         $event = new ConversationStatusChanged($conversation);
-        
-        $listener = new UpdateMailboxCounters();
-        
+
+        $listener = new UpdateMailboxCounters;
+
         $listener->handle($event);
-        
+
         $this->assertEquals(Conversation::STATUS_ACTIVE, $conversation->status);
     }
 
@@ -78,13 +78,13 @@ class UpdateMailboxCountersTest extends UnitTestCase
             'mailbox_id' => $mailbox->id,
             'user_id' => $user->id,
         ]);
-        
+
         $event = new ConversationUserChanged($conversation, null, $user);
-        
-        $listener = new UpdateMailboxCounters();
-        
+
+        $listener = new UpdateMailboxCounters;
+
         $listener->handle($event);
-        
+
         $this->assertEquals($user->id, $conversation->user_id);
     }
 
@@ -93,7 +93,7 @@ class UpdateMailboxCountersTest extends UnitTestCase
         $reflection = new \ReflectionClass(UpdateMailboxCounters::class);
         $method = $reflection->getMethod('handle');
         $returnType = $method->getReturnType();
-        
+
         $this->assertEquals('void', $returnType->getName());
     }
 
@@ -102,14 +102,14 @@ class UpdateMailboxCountersTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         $user = User::factory()->create();
-        
+
         $event1 = new ConversationStatusChanged($conversation);
         $event2 = new ConversationUserChanged($conversation, null, $user);
-        
-        $listener = new UpdateMailboxCounters();
+
+        $listener = new UpdateMailboxCounters;
         $listener->handle($event1);
         $listener->handle($event2);
-        
+
         $this->expectNotToPerformAssertions();
     }
 
@@ -117,15 +117,15 @@ class UpdateMailboxCountersTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        
+
         $event = new ConversationStatusChanged($conversation);
-        
-        $listener = new UpdateMailboxCounters();
-        
+
+        $listener = new UpdateMailboxCounters;
+
         $start = microtime(true);
         $listener->handle($event);
         $duration = microtime(true) - $start;
-        
+
         // Should complete very quickly (< 1 second)
         $this->assertLessThan(1.0, $duration);
     }
@@ -137,13 +137,13 @@ class UpdateMailboxCountersTest extends UnitTestCase
             'mailbox_id' => $mailbox->id,
             'status' => Conversation::STATUS_ACTIVE,
         ]);
-        
+
         $event = new ConversationStatusChanged($conversation);
-        
-        $listener = new UpdateMailboxCounters();
-        
+
+        $listener = new UpdateMailboxCounters;
+
         $listener->handle($event);
-        
+
         $this->expectNotToPerformAssertions();
     }
 
@@ -155,13 +155,13 @@ class UpdateMailboxCountersTest extends UnitTestCase
             'mailbox_id' => $mailbox->id,
             'user_id' => $user->id,
         ]);
-        
+
         $event = new ConversationUserChanged($conversation, null, $user);
-        
-        $listener = new UpdateMailboxCounters();
-        
+
+        $listener = new UpdateMailboxCounters;
+
         $listener->handle($event);
-        
+
         $this->expectNotToPerformAssertions();
     }
 
@@ -172,41 +172,41 @@ class UpdateMailboxCountersTest extends UnitTestCase
             'mailbox_id' => $mailbox->id,
             'user_id' => null,
         ]);
-        
+
         $event = new ConversationStatusChanged($conversation);
-        
-        $listener = new UpdateMailboxCounters();
+
+        $listener = new UpdateMailboxCounters;
         $listener->handle($event);
-        
+
         $this->assertNull($conversation->user_id);
     }
 
     public function test_handle_works_with_different_conversation_statuses(): void
     {
         $mailbox = Mailbox::factory()->create();
-        $listener = new UpdateMailboxCounters();
-        
+        $listener = new UpdateMailboxCounters;
+
         // Test with active conversation
         $activeConv = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'status' => Conversation::STATUS_ACTIVE,
         ]);
         $listener->handle(new ConversationStatusChanged($activeConv));
-        
+
         // Test with closed conversation
         $closedConv = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'status' => Conversation::STATUS_CLOSED,
         ]);
         $listener->handle(new ConversationStatusChanged($closedConv));
-        
+
         // Test with spam conversation
         $spamConv = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'status' => Conversation::STATUS_SPAM,
         ]);
         $listener->handle(new ConversationStatusChanged($spamConv));
-        
+
         $this->expectNotToPerformAssertions();
     }
 
@@ -216,13 +216,13 @@ class UpdateMailboxCountersTest extends UnitTestCase
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
         ]);
-        
+
         $event = new ConversationStatusChanged($conversation);
-        
-        $listener = new UpdateMailboxCounters();
-        
+
+        $listener = new UpdateMailboxCounters;
+
         $listener->handle($event);
-        
+
         $this->assertNotNull($conversation->mailbox);
     }
 }

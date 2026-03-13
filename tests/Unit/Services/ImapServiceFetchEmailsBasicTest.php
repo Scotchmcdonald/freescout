@@ -24,7 +24,7 @@ class ImapServiceFetchEmailsBasicTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Mock all logging to avoid expectations issues
         Log::shouldReceive('debug')->byDefault();
         Log::shouldReceive('info')->byDefault();
@@ -182,7 +182,7 @@ class ImapServiceFetchEmailsBasicTest extends TestCase
 
         $service = Mockery::mock(ImapService::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $service->shouldReceive('createClient')->andReturn($mockClient);
-        
+
         $processedOrder = [];
         $service->shouldReceive('processMessage')->andReturnUsing(function ($mailbox, $message) use (&$processedOrder) {
             $processedOrder[] = $message->getMessageId();

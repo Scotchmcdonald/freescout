@@ -17,6 +17,7 @@ class UpdateUserRequest extends FormRequest
     {
         // Authorization: must be able to update the target user
         $targetUser = $this->route('user');
+
         return $this->user()?->can('update', $targetUser) ?? false;
     }
 

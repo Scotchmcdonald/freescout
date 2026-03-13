@@ -216,26 +216,26 @@ class UserController extends Controller
         }
 
         $reassignTo = $request->input('reassign_to');
-        
+
         if ($user->conversations()->exists()) {
-            if (!$reassignTo) {
+            if (! $reassignTo) {
                 return back()->withErrors([
                     'error' => 'Cannot delete user with existing conversations. Select a user to reassign conversations to.',
                 ]);
             }
-            
+
             // Validate reassign target
             /** @var \App\Models\User|null $targetUser */
             $targetUser = User::find($reassignTo);
-            if (!$targetUser || $targetUser->id === $user->id || $targetUser->isDeleted()) {
+            if (! $targetUser || $targetUser->id === $user->id || $targetUser->isDeleted()) {
                 return back()->withErrors([
                     'error' => 'Invalid user selected for conversation reassignment.',
                 ]);
             }
-            
+
             // Reassign all conversations
             $user->conversations()->update(['user_id' => $targetUser->id]);
-            
+
             // Log the reassignment
             \Illuminate\Support\Facades\Log::info(
                 "Reassigned conversations from user {$user->id} to user {$targetUser->id} during deletion"
@@ -247,7 +247,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.index')
-            ->with('success', 'User deleted successfully.' . ($reassignTo ? ' Conversations reassigned.' : ''));
+            ->with('success', 'User deleted successfully.'.($reassignTo ? ' Conversations reassigned.' : ''));
     }
 
     /**
@@ -336,7 +336,7 @@ class UserController extends Controller
                 // Allow modules to handle custom actions
                 $response = ['success' => false, 'message' => 'Invalid action'];
                 \Eventy::filter('users.ajax.response_default', $response, $request);
-                
+
                 return response()->json($response, 400);
         }
     }
@@ -550,7 +550,7 @@ class UserController extends Controller
 
         $user = User::where('invite_hash', $hash)->first();
 
-        if (!$user) {
+        if (! $user) {
             abort(404, 'Invalid invitation link');
         }
 
@@ -569,12 +569,12 @@ class UserController extends Controller
 
         $user = User::where('invite_hash', $hash)->first();
 
-        if (!$user) {
+        if (! $user) {
             abort(404, 'Invalid invitation link');
         }
 
         $validated = $request->validate([
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'password' => 'required|string|min:8|confirmed',
             'job_title' => 'nullable|string|max:100',
             'phone' => 'nullable|string|max:60',
@@ -629,7 +629,7 @@ class UserController extends Controller
         $this->authorize('create', User::class); // Assuming admin check
 
         // Logic to save permissions would go here
-        
+
         return redirect()->route('permissions')->with('success', 'Permissions saved successfully.');
     }
 
@@ -667,7 +667,7 @@ class UserController extends Controller
 
         // Verify current password if changing own password
         if ($isOwnProfile) {
-            if (!Hash::check($validated['current_password'], $user->password)) {
+            if (! Hash::check($validated['current_password'], $user->password)) {
                 return back()->withErrors(['current_password' => __('Current password is incorrect')]);
             }
         }

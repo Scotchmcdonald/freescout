@@ -9,12 +9,10 @@ use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Support\Collection;
 use Tests\UnitTestCase;
 
 class SendNotificationEdgeCasesTest extends UnitTestCase
 {
-
     // Additional Edge Cases for SendNotificationToUsers
 
     public function test_handles_user_without_email_address(): void

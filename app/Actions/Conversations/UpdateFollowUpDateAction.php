@@ -14,16 +14,16 @@ use App\Models\Conversation;
 class UpdateFollowUpDateAction
 {
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function execute(Conversation $conversation, array $data): void
     {
         $statusValue = isset($data['status']) && is_numeric($data['status']) ? intval($data['status']) : null;
         $typeValue = isset($data['type']) && is_numeric($data['type']) ? intval($data['type']) : null;
-        
+
         $status = $statusValue !== null ? ConversationStatus::tryFrom($statusValue) : null;
         $type = $typeValue !== null ? ThreadType::tryFrom($typeValue) : null;
-        
+
         $isClosing = $status === ConversationStatus::Closed;
         $isNote = $type === ThreadType::NOTE;
 
@@ -33,10 +33,10 @@ class UpdateFollowUpDateAction
                 'follow_up_date' => null,
                 'follow_up_reminded_at' => null,
             ]);
-        } elseif (!$isNote) {
+        } elseif (! $isNote) {
             // Set follow-up for replies (not internal notes)
             $defaultDays = config('app.default_follow_up_days', 3);
-            $followUpDate = $data['follow_up_date'] 
+            $followUpDate = $data['follow_up_date']
                 ?? now()->addDays(is_int($defaultDays) ? $defaultDays : 3)->startOfDay();
 
             $conversation->update([

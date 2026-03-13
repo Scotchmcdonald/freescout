@@ -12,10 +12,10 @@ use Tests\TestCase;
 
 /**
  * CircuitBreaker Integration Tests
- * 
+ *
  * Tests the circuit breaker pattern implementation that protects
  * the system from cascading failures when external services fail.
- * 
+ *
  * Critical for:
  * - Helcim payment gateway
  * - Google Workspace API
@@ -34,9 +34,9 @@ class CircuitBreakerTest extends TestCase
     {
         parent::setUp();
         $this->breaker = app(CircuitBreaker::class);
-        
+
         // Ensure circuit_breaker_states table exists
-        if (!DB::getSchemaBuilder()->hasTable('circuit_breaker_states')) {
+        if (! DB::getSchemaBuilder()->hasTable('circuit_breaker_states')) {
             DB::statement('
                 CREATE TABLE circuit_breaker_states (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,7 +50,7 @@ class CircuitBreakerTest extends TestCase
                 )
             ');
         }
-        
+
         // Reset any existing state
         DB::table('circuit_breaker_states')->truncate();
     }
@@ -137,6 +137,7 @@ class CircuitBreakerTest extends TestCase
 
         $this->breaker->call('blocked_service', function () use (&$callbackCalled) {
             $callbackCalled = true;
+
             return 'should not reach here';
         });
 
@@ -240,7 +241,8 @@ class CircuitBreakerTest extends TestCase
                     if ($i < 5) {
                         throw new \Exception('Gateway timeout');
                     }
-                    return ['status' => 'success', 'transaction_id' => 'TXN-' . $i];
+
+                    return ['status' => 'success', 'transaction_id' => 'TXN-'.$i];
                 });
                 $successfulPayments++;
             } catch (\RuntimeException $e) {

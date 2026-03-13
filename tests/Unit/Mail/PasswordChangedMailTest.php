@@ -15,7 +15,7 @@ class PasswordChangedMailTest extends UnitTestCase
     {
         $user = User::factory()->create(['id' => 1]);
         Option::setValue('company_name', 'Acme Corp');
-        
+
         $mailable = new PasswordChanged($user);
         $envelope = $mailable->envelope();
 
@@ -27,7 +27,7 @@ class PasswordChangedMailTest extends UnitTestCase
     {
         config(['app.name' => 'FreeScout']);
         $user = User::factory()->create(['id' => 1]);
-        
+
         $mailable = new PasswordChanged($user);
         $envelope = $mailable->envelope();
 
@@ -38,7 +38,7 @@ class PasswordChangedMailTest extends UnitTestCase
     public function test_content_uses_correct_view(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $mailable = new PasswordChanged($user);
         $content = $mailable->content();
 
@@ -48,7 +48,7 @@ class PasswordChangedMailTest extends UnitTestCase
     public function test_content_uses_correct_text_view(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $mailable = new PasswordChanged($user);
         $content = $mailable->content();
 
@@ -62,7 +62,7 @@ class PasswordChangedMailTest extends UnitTestCase
             'first_name' => 'John',
             'email' => 'john@example.com',
         ]);
-        
+
         $mailable = new PasswordChanged($user);
 
         $this->assertInstanceOf(User::class, $mailable->user);
@@ -73,7 +73,7 @@ class PasswordChangedMailTest extends UnitTestCase
     public function test_mailable_can_be_constructed(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $mailable = new PasswordChanged($user);
 
         $this->assertInstanceOf(PasswordChanged::class, $mailable);

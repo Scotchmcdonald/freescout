@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 /**
  * Architecture Tests - Module Boundaries
- * 
+ *
  * These tests enforce proper module isolation and dependency rules.
  * Based on SYSTEM_ARCHITECTURE.md Section 7 (Module Architecture)
  */
-
 test('modules should not depend on other module implementations')
     ->expect('Modules\*\Services')
     ->not->toUse([

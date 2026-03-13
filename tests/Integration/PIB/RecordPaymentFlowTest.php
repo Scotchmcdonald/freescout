@@ -1,12 +1,12 @@
 <?php
 
 use App\Models\User;
-use Modules\PIB\Models\Invoice;
-use Modules\Payment\Models\Payment;
+use Illuminate\Support\Facades\Event;
 use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Company;
-use Illuminate\Support\Facades\Event;
+use Modules\Payment\Models\Payment;
 use Modules\PIB\Events\InvoicePaid;
+use Modules\PIB\Models\Invoice;
 
 beforeEach(function () {
     $this->company = Company::factory()->create();
@@ -253,18 +253,18 @@ describe('Record Payment – access control', function () {
 describe('Record Payment – isPayable guard', function () {
     it('blocks payment on a draft invoice', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'   => $this->client->id,
-            'company_id'  => $this->company->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
             'total_amount' => 300.00,
             'amount_paid' => 0,
-            'status'      => Invoice::STATUS_DRAFT,
+            'status' => Invoice::STATUS_DRAFT,
         ]);
 
         $response = $this->actingAs($this->admin)
             ->post(route('admin.billing.invoices.payment', $invoice->id), [
-                'amount'         => 100.00,
+                'amount' => 100.00,
                 'payment_method' => 'cash',
-                'received_date'  => now()->format('Y-m-d'),
+                'received_date' => now()->format('Y-m-d'),
             ]);
 
         $response->assertSessionHas('error');
@@ -274,18 +274,18 @@ describe('Record Payment – isPayable guard', function () {
 
     it('blocks payment on a finalized invoice', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'   => $this->client->id,
-            'company_id'  => $this->company->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
             'total_amount' => 200.00,
             'amount_paid' => 0,
-            'status'      => Invoice::STATUS_FINALIZED,
+            'status' => Invoice::STATUS_FINALIZED,
         ]);
 
         $response = $this->actingAs($this->admin)
             ->post(route('admin.billing.invoices.payment', $invoice->id), [
-                'amount'         => 100.00,
+                'amount' => 100.00,
                 'payment_method' => 'cash',
-                'received_date'  => now()->format('Y-m-d'),
+                'received_date' => now()->format('Y-m-d'),
             ]);
 
         $response->assertSessionHas('error');
@@ -294,18 +294,18 @@ describe('Record Payment – isPayable guard', function () {
 
     it('allows payment on a disputed invoice', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'   => $this->client->id,
-            'company_id'  => $this->company->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
             'total_amount' => 500.00,
             'amount_paid' => 0,
-            'status'      => Invoice::STATUS_DISPUTED,
+            'status' => Invoice::STATUS_DISPUTED,
         ]);
 
         $response = $this->actingAs($this->admin)
             ->post(route('admin.billing.invoices.payment', $invoice->id), [
-                'amount'         => 500.00,
+                'amount' => 500.00,
                 'payment_method' => 'wire',
-                'received_date'  => now()->format('Y-m-d'),
+                'received_date' => now()->format('Y-m-d'),
             ]);
 
         $response->assertRedirect();
@@ -315,18 +315,18 @@ describe('Record Payment – isPayable guard', function () {
 
     it('allows payment on an overdue invoice', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'   => $this->client->id,
-            'company_id'  => $this->company->id,
+            'client_id' => $this->client->id,
+            'company_id' => $this->company->id,
             'total_amount' => 400.00,
             'amount_paid' => 0,
-            'status'      => Invoice::STATUS_OVERDUE,
+            'status' => Invoice::STATUS_OVERDUE,
         ]);
 
         $response = $this->actingAs($this->admin)
             ->post(route('admin.billing.invoices.payment', $invoice->id), [
-                'amount'         => 400.00,
+                'amount' => 400.00,
                 'payment_method' => 'ach',
-                'received_date'  => now()->format('Y-m-d'),
+                'received_date' => now()->format('Y-m-d'),
             ]);
 
         $response->assertRedirect();

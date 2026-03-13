@@ -28,7 +28,7 @@ class CustomerReply extends Mailable
         $mailbox = $this->conversation->mailbox;
 
         return new Envelope(
-            subject: 'Re: ' . $this->conversation->subject,
+            subject: 'Re: '.$this->conversation->subject,
             from: $mailbox->email,
             replyTo: [$mailbox->email],
         );
@@ -41,7 +41,7 @@ class CustomerReply extends Mailable
 
         // Process body to replace internal attachment links with public ones
         $body = $this->thread->body;
-        
+
         if ($body) {
             $body = preg_replace_callback(
                 '/(src|href)=["\'](?:[^"\']*)attachments\/(\d+)\/download(?:[^"\']*)["\']/',
@@ -49,12 +49,13 @@ class CustomerReply extends Mailable
                     $attr = $matches[1];
                     $id = $matches[2];
                     $url = URL::signedRoute('attachments.public_download', ['id' => $id]);
-                    return $attr . '="' . $url . '"';
+
+                    return $attr.'="'.$url.'"';
                 },
                 $body
             );
         }
-        
+
         return new Content(
             view: 'emails.customer.reply',
             with: [
@@ -73,14 +74,15 @@ class CustomerReply extends Mailable
         foreach ($this->thread->attachments as $attachment) {
             // Attach file from storage
             if ($attachment->file_dir && $attachment->file_name) {
-                 $path = storage_path('app/' . $attachment->file_dir . '/' . $attachment->file_name);
-                 if (file_exists($path)) {
-                     $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath($path)
+                $path = storage_path('app/'.$attachment->file_dir.'/'.$attachment->file_name);
+                if (file_exists($path)) {
+                    $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath($path)
                         ->as($attachment->file_name)
                         ->withMime($attachment->mime_type ?? 'application/octet-stream');
-                 }
+                }
             }
         }
+
         return $attachments;
     }
 }

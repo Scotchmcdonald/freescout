@@ -20,9 +20,9 @@ class StoreWebhookChannelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'resource_type'  => ['required', 'string', 'max:50'],
-            'resource_id'    => ['required', 'string', 'max:255'],
-            'webhook_url'    => ['required', 'url', 'max:512'],
+            'resource_type' => ['required', 'string', 'max:50'],
+            'resource_id' => ['required', 'string', 'max:255'],
+            'webhook_url' => ['required', 'url', 'max:512'],
             'duration_hours' => ['required', 'integer', 'min:1', 'max:43200'],
         ];
     }

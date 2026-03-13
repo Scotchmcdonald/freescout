@@ -19,7 +19,6 @@ use Tests\UnitTestCase;
 
 class SendAutoReplyTest extends UnitTestCase
 {
-
     public function test_job_can_be_instantiated(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -114,7 +113,7 @@ class SendAutoReplyTest extends UnitTestCase
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
         $job->handle($smtpService);
 
-        Mail::assertSent(AutoReply::class, function ($mail) use ($customer) {
+        Mail::assertSent(AutoReply::class, function ($mail) {
             return $mail->hasTo('customer@example.com');
         });
 
@@ -303,7 +302,7 @@ class SendAutoReplyTest extends UnitTestCase
             ->andThrow(new \Exception('SMTP Error'));
 
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        
+
         try {
             $job->handle($smtpService);
         } catch (\Exception $e) {
@@ -391,7 +390,7 @@ class SendAutoReplyTest extends UnitTestCase
         $job->handle($smtpService);
 
         Mail::assertSent(AutoReply::class, function ($mail) {
-            return isset($mail->headers['In-Reply-To']) && 
+            return isset($mail->headers['In-Reply-To']) &&
                    isset($mail->headers['References']);
         });
     }

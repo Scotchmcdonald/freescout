@@ -27,7 +27,7 @@ class RunTestsParallel extends Command
     public function handle(): int
     {
         $cmd = ['php', base_path('scripts/parallel_test_runner.php')];
-        
+
         if ($this->option('detect')) {
             $cmd[] = '--detect';
         }
@@ -47,16 +47,16 @@ class RunTestsParallel extends Command
             $cmd[] = '--isolated-only';
         }
         if ($this->option('filter')) {
-            $cmd[] = '--filter=' . $this->option('filter');
+            $cmd[] = '--filter='.$this->option('filter');
         }
         if ($this->option('processes')) {
-            $cmd[] = '--processes=' . $this->option('processes');
+            $cmd[] = '--processes='.$this->option('processes');
         }
         if ($this->option('timeout')) {
-            $cmd[] = '--timeout=' . $this->option('timeout');
+            $cmd[] = '--timeout='.$this->option('timeout');
         }
         if ($this->option('batch-size') && $this->option('batch-size') != 1) {
-            $cmd[] = '--batch-size=' . $this->option('batch-size');
+            $cmd[] = '--batch-size='.$this->option('batch-size');
         }
         if ($this->option('coverage')) {
             $cmd[] = '--coverage';
@@ -64,11 +64,11 @@ class RunTestsParallel extends Command
         if ($this->output->isVerbose()) {
             $cmd[] = '-v';
         }
-        
+
         $process = new Process($cmd, base_path());
         $process->setTimeout(null);
         $process->setTty(Process::isTtySupported());
-        
+
         return $process->run(function ($type, $buffer) {
             $this->output->write($buffer);
         });

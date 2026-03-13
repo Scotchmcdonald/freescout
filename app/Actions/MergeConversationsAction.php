@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Action class for merging conversations.
- * 
+ *
  * Encapsulates the logic for merging two conversations into one,
  * including thread migration, metadata updates, and notifications.
  */
@@ -26,7 +26,7 @@ class MergeConversationsAction
     {
         // Validate conversations can be merged
         $validation = $this->validateMerge($source, $target);
-        if (!$validation['valid']) {
+        if (! $validation['valid']) {
             return ['success' => false, 'message' => $validation['message']];
         }
 
@@ -57,7 +57,7 @@ class MergeConversationsAction
                 \Eventy::action('conversation.merged', $target, $source, $user);
 
                 $freshTarget = $target->fresh();
-                if (!($freshTarget instanceof Conversation)) {
+                if (! ($freshTarget instanceof Conversation)) {
                     throw new \Exception('Failed to refresh target conversation');
                 }
 
@@ -70,7 +70,7 @@ class MergeConversationsAction
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to merge conversations: ' . $e->getMessage(),
+                'message' => 'Failed to merge conversations: '.$e->getMessage(),
             ];
         }
     }

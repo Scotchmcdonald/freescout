@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\Customer;
-use App\Models\User;
-use App\Models\Email;
 use App\Models\Conversation;
+use App\Models\Customer;
+use App\Models\Email;
+use App\Models\User;
 
 test('create customer requires authentication', function () {
     $this->post(route('customers.store'), [
@@ -14,7 +14,7 @@ test('create customer requires authentication', function () {
 
 test('can create customer with valid data', function () {
     $user = User::factory()->create();
-    $email = 'newcustomerUser' . time() . '@example.com';
+    $email = 'newcustomerUser'.time().'@example.com';
 
     $response = $this->actingAs($user)->post(route('customers.store'), [
         'first_name' => 'John',
@@ -66,7 +66,7 @@ test('can view single customer details', function () {
     $user = User::factory()->create();
     $customer = Customer::factory()->create(['first_name' => 'Jane', 'last_name' => 'Smith']);
     Email::factory()->create(['customer_id' => $customer->id, 'email' => 'jane@example.com']);
-    
+
     // Setup some conversations
     Conversation::factory()->create(['customer_id' => $customer->id, 'subject' => 'Issue #1']);
 
@@ -103,10 +103,10 @@ test('can update customer details', function () {
 
 test('can merge two customers', function () {
     $user = User::factory()->create();
-    
+
     $source = Customer::factory()->create(['first_name' => 'Source']);
     $target = Customer::factory()->create(['first_name' => 'Target']);
-    
+
     $conv = Conversation::factory()->create(['customer_id' => $source->id]);
 
     $response = $this->actingAs($user)->post('/customers/merge', [

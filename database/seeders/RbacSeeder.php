@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Role;
 use App\Models\Permission;
-use Nwidart\Modules\Facades\Module;
+use App\Models\Role;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Log;
+use Nwidart\Modules\Facades\Module;
 
 /**
  * Idempotent RBAC Seeder — safe to run repeatedly.
@@ -35,7 +35,7 @@ class RbacSeeder extends Seeder
     /**
      * Pass 1: Register all permissions.
      *
-     * @param array<string, mixed> $config
+     * @param  array<string, mixed>  $config
      */
     protected function seedPermissions(array $config): void
     {
@@ -54,7 +54,7 @@ class RbacSeeder extends Seeder
         }
 
         // ── Dynamic module permissions from module.json ──
-        if (!class_exists(Module::class)) {
+        if (! class_exists(Module::class)) {
             return;
         }
 
@@ -64,7 +64,7 @@ class RbacSeeder extends Seeder
 
             // Granular permissions declared in module.json "permissions" key
             $definedPermissions = $module->get('permissions', []);
-            if (!is_array($definedPermissions)) {
+            if (! is_array($definedPermissions)) {
                 continue;
             }
 
@@ -81,13 +81,13 @@ class RbacSeeder extends Seeder
             }
         }
 
-        Log::info('[RbacSeeder] Permissions synced — total: ' . Permission::count());
+        Log::info('[RbacSeeder] Permissions synced — total: '.Permission::count());
     }
 
     /**
      * Pass 2: Create/update all roles from config.
      *
-     * @param array<string, mixed> $config
+     * @param  array<string, mixed>  $config
      */
     protected function seedRoles(array $config): void
     {
@@ -98,23 +98,23 @@ class RbacSeeder extends Seeder
             $role = Role::firstOrCreate(
                 ['name' => $name],
                 [
-                    'label'          => $attrs['label'],
+                    'label' => $attrs['label'],
                     'is_super_admin' => $attrs['is_super_admin'] ?? false,
-                    'scope'          => $attrs['scope'] ?? 'internal',
-                    'sort_order'     => $attrs['sort_order'] ?? 0,
+                    'scope' => $attrs['scope'] ?? 'internal',
+                    'sort_order' => $attrs['sort_order'] ?? 0,
                 ]
             );
 
             // Update attributes if they changed in config
             $role->update([
-                'label'          => $attrs['label'],
+                'label' => $attrs['label'],
                 'is_super_admin' => $attrs['is_super_admin'] ?? false,
-                'scope'          => $attrs['scope'] ?? 'internal',
-                'sort_order'     => $attrs['sort_order'] ?? 0,
+                'scope' => $attrs['scope'] ?? 'internal',
+                'sort_order' => $attrs['sort_order'] ?? 0,
             ]);
         }
 
-        Log::info('[RbacSeeder] Roles synced — total: ' . Role::count());
+        Log::info('[RbacSeeder] Roles synced — total: '.Role::count());
     }
 
     /**
@@ -123,7 +123,7 @@ class RbacSeeder extends Seeder
      * Uses syncWithoutDetaching() so that permissions added manually via the UI
      * are never removed, but the baseline defined in config is always present.
      *
-     * @param array<string, mixed> $config
+     * @param  array<string, mixed>  $config
      */
     protected function seedRolePermissions(array $config): void
     {
@@ -132,7 +132,7 @@ class RbacSeeder extends Seeder
 
         foreach ($rolePermissions as $roleName => $permissions) {
             $role = Role::where('name', $roleName)->first();
-            if (!$role) {
+            if (! $role) {
                 Log::warning("[RbacSeeder] Role '{$roleName}' not found — skipping assignment.");
                 continue;
             }

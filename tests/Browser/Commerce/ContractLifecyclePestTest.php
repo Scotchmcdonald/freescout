@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
-use Modules\Crm\Models\Client;
 use Modules\ContractManager\Models\Contract;
+use Modules\Crm\Models\Client;
 
 function getContractLifecycleAdmin(): User
 {
@@ -13,7 +13,11 @@ function getContractLifecycleAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -22,7 +26,7 @@ function createLifecycleContract(Client $client, array $overrides = []): Contrac
     return Contract::create(array_merge([
         'client_id' => $client->id,
         'title' => 'Test Contract',
-        'contract_number' => 'CON-' . uniqid(),
+        'contract_number' => 'CON-'.uniqid(),
         'status' => 'active',
         'start_date' => now(),
         'contract_type' => 'managed_service',

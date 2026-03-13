@@ -47,8 +47,8 @@ class ClientEnrollmentWorkflowTest extends TestCase
                 'status' => 'active',
                 'asset_type' => 'Server', // Assuming logic checks for 'Server' or uses all assets
             ]);
-            // Create other assets that shouldn't initiate per_asset_price if logic differentiates, 
-            // but the prompt implied "Servers" specifically have the fee. 
+            // Create other assets that shouldn't initiate per_asset_price if logic differentiates,
+            // but the prompt implied "Servers" specifically have the fee.
             // If the Billing Logic relies on count(), we assume it counts correctly.
             // For this test, valid Asset existence is key.
         }
@@ -70,21 +70,21 @@ class ClientEnrollmentWorkflowTest extends TestCase
 
         // 6. Assertions
         // Expect: $550 (Base) + $10 (2 Servers * $5) = $560
-        // We assume the generator logic handles the asset counting for 'per_asset_price' 
-        // OR the base price covers it. 
+        // We assume the generator logic handles the asset counting for 'per_asset_price'
+        // OR the base price covers it.
         // Based on previous InvoiceGenerator analysis:
         // 'service_plan' type handles 'base_price' AND 'per_asset_price' * asset_count.
-        
+
         $expectedTotal = 560.00;
-        
+
         // Check Line Items
         // 1. Plan Base: $550
         // 2. Asset Charge: $10 (2 * 5)
-        
+
         // Note: The InvoiceGenerator code showed:
         // if (!empty($config['per_asset_price'])) { ... getAssetCount() ... }
         // We need to ensure getAssetCount return 2 for the 'active' assets we created.
-        
-        $this->assertEquals($expectedTotal, $invoice->total_amount, "Invoice total should be $560.00");
+
+        $this->assertEquals($expectedTotal, $invoice->total_amount, 'Invoice total should be $560.00');
     }
 }

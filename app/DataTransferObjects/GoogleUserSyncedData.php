@@ -6,14 +6,14 @@ namespace App\DataTransferObjects;
 
 /**
  * GoogleUserSyncedData - Immutable DTO for GoogleUserSynced event
- * 
+ *
  * Represents user data synchronized from Google Workspace.
  * Uses readonly properties to prevent mutation after creation.
  */
 final readonly class GoogleUserSyncedData
 {
     /**
-     * @param array<string, mixed> $metadata
+     * @param  array<string, mixed>  $metadata
      */
     public function __construct(
         public int $clientId,
@@ -25,11 +25,12 @@ final readonly class GoogleUserSyncedData
         public string $orgUnitPath,
         public array $metadata,
     ) {}
-    
+
     /**
      * Factory method for backward compatibility
-     * 
-     * @param array<string, mixed> $data Raw array data
+     *
+     * @param  array<string, mixed>  $data  Raw array data
+     *
      * @phpstan-param array{
      *     client_id?: int,
      *     email?: string,
@@ -40,7 +41,6 @@ final readonly class GoogleUserSyncedData
      *     org_unit_path?: string, orgUnitPath?: string,
      *     metadata?: array<string, mixed>,
      * } $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -55,10 +55,10 @@ final readonly class GoogleUserSyncedData
             metadata: $data['metadata'] ?? [],
         );
     }
-    
+
     /**
      * Convert to array representation
-     * 
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

@@ -13,11 +13,11 @@ use Tests\TestCase;
 
 /**
  * AtomicCounterService Integration Tests
- * 
+ *
  * Tests thread-safe counter operations critical for financial data integrity.
  * The AtomicCounterService provides atomic increment/decrement operations
  * that prevent lost updates under concurrent load.
- * 
+ *
  * Critical for:
  * - Billing counter accuracy
  * - Credit balance integrity
@@ -35,9 +35,9 @@ class AtomicCounterServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->service = app(AtomicCounterService::class);
-        
+
         // Drop and create test table for atomic counter tests
         Schema::dropIfExists('test_counters');
         Schema::create('test_counters', function ($table) {
@@ -68,20 +68,20 @@ class AtomicCounterServiceTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        
+
         $newValue = $this->service->increment(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'assets'],
             column: 'count'
         );
-        
+
         $this->assertEquals(1, $newValue);
-        
+
         $dbValue = DB::table('test_counters')
             ->where('entity_id', 1)
             ->where('counter_type', 'assets')
             ->value('count');
-        
+
         $this->assertEquals(1, $dbValue);
     }
 
@@ -97,13 +97,13 @@ class AtomicCounterServiceTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        
+
         $newValue = $this->service->decrement(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'assets'],
             column: 'count'
         );
-        
+
         $this->assertEquals(9, $newValue);
     }
 
@@ -119,13 +119,13 @@ class AtomicCounterServiceTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        
+
         $value = $this->service->get(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'assets'],
             column: 'count'
         );
-        
+
         $this->assertEquals(42, $value);
     }
 
@@ -139,7 +139,7 @@ class AtomicCounterServiceTest extends TestCase
             where: ['entity_id' => 999, 'counter_type' => 'nonexistent'],
             column: 'count'
         );
-        
+
         $this->assertEquals(0, $value);
     }
 
@@ -155,14 +155,14 @@ class AtomicCounterServiceTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        
+
         $newValue = $this->service->increment(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'credits'],
             column: 'count',
             amount: 100
         );
-        
+
         $this->assertEquals(100, $newValue);
     }
 
@@ -173,7 +173,7 @@ class AtomicCounterServiceTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Use decrement() for negative amounts');
-        
+
         $this->service->increment(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'assets'],
@@ -189,7 +189,7 @@ class AtomicCounterServiceTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Use increment() for negative amounts');
-        
+
         $this->service->decrement(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'assets'],
@@ -207,19 +207,19 @@ class AtomicCounterServiceTest extends TestCase
             ['entity_id' => 1, 'counter_type' => 'chromebook', 'count' => 5, 'created_at' => now(), 'updated_at' => now()],
             ['entity_id' => 1, 'counter_type' => 'windows', 'count' => 10, 'created_at' => now(), 'updated_at' => now()],
         ]);
-        
+
         $chromebookCount = $this->service->get(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'chromebook'],
             column: 'count'
         );
-        
+
         $windowsCount = $this->service->get(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'windows'],
             column: 'count'
         );
-        
+
         $this->assertEquals(5, $chromebookCount);
         $this->assertEquals(10, $windowsCount);
     }
@@ -233,28 +233,28 @@ class AtomicCounterServiceTest extends TestCase
             ['entity_id' => 1, 'counter_type' => 'assets', 'count' => 5, 'created_at' => now(), 'updated_at' => now()],
             ['entity_id' => 2, 'counter_type' => 'assets', 'count' => 10, 'created_at' => now(), 'updated_at' => now()],
         ]);
-        
+
         // Increment only entity 1
         $this->service->increment(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'assets'],
             column: 'count'
         );
-        
+
         // Entity 1 should be 6
         $entity1Count = $this->service->get(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'assets'],
             column: 'count'
         );
-        
+
         // Entity 2 should still be 10
         $entity2Count = $this->service->get(
             table: 'test_counters',
             where: ['entity_id' => 2, 'counter_type' => 'assets'],
             column: 'count'
         );
-        
+
         $this->assertEquals(6, $entity1Count);
         $this->assertEquals(10, $entity2Count);
     }
@@ -271,7 +271,7 @@ class AtomicCounterServiceTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        
+
         // Perform several operations
         $this->service->increment(
             table: 'test_counters',
@@ -279,28 +279,28 @@ class AtomicCounterServiceTest extends TestCase
             column: 'count',
             amount: 50
         );
-        
+
         $this->service->decrement(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'balance'],
             column: 'count',
             amount: 30
         );
-        
+
         $this->service->increment(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'balance'],
             column: 'count',
             amount: 10
         );
-        
+
         // 100 + 50 - 30 + 10 = 130
         $finalValue = $this->service->get(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'balance'],
             column: 'count'
         );
-        
+
         $this->assertEquals(130, $finalValue);
     }
 
@@ -316,20 +316,20 @@ class AtomicCounterServiceTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        
+
         $this->service->set(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'assets'],
             column: 'count',
             value: 999
         );
-        
+
         $value = $this->service->get(
             table: 'test_counters',
             where: ['entity_id' => 1, 'counter_type' => 'assets'],
             column: 'count'
         );
-        
+
         $this->assertEquals(999, $value);
     }
 }

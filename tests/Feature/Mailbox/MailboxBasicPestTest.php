@@ -48,7 +48,7 @@ test('admin can create a new mailbox', function () {
 test('non-admin cannot create mailbox', function () {
     // Explicitly set type to 2 to ensure they are not "Internal Staff" if that middleware applies
     $user = User::factory()->create(['role' => User::ROLE_USER, 'type' => 2]);
-    
+
     $mailboxData = [
         'name' => 'Unauthorized Mailbox',
         'email' => 'unauthorized@example.com',
@@ -73,7 +73,7 @@ test('mailbox creation validates email format', function () {
     $this->actingAs($admin)
         ->post(route('mailboxes.store'), $mailboxData)
         ->assertSessionHasErrors('email');
-        
+
     $this->assertDatabaseMissing('mailboxes', ['name' => 'Test Mailbox']);
 });
 

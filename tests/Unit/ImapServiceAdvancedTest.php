@@ -14,7 +14,6 @@ use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 
 class ImapServiceAdvancedTest extends UnitTestCase
 {
-
     protected function tearDown(): void
     {
         try {

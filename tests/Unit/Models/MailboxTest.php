@@ -13,14 +13,14 @@ use Tests\TestCase;
 
 /**
  * Test Mailbox model methods
- * 
+ *
  * Focus: getMailFrom(), relationships, URL generation
  */
 class MailboxTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_getMailFrom_returns_email_and_name(): void
+    public function test_get_mail_from_returns_email_and_name(): void
     {
         $mailbox = Mailbox::factory()->create([
             'email' => 'support@example.com',
@@ -33,7 +33,7 @@ class MailboxTest extends TestCase
         $this->assertArrayHasKey('name', $result);
     }
 
-    public function test_getMailFrom_uses_from_name_when_set(): void
+    public function test_get_mail_from_uses_from_name_when_set(): void
     {
         $mailbox = Mailbox::factory()->create([
             'email' => 'support@example.com',
@@ -46,7 +46,7 @@ class MailboxTest extends TestCase
         $this->assertEquals('Custom Support', $result['name']);
     }
 
-    public function test_getMailFrom_prioritizes_from_name_custom(): void
+    public function test_get_mail_from_prioritizes_from_name_custom(): void
     {
         $mailbox = Mailbox::factory()->create([
             'email' => 'support@example.com',
@@ -60,7 +60,7 @@ class MailboxTest extends TestCase
         $this->assertEquals('Highest Priority Name', $result['name']);
     }
 
-    public function test_getMailFrom_falls_back_to_name_when_no_from_name(): void
+    public function test_get_mail_from_falls_back_to_name_when_no_from_name(): void
     {
         $mailbox = Mailbox::factory()->create([
             'email' => 'support@example.com',
@@ -74,7 +74,7 @@ class MailboxTest extends TestCase
         $this->assertArrayHasKey('name', $result);
     }
 
-    public function test_getMailFrom_accepts_user_parameter(): void
+    public function test_get_mail_from_accepts_user_parameter(): void
     {
         $mailbox = Mailbox::factory()->create();
         $user = User::factory()->create();
@@ -89,9 +89,9 @@ class MailboxTest extends TestCase
     public function test_url_returns_correct_route(): void
     {
         $mailbox = Mailbox::factory()->create();
-        
+
         $this->assertNotNull($mailbox->id);
-        
+
         $url = $mailbox->url();
 
         $this->assertIsString($url);
@@ -129,7 +129,7 @@ class MailboxTest extends TestCase
 
     public function test_mailbox_has_required_fillable_fields(): void
     {
-        $mailbox = new Mailbox();
+        $mailbox = new Mailbox;
         $fillable = $mailbox->getFillable();
 
         $this->assertContains('name', $fillable);
@@ -187,7 +187,7 @@ class MailboxTest extends TestCase
         $mailbox = Mailbox::factory()->make(['email' => null]);
 
         $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
         $mailbox->save();
     }
 
@@ -196,7 +196,7 @@ class MailboxTest extends TestCase
         $mailbox = Mailbox::factory()->make(['name' => null]);
 
         $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
         $mailbox->save();
     }
 
@@ -265,7 +265,7 @@ class MailboxTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
-        
+
         $mailbox->users()->attach([$user1->id, $user2->id]);
 
         $this->assertCount(2, $mailbox->users);
@@ -384,7 +384,7 @@ class MailboxTest extends TestCase
         // Should have 3 elements (including empty string from trailing comma)
         $this->assertIsArray($aliases);
         // Filter out empty strings if implementation does that
-        $nonEmpty = array_filter($aliases, fn($a) => !empty($a));
+        $nonEmpty = array_filter($aliases, fn ($a) => ! empty($a));
         $this->assertGreaterThanOrEqual(2, count($nonEmpty));
     }
 
@@ -437,7 +437,7 @@ class MailboxTest extends TestCase
         for ($i = 0; $i < 50; $i++) {
             $longAliasList[] = "alias{$i}@example.com";
         }
-        
+
         $mailbox = Mailbox::factory()->create([
             'aliases' => implode(',', $longAliasList),
         ]);

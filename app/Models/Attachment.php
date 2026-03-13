@@ -63,25 +63,25 @@ class Attachment extends Model
 
     /**
      * Get the full file path.
-     * 
+     *
      * @return Attribute<string, never>
      */
     protected function fullPath(): Attribute
     {
         return Attribute::make(
-            get: fn() => storage_path("app/{$this->file_dir}/{$this->file_name}")
+            get: fn () => storage_path("app/{$this->file_dir}/{$this->file_name}")
         );
     }
 
     /**
      * Get the file size in human-readable format.
-     * 
+     *
      * @return Attribute<string, never>
      */
     protected function humanFileSize(): Attribute
     {
         return Attribute::make(
-            get: function(): string {
+            get: function (): string {
                 $bytes = $this->file_size;
                 $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 

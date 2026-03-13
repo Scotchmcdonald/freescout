@@ -12,7 +12,10 @@ it('upfront payment creates credit ledger', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $this->visit('/login')
         ->type('email', $admin->email)
@@ -31,7 +34,10 @@ it('credit applied to monthly invoices', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $client = Client::factory()->create(['name' => 'Credit Apply Client']);
 
@@ -126,7 +132,7 @@ it('client can view credit balance in portal', function () {
         'type' => 2,
         'first_name' => 'Credit Balance',
         'last_name' => 'User',
-        'email' => 'credit-balance-' . uniqid() . '@example.com',
+        'email' => 'credit-balance-'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),

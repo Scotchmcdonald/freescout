@@ -1,16 +1,15 @@
 <?php
 
 use App\Models\User;
-use Modules\PIB\Models\Invoice;
-use Modules\Payment\Models\Payment;
 use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Company;
+use Modules\Payment\Models\Payment;
+use Modules\PIB\Models\Invoice;
 
 /**
  * Browser tests for client portal invoice views.
  * Uses pestphp/pest-plugin-browser (Playwright driver).
  */
-
 function createPortalTestData(): array
 {
     $company = Company::factory()->create(['is_active' => true]);
@@ -22,7 +21,7 @@ function createPortalTestData(): array
 
     $user = User::factory()->create([
         'type' => 2,
-        'email' => 'portalbrowser-' . uniqid() . '@example.com',
+        'email' => 'portalbrowser-'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
@@ -155,8 +154,8 @@ it('shows pay invoice page with payment methods and correct amount', function ()
     // Create a payment method for the company
     \Modules\Payment\Models\PaymentMethod::create([
         'company_id' => $company->id,
-        'helcim_customer_id' => 'CUST-PAY-' . uniqid(),
-        'helcim_card_token' => 'TOKEN-PAY-' . uniqid(),
+        'helcim_customer_id' => 'CUST-PAY-'.uniqid(),
+        'helcim_card_token' => 'TOKEN-PAY-'.uniqid(),
         'last_four' => '9876',
         'card_brand' => 'MasterCard',
         'card_type' => 'credit',

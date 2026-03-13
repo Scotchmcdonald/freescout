@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models;
 
-use App\Models\Attachment;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Thread;
@@ -14,7 +13,7 @@ use Tests\TestCase;
 
 /**
  * Test Thread model methods
- * 
+ *
  * Focus: Type checks, body handling, relationships
  */
 class ThreadTest extends TestCase
@@ -91,7 +90,7 @@ class ThreadTest extends TestCase
 
     public function test_thread_has_required_fillable_fields(): void
     {
-        $thread = new Thread();
+        $thread = new Thread;
         $fillable = $thread->getFillable();
 
         $this->assertContains('body', $fillable);

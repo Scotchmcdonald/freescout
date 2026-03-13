@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
 use App\Models\GooglePushChannel;
+use App\Models\User;
 
 function getWebhookGatewayAdmin(): User
 {
@@ -12,7 +12,11 @@ function getWebhookGatewayAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -43,7 +47,7 @@ it('webhook gateway shows empty state', function () {
 it('google push channel model exists', function () {
     expect(class_exists(GooglePushChannel::class))->toBeTrue();
 
-    $channel = new GooglePushChannel();
+    $channel = new GooglePushChannel;
     expect($channel->getTable())->toBe('google_push_channels');
 
     // Verify key methods exist
@@ -54,8 +58,8 @@ it('google push channel model exists', function () {
 
 it('google push channel tracks expiration status', function () {
     $channel = GooglePushChannel::create([
-        'channel_id' => 'test-channel-' . uniqid(),
-        'resource_id' => 'resource-' . uniqid(),
+        'channel_id' => 'test-channel-'.uniqid(),
+        'resource_id' => 'resource-'.uniqid(),
         'resource_type' => 'users',
         'webhook_url' => 'https://test.example.com/webhook',
         'expiration_time' => now()->subHour(),

@@ -13,13 +13,13 @@ test('user can view conversations list', function () {
     $mailbox = Mailbox::factory()->create();
     $mailbox->users()->attach($user);
     Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => Folder::TYPE_INBOX, 'name' => 'Inbox']);
-    
+
     $conv1 = Conversation::factory()->for($mailbox)->create([
         'subject' => 'First Support Request',
         'state' => Conversation::STATE_PUBLISHED,
     ]);
     $conv2 = Conversation::factory()->for($mailbox)->create([
-        'subject' => 'Second Support Request', 
+        'subject' => 'Second Support Request',
         'state' => Conversation::STATE_PUBLISHED,
     ]);
 
@@ -36,7 +36,7 @@ test('user can create conversation', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
     $mailbox->users()->attach($user);
-    
+
     $customer = Customer::factory()->create();
     $email = Email::factory()->create(['customer_id' => $customer->id, 'type' => 1]);
 
@@ -58,9 +58,9 @@ test('user can view conversation', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
     $mailbox->users()->attach($user);
-    
+
     $conversation = Conversation::factory()->for($mailbox)->create(['subject' => 'Important Issue']);
-    
+
     Thread::factory()->create([
         'conversation_id' => $conversation->id,
         'body' => 'Initial customer message',

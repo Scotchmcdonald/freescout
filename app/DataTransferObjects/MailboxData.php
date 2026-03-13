@@ -15,23 +15,23 @@ final readonly class MailboxData
     /**
      * Create a new MailboxData instance.
      *
-     * @param string $name Mailbox name
-     * @param string $email Mailbox email address
-     * @param string|null $inServer Incoming (IMAP) server
-     * @param int|null $inPort Incoming server port
-     * @param string|null $inUsername Incoming server username
-     * @param string|null $inPassword Incoming server password
-     * @param string $inProtocol Incoming protocol (imap/pop3)
-     * @param string $inEncryption Incoming encryption (ssl/tls/none)
-     * @param string|null $outServer Outgoing (SMTP) server
-     * @param int|null $outPort Outgoing server port
-     * @param string|null $outUsername Outgoing server username
-     * @param string|null $outPassword Outgoing server password
-     * @param string $outEncryption Outgoing encryption (ssl/tls/none)
-     * @param string $outMethod Outgoing method (smtp/php/sendmail)
-     * @param bool $autoReplyEnabled Whether auto-reply is enabled
-     * @param string|null $autoReplySubject Auto-reply subject
-     * @param string|null $autoReplyMessage Auto-reply message
+     * @param  string  $name  Mailbox name
+     * @param  string  $email  Mailbox email address
+     * @param  string|null  $inServer  Incoming (IMAP) server
+     * @param  int|null  $inPort  Incoming server port
+     * @param  string|null  $inUsername  Incoming server username
+     * @param  string|null  $inPassword  Incoming server password
+     * @param  string  $inProtocol  Incoming protocol (imap/pop3)
+     * @param  string  $inEncryption  Incoming encryption (ssl/tls/none)
+     * @param  string|null  $outServer  Outgoing (SMTP) server
+     * @param  int|null  $outPort  Outgoing server port
+     * @param  string|null  $outUsername  Outgoing server username
+     * @param  string|null  $outPassword  Outgoing server password
+     * @param  string  $outEncryption  Outgoing encryption (ssl/tls/none)
+     * @param  string  $outMethod  Outgoing method (smtp/php/sendmail)
+     * @param  bool  $autoReplyEnabled  Whether auto-reply is enabled
+     * @param  string|null  $autoReplySubject  Auto-reply subject
+     * @param  string|null  $autoReplyMessage  Auto-reply message
      */
     public function __construct(
         public string $name,
@@ -56,14 +56,13 @@ final readonly class MailboxData
     /**
      * Create MailboxData from a request array.
      *
-     * @param array<string, mixed> $data
-     * @return self
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {
         $name = $data['name'] ?? '';
         $email = $data['email'] ?? '';
-        
+
         return new self(
             name: is_string($name) || is_int($name) || is_float($name) ? (string) $name : '',
             email: is_string($email) || is_int($email) || is_float($email) ? (string) $email : '',

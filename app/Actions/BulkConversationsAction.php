@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Action class for bulk conversation operations.
- * 
+ *
  * Encapsulates all bulk operations on conversations including:
  * - Bulk status changes
  * - Bulk assignment changes
@@ -32,7 +32,7 @@ class BulkConversationsAction
             return ['success' => false, 'count' => 0, 'message' => 'No conversations selected'];
         }
 
-        if (!$data->isValidAction()) {
+        if (! $data->isValidAction()) {
             return ['success' => false, 'count' => 0, 'message' => 'Invalid bulk action'];
         }
 
@@ -57,7 +57,7 @@ class BulkConversationsAction
     /**
      * Get conversations the user has access to.
      *
-     * @param array<int> $ids
+     * @param  array<int>  $ids
      * @return Collection<int, Conversation>
      */
     private function getAccessibleConversations(array $ids, User $user): Collection
@@ -73,7 +73,7 @@ class BulkConversationsAction
     /**
      * Bulk change conversation status.
      *
-     * @param Collection<int, Conversation> $conversations
+     * @param  Collection<int, Conversation>  $conversations
      * @return array{success: bool, count: int, message?: string}
      */
     private function changeStatus(Collection $conversations, BulkConversationData $data, User $user): array
@@ -100,7 +100,7 @@ class BulkConversationsAction
     /**
      * Bulk change conversation assignee.
      *
-     * @param Collection<int, Conversation> $conversations
+     * @param  Collection<int, Conversation>  $conversations
      * @return array{success: bool, count: int}
      */
     private function changeUser(Collection $conversations, BulkConversationData $data, User $user): array
@@ -115,7 +115,7 @@ class BulkConversationsAction
     /**
      * Bulk delete conversations (move to trash).
      *
-     * @param Collection<int, Conversation> $conversations
+     * @param  Collection<int, Conversation>  $conversations
      * @return array{success: bool, count: int}
      */
     private function delete(Collection $conversations, User $user): array
@@ -130,7 +130,7 @@ class BulkConversationsAction
     /**
      * Bulk permanently delete conversations.
      *
-     * @param Collection<int, Conversation> $conversations
+     * @param  Collection<int, Conversation>  $conversations
      * @return array{success: bool, count: int}
      */
     private function deleteForever(Collection $conversations): array
@@ -145,7 +145,7 @@ class BulkConversationsAction
     /**
      * Bulk restore conversations from trash.
      *
-     * @param Collection<int, Conversation> $conversations
+     * @param  Collection<int, Conversation>  $conversations
      * @return array{success: bool, count: int}
      */
     private function restore(Collection $conversations, User $user): array
@@ -160,7 +160,7 @@ class BulkConversationsAction
     /**
      * Bulk move conversations to another mailbox.
      *
-     * @param Collection<int, Conversation> $conversations
+     * @param  Collection<int, Conversation>  $conversations
      * @return array{success: bool, count: int, message?: string}
      */
     private function move(Collection $conversations, BulkConversationData $data, User $user): array
@@ -169,7 +169,7 @@ class BulkConversationsAction
             return ['success' => false, 'count' => 0, 'message' => 'Target mailbox is required'];
         }
 
-        if (!Mailbox::where('id', $data->mailboxId)->exists()) {
+        if (! Mailbox::where('id', $data->mailboxId)->exists()) {
             return ['success' => false, 'count' => 0, 'message' => 'Target mailbox not found'];
         }
 

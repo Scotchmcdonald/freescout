@@ -16,9 +16,9 @@ uses(RefreshDatabase::class);
 
 test('Client fillable blocks non-fillable id override on create', function () {
     $client = Client::create([
-        'name'   => 'Acme Corp',
+        'name' => 'Acme Corp',
         'status' => 'active',
-        'id'     => 99999, // mass-assignment attack
+        'id' => 99999, // mass-assignment attack
     ]);
 
     expect($client->id)->not->toBe(99999);
@@ -27,8 +27,8 @@ test('Client fillable blocks non-fillable id override on create', function () {
 
 test('Client fillable blocks deleted_at injection on create', function () {
     $client = Client::create([
-        'name'       => 'Acme Corp',
-        'status'     => 'active',
+        'name' => 'Acme Corp',
+        'status' => 'active',
         'deleted_at' => now()->subDay()->toDateTimeString(), // soft-delete bypass attempt
     ]);
 
@@ -37,8 +37,8 @@ test('Client fillable blocks deleted_at injection on create', function () {
 
 test('Client fillable blocks unknown field injection on create', function () {
     $client = Client::create([
-        'name'          => 'Acme Corp',
-        'status'        => 'active',
+        'name' => 'Acme Corp',
+        'status' => 'active',
         'is_superadmin' => true, // non-existent, non-fillable field
     ]);
 
@@ -53,14 +53,14 @@ test('Client fillable blocks unknown field injection on create', function () {
 
 test('Client accepts all legitimate fillable fields', function () {
     $client = Client::create([
-        'name'                => 'Legitimate Corp',
-        'tier'                => 'Small Business', // valid enum value
-        'email'               => 'contact@legitimate.com',
-        'phone'               => '+1-555-0199',
-        'company_type'        => 'business', // valid enum value
-        'status'              => 'active',
+        'name' => 'Legitimate Corp',
+        'tier' => 'Small Business', // valid enum value
+        'email' => 'contact@legitimate.com',
+        'phone' => '+1-555-0199',
+        'company_type' => 'business', // valid enum value
+        'status' => 'active',
         'default_hourly_rate' => 150.00,
-        'notes'               => 'VIP client',
+        'notes' => 'VIP client',
     ]);
 
     expect($client->name)->toBe('Legitimate Corp')

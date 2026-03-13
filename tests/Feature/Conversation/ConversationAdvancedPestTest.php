@@ -12,7 +12,7 @@ test('index shows only published conversations', function () {
     $mailbox = Mailbox::factory()->create();
     $mailbox->users()->attach($user);
     Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => Folder::TYPE_INBOX, 'name' => 'Inbox']);
-    
+
     $published = Conversation::factory()->for($mailbox)->create(['state' => 2, 'status' => Conversation::STATUS_ACTIVE]);
     $draft = Conversation::factory()->for($mailbox)->create(['state' => 1, 'status' => Conversation::STATUS_ACTIVE]);
 
@@ -66,7 +66,7 @@ test('conversation list handles empty mailbox', function () {
     Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => Folder::TYPE_INBOX]);
 
     $response = $this->actingAs($user)->get(route('conversations.index', $mailbox));
-    
+
     $response->assertOk();
     $response->assertViewHas('conversations');
     expect($response->viewData('conversations'))->toHaveCount(0);
@@ -88,7 +88,7 @@ test('conversation with very long subject is handled', function () {
 
     $this->actingAs($user)->get(route('conversations.show', $conversation->id))
         ->assertOk();
-        
+
     // Verify subject is displayed (may be truncated in display)
     $this->assertDatabaseHas('conversations', [
         'id' => $conversation->id,
@@ -126,7 +126,7 @@ test('index orders by most recent', function () {
     $mailbox = Mailbox::factory()->create();
     $mailbox->users()->attach($user);
     Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => Folder::TYPE_INBOX, 'name' => 'Inbox']);
-    
+
     $older = Conversation::factory()->for($mailbox)->create([
         'state' => Conversation::STATE_PUBLISHED,
         'status' => Conversation::STATUS_ACTIVE,
@@ -149,13 +149,13 @@ test('index orders by most recent', function () {
     // The collection should be processed
     // In legacy test, it checked string position in HTML.
     // If 'conversations' is available, we can check the collection order.
-    
+
     // Assuming conversations is paginator or collection
     $items = $conversations->items(); // If Paginator
-    if (!method_exists($conversations, 'items')) {
-       $items = $conversations->all();
+    if (! method_exists($conversations, 'items')) {
+        $items = $conversations->all();
     }
-    
+
     // First item should be newer
     expect($items[0]->id)->toBe($newer->id);
     expect($items[1]->id)->toBe($older->id);
@@ -223,7 +223,7 @@ test('store uses existing customer', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
     $mailbox->users()->attach($user);
-    
+
     $customer = Customer::factory()->create();
     $email = \App\Models\Email::factory()->create([
         'customer_id' => $customer->id,
@@ -247,10 +247,10 @@ test('store auto increments conversation number', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
     $mailbox->users()->attach($user);
-    
+
     // First conv
     Conversation::factory()->for($mailbox)->create(['number' => 1]);
-    
+
     $customer = Customer::factory()->create();
     $email = \App\Models\Email::factory()->create(['customer_id' => $customer->id]);
 
@@ -260,9 +260,9 @@ test('store auto increments conversation number', function () {
         'to' => [$email->email],
         'customer_id' => $customer->id,
     ]);
-    
+
     $conversation = Conversation::where('subject', 'Second Conversation')->first();
-    // Assuming framework handles incrementing or factory did it manually earlier. 
+    // Assuming framework handles incrementing or factory did it manually earlier.
     // If real app logic does it:
     expect($conversation->number)->toBe(2);
 });

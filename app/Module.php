@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace App;
 
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Artisan;
-use Symfony\Component\Console\Output\BufferedOutput;
-
 /**
  * Module helper class.
  */
@@ -25,6 +20,7 @@ class Module
         if (self::$isOfficialResult !== null) {
             return self::$isOfficialResult;
         }
+
         // For now, return false so custom modules aren't skipped
         return false;
     }
@@ -50,4 +46,3 @@ class Module
         ];
     }
 }
-

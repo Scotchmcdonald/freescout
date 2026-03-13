@@ -2,16 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Contracts\Billing\CreditWriter;
-use App\Contracts\Billing\CreditReader;
-
 /**
  * Architecture Tests - Interface Segregation
- * 
+ *
  * These tests enforce the Interface Segregation Principle (ISP) from SOLID.
  * They ensure interfaces remain focused and don't grow too large.
  */
-
 test('all interfaces have Interface suffix or descriptive focused names')
     ->expect('App\Contracts')
     ->toHaveSuffix('Interface')

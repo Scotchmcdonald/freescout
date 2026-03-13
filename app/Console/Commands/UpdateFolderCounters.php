@@ -40,6 +40,7 @@ class UpdateFolderCounters extends Command
 
         if ($folders->isEmpty()) {
             $this->info('No folders found');
+
             return 0;
         }
 
@@ -54,7 +55,7 @@ class UpdateFolderCounters extends Command
                 $progressBar->advance();
             } catch (\Exception $e) {
                 $this->newLine();
-                $this->error("Error updating folder {$folder->id}: " . $e->getMessage());
+                $this->error("Error updating folder {$folder->id}: ".$e->getMessage());
             }
         }
 

@@ -15,14 +15,14 @@ final readonly class ThreadData
     /**
      * Create a new ThreadData instance.
      *
-     * @param string $body The thread body content
-     * @param int $type Thread type (1=reply, 2=note, 5=draft)
-     * @param int|null $status Thread status
-     * @param array<string> $to Recipient email addresses
-     * @param array<string> $cc CC email addresses
-     * @param array<string> $bcc BCC email addresses
-     * @param array<string> $attachmentPaths Paths to uploaded attachments
-     * @param bool $isDraft Whether this is a draft
+     * @param  string  $body  The thread body content
+     * @param  int  $type  Thread type (1=reply, 2=note, 5=draft)
+     * @param  int|null  $status  Thread status
+     * @param  array<string>  $to  Recipient email addresses
+     * @param  array<string>  $cc  CC email addresses
+     * @param  array<string>  $bcc  BCC email addresses
+     * @param  array<string>  $attachmentPaths  Paths to uploaded attachments
+     * @param  bool  $isDraft  Whether this is a draft
      */
     public function __construct(
         public string $body,
@@ -38,15 +38,14 @@ final readonly class ThreadData
     /**
      * Create ThreadData from a request array.
      *
-     * @param array<string, mixed> $data
-     * @return self
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {
         $body = $data['body'] ?? '';
         $type = $data['type'] ?? 1;
         $status = $data['status'] ?? null;
-        
+
         return new self(
             body: is_string($body) || is_int($body) || is_float($body) ? (string) $body : '',
             type: is_numeric($type) ? intval($type) : 1,

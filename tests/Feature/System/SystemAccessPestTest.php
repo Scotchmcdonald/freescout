@@ -4,10 +4,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\DB;
-use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
-use function Pest\Laravel\post;
 
 beforeEach(function () {
     // Define signature to accept --days option
@@ -24,7 +20,7 @@ test('non-admin cannot access system page', function () {
     // Explicitly set type to 2 (External/Customer?) to ensure middleware blocks access
     // Default factory sets type=1 (Internal) which bypasses admin check in EnsureUserIsAdmin
     $user = User::factory()->create(['role' => User::ROLE_USER, 'type' => 2]);
-    
+
     $this->actingAs($user)
         ->get(route('system'))
         ->assertForbidden();
@@ -32,7 +28,7 @@ test('non-admin cannot access system page', function () {
 
 test('admin can view system dashboard', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->get(route('system'))
         ->assertOk()
@@ -42,7 +38,7 @@ test('admin can view system dashboard', function () {
 
 test('admin can access tools page', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->get(route('system.tools'))
         ->assertOk()
@@ -51,7 +47,7 @@ test('admin can access tools page', function () {
 
 test('diagnostics endpoint returns health status', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->get(route('system.diagnostics'))
         ->assertOk()
@@ -61,7 +57,7 @@ test('diagnostics endpoint returns health status', function () {
 
 test('tool execute clear cache', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->post(route('system.tools.execute'), ['action' => 'clear_cache'])
         ->assertRedirect(route('system.tools'))
@@ -70,7 +66,7 @@ test('tool execute clear cache', function () {
 
 test('tool execute fetch emails', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->post(route('system.tools.execute'), ['action' => 'fetch_emails', 'days' => 3])
         ->assertRedirect(route('system.tools'))
@@ -79,22 +75,22 @@ test('tool execute fetch emails', function () {
 
 test('logs page displays application logs', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     // Ensure log file has content safely
     $logFile = storage_path('logs/laravel.log');
-    file_put_contents($logFile, "[".date('Y-m-d H:i:s')."] local.INFO: Test log entry \n", FILE_APPEND);
-    
+    file_put_contents($logFile, '['.date('Y-m-d H:i:s')."] local.INFO: Test log entry \n", FILE_APPEND);
+
     $this->actingAs($admin)
-        ->get(route('system.logs', ['log' => 'laravel.log'])) 
-        ->assertOk(); 
+        ->get(route('system.logs', ['log' => 'laravel.log']))
+        ->assertOk();
 });
 
 test('download logs returns binary file response', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $logFile = storage_path('logs/laravel.log');
-    file_put_contents($logFile, "[".date('Y-m-d H:i:s')."] local.INFO: Test log entry \n", FILE_APPEND);
-    
+    file_put_contents($logFile, '['.date('Y-m-d H:i:s')."] local.INFO: Test log entry \n", FILE_APPEND);
+
     $this->actingAs($admin)
         ->get(route('system.logs.download'))
         ->assertOk()
@@ -103,20 +99,19 @@ test('download logs returns binary file response', function () {
 
 test('admin can clear logs (skipped in parallel)', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $logFile = storage_path('logs/laravel.log');
-    file_put_contents($logFile, "[".date('Y-m-d H:i:s')."] local.INFO: Test log entry \n", FILE_APPEND);
+    file_put_contents($logFile, '['.date('Y-m-d H:i:s')."] local.INFO: Test log entry \n", FILE_APPEND);
 
     $this->actingAs($admin)
         ->post(route('system.logs.clear'))
         ->assertRedirect();
-        
 });
 
 test('ajax clear cache command', function () {
     Cache::put('test_key', 'test_value');
     expect(Cache::get('test_key'))->toBe('test_value');
-    
+
     Cache::forget('test_key');
     expect(Cache::get('test_key'))->toBeNull();
 });

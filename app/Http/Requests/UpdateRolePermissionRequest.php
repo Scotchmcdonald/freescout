@@ -20,9 +20,9 @@ class UpdateRolePermissionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'role_id'       => ['required', 'integer', 'exists:roles,id'],
+            'role_id' => ['required', 'integer', 'exists:roles,id'],
             'permission_id' => ['required', 'integer', 'exists:permissions,id'],
-            'attached'      => ['required', 'boolean'],
+            'attached' => ['required', 'boolean'],
         ];
     }
 }

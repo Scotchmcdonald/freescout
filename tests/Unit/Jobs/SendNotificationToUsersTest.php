@@ -118,7 +118,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         // Create users - one active, one deleted
         $user1 = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $user2 = User::factory()->create(['status' => User::STATUS_DELETED]); // Deleted users should be filtered
-        
+
         $users = collect([$user1, $user2]);
         $threads = collect([$thread]);
 
@@ -130,12 +130,12 @@ class SendNotificationToUsersTest extends UnitTestCase
             ->where('thread_id', $thread->id)
             ->where('mail_type', SendLog::MAIL_TYPE_USER_NOTIFICATION)
             ->count();
-        
+
         $user2Logs = SendLog::where('user_id', $user2->id)
             ->where('thread_id', $thread->id)
             ->where('mail_type', SendLog::MAIL_TYPE_USER_NOTIFICATION)
             ->count();
-        
+
         $this->assertGreaterThan(0, $user1Logs, 'Active user should have send log entry');
         $this->assertEquals(0, $user2Logs, 'Deleted user should not have send log entry');
     }
@@ -144,10 +144,10 @@ class SendNotificationToUsersTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        
+
         $author = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $otherUser = User::factory()->create(['status' => User::STATUS_ACTIVE]);
-        
+
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'type' => Thread::TYPE_MESSAGE,
@@ -170,12 +170,12 @@ class SendNotificationToUsersTest extends UnitTestCase
             ->where('thread_id', $thread->id)
             ->where('mail_type', SendLog::MAIL_TYPE_USER_NOTIFICATION)
             ->count();
-            
+
         $otherUserLogs = SendLog::where('user_id', $otherUser->id)
             ->where('thread_id', $thread->id)
             ->where('mail_type', SendLog::MAIL_TYPE_USER_NOTIFICATION)
             ->count();
-        
+
         $this->assertGreaterThan(0, $authorLogs);
         $this->assertGreaterThan(0, $otherUserLogs);
     }
@@ -195,7 +195,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $user1 = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $user2 = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $user3 = User::factory()->create(['status' => User::STATUS_ACTIVE]);
-        
+
         $users = collect([$user1, $user2, $user3]);
         $threads = collect([$thread]);
 
@@ -207,17 +207,17 @@ class SendNotificationToUsersTest extends UnitTestCase
             ->where('thread_id', $thread->id)
             ->where('mail_type', SendLog::MAIL_TYPE_USER_NOTIFICATION)
             ->count();
-            
+
         $user2Logs = SendLog::where('user_id', $user2->id)
             ->where('thread_id', $thread->id)
             ->where('mail_type', SendLog::MAIL_TYPE_USER_NOTIFICATION)
             ->count();
-            
+
         $user3Logs = SendLog::where('user_id', $user3->id)
             ->where('thread_id', $thread->id)
             ->where('mail_type', SendLog::MAIL_TYPE_USER_NOTIFICATION)
             ->count();
-        
+
         $this->assertGreaterThan(0, $user1Logs, 'User 1 should have send log');
         $this->assertGreaterThan(0, $user2Logs, 'User 2 should have send log');
         $this->assertGreaterThan(0, $user3Logs, 'User 3 should have send log');
@@ -230,12 +230,12 @@ class SendNotificationToUsersTest extends UnitTestCase
         $user = User::factory()->make(['id' => 1]);
         $mailbox = \App\Models\Mailbox::factory()->make(['id' => 1]);
         $customer = \App\Models\Customer::factory()->make(['id' => 1]);
-        
+
         $conversation = Conversation::factory()->make([
             'id' => 1,
             'mailbox_id' => 1,
         ]);
-        
+
         // Create bounce thread with limit exceeded message
         $bounceThread = Thread::factory()->make([
             'id' => 1,
@@ -244,13 +244,13 @@ class SendNotificationToUsersTest extends UnitTestCase
             'body' => 'Delivery failed: message limit exceeded for this account',
             'state' => Thread::STATE_PUBLISHED,
         ]);
-        
+
         $job = new SendNotificationToUsers(
             collect([$user]),
             $conversation,
             collect([$bounceThread])
         );
-        
+
         // Verify job properties are set
         $this->assertCount(1, $job->users);
         $this->assertEquals(Thread::TYPE_BOUNCE, $bounceThread->type);
@@ -263,16 +263,16 @@ class SendNotificationToUsersTest extends UnitTestCase
             'id' => 1,
             'status' => User::STATUS_DELETED,
         ]);
-        
+
         $conversation = Conversation::factory()->make(['id' => 1]);
         $thread = Thread::factory()->make(['id' => 1, 'conversation_id' => 1]);
-        
+
         $job = new SendNotificationToUsers(
             collect([$user]),
             $conversation,
             collect([$thread])
         );
-        
+
         // Job should handle deleted users
         $this->assertEquals(User::STATUS_DELETED, $user->status);
         $this->assertInstanceOf(SendNotificationToUsers::class, $job);
@@ -282,19 +282,19 @@ class SendNotificationToUsersTest extends UnitTestCase
     {
         $user = User::factory()->make(['id' => 1]);
         $conversation = Conversation::factory()->make(['id' => 1]);
-        
+
         $draftThread = Thread::factory()->make([
             'id' => 1,
             'conversation_id' => 1,
             'state' => Thread::STATE_DRAFT,
         ]);
-        
+
         $job = new SendNotificationToUsers(
             collect([$user]),
             $conversation,
             collect([$draftThread])
         );
-        
+
         // Draft threads should not trigger notifications
         $this->assertEquals(Thread::STATE_DRAFT, $draftThread->state);
         $this->assertInstanceOf(SendNotificationToUsers::class, $job);
@@ -308,13 +308,13 @@ class SendNotificationToUsersTest extends UnitTestCase
             'mailbox_id' => 99999, // Non-existent
         ]);
         $thread = Thread::factory()->make(['id' => 1]);
-        
+
         $job = new SendNotificationToUsers(
             collect([$user]),
             $conversation,
             collect([$thread])
         );
-        
+
         // Job should be created even with invalid mailbox
         $this->assertInstanceOf(SendNotificationToUsers::class, $job);
     }
@@ -334,13 +334,13 @@ class SendNotificationToUsersTest extends UnitTestCase
             'id' => 789,
             'conversation_id' => 456,
         ]);
-        
+
         $job = new SendNotificationToUsers(
             collect([$user]),
             $conversation,
             collect([$thread])
         );
-        
+
         // Message ID format: notification-{thread_id}-{user_id}-{timestamp}@{mailbox_email}
         // Just verify job is created with correct data
         $this->assertEquals(789, $thread->id);
@@ -366,13 +366,13 @@ class SendNotificationToUsersTest extends UnitTestCase
             'type' => Thread::TYPE_CUSTOMER,
             'customer_id' => 1,
         ]);
-        
+
         $job = new SendNotificationToUsers(
             collect([$user]),
             $conversation,
             collect([$thread])
         );
-        
+
         // From name should be "{Customer Name} via {Mailbox Name}"
         $this->assertEquals(Thread::TYPE_CUSTOMER, $thread->type);
         $this->assertEquals('John', $customer->first_name);
@@ -389,13 +389,13 @@ class SendNotificationToUsersTest extends UnitTestCase
             Thread::factory()->make(['id' => 3, 'created_at' => now()->subHour()]),
             Thread::factory()->make(['id' => 4, 'created_at' => now()]),
         ]);
-        
+
         $job = new SendNotificationToUsers(
             collect([$user]),
             $conversation,
             $threads
         );
-        
+
         // Job handles different history configurations (full, last, none)
         $this->assertCount(4, $job->threads);
     }
@@ -404,13 +404,13 @@ class SendNotificationToUsersTest extends UnitTestCase
     {
         $conversation = Conversation::factory()->make(['id' => 1]);
         $thread = Thread::factory()->make(['id' => 1]);
-        
+
         $job = new SendNotificationToUsers(
             collect([]),
             $conversation,
             collect([$thread])
         );
-        
+
         // Should handle empty user list
         $this->assertCount(0, $job->users);
     }
@@ -419,20 +419,20 @@ class SendNotificationToUsersTest extends UnitTestCase
     {
         $user = User::factory()->make(['id' => 1]);
         $conversation = Conversation::factory()->make(['id' => 1]);
-        
+
         // Create threads with different timestamps
         $threads = collect([
             Thread::factory()->make(['id' => 1, 'created_at' => now()->subHours(2)]),
             Thread::factory()->make(['id' => 2, 'created_at' => now()]),
             Thread::factory()->make(['id' => 3, 'created_at' => now()->subHour()]),
         ]);
-        
+
         $job = new SendNotificationToUsers(
             collect([$user]),
             $conversation,
             $threads
         );
-        
+
         // Threads should be sorted in handle() method
         $this->assertCount(3, $job->threads);
     }
@@ -768,7 +768,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
-        
+
         // Delete the mailbox to simulate missing mailbox scenario
         $mailbox->delete();
 
@@ -788,7 +788,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        
+
         // Create 5 threads
         $threads = collect([
             Thread::factory()->create(['conversation_id' => $conversation->id, 'created_at' => now()->subHours(5)]),
@@ -813,7 +813,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $user = User::factory()->create(['status' => User::STATUS_ACTIVE]);
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        
+
         $threads = collect([
             Thread::factory()->create(['conversation_id' => $conversation->id, 'created_at' => now()->subHours(2)]),
             Thread::factory()->create(['conversation_id' => $conversation->id, 'created_at' => now()->subHours(1)]),
@@ -849,7 +849,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $job = \Mockery::mock(SendNotificationToUsers::class, [collect([$user]), $conversation, collect([$thread])])
             ->makePartial()
             ->shouldAllowMockingProtectedMethods();
-        
+
         // Mock the attempts method to return 2 (simulating retry)
         $job->shouldReceive('attempts')->andReturn(2);
 

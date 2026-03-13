@@ -36,7 +36,7 @@ class CustomerReplied
             $this->customer = $senderInfo;
             $this->senderInfo = [
                 'email' => $senderInfo->getMainEmail() ?? $conversation->customer_email,
-                'name'  => $senderInfo->getFullName(),
+                'name' => $senderInfo->getFullName(),
             ];
         } else {
             $this->customer = null;

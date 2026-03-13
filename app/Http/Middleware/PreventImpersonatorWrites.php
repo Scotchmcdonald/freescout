@@ -22,7 +22,7 @@ class PreventImpersonatorWrites
     {
         $user = auth()->user();
 
-        if ($user === null || !method_exists($user, 'isImpersonated') || !$user->isImpersonated()) {
+        if ($user === null || ! method_exists($user, 'isImpersonated') || ! $user->isImpersonated()) {
             return $next($request);
         }
 
@@ -42,7 +42,7 @@ class PreventImpersonatorWrites
             $user->leaveImpersonation();
 
             return redirect()->route('dashboard')
-                ->with('warning', '⏱️ Your impersonation session expired automatically after ' . $ttlMinutes . ' minutes.');
+                ->with('warning', '⏱️ Your impersonation session expired automatically after '.$ttlMinutes.' minutes.');
         }
 
         // ── Allow exit routes ───────────────────────────────────────────

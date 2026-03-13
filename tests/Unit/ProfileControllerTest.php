@@ -22,7 +22,7 @@ class ProfileControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->controller = new ProfileController();
+        $this->controller = new ProfileController;
         $this->user = User::factory()->create([
             'password' => Hash::make('current-password'),
         ]);

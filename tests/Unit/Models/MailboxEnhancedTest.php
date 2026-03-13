@@ -12,7 +12,6 @@ use Tests\UnitTestCase;
 
 class MailboxEnhancedTest extends UnitTestCase
 {
-
     public function test_mailbox_has_many_conversations(): void
     {
         $mailbox = Mailbox::factory()->create();

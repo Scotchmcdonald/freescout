@@ -8,7 +8,7 @@ use Modules\Crm\Models\Client;
 
 /**
  * Quote Factory
- * 
+ *
  * Generates test data for Quote models.
  *
  * @extends Factory<Quote>
@@ -29,7 +29,7 @@ class QuoteFactory extends Factory
 
         return [
             'client_id' => Client::factory(),
-            'quote_number' => 'Q-' . $this->faker->unique()->numberBetween(1000, 99999),
+            'quote_number' => 'Q-'.$this->faker->unique()->numberBetween(1000, 99999),
             'title' => $this->faker->sentence(3),
             'status' => $this->faker->randomElement(['draft', 'sent', 'approved', 'rejected', 'expired']),
             // 'date_issued' removed, likely sent_at in model

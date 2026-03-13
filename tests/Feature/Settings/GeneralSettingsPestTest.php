@@ -106,7 +106,7 @@ test('admin can update alerts settings', function () {
 
 test('admin can send test alert', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     Mail::fake();
 
     $this->actingAs($admin)
@@ -116,7 +116,7 @@ test('admin can send test alert', function () {
         ])
         ->assertRedirect()
         ->assertSessionHas('success', 'Test alert sent successfully to 1 recipient(s).');
-        
+
     Mail::assertSent(App\Mail\Alert::class, function ($mail) {
         return $mail->hasTo('admin@example.com');
     });

@@ -11,12 +11,10 @@ use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class UserNotificationTest extends UnitTestCase
 {
-
     public function test_mailable_can_be_instantiated(): void
     {
         $user = User::factory()->create();
@@ -150,7 +148,7 @@ class UserNotificationTest extends UnitTestCase
     public function test_build_uses_config_defaults_when_from_not_provided(): void
     {
         config(['mail.from.address' => 'default@example.com']);
-        
+
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -172,7 +170,7 @@ class UserNotificationTest extends UnitTestCase
         $threads = collect([Thread::factory()->create(['conversation_id' => $conversation->id])]);
 
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
-        
+
         $this->assertTrue(method_exists($mailable, 'onQueue'));
     }
 }

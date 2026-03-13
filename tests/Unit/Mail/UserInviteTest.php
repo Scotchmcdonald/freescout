@@ -12,7 +12,6 @@ use Tests\UnitTestCase;
 
 class UserInviteTest extends UnitTestCase
 {
-
     public function test_mailable_can_be_instantiated(): void
     {
         $user = User::factory()->create();
@@ -25,7 +24,7 @@ class UserInviteTest extends UnitTestCase
     public function test_envelope_contains_welcome_message(): void
     {
         config(['app.name' => 'FreeScout']);
-        
+
         $user = User::factory()->create();
         $mailable = new UserInvite($user);
         $envelope = $mailable->envelope();
@@ -37,7 +36,7 @@ class UserInviteTest extends UnitTestCase
     {
         // This would test Option::get('company_name') if available
         config(['app.name' => 'Test Company']);
-        
+
         $user = User::factory()->create();
         $mailable = new UserInvite($user);
         $envelope = $mailable->envelope();
@@ -71,7 +70,7 @@ class UserInviteTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $mailable = new UserInvite($user);
-        
+
         $this->assertTrue(method_exists($mailable, 'onQueue'));
         $this->assertTrue(method_exists($mailable, 'onConnection'));
     }

@@ -43,7 +43,7 @@ readonly class CustomerData
     public static function fromArray(array $validated): self
     {
         $firstName = $validated['first_name'] ?? '';
-        if (!is_string($firstName) && !is_int($firstName) && !is_float($firstName)) {
+        if (! is_string($firstName) && ! is_int($firstName) && ! is_float($firstName)) {
             $firstName = '';
         }
 
@@ -63,11 +63,11 @@ readonly class CustomerData
             notes: isset($validated['notes']) && (is_string($validated['notes']) || is_int($validated['notes']) || is_float($validated['notes'])) ? (string) $validated['notes'] : null,
             emails: isset($validated['emails']) && is_array($validated['emails']) ? array_map(fn ($e) => [
                 'email' => is_array($e) && isset($e['email']) && (is_string($e['email']) || is_int($e['email']) || is_float($e['email'])) ? (string) $e['email'] : '',
-                'type' => is_array($e) && isset($e['type']) && (is_string($e['type']) || is_int($e['type']) || is_float($e['type'])) ? (string) $e['type'] : ''
+                'type' => is_array($e) && isset($e['type']) && (is_string($e['type']) || is_int($e['type']) || is_float($e['type'])) ? (string) $e['type'] : '',
             ], $validated['emails']) : null,
             phones: isset($validated['phones']) && is_array($validated['phones']) ? array_map(fn ($p) => [
                 'number' => is_array($p) && isset($p['number']) && (is_string($p['number']) || is_int($p['number']) || is_float($p['number'])) ? (string) $p['number'] : '',
-                'type' => is_array($p) && isset($p['type']) && (is_string($p['type']) || is_int($p['type']) || is_float($p['type'])) ? (string) $p['type'] : ''
+                'type' => is_array($p) && isset($p['type']) && (is_string($p['type']) || is_int($p['type']) || is_float($p['type'])) ? (string) $p['type'] : '',
             ], $validated['phones']) : null,
             socialProfiles: isset($validated['social_profiles']) && is_array($validated['social_profiles']) ? array_map(fn ($v) => is_string($v) || is_int($v) || is_float($v) ? (string) $v : '', $validated['social_profiles']) : null,
             websites: isset($validated['websites']) && is_array($validated['websites']) ? array_map(fn ($v) => is_string($v) || is_int($v) || is_float($v) ? (string) $v : '', $validated['websites']) : null,

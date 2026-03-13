@@ -6,7 +6,7 @@ namespace App\Enums;
 
 /**
  * Thread State Enum
- * 
+ *
  * Represents the publication state of a thread.
  */
 enum ThreadState: int
@@ -21,7 +21,7 @@ enum ThreadState: int
      */
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::DRAFT => 'Draft',
             self::PUBLISHED => 'Published',
             self::HIDDEN => 'Hidden',

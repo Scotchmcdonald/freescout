@@ -16,10 +16,10 @@ class LogUserDeletionTest extends UnitTestCase
     {
         $byUser = User::factory()->create(['first_name' => 'Admin']);
         $deletedUser = User::factory()->create(['first_name' => 'DeletedUser']);
-        
+
         $event = new UserDeleted($deletedUser, $byUser);
-        $listener = new LogUserDeletion();
-        
+        $listener = new LogUserDeletion;
+
         $listener->handle($event);
 
         $this->assertDatabaseHas('activity_log', [
@@ -38,10 +38,10 @@ class LogUserDeletionTest extends UnitTestCase
             'first_name' => 'John',
             'last_name' => 'Doe',
         ]);
-        
+
         $event = new UserDeleted($deletedUser, $byUser);
-        $listener = new LogUserDeletion();
-        
+        $listener = new LogUserDeletion;
+
         $listener->handle($event);
 
         $log = ActivityLog::where('description', ActivityLog::DESCRIPTION_USER_DELETED)
@@ -49,7 +49,7 @@ class LogUserDeletionTest extends UnitTestCase
             ->latest()
             ->first();
         $properties = $log->properties;
-        
+
         $this->assertArrayHasKey('deleted_user', $properties);
         $this->assertStringContainsString('John Doe', $properties['deleted_user']);
         $this->assertStringContainsString('[123]', $properties['deleted_user']);
@@ -62,16 +62,16 @@ class LogUserDeletionTest extends UnitTestCase
             'first_name' => 'Admin',
         ]);
         $deletedUser = User::factory()->create(['first_name' => 'User']);
-        
+
         $event = new UserDeleted($deletedUser, $byUser);
-        $listener = new LogUserDeletion();
-        
+        $listener = new LogUserDeletion;
+
         $listener->handle($event);
 
         $log = ActivityLog::where('description', ActivityLog::DESCRIPTION_USER_DELETED)
             ->latest()
             ->first();
-        
+
         $this->assertEquals(5, $log->causer_id);
         $this->assertEquals(get_class($byUser), $log->causer_type);
     }
@@ -80,23 +80,23 @@ class LogUserDeletionTest extends UnitTestCase
     {
         $byUser = User::factory()->create();
         $deletedUser = User::factory()->create();
-        
+
         $event = new UserDeleted($deletedUser, $byUser);
-        $listener = new LogUserDeletion();
+        $listener = new LogUserDeletion;
 
         // Should not throw exception
         try {
             $listener->handle($event);
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->fail('Listener should not throw exception: ' . $e->getMessage());
+            $this->fail('Listener should not throw exception: '.$e->getMessage());
         }
     }
 
     public function test_listener_can_be_instantiated(): void
     {
-        $listener = new LogUserDeletion();
-        
+        $listener = new LogUserDeletion;
+
         $this->assertInstanceOf(LogUserDeletion::class, $listener);
     }
 
@@ -108,16 +108,16 @@ class LogUserDeletionTest extends UnitTestCase
             'first_name' => 'Test',
             'last_name' => 'User',
         ]);
-        
+
         $event = new UserDeleted($deletedUser, $byUser);
-        $listener = new LogUserDeletion();
-        
+        $listener = new LogUserDeletion;
+
         $listener->handle($event);
 
         $log = ActivityLog::where('description', ActivityLog::DESCRIPTION_USER_DELETED)
             ->latest()
             ->first();
-        
+
         $this->assertStringContainsString('999', $log->properties['deleted_user']);
     }
 }

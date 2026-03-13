@@ -8,28 +8,27 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Folder;
 use App\Models\Mailbox;
-use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
  * Test Conversation model methods
- * 
+ *
  * Focus: Status checks, folder updates, relationships
  */
 class ConversationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_isActive_returns_true_for_status_1(): void
+    public function test_is_active_returns_true_for_status_1(): void
     {
         $conversation = Conversation::factory()->active()->create();
 
         $this->assertTrue($conversation->isActive());
     }
 
-    public function test_isActive_returns_false_for_other_statuses(): void
+    public function test_is_active_returns_false_for_other_statuses(): void
     {
         $pending = Conversation::factory()->create(['status' => 2]);
         $closed = Conversation::factory()->create(['status' => 3]);
@@ -40,14 +39,14 @@ class ConversationTest extends TestCase
         $this->assertFalse($spam->isActive());
     }
 
-    public function test_isClosed_returns_true_for_status_3(): void
+    public function test_is_closed_returns_true_for_status_3(): void
     {
         $conversation = Conversation::factory()->create(['status' => 3]);
 
         $this->assertTrue($conversation->isClosed());
     }
 
-    public function test_isClosed_returns_false_for_other_statuses(): void
+    public function test_is_closed_returns_false_for_other_statuses(): void
     {
         $active = Conversation::factory()->active()->create();
         $pending = Conversation::factory()->create(['status' => 2]);
@@ -107,7 +106,7 @@ class ConversationTest extends TestCase
 
     public function test_conversation_has_required_fillable_fields(): void
     {
-        $conversation = new Conversation();
+        $conversation = new Conversation;
         $fillable = $conversation->getFillable();
 
         $this->assertContains('subject', $fillable);
@@ -422,7 +421,7 @@ class ConversationTest extends TestCase
         foreach ($statuses as $status) {
             $conversation = Conversation::factory()->create(['status' => $status]);
             $statusName = $conversation->getStatusName();
-            
+
             // Should return a non-empty string
             $this->assertNotEmpty($statusName);
             $this->assertIsString($statusName);
@@ -441,7 +440,7 @@ class ConversationTest extends TestCase
         foreach ($statuses as $status) {
             $conversation = Conversation::factory()->create(['status' => $status]);
             $color = $conversation->getStatusColor();
-            
+
             // Should return valid hex color
             $this->assertMatchesRegularExpression('/^#[0-9a-f]{6}$/i', $color);
         }
@@ -457,7 +456,7 @@ class ConversationTest extends TestCase
         // All colors should be different
         $colors = [$activeColor, $pendingColor, $closedColor, $spamColor];
         $uniqueColors = array_unique($colors);
-        
+
         $this->assertCount(4, $uniqueColors, 'Each status should have a unique color');
     }
 }

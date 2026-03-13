@@ -9,7 +9,6 @@ use Tests\UnitTestCase;
 
 class ConfigureGmailMailboxCommandTest extends UnitTestCase
 {
-
     public function test_command_can_be_instantiated(): void
     {
         $command = new ConfigureGmailMailbox;

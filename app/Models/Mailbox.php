@@ -213,6 +213,7 @@ class Mailbox extends Model
     public function hasAlias(string $email): bool
     {
         $aliases = $this->getAliasesArray();
+
         return in_array($email, $aliases);
     }
 
@@ -229,7 +230,8 @@ class Mailbox extends Model
         if (is_array($this->aliases)) {
             return $this->aliases;
         }
-        return explode(',', (string)$this->aliases);
+
+        return explode(',', (string) $this->aliases);
     }
 
     /**
@@ -239,7 +241,7 @@ class Mailbox extends Model
      */
     public function getAliases(bool $includeMailboxEmail = false, bool $checkAliasesReply = false): array
     {
-        if ($checkAliasesReply && !$this->aliases_reply) {
+        if ($checkAliasesReply && ! $this->aliases_reply) {
             return [];
         }
 
@@ -249,7 +251,7 @@ class Mailbox extends Model
         }
 
         if ($this->aliases) {
-            $aliasesList = is_array($this->aliases) ? $this->aliases : preg_split('/[,\n\r]+/', (string)$this->aliases);
+            $aliasesList = is_array($this->aliases) ? $this->aliases : preg_split('/[,\n\r]+/', (string) $this->aliases);
             if ($aliasesList === false) {
                 $aliasesList = [];
             }
@@ -284,15 +286,15 @@ class Mailbox extends Model
     /**
      * Remove mailbox email and aliases from the list of emails.
      *
-     * @param array<string> $list
+     * @param  array<string>  $list
      * @return array<string>
      */
     public function removeMailboxEmailsFromList(array $list): array
     {
         $mailboxEmails = array_keys($this->getAliases(true, false));
-        
+
         return array_filter($list, function ($email) use ($mailboxEmails) {
-            return !in_array(strtolower(trim($email)), array_map('strtolower', $mailboxEmails));
+            return ! in_array(strtolower(trim($email)), array_map('strtolower', $mailboxEmails));
         });
     }
 
@@ -301,7 +303,7 @@ class Mailbox extends Model
      */
     public function isFetchingEnabled(): bool
     {
-        return !empty($this->in_server);
+        return ! empty($this->in_server);
     }
 
     /**
@@ -309,6 +311,6 @@ class Mailbox extends Model
      */
     public function isSendingEnabled(): bool
     {
-        return !empty($this->out_server);
+        return ! empty($this->out_server);
     }
 }

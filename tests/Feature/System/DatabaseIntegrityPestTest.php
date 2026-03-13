@@ -1,44 +1,47 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 
-function getModels() {
+function getModels()
+{
     $models = [];
     $basePath = base_path();
 
     // Helper to scan directory
     $scanDirectory = function ($dir, $namespacePrefix) {
         $found = [];
-        if (!File::exists($dir)) return [];
+        if (! File::exists($dir)) {
+            return [];
+        }
         $files = File::allFiles($dir);
         foreach ($files as $file) {
             $relativePath = $file->getRelativePathname();
-            $class = $namespacePrefix . '\\' . str_replace(['/', '.php'], ['\\', ''], $relativePath);
+            $class = $namespacePrefix.'\\'.str_replace(['/', '.php'], ['\\', ''], $relativePath);
             if (class_exists($class) && is_subclass_of($class, \Illuminate\Database\Eloquent\Model::class)) {
                 $found[] = $class;
             }
         }
+
         return $found;
     };
 
     // 1. Scan app/Models
-    $models = array_merge($models, $scanDirectory($basePath . '/app/Models', 'App\\Models'));
+    $models = array_merge($models, $scanDirectory($basePath.'/app/Models', 'App\\Models'));
 
     // 2. Scan Modules
-    $modulesPath = $basePath . '/Modules';
+    $modulesPath = $basePath.'/Modules';
     if (File::exists($modulesPath)) {
         $modules = File::directories($modulesPath);
         foreach ($modules as $modulePath) {
             $moduleName = basename($modulePath);
             // Check Models dir
-            if (File::exists($modulePath . '/Models')) {
-                $models = array_merge($models, $scanDirectory($modulePath . '/Models', "Modules\\{$moduleName}\\Models"));
+            if (File::exists($modulePath.'/Models')) {
+                $models = array_merge($models, $scanDirectory($modulePath.'/Models', "Modules\\{$moduleName}\\Models"));
             }
         }
     }
-    
+
     return $models;
 }
 
@@ -94,12 +97,14 @@ test('all models have tables', function () {
     foreach ($models as $class) {
         // Skip abstract or base classes if any were picked up (is_subclass checks instances, but we need to check if abstract)
         $ref = new ReflectionClass($class);
-        if ($ref->isAbstract()) continue;
+        if ($ref->isAbstract()) {
+            continue;
+        }
 
-        $model = new $class();
+        $model = new $class;
         $table = $model->getTable();
 
-        if (!Schema::hasTable($table)) {
+        if (! Schema::hasTable($table)) {
             $failures[] = "Missing table '{$table}' for model '{$class}'";
         }
     }
@@ -115,15 +120,19 @@ test('all fillable columns exist', function () {
     ];
 
     foreach ($models as $class) {
-        if (in_array($class, $ignoreModels)) continue;
+        if (in_array($class, $ignoreModels)) {
+            continue;
+        }
 
         $ref = new ReflectionClass($class);
-        if ($ref->isAbstract()) continue;
+        if ($ref->isAbstract()) {
+            continue;
+        }
 
-        $model = new $class();
+        $model = new $class;
         $table = $model->getTable();
-        
-        if (!Schema::hasTable($table)) {
+
+        if (! Schema::hasTable($table)) {
             continue; // Already caught by previous test
         }
 
@@ -131,7 +140,7 @@ test('all fillable columns exist', function () {
         $columns = Schema::getColumnListing($table);
 
         foreach ($fillables as $fillable) {
-            if (!in_array($fillable, $columns)) {
+            if (! in_array($fillable, $columns)) {
                 $failures[] = "Column '{$fillable}' defined in \$fillable missing in table '{$table}' for model '{$class}'";
             }
         }

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Contact;
 use Modules\Crm\Models\ContactPermission;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 
 class PermissionMatrixController extends Controller
 {
@@ -27,7 +27,7 @@ class PermissionMatrixController extends Controller
         }
 
         $clients = $query->orderBy('name')->get();
-        
+
         // Get all permission types for the matrix header
         $permissionTypes = ContactPermission::getPermissionTypes();
 
@@ -51,7 +51,7 @@ class PermissionMatrixController extends Controller
         foreach ($validated['updates'] as $update) {
             /** @var \Modules\Crm\Models\Contact $contact */
             $contact = Contact::findOrFail($update['contact_id']);
-            
+
             if ($update['permission_type'] === 'none') {
                 // Remove all permissions
                 $contact->permissions()->delete();
@@ -71,7 +71,7 @@ class PermissionMatrixController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', count($validated['updates']) . ' permissions updated successfully.');
+        return redirect()->back()->with('success', count($validated['updates']).' permissions updated successfully.');
     }
 
     /**

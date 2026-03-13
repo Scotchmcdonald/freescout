@@ -40,8 +40,8 @@ class SendNotificationToUsersJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param Collection<int, User> $users
-     * @param Collection<int, Thread> $threads
+     * @param  Collection<int, User>  $users
+     * @param  Collection<int, Thread>  $threads
      */
     public function __construct(
         public Collection $users,
@@ -79,7 +79,7 @@ class SendNotificationToUsersJob implements ShouldQueue
 
         // Do not send email notifications to support agents
         // if the email is a bounce and mail server send limit reached
-        if ($lastThread->type == Thread::TYPE_BOUNCE 
+        if ($lastThread->type == Thread::TYPE_BOUNCE
             && str_contains((string) $lastThread->body, 'message limit exceeded')
         ) {
             return;
@@ -194,7 +194,7 @@ class SendNotificationToUsersJob implements ShouldQueue
         if ($globalException) {
             // Retry job with delay
             // We do not try to resend Bounce messages
-            if ($this->attempts() < $this->tries 
+            if ($this->attempts() < $this->tries
                 && $lastThread->type != Thread::TYPE_BOUNCE
             ) {
                 if ($this->attempts() == 1) {

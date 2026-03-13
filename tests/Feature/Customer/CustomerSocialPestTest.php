@@ -51,7 +51,7 @@ test('add social profile (linkedin)', function () {
 test('update existing social profile', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $customer = Customer::factory()->create([
-        'social_profiles' => ['twitter' => '@old']
+        'social_profiles' => ['twitter' => '@old'],
     ]);
 
     $this->actingAs($user)->postJson(route('customers.ajax'), [
@@ -68,7 +68,7 @@ test('update existing social profile', function () {
 test('delete social profile', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $customer = Customer::factory()->create([
-        'social_profiles' => ['twitter' => '@user', 'facebook' => 'fb/user']
+        'social_profiles' => ['twitter' => '@user', 'facebook' => 'fb/user'],
     ]);
 
     $this->actingAs($user)->postJson(route('customers.ajax'), [
@@ -149,7 +149,7 @@ test('duplicate website not added', function () {
 test('delete website', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $customer = Customer::factory()->create([
-        'websites' => ['https://one.com', 'https://two.com', 'https://three.com']
+        'websites' => ['https://one.com', 'https://two.com', 'https://three.com'],
     ]);
 
     // Delete index 1 (second.com)

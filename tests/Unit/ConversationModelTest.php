@@ -10,7 +10,6 @@ use Tests\UnitTestCase;
 
 class ConversationModelTest extends UnitTestCase
 {
-
     public function test_conversation_status_constants(): void
     {
         $this->assertEquals(1, Conversation::STATUS_ACTIVE);
@@ -154,7 +153,7 @@ class ConversationModelTest extends UnitTestCase
         $mailbox = \App\Models\Mailbox::withoutEvents(function () {
             return \App\Models\Mailbox::factory()->create();
         });
-        
+
         $user = \App\Models\User::factory()->create();
         $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 2]);
         $targetFolder = Folder::factory()->create([
@@ -180,7 +179,7 @@ class ConversationModelTest extends UnitTestCase
         $mailbox = \App\Models\Mailbox::withoutEvents(function () {
             return \App\Models\Mailbox::factory()->create();
         });
-        
+
         $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
         $targetFolder = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -204,9 +203,9 @@ class ConversationModelTest extends UnitTestCase
         $mailbox = \App\Models\Mailbox::withoutEvents(function () {
             return \App\Models\Mailbox::factory()->create();
         });
-        
+
         $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 2]);
-        
+
         // Closed conversations should stay in Inbox/Assigned (Type 1) or similar
         $targetFolder = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -227,13 +226,13 @@ class ConversationModelTest extends UnitTestCase
         // So if user_id is null, it looks for type 1 with ANY user_id? No, it just doesn't filter by user_id.
         // But if multiple type 1 folders exist (e.g. one per user + one global?), first() might pick wrong one.
         // Let's ensure targetFolder is the ONLY type 1 folder for this mailbox to be safe.
-        
+
         // Also, if conversation has user_id, it will try to find folder with that user_id.
         // If conversation has NO user_id, it won't filter by user_id.
-        
+
         // Let's check if conversation factory creates a user_id by default. Yes it does: 'user_id' => User::factory(),
         // So we should probably set user_id on the target folder too if we want it to match.
-        
+
         $targetFolder->user_id = $conversation->user_id;
         $targetFolder->save();
 
@@ -247,7 +246,7 @@ class ConversationModelTest extends UnitTestCase
         $mailbox = \App\Models\Mailbox::withoutEvents(function () {
             return \App\Models\Mailbox::factory()->create();
         });
-        
+
         $tempFolder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
         $targetFolder = Folder::factory()->create([
             'mailbox_id' => $mailbox->id,

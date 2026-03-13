@@ -24,7 +24,7 @@ class UserDirectoryRegistryService
     public function getAllUsers(): array
     {
         $allUsers = [];
-        
+
         foreach ($this->providers as $provider) {
             try {
                 $users = $provider->getUsers();
@@ -35,10 +35,10 @@ class UserDirectoryRegistryService
                 $allUsers = array_merge($allUsers, $users);
             } catch (\Exception $e) {
                 // Log error but continue with other providers
-                \Illuminate\Support\Facades\Log::error("Failed to fetch users from " . $provider->getSourceName() . ": " . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Failed to fetch users from '.$provider->getSourceName().': '.$e->getMessage());
             }
         }
-        
+
         return $allUsers;
     }
 }

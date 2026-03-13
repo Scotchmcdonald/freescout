@@ -8,74 +8,72 @@ use App\Console\Commands\CreateUser;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 /** @group console */
 class CreateUserTest extends UnitTestCase
 {
-
     public function test_command_can_be_instantiated(): void
     {
-        $command = new CreateUser();
-        
+        $command = new CreateUser;
+
         $this->assertInstanceOf(CreateUser::class, $command);
     }
 
     public function test_command_has_correct_signature(): void
     {
-        $command = new CreateUser();
-        
+        $command = new CreateUser;
+
         $this->assertEquals('freescout:create-user', $command->getName());
     }
 
     public function test_command_has_description(): void
     {
-        $command = new CreateUser();
-        
+        $command = new CreateUser;
+
         $this->assertNotEmpty($command->getDescription());
         $this->assertStringContainsString('user', $command->getDescription());
     }
 
     public function test_command_accepts_role_option(): void
     {
-        $command = new CreateUser();
-        
+        $command = new CreateUser;
+
         $this->assertTrue($command->getDefinition()->hasOption('role'));
     }
 
     public function test_command_accepts_first_name_option(): void
     {
-        $command = new CreateUser();
-        
+        $command = new CreateUser;
+
         $this->assertTrue($command->getDefinition()->hasOption('firstName'));
     }
 
     public function test_command_accepts_last_name_option(): void
     {
-        $command = new CreateUser();
-        
+        $command = new CreateUser;
+
         $this->assertTrue($command->getDefinition()->hasOption('lastName'));
     }
 
     public function test_command_accepts_email_option(): void
     {
-        $command = new CreateUser();
-        
+        $command = new CreateUser;
+
         $this->assertTrue($command->getDefinition()->hasOption('email'));
     }
 
     public function test_command_accepts_password_option(): void
     {
-        $command = new CreateUser();
-        
+        $command = new CreateUser;
+
         $this->assertTrue($command->getDefinition()->hasOption('password'));
     }
 
     public function test_command_accepts_verified_option(): void
     {
-        $command = new CreateUser();
-        
+        $command = new CreateUser;
+
         $this->assertTrue($command->getDefinition()->hasOption('verified'));
     }
 
@@ -234,7 +232,7 @@ class CreateUserTest extends UnitTestCase
             '--password' => 'password123',
             '--no-interaction' => true,
         ]);
-        
+
         $output = Artisan::output();
         $this->assertStringContainsString('User saved with id', $output);
     }

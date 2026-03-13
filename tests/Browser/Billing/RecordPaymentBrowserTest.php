@@ -1,20 +1,19 @@
 <?php
 
 use App\Models\User;
-use Modules\PIB\Models\Invoice;
-use Modules\Payment\Models\Payment;
 use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Company;
+use Modules\Payment\Models\Payment;
+use Modules\PIB\Models\Invoice;
 
 /**
  * Browser tests for admin record-payment workflow.
  * Uses pestphp/pest-plugin-browser (Playwright driver).
  */
-
 function createRPAdmin(): User
 {
     return User::create([
-        'email' => 'rp-admin-' . uniqid() . '@example.com',
+        'email' => 'rp-admin-'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'role' => User::ROLE_ADMIN,
         'first_name' => 'RecordPay',

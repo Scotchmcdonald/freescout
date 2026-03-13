@@ -18,7 +18,7 @@ test('users can authenticate using the login screen', function () {
         'email' => $user->email,
         'password' => 'password',
     ])
-    ->assertRedirect(route('dashboard', absolute: false));
+        ->assertRedirect(route('dashboard', absolute: false));
 
     $this->assertAuthenticated();
 });
@@ -49,8 +49,8 @@ test('users can not authenticate with non-existent email', function () {
         'email' => 'nonexistent@example.com',
         'password' => 'password',
     ])
-    ->assertSessionHasErrors();
-    
+        ->assertSessionHasErrors();
+
     $this->assertGuest();
 });
 
@@ -58,8 +58,8 @@ test('login requires email', function () {
     $this->post('/login', [
         'password' => 'password123',
     ])
-    ->assertSessionHasErrors('email');
-    
+        ->assertSessionHasErrors('email');
+
     $this->assertGuest();
 });
 
@@ -67,7 +67,7 @@ test('login requires password', function () {
     $this->post('/login', [
         'email' => 'test@example.com',
     ])
-    ->assertSessionHasErrors('password');
-    
+        ->assertSessionHasErrors('password');
+
     $this->assertGuest();
 });

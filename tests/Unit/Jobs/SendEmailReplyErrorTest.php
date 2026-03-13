@@ -10,12 +10,10 @@ use App\Models\SendLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class SendEmailReplyErrorTest extends UnitTestCase
 {
-
     public function test_job_has_required_properties(): void
     {
         $from = 'test@example.com';
@@ -84,7 +82,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $job = new SendEmailReplyError('test@example.com', $user, $mailbox);
         $job->handle();
     }
@@ -96,7 +94,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $job = new SendEmailReplyError('success@example.com', $user, $mailbox);
         $job->handle();
 
@@ -115,7 +113,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $job = new SendEmailReplyError('test@example.com', $user, $mailbox);
         $job->handle();
 
@@ -139,7 +137,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $job = new SendEmailReplyError('error@example.com', $user, $mailbox);
 
         $job->handle();
@@ -154,7 +152,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $job = new SendEmailReplyError('exception@example.com', $user, $mailbox);
 
         try {
@@ -181,7 +179,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $job = new SendEmailReplyError('test@example.com', $user, $mailbox);
         $job->handle();
     }
@@ -193,7 +191,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $job = new SendEmailReplyError('test@example.com', $user, $mailbox);
         $job->handle();
 

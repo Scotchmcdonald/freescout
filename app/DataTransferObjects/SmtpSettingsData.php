@@ -27,24 +27,25 @@ readonly class SmtpSettingsData
      * Construct from a legacy raw array.
      * Missing keys become zero-values; non-numeric port becomes 0.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {
         return new self(
             outServer: is_string($data['out_server'] ?? null) ? $data['out_server'] : '',
             outPort: (static function () use ($data): int {
-            $port = $data['out_port'] ?? null;
-            if ($port === null || $port === '' || $port === 0) {
-                return 0;
-            }
-            if (is_numeric($port)) {
-                return intval($port);
-            }
-            // Non-numeric, non-empty string — use -1 to signal an invalid value
-            // so the service returns the range error rather than "required".
-            return -1;
-        })(),
+                $port = $data['out_port'] ?? null;
+                if ($port === null || $port === '' || $port === 0) {
+                    return 0;
+                }
+                if (is_numeric($port)) {
+                    return intval($port);
+                }
+
+                // Non-numeric, non-empty string — use -1 to signal an invalid value
+                // so the service returns the range error rather than "required".
+                return -1;
+            })(),
             email: is_string($data['email'] ?? null) ? $data['email'] : '',
             outEncryption: is_numeric($data['out_encryption'] ?? null) ? intval($data['out_encryption']) : 0,
             outUsername: isset($data['out_username']) && is_string($data['out_username']) ? $data['out_username'] : null,

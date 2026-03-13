@@ -12,7 +12,11 @@ function getOwnershipAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -28,7 +32,7 @@ test('pib uses client api not direct query', function () {
     $client = Client::factory()->create();
     $companyId = $client->company_id;
 
-    if (!$companyId) {
+    if (! $companyId) {
         try {
             $companyId = \Illuminate\Support\Facades\DB::table('companies')->insertGetId([
                 'name' => 'Test Company',
@@ -42,7 +46,7 @@ test('pib uses client api not direct query', function () {
         }
     }
 
-    $invoiceNumber = 'INV-' . uniqid();
+    $invoiceNumber = 'INV-'.uniqid();
     \Illuminate\Support\Facades\DB::table('pib_invoices')->insert([
         'client_id' => $client->id,
         'company_id' => $companyId,
@@ -55,7 +59,7 @@ test('pib uses client api not direct query', function () {
         'updated_at' => now(),
     ]);
 
-    $service = new \Modules\PIB\Services\BillingService();
+    $service = new \Modules\PIB\Services\BillingService;
     $invoices = $service->getInvoicesForClient($client->id);
 
     expect($invoices)->toHaveCount(1);

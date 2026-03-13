@@ -2,8 +2,6 @@
 
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -67,14 +65,14 @@ test('activate license handles api failure', function () {
     expect($success)->toBeFalse();
 });
 
-// Since we can't easily mock Option::get for "deactivate" logic without partial mocks in Pest 
-// (unless we seed DB options which might be static cached), 
+// Since we can't easily mock Option::get for "deactivate" logic without partial mocks in Pest
+// (unless we seed DB options which might be static cached),
 // we will trust the existing controller logic or add DB seeding if needed.
 // The legacy test used: \App\Models\Option::set('module_licenses', json_encode(['test-module' => 'test-license']));
 
 test('admin can deactivate license', function () {
     $this->actingAs($this->admin);
-    
+
     // Seed the license
     \App\Models\Option::set('module_licenses', json_encode(['test-module' => 'test-license']));
 

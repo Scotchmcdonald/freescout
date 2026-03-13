@@ -8,7 +8,6 @@ use App\Models\Mailbox;
 use App\Services\ImapService;
 use Illuminate\Support\Facades\Log;
 use Tests\UnitTestCase;
-use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 
 class ImapConnectionEdgeCasesTest extends UnitTestCase
 {
@@ -17,10 +16,10 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create([
             'in_server' => null,
         ]);
-        
+
         $imapService = app(ImapService::class);
         $result = $imapService->fetchEmails($mailbox);
-        
+
         $this->assertEquals(0, $result['fetched']);
         $this->assertEquals(0, $result['created']);
         $this->assertCount(1, $result['messages']);
@@ -32,10 +31,10 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create([
             'in_server' => '',
         ]);
-        
+
         $imapService = app(ImapService::class);
         $result = $imapService->fetchEmails($mailbox);
-        
+
         $this->assertEquals(0, $result['fetched']);
         $this->assertEquals(0, $result['created']);
         $this->assertNotEmpty($result['messages']);
@@ -47,7 +46,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_imap_folders' => null,
         ]);
-        
+
         // Should default to INBOX
         $this->assertNull($mailbox->in_imap_folders);
     }
@@ -58,7 +57,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_imap_folders' => '',
         ]);
-        
+
         // Should be treated as empty
         $this->assertEquals('', $mailbox->in_imap_folders);
     }
@@ -69,7 +68,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_imap_folders' => 'INBOX,Sent,Trash', // Store as string, cast to array
         ]);
-        
+
         // Should be able to parse as array
         $folders = is_array($mailbox->in_imap_folders) ? $mailbox->in_imap_folders : explode(',', $mailbox->in_imap_folders);
         $this->assertCount(3, $folders);
@@ -81,7 +80,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_imap_folders' => 'INBOX,Sent,Trash',
         ]);
-        
+
         $folders = explode(',', $mailbox->in_imap_folders);
         $this->assertCount(3, $folders);
         $this->assertEquals('INBOX', $folders[0]);
@@ -93,7 +92,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_port' => 99999, // Invalid port
         ]);
-        
+
         $this->assertEquals(99999, $mailbox->in_port);
     }
 
@@ -104,7 +103,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_username' => null,
             'in_password' => null,
         ]);
-        
+
         $this->assertNull($mailbox->in_username);
         $this->assertNull($mailbox->in_password);
     }
@@ -115,7 +114,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_encryption' => 1, // SSL = 1
         ]);
-        
+
         $this->assertEquals(1, $mailbox->in_encryption);
     }
 
@@ -125,7 +124,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_encryption' => 2, // TLS = 2
         ]);
-        
+
         $this->assertEquals(2, $mailbox->in_encryption);
     }
 
@@ -135,7 +134,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_encryption' => 0, // None = 0
         ]);
-        
+
         $this->assertEquals(0, $mailbox->in_encryption);
     }
 
@@ -144,10 +143,10 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create([
             'in_server' => null,
         ]);
-        
+
         $imapService = app(ImapService::class);
         $result = $imapService->fetchEmails($mailbox);
-        
+
         $this->assertArrayHasKey('fetched', $result);
         $this->assertArrayHasKey('created', $result);
         $this->assertArrayHasKey('errors', $result);
@@ -159,10 +158,10 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create([
             'in_server' => null,
         ]);
-        
+
         $imapService = app(ImapService::class);
         $result = $imapService->fetchEmails($mailbox);
-        
+
         $this->assertIsInt($result['fetched']);
         $this->assertIsInt($result['created']);
         $this->assertIsInt($result['errors']);
@@ -174,11 +173,11 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
         Log::shouldReceive('warning')
             ->once()
             ->with('IMAP fetch skipped - no server configured', \Mockery::any());
-        
+
         $mailbox = Mailbox::factory()->create([
             'in_server' => null,
         ]);
-        
+
         $imapService = app(ImapService::class);
         $imapService->fetchEmails($mailbox);
     }
@@ -189,7 +188,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_imap_folders' => 'INBOX,Sent Items,[Gmail]/Trash',
         ]);
-        
+
         $folders = explode(',', $mailbox->in_imap_folders);
         $this->assertStringContainsString('[Gmail]', $folders[2]);
     }
@@ -200,7 +199,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'in_imap_folders' => 'INBOX, Sent, Trash',
         ]);
-        
+
         $folders = explode(',', $mailbox->in_imap_folders);
         $this->assertCount(3, $folders);
     }
@@ -211,7 +210,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'out_server' => 'smtp.example.com',
             'out_port' => 587,
         ]);
-        
+
         $this->assertEquals('smtp.example.com', $mailbox->out_server);
         $this->assertEquals(587, $mailbox->out_port);
     }
@@ -223,7 +222,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'out_username' => 'user@example.com',
             'out_password' => 'password',
         ]);
-        
+
         $this->assertNotNull($mailbox->out_username);
         $this->assertNotNull($mailbox->out_password);
     }
@@ -234,7 +233,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => 'imap.example.com',
             'out_server' => 'smtp.example.com',
         ]);
-        
+
         $this->assertNotNull($mailbox->in_server);
         $this->assertNotNull($mailbox->out_server);
     }
@@ -245,7 +244,7 @@ class ImapConnectionEdgeCasesTest extends UnitTestCase
             'in_server' => null,
             'out_server' => 'smtp.example.com',
         ]);
-        
+
         $this->assertNull($mailbox->in_server);
         $this->assertNotNull($mailbox->out_server);
     }

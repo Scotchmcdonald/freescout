@@ -40,7 +40,7 @@ class Alert extends Mailable
         } else {
             $subject .= 'Alert';
         }
-        
+
         // Get domain from app URL
         $appUrl = config('app.url');
         $appUrl = is_string($appUrl) ? $appUrl : '';

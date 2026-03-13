@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
 use App\Models\Mailbox;
+use App\Models\User;
 
 function getMailboxMgmtAdmin(): User
 {
@@ -12,7 +12,11 @@ function getMailboxMgmtAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -46,7 +50,7 @@ it('mailbox settings page loads', function () {
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
-    $this->visit('/mailbox/' . $mailbox->id . '/settings')
+    $this->visit('/mailbox/'.$mailbox->id.'/settings')
         ->assertSee('Mailbox Settings');
 })->group('admin', 'mailboxes');
 

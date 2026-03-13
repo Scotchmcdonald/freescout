@@ -410,8 +410,8 @@ test('conversation with maximum threads loads acceptably', function () {
     $memoryUsed = ($endMemory - $startMemory) / 1024 / 1024;
 
     $response->assertOk();
-    
+
     // 3000ms is a relaxed limit for 100 threads
     expect($loadTime)->toBeLessThan(3000, "Load time {$loadTime}ms")
-         ->and($memoryUsed)->toBeLessThan(50, "Memory used {$memoryUsed}MB");
+        ->and($memoryUsed)->toBeLessThan(50, "Memory used {$memoryUsed}MB");
 });

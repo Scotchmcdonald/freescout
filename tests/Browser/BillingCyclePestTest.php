@@ -6,19 +6,19 @@ use Modules\ContractManager\Models\BillingTemplateLineItem;
 use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Company;
 use Modules\PIB\Models\Invoice;
-use function Pest\Laravel\{actingAs};
 
 /**
  * Helper to log in a user via the UI.
  */
-function login($browser, $user, $password = 'password', $url = '/login') {
+function login($browser, $user, $password = 'password', $url = '/login')
+{
     $browser->visit($url)
         ->assertVisible('input[name="email"]')
         ->type('email', $user->email)
         ->type('password', $password)
         ->click('button[type="submit"]') // Generic submit button
         // Wait for redirect? Usually implicit by next assertion
-        ->wait(); 
+        ->wait();
 }
 
 it('admin can generate invoice from template', function () {
@@ -29,7 +29,10 @@ it('admin can generate invoice from template', function () {
         'last_name' => 'CycleAdmin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $client = Client::factory()->create(['name' => 'Invoice Template Client']);
 
@@ -68,7 +71,7 @@ test('client can pay invoice', function () {
         'type' => 2,
         'first_name' => 'Payment Test',
         'last_name' => 'User',
-        'email' => 'payment-' . uniqid() . '@example.com',
+        'email' => 'payment-'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
@@ -79,13 +82,13 @@ test('client can pay invoice', function () {
     $invoice = Invoice::create([
         'client_id' => $client->id,
         'company_id' => $company->id,
-        'invoice_number' => 'INV-' . uniqid(),
+        'invoice_number' => 'INV-'.uniqid(),
         'status' => 'sent',
         'invoice_date' => now(),
         'due_date' => now()->addDays(30),
         'total_amount' => 1000.00,
         'subtotal' => 1000.00,
-        'tax_amount' => 0
+        'tax_amount' => 0,
     ]);
 
     // Client Login at /portal/login
@@ -96,9 +99,8 @@ test('client can pay invoice', function () {
         ->click('button[type="submit"]'); // Assuming standard button
 
     $this->visit('/portal/invoices')
-             ->assertVisible($invoice->invoice_number)
-             ->click($invoice->invoice_number)
-             ->assertVisible('Pay Now')
-             ->assertSee('$1,000.00');
-
+        ->assertVisible($invoice->invoice_number)
+        ->click($invoice->invoice_number)
+        ->assertVisible('Pay Now')
+        ->assertSee('$1,000.00');
 })->group('billing', 'payment');

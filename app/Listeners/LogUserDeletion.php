@@ -17,7 +17,7 @@ class LogUserDeletion
         activity()
             ->causedBy($event->by_user)
             ->withProperties([
-                'deleted_user' => $event->deleted_user->getFullName() . ' [' . $event->deleted_user->id . ']',
+                'deleted_user' => $event->deleted_user->getFullName().' ['.$event->deleted_user->id.']',
             ])
             ->useLog(ActivityLog::NAME_USER)
             ->log(ActivityLog::DESCRIPTION_USER_DELETED);

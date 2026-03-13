@@ -23,7 +23,7 @@ class ChannelTest extends UnitTestCase
             'type' => 1,
             'active' => true,
         ]);
-        
+
         $this->assertInstanceOf(Channel::class, $channel);
         $this->assertDatabaseHas('channels', [
             'id' => $channel->id,
@@ -33,8 +33,8 @@ class ChannelTest extends UnitTestCase
 
     public function test_channel_has_correct_fillable_attributes(): void
     {
-        $channel = new Channel();
-        
+        $channel = new Channel;
+
         $this->assertContains('name', $channel->getFillable());
         $this->assertContains('type', $channel->getFillable());
         $this->assertContains('settings', $channel->getFillable());
@@ -44,7 +44,7 @@ class ChannelTest extends UnitTestCase
     public function test_channel_uses_has_factory_trait(): void
     {
         $channel = Channel::factory()->create();
-        
+
         $this->assertInstanceOf(Channel::class, $channel);
     }
 
@@ -53,7 +53,7 @@ class ChannelTest extends UnitTestCase
     public function test_type_is_cast_to_integer(): void
     {
         $channel = Channel::factory()->create(['type' => '1']);
-        
+
         $this->assertIsInt($channel->type);
     }
 
@@ -61,7 +61,7 @@ class ChannelTest extends UnitTestCase
     {
         $settings = ['key' => 'value', 'enabled' => true];
         $channel = Channel::factory()->create(['settings' => $settings]);
-        
+
         $this->assertEquals($settings, $channel->settings);
         $this->assertIsArray($channel->settings);
     }
@@ -69,7 +69,7 @@ class ChannelTest extends UnitTestCase
     public function test_active_is_cast_to_boolean(): void
     {
         $channel = Channel::factory()->create(['active' => 1]);
-        
+
         $this->assertIsBool($channel->active);
         $this->assertTrue($channel->active);
     }
@@ -77,14 +77,14 @@ class ChannelTest extends UnitTestCase
     public function test_created_at_is_cast_to_datetime(): void
     {
         $channel = Channel::factory()->create();
-        
+
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $channel->created_at);
     }
 
     public function test_updated_at_is_cast_to_datetime(): void
     {
         $channel = Channel::factory()->create();
-        
+
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $channel->updated_at);
     }
 
@@ -94,9 +94,9 @@ class ChannelTest extends UnitTestCase
     {
         $channel = Channel::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $channel->customers()->attach($customer->id);
-        
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $channel->customers);
         $this->assertCount(1, $channel->customers);
         $this->assertEquals($customer->id, $channel->customers->first()->id);
@@ -106,11 +106,11 @@ class ChannelTest extends UnitTestCase
     {
         $channel = Channel::factory()->create();
         $customers = Customer::factory()->count(3)->create();
-        
+
         foreach ($customers as $customer) {
             $channel->customers()->attach($customer->id);
         }
-        
+
         $this->assertCount(3, $channel->fresh()->customers);
     }
 
@@ -118,9 +118,9 @@ class ChannelTest extends UnitTestCase
     {
         $channel = Channel::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $channel->customers()->attach($customer->id);
-        
+
         $pivot = $channel->customers()->first()->pivot;
         $this->assertNotNull($pivot->created_at);
         $this->assertNotNull($pivot->updated_at);
@@ -131,14 +131,14 @@ class ChannelTest extends UnitTestCase
     public function test_is_active_returns_true_when_channel_is_active(): void
     {
         $channel = Channel::factory()->create(['active' => true]);
-        
+
         $this->assertTrue($channel->isActive());
     }
 
     public function test_is_active_returns_false_when_channel_is_inactive(): void
     {
         $channel = Channel::factory()->create(['active' => false]);
-        
+
         $this->assertFalse($channel->isActive());
     }
 
@@ -147,14 +147,14 @@ class ChannelTest extends UnitTestCase
     public function test_channel_has_name_attribute(): void
     {
         $channel = Channel::factory()->create(['name' => 'Email Channel']);
-        
+
         $this->assertEquals('Email Channel', $channel->name);
     }
 
     public function test_channel_has_type_attribute(): void
     {
         $channel = Channel::factory()->create(['type' => 5]);
-        
+
         $this->assertEquals(5, $channel->type);
     }
 
@@ -164,9 +164,9 @@ class ChannelTest extends UnitTestCase
     {
         Channel::factory()->count(3)->create(['active' => true]);
         Channel::factory()->count(2)->create(['active' => false]);
-        
+
         $activeChannels = Channel::where('active', true)->get();
-        
+
         $this->assertCount(3, $activeChannels);
     }
 
@@ -174,9 +174,9 @@ class ChannelTest extends UnitTestCase
     {
         Channel::factory()->count(2)->create(['type' => 1]);
         Channel::factory()->create(['type' => 2]);
-        
+
         $channels = Channel::where('type', 1)->get();
-        
+
         $this->assertCount(2, $channels);
     }
 
@@ -184,9 +184,9 @@ class ChannelTest extends UnitTestCase
     {
         Channel::factory()->create(['name' => 'Channel One']);
         Channel::factory()->create(['name' => 'Channel Two']);
-        
+
         $channel = Channel::where('name', 'Channel One')->first();
-        
+
         $this->assertNotNull($channel);
         $this->assertEquals('Channel One', $channel->name);
     }
@@ -196,14 +196,14 @@ class ChannelTest extends UnitTestCase
     public function test_channel_with_null_settings(): void
     {
         $channel = Channel::factory()->create(['settings' => null]);
-        
+
         $this->assertNull($channel->settings);
     }
 
     public function test_channel_with_empty_settings_array(): void
     {
         $channel = Channel::factory()->create(['settings' => []]);
-        
+
         $this->assertEquals([], $channel->settings);
     }
 
@@ -214,9 +214,9 @@ class ChannelTest extends UnitTestCase
             'webhook_url' => 'https://example.com/webhook',
             'options' => ['opt1' => true, 'opt2' => false],
         ];
-        
+
         $channel = Channel::factory()->create(['settings' => $settings]);
-        
+
         $this->assertEquals($settings, $channel->settings);
         $this->assertEquals('secret', $channel->settings['api_key']);
     }
@@ -224,9 +224,9 @@ class ChannelTest extends UnitTestCase
     public function test_channel_can_be_updated(): void
     {
         $channel = Channel::factory()->create(['name' => 'Old Name']);
-        
+
         $channel->update(['name' => 'New Name']);
-        
+
         $this->assertEquals('New Name', $channel->fresh()->name);
     }
 
@@ -234,16 +234,16 @@ class ChannelTest extends UnitTestCase
     {
         $channel = Channel::factory()->create();
         $id = $channel->id;
-        
+
         $channel->delete();
-        
+
         $this->assertDatabaseMissing('channels', ['id' => $id]);
     }
 
     public function test_channel_timestamps_are_automatically_set(): void
     {
         $channel = Channel::factory()->create();
-        
+
         $this->assertNotNull($channel->created_at);
         $this->assertNotNull($channel->updated_at);
     }
@@ -252,10 +252,10 @@ class ChannelTest extends UnitTestCase
     {
         $channel = Channel::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $channel->customers()->attach($customer->id);
         $this->assertCount(1, $channel->fresh()->customers);
-        
+
         $channel->customers()->detach($customer->id);
         $this->assertCount(0, $channel->fresh()->customers);
     }
@@ -263,21 +263,21 @@ class ChannelTest extends UnitTestCase
     public function test_channel_with_no_customers(): void
     {
         $channel = Channel::factory()->create();
-        
+
         $this->assertCount(0, $channel->customers);
     }
 
     public function test_multiple_channels_can_be_created(): void
     {
         Channel::factory()->count(5)->create();
-        
+
         $this->assertCount(5, Channel::all());
     }
 
     public function test_channel_with_special_characters_in_name(): void
     {
         $channel = Channel::factory()->create(['name' => 'Channel & Special "Chars"']);
-        
+
         $this->assertEquals('Channel & Special "Chars"', $channel->name);
     }
 
@@ -285,17 +285,17 @@ class ChannelTest extends UnitTestCase
     {
         $longName = str_repeat('Channel Name ', 20);
         $channel = Channel::factory()->create(['name' => $longName]);
-        
+
         $this->assertEquals($longName, $channel->name);
     }
 
     public function test_channel_active_status_can_be_toggled(): void
     {
         $channel = Channel::factory()->create(['active' => true]);
-        
+
         $channel->update(['active' => false]);
         $this->assertFalse($channel->fresh()->isActive());
-        
+
         $channel->update(['active' => true]);
         $this->assertTrue($channel->fresh()->isActive());
     }
@@ -303,9 +303,9 @@ class ChannelTest extends UnitTestCase
     public function test_channel_type_can_be_changed(): void
     {
         $channel = Channel::factory()->create(['type' => 1]);
-        
+
         $channel->update(['type' => 2]);
-        
+
         $this->assertEquals(2, $channel->fresh()->type);
     }
 
@@ -313,9 +313,9 @@ class ChannelTest extends UnitTestCase
     {
         $channel = Channel::factory()->create();
         $customers = Customer::factory()->count(3)->create();
-        
+
         $channel->customers()->sync($customers->pluck('id')->toArray());
-        
+
         $this->assertCount(3, $channel->fresh()->customers);
     }
 
@@ -323,25 +323,25 @@ class ChannelTest extends UnitTestCase
     {
         $customer = Customer::factory()->create();
         $channels = Channel::factory()->count(3)->create();
-        
+
         foreach ($channels as $channel) {
             $channel->customers()->attach($customer->id);
         }
-        
+
         $this->assertCount(3, $customer->fresh()->channels);
     }
 
     public function test_channel_with_zero_type(): void
     {
         $channel = Channel::factory()->create(['type' => 0]);
-        
+
         $this->assertEquals(0, $channel->type);
     }
 
     public function test_channel_with_negative_type(): void
     {
         $channel = Channel::factory()->create(['type' => -1]);
-        
+
         $this->assertEquals(-1, $channel->type);
     }
 
@@ -349,9 +349,9 @@ class ChannelTest extends UnitTestCase
     {
         Channel::factory()->count(2)->create(['active' => true]);
         Channel::factory()->count(3)->create(['active' => false]);
-        
+
         $inactiveChannels = Channel::where('active', false)->get();
-        
+
         $this->assertCount(3, $inactiveChannels);
     }
 

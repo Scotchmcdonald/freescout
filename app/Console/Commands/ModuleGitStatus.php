@@ -19,8 +19,9 @@ class ModuleGitStatus extends Command
     {
         $modulesPath = base_path('Modules');
 
-        if (!File::isDirectory($modulesPath)) {
+        if (! File::isDirectory($modulesPath)) {
             $this->error('Modules directory not found');
+
             return 1;
         }
 
@@ -36,9 +37,9 @@ class ModuleGitStatus extends Command
         foreach ($paths as $repoPath) {
             $isApp = $repoPath === base_path();
             $moduleName = $isApp ? 'App (freescout)' : basename($repoPath);
-            $gitDir = $repoPath . '/.git';
+            $gitDir = $repoPath.'/.git';
 
-            if (!File::isDirectory($gitDir)) {
+            if (! File::isDirectory($gitDir)) {
                 $results[] = [
                     'module' => $moduleName,
                     'status' => 'No git repo',
@@ -108,7 +109,7 @@ class ModuleGitStatus extends Command
         if ($this->option('short')) {
             $this->table(
                 ['Module', 'Branch', 'Status'],
-                collect($results)->map(fn($r) => [
+                collect($results)->map(fn ($r) => [
                     $r['module'],
                     $r['branch'],
                     $r['status'],
@@ -117,7 +118,7 @@ class ModuleGitStatus extends Command
         } else {
             $this->table(
                 ['Module', 'Branch', 'Remote', 'Status'],
-                collect($results)->map(fn($r) => [
+                collect($results)->map(fn ($r) => [
                     $r['module'],
                     $r['branch'],
                     $r['remote'],

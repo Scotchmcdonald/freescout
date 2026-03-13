@@ -1,9 +1,9 @@
 <?php
 
 use App\Models\User;
-use Modules\EmailMigration\Models\MigrationProject;
 use Modules\EmailMigration\Events\MigrationProgressUpdated;
 use Modules\EmailMigration\Jobs\CancelMigrationJob;
+use Modules\EmailMigration\Models\MigrationProject;
 
 it('complete migration wizard flow', function () {
     $admin = User::firstOrCreate(['email' => 'wizard-admin@example.com'], [
@@ -13,7 +13,10 @@ it('complete migration wizard flow', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $this->visit('/login')
         ->type('email', $admin->email)

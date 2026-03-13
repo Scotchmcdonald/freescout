@@ -11,7 +11,6 @@ use Tests\UnitTestCase;
 
 class ActivityLogModelTest extends UnitTestCase
 {
-
     public function test_model_can_be_instantiated(): void
     {
         $log = new ActivityLog;

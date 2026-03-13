@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services;
 
-use App\Services\ImapService;
 use App\Models\Mailbox;
-use App\Models\Customer;
-use Tests\UnitTestCase;
+use App\Services\ImapService;
 use Mockery;
-use Webklex\PHPIMAP\Client;
+use Tests\UnitTestCase;
 use Webklex\PHPIMAP\Folder;
-use Webklex\PHPIMAP\Message;
-use Webklex\PHPIMAP\Attribute;
 
 /**
  * Test Suite for IMAP Service Helper Methods - Edge Cases & Integration
@@ -32,7 +28,7 @@ class ImapServiceHelpersEdgeCasesTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImapService();
+        $this->service = new ImapService;
     }
 
     protected function tearDown(): void
@@ -146,7 +142,7 @@ class ImapServiceHelpersEdgeCasesTest extends UnitTestCase
         $this->assertFalse($result['success']);
         $this->assertNotEmpty($result['message']);
         $this->assertTrue(
-            str_contains($result['message'], 'Connection failed') || 
+            str_contains($result['message'], 'Connection failed') ||
             str_contains($result['message'], 'Error')
         );
     }

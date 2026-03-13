@@ -11,7 +11,6 @@ use Tests\UnitTestCase;
 
 class SendConversationReplyTest extends UnitTestCase
 {
-
     public function test_job_can_be_instantiated(): void
     {
         $conversation = Conversation::factory()->create();

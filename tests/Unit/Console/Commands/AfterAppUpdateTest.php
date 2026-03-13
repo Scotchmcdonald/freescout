@@ -12,25 +12,24 @@ use Tests\UnitTestCase;
 /** @group console */
 class AfterAppUpdateTest extends UnitTestCase
 {
-
     public function test_command_can_be_instantiated(): void
     {
-        $command = new AfterAppUpdate();
-        
+        $command = new AfterAppUpdate;
+
         $this->assertInstanceOf(AfterAppUpdate::class, $command);
     }
 
     public function test_command_has_correct_signature(): void
     {
-        $command = new AfterAppUpdate();
-        
+        $command = new AfterAppUpdate;
+
         $this->assertEquals('freescout:after-app-update', $command->getName());
     }
 
     public function test_command_has_description(): void
     {
-        $command = new AfterAppUpdate();
-        
+        $command = new AfterAppUpdate;
+
         $this->assertNotEmpty($command->getDescription());
         $this->assertStringContainsString('after', $command->getDescription());
     }
@@ -38,7 +37,7 @@ class AfterAppUpdateTest extends UnitTestCase
     public function test_command_executes_successfully(): void
     {
         $exitCode = Artisan::call('freescout:after-app-update');
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -46,7 +45,7 @@ class AfterAppUpdateTest extends UnitTestCase
     {
         $exitCode = Artisan::call('freescout:after-app-update');
         $output = Artisan::output();
-        
+
         // Verify command executed successfully and output mentions cache clearing
         $this->assertEquals(0, $exitCode);
         $this->assertTrue(
@@ -57,7 +56,7 @@ class AfterAppUpdateTest extends UnitTestCase
     public function test_command_runs_migrations(): void
     {
         $exitCode = Artisan::call('freescout:after-app-update');
-        
+
         $this->assertEquals(0, $exitCode);
         // Migration command should be called with --force flag
     }
@@ -65,7 +64,7 @@ class AfterAppUpdateTest extends UnitTestCase
     public function test_command_restarts_queue_workers(): void
     {
         $exitCode = Artisan::call('freescout:after-app-update');
-        
+
         $this->assertEquals(0, $exitCode);
         // Queue restart should be triggered
     }
@@ -74,8 +73,8 @@ class AfterAppUpdateTest extends UnitTestCase
     {
         // Test that the command calls the expected sub-commands
         // We can't easily test output since migrate would fail on pre-existing tables
-        $command = new AfterAppUpdate();
-        
+        $command = new AfterAppUpdate;
+
         $this->assertInstanceOf(AfterAppUpdate::class, $command);
         // The command orchestrates: clear-cache, migrate, queue:restart
     }
@@ -83,8 +82,8 @@ class AfterAppUpdateTest extends UnitTestCase
     public function test_command_has_correct_implementation_structure(): void
     {
         // Verify the command follows the expected pattern
-        $command = new AfterAppUpdate();
-        
+        $command = new AfterAppUpdate;
+
         // Test that handle() returns 0 for success
         // Note: In a real run, this would execute subcommands
         $this->assertTrue(method_exists($command, 'handle'));
@@ -94,14 +93,14 @@ class AfterAppUpdateTest extends UnitTestCase
     {
         Artisan::call('freescout:after-app-update');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('queue', $output);
     }
 
     public function test_command_returns_zero_on_success(): void
     {
         $exitCode = Artisan::call('freescout:after-app-update');
-        
+
         $this->assertEquals(0, $exitCode);
     }
 }

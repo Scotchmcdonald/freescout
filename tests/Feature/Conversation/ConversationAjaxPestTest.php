@@ -93,7 +93,7 @@ test('remove viewer action clears cache', function () {
     ])->assertOk();
 
     $cache = Cache::get(Conversation::VIEWER_CACHE_KEY, []);
-    // Cache for this conversation might not be empty if other users are viewing, 
+    // Cache for this conversation might not be empty if other users are viewing,
     // strictly we check if THIS user is gone from THIS conversation's viewers
     if (isset($cache[$this->conversation->id])) {
         expect($cache[$this->conversation->id])->not->toHaveKey($this->user->id);
@@ -113,12 +113,12 @@ test('get viewers returns correct data', function () {
     ])->assertOk();
 
     $viewers = $response->json('viewers');
-    // Structure might be complex depending on implementation, 
+    // Structure might be complex depending on implementation,
     // usually keyed by conversation ID or just an array
-    
+
     // Based on ConversationController logic: $viewers = Conversation::getViewersInfo(...)
     // getViewersInfo returns [convId => ['user' => ..., 'user_id' => ..., 'replying' => ...]]
-    
+
     expect($viewers)->toHaveKey($this->conversation->id);
     expect($viewers[$this->conversation->id]['user_id'])->toBe($this->admin->id);
     expect($viewers[$this->conversation->id]['replying'])->toBeTrue();
@@ -147,11 +147,11 @@ test('list saved searches', function () {
     $this->actingAs($this->user);
     SavedSearch::factory()->create([
         'user_id' => $this->user->id,
-        'name' => 'Existing Search'
+        'name' => 'Existing Search',
     ]);
 
     $response = $this->postJson(route('conversations.ajax'), [
-        'action' => 'list_saved_searches'
+        'action' => 'list_saved_searches',
     ])->assertOk();
 
     $response->assertJsonFragment(['name' => 'Existing Search']);
@@ -161,12 +161,12 @@ test('set default search', function () {
     $this->actingAs($this->user);
     $search = SavedSearch::factory()->create([
         'user_id' => $this->user->id,
-        'is_default' => false
+        'is_default' => false,
     ]);
 
     $this->postJson(route('conversations.ajax'), [
         'action' => 'set_default_search',
-        'search_id' => $search->id
+        'search_id' => $search->id,
     ])->assertOk();
 
     expect($search->fresh()->is_default)->toBeTrue();
@@ -180,7 +180,7 @@ test('delete saved search', function () {
 
     $this->postJson(route('conversations.ajax'), [
         'action' => 'delete_search',
-        'search_id' => $search->id
+        'search_id' => $search->id,
     ])->assertOk();
 
     $this->assertDatabaseMissing('saved_searches', ['id' => $search->id]);
@@ -256,7 +256,7 @@ test('invalid ajax action', function () {
 
 test('missing ajax action', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
-    
+
     // Auth required
     $response = $this->actingAs($user)->postJson(route('conversations.ajax'), []);
 
@@ -264,12 +264,12 @@ test('missing ajax action', function () {
 });
 
 test('guest cannot access ajax actions', function () {
-     $mailbox = Mailbox::factory()->create();
-     $conversation = Conversation::factory()->for($mailbox)->create();
-     
-     $response = $this->postJson(route('conversations.ajax'), [
-            'action' => 'follow',
-            'conversation_id' => $conversation->id,
+    $mailbox = Mailbox::factory()->create();
+    $conversation = Conversation::factory()->for($mailbox)->create();
+
+    $response = $this->postJson(route('conversations.ajax'), [
+        'action' => 'follow',
+        'conversation_id' => $conversation->id,
     ]);
 
     $response->assertUnauthorized();

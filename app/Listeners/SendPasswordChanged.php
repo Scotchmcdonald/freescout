@@ -17,7 +17,7 @@ class SendPasswordChanged
     {
         /** @var \App\Models\User $user */
         $user = $event->user;
-        
+
         // User model has sendPasswordChanged method
         if (method_exists($user, 'sendPasswordChanged')) {
             $user->sendPasswordChanged();

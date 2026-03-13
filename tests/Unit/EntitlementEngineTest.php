@@ -6,13 +6,13 @@ namespace Tests\Unit;
 
 use App\Contracts\EntitlementResolver;
 use App\DataTransferObjects\EntitlementResult;
-use Modules\PIB\Services\EntitlementEngineService;
 use Modules\ContractManager\Models\BillingTemplate;
+use Modules\PIB\Services\EntitlementEngineService;
 use Tests\TestCase;
 
 /**
  * EntitlementEngineTest
- * 
+ *
  * Tests the core EntitlementEngine resolver registry
  */
 class EntitlementEngineTest extends TestCase
@@ -22,16 +22,16 @@ class EntitlementEngineTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->engine = new EntitlementEngineService();
+
+        $this->engine = new EntitlementEngineService;
     }
 
     public function test_can_register_resolver(): void
     {
         $resolver = $this->createMockResolver();
-        
+
         $this->engine->registerResolver('test_product', $resolver);
-        
+
         $this->assertTrue($this->engine->hasResolver('test_product'));
     }
 
@@ -55,7 +55,7 @@ class EntitlementEngineTest extends TestCase
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('No resolver registered for product type: unknown_product');
-        
+
         $this->engine->resolve($template);
     }
 
@@ -98,7 +98,8 @@ class EntitlementEngineTest extends TestCase
      */
     private function createMockResolver(): EntitlementResolver
     {
-        return new class implements EntitlementResolver {
+        return new class implements EntitlementResolver
+        {
             public function calculate(\App\Contracts\BillingTemplateInterface $template): EntitlementResult
             {
                 return new EntitlementResult(

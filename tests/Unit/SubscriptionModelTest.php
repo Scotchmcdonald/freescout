@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Models\Customer;
-use App\Models\Mailbox;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Support\Facades\Event;
@@ -14,7 +13,6 @@ use Tests\UnitTestCase;
 
 class SubscriptionModelTest extends UnitTestCase
 {
-
     public function test_model_can_be_instantiated(): void
     {
         $subscription = new Subscription;

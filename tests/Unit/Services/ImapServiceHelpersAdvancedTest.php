@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Services;
 
 use App\Services\ImapService;
-use Tests\UnitTestCase;
 use Mockery;
+use Tests\UnitTestCase;
 
 /**
  * Test Suite for IMAP Service Helper Methods - Advanced
@@ -25,7 +25,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImapService();
+        $this->service = new ImapService;
     }
 
     protected function tearDown(): void
@@ -302,7 +302,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_separate_reply_handles_empty_body(): void
     {
-        $body = "";
+        $body = '';
 
         $result = $this->invokeMethod($this->service, 'separateReply', [$body, false, true]);
 
@@ -311,7 +311,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_separate_reply_handles_body_with_only_separator(): void
     {
-        $body = "From: sender@example.com";
+        $body = 'From: sender@example.com';
 
         $result = $this->invokeMethod($this->service, 'separateReply', [$body, false, true]);
 
@@ -321,7 +321,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_separate_reply_preserves_html_structure_in_reply(): void
     {
-        $body = "<p>My <strong>reply</strong></p><div class=\"protonmail_quote\">Quote</div>";
+        $body = '<p>My <strong>reply</strong></p><div class="protonmail_quote">Quote</div>';
 
         $result = $this->invokeMethod($this->service, 'separateReply', [$body, true, true]);
 
@@ -390,7 +390,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_extracts_with_extra_whitespace(): void
     {
-        $body = "From:    John Doe    <   john@example.com   >";
+        $body = 'From:    John Doe    <   john@example.com   >';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -401,7 +401,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_case_insensitive(): void
     {
-        $body = "from: JOHN DOE <JOHN@EXAMPLE.COM>";
+        $body = 'from: JOHN DOE <JOHN@EXAMPLE.COM>';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -434,7 +434,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_extracts_email_from_text_angle_brackets(): void
     {
-        $body = "Email from <user@example.com> received";
+        $body = 'Email from <user@example.com> received';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -445,7 +445,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_extracts_email_with_colon(): void
     {
-        $body = "Sender: user@example.com mentioned";
+        $body = 'Sender: user@example.com mentioned';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -455,7 +455,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_extracts_email_with_semicolon(): void
     {
-        $body = "Recipients; user@example.com; others";
+        $body = 'Recipients; user@example.com; others';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -465,7 +465,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_returns_null_when_not_found(): void
     {
-        $body = "This is just a regular message with no forwarded content";
+        $body = 'This is just a regular message with no forwarded content';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -474,7 +474,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_returns_null_for_empty_string(): void
     {
-        $body = "";
+        $body = '';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -483,7 +483,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_returns_null_for_invalid_email_pattern(): void
     {
-        $body = "From: not-an-email-at-all";
+        $body = 'From: not-an-email-at-all';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -493,7 +493,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_handles_html_entities(): void
     {
-        $body = "From: Test &lt;test@example.com&gt;";
+        $body = 'From: Test &lt;test@example.com&gt;';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -503,7 +503,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_handles_html_lt_gt(): void
     {
-        $body = "From: User &lt;user@example.com&gt;";
+        $body = 'From: User &lt;user@example.com&gt;';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -513,7 +513,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_cleans_fwd_prefix(): void
     {
-        $body = "From: sender@fwd <real@example.com>";
+        $body = 'From: sender@fwd <real@example.com>';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -524,7 +524,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_cleans_fwd_with_space(): void
     {
-        $body = "From: user@fwd <actual@example.com>";
+        $body = 'From: user@fwd <actual@example.com>';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -556,7 +556,7 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_handles_unicode_name(): void
     {
-        $body = "From: José García <jose@example.com>";
+        $body = 'From: José García <jose@example.com>';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 
@@ -567,12 +567,12 @@ class ImapServiceHelpersAdvancedTest extends UnitTestCase
 
     public function test_get_original_sender_from_fwd_handles_complex_multiline(): void
     {
-        $body = "---------- Forwarded message ---------\n" .
-                "From: John Doe <john@example.com>\n" .
-                "Date: Wed, Jan 1, 2025 at 10:30 AM\n" .
-                "Subject: Important\n" .
-                "To: recipient@example.com\n\n" .
-                "Email content here";
+        $body = "---------- Forwarded message ---------\n".
+                "From: John Doe <john@example.com>\n".
+                "Date: Wed, Jan 1, 2025 at 10:30 AM\n".
+                "Subject: Important\n".
+                "To: recipient@example.com\n\n".
+                'Email content here';
 
         $result = $this->invokeMethod($this->service, 'getOriginalSenderFromFwd', [$body]);
 

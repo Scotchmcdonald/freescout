@@ -8,20 +8,20 @@ use App\Http\Requests\SaveDraftRequest;
 
 /**
  * Data Transfer Object for conversation draft operations.
- * 
+ *
  * Encapsulates all the data needed for saving and managing drafts,
  * providing type safety and validation.
  */
 readonly class DraftData
 {
     /**
-     * @param int $conversationId The conversation the draft belongs to
-     * @param int $userId The user who owns the draft
-     * @param string $body The draft content
-     * @param string|null $to Recipient email(s) as JSON
-     * @param string|null $cc CC recipients as JSON
-     * @param string|null $bcc BCC recipients as JSON
-     * @param array<int> $attachmentIds IDs of attachments to include
+     * @param  int  $conversationId  The conversation the draft belongs to
+     * @param  int  $userId  The user who owns the draft
+     * @param  string  $body  The draft content
+     * @param  string|null  $to  Recipient email(s) as JSON
+     * @param  string|null  $cc  CC recipients as JSON
+     * @param  string|null  $bcc  BCC recipients as JSON
+     * @param  array<int>  $attachmentIds  IDs of attachments to include
      */
     public function __construct(
         public int $conversationId,
@@ -44,7 +44,7 @@ readonly class DraftData
         $validated = $request->validated();
 
         $body = $validated['body'] ?? '';
-        if (!is_string($body)) {
+        if (! is_string($body)) {
             $body = '';
         }
 
@@ -64,14 +64,12 @@ readonly class DraftData
     /**
      * Create from validated request data.
      *
-     * @param array<string, mixed> $data
-     * @param int $conversationId
-     * @param int $userId
+     * @param  array<string, mixed>  $data
      */
     public static function fromRequest(array $data, int $conversationId, int $userId): self
     {
         $body = $data['body'] ?? '';
-        if (!is_string($body) && !is_int($body) && !is_float($body)) {
+        if (! is_string($body) && ! is_int($body) && ! is_float($body)) {
             $body = '';
         }
 

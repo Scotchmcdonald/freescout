@@ -13,8 +13,8 @@ trait ExtensibleModel
 
     /**
      * Add fillable attributes from external sources (e.g. Modules)
-     * 
-     * @param array<int, string> $fillables
+     *
+     * @param  array<int, string>  $fillables
      */
     public static function addGlobalFillables(array $fillables): void
     {
@@ -23,8 +23,8 @@ trait ExtensibleModel
 
     /**
      * Add casts from external sources
-     * 
-     * @param array<string, string> $casts
+     *
+     * @param  array<string, string>  $casts
      */
     public static function addGlobalCasts(array $casts): void
     {
@@ -37,11 +37,11 @@ trait ExtensibleModel
      */
     public function initializeExtensibleModel(): void
     {
-        if (!empty(static::$externalFillables)) {
+        if (! empty(static::$externalFillables)) {
             $this->mergeFillable(static::$externalFillables);
         }
-        
-        if (!empty(static::$externalCasts)) {
+
+        if (! empty(static::$externalCasts)) {
             $this->mergeCasts(static::$externalCasts);
         }
     }

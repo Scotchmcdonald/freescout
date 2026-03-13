@@ -25,7 +25,7 @@ class ModuleActivityLog extends Model
 
     /**
      * Get the user who performed the action.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User, $this>
      */
     public function user(): BelongsTo
@@ -35,8 +35,8 @@ class ModuleActivityLog extends Model
 
     /**
      * Scope for filtering by action type.
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder<ModuleActivityLog> $query
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<ModuleActivityLog>  $query
      * @return \Illuminate\Database\Eloquent\Builder<ModuleActivityLog>
      */
     public function scopeOfAction(\Illuminate\Database\Eloquent\Builder $query, string $action): \Illuminate\Database\Eloquent\Builder
@@ -46,8 +46,8 @@ class ModuleActivityLog extends Model
 
     /**
      * Scope for filtering by module.
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder<ModuleActivityLog> $query
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<ModuleActivityLog>  $query
      * @return \Illuminate\Database\Eloquent\Builder<ModuleActivityLog>
      */
     public function scopeOfModule(\Illuminate\Database\Eloquent\Builder $query, string $moduleName): \Illuminate\Database\Eloquent\Builder

@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\User;
 use App\Models\Module;
+use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
-use Nwidart\Modules\Facades\Module as NwidartModule;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Nwidart\Modules\Facades\Module as NwidartModule;
 
 test('modules index requires admin', function () {
     // Create 'user' with type 0 so they are not considered 'internal' by the admin middleware
@@ -28,7 +28,7 @@ test('modules index shows all modules', function () {
 });
 
 test('modules can activate module', function () {
-    if (!class_exists(\Nwidart\Modules\Module::class)) {
+    if (! class_exists(\Nwidart\Modules\Module::class)) {
         $this->markTestSkipped('Nwidart Modules package not installed');
     }
 
@@ -38,11 +38,11 @@ test('modules can activate module', function () {
     $nwidartModule = Mockery::mock(\Nwidart\Modules\Module::class);
     $nwidartModule->shouldReceive('getName')->andReturn('TestModule');
     $nwidartModule->shouldReceive('enable')->once();
-    
+
     NwidartModule::shouldReceive('find')
         ->with($module->alias)
         ->andReturn($nwidartModule);
-        
+
     Artisan::shouldReceive('call')->andReturn(0);
     Log::shouldReceive('info')->withAnyArgs();
 
@@ -52,7 +52,7 @@ test('modules can activate module', function () {
 });
 
 test('modules can deactivate module', function () {
-    if (!class_exists(\Nwidart\Modules\Module::class)) {
+    if (! class_exists(\Nwidart\Modules\Module::class)) {
         $this->markTestSkipped('Nwidart Modules package not installed');
     }
 
@@ -62,11 +62,11 @@ test('modules can deactivate module', function () {
     $nwidartModule = Mockery::mock(\Nwidart\Modules\Module::class);
     $nwidartModule->shouldReceive('getName')->andReturn('TestModule');
     $nwidartModule->shouldReceive('disable')->once();
-    
+
     NwidartModule::shouldReceive('find')
         ->with($module->alias)
         ->andReturn($nwidartModule);
-        
+
     Artisan::shouldReceive('call')->andReturn(0);
 
     $this->actingAs($admin)
@@ -78,7 +78,7 @@ test('modules can delete module', function () {
     // WORKAROUND: Use array driver to allow File facade mocking
     config(['session.driver' => 'array']);
 
-    if (!class_exists(\Nwidart\Modules\Module::class)) {
+    if (! class_exists(\Nwidart\Modules\Module::class)) {
         $this->markTestSkipped('Nwidart Modules package not installed');
     }
 
@@ -92,13 +92,13 @@ test('modules can delete module', function () {
     $nwidartModule->shouldReceive('disable')->once();
     $nwidartModule->shouldReceive('delete')->andReturn(true);
     $nwidartModule->shouldReceive('getPath')->andReturn('/tmp/module/path');
-    
+
     NwidartModule::shouldReceive('find')
         ->with($module->alias)
         ->andReturn($nwidartModule);
-        
+
     Artisan::shouldReceive('call')->andReturn(0);
-    
+
     File::shouldReceive('deleteDirectory')->with('/tmp/module/path')->andReturn(true);
     File::shouldReceive('exists')->andReturn(true);
     File::shouldReceive('get')->andReturn('{"name": "TestModule"}');
@@ -110,7 +110,7 @@ test('modules can delete module', function () {
 });
 
 test('modules log important actions', function () {
-    if (!class_exists(\Nwidart\Modules\Module::class)) {
+    if (! class_exists(\Nwidart\Modules\Module::class)) {
         $this->markTestSkipped('Nwidart Modules package not installed');
     }
 
@@ -121,11 +121,11 @@ test('modules log important actions', function () {
     $nwidartModule = Mockery::mock(\Nwidart\Modules\Module::class);
     $nwidartModule->shouldReceive('getName')->andReturn('TestModule');
     $nwidartModule->shouldReceive('enable')->once();
-    
+
     NwidartModule::shouldReceive('find')
         ->with($module->alias)
         ->andReturn($nwidartModule);
-        
+
     Artisan::shouldReceive('call')->andReturn(0);
 
     Log::shouldReceive('info')
@@ -142,12 +142,12 @@ test('guest cannot view modules list', function () {
 });
 
 test('enable module returns error for non existent module', function () {
-    if (!class_exists(\Nwidart\Modules\Module::class)) {
+    if (! class_exists(\Nwidart\Modules\Module::class)) {
         $this->markTestSkipped('Nwidart Modules package not installed');
     }
 
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     // Mock Nwidart to return null for find
     NwidartModule::shouldReceive('find')
         ->with('non-existent-module')

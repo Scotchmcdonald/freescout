@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\User;
 use Modules\Crm\Models\Client;
 use Modules\SoftwareSubscriptions\Exceptions\LicenseLimitExceededException;
 use Modules\SoftwareSubscriptions\Models\ClientSoftwareSubscription;
@@ -9,12 +8,13 @@ use Modules\SoftwareSubscriptions\Models\SoftwareProduct;
 use Modules\SoftwareSubscriptions\Services\SubscriptionCounterService;
 
 // Helper functions
-function createTestSubscription($client, $product, int $purchasedQuantity = 5) {
+function createTestSubscription($client, $product, int $purchasedQuantity = 5)
+{
     // Delete any existing subscription for this client/product combination
     ClientSoftwareSubscription::where('client_id', $client->id)
         ->where('software_product_id', $product->id)
         ->forceDelete();
-        
+
     return ClientSoftwareSubscription::create([
         'client_id' => $client->id,
         'software_product_id' => $product->id,
@@ -26,10 +26,11 @@ function createTestSubscription($client, $product, int $purchasedQuantity = 5) {
     ]);
 }
 
-function createMockAssignable($client) {
-     if (class_exists(\Modules\Crm\Models\Contact::class)) {
+function createMockAssignable($client)
+{
+    if (class_exists(\Modules\Crm\Models\Contact::class)) {
         return \Modules\Crm\Models\Contact::firstOrCreate(
-            ['email' => 'test-' . uniqid() . '@example.com'],
+            ['email' => 'test-'.uniqid().'@example.com'],
             [
                 'first_name' => 'Test',
                 'last_name' => 'User',
@@ -38,14 +39,15 @@ function createMockAssignable($client) {
             ]
         );
     }
-    $mock = new \stdClass();
+    $mock = new \stdClass;
     $mock->id = rand(1000, 9999);
-    $mock->name = 'Test Assignable ' . $mock->id;
+    $mock->name = 'Test Assignable '.$mock->id;
+
     return $mock;
 }
 
 beforeEach(function () {
-    if (!class_exists(Client::class) || !class_exists(SoftwareProduct::class)) {
+    if (! class_exists(Client::class) || ! class_exists(SoftwareProduct::class)) {
         $this->markTestSkipped('SoftwareSubscriptions or CRM module not installed.');
     }
 
@@ -90,7 +92,7 @@ test('concurrent software assignments', function () {
 
     $subscription->refresh();
 
-    $successCount = count(array_filter($results, fn($r) => $r['success']));
+    $successCount = count(array_filter($results, fn ($r) => $r['success']));
     expect($successCount)->toBe(10);
     expect($subscription->assigned_count)->toBe(10);
     expect($subscription->activeAssignments()->count())->toBe(10);
@@ -104,15 +106,15 @@ test('counter rollback on failure', function () {
 
     $assignable1 = createMockAssignable($this->testClient);
     $assignable2 = createMockAssignable($this->testClient);
-    
+
     $counterService->assignLicense($subscription, $assignable1);
     $counterService->assignLicense($subscription, $assignable2);
-    
+
     $subscription->refresh();
     expect($subscription->assigned_count)->toBe(2);
 
     $assignable3 = createMockAssignable($this->testClient);
-    
+
     $exceptionThrown = false;
     try {
         $counterService->assignLicense($subscription, $assignable3);
@@ -141,9 +143,9 @@ test('counter drives billing calculation', function () {
     }
 
     $subscription->refresh();
-    
+
     $expectedCost = 3 * $this->testProduct->vendor_cost;
-    expect($subscription->calculateTotalCost())->toBe((float)$expectedCost);
+    expect($subscription->calculateTotalCost())->toBe((float) $expectedCost);
     expect($subscription->assigned_count)->toBe(3);
 
     $subscription->forceDelete();
@@ -209,7 +211,7 @@ test('license limit enforced', function () {
     expect($subscription->assigned_count)->toBe(2);
     expect($subscription->hasAvailableLicenses())->toBeFalse();
 
-    expect(fn() => $counterService->assignLicense($subscription, createMockAssignable($this->testClient)))
+    expect(fn () => $counterService->assignLicense($subscription, createMockAssignable($this->testClient)))
         ->toThrow(LicenseLimitExceededException::class);
 
     $subscription->forceDelete();

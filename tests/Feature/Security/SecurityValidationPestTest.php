@@ -7,8 +7,6 @@ use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -127,6 +125,6 @@ test('file operations prevent path traversal', function () {
 
     // Attempt path traversal in photo URL (if applicable)
     // This is conceptual - actual prevention is in the controller logic
-    
+
     expect(true)->toBeTrue(); // Placeholder
 });

@@ -30,7 +30,7 @@ class SmtpTestMail extends Mailable
     {
         return new Envelope(
             from: new Address($this->mailbox->email, $this->mailbox->name),
-            subject: 'FreeScout SMTP Test - ' . now()->format('Y-m-d H:i:s'),
+            subject: 'FreeScout SMTP Test - '.now()->format('Y-m-d H:i:s'),
         );
     }
 

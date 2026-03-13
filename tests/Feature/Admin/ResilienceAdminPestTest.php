@@ -1,9 +1,8 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Redis;
 
 beforeEach(function () {
     $this->admin = User::factory()->create([
@@ -23,19 +22,19 @@ test('resilience dashboard displays circuit breaker states', function () {
     // Simulate some circuit breaker states in Redis/Cache
     // Assuming the application uses a standard naming convention or a specific service
     // For this test, we mimic the expected view data or state reflection
-    
+
     // We can't easily mock the internal state of a circuit breaker library without more context,
     // so we'll check for the structure of the dashboard elements.
 
     $response = $this->actingAs($this->admin)->get(route('admin.resilience.index'));
-    
+
     $response->assertSee('Closed'); // Healthy state (view uses ucfirst)
     $response->assertViewHas('circuitBreakers');
 });
 
 test('admin can reset a circuit breaker', function () {
     $serviceName = 'google_api';
-    
+
     $this->actingAs($this->admin)
         ->post(route('admin.resilience.reset-circuit', ['service' => $serviceName]))
         ->assertRedirect()

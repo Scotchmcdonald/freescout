@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class ChaosController extends Controller
 {
     public function networkTimeout(): JsonResponse
     {
         // Simulate a long response time to trigger client-side timeouts
-        sleep(35); 
+        sleep(35);
+
         return response()->json(['message' => 'Did not timeout?'], 200);
     }
 

@@ -6,21 +6,20 @@ namespace Tests\Integration\PIB;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
+use Modules\ContractManager\Models\BillingTemplate;
 use Modules\Crm\Events\ConversationLinkedToClient;
 use Modules\Crm\Models\Client;
 use Modules\Crm\Models\ClientConversation;
 use Modules\Crm\Models\Company;
 use Modules\PIB\Listeners\ConversationLinkedToClientListener;
-use Modules\ContractManager\Models\BillingTemplate;
 use Modules\PIB\Models\ConversationBillingMetadata;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 /**
  * ConversationBillingMetadata Integration Tests
- * 
+ *
  * Tests billing metadata creation when conversations are linked to clients.
  * This tests the Core Blindness pattern: CRM fires events, PIB handles billing logic.
  */
@@ -140,7 +139,7 @@ class ConversationBillingMetadataTest extends TestCase
             clientConversationId: $clientConversation->id
         );
 
-        $listener = new ConversationLinkedToClientListener();
+        $listener = new ConversationLinkedToClientListener;
         $listener->handle($event);
 
         $metadata = ConversationBillingMetadata::where('client_conversation_id', $clientConversation->id)->first();
@@ -163,7 +162,7 @@ class ConversationBillingMetadataTest extends TestCase
             clientConversationId: $clientConversation->id
         );
 
-        $listener = new ConversationLinkedToClientListener();
+        $listener = new ConversationLinkedToClientListener;
         $listener->handle($event);
 
         $metadata = ConversationBillingMetadata::where('client_conversation_id', $clientConversation->id)->first();
@@ -195,7 +194,7 @@ class ConversationBillingMetadataTest extends TestCase
             clientConversationId: $clientConversation->id
         );
 
-        $listener = new ConversationLinkedToClientListener();
+        $listener = new ConversationLinkedToClientListener;
         $listener->handle($event);
 
         $metadata = ConversationBillingMetadata::where('client_conversation_id', $clientConversation->id)->first();

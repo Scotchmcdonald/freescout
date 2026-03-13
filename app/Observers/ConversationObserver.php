@@ -53,10 +53,10 @@ class ConversationObserver
         if ($statusChanged) {
             // Auto-move to appropriate folder
             $conversation->updateFolder();
-            
+
             $oldStatus = $conversation->getOriginal('status');
             $oldStatusInt = is_numeric($oldStatus) ? (int) $oldStatus : 0;
-            
+
             ConversationStatusChanged::dispatch(
                 $conversation,
                 auth()->user() instanceof \App\Models\User ? auth()->user() : null,
@@ -76,7 +76,7 @@ class ConversationObserver
                     $this->updateFolderCounters($oldFolder);
                 }
             }
-            
+
             // Update new folder
             if ($conversation->folder) {
                 $this->updateFolderCounters($conversation->folder);
@@ -131,7 +131,7 @@ class ConversationObserver
         // This prevents issues where the model instance has stale data (e.g. from increments)
         // and Eloquent thinks no changes are needed.
         $folder->refresh();
-        
+
         $folder->total_count = $folder->conversations()->count();
         $folder->active_count = $folder->conversations()->where('status', Conversation::STATUS_ACTIVE)->count();
         $folder->save();

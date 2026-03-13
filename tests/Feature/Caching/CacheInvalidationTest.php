@@ -1,17 +1,15 @@
 <?php
 
+use App\Models\User;
 use App\Services\CacheService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
-use Modules\Crm\Models\Client;
-use Modules\Payment\Events\PaymentSucceeded;
+use Modules\AssetManagement\Entities\Asset;
+use Modules\AssetManagement\Events\AssetStatusChanged;
 use Modules\ContractManager\Events\ContractRevised;
 use Modules\ContractManager\Models\Contract;
-use Modules\AssetManagement\Events\AssetStatusChanged;
-use Modules\AssetManagement\Entities\Asset;
-use App\Models\User;
-use App\Events\UserRoleChanged;
+use Modules\Crm\Models\Client;
 
 uses(RefreshDatabase::class);
 
@@ -21,7 +19,6 @@ beforeEach(function () {
 });
 
 describe('Cache Invalidation', function () {
-    
     test('credit balance cache is invalidated on payment', function () {
         $client = Client::factory()->create();
         $cacheService = app(CacheService::class);
@@ -29,7 +26,7 @@ describe('Cache Invalidation', function () {
         // Cache the initial balance
         $initialBalance = 1000;
         Cache::put("billing:client:{$client->id}:balance", $initialBalance, 300);
-        
+
         // Verify cache exists
         expect(Cache::has("billing:client:{$client->id}:balance"))->toBeTrue()
             ->and(Cache::get("billing:client:{$client->id}:balance"))->toBe($initialBalance);
@@ -44,7 +41,7 @@ describe('Cache Invalidation', function () {
 
     test('entitlement cache is invalidated on contract change', function () {
         $client = Client::factory()->create();
-        if (!class_exists(Contract::class)) {
+        if (! class_exists(Contract::class)) {
             $this->markTestSkipped('Contract model not available');
         }
         $contract = Contract::create([
@@ -134,13 +131,13 @@ describe('Cache Invalidation', function () {
             "billing:client:{$client->id}:balance" => 1000,
             "billing:entitlement:{$client->id}:current" => ['test'],
             "asset:client:{$client->id}:count" => 5,
-            "auth:user:1:permissions" => ['view'],
+            'auth:user:1:permissions' => ['view'],
         ];
 
         foreach ($keys as $key => $value) {
             Cache::put($key, $value, 60);
             expect(Cache::has($key))->toBeTrue();
-            
+
             // Verify key follows convention (domain:entity:id:attribute)
             $parts = explode(':', $key);
             expect(count($parts))->toBeGreaterThanOrEqual(3);
@@ -151,8 +148,8 @@ describe('Cache Invalidation', function () {
         $client = Client::factory()->create();
 
         // Application state (long TTL - 24 hours)
-        Cache::put("auth:user:1:permissions", ['view'], now()->addHours(24));
-        expect(Cache::has("auth:user:1:permissions"))->toBeTrue();
+        Cache::put('auth:user:1:permissions', ['view'], now()->addHours(24));
+        expect(Cache::has('auth:user:1:permissions'))->toBeTrue();
 
         // Query results (medium TTL - 5 minutes)
         Cache::put("billing:entitlement:{$client->id}:current", [], now()->addMinutes(5));
@@ -232,5 +229,4 @@ describe('Cache Invalidation', function () {
         // Verify cache is cleared
         expect(Cache::has("billing:client:{$client->id}:balance"))->toBeFalse();
     });
-
 });

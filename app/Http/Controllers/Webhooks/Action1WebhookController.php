@@ -6,29 +6,29 @@ namespace App\Http\Controllers\Webhooks;
 
 use App\Http\Controllers\Controller;
 use App\Services\MetricsService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Action1WebhookController
- * 
+ *
  * Handles incoming webhook notifications from Action1 RMM API.
- * 
+ *
  * Action1 Webhooks (if supported):
  * - Device status changes (online/offline)
  * - Policy compliance updates
  * - Software installation events
  * - Security alerts
- * 
+ *
  * Webhook Flow:
  * 1. Action1 sends notification to our endpoint
  * 2. Middleware verifies HMAC signature (X-Action1-Signature)
  * 3. Controller processes notification
  * 4. Dispatches appropriate events
  * 5. Idempotent listeners handle business logic
- * 
+ *
  * Action1 Headers:
  * - X-Action1-Signature: HMAC-SHA256 signature
  * - X-Action1-Timestamp: Unix timestamp
@@ -42,7 +42,7 @@ class Action1WebhookController extends Controller
 
     /**
      * Handle Action1 device notifications
-     * 
+     *
      * Event types:
      * - device.created: New device discovered
      * - device.updated: Device information changed
@@ -68,12 +68,13 @@ class Action1WebhookController extends Controller
             $this->metrics->trackWebhookReceived('action1', 'devices');
 
             // Validate payload structure
-            if (!isset($payload['device_id'])) {
+            if (! isset($payload['device_id'])) {
                 Log::warning('Action1 webhook missing device_id', [
                     'payload' => $payload,
                 ]);
 
                 $this->metrics->trackWebhookFailed('action1', 'devices', 'Missing device_id');
+
                 return response()->json(['error' => 'Invalid payload'], 400);
             }
 
@@ -90,7 +91,6 @@ class Action1WebhookController extends Controller
             ]);
 
             return response()->json(['status' => 'processed']);
-
         } catch (\Exception $e) {
             $this->metrics->trackWebhookFailed('action1', 'devices', $e->getMessage());
 
@@ -137,7 +137,6 @@ class Action1WebhookController extends Controller
             $this->metrics->trackWebhookProcessed('action1', 'policies', $processingTime);
 
             return response()->json(['status' => 'processed']);
-
         } catch (\Exception $e) {
             $this->metrics->trackWebhookFailed('action1', 'policies', $e->getMessage());
 
@@ -184,7 +183,6 @@ class Action1WebhookController extends Controller
             $this->metrics->trackWebhookProcessed('action1', 'alerts', $processingTime);
 
             return response()->json(['status' => 'processed']);
-
         } catch (\Exception $e) {
             $this->metrics->trackWebhookFailed('action1', 'alerts', $e->getMessage());
 
@@ -199,7 +197,7 @@ class Action1WebhookController extends Controller
     /**
      * Dispatch appropriate event based on device event type
      *
-     * @param array<string, mixed> $payload
+     * @param  array<string, mixed>  $payload
      */
     private function dispatchDeviceEvent(string $eventType, array $payload): void
     {

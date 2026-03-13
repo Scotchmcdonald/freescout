@@ -7,8 +7,8 @@ use Modules\PIB\Models\Invoice;
 
 beforeEach(function () {
     $this->company = Company::factory()->create();
-    $this->client  = Client::factory()->create(['company_id' => $this->company->id]);
-    $this->admin   = User::factory()->mspAdmin()->create();
+    $this->client = Client::factory()->create(['company_id' => $this->company->id]);
+    $this->admin = User::factory()->mspAdmin()->create();
 });
 
 // ── Valid transitions ─────────────────────────────────────────────────────────
@@ -16,9 +16,9 @@ beforeEach(function () {
 describe('Invoice transitions – happy path', function () {
     it('finalizes a draft invoice', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'  => $this->client->id,
+            'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'status'     => Invoice::STATUS_DRAFT,
+            'status' => Invoice::STATUS_DRAFT,
         ]);
 
         $this->actingAs($this->admin)
@@ -33,9 +33,9 @@ describe('Invoice transitions – happy path', function () {
 
     it('submits a finalized invoice to client', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'  => $this->client->id,
+            'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'status'     => Invoice::STATUS_FINALIZED,
+            'status' => Invoice::STATUS_FINALIZED,
         ]);
 
         $this->actingAs($this->admin)
@@ -50,9 +50,9 @@ describe('Invoice transitions – happy path', function () {
 
     it('marks a submitted invoice as overdue', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'  => $this->client->id,
+            'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'status'     => Invoice::STATUS_SUBMITTED,
+            'status' => Invoice::STATUS_SUBMITTED,
         ]);
 
         $this->actingAs($this->admin)
@@ -67,9 +67,9 @@ describe('Invoice transitions – happy path', function () {
 
     it('re-submits a disputed invoice to client', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'  => $this->client->id,
+            'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'status'     => Invoice::STATUS_DISPUTED,
+            'status' => Invoice::STATUS_DISPUTED,
         ]);
 
         $this->actingAs($this->admin)
@@ -88,15 +88,15 @@ describe('Invoice transitions – happy path', function () {
 describe('Invoice transitions – dispute metadata', function () {
     it('stores dispute_reason and dispute_initiated_at when marking as disputed', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'  => $this->client->id,
+            'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'status'     => Invoice::STATUS_SUBMITTED,
+            'status' => Invoice::STATUS_SUBMITTED,
         ]);
 
         $this->actingAs($this->admin)
             ->post(route('admin.billing.invoices.transition', $invoice->id), [
                 'transition' => Invoice::STATUS_DISPUTED,
-                'notes'      => 'Client says hours are incorrect.',
+                'notes' => 'Client says hours are incorrect.',
             ]);
 
         $meta = $invoice->fresh()->metadata;
@@ -110,9 +110,9 @@ describe('Invoice transitions – dispute metadata', function () {
 
     it('stores dispute_initiated_at even without a notes value', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'  => $this->client->id,
+            'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'status'     => Invoice::STATUS_OVERDUE,
+            'status' => Invoice::STATUS_OVERDUE,
         ]);
 
         $this->actingAs($this->admin)
@@ -128,15 +128,15 @@ describe('Invoice transitions – dispute metadata', function () {
 
     it('stores notes in metadata[notes] for non-dispute transitions', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'  => $this->client->id,
+            'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'status'     => Invoice::STATUS_SUBMITTED,
+            'status' => Invoice::STATUS_SUBMITTED,
         ]);
 
         $this->actingAs($this->admin)
             ->post(route('admin.billing.invoices.transition', $invoice->id), [
                 'transition' => Invoice::STATUS_FINALIZED,
-                'notes'      => 'Recalled to fix line item 3.',
+                'notes' => 'Recalled to fix line item 3.',
             ]);
 
         $meta = $invoice->fresh()->metadata;
@@ -151,9 +151,9 @@ describe('Invoice transitions – dispute metadata', function () {
 describe('Invoice transitions – invalid transitions', function () {
     it('rejects a transition not in the allowed map', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'  => $this->client->id,
+            'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'status'     => Invoice::STATUS_DRAFT,
+            'status' => Invoice::STATUS_DRAFT,
         ]);
 
         $this->actingAs($this->admin)
@@ -168,9 +168,9 @@ describe('Invoice transitions – invalid transitions', function () {
 
     it('rejects transition on a paid invoice', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'  => $this->client->id,
+            'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'status'     => Invoice::STATUS_PAID,
+            'status' => Invoice::STATUS_PAID,
         ]);
 
         $this->actingAs($this->admin)
@@ -185,9 +185,9 @@ describe('Invoice transitions – invalid transitions', function () {
 
     it('requires authentication', function () {
         $invoice = Invoice::factory()->create([
-            'client_id'  => $this->client->id,
+            'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'status'     => Invoice::STATUS_DRAFT,
+            'status' => Invoice::STATUS_DRAFT,
         ]);
 
         $this->post(route('admin.billing.invoices.transition', $invoice->id), [

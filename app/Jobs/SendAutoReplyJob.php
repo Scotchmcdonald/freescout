@@ -48,8 +48,8 @@ class SendAutoReplyJob implements ShouldQueue
         Customer|array $senderInfo
     ) {
         $this->conversation = $conversation;
-        $this->thread       = $thread;
-        $this->mailbox      = $mailbox;
+        $this->thread = $thread;
+        $this->mailbox = $mailbox;
 
         $this->senderInfo = $senderInfo instanceof Customer
             ? ['email' => $senderInfo->getMainEmail() ?? '', 'name' => $senderInfo->getFullName()]
@@ -155,8 +155,6 @@ class SendAutoReplyJob implements ShouldQueue
                     $status = 1; // SendLog::STATUS_ACCEPTED
                 }
 
-                
-
                 SendLog::create([
                     'thread_id' => $this->thread->id,
                     'message_id' => $messageId,
@@ -188,7 +186,7 @@ class SendAutoReplyJob implements ShouldQueue
     {
         Log::error('SendAutoReply job failed permanently', [
             'conversation_id' => $this->conversation->id,
-            'customer_id' => ( $this->senderInfo['email'] ?? null ),
+            'customer_id' => ($this->senderInfo['email'] ?? null),
             'error' => $exception->getMessage(),
         ]);
     }

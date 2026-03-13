@@ -33,7 +33,7 @@ test('admin can test smtp connection', function () {
 
 test('non-admin cannot test smtp', function () {
     // Force type to 2 to ensure not internal staff
-    $user = User::factory()->create(['role' => User::ROLE_USER, 'type' => 2]); 
+    $user = User::factory()->create(['role' => User::ROLE_USER, 'type' => 2]);
     $mailbox = Mailbox::factory()->create();
 
     $this->actingAs($user)
@@ -92,8 +92,8 @@ test('admin can validate smtp settings', function () {
     $this->actingAs($admin)
         ->postJson(route('settings.validate-smtp'), [
             'out_server' => 'smtp.example.com',
-            'out_port'   => 587,
-            'email'      => 'test@example.com',
+            'out_port' => 587,
+            'email' => 'test@example.com',
         ])
         ->assertOk()
         ->assertJson(['success' => true]);
@@ -110,8 +110,8 @@ test('validate smtp returns errors', function () {
     $this->actingAs($admin)
         ->postJson(route('settings.validate-smtp'), [
             'out_server' => 'smtp.example.com',
-            'out_port'   => 587,
-            'email'      => 'test@example.com',
+            'out_port' => 587,
+            'email' => 'test@example.com',
         ])
         ->assertStatus(422)
         ->assertJson(['success' => false]);

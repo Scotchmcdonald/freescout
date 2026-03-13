@@ -16,18 +16,18 @@ class StoreConversationRequest extends FormRequest
     {
         /** @var \App\Models\User|null $user */
         $user = $this->user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return false;
         }
 
         // Get mailbox from route
         $mailbox = $this->route('mailbox');
-        if (!($mailbox instanceof \App\Models\Mailbox)) {
+        if (! ($mailbox instanceof \App\Models\Mailbox)) {
             $mailbox = \App\Models\Mailbox::find($mailbox);
         }
-        
-        if (!$mailbox instanceof \App\Models\Mailbox) {
+
+        if (! $mailbox instanceof \App\Models\Mailbox) {
             return false;
         }
 
@@ -62,23 +62,23 @@ class StoreConversationRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         // Map 'description' to 'body' for helpdesk ticket context
-        if ($this->has('description') && !$this->has('body')) {
+        if ($this->has('description') && ! $this->has('body')) {
             $this->merge([
                 'body' => $this->input('description'),
             ]);
         }
 
         // Auto-populate customer_email and to from client_id when in helpdesk context
-        if ($this->filled('client_id') && !$this->filled('customer_email')) {
+        if ($this->filled('client_id') && ! $this->filled('customer_email')) {
             /** @var \Modules\Crm\Models\Client|null $client */
             $client = \Modules\Crm\Models\Client::find($this->input('client_id'));
             if ($client) {
                 $email = $client->email;
                 // Fall back to company user email if client has no email
-                if (!$email) {
+                if (! $email) {
                     /** @var \App\Models\User|null $companyUser */
                     $companyUser = $client->company?->users()->first();
-                    $email = $companyUser ? $companyUser->email : 'client-' . $client->id . '@portal.local';
+                    $email = $companyUser ? $companyUser->email : 'client-'.$client->id.'@portal.local';
                 }
                 $this->merge([
                     'customer_email' => $email,
@@ -86,13 +86,13 @@ class StoreConversationRequest extends FormRequest
                 ]);
             }
         }
-        
+
         if ($this->has('body')) {
             $this->merge([
                 'body' => clean($this->input('body'), 'default'),
             ]);
         }
-        
+
         if ($this->has('subject')) {
             $subject = $this->input('subject');
             $subjectStr = is_string($subject) || is_int($subject) || is_float($subject) ? (string) $subject : '';

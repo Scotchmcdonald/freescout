@@ -44,7 +44,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new ConversationStatusChanged($conversation, null, Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED);
-        $listener = new UpdateMailboxCounters();
+        $listener = new UpdateMailboxCounters;
 
         $listener->handle($event);
 
@@ -60,7 +60,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new ConversationStatusChanged($conversation, null, Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED);
-        $listener = new UpdateMailboxCounters();
+        $listener = new UpdateMailboxCounters;
 
         $listener->handle($event);
 
@@ -88,7 +88,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new ConversationUserChanged($conversation, null, $user1);
-        $listener = new UpdateMailboxCounters();
+        $listener = new UpdateMailboxCounters;
 
         $listener->handle($event);
 
@@ -103,14 +103,14 @@ class ListenersComprehensiveTest extends UnitTestCase
         $assigningUser = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($assignedUser->id);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'user_id' => $assignedUser->id,
         ]);
 
         $event = new ConversationUserChanged($conversation, null, null, $assigningUser);
-        $listener = new SendNotificationToUsers();
+        $listener = new SendNotificationToUsers;
 
         $listener->handle($event);
 
@@ -122,7 +122,7 @@ class ListenersComprehensiveTest extends UnitTestCase
     public function test_user_created_conversation_listener_sends_reply_to_customer(): void
     {
         Queue::fake();
-        
+
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
@@ -137,7 +137,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new UserCreatedConversation($conversation, $thread);
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
 
         $listener->handle($event);
 
@@ -152,16 +152,16 @@ class ListenersComprehensiveTest extends UnitTestCase
         $assignedUser = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($assignedUser->id);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'user_id' => $assignedUser->id,
             'created_by_user_id' => $creatorUser->id,
         ]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
-        
+
         $event = new UserCreatedConversation($conversation, $thread);
-        $listener = new SendNotificationToUsers();
+        $listener = new SendNotificationToUsers;
 
         $listener->handle($event);
 
@@ -173,7 +173,7 @@ class ListenersComprehensiveTest extends UnitTestCase
     public function test_customer_created_conversation_listener_sends_auto_reply_handle(): void
     {
         Queue::fake();
-        
+
         $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -188,7 +188,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
 
         $listener->handle($event);
 
@@ -215,7 +215,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendNotificationToUsers();
+        $listener = new SendNotificationToUsers;
 
         $listener->handle($event);
 
@@ -240,7 +240,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
 
         $listener->handle($event);
 
@@ -260,7 +260,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
 
         $listener->handle($event);
 
@@ -272,7 +272,7 @@ class ListenersComprehensiveTest extends UnitTestCase
     public function test_user_replied_listener_sends_reply_to_customer_handle(): void
     {
         Queue::fake();
-        
+
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
@@ -287,7 +287,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
 
         $listener->handle($event);
 
@@ -302,7 +302,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         $assignedUser = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($assignedUser->id);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'user_id' => $assignedUser->id,
@@ -315,7 +315,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendNotificationToUsers();
+        $listener = new SendNotificationToUsers;
 
         $listener->handle($event);
 
@@ -339,7 +339,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
 
         $listener->handle($event);
 
@@ -362,7 +362,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new UserReplied($conversation, $thread);
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
 
         $listener->handle($event);
 
@@ -379,7 +379,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new NewMessageReceived($thread, $conversation);
-        $listener = new HandleNewMessage();
+        $listener = new HandleNewMessage;
 
         $listener->handle($event);
 
@@ -401,7 +401,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new NewMessageReceived($thread, $conversation);
-        $listener = new HandleNewMessage();
+        $listener = new HandleNewMessage;
 
         $listener->handle($event);
 
@@ -418,7 +418,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new NewMessageReceived($thread, $conversation);
-        $listener = new HandleNewMessage();
+        $listener = new HandleNewMessage;
 
         $listener->handle($event);
 
@@ -439,7 +439,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         $user->delete();
 
         $event = new ConversationStatusChanged($conversation, null, Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED);
-        $listener = new UpdateMailboxCounters();
+        $listener = new UpdateMailboxCounters;
 
         $listener->handle($event);
 
@@ -456,7 +456,7 @@ class ListenersComprehensiveTest extends UnitTestCase
             $events[] = new ConversationStatusChanged($conversation, null, Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED);
         }
 
-        $listener = new UpdateMailboxCounters();
+        $listener = new UpdateMailboxCounters;
 
         foreach ($events as $event) {
             $listener->handle($event);
@@ -474,7 +474,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         ]);
 
         $event = new ConversationStatusChanged($conversation, null, Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED);
-        $listener = new UpdateMailboxCounters();
+        $listener = new UpdateMailboxCounters;
 
         // Handle the event multiple times
         $listener->handle($event);
@@ -496,7 +496,7 @@ class ListenersComprehensiveTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new NewMessageReceived($thread, $conversation);
-        $listener = new HandleNewMessage();
+        $listener = new HandleNewMessage;
 
         $listener->handle($event);
 
@@ -508,12 +508,12 @@ class ListenersComprehensiveTest extends UnitTestCase
     public function test_send_password_changed_handle_calls_send_password_changed_on_user(): void
     {
         $user = User::factory()->create();
-        
+
         $event = new PasswordReset($user);
-        $listener = new SendPasswordChanged();
-        
+        $listener = new SendPasswordChanged;
+
         $listener->handle($event);
-        
+
         // User model has sendPasswordChanged method
         $this->assertTrue(method_exists($user, 'sendPasswordChanged'));
     }
@@ -521,22 +521,23 @@ class ListenersComprehensiveTest extends UnitTestCase
     public function test_send_password_changed_handle_does_not_fail_when_method_does_not_exist(): void
     {
         // Create an anonymous class without sendPasswordChanged method
-        $user = new class {
+        $user = new class
+        {
             public $id = 1;
         };
-        
+
         $event = new PasswordReset($user);
-        $listener = new SendPasswordChanged();
+        $listener = new SendPasswordChanged;
 
         $listener->handle($event);
-        
+
         $this->assertFalse(method_exists($user, 'sendPasswordChanged'));
     }
 
     public function test_send_password_changed_listener_can_be_instantiated(): void
     {
-        $listener = new SendPasswordChanged();
-        
+        $listener = new SendPasswordChanged;
+
         $this->assertInstanceOf(SendPasswordChanged::class, $listener);
     }
 }

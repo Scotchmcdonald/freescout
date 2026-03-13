@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
-use Modules\Crm\Models\Client;
 use Modules\ContractManager\Models\Quote;
+use Modules\Crm\Models\Client;
 
 it('full quote lifecycle rejection and revision', function () {
     $admin = User::firstOrCreate(['email' => 'quote-lifecycle-admin@example.com'], [
@@ -12,7 +12,10 @@ it('full quote lifecycle rejection and revision', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $client = Client::factory()->create(['name' => 'Lifecycle Client']);
     $quote = Quote::factory()->draft()->create([

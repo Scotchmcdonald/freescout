@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Config;
 use App\Services\UserDirectoryRegistryService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class UserLifecycleController extends Controller
@@ -28,12 +25,12 @@ class UserLifecycleController extends Controller
         $users = $this->registry->getAllUsers();
         $lastSync = now();
         $error = null;
-        
+
         if (empty($users)) {
-             $users = $this->getMockUsers();
-             if (empty($this->registry->getAllUsers())) {
-                 $error = "No user directories configured.";
-             }
+            $users = $this->getMockUsers();
+            if (empty($this->registry->getAllUsers())) {
+                $error = 'No user directories configured.';
+            }
         }
 
         return view('admin.users.lifecycle', compact('users', 'lastSync', 'error'));

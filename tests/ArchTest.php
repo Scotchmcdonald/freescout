@@ -49,7 +49,7 @@ arch('naming conventions')
     ->toHaveSuffix('Job')
     ->and('App\Services')
     ->toHaveSuffix('Service');
-    
+
 // 5. Contracts should be Interfaces
 arch('contracts')
     ->expect('App\Contracts')

@@ -6,8 +6,8 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 
 uses(RefreshDatabase::class);
 
@@ -39,12 +39,12 @@ test('command fires events with existing conversation', function () {
         ->expectsOutputToContain('Events dispatched. Check storage/logs/laravel.log')
         ->assertExitCode(0);
 
-    Event::assertDispatched(CustomerCreatedConversation::class, function ($event) use ($conversation, $thread, $customer) {
+    Event::assertDispatched(CustomerCreatedConversation::class, function ($event) use ($conversation, $thread) {
         return $event->conversation->id === $conversation->id
             && $event->thread->id === $thread->id;
     });
 
-    Event::assertDispatched(CustomerReplied::class, function ($event) use ($conversation, $thread, $customer) {
+    Event::assertDispatched(CustomerReplied::class, function ($event) use ($conversation, $thread) {
         return $event->conversation->id === $conversation->id
             && $event->thread->id === $thread->id;
     });

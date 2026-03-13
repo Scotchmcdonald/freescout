@@ -41,6 +41,7 @@ class SecurityAudit extends Command
 
         if ($composerResult->successful() && $npmResult->successful()) {
             $this->info('No security vulnerabilities found.');
+
             return Command::SUCCESS;
         }
 
@@ -48,12 +49,12 @@ class SecurityAudit extends Command
 
         if ($composerResult->failed()) {
             $output .= "=== COMPOSER AUDIT FAILURES ===\n\n";
-            $output .= $composerResult->output() . "\n\n";
+            $output .= $composerResult->output()."\n\n";
         }
 
         if ($npmResult->failed()) {
             $output .= "=== NPM AUDIT FAILURES ===\n\n";
-            $output .= $npmResult->output() . "\n\n";
+            $output .= $npmResult->output()."\n\n";
         }
 
         $this->error('Security vulnerabilities found!');
@@ -64,12 +65,12 @@ class SecurityAudit extends Command
 
         if ($recipient) {
             $this->info("Sending alert to {$recipient}...");
-            
+
             Mail::raw($output, function ($message) use ($recipient) {
                 $message->to($recipient)
                     ->subject('⚠️ Security Alert: Audit Failed');
             });
-            
+
             $this->info('Alert sent.');
         } else {
             $this->warn('No recipient email configured. Use --email or set ADMIN_EMAIL in .env');

@@ -2,8 +2,6 @@
 
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -20,7 +18,7 @@ test('modules index displays flash messages', function () {
 
     $response->assertOk();
     $response->assertViewHas('flashes');
-    
+
     // Flash should be cleared after display
     expect(Cache::get('modules_flash'))->toBeNull();
 });

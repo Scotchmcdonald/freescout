@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 /**
  * Unit tests for Helper class utility methods.
- * 
+ *
  * These tests use the base TestCase (not UnitTestCase) as they don't
  * require database access - they test pure utility functions.
  */
@@ -108,7 +108,7 @@ class HelperMethodsTest extends TestCase
 
     public function test_is_folder_writable_returns_true_for_writable_folder(): void
     {
-        $tempDir = sys_get_temp_dir() . '/helper_test_' . uniqid();
+        $tempDir = sys_get_temp_dir().'/helper_test_'.uniqid();
         mkdir($tempDir, 0755, true);
 
         $result = Helper::isFolderWritable($tempDir);
@@ -300,7 +300,7 @@ class HelperMethodsTest extends TestCase
     public function test_run_command_with_invalid_command(): void
     {
         $this->expectException(\Symfony\Component\Console\Exception\CommandNotFoundException::class);
-        
+
         Helper::runCommand('nonexistent_command_xyz_123');
     }
 
@@ -308,23 +308,27 @@ class HelperMethodsTest extends TestCase
 
     public function test_create_zip_archive_creates_file(): void
     {
-        $tempDir = sys_get_temp_dir() . '/zip_test_' . uniqid();
+        $tempDir = sys_get_temp_dir().'/zip_test_'.uniqid();
         mkdir($tempDir, 0755, true);
-        file_put_contents($tempDir . '/test.txt', 'Test content');
+        file_put_contents($tempDir.'/test.txt', 'Test content');
 
-        $zipPath = $tempDir . '/archive.zip';
+        $zipPath = $tempDir.'/archive.zip';
 
         // Pass array of files instead of directory path if that's what the method expects
         // Based on the error: Argument #2 ($files) must be of type array, string given
-        $files = [$tempDir . '/test.txt'];
+        $files = [$tempDir.'/test.txt'];
         $result = Helper::createZipArchive($zipPath, $files);
 
         $this->assertTrue($result);
         $this->assertFileExists($zipPath);
 
         // Cleanup
-        if (file_exists($zipPath)) unlink($zipPath);
-        if (file_exists($tempDir . '/test.txt')) unlink($tempDir . '/test.txt');
+        if (file_exists($zipPath)) {
+            unlink($zipPath);
+        }
+        if (file_exists($tempDir.'/test.txt')) {
+            unlink($tempDir.'/test.txt');
+        }
         rmdir($tempDir);
     }
 
@@ -361,7 +365,7 @@ class HelperMethodsTest extends TestCase
     public function test_unzip_returns_false_for_invalid_zip(): void
     {
         // Create a file that's not a valid zip
-        $tempFile = sys_get_temp_dir() . '/invalid_' . uniqid() . '.zip';
+        $tempFile = sys_get_temp_dir().'/invalid_'.uniqid().'.zip';
         file_put_contents($tempFile, 'Not a zip file content');
 
         $result = Helper::unzip($tempFile, sys_get_temp_dir());
@@ -376,7 +380,7 @@ class HelperMethodsTest extends TestCase
     public function test_set_env_file_var_creates_backup(): void
     {
         // Create a temp .env file
-        $tempEnv = sys_get_temp_dir() . '/.env_test_' . uniqid();
+        $tempEnv = sys_get_temp_dir().'/.env_test_'.uniqid();
         file_put_contents($tempEnv, "APP_NAME=Test\nAPP_ENV=local\n");
 
         $result = Helper::setEnvFileVar('APP_DEBUG', 'true', $tempEnv);
@@ -390,7 +394,7 @@ class HelperMethodsTest extends TestCase
 
     public function test_set_env_file_var_updates_existing_value(): void
     {
-        $tempEnv = sys_get_temp_dir() . '/.env_test_' . uniqid();
+        $tempEnv = sys_get_temp_dir().'/.env_test_'.uniqid();
         file_put_contents($tempEnv, "APP_NAME=OldName\nAPP_ENV=local\n");
 
         $result = Helper::setEnvFileVar('APP_NAME', 'NewName', $tempEnv);
@@ -405,7 +409,7 @@ class HelperMethodsTest extends TestCase
 
     public function test_set_env_file_var_adds_new_value(): void
     {
-        $tempEnv = sys_get_temp_dir() . '/.env_test_' . uniqid();
+        $tempEnv = sys_get_temp_dir().'/.env_test_'.uniqid();
         file_put_contents($tempEnv, "APP_NAME=Test\n");
 
         $result = Helper::setEnvFileVar('NEW_VAR', 'new_value', $tempEnv);

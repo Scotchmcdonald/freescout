@@ -157,7 +157,7 @@ test('command updates both incoming and outgoing settings', function () {
         ->assertExitCode(0);
 
     $mailbox->refresh();
-    
+
     // Outgoing (SMTP)
     expect($mailbox->out_server)->toBe('smtp.gmail.com')
         ->and($mailbox->out_port)->toBe(587)

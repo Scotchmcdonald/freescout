@@ -35,7 +35,7 @@ class SendReplyToCustomerListenerTest extends TestCase
         $this->mailbox = Mailbox::factory()->create();
         $this->user = User::factory()->create();
         $this->customer = Customer::factory()->create();
-        
+
         Email::factory()->create([
             'customer_id' => $this->customer->id,
             'email' => 'customer@example.com',
@@ -60,7 +60,7 @@ class SendReplyToCustomerListenerTest extends TestCase
     {
         Queue::fake();
 
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
         $event = new UserReplied($this->conversation, $this->thread);
 
         $listener->handle($event);
@@ -74,7 +74,7 @@ class SendReplyToCustomerListenerTest extends TestCase
     {
         Queue::fake();
 
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
         $event = new UserCreatedConversation($this->conversation, $this->thread);
 
         $listener->handle($event);
@@ -88,7 +88,7 @@ class SendReplyToCustomerListenerTest extends TestCase
 
         $this->thread->update(['imported' => true]);
 
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
         $event = new UserReplied($this->conversation, $this->thread);
 
         $listener->handle($event);
@@ -102,7 +102,7 @@ class SendReplyToCustomerListenerTest extends TestCase
 
         // Create customer without email
         $customerNoEmail = Customer::factory()->withoutEmail()->create();
-        
+
         $phoneConversation = Conversation::factory()
             ->for($this->mailbox)
             ->create([
@@ -116,7 +116,7 @@ class SendReplyToCustomerListenerTest extends TestCase
             'imported' => false,
         ]);
 
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
         $event = new UserReplied($phoneConversation, $thread);
 
         $listener->handle($event);
@@ -141,7 +141,7 @@ class SendReplyToCustomerListenerTest extends TestCase
             'imported' => false,
         ]);
 
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
         $event = new UserReplied($phoneConversation, $thread);
 
         $listener->handle($event);
@@ -165,7 +165,7 @@ class SendReplyToCustomerListenerTest extends TestCase
             'imported' => false,
         ]);
 
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
         $event = new UserReplied($conversationNoCustomer, $thread);
 
         $listener->handle($event);
@@ -190,7 +190,7 @@ class SendReplyToCustomerListenerTest extends TestCase
             'imported' => false,
         ]);
 
-        $listener = new SendReplyToCustomer();
+        $listener = new SendReplyToCustomer;
         $event = new UserReplied($chatConversation, $thread);
 
         $listener->handle($event);

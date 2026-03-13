@@ -48,10 +48,10 @@ test('settings sidebar shows integrations section when modules are installed', f
 
     $response = $this->actingAs($admin)
         ->get(route('settings.integrations'));
-    
+
     $response->assertOk();
     $sections = $response->viewData('sections');
-    
+
     expect($sections)->toHaveKey('integrations');
     expect($sections['integrations']['title'])->toBe('Integrations');
     expect($sections['integrations']['route'])->toBe('settings.integrations');

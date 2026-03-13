@@ -22,21 +22,22 @@ class ReplyToConversationAction
     /**
      * Execute the reply action.
      *
-     * @param Conversation $conversation The conversation to reply to
-     * @param User $user The user creating the reply
-     * @param ThreadData $threadData The reply data
+     * @param  Conversation  $conversation  The conversation to reply to
+     * @param  User  $user  The user creating the reply
+     * @param  ThreadData  $threadData  The reply data
      * @return Thread The created thread
+     *
      * @throws \Exception If reply creation fails
      */
     public function execute(Conversation $conversation, User $user, ThreadData $threadData): Thread
     {
         return DB::transaction(function () use ($conversation, $user, $threadData) {
             // Load mailbox if not already loaded
-            if (!$conversation->mailbox) {
+            if (! $conversation->mailbox) {
                 $conversation->load('mailbox');
             }
 
-            if (!$conversation->mailbox) {
+            if (! $conversation->mailbox) {
                 throw new \Exception('Mailbox not found for conversation');
             }
 
@@ -82,7 +83,7 @@ class ReplyToConversationAction
             $conversation->update($updateData);
 
             // Dispatch email notification for replies (not notes or drafts)
-            if ($threadData->isReply() && !$threadData->isDraft) {
+            if ($threadData->isReply() && ! $threadData->isDraft) {
                 SendConversationReplyJob::dispatch($conversation, $thread)
                     ->delay(now()->addSeconds(10));
             }
@@ -97,8 +98,7 @@ class ReplyToConversationAction
     /**
      * Process and attach files to the thread.
      *
-     * @param Thread $thread
-     * @param array<string> $attachmentPaths
+     * @param  array<string>  $attachmentPaths
      */
     private function processAttachments(Thread $thread, array $attachmentPaths): void
     {

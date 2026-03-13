@@ -51,7 +51,7 @@ class AdminDashboardWidget implements Widget
         $cards = $this->buildCards();
         $sections = $this->buildSections();
 
-        $html  = '<div class="space-y-6">';
+        $html = '<div class="space-y-6">';
 
         // KPI row
         $html .= '<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">';
@@ -84,13 +84,13 @@ class AdminDashboardWidget implements Widget
         // -- Overdue invoices (PIB) -----------------------------------------
         if (class_exists(\Modules\PIB\Models\Invoice::class)) {
             $overdueCount = \Modules\PIB\Models\Invoice::where('status', 'overdue')->count();
-            $overdueAr    = (float) \Modules\PIB\Models\Invoice::where('status', 'overdue')->sum('total_amount');
+            $overdueAr = (float) \Modules\PIB\Models\Invoice::where('status', 'overdue')->sum('total_amount');
             $cards[] = [
                 'label' => 'Overdue Invoices',
                 'value' => (string) $overdueCount,
-                'sub'   => '$' . number_format($overdueAr, 0) . ' outstanding',
+                'sub' => '$'.number_format($overdueAr, 0).' outstanding',
                 'color' => $overdueCount > 0 ? 'red' : 'green',
-                'href'  => '#',
+                'href' => '#',
             ];
         }
 
@@ -104,9 +104,9 @@ class AdminDashboardWidget implements Widget
             $cards[] = [
                 'label' => 'Contracts Expiring',
                 'value' => (string) $expiringCount,
-                'sub'   => 'within 30 days',
+                'sub' => 'within 30 days',
                 'color' => $expiringCount > 0 ? 'yellow' : 'green',
-                'href'  => '#',
+                'href' => '#',
             ];
         }
 
@@ -116,9 +116,9 @@ class AdminDashboardWidget implements Widget
             $cards[] = [
                 'label' => 'Pending Quotes',
                 'value' => (string) $pendingQuotes,
-                'sub'   => 'awaiting approval',
+                'sub' => 'awaiting approval',
                 'color' => $pendingQuotes > 0 ? 'blue' : 'gray',
-                'href'  => '#',
+                'href' => '#',
             ];
         }
 
@@ -128,9 +128,9 @@ class AdminDashboardWidget implements Widget
             $cards[] = [
                 'label' => 'Active Clients',
                 'value' => (string) $activeClients,
-                'sub'   => 'managed accounts',
+                'sub' => 'managed accounts',
                 'color' => 'indigo',
-                'href'  => '#',
+                'href' => '#',
             ];
         }
 
@@ -156,7 +156,7 @@ class AdminDashboardWidget implements Widget
                 ->get();
 
             if ($expiring->isNotEmpty()) {
-                $section  = '<div class="bg-white rounded-xl shadow-sm border border-yellow-100 p-5">';
+                $section = '<div class="bg-white rounded-xl shadow-sm border border-yellow-100 p-5">';
                 $section .= '<div class="flex items-center justify-between mb-4">';
                 $section .= '<h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">⚠ Contracts Expiring Soon</h3>';
                 $section .= '</div>';
@@ -167,13 +167,13 @@ class AdminDashboardWidget implements Widget
 
                 foreach ($expiring as $contract) {
                     $daysLeft = (int) now()->diffInDays($contract->end_date, false);
-                    $urgency  = $daysLeft <= 7 ? 'text-red-600 font-semibold' : ($daysLeft <= 14 ? 'text-orange-600' : 'text-yellow-700');
+                    $urgency = $daysLeft <= 7 ? 'text-red-600 font-semibold' : ($daysLeft <= 14 ? 'text-orange-600' : 'text-yellow-700');
                     $clientName = $contract->client?->name ?? '—';
                     $section .= '<tr class="hover:bg-gray-50">';
-                    $section .= '<td class="py-2 pr-4 font-medium text-indigo-600">' . e($contract->contract_number ?? "#{$contract->id}") . '</td>';
-                    $section .= '<td class="py-2 pr-4 text-gray-700">' . e($clientName) . '</td>';
-                    $section .= '<td class="py-2 pr-4 text-gray-500">' . $contract->end_date->format('M j, Y') . '</td>';
-                    $section .= '<td class="py-2 ' . $urgency . '">' . $daysLeft . 'd</td>';
+                    $section .= '<td class="py-2 pr-4 font-medium text-indigo-600">'.e($contract->contract_number ?? "#{$contract->id}").'</td>';
+                    $section .= '<td class="py-2 pr-4 text-gray-700">'.e($clientName).'</td>';
+                    $section .= '<td class="py-2 pr-4 text-gray-500">'.$contract->end_date->format('M j, Y').'</td>';
+                    $section .= '<td class="py-2 '.$urgency.'">'.$daysLeft.'d</td>';
                     $section .= '</tr>';
                 }
 
@@ -184,16 +184,15 @@ class AdminDashboardWidget implements Widget
 
         // -- Software compliance alerts ---------------------------------------
         if (class_exists(\Modules\SoftwareSubscriptions\Models\SoftwareDiscovery::class)) {
-            $overDeployed = \Modules\SoftwareSubscriptions\Models\SoftwareDiscovery
-                ::where('reconciliation_status', \Modules\SoftwareSubscriptions\Models\SoftwareDiscovery::STATUS_OVER_DEPLOYED)
+            $overDeployed = \Modules\SoftwareSubscriptions\Models\SoftwareDiscovery::where('reconciliation_status', \Modules\SoftwareSubscriptions\Models\SoftwareDiscovery::STATUS_OVER_DEPLOYED)
                 ->count();
 
             if ($overDeployed > 0) {
-                $section  = '<div class="bg-white rounded-xl shadow-sm border border-red-100 p-5">';
+                $section = '<div class="bg-white rounded-xl shadow-sm border border-red-100 p-5">';
                 $section .= '<div class="flex items-center gap-2 mb-2">';
                 $section .= '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">! Compliance</span>';
                 $section .= '<p class="text-sm text-gray-700">';
-                $section .= '<span class="font-semibold text-red-700">' . $overDeployed . '</span> over-deployed software instance(s) detected across client endpoints.';
+                $section .= '<span class="font-semibold text-red-700">'.$overDeployed.'</span> over-deployed software instance(s) detected across client endpoints.';
                 $section .= '</p></div>';
                 $section .= '<a href="#" class="text-xs text-red-600 underline">Review in Software Manager →</a>';
                 $section .= '</div>';
@@ -205,34 +204,34 @@ class AdminDashboardWidget implements Widget
     }
 
     /**
-     * @param array{label: string, value: string, sub: string, color: string, href: string} $card
+     * @param  array{label: string, value: string, sub: string, color: string, href: string}  $card
      */
     private function renderCard(array $card): string
     {
         $colorMap = [
-            'red'    => 'bg-red-50 border-red-200 text-red-700',
+            'red' => 'bg-red-50 border-red-200 text-red-700',
             'yellow' => 'bg-yellow-50 border-yellow-200 text-yellow-700',
-            'green'  => 'bg-green-50 border-green-200 text-green-700',
-            'blue'   => 'bg-blue-50 border-blue-200 text-blue-700',
+            'green' => 'bg-green-50 border-green-200 text-green-700',
+            'blue' => 'bg-blue-50 border-blue-200 text-blue-700',
             'indigo' => 'bg-indigo-50 border-indigo-200 text-indigo-700',
-            'gray'   => 'bg-gray-50 border-gray-200 text-gray-600',
+            'gray' => 'bg-gray-50 border-gray-200 text-gray-600',
         ];
         $valueColorMap = [
-            'red'    => 'text-red-800',
+            'red' => 'text-red-800',
             'yellow' => 'text-yellow-800',
-            'green'  => 'text-green-800',
-            'blue'   => 'text-blue-800',
+            'green' => 'text-green-800',
+            'blue' => 'text-blue-800',
             'indigo' => 'text-indigo-800',
-            'gray'   => 'text-gray-700',
+            'gray' => 'text-gray-700',
         ];
 
         $wrapperClass = $colorMap[$card['color']] ?? $colorMap['gray'];
-        $valueClass   = $valueColorMap[$card['color']] ?? 'text-gray-700';
+        $valueClass = $valueColorMap[$card['color']] ?? 'text-gray-700';
 
-        $html  = '<div class="rounded-xl border p-4 ' . $wrapperClass . '">';
-        $html .= '<p class="text-xs font-medium uppercase tracking-wider mb-1">' . e($card['label']) . '</p>';
-        $html .= '<p class="text-3xl font-bold ' . $valueClass . '">' . e($card['value']) . '</p>';
-        $html .= '<p class="text-xs mt-1">' . e($card['sub']) . '</p>';
+        $html = '<div class="rounded-xl border p-4 '.$wrapperClass.'">';
+        $html .= '<p class="text-xs font-medium uppercase tracking-wider mb-1">'.e($card['label']).'</p>';
+        $html .= '<p class="text-3xl font-bold '.$valueClass.'">'.e($card['value']).'</p>';
+        $html .= '<p class="text-xs mt-1">'.e($card['sub']).'</p>';
         $html .= '</div>';
 
         return $html;

@@ -11,7 +11,6 @@ use Tests\UnitTestCase;
 
 class NewMessageReceivedTest extends UnitTestCase
 {
-
     // Additional Target: NewMessageReceived Event Testing
 
     public function test_event_stores_conversation_and_thread(): void

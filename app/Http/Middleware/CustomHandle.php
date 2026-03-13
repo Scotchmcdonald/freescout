@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Custom request handling middleware.
- * 
+ *
  * Handles chat mode toggle and provides hooks for modules.
  */
 class CustomHandle
@@ -36,8 +36,9 @@ class CustomHandle
 
         // Allow modules to filter the response
         $response = $next($request);
-        
+
         Eventy::filter('middleware.web.custom_handle.response', $response, $request, $next);
+
         return $response;
     }
 }

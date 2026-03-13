@@ -21,7 +21,7 @@ class ThemeController extends Controller
         $themes = Theme::all();
         $user = Auth::user();
         $currentTheme = $user instanceof \App\Models\User ? ($user->theme ?? 'default') : 'default';
-        
+
         return view('themes.index', compact('themes', 'currentTheme'));
     }
 
@@ -41,7 +41,7 @@ class ThemeController extends Controller
         if ($request->has('dark_mode')) {
             $user->dark_mode = $request->boolean('dark_mode');
             $user->save();
-            
+
             if ($request->wantsJson()) {
                 // Calculate new palette
                 $currentTheme = $user->theme ?? 'default';
@@ -60,33 +60,33 @@ class ThemeController extends Controller
                 ];
                 $normalizedTheme = $themeMap[$currentTheme] ?? $currentTheme;
                 $themeModel = Theme::where('name', $normalizedTheme)->first() ?? Theme::where('name', 'default')->first();
-                
+
                 $mode = $user->dark_mode ? 'dark' : 'light';
                 $palette = $themeModel->config[$mode] ?? null;
 
                 return response()->json([
-                    'success' => true, 
+                    'success' => true,
                     'dark_mode' => $user->dark_mode,
-                    'palette' => $palette
+                    'palette' => $palette,
                 ]);
             }
-            
+
             return back()->with('success', __('Theme mode updated.'));
         }
 
         $theme = $validated['theme'] ?? null;
 
         // If "default" is selected, store null (or keep it as 'default' if that's how we want to handle it)
-        // The previous logic stored null for default. Let's stick to storing the string 'default' 
+        // The previous logic stored null for default. Let's stick to storing the string 'default'
         // if it exists in the DB, or null if we want to fallback to system default.
         // However, our seeder created a 'default' theme in the DB.
         // So we should probably store 'default'.
-        
+
         $user->theme = $theme;
         $user->save();
 
         if ($request->wantsJson()) {
-             return response()->json(['success' => true]);
+            return response()->json(['success' => true]);
         }
 
         return back()->with('success', __('Theme updated successfully.'));
@@ -99,7 +99,7 @@ class ThemeController extends Controller
     {
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        if (!$user || !$user->isAdmin()) {
+        if (! $user || ! $user->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -108,10 +108,10 @@ class ThemeController extends Controller
                 '--class' => 'ThemeSeeder',
                 '--force' => true,
             ]);
-            
+
             return back()->with('success', __('Themes re-seeded successfully.'));
         } catch (\Exception $e) {
-            return back()->with('error', __('Failed to seed themes: ') . $e->getMessage());
+            return back()->with('error', __('Failed to seed themes: ').$e->getMessage());
         }
     }
 }

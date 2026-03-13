@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use Sentry\Breadcrumb;
@@ -18,7 +20,7 @@ class SentryBeforeBreadcrumb
         if ($breadcrumb->getCategory() === 'sql.query') {
             $message = $breadcrumb->getMessage();
             if (strlen((string) $message) > 1000) {
-                $breadcrumb->setMessage(substr((string) $message, 0, 1000) . '... [truncated]');
+                $breadcrumb->setMessage(substr((string) $message, 0, 1000).'... [truncated]');
             }
         }
 

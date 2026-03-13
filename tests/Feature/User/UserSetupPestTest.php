@@ -10,7 +10,7 @@ test('invited user can view setup page', function () {
     ]);
 
     $response = $this->get(route('user_setup', ['hash' => 'valid_hash']));
-    
+
     $response->assertOk();
 });
 
@@ -30,9 +30,9 @@ test('invited user can complete setup', function () {
     ]);
 
     $response->assertRedirect(route('dashboard'));
-    
+
     $user->refresh();
     expect($user->invite_hash)->toBeNull();
-    expect($user->invite_state)->toBe(1); // Active/Accepted? 
+    expect($user->invite_state)->toBe(1); // Active/Accepted?
     // Legacy test expected 1.
 });

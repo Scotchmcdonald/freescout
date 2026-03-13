@@ -21,12 +21,12 @@ class SaveDraftRequest extends FormRequest
     {
         return [
             'conversation_id' => ['required', 'integer', 'exists:conversations,id'],
-            'body'            => ['nullable', 'string'],
-            'to'              => ['nullable'],   // JSON string or array of email addresses
-            'cc'              => ['nullable'],
-            'bcc'             => ['nullable'],
-            'attachment_ids'  => ['nullable', 'array'],
-            'attachment_ids.*'=> ['integer'],
+            'body' => ['nullable', 'string'],
+            'to' => ['nullable'],   // JSON string or array of email addresses
+            'cc' => ['nullable'],
+            'bcc' => ['nullable'],
+            'attachment_ids' => ['nullable', 'array'],
+            'attachment_ids.*' => ['integer'],
         ];
     }
 }

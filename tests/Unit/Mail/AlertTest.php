@@ -5,22 +5,11 @@ declare(strict_types=1);
 namespace Tests\Unit\Mail;
 
 use App\Mail\Alert;
-use App\Mail\PasswordChanged;
-use App\Mail\UserEmailReplyError;
-use App\Mail\UserInvite;
-use App\Mail\UserNotification;
-use App\Models\Conversation;
-use App\Models\Customer;
-use App\Models\Mailbox;
-use App\Models\Thread;
-use App\Models\User;
 use Illuminate\Support\Facades\Mail;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class AlertTest extends UnitTestCase
 {
-
     public function test_mailable_can_be_instantiated_with_text(): void
     {
         $mailable = new Alert('Test alert message');
@@ -41,7 +30,7 @@ class AlertTest extends UnitTestCase
     public function test_envelope_contains_correct_subject_with_title(): void
     {
         config(['app.name' => 'FreeScout', 'app.url' => 'https://example.com']);
-        
+
         $mailable = new Alert('Test message', 'Security Alert');
         $envelope = $mailable->envelope();
 
@@ -53,7 +42,7 @@ class AlertTest extends UnitTestCase
     public function test_envelope_uses_default_title_when_empty(): void
     {
         config(['app.name' => 'FreeScout', 'app.url' => 'https://example.com']);
-        
+
         $mailable = new Alert('Test message');
         $envelope = $mailable->envelope();
 
@@ -86,7 +75,7 @@ class AlertTest extends UnitTestCase
     public function test_envelope_includes_domain_from_url(): void
     {
         config(['app.url' => 'https://helpdesk.example.org']);
-        
+
         $mailable = new Alert('Test');
         $envelope = $mailable->envelope();
 
@@ -96,7 +85,7 @@ class AlertTest extends UnitTestCase
     public function test_mailable_is_queueable(): void
     {
         $mailable = new Alert('Test');
-        
+
         $this->assertTrue(method_exists($mailable, 'onQueue'));
         $this->assertTrue(method_exists($mailable, 'onConnection'));
     }

@@ -12,13 +12,13 @@ function getPortalUser(): array
     $company = Company::factory()->create(['is_active' => true]);
     $client = Client::factory()->create([
         'company_id' => $company->id,
-        'name' => 'Portal Test Client ' . uniqid(),
+        'name' => 'Portal Test Client '.uniqid(),
         'status' => 'active',
     ]);
 
     $user = User::factory()->create([
         'type' => 2,
-        'email' => 'portal.' . uniqid() . '@example.com',
+        'email' => 'portal.'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
@@ -29,11 +29,11 @@ function getPortalUser(): array
 }
 
 it('allows client to view and add payment methods', function () {
-    list($user, $client, $password) = getPortalUser();
+    [$user, $client, $password] = getPortalUser();
 
     // Ensure client is active
     $client->update(['status' => 'active']);
-    
+
     // Use portal specific login route
     $this->visit(route('portal.login'))
         ->type('email', $user->email)
@@ -66,6 +66,5 @@ it('allows client to view and add payment methods', function () {
 
     // 4. Verify Success
     $browser->waitForText('Payment method added', 10)
-         ->assertSee('4242');
-
+        ->assertSee('4242');
 })->group('portal', 'payments');

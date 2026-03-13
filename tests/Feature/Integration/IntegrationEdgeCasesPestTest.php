@@ -9,13 +9,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 
-
 // ===== DATABASE EDGE CASES =====
 
 test('handles soft deleted conversations', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $conversation = Conversation::factory()->create();
-    
+
     $conversation->delete();
 
     $this->actingAs($admin)
@@ -40,7 +39,7 @@ test('restores soft deleted records', function () {
     $conversation->restore();
 
     expect($conversation->trashed())->toBeFalse();
-    
+
     $this->assertDatabaseHas('conversations', [
         'id' => $conversation->id,
         'deleted_at' => null,
@@ -230,7 +229,7 @@ test('query customer by email relationship', function () {
 
 test('customer can have multiple emails', function () {
     $customer = Customer::factory()->create();
-    
+
     $customer->emails()->create(['email' => 'first@example.com']);
     $customer->emails()->create(['email' => 'second@example.com']);
 
@@ -255,7 +254,7 @@ test('complete conversation workflow edge case', function () {
 
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
-    
+
     // Manually create Inbox folder since Event::fake() prevents MailboxObserver from running
     Folder::factory()->create([
         'mailbox_id' => $mailbox->id,
@@ -272,7 +271,7 @@ test('complete conversation workflow edge case', function () {
         'body' => 'Initial message',
         'to' => ['test@example.com'],
     ]);
-    
+
     $conversation = Conversation::where('subject', 'Test Conversation')->first();
     expect($conversation)->not->toBeNull();
 });

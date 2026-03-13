@@ -219,13 +219,13 @@ class MailHelper
     {
         // Remove script tags and their content
         $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html) ?? '';
-        
+
         // Remove iframe tags
         $html = preg_replace('/<iframe\b[^>]*>(.*?)<\/iframe>/is', '', $html) ?? '';
-        
+
         // Remove object and embed tags
         $html = preg_replace('/<(object|embed)\b[^>]*>(.*?)<\/\1>/is', '', $html) ?? '';
-        
+
         // Remove on* event handlers
         $html = preg_replace('/\s*on\w+\s*=\s*["\'][^"\']*["\']/i', '', $html) ?? '';
         $html = preg_replace('/\s*on\w+\s*=\s*[^\s>]*/i', '', $html) ?? '';
@@ -235,7 +235,7 @@ class MailHelper
 
     /**
      * Format email address with name.
-     * 
+     *
      * @param  string  $email  Email address
      * @param  string|null  $name  Name to include (optional)
      * @return string Formatted email
@@ -252,7 +252,7 @@ class MailHelper
     /**
      * Extract reply content from email body by removing quoted text.
      * Attempts to identify and remove previous message content.
-     * 
+     *
      * @param  string  $body  Email body content
      * @return string Reply content with quoted text removed
      */

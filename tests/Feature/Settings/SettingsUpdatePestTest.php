@@ -2,8 +2,6 @@
 
 use App\Models\Option;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['role' => User::ROLE_ADMIN]);

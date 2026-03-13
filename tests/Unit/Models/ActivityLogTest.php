@@ -22,7 +22,7 @@ class ActivityLogTest extends UnitTestCase
             'log_name' => ActivityLog::NAME_USER,
             'description' => ActivityLog::DESCRIPTION_USER_LOGIN,
         ]);
-        
+
         $this->assertInstanceOf(ActivityLog::class, $log);
         $this->assertDatabaseHas('activity_log', [
             'id' => $log->id,
@@ -32,8 +32,8 @@ class ActivityLogTest extends UnitTestCase
 
     public function test_activity_log_has_correct_fillable_attributes(): void
     {
-        $log = new ActivityLog();
-        
+        $log = new ActivityLog;
+
         $this->assertContains('log_name', $log->getFillable());
         $this->assertContains('description', $log->getFillable());
         $this->assertContains('subject_type', $log->getFillable());
@@ -45,14 +45,14 @@ class ActivityLogTest extends UnitTestCase
     public function test_activity_log_uses_has_factory_trait(): void
     {
         $log = ActivityLog::factory()->create();
-        
+
         $this->assertInstanceOf(ActivityLog::class, $log);
     }
 
     public function test_activity_log_uses_correct_table(): void
     {
-        $log = new ActivityLog();
-        
+        $log = new ActivityLog;
+
         $this->assertEquals('activity_log', $log->getTable());
     }
 
@@ -134,7 +134,7 @@ class ActivityLogTest extends UnitTestCase
             'subject_type' => User::class,
             'subject_id' => $user->id,
         ]);
-        
+
         $this->assertInstanceOf(User::class, $log->subject);
         $this->assertEquals($user->id, $log->subject->id);
     }
@@ -146,7 +146,7 @@ class ActivityLogTest extends UnitTestCase
             'causer_type' => User::class,
             'causer_id' => $user->id,
         ]);
-        
+
         $this->assertInstanceOf(User::class, $log->causer);
         $this->assertEquals($user->id, $log->causer->id);
     }
@@ -158,7 +158,7 @@ class ActivityLogTest extends UnitTestCase
             'causer_type' => User::class,
             'causer_id' => $user->id,
         ]);
-        
+
         $this->assertInstanceOf(User::class, $log->user());
         $this->assertEquals($user->id, $log->user()->id);
     }
@@ -169,7 +169,7 @@ class ActivityLogTest extends UnitTestCase
             'causer_type' => null,
             'causer_id' => null,
         ]);
-        
+
         $this->assertNull($log->user());
     }
 
@@ -179,7 +179,7 @@ class ActivityLogTest extends UnitTestCase
             'subject_type' => null,
             'subject_id' => null,
         ]);
-        
+
         $this->assertNull($log->subject);
     }
 
@@ -189,7 +189,7 @@ class ActivityLogTest extends UnitTestCase
             'causer_type' => null,
             'causer_id' => null,
         ]);
-        
+
         $this->assertNull($log->causer);
     }
 
@@ -199,7 +199,7 @@ class ActivityLogTest extends UnitTestCase
     {
         $properties = ['ip' => '127.0.0.1', 'user_agent' => 'Mozilla'];
         $log = ActivityLog::factory()->create(['properties' => $properties]);
-        
+
         $this->assertEquals($properties, $log->properties);
         $this->assertIsArray($log->properties);
     }
@@ -207,14 +207,14 @@ class ActivityLogTest extends UnitTestCase
     public function test_created_at_is_cast_to_datetime(): void
     {
         $log = ActivityLog::factory()->create();
-        
+
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $log->created_at);
     }
 
     public function test_updated_at_is_cast_to_datetime(): void
     {
         $log = ActivityLog::factory()->create();
-        
+
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $log->updated_at);
     }
 
@@ -225,9 +225,9 @@ class ActivityLogTest extends UnitTestCase
         ActivityLog::factory()->create(['log_name' => ActivityLog::NAME_USER]);
         ActivityLog::factory()->create(['log_name' => ActivityLog::NAME_SYSTEM]);
         ActivityLog::factory()->create(['log_name' => ActivityLog::NAME_USER]);
-        
+
         $userLogs = ActivityLog::inLog(ActivityLog::NAME_USER)->get();
-        
+
         $this->assertCount(2, $userLogs);
     }
 
@@ -246,9 +246,9 @@ class ActivityLogTest extends UnitTestCase
             'causer_type' => null,
             'causer_id' => null,
         ]);
-        
+
         $userLogs = ActivityLog::causedBy($user)->get();
-        
+
         $this->assertCount(2, $userLogs);
     }
 
@@ -267,9 +267,9 @@ class ActivityLogTest extends UnitTestCase
             'subject_type' => null,
             'subject_id' => null,
         ]);
-        
+
         $subjectLogs = ActivityLog::forSubject($user)->get();
-        
+
         $this->assertCount(2, $subjectLogs);
     }
 
@@ -279,9 +279,9 @@ class ActivityLogTest extends UnitTestCase
     {
         ActivityLog::factory()->create(['description' => ActivityLog::DESCRIPTION_USER_LOGIN]);
         ActivityLog::factory()->create(['description' => ActivityLog::DESCRIPTION_USER_LOGOUT]);
-        
+
         $loginLogs = ActivityLog::where('description', ActivityLog::DESCRIPTION_USER_LOGIN)->get();
-        
+
         $this->assertCount(1, $loginLogs);
     }
 
@@ -290,9 +290,9 @@ class ActivityLogTest extends UnitTestCase
         $batchUuid = 'test-batch-uuid';
         ActivityLog::factory()->count(3)->create(['batch_uuid' => $batchUuid]);
         ActivityLog::factory()->create(['batch_uuid' => 'different-uuid']);
-        
+
         $batchLogs = ActivityLog::where('batch_uuid', $batchUuid)->get();
-        
+
         $this->assertCount(3, $batchLogs);
     }
 
@@ -301,9 +301,9 @@ class ActivityLogTest extends UnitTestCase
         $log1 = ActivityLog::factory()->create(['created_at' => now()->subHours(2)]);
         $log2 = ActivityLog::factory()->create(['created_at' => now()->subHour()]);
         $log3 = ActivityLog::factory()->create(['created_at' => now()]);
-        
+
         $orderedLogs = ActivityLog::orderBy('created_at', 'desc')->get();
-        
+
         $this->assertEquals($log3->id, $orderedLogs->first()->id);
         $this->assertEquals($log1->id, $orderedLogs->last()->id);
     }
@@ -313,30 +313,30 @@ class ActivityLogTest extends UnitTestCase
     public function test_activity_log_with_null_properties(): void
     {
         $log = ActivityLog::factory()->create(['properties' => null]);
-        
+
         $this->assertNull($log->properties);
     }
 
     public function test_activity_log_with_empty_properties_array(): void
     {
         $log = ActivityLog::factory()->create(['properties' => []]);
-        
+
         $this->assertEquals([], $log->properties);
     }
 
     public function test_activity_log_with_null_batch_uuid(): void
     {
         $log = ActivityLog::factory()->create(['batch_uuid' => null]);
-        
+
         $this->assertNull($log->batch_uuid);
     }
 
     public function test_activity_log_can_be_updated(): void
     {
         $log = ActivityLog::factory()->create(['description' => 'old_description']);
-        
+
         $log->update(['description' => 'new_description']);
-        
+
         $this->assertEquals('new_description', $log->fresh()->description);
     }
 
@@ -344,21 +344,21 @@ class ActivityLogTest extends UnitTestCase
     {
         $log = ActivityLog::factory()->create();
         $id = $log->id;
-        
+
         $log->delete();
-        
+
         $this->assertDatabaseMissing('activity_log', ['id' => $id]);
     }
 
     public function test_multiple_logs_can_exist_for_same_user(): void
     {
         $user = User::factory()->create();
-        
+
         ActivityLog::factory()->count(5)->create([
             'causer_type' => User::class,
             'causer_id' => $user->id,
         ]);
-        
+
         $this->assertCount(5, ActivityLog::causedBy($user)->get());
     }
 
@@ -371,9 +371,9 @@ class ActivityLogTest extends UnitTestCase
             'old' => ['field' => 'old_value'],
             'new' => ['field' => 'new_value'],
         ];
-        
+
         $log = ActivityLog::factory()->create(['properties' => $properties]);
-        
+
         $this->assertEquals($properties, $log->properties);
         $this->assertEquals('192.168.1.1', $log->properties['ip']);
     }
@@ -381,7 +381,7 @@ class ActivityLogTest extends UnitTestCase
     public function test_can_create_login_activity_log(): void
     {
         $user = User::factory()->create();
-        
+
         $log = ActivityLog::create([
             'log_name' => ActivityLog::NAME_USER,
             'description' => ActivityLog::DESCRIPTION_USER_LOGIN,
@@ -389,7 +389,7 @@ class ActivityLogTest extends UnitTestCase
             'causer_id' => $user->id,
             'properties' => ['ip' => '127.0.0.1'],
         ]);
-        
+
         $this->assertEquals(ActivityLog::NAME_USER, $log->log_name);
         $this->assertEquals(ActivityLog::DESCRIPTION_USER_LOGIN, $log->description);
     }
@@ -397,14 +397,14 @@ class ActivityLogTest extends UnitTestCase
     public function test_can_create_logout_activity_log(): void
     {
         $user = User::factory()->create();
-        
+
         $log = ActivityLog::create([
             'log_name' => ActivityLog::NAME_USER,
             'description' => ActivityLog::DESCRIPTION_USER_LOGOUT,
             'causer_type' => User::class,
             'causer_id' => $user->id,
         ]);
-        
+
         $this->assertEquals(ActivityLog::DESCRIPTION_USER_LOGOUT, $log->description);
     }
 
@@ -415,7 +415,7 @@ class ActivityLogTest extends UnitTestCase
             'description' => ActivityLog::DESCRIPTION_USER_LOGIN_FAILED,
             'properties' => ['email' => 'test@example.com', 'ip' => '127.0.0.1'],
         ]);
-        
+
         $this->assertEquals(ActivityLog::DESCRIPTION_USER_LOGIN_FAILED, $log->description);
         $this->assertEquals('test@example.com', $log->properties['email']);
     }
@@ -423,7 +423,7 @@ class ActivityLogTest extends UnitTestCase
     public function test_activity_log_timestamps_are_automatically_set(): void
     {
         $log = ActivityLog::factory()->create();
-        
+
         $this->assertNotNull($log->created_at);
         $this->assertNotNull($log->updated_at);
     }
@@ -431,30 +431,30 @@ class ActivityLogTest extends UnitTestCase
     public function test_activity_log_description_can_be_custom_string(): void
     {
         $log = ActivityLog::factory()->create(['description' => 'custom_action']);
-        
+
         $this->assertEquals('custom_action', $log->description);
     }
 
     public function test_can_combine_multiple_scopes(): void
     {
         $user = User::factory()->create();
-        
+
         ActivityLog::factory()->create([
             'log_name' => ActivityLog::NAME_USER,
             'causer_type' => User::class,
             'causer_id' => $user->id,
         ]);
-        
+
         ActivityLog::factory()->create([
             'log_name' => ActivityLog::NAME_SYSTEM,
             'causer_type' => User::class,
             'causer_id' => $user->id,
         ]);
-        
+
         $logs = ActivityLog::inLog(ActivityLog::NAME_USER)
             ->causedBy($user)
             ->get();
-        
+
         $this->assertCount(1, $logs);
     }
 
@@ -464,9 +464,9 @@ class ActivityLogTest extends UnitTestCase
             'data' => str_repeat('x', 1000),
             'additional_info' => array_fill(0, 50, 'item'),
         ];
-        
+
         $log = ActivityLog::factory()->create(['properties' => $largeProperties]);
-        
+
         $this->assertEquals($largeProperties, $log->fresh()->properties);
     }
 }

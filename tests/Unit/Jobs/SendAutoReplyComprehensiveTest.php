@@ -18,7 +18,6 @@ use Tests\UnitTestCase;
 
 class SendAutoReplyComprehensiveTest extends UnitTestCase
 {
-
     public function test_job_stores_conversation_correctly(): void
     {
         $mailbox = Mailbox::factory()->create();
@@ -134,7 +133,7 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         $this->assertTrue($property->isPublic());
     }
 
-    public function test_job_has_public_senderInfo_property(): void
+    public function test_job_has_public_sender_info_property(): void
     {
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
@@ -155,28 +154,28 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create(['email' => 'customer@example.com']);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
             'customer_email' => 'customer@example.com',
             'meta' => ['ar_off' => true], // Auto-reply disabled
         ]);
-        
+
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'type' => Thread::TYPE_CUSTOMER,
             'customer_id' => $customer->id,
         ]);
-        
+
         // Mock SmtpService to verify it's never called
         $smtpService = $this->createMock(\App\Services\SmtpService::class);
         $smtpService->expects($this->never())
             ->method('configureSmtp');
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
         $job->handle($smtpService);
-        
+
         // Verify no send log was created (since auto-reply was disabled)
         $this->assertDatabaseMissing('send_logs', [
             'thread_id' => $thread->id,
@@ -189,27 +188,27 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         // Create customer without email
         $customer = Customer::factory()->create();
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
             'customer_email' => null, // No email set
         ]);
-        
+
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'type' => Thread::TYPE_CUSTOMER,
             'customer_id' => $customer->id,
         ]);
-        
+
         // Mock SmtpService to verify it's never called
         $smtpService = $this->createMock(\App\Services\SmtpService::class);
         $smtpService->expects($this->never())
             ->method('configureSmtp');
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
         $job->handle($smtpService);
-        
+
         // Verify no send log was created (since no customer email)
         $this->assertDatabaseMissing('send_logs', [
             'thread_id' => $thread->id,
@@ -221,25 +220,25 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
         ]);
-        
+
         // Multiple customer threads
         $thread1 = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'type' => Thread::TYPE_CUSTOMER,
             'created_at' => now()->subMinutes(10),
         ]);
-        
+
         $thread2 = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'type' => Thread::TYPE_CUSTOMER,
             'created_at' => now(),
         ]);
-        
+
         // Logic to detect first message happens in service/controller layer
         $this->assertEquals(Thread::TYPE_CUSTOMER, $thread1->type);
         $this->assertEquals(Thread::TYPE_CUSTOMER, $thread2->type);
@@ -257,9 +256,9 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
             'conversation_id' => $conversation->id,
             'message_id' => 'original-message-id@example.com',
         ]);
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        
+
         // Message ID format: auto-reply-{thread_id}-{hash}@{domain}
         $this->assertEquals(123, $thread->id);
         $this->assertEquals('support@example.com', $mailbox->email);
@@ -274,9 +273,9 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
             'conversation_id' => $conversation->id,
             'message_id' => 'original@example.com',
         ]);
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        
+
         // Headers should include In-Reply-To and References
         $this->assertEquals('original@example.com', $thread->message_id);
     }
@@ -289,22 +288,22 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
             'last_name' => 'Doe',
             'email' => 'john.doe@example.com',
         ]);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
             'customer_email' => 'john.doe@example.com',
         ]);
-        
+
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'type' => Thread::TYPE_CUSTOMER,
             'customer_id' => $customer->id,
             'message_id' => 'original@example.com',
         ]);
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        
+
         // Verify customer's full name is set correctly for the recipient
         $this->assertEquals('John Doe', $customer->getFullName());
         $this->assertEquals('john.doe@example.com', $conversation->customer_email);
@@ -315,7 +314,7 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
     public function test_creates_send_log_entry(): void
     {
         Mail::fake();
-        
+
         $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true, 'auto_reply_subject' => 'Auto Reply']);
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -330,17 +329,17 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
 
         // Get initial send log count
         $initialCount = SendLog::count();
-        
+
         $smtpService = Mockery::mock(SmtpService::class);
         $smtpService->shouldReceive('configureSmtp')->andReturnNull();
         $smtpService->shouldReceive('send')->andReturn(true);
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
         $job->handle($smtpService);
 
         // Verify send log entry was created
         $this->assertGreaterThan($initialCount, SendLog::count());
-        
+
         // Verify the log entry has correct attributes
         $logEntry = SendLog::latest()->first();
         $this->assertEquals($thread->id, $logEntry->thread_id);
@@ -351,7 +350,7 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
     public function test_prevents_duplicate_auto_reply_via_send_log(): void
     {
         Mail::fake();
-        
+
         $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true, 'auto_reply_subject' => 'Auto Reply']);
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -375,17 +374,17 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         ]);
 
         $initialCount = SendLog::count();
-        
+
         $smtpService = Mockery::mock(SmtpService::class);
         $smtpService->shouldReceive('configureSmtp')->andReturnNull();
         $smtpService->shouldReceive('send')->andReturn(true);
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
         $job->handle($smtpService);
 
         // Should not create another send log entry (duplicate prevention)
         $this->assertEquals($initialCount, SendLog::count(), 'Should not create duplicate send log entry');
-        
+
         // Should not send mail
         Mail::assertNothingSent();
     }
@@ -398,9 +397,9 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        
+
         // Job should handle invalid SMTP config
         $this->assertNull($mailbox->out_server);
     }
@@ -411,9 +410,9 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        
+
         // Job has failed() method for logging
         $this->assertTrue(method_exists($job, 'failed'));
     }
@@ -424,9 +423,9 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        
+
         // Timeout should be 120 seconds
         $this->assertEquals(120, $job->timeout);
     }
@@ -438,22 +437,22 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
             'first_name' => "O'Brien",
             'last_name' => 'Müller-Schmidt',
         ]);
-        
+
         // Update the factory-created email to test@example.com
         $customer->emails()->delete();
         \App\Models\Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'test@example.com',
         ]);
-        
+
         $conversation = Conversation::factory()->create([
             'customer_id' => $customer->id,
             'customer_email' => 'test@example.com',
         ]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        
+
         // Special characters should be handled
         $this->assertEquals("O'Brien", $customer->first_name);
         $this->assertEquals('Müller-Schmidt', $customer->last_name);
@@ -465,14 +464,14 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        
+
         // Domain extraction for Message-ID
         $email = $mailbox->email;
         $atPos = strrchr($email, '@');
         $domain = $atPos !== false ? substr($atPos, 1) : 'localhost';
-        
+
         $this->assertEquals('example.com', $domain);
     }
 
@@ -482,14 +481,14 @@ class SendAutoReplyComprehensiveTest extends UnitTestCase
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
-        
+
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
-        
+
         // Should default to localhost for invalid email
         $email = $mailbox->email;
         $atPos = strrchr($email, '@');
         $domain = $atPos !== false ? substr($atPos, 1) : 'localhost';
-        
+
         $this->assertEquals('localhost', $domain);
     }
 }

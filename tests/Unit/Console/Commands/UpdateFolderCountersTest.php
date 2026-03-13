@@ -15,25 +15,24 @@ use Tests\UnitTestCase;
 /** @group console */
 class UpdateFolderCountersTest extends UnitTestCase
 {
-
     public function test_command_can_be_instantiated(): void
     {
-        $command = new UpdateFolderCounters();
-        
+        $command = new UpdateFolderCounters;
+
         $this->assertInstanceOf(UpdateFolderCounters::class, $command);
     }
 
     public function test_command_has_correct_signature(): void
     {
-        $command = new UpdateFolderCounters();
-        
+        $command = new UpdateFolderCounters;
+
         $this->assertEquals('freescout:update-folder-counters', $command->getName());
     }
 
     public function test_command_has_description(): void
     {
-        $command = new UpdateFolderCounters();
-        
+        $command = new UpdateFolderCounters;
+
         $this->assertNotEmpty($command->getDescription());
         $this->assertStringContainsString('folder', $command->getDescription());
     }
@@ -41,7 +40,7 @@ class UpdateFolderCountersTest extends UnitTestCase
     public function test_command_returns_zero_when_no_folders(): void
     {
         $exitCode = Artisan::call('freescout:update-folder-counters');
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -49,7 +48,7 @@ class UpdateFolderCountersTest extends UnitTestCase
     {
         Artisan::call('freescout:update-folder-counters');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('No folders found', $output);
     }
 
@@ -59,7 +58,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
 
         $exitCode = Artisan::call('freescout:update-folder-counters');
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -69,7 +68,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         Folder::factory()->count(3)->create(['mailbox_id' => $mailbox->id]);
 
         $exitCode = Artisan::call('freescout:update-folder-counters');
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -80,7 +79,7 @@ class UpdateFolderCountersTest extends UnitTestCase
 
         Artisan::call('freescout:update-folder-counters');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('Updating counters', $output);
     }
 
@@ -91,7 +90,7 @@ class UpdateFolderCountersTest extends UnitTestCase
 
         Artisan::call('freescout:update-folder-counters');
         $output = Artisan::output();
-        
+
         $this->assertStringContainsString('finished successfully', $output);
     }
 
@@ -102,7 +101,7 @@ class UpdateFolderCountersTest extends UnitTestCase
 
         Artisan::call('freescout:update-folder-counters');
         $output = Artisan::output();
-        
+
         // Progress bar should be shown
         $this->assertNotEmpty($output);
     }
@@ -114,7 +113,7 @@ class UpdateFolderCountersTest extends UnitTestCase
 
         Artisan::call('freescout:update-folder-counters');
         $output = Artisan::output();
-        
+
         // Output should contain information about folders being updated
         // The count may vary based on test isolation
         $this->assertStringContainsString('folders', $output);
@@ -128,7 +127,7 @@ class UpdateFolderCountersTest extends UnitTestCase
 
         // Command should handle errors without crashing
         $exitCode = Artisan::call('freescout:update-folder-counters');
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -139,7 +138,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         $folder2 = Folder::factory()->create(['mailbox_id' => $mailbox->id]);
 
         $exitCode = Artisan::call('freescout:update-folder-counters');
-        
+
         $this->assertEquals(0, $exitCode);
         // All folders should have been processed
     }
@@ -154,7 +153,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         ]);
 
         $exitCode = Artisan::call('freescout:update-folder-counters');
-        
+
         $this->assertEquals(0, $exitCode);
     }
 
@@ -164,7 +163,7 @@ class UpdateFolderCountersTest extends UnitTestCase
         Folder::factory()->create(['mailbox_id' => $mailbox->id]);
 
         $exitCode = Artisan::call('freescout:update-folder-counters');
-        
+
         $this->assertEquals(0, $exitCode);
     }
 }

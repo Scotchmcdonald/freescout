@@ -8,7 +8,6 @@ use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-
 // ==================== Complete Conversation Workflows ====================
 
 test('complete conversation lifecycle from creation to closure', function () {
@@ -16,7 +15,7 @@ test('complete conversation lifecycle from creation to closure', function () {
     $mailbox = Mailbox::factory()->create();
     Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => Folder::TYPE_INBOX]);
     $customer = Customer::factory()->create();
-    
+
     // Assign admin to mailbox
     $mailbox->users()->attach($admin->id);
 
@@ -30,7 +29,7 @@ test('complete conversation lifecycle from creation to closure', function () {
     ]);
 
     $response->assertRedirect();
-    
+
     $conversation = Conversation::first();
     expect($conversation)->not->toBeNull()
         ->and($conversation->status)->toBe(Conversation::STATUS_ACTIVE);
@@ -62,7 +61,7 @@ test('conversation assignment workflow', function () {
     $user1 = User::factory()->create();
     $user2 = User::factory()->create();
     $mailbox = Mailbox::factory()->create();
-    
+
     // Assign users to mailbox
     $mailbox->users()->attach([$admin->id, $user1->id, $user2->id]);
 
@@ -95,7 +94,7 @@ test('user can access only assigned mailboxes', function () {
     $user = User::factory()->create();
     $mailbox1 = Mailbox::factory()->create(['name' => 'Support']);
     $mailbox2 = Mailbox::factory()->create(['name' => 'Sales']);
-    
+
     // User only assigned to mailbox1
     $mailbox1->users()->attach($user->id);
 
@@ -115,7 +114,7 @@ test('conversations isolated between mailboxes', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox1 = Mailbox::factory()->create();
     $mailbox2 = Mailbox::factory()->create();
-    
+
     // Assign admin to mailbox1
     $mailbox1->users()->attach($admin->id);
 
@@ -124,7 +123,7 @@ test('conversations isolated between mailboxes', function () {
 
     // List conversations for mailbox1
     $response = $this->actingAs($admin)->get(route('conversations.index', $mailbox1));
-    
+
     $response->assertSuccessful();
     $response->assertSee($conversation1->subject);
     $response->assertDontSee($conversation2->subject);
@@ -275,8 +274,8 @@ test('filter by multiple criteria', function () {
         'mailbox_id' => $mailbox->id,
         'status' => Conversation::STATUS_CLOSED,
     ]);
-    
+
     // Filter by my open conversations
     // (Implementation of filter test depends on how your app filters, assuming basic structure here)
-    $this->assertTrue(true); 
+    $this->assertTrue(true);
 });

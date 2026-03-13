@@ -15,7 +15,6 @@ use Tests\UnitTestCase;
 
 class ModelRelationshipsTest extends UnitTestCase
 {
-
     /**
      * Test that a conversation belongs to a mailbox.
      */

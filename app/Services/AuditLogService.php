@@ -10,13 +10,13 @@ use Spatie\Activitylog\Models\Activity;
 
 /**
  * Centralized audit logging service for sensitive operations.
- * 
+ *
  * This service provides structured logging for:
  * - Financial operations (credit adjustments, payments)
  * - Security operations (permission changes, impersonation)
  * - Business operations (quote approvals, contract modifications)
  * - Data access (exports, bulk queries)
- * 
+ *
  * All audit logs are stored in the activity_log table via spatie/laravel-activitylog.
  */
 class AuditLogService
@@ -24,12 +24,11 @@ class AuditLogService
     /**
      * Log a sensitive operation.
      *
-     * @param string $operation Operation identifier
-     * @param Model|null $subject Model being operated on
-     * @param array<string, mixed> $properties Additional context
-     * @param string $logName Category for filtering
-     * @param Model|null $causer User performing the operation
-     * @return Activity
+     * @param  string  $operation  Operation identifier
+     * @param  Model|null  $subject  Model being operated on
+     * @param  array<string, mixed>  $properties  Additional context
+     * @param  string  $logName  Category for filtering
+     * @param  Model|null  $causer  User performing the operation
      */
     public function logSensitiveOperation(
         string $operation,
@@ -42,11 +41,11 @@ class AuditLogService
         $enrichedProperties = $this->enrichProperties($properties);
 
         $activityLogger = activity($logName);
-        
+
         if ($subject !== null) {
             $activityLogger->performedOn($subject);
         }
-        
+
         $activity = $activityLogger
             ->causedBy($causer)
             ->withProperties($enrichedProperties)
@@ -69,7 +68,7 @@ class AuditLogService
     /**
      * Query audit logs with filters.
      *
-     * @param array<string, mixed> $filters
+     * @param  array<string, mixed>  $filters
      * @return \Illuminate\Database\Eloquent\Builder<Activity>
      */
     public function queryLogs(array $filters = []): \Illuminate\Database\Eloquent\Builder
@@ -103,7 +102,7 @@ class AuditLogService
         if (isset($filters['description_like'])) {
             $val = $filters['description_like'];
             $strVal = is_string($val) ? $val : '';
-            $query->where('description', 'like', '%' . $strVal . '%');
+            $query->where('description', 'like', '%'.$strVal.'%');
         }
 
         return $query->latest();
@@ -112,8 +111,6 @@ class AuditLogService
     /**
      * Get audit summary for a subject.
      *
-     * @param Model $subject
-     * @param int $limit
      * @return \Illuminate\Database\Eloquent\Collection<int, Activity>
      */
     public function getSubjectAuditTrail(Model $subject, int $limit = 50): \Illuminate\Database\Eloquent\Collection
@@ -129,8 +126,6 @@ class AuditLogService
     /**
      * Get recent sensitive operations.
      *
-     * @param int $hours
-     * @param int $limit
      * @return \Illuminate\Database\Eloquent\Collection<int, Activity>
      */
     public function getRecentSensitiveOperations(int $hours = 24, int $limit = 100): \Illuminate\Database\Eloquent\Collection
@@ -151,7 +146,7 @@ class AuditLogService
     /**
      * Enrich properties with request context.
      *
-     * @param array<string, mixed> $properties
+     * @param  array<string, mixed>  $properties
      * @return array<string, mixed>
      */
     protected function enrichProperties(array $properties): array

@@ -12,7 +12,6 @@ use Tests\UnitTestCase;
 
 class FolderPolicyTest extends UnitTestCase
 {
-
     public function test_admin_can_view_any_folder(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);

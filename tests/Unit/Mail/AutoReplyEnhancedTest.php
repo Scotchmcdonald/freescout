@@ -6,7 +6,6 @@ namespace Tests\Unit\Mail;
 
 use App\Mail\AutoReply;
 use App\Models\Conversation;
-
 use App\Models\Mailbox;
 use Tests\TestCase;
 
@@ -16,7 +15,6 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $content = $mail->content();
@@ -31,7 +29,6 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1, 'auto_reply_message' => null]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $content = $mail->content();
@@ -46,7 +43,6 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_message' => 'Custom auto-reply message',
         ]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $content = $mail->content();
@@ -58,7 +54,6 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Original Subject']);
         $mailbox = new Mailbox(['id' => 1, 'auto_reply_subject' => null]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $envelope = $mail->envelope();
@@ -73,7 +68,6 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_subject' => 'Custom Auto Reply Subject',
         ]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $envelope = $mail->envelope();
@@ -85,7 +79,6 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
@@ -97,7 +90,7 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        
+
         $headers = ['X-Custom-Header' => 'Custom Value'];
 
         $mail = new AutoReply($conversation, $mailbox, $headers);
@@ -109,7 +102,6 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        
 
         $mail = new AutoReply($conversation, $mailbox, []);
 
@@ -127,7 +119,6 @@ class AutoReplyEnhancedTest extends TestCase
             'email' => 'support@example.com',
             'name' => 'Support Team',
         ]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
@@ -139,7 +130,6 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Help Request']);
         $mailbox = new Mailbox(['id' => 1]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
@@ -155,7 +145,6 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_message' => 'Custom message for you',
         ]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
@@ -168,7 +157,7 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        
+
         $headers = [
             'X-Auto-Reply' => 'true',
             'X-Conversation-ID' => '123',
@@ -184,7 +173,7 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        
+
         $headers = [
             'Message-ID' => '<custom-id@example.com>',
             'X-Custom-Header' => 'value',
@@ -201,7 +190,7 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        
+
         $headers = [
             'X-Header-1' => 'value1',
             'X-Header-2' => 'value2',
@@ -218,7 +207,6 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
@@ -233,7 +221,6 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => '']);
         $mailbox = new Mailbox(['id' => 1, 'auto_reply_subject' => null]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
@@ -247,7 +234,6 @@ class AutoReplyEnhancedTest extends TestCase
         $longSubject = str_repeat('This is a very long subject line ', 20);
         $conversation = new Conversation(['id' => 1, 'subject' => $longSubject]);
         $mailbox = new Mailbox(['id' => 1]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
@@ -260,7 +246,6 @@ class AutoReplyEnhancedTest extends TestCase
         $unicodeSubject = '件名: テストメール 🎉';
         $conversation = new Conversation(['id' => 1, 'subject' => $unicodeSubject]);
         $mailbox = new Mailbox(['id' => 1]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
@@ -276,7 +261,6 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_message' => $specialMessage,
         ]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $result = $mail->build();
@@ -303,7 +287,6 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_subject' => $longCustomSubject,
         ]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $envelope = $mail->envelope();
@@ -319,7 +302,6 @@ class AutoReplyEnhancedTest extends TestCase
             'id' => 1,
             'auto_reply_message' => $multilineMessage,
         ]);
-        
 
         $mail = new AutoReply($conversation, $mailbox);
         $content = $mail->content();
@@ -331,7 +313,7 @@ class AutoReplyEnhancedTest extends TestCase
     {
         $conversation = new Conversation(['id' => 1, 'subject' => 'Test']);
         $mailbox = new Mailbox(['id' => 1]);
-        
+
         $headers = [
             'X-Custom-Header' => 'value:with:colons',
         ];

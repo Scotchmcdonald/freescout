@@ -23,7 +23,7 @@ class ImapServiceFolderPathTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Mock all logging
         Log::shouldReceive('debug')->byDefault();
         Log::shouldReceive('info')->byDefault();

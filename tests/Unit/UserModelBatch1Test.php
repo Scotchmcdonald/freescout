@@ -11,7 +11,6 @@ use Tests\UnitTestCase;
 
 class UserModelBatch1Test extends UnitTestCase
 {
-
     public function test_user_has_is_admin_method(): void
     {
         // Arrange

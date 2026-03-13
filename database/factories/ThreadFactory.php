@@ -88,8 +88,9 @@ class ThreadFactory extends Factory
         return $this->state(function (array $attributes) {
             $paragraphs = fake()->paragraphs(5, true);
             $body = is_array($paragraphs) ? implode("\n", $paragraphs) : $paragraphs;
+
             return [
-                'body' => '<html><body><h1>Test Email</h1>' . $body . '</body></html>',
+                'body' => '<html><body><h1>Test Email</h1>'.$body.'</body></html>',
             ];
         });
     }

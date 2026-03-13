@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 test('conversation list loads quickly with many conversations', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
-    
+
     // Give user access to mailbox
     $mailbox->users()->attach($user->id);
 
@@ -36,10 +36,10 @@ test('conversation list loads quickly with many conversations', function () {
 test('database queries are optimized', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
-    
+
     // Give user access to mailbox
     $mailbox->users()->attach($user->id);
-    
+
     Conversation::factory()->count(20)->create([
         'mailbox_id' => $mailbox->id,
     ]);
@@ -55,7 +55,7 @@ test('database queries are optimized', function () {
     DB::disableQueryLog();
 
     // Should not have excessive N+1 query problems
-    expect(count($queries))->toBeLessThan(50, "Too many database queries: " . count($queries));
+    expect(count($queries))->toBeLessThan(50, 'Too many database queries: '.count($queries));
 });
 
 test('customer list pagination performance', function () {
@@ -81,10 +81,10 @@ test('customer list pagination performance', function () {
 test('conversation show page performance', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
-    
+
     // Give user access to mailbox
     $mailbox->users()->attach($user->id);
-    
+
     $conversation = Conversation::factory()
         ->hasThreads(10) // Conversation with 10 threads
         ->create(['mailbox_id' => $mailbox->id]);
@@ -106,7 +106,7 @@ test('conversation show page performance', function () {
     $response->assertOk();
 
     // Check query count
-    expect(count($queries))->toBeLessThan(30, "Too many queries for conversation detail: " . count($queries))
+    expect(count($queries))->toBeLessThan(30, 'Too many queries for conversation detail: '.count($queries))
         ->and($duration)->toBeLessThan(1.0, "Conversation detail took {$duration}s to load");
 });
 
@@ -177,13 +177,13 @@ test('mailbox list performance', function () {
     $response->assertOk();
 
     expect($duration)->toBeLessThan(0.5, "Mailbox list took {$duration}s")
-        ->and(count($queries))->toBeLessThan(30, "Too many queries for mailbox list: " . count($queries));
+        ->and(count($queries))->toBeLessThan(30, 'Too many queries for mailbox list: '.count($queries));
 });
 
 test('no n plus one in conversation threads', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
-    
+
     // Give user access to mailbox
     $mailbox->users()->attach($user->id);
 
@@ -203,5 +203,5 @@ test('no n plus one in conversation threads', function () {
 
     // Check that we're not making separate queries for each thread
     // The exact number depends on eager loading implementation
-    expect(count($queries))->toBeLessThan(25, "Potential N+1 query detected: " . count($queries) . " queries");
+    expect(count($queries))->toBeLessThan(25, 'Potential N+1 query detected: '.count($queries).' queries');
 });

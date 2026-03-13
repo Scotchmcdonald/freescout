@@ -6,8 +6,6 @@ namespace Tests\Unit\Jobs;
 
 use App\Jobs\SendAutoReplyJob as SendAutoReply;
 use App\Jobs\SendConversationReplyJob as SendConversationReply;
-use App\Mail\AutoReplyNotification;
-use App\Mail\ConversationReplyNotification;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Thread;
@@ -17,7 +15,7 @@ use Tests\TestCase;
 
 /**
  * Test Job classes
- * 
+ *
  * Focus: Job construction, email sending
  */
 class JobsTest extends TestCase
@@ -97,7 +95,7 @@ class JobsTest extends TestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
         $mailbox = $conversation->mailbox;
         $customer = Customer::factory()->create();
-        
+
         // Create email for customer
         \App\Models\Email::factory()->create([
             'customer_id' => $customer->id,

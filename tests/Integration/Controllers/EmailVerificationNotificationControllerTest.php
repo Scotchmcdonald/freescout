@@ -13,7 +13,7 @@ class EmailVerificationNotificationControllerTest extends IntegrationTestCase
     public function test_store_sends_verification_email_to_unverified_user(): void
     {
         Notification::fake();
-        
+
         $user = User::factory()->create(['email_verified_at' => null]);
 
         $response = $this->actingAs($user)->post('/email/verification-notification');
@@ -34,7 +34,7 @@ class EmailVerificationNotificationControllerTest extends IntegrationTestCase
     public function test_store_redirects_back_with_status_message(): void
     {
         Notification::fake();
-        
+
         $user = User::factory()->create(['email_verified_at' => null]);
 
         $response = $this->actingAs($user)
@@ -59,7 +59,7 @@ class EmailVerificationNotificationControllerTest extends IntegrationTestCase
         $user->email_verified_at = null;
         $user->shouldReceive('hasVerifiedEmail')->andReturn(false);
         $user->shouldReceive('sendEmailVerificationNotification')->once();
-        
+
         $this->be($user);
 
         $response = $this->post('/email/verification-notification');

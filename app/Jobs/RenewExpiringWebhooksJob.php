@@ -11,16 +11,17 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+
 // use Modules\GoogleAdmin\Services\GoogleWorkspaceService; // Core Blindness
 
 /**
  * RenewExpiringWebhooksJob
- * 
+ *
  * Automatically renews webhook channels that are expiring soon.
- * 
+ *
  * Google Push Notification channels expire after their TTL (typically 7 days).
  * This job runs daily to renew channels expiring within 48 hours.
- * 
+ *
  * Schedule this job in routes/console.php:
  * Schedule::job(new RenewExpiringWebhooksJob)->daily();
  */
@@ -45,8 +46,9 @@ class RenewExpiringWebhooksJob implements ShouldQueue
     {
         // Core Blindness: Dynamically resolve GoogleWorkspaceService
         $serviceClass = '\Modules\GoogleAdmin\Services\GoogleWorkspaceService';
-        if (!class_exists($serviceClass)) {
+        if (! class_exists($serviceClass)) {
             Log::warning('GoogleAdmin module not available, skipping webhook renewal');
+
             return;
         }
         $googleService = app($serviceClass);
@@ -63,6 +65,7 @@ class RenewExpiringWebhooksJob implements ShouldQueue
 
         if ($expiringChannels->isEmpty()) {
             Log::info('No expiring webhook channels found');
+
             return;
         }
 
@@ -81,7 +84,7 @@ class RenewExpiringWebhooksJob implements ShouldQueue
 
                 if ($newChannel) {
                     $renewed++;
-                    
+
                     Log::info('Successfully renewed webhook channel', [
                         'old_channel_id' => $channel->channel_id,
                         'new_channel_id' => $newChannel['channel_id'],
@@ -95,10 +98,9 @@ class RenewExpiringWebhooksJob implements ShouldQueue
                         'resource_type' => $channel->resource_type,
                     ]);
                 }
-
             } catch (\Exception $e) {
                 $failed++;
-                
+
                 Log::error('Exception while renewing webhook channel', [
                     'channel_id' => $channel->channel_id,
                     'resource_type' => $channel->resource_type,

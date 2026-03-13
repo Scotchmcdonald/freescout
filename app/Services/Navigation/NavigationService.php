@@ -22,11 +22,7 @@ class NavigationService
     }
 
     /**
-     * @param string $label
-     * @param array<int, array<string, mixed>> $children
-     * @param string|null $permission
-     * @param string $icon
-     * @param string $category
+     * @param  array<int, array<string, mixed>>  $children
      */
     public function registerDropdown(string $label, array $children, ?string $permission = null, string $icon = '', string $category = 'General'): void
     {
@@ -59,6 +55,7 @@ class NavigationService
             $category = is_string($cat) ? $cat : 'General';
             $grouped[$category][] = $item;
         }
+
         return $grouped;
     }
 }

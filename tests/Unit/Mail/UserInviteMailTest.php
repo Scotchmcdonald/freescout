@@ -15,7 +15,7 @@ class UserInviteMailTest extends UnitTestCase
     {
         $user = User::factory()->create(['id' => 1]);
         Option::setValue('company_name', 'Acme Corp');
-        
+
         $mailable = new UserInvite($user);
         $envelope = $mailable->envelope();
 
@@ -27,7 +27,7 @@ class UserInviteMailTest extends UnitTestCase
     {
         config(['app.name' => 'FreeScout']);
         $user = User::factory()->create(['id' => 1]);
-        
+
         $mailable = new UserInvite($user);
         $envelope = $mailable->envelope();
 
@@ -38,7 +38,7 @@ class UserInviteMailTest extends UnitTestCase
     public function test_content_uses_correct_view(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $mailable = new UserInvite($user);
         $content = $mailable->content();
 
@@ -48,7 +48,7 @@ class UserInviteMailTest extends UnitTestCase
     public function test_content_uses_correct_text_view(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $mailable = new UserInvite($user);
         $content = $mailable->content();
 
@@ -62,7 +62,7 @@ class UserInviteMailTest extends UnitTestCase
             'first_name' => 'Jane',
             'email' => 'jane@example.com',
         ]);
-        
+
         $mailable = new UserInvite($user);
 
         $this->assertInstanceOf(User::class, $mailable->user);
@@ -74,7 +74,7 @@ class UserInviteMailTest extends UnitTestCase
     {
         $user = User::factory()->create(['id' => 1]);
         $password = 'secure-password-123';
-        
+
         $mailable = new UserInvite($user, $password);
 
         $this->assertEquals($password, $mailable->password);
@@ -83,7 +83,7 @@ class UserInviteMailTest extends UnitTestCase
     public function test_mailable_password_defaults_to_null(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $mailable = new UserInvite($user);
 
         $this->assertNull($mailable->password);
@@ -92,7 +92,7 @@ class UserInviteMailTest extends UnitTestCase
     public function test_mailable_can_be_constructed_without_password(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $mailable = new UserInvite($user);
 
         $this->assertInstanceOf(UserInvite::class, $mailable);
@@ -102,7 +102,7 @@ class UserInviteMailTest extends UnitTestCase
     public function test_mailable_can_be_constructed_with_password(): void
     {
         $user = User::factory()->create(['id' => 1]);
-        
+
         $mailable = new UserInvite($user, 'temp-password');
 
         $this->assertInstanceOf(UserInvite::class, $mailable);

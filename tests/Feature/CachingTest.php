@@ -4,8 +4,6 @@ use App\Services\CacheService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Modules\Crm\Models\Client;
-use Modules\PIB\Events\InvoicePaid;
-use Modules\PIB\Models\Invoice;
 
 uses(RefreshDatabase::class);
 
@@ -15,7 +13,7 @@ beforeEach(function () {
 
 test('cache service builds standardized keys', function () {
     $cacheService = app(CacheService::class);
-    
+
     $cacheService->put(
         'billing',
         'entitlement',
@@ -31,7 +29,7 @@ test('cache service builds standardized keys', function () {
 test('cache service remembers values', function () {
     $cacheService = app(CacheService::class);
     $callCount = 0;
-    
+
     $result1 = $cacheService->remember(
         'billing',
         'entitlement',
@@ -40,6 +38,7 @@ test('cache service remembers values', function () {
         60,
         function () use (&$callCount) {
             $callCount++;
+
             return ['entitlement' => 'data'];
         }
     );
@@ -52,6 +51,7 @@ test('cache service remembers values', function () {
         60,
         function () use (&$callCount) {
             $callCount++;
+
             return ['entitlement' => 'data'];
         }
     );
@@ -62,7 +62,7 @@ test('cache service remembers values', function () {
 
 test('cache service forgets values', function () {
     $cacheService = app(CacheService::class);
-    
+
     $cacheService->put('billing', 'entitlement', 123, 'current', ['test' => 'data'], 60);
     expect($cacheService->has('billing', 'entitlement', 123, 'current'))->toBeTrue();
 
@@ -72,7 +72,7 @@ test('cache service forgets values', function () {
 
 test('cache service gets values', function () {
     $cacheService = app(CacheService::class);
-    
+
     $cacheService->put('billing', 'entitlement', 123, 'current', ['test' => 'data'], 60);
 
     $value = $cacheService->get('billing', 'entitlement', 123, 'current');
@@ -81,7 +81,7 @@ test('cache service gets values', function () {
 
 test('cache service returns default for missing keys', function () {
     $cacheService = app(CacheService::class);
-    
+
     $value = $cacheService->get('billing', 'entitlement', 999, 'current', 'default-value');
     expect($value)->toBe('default-value');
 });
@@ -89,7 +89,7 @@ test('cache service returns default for missing keys', function () {
 test('cache service warms multiple entities', function () {
     $cacheService = app(CacheService::class);
     $entityIds = [1, 2, 3, 4, 5];
-    
+
     $warmed = $cacheService->warmMultiple(
         'billing',
         'entitlement',
@@ -119,7 +119,7 @@ test('cache ttl constants are defined', function () {
 
 test('cache key format is consistent', function () {
     $cacheService = app(CacheService::class);
-    
+
     // Test with attribute
     $cacheService->put('billing', 'entitlement', 123, 'current', 'value1', 60);
     expect(Cache::has('billing:entitlement:123:current'))->toBeTrue();
@@ -131,10 +131,10 @@ test('cache key format is consistent', function () {
 
 test('cache service handles string entity ids', function () {
     $cacheService = app(CacheService::class);
-    
+
     $cacheService->put('auth', 'session', 'abc123', 'token', 'token-value', 60);
     expect($cacheService->has('auth', 'session', 'abc123', 'token'))->toBeTrue();
-    
+
     $value = $cacheService->get('auth', 'session', 'abc123', 'token');
     expect($value)->toBe('token-value');
 });

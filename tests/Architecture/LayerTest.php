@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 /**
  * Architecture Tests - Layer Dependencies
- * 
+ *
  * These tests enforce proper layer separation and dependency direction.
  * Based on SYSTEM_ARCHITECTURE.md Section 9 (Layered Architecture)
  */
-
 test('services are in Services directory')
     ->expect('App\Services')
     ->toBeClasses()

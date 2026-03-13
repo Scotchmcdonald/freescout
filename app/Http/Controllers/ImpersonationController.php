@@ -31,7 +31,7 @@ class ImpersonationController extends Controller
         $authUser = auth()->user();
 
         // Authorization check
-        if (!$authUser->can('impersonate', $user)) {
+        if (! $authUser->can('impersonate', $user)) {
             return back()->with('error', '⚠️ You do not have permission to impersonate this user.');
         }
 
@@ -73,12 +73,12 @@ class ImpersonationController extends Controller
         /** @var \App\Models\User $authUser */
         $authUser = auth()->user();
 
-        if (!$authUser->isImpersonated()) {
+        if (! $authUser->isImpersonated()) {
             return redirect()->route('dashboard');
         }
 
         $impersonatedUser = $authUser;
-        
+
         // Audit log before leaving
         Log::info('User impersonation ended', [
             'admin_id' => session('impersonated_by'),

@@ -11,14 +11,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * VerifyWebhookSignature Middleware
- * 
+ *
  * Verifies webhook signatures from external services to ensure authenticity.
  * Prevents unauthorized webhook deliveries and replay attacks.
- * 
+ *
  * Supported services:
  * - Google Workspace (X-Goog-Channel-Token header)
  * - Action1 RMM (X-Action1-Signature header)
- * 
+ *
  * Security features:
  * - Signature verification
  * - Timestamp validation (prevents replay attacks)
@@ -64,12 +64,12 @@ class VerifyWebhookSignature
         }
 
         // Enforce HTTPS (skip in testing)
-        if (!$request->secure() && !app()->environment('testing')) {
+        if (! $request->secure() && ! app()->environment('testing')) {
             Log::channel('security')->warning('Webhook attempt over HTTP rejected', [
                 'ip' => $request->ip(),
                 'url' => $request->fullUrl(),
             ]);
-            
+
             return response()->json(['error' => 'HTTPS required'], 403);
         }
 
@@ -77,13 +77,13 @@ class VerifyWebhookSignature
         $source = $source ?? $this->detectSource($request);
 
         // Verify IP whitelist
-        if (!$this->isIpAllowed($request->ip(), $source)) {
+        if (! $this->isIpAllowed($request->ip(), $source)) {
             Log::channel('security')->warning('Webhook from unauthorized IP rejected', [
                 'ip' => $request->ip(),
                 'source' => $source,
                 'url' => $request->fullUrl(),
             ]);
-            
+
             return response()->json(['error' => 'Unauthorized IP'], 403);
         }
 
@@ -94,23 +94,23 @@ class VerifyWebhookSignature
             default => false,
         };
 
-        if (!$verified) {
+        if (! $verified) {
             Log::channel('security')->warning('Webhook signature verification failed', [
                 'ip' => $request->ip(),
                 'source' => $source,
                 'headers' => $request->headers->all(),
             ]);
-            
+
             return response()->json(['error' => 'Invalid signature'], 403);
         }
 
         // Verify timestamp to prevent replay attacks
-        if (!$this->verifyTimestamp($request, $source)) {
+        if (! $this->verifyTimestamp($request, $source)) {
             Log::channel('security')->warning('Webhook replay attack detected', [
                 'ip' => $request->ip(),
                 'source' => $source,
             ]);
-            
+
             return response()->json(['error' => 'Request too old'], 403);
         }
 
@@ -131,7 +131,7 @@ class VerifyWebhookSignature
         if (str_contains($request->path(), 'google')) {
             return 'google';
         }
-        
+
         if (str_contains($request->path(), 'action1')) {
             return 'action1';
         }
@@ -141,7 +141,7 @@ class VerifyWebhookSignature
 
     /**
      * Verify Google webhook signature
-     * 
+     *
      * Google Push Notifications use X-Goog-Channel-Token header
      * which contains the token we provided during channel creation.
      */
@@ -153,13 +153,14 @@ class VerifyWebhookSignature
         $resourceState = $request->header('X-Goog-Resource-State');
 
         // All headers must be present
-        if (!$token || !$channelId || !$resourceId || !$resourceState) {
+        if (! $token || ! $channelId || ! $resourceId || ! $resourceState) {
             Log::warning('Google webhook missing required headers', [
-                'has_token' => !empty($token),
-                'has_channel_id' => !empty($channelId),
-                'has_resource_id' => !empty($resourceId),
-                'has_resource_state' => !empty($resourceState),
+                'has_token' => ! empty($token),
+                'has_channel_id' => ! empty($channelId),
+                'has_resource_id' => ! empty($resourceId),
+                'has_resource_state' => ! empty($resourceState),
             ]);
+
             return false;
         }
 
@@ -169,11 +170,12 @@ class VerifyWebhookSignature
             ->where('is_active', true)
             ->first();
 
-        if (!$channel) {
+        if (! $channel) {
             Log::warning('Google webhook channel not found or inactive', [
                 'channel_id' => $channelId,
-                'token' => substr($token, 0, 8) . '...',
+                'token' => substr($token, 0, 8).'...',
             ]);
+
             return false;
         }
 
@@ -183,6 +185,7 @@ class VerifyWebhookSignature
                 'channel_id' => $channelId,
                 'expired_at' => $channel->expiration_time,
             ]);
+
             return false;
         }
 
@@ -191,7 +194,7 @@ class VerifyWebhookSignature
 
     /**
      * Verify Action1 webhook signature
-     * 
+     *
      * Action1 uses HMAC-SHA256 signature in X-Action1-Signature header
      * Format: sha256=<hex_signature>
      */
@@ -200,31 +203,34 @@ class VerifyWebhookSignature
         $signature = $request->header('X-Action1-Signature');
         $timestamp = $request->header('X-Action1-Timestamp');
 
-        if (!$signature || !$timestamp) {
+        if (! $signature || ! $timestamp) {
             Log::warning('Action1 webhook missing signature headers');
+
             return false;
         }
 
         // Get webhook secret from config
         $secret = config('action1.webhook_secret');
-        
-        if (!is_string($secret) || empty($secret)) {
+
+        if (! is_string($secret) || empty($secret)) {
             Log::error('Action1 webhook secret not configured');
+
             return false;
         }
 
         // Construct signed payload: timestamp.body
-        $payload = $timestamp . '.' . $request->getContent();
+        $payload = $timestamp.'.'.$request->getContent();
 
         // Compute expected signature
-        $expectedSignature = 'sha256=' . hash_hmac('sha256', $payload, $secret);
+        $expectedSignature = 'sha256='.hash_hmac('sha256', $payload, $secret);
 
         // Constant-time comparison to prevent timing attacks
-        if (!hash_equals($expectedSignature, $signature)) {
+        if (! hash_equals($expectedSignature, $signature)) {
             Log::warning('Action1 webhook signature mismatch', [
-                'expected' => substr($expectedSignature, 0, 20) . '...',
-                'received' => substr($signature, 0, 20) . '...',
+                'expected' => substr($expectedSignature, 0, 20).'...',
+                'received' => substr($signature, 0, 20).'...',
             ]);
+
             return false;
         }
 
@@ -247,7 +253,7 @@ class VerifyWebhookSignature
             return true;
         }
 
-        if (!$timestamp) {
+        if (! $timestamp) {
             return false;
         }
 
@@ -259,6 +265,7 @@ class VerifyWebhookSignature
                 'age' => $age,
                 'max_age' => self::MAX_WEBHOOK_AGE,
             ]);
+
             return false;
         }
 
@@ -270,7 +277,7 @@ class VerifyWebhookSignature
      */
     private function isIpAllowed(?string $ip, string $source): bool
     {
-        if (!$ip) {
+        if (! $ip) {
             return false;
         }
 

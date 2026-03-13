@@ -14,18 +14,18 @@ function getPIBAdmin(): User
         'email_verified_at' => now(),
     ]);
 
-    if (!$admin->isAdmin()) {
+    if (! $admin->isAdmin()) {
         $admin->role = User::ROLE_ADMIN;
         $admin->save();
     }
-    
+
     return $admin;
 }
 
 it('manages service usage collection', function () {
     $admin = getPIBAdmin();
     $client = Client::factory()->create([
-        'name' => 'Service Usage Client ' . uniqid(),
+        'name' => 'Service Usage Client '.uniqid(),
     ]);
 
     $this->visit('/login')
@@ -37,23 +37,23 @@ it('manages service usage collection', function () {
     // 1. Visit Service Usage Index
     $this->visit(route('admin.billing.service-usage.index'))
         ->assertSee('Service Usage');
-        
-        // 2. Create Service Usage Entry
+
+    // 2. Create Service Usage Entry
     $this->visit(route('admin.billing.service-usage.create'))
         ->assertSee('Add Service Entry') // Corrected Header
-        ->select('client_id', (string)$client->id)
+        ->select('client_id', (string) $client->id)
         ->select('service_type', 'Labor')
         ->type('description', 'Emergency Server Repair')
         ->type('service_date', date('Y-m-d'))
         ->type('hours', '2.5')
         ->type('hourly_rate', '150')
         ->press('Save Entry')
-        
+
         // 3. Verify Landing on Index/Show and Data
         ->assertSee('saved as draft')
         ->assertSee('Emergency Server Repair')
         ->assertSee('Draft'); // Default status
-        
+
     // Approve the generic service usage so it appears in unbilled summary
     \Modules\PIB\Models\ServiceUsage::where('client_id', $client->id)->update(['status' => \Modules\PIB\Models\ServiceUsage::STATUS_APPROVED]);
 
@@ -62,19 +62,18 @@ it('manages service usage collection', function () {
         ->assertSee($client->name)
         ->assertSee('2.5') // Hours
         ->assertSee('375.00'); // 2.5 * 150
-
 })->group('pib', 'service-usage');
 
 it('manages client credit ledger manually', function () {
     $admin = getPIBAdmin();
     $client = Client::factory()->create([
-        'name' => 'Credit Ledger Client ' . uniqid(),
+        'name' => 'Credit Ledger Client '.uniqid(),
     ]);
 
     // Ensure initial state
     ClientCredit::firstOrCreate(['client_id' => $client->id], [
         'balance_cents' => 0,
-        'currency' => 'USD'
+        'currency' => 'USD',
     ]);
 
     $this->visit('/login')
@@ -87,21 +86,20 @@ it('manages client credit ledger manually', function () {
     $this->visit(route('admin.billing.credit-ledger.show', $client))
         ->assertSee('Credit Ledger')
         ->assertSee('0.00')
-        
+
     // 2. Add Manual Credit
         ->click('text=Manual Adjustment')
         ->type('amount', '100.00')
         ->type('description', 'Goodwill Adjustment')
         ->click('text=Save Adjustment')
-        
+
         // 3. Verify Balance Update
         ->assertSee('Credit added')
         ->assertSee('100.00') // New Balance
         ->assertSee('Goodwill Adjustment')
-        
+
         // 4. Verify Ledger Entry Row (UI check)
         // Checking if the description appears in the table
         ->assertSee('Goodwill Adjustment')
         ->assertSee('100.00');
-
 })->group('pib', 'credit-ledger');

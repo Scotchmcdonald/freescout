@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -17,7 +16,7 @@ test('system diagnostics checks database connection', function () {
             'database' => ['status', 'message'],
         ],
     ]);
-    
+
     // Using array access helper from Pest or plain PHP
     expect($response->json('checks.database.status'))->toBe('ok');
 });

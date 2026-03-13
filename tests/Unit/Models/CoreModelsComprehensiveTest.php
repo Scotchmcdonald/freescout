@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models;
 
-use Tests\UnitTestCase;
-use App\Models\Mailbox;
-use App\Models\Email;
-use App\Models\User;
-use App\Models\Customer;
 use App\Models\Conversation;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Customer;
+use App\Models\Email;
+use App\Models\Mailbox;
+use App\Models\User;
+use Tests\UnitTestCase;
 
 /**
  * Test Suite for Core Models - Mailbox and Email
@@ -51,7 +50,7 @@ class CoreModelsComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $user = User::factory()->create();
         $mailbox->users()->attach($user->id);
-        
+
         $this->assertTrue($mailbox->users->contains($user));
     }
 
@@ -59,7 +58,7 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        
+
         $this->assertTrue($mailbox->conversations->contains($conversation));
     }
 
@@ -74,7 +73,7 @@ class CoreModelsComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $user = User::factory()->create();
         $mailbox->users()->attach($user->id);
-        
+
         $this->assertTrue($mailbox->userHasAccess($user->id));
     }
 
@@ -82,7 +81,7 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $user = User::factory()->create();
-        
+
         $this->assertFalse($mailbox->userHasAccess($user->id));
     }
 
@@ -90,7 +89,7 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        
+
         // Admins need to be attached to mailboxes like regular users
         $mailbox->users()->attach($admin->id);
         $this->assertTrue($mailbox->userHasAccess($admin->id));
@@ -107,9 +106,9 @@ class CoreModelsComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create([
             'name' => 'Support',
             'from_name' => Mailbox::FROM_NAME_CUSTOM,
-            'from_name_custom' => 'Custom Name'
+            'from_name_custom' => 'Custom Name',
         ]);
-        
+
         $this->assertNotEmpty($mailbox->getMailFrom());
         $this->assertEquals('Custom Name', $mailbox->getMailFrom()['name']);
     }
@@ -214,7 +213,7 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create(['aliases' => 'alias1@example.com,alias2@example.com']);
         $aliases = $mailbox->getAliasesArray();
-        
+
         $this->assertIsArray($aliases);
         $this->assertContains('alias1@example.com', $aliases);
         $this->assertContains('alias2@example.com', $aliases);
@@ -242,9 +241,9 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $id = $mailbox->id;
-        
+
         $mailbox->delete();
-        
+
         $this->assertNull(Mailbox::find($id));
     }
 
@@ -292,7 +291,7 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     {
         $customer = Customer::factory()->create();
         $email = \App\Models\Email::factory()->create(['customer_id' => $customer->id]);
-        
+
         $this->assertEquals($customer->id, $email->customer->id);
     }
 
@@ -307,14 +306,14 @@ class CoreModelsComprehensiveTest extends UnitTestCase
         $customer = Customer::factory()->create();
         \App\Models\Email::factory()->create([
             'customer_id' => $customer->id,
-            'email' => 'test@example.com'
+            'email' => 'test@example.com',
         ]);
-        
+
         // Attempting to create duplicate should fail
         $this->expectException(\Exception::class);
         \App\Models\Email::factory()->create([
             'customer_id' => $customer->id,
-            'email' => 'test@example.com'
+            'email' => 'test@example.com',
         ]);
     }
 
@@ -322,17 +321,17 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     {
         $customer1 = Customer::factory()->create();
         $customer2 = Customer::factory()->create();
-        
+
         \App\Models\Email::factory()->create([
             'customer_id' => $customer1->id,
-            'email' => 'shared@example.com'
+            'email' => 'shared@example.com',
         ]);
-        
+
         $this->expectException(\Exception::class);
-        
+
         \App\Models\Email::factory()->create([
             'customer_id' => $customer2->id,
-            'email' => 'shared@example.com'
+            'email' => 'shared@example.com',
         ]);
     }
 
@@ -376,9 +375,9 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     {
         $email = \App\Models\Email::factory()->create();
         $id = $email->id;
-        
+
         $email->delete();
-        
+
         $this->assertNull(\App\Models\Email::find($id));
     }
 
@@ -387,9 +386,9 @@ class CoreModelsComprehensiveTest extends UnitTestCase
         $customer = Customer::factory()->create();
         $email = \App\Models\Email::factory()->create(['customer_id' => $customer->id]);
         $emailId = $email->id;
-        
+
         $customer->delete();
-        
+
         $this->assertNull(\App\Models\Email::find($emailId));
     }
 
@@ -408,9 +407,9 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     public function test_email_can_find_by_email_address(): void
     {
         $email = \App\Models\Email::factory()->create(['email' => 'find@example.com']);
-        
+
         $found = \App\Models\Email::where('email', 'find@example.com')->first();
-        
+
         $this->assertEquals($email->id, $found->id);
     }
 
@@ -418,9 +417,9 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     {
         $customer = Customer::factory()->create();
         $email = \App\Models\Email::factory()->create(['customer_id' => $customer->id]);
-        
+
         $found = \App\Models\Email::where('customer_id', $customer->id)->get();
-        
+
         $this->assertGreaterThanOrEqual(1, $found->count());
     }
 
@@ -441,9 +440,9 @@ class CoreModelsComprehensiveTest extends UnitTestCase
         $customer = Customer::factory()->create();
         \App\Models\Email::factory()->create(['customer_id' => $customer->id, 'email' => 'email1@example.com']);
         \App\Models\Email::factory()->create(['customer_id' => $customer->id, 'email' => 'email2@example.com']);
-        
+
         $emails = \App\Models\Email::where('customer_id', $customer->id)->get();
-        
+
         // Customer factory creates 1 email by default, plus 2 more = 3
         $this->assertCount(3, $emails);
     }
@@ -458,23 +457,23 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     {
         \App\Models\Email::factory()->create(['type' => \App\Models\Email::TYPE_WORK]);
         \App\Models\Email::factory()->create(['type' => \App\Models\Email::TYPE_HOME]);
-        
+
         $workEmails = \App\Models\Email::where('type', \App\Models\Email::TYPE_WORK)->get();
-        
+
         $this->assertGreaterThan(0, $workEmails->count());
     }
 
     public function test_email_model_has_table_name(): void
     {
-        $email = new \App\Models\Email();
+        $email = new \App\Models\Email;
         $this->assertEquals('emails', $email->getTable());
     }
 
     public function test_email_has_fillable_attributes(): void
     {
-        $email = new \App\Models\Email();
+        $email = new \App\Models\Email;
         $fillable = $email->getFillable();
-        
+
         $this->assertContains('email', $fillable);
         $this->assertContains('customer_id', $fillable);
     }
@@ -482,11 +481,10 @@ class CoreModelsComprehensiveTest extends UnitTestCase
     public function test_email_mass_assignment_protection(): void
     {
         $email = \App\Models\Email::factory()->create();
-        
+
         // Attempting to mass assign non-fillable attributes should not work
         $email->fill(['id' => 999]);
-        
+
         $this->assertNotEquals(999, $email->id);
     }
-
 }

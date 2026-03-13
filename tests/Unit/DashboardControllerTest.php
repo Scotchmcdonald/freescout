@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Http\Controllers\DashboardController;
-use Modules\WidgetRegistry\Services\WidgetRegistryService;
 use Tests\TestCase;
 
 class DashboardControllerTest extends TestCase

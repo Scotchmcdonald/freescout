@@ -7,14 +7,13 @@ namespace App\Misc;
 use App\Models\Conversation;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class Draft
 {
     /**
      * Save a draft.
-     * 
-     * @param array<string, mixed> $data
+     *
+     * @param  array<string, mixed>  $data
      */
     public static function save(array $data, User $user): ?Thread
     {
@@ -24,7 +23,7 @@ class Draft
         $to = $data['to'] ?? [];
         $cc = $data['cc'] ?? [];
         $bcc = $data['bcc'] ?? [];
-        
+
         // If thread_id is provided, update existing draft
         if ($threadId) {
             /** @var \App\Models\Thread|null $thread */
@@ -37,22 +36,25 @@ class Draft
                     'bcc' => $bcc,
                     'edited_at' => now(),
                 ]);
+
                 return $thread;
             }
         }
-        
+
         // Create new draft thread
         if ($conversationId) {
             $conversation = Conversation::find($conversationId);
-            if (!$conversation) return null;
-            
+            if (! $conversation) {
+                return null;
+            }
+
             // Check if user already has a draft for this conversation
             /** @var \App\Models\Thread|null $existingDraft */
             $existingDraft = Thread::where('conversation_id', $conversationId)
                 ->where('created_by_user_id', $user->id)
                 ->where('state', Thread::STATE_DRAFT)
                 ->first();
-                
+
             if ($existingDraft) {
                 $existingDraft->update([
                     'body' => $body,
@@ -61,9 +63,10 @@ class Draft
                     'bcc' => $bcc,
                     'edited_at' => now(),
                 ]);
+
                 return $existingDraft;
             }
-            
+
             /** @var \App\Models\Thread $thread */
             $thread = Thread::create([
                 'conversation_id' => $conversationId,
@@ -78,13 +81,13 @@ class Draft
                 'cc' => $cc,
                 'bcc' => $bcc,
             ]);
-            
+
             return $thread;
         }
-        
+
         return null;
     }
-    
+
     /**
      * Discard a draft.
      */
@@ -94,8 +97,10 @@ class Draft
         $thread = Thread::find($threadId);
         if ($thread && $thread->state == Thread::STATE_DRAFT && $thread->created_by_user_id == $user->id) {
             $thread->forceDelete();
+
             return true;
         }
+
         return false;
     }
 }

@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models;
 
-use App\Models\ActivityLog;
 use App\Models\Conversation;
-use App\Models\Customer;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
@@ -150,7 +148,7 @@ class ConversationMethodsTest extends UnitTestCase
         $mailboxWithoutDeleted = Mailbox::factory()->create();
         // Delete default folders created by Observer
         $mailboxWithoutDeleted->folders()->delete();
-        
+
         // Create only Inbox
         $folder = Folder::factory()->create([
             'mailbox_id' => $mailboxWithoutDeleted->id,

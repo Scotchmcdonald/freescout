@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Mail\ConversationReplyNotification;
 use App\Models\Conversation;
-use App\Models\Customer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -46,12 +44,12 @@ class SendConversationReplyJob implements ShouldQueue
         }
 
         // Ensure conversation has mailbox loaded
-        if (!$this->conversation->relationLoaded('mailbox')) {
+        if (! $this->conversation->relationLoaded('mailbox')) {
             $this->conversation->load('mailbox');
         }
 
         $customerEmail = $this->conversation->customer_email;
-        
+
         if ($customerEmail) {
             Mail::to($customerEmail)
                 ->send(new \App\Mail\CustomerReply($this->conversation, $this->thread));

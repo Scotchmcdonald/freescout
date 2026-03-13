@@ -1,17 +1,16 @@
 <?php
 
 use App\Models\User;
-use Pest\Laravel\get;
-use Pest\Laravel\actingAs;
 
 test('public routes include login', function (string $path) {
     if ($path === '/') {
-       // Root might redirect to dashboard or login
-       $response = $this->get($path);
-       if ($response->status() === 302) {
-           expect($response->status())->toBe(302);
-           return;
-       }
+        // Root might redirect to dashboard or login
+        $response = $this->get($path);
+        if ($response->status() === 302) {
+            expect($response->status())->toBe(302);
+
+            return;
+        }
     }
     $this->get($path)->assertStatus(200);
 })->with([
@@ -20,7 +19,7 @@ test('public routes include login', function (string $path) {
 ]);
 
 test('protected routes return 200 via factory user', function (string $path) {
-    if (!class_exists(User::class)) {
+    if (! class_exists(User::class)) {
         $this->markTestSkipped('User class not found');
     }
 

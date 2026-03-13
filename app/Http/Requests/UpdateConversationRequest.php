@@ -38,7 +38,7 @@ class UpdateConversationRequest extends FormRequest
     {
         // Map text status values to integers
         $status = $this->input('status');
-        if (is_string($status) && !is_numeric($status)) {
+        if (is_string($status) && ! is_numeric($status)) {
             $statusMap = [
                 'active' => ConversationStatus::Active->value,
                 'pending' => ConversationStatus::Pending->value,

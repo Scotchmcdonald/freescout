@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Http;
 
 test('oauth connect requires mailbox id', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->get(route('mailboxes.oauth_connect', ['provider' => 'ms']))
         ->assertRedirect()
@@ -16,7 +16,7 @@ test('oauth connect requires mailbox id', function () {
 test('oauth connect requires client id', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create(['in_username' => null]);
-    
+
     $this->actingAs($admin)
         ->get(route('mailboxes.oauth_connect', [
             'provider' => 'ms',
@@ -30,14 +30,14 @@ test('oauth connect requires client id', function () {
 test('oauth connect redirects to microsoft', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create(['in_username' => 'client-id-123']);
-    
+
     $response = $this->actingAs($admin)
         ->get(route('mailboxes.oauth_connect', [
             'provider' => 'ms',
             'mailbox_id' => $mailbox->id,
             'type' => 'incoming',
         ]));
-        
+
     $response->assertRedirect();
     expect($response->headers->get('Location'))->toContain('login.microsoftonline.com');
 });
@@ -45,21 +45,21 @@ test('oauth connect redirects to microsoft', function () {
 test('oauth connect stores mailbox in session', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create(['in_username' => 'client-id-123']);
-    
+
     $this->actingAs($admin)
         ->get(route('mailboxes.oauth_connect', [
             'provider' => 'ms',
             'mailbox_id' => $mailbox->id,
             'type' => 'incoming',
         ]));
-        
+
     expect(session('oauth_mailbox_id'))->toBe($mailbox->id)
         ->and(session('oauth_type'))->toBe('incoming');
 });
 
 test('oauth callback handles error', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->get(route('mailboxes.oauth_callback', ['error' => 'access_denied']))
         ->assertRedirect(route('mailboxes.index'))
@@ -68,7 +68,7 @@ test('oauth callback handles error', function () {
 
 test('oauth callback requires state', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->get(route('mailboxes.oauth_callback', ['code' => 'test-code']))
         ->assertRedirect(route('mailboxes.index'));
@@ -77,7 +77,7 @@ test('oauth callback requires state', function () {
 test('oauth callback success', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create(['in_username' => 'client-id-123']);
-    
+
     Http::fake([
         'login.microsoftonline.com/*' => Http::response([
             'access_token' => 'test-access-token',
@@ -96,7 +96,7 @@ test('oauth callback success', function () {
         ]))
         ->assertRedirect()
         ->assertSessionHas('success');
-        
+
     $mailbox->refresh();
     expect($mailbox->meta)->toHaveKey('oauth')
         ->and($mailbox->meta['oauth']['a_token'])->toBe('test-access-token'); // Assuming meta structure logic based on legacy test context
@@ -105,7 +105,7 @@ test('oauth callback success', function () {
 test('oauth callback handles token error', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create(['in_username' => 'client-id-123']);
-    
+
     Http::fake([
         'login.microsoftonline.com/*' => Http::response([
             'error' => 'invalid_grant',
@@ -127,7 +127,7 @@ test('oauth callback handles token error', function () {
 test('oauth disconnect clears oauth data', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
-    
+
     $mailbox->meta = ['oauth' => ['a_token' => 'test']];
     $mailbox->save();
 
@@ -135,7 +135,7 @@ test('oauth disconnect clears oauth data', function () {
         ->get(route('mailboxes.oauth_disconnect', $mailbox))
         ->assertRedirect()
         ->assertSessionHas('success');
-        
+
     $mailbox->refresh();
     $meta = $mailbox->meta ?? [];
     expect(isset($meta['oauth']))->toBeFalse();
@@ -144,7 +144,7 @@ test('oauth disconnect clears oauth data', function () {
 test('oauth disconnect requires authorization', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER]);
     $mailbox = Mailbox::factory()->create();
-    
+
     $this->actingAs($user)
         ->get(route('mailboxes.oauth_disconnect', $mailbox))
         ->assertForbidden();
@@ -153,7 +153,7 @@ test('oauth disconnect requires authorization', function () {
 test('oauth connect for outgoing type', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create(['out_username' => 'smtp-client-id']);
-    
+
     $this->actingAs($admin)
         ->get(route('mailboxes.oauth_connect', [
             'provider' => 'ms',
@@ -161,6 +161,6 @@ test('oauth connect for outgoing type', function () {
             'type' => 'outgoing',
         ]))
         ->assertRedirect();
-        
+
     expect(session('oauth_type'))->toBe('outgoing');
 });

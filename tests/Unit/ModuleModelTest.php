@@ -9,7 +9,6 @@ use Tests\UnitTestCase;
 
 class ModuleModelTest extends UnitTestCase
 {
-
     public function test_model_can_be_instantiated(): void
     {
         $module = new Module;

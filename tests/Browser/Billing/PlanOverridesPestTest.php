@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
-use Modules\Crm\Models\Client;
 use Modules\ContractManager\Models\BillingTemplate;
+use Modules\Crm\Models\Client;
 
 it('contract overrides gold plan price', function () {
     $admin = User::firstOrCreate(['email' => 'plan-override-admin@example.com'], [
@@ -12,7 +12,10 @@ it('contract overrides gold plan price', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $client = Client::factory()->create(['name' => 'Gold Plan Client']);
     $template = BillingTemplate::factory()->create([
@@ -41,7 +44,10 @@ it('price override persists across billing cycles', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $client = Client::factory()->create(['name' => 'Persist Override Client']);
     $template = BillingTemplate::factory()->create([

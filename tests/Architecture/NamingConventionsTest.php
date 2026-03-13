@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 /**
  * Architecture Tests - Naming Conventions
- * 
+ *
  * These tests enforce consistent naming conventions across the codebase.
  * Based on SYSTEM_ARCHITECTURE.md coding standards.
  */
-
 test('controllers have Controller suffix')
     ->expect('App\Http\Controllers')
     ->toHaveSuffix('Controller');
@@ -34,7 +33,7 @@ test('jobs have Job suffix')
     ]);
 
 // NOTE: Listener naming conventions vary across the codebase
-// Many listeners use descriptive verb-based names (e.g., LogSuccessfulLogin, SendAutoReply)  
+// Many listeners use descriptive verb-based names (e.g., LogSuccessfulLogin, SendAutoReply)
 // This is acceptable and often more readable than adding "Listener" suffix
 test('listeners are in Listeners directory')
     ->expect([

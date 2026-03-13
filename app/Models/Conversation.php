@@ -421,8 +421,8 @@ class Conversation extends Model
      */
     public function isFollowUpOverdue(): bool
     {
-        return $this->follow_up_date !== null 
-            && $this->follow_up_date->isPast() 
+        return $this->follow_up_date !== null
+            && $this->follow_up_date->isPast()
             && $this->follow_up_reminded_at === null;
     }
 
@@ -439,7 +439,7 @@ class Conversation extends Model
      */
     public function getFollowUpStatus(): ?string
     {
-        if (!$this->hasFollowUpScheduled()) {
+        if (! $this->hasFollowUpScheduled()) {
             return null;
         }
 
@@ -479,14 +479,14 @@ class Conversation extends Model
     /**
      * Set a follow-up reminder for this conversation.
      *
-     * @param \Illuminate\Support\Carbon|string|null $date
+     * @param  \Illuminate\Support\Carbon|string|null  $date
      */
     public function setFollowUp($date = null): void
     {
         if ($date === null) {
             $defaultDays = config('app.default_follow_up_days', 3);
             if (is_int($defaultDays) || (is_string($defaultDays) && is_numeric($defaultDays))) {
-                $date = now()->addDays((int)$defaultDays)->startOfDay();
+                $date = now()->addDays((int) $defaultDays)->startOfDay();
             } else {
                 $date = now()->addDays(3)->startOfDay();
             }
@@ -765,9 +765,9 @@ class Conversation extends Model
     /**
      * Search conversations with filters.
      *
-     * @param string $query Search query
-     * @param array<string, mixed> $filters Search filters
-     * @param User|null $user User performing the search
+     * @param  string  $query  Search query
+     * @param  array<string, mixed>  $filters  Search filters
+     * @param  User|null  $user  User performing the search
      * @return \Illuminate\Database\Eloquent\Builder<static>
      */
     public static function search(string $query, array $filters = [], ?User $user = null)
@@ -804,7 +804,7 @@ class Conversation extends Model
         // Apply search query
         if ($query) {
             $escapedQuery = addcslashes($query, '%_');
-            $like = '%' . mb_strtolower($escapedQuery) . '%';
+            $like = '%'.mb_strtolower($escapedQuery).'%';
             $queryInt = min((int) $query, PHP_INT_MAX);
 
             $builder->leftJoin('customers', 'conversations.customer_id', '=', 'customers.id')
@@ -907,7 +907,7 @@ class Conversation extends Model
     {
         /** @var array<int, array<int, array{r: bool, t: int}>> $viewersCache */
         $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
-        
+
         $viewers = [];
         $userIds = [];
 
@@ -1003,7 +1003,7 @@ class Conversation extends Model
     {
         /** @var array<int, array<int, array{r: bool, t: int}>> $viewersCache */
         $viewersCache = cache()->get(self::VIEWER_CACHE_KEY, []);
-        
+
         $staleTime = time() - self::VIEWER_STALE_TIMEOUT;
 
         foreach ($viewersCache as $convId => $viewers) {

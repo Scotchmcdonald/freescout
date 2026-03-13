@@ -16,19 +16,19 @@ uses(RefreshDatabase::class);
 
 test('MigrationMailbox fillable blocks non-fillable id override on create', function () {
     $project = MigrationProject::create([
-        'name'        => 'Test Project',
-        'domain'      => 'test.example.com',
+        'name' => 'Test Project',
+        'domain' => 'test.example.com',
         'source_host' => 'imap.source.com',
-        'dest_host'   => 'imap.dest.com',
+        'dest_host' => 'imap.dest.com',
     ]);
 
     $mailbox = $project->mailboxes()->create([
-        'email'       => 'user@example.com',
+        'email' => 'user@example.com',
         'source_user' => 'user@source.com',
         'source_pass' => 'secret',
-        'dest_user'   => 'user@dest.com',
-        'dest_pass'   => 'secret',
-        'id'          => 99999, // attack
+        'dest_user' => 'user@dest.com',
+        'dest_pass' => 'secret',
+        'id' => 99999, // attack
     ]);
 
     expect($mailbox->id)->not->toBe(99999);
@@ -37,21 +37,21 @@ test('MigrationMailbox fillable blocks non-fillable id override on create', func
 
 test('MigrationMailbox fillable blocks status override to invalid state', function () {
     $project = MigrationProject::create([
-        'name'        => 'Test Project',
-        'domain'      => 'test.example.com',
+        'name' => 'Test Project',
+        'domain' => 'test.example.com',
         'source_host' => 'imap.source.com',
-        'dest_host'   => 'imap.dest.com',
+        'dest_host' => 'imap.dest.com',
     ]);
 
     // 'status' IS in fillable — but this test verifies it can only be set
     // when explicitly provided; $request->all() could accidentally carry it in.
     // After refactor: the DTO only sets it if explicitly mapped.
     $mailbox = $project->mailboxes()->create([
-        'email'       => 'user@example.com',
+        'email' => 'user@example.com',
         'source_user' => 'source',
         'source_pass' => 'secret',
-        'dest_user'   => 'dest',
-        'dest_pass'   => 'secret',
+        'dest_user' => 'dest',
+        'dest_pass' => 'secret',
         // status intentionally omitted — should default to model default
     ]);
 

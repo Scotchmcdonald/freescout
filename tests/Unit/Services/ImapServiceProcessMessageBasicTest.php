@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Services;
 
-use App\Services\ImapService;
-use App\Models\Mailbox;
+use App\Models\Attachment;
 use App\Models\Conversation;
 use App\Models\Customer;
+use App\Models\Folder;
+use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use App\Models\Folder;
-use App\Models\Attachment;
+use App\Services\ImapService;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\DB;
-use Tests\UnitTestCase;
 use Mockery;
-use Webklex\PHPIMAP\Message;
+use Tests\UnitTestCase;
+use Webklex\PHPIMAP\Attachment as ImapAttachment;
 use Webklex\PHPIMAP\Attribute;
 use Webklex\PHPIMAP\Header;
-use Webklex\PHPIMAP\Attachment as ImapAttachment;
+use Webklex\PHPIMAP\Message;
 use Webklex\PHPIMAP\Support\AttachmentCollection;
 
 /**
@@ -43,7 +42,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
     {
         parent::setUp();
         config(['broadcasting.default' => 'log']);
-        $this->service = new ImapService();
+        $this->service = new ImapService;
     }
 
     protected function tearDown(): void
@@ -71,14 +70,14 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
      */
     protected function createMockMessage(array $params = []): Message
     {
-        $message = Mockery::mock(Message::class . ', \Tests\Unit\Services\MessageWithRawHeader');
+        $message = Mockery::mock(Message::class.', \Tests\Unit\Services\MessageWithRawHeader');
 
         // Default values
         $defaults = [
             'message_id' => '<test-'.uniqid().'@example.com>',
             'subject' => 'Test Subject',
             'from' => [
-                (object)['mail' => 'customer@example.com', 'personal' => 'John Doe']
+                (object) ['mail' => 'customer@example.com', 'personal' => 'John Doe'],
             ],
             'to' => [],
             'cc' => [],
@@ -88,7 +87,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
             'html_body' => '<p>Test email body content</p>',
             'has_html' => false, // Default to text body for simpler testing
             'has_attachments' => false,
-            'attachments' => new AttachmentCollection(),
+            'attachments' => new AttachmentCollection,
             'in_reply_to' => null,
             'references' => null,
             'raw_header' => 'From: customer@example.com',
@@ -113,7 +112,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
 
         // Mock header for In-Reply-To and References
         $header = Mockery::mock(Header::class);
-        
+
         if ($params['in_reply_to']) {
             $inReplyToAttr = Mockery::mock(Attribute::class);
             $inReplyToAttr->shouldReceive('first')->andReturn($params['in_reply_to']);
@@ -144,7 +143,6 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
     /**
      * Priority 1: Happy Path Tests
      */
-
     public function test_process_message_creates_new_conversation_from_customer_email(): void
     {
         // Arrange
@@ -156,7 +154,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'Jane Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'Jane Customer']],
             'subject' => 'Need help with my account',
             'text_body' => 'I need help resetting my password',
         ]);
@@ -208,7 +206,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
         $mockAttachment->disposition = 'attachment';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'has_attachments' => true,
             'attachments' => new AttachmentCollection([$mockAttachment]),
         ]);
@@ -239,7 +237,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'newcustomer@example.com', 'personal' => 'New Customer']],
+            'from' => [(object) ['mail' => 'newcustomer@example.com', 'personal' => 'New Customer']],
         ]);
 
         // Act
@@ -269,7 +267,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'existing@example.com', 'personal' => 'Existing Customer']],
+            'from' => [(object) ['mail' => 'existing@example.com', 'personal' => 'Existing Customer']],
         ]);
 
         // Act
@@ -295,7 +293,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
         $textBody = 'Important Message\n\nThis is the email body';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'html_body' => $htmlBody,
             'text_body' => $textBody,
             'has_html' => true,
@@ -314,7 +312,6 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
     /**
      * Priority 2: Reply Detection Tests
      */
-
     public function test_process_message_detects_reply_via_in_reply_to_header(): void
     {
         // Arrange
@@ -341,7 +338,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
 
         // Create reply message
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'subject' => 'Re: Original Subject',
             'in_reply_to' => '<original-123@example.com>',
             'text_body' => 'This is my reply',
@@ -385,7 +382,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
 
         // Create reply with References header
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'references' => '<ref-456@example.com>',
             'in_reply_to' => null,
             'text_body' => 'Reply via references',
@@ -430,7 +427,7 @@ On 2024-01-01, Support wrote:
 > It has multiple lines';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
             'text_body' => $replyBody,
             'has_html' => false,
@@ -444,7 +441,7 @@ On 2024-01-01, Support wrote:
             ->orderBy('id', 'desc')
             ->first();
         $this->assertNotNull($replyThread);
-        
+
         // The separateReply method should extract just the new content
         $this->assertStringContainsString('This is my new reply', $replyThread->body);
     }
@@ -471,7 +468,7 @@ On 2024-01-01, Support wrote:
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
         ]);
 
@@ -489,7 +486,6 @@ On 2024-01-01, Support wrote:
     /**
      * Priority 3: Forward Detection Tests
      */
-
     public function test_process_message_detects_forwarded_email(): void
     {
         // Arrange
@@ -509,7 +505,7 @@ Subject: Original Subject
 This is the forwarded message content';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'agent@example.com', 'personal' => 'Agent Smith']],
+            'from' => [(object) ['mail' => 'agent@example.com', 'personal' => 'Agent Smith']],
             'subject' => 'Fwd: Original Subject',
             'text_body' => $forwardedBody,
             'has_html' => false,
@@ -544,7 +540,7 @@ This is the forwarded message content';
         $mockAttachment->disposition = 'attachment';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'agent@example.com', 'personal' => 'Agent']],
+            'from' => [(object) ['mail' => 'agent@example.com', 'personal' => 'Agent']],
             'subject' => 'Fwd: Document',
             'text_body' => '@fwd From: customer@example.com\n\nHere is the document',
             'has_html' => false,
@@ -566,7 +562,6 @@ This is the forwarded message content';
     /**
      * Priority 4: Edge Cases Tests
      */
-
     public function test_process_message_handles_malformed_email_headers(): void
     {
         // Arrange
@@ -579,7 +574,7 @@ This is the forwarded message content';
 
         // Message with missing/empty headers
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => '']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => '']],
             'subject' => '', // Empty subject
             'message_id' => '', // Empty message ID
         ]);
@@ -603,7 +598,7 @@ This is the forwarded message content';
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'text_body' => '',
             'html_body' => '',
         ]);
@@ -629,7 +624,7 @@ This is the forwarded message content';
 
         // Message with both HTML and text parts
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'html_body' => '<html><body><p>HTML version of the message</p></body></html>',
             'text_body' => 'Text version of the message',
             'has_html' => true,
@@ -664,7 +659,7 @@ This is the forwarded message content';
         $mockAttachment->disposition = 'inline';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'html_body' => '<p>Check this image: <img src="cid:image123"></p>',
             'has_html' => true,
             'has_attachments' => true,
@@ -689,7 +684,6 @@ This is the forwarded message content';
     /**
      * Priority 5: Auto-Responder & Special Cases
      */
-
     public function test_process_message_handles_auto_responder_detection(): void
     {
         // Arrange
@@ -702,7 +696,7 @@ This is the forwarded message content';
 
         // Auto-responder typically has certain headers, but for this test we just check behavior
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'autoresponder@example.com', 'personal' => 'Auto Responder']],
+            'from' => [(object) ['mail' => 'autoresponder@example.com', 'personal' => 'Auto Responder']],
             'subject' => 'Out of Office: Re: Your message',
             'text_body' => 'I am currently out of office and will respond when I return.',
         ]);
@@ -728,7 +722,7 @@ This is the forwarded message content';
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'mailer-daemon@mail.example.com', 'personal' => 'Mail Delivery System']],
+            'from' => [(object) ['mail' => 'mailer-daemon@mail.example.com', 'personal' => 'Mail Delivery System']],
             'subject' => 'Delivery Status Notification (Failure)',
             'text_body' => 'Your message could not be delivered',
         ]);
@@ -756,7 +750,7 @@ This is the forwarded message content';
         $user = User::factory()->create(['email' => 'agent@example.com']);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'agent@example.com', 'personal' => 'Agent Smith']],
+            'from' => [(object) ['mail' => 'agent@example.com', 'personal' => 'Agent Smith']],
             'subject' => 'Internal note',
             'text_body' => 'This is an internal email',
         ]);
@@ -777,7 +771,6 @@ This is the forwarded message content';
     /**
      * Bonus Tests
      */
-
     public function test_process_message_handles_international_characters_in_subject(): void
     {
         // Arrange
@@ -789,7 +782,7 @@ This is the forwarded message content';
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'José García']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'José García']],
             'subject' => '你好 Hello Привет 🎉 Emoji Test',
             'text_body' => 'Testing UTF-8 characters: café, naïve, über',
         ]);
@@ -810,7 +803,7 @@ This is the forwarded message content';
         Event::fake();
         $mailbox1 = Mailbox::factory()->create(['email' => 'support@example.com']);
         $mailbox2 = Mailbox::factory()->create(['email' => 'sales@example.com']);
-        
+
         $folder1 = Folder::factory()->create([
             'mailbox_id' => $mailbox1->id,
             'type' => 1,
@@ -821,7 +814,7 @@ This is the forwarded message content';
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act
@@ -851,7 +844,7 @@ This is the forwarded message content';
         $veryLongLastName = str_repeat('B', 40);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => $veryLongFirstName.' '.$veryLongLastName]],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => $veryLongFirstName.' '.$veryLongLastName]],
         ]);
 
         // Act
@@ -878,7 +871,7 @@ This is the forwarded message content';
         // Create first message
         $message1 = $this->createMockMessage([
             'message_id' => $messageId,
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act - Process first message
@@ -890,7 +883,7 @@ This is the forwarded message content';
         // Create duplicate message with same ID
         $message2 = $this->createMockMessage([
             'message_id' => $messageId,
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act - Process duplicate
@@ -930,7 +923,7 @@ This is the forwarded message content';
 
         // Create reply
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
         ]);
 
@@ -954,13 +947,13 @@ This is the forwarded message content';
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
-            'to' => [(object)['mail' => 'support@example.com', 'personal' => '']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'to' => [(object) ['mail' => 'support@example.com', 'personal' => '']],
             'cc' => [
-                (object)['mail' => 'cc1@example.com', 'personal' => 'CC Person 1'],
-                (object)['mail' => 'cc2@example.com', 'personal' => 'CC Person 2']
+                (object) ['mail' => 'cc1@example.com', 'personal' => 'CC Person 1'],
+                (object) ['mail' => 'cc2@example.com', 'personal' => 'CC Person 2'],
             ],
-            'bcc' => [(object)['mail' => 'bcc@example.com', 'personal' => 'BCC Person']],
+            'bcc' => [(object) ['mail' => 'bcc@example.com', 'personal' => 'BCC Person']],
         ]);
 
         // Act
@@ -969,7 +962,7 @@ This is the forwarded message content';
         // Assert
         $thread = Thread::first();
         $this->assertNotNull($thread);
-        
+
         $ccAddresses = json_decode($thread->cc, true);
         $this->assertIsArray($ccAddresses);
         $this->assertContains('cc1@example.com', $ccAddresses);
@@ -983,7 +976,6 @@ This is the forwarded message content';
     /**
      * COMPREHENSIVE EDGE CASES - Address Parsing
      */
-
     public function test_process_message_handles_from_as_attribute_object_with_toarray(): void
     {
         // Arrange
@@ -994,7 +986,7 @@ This is the forwarded message content';
         // Mock Attribute object with toArray method
         $fromAttribute = Mockery::mock(Attribute::class);
         $fromAttribute->shouldReceive('toArray')->andReturn([
-            (object)['mail' => 'attr@example.com', 'personal' => 'Attr User']
+            (object) ['mail' => 'attr@example.com', 'personal' => 'Attr User'],
         ]);
 
         $message = Mockery::mock(Message::class);
@@ -1009,13 +1001,13 @@ This is the forwarded message content';
         $message->shouldReceive('getHTMLBody')->andReturn('<p>Body</p>');
         $message->shouldReceive('hasHTMLBody')->andReturn(true);
         $message->shouldReceive('hasAttachments')->andReturn(false);
-        $message->shouldReceive('getAttachments')->andReturn(new AttachmentCollection());
+        $message->shouldReceive('getAttachments')->andReturn(new AttachmentCollection);
         $message->shouldReceive('getRawHeader')->andReturn('From: attr@example.com');
-        
+
         // Mock Header with Attribute returns
         $emptyAttribute = Mockery::mock(Attribute::class);
         $emptyAttribute->shouldReceive('first')->andReturn(null);
-        
+
         $header = Mockery::mock(Header::class);
         $header->shouldReceive('get')->with('in_reply_to')->andReturn($emptyAttribute);
         $header->shouldReceive('get')->with('references')->andReturn($emptyAttribute);
@@ -1038,10 +1030,12 @@ This is the forwarded message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         // Mock Attribute object with all() method (the preferred method in parseFromAddress)
-        $fromAttribute = new class {
-            public function all() {
+        $fromAttribute = new class
+        {
+            public function all()
+            {
                 return [
-                    (object)['mail' => 'allmethod@example.com', 'personal' => 'All User']
+                    (object) ['mail' => 'allmethod@example.com', 'personal' => 'All User'],
                 ];
             }
         };
@@ -1058,13 +1052,13 @@ This is the forwarded message content';
         $message->shouldReceive('getHTMLBody')->andReturn('<p>Body</p>');
         $message->shouldReceive('hasHTMLBody')->andReturn(true);
         $message->shouldReceive('hasAttachments')->andReturn(false);
-        $message->shouldReceive('getAttachments')->andReturn(new AttachmentCollection());
+        $message->shouldReceive('getAttachments')->andReturn(new AttachmentCollection);
         $message->shouldReceive('getRawHeader')->andReturn('From: allmethod@example.com');
-        
+
         // Mock Header with Attribute returns
         $emptyAttribute = Mockery::mock(Attribute::class);
         $emptyAttribute->shouldReceive('first')->andReturn(null);
-        
+
         $header = Mockery::mock(Header::class);
         $header->shouldReceive('get')->with('in_reply_to')->andReturn($emptyAttribute);
         $header->shouldReceive('get')->with('references')->andReturn($emptyAttribute);
@@ -1127,11 +1121,13 @@ This is the forwarded message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         // Create object without mail property, forcing string parsing
-        $fromObject = new \stdClass();
-        $fromObject->__toString = function() { return 'John Doe <john@example.com>'; };
+        $fromObject = new \stdClass;
+        $fromObject->__toString = function () {
+            return 'John Doe <john@example.com>';
+        };
 
-        $fromObj = (object)['mail' => 'parsed@example.com', 'personal' => 'Parsed User'];
-        
+        $fromObj = (object) ['mail' => 'parsed@example.com', 'personal' => 'Parsed User'];
+
         $message = Mockery::mock(Message::class);
         $message->shouldReceive('getFrom')->andReturn([$fromObj]);
         $message->shouldReceive('getMessageId')->andReturn('<parse@example.com>');
@@ -1144,12 +1140,12 @@ This is the forwarded message content';
         $message->shouldReceive('getHTMLBody')->andReturn('<p>Body</p>');
         $message->shouldReceive('hasHTMLBody')->andReturn(true);
         $message->shouldReceive('hasAttachments')->andReturn(false);
-        $message->shouldReceive('getAttachments')->andReturn(new AttachmentCollection());
+        $message->shouldReceive('getAttachments')->andReturn(new AttachmentCollection);
         $message->shouldReceive('getRawHeader')->andReturn('From: john@example.com');
-        
+
         $emptyAttribute = Mockery::mock(Attribute::class);
         $emptyAttribute->shouldReceive('first')->andReturn(null);
-        
+
         $header = Mockery::mock(Header::class);
         $header->shouldReceive('get')->with('in_reply_to')->andReturn($emptyAttribute);
         $header->shouldReceive('get')->with('references')->andReturn($emptyAttribute);
@@ -1176,7 +1172,7 @@ This is the forwarded message content';
         // Act & Assert
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('No sender found in message');
-        
+
         $this->invokeProcessMessage($mailbox, $message);
     }
 
@@ -1188,20 +1184,19 @@ This is the forwarded message content';
 
         $message = Mockery::mock(Message::class);
         // Return object without mail property and that can't be string-parsed
-        $fromObj = new \stdClass();
+        $fromObj = new \stdClass;
         $message->shouldReceive('getFrom')->andReturn([$fromObj]);
 
         // Act & Assert
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('No sender email found in message');
-        
+
         $this->invokeProcessMessage($mailbox, $message);
     }
 
     /**
      * COMPREHENSIVE - Message ID and Duplicate Handling
      */
-
     public function test_process_message_generates_message_id_when_missing(): void
     {
         // Arrange
@@ -1211,7 +1206,7 @@ This is the forwarded message content';
 
         $message = $this->createMockMessage([
             'message_id' => '',
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act
@@ -1230,7 +1225,7 @@ This is the forwarded message content';
         Event::fake();
         $mailbox1 = Mailbox::factory()->create(['email' => 'support@example.com']);
         $mailbox2 = Mailbox::factory()->create(['email' => 'sales@example.com']);
-        
+
         $folder1 = Folder::factory()->create(['mailbox_id' => $mailbox1->id, 'type' => 1]);
         $folder2 = Folder::factory()->create(['mailbox_id' => $mailbox2->id, 'type' => 1]);
 
@@ -1240,23 +1235,23 @@ This is the forwarded message content';
         // First, process in mailbox1
         $message1 = $this->createMockMessage([
             'message_id' => $messageId,
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
-            'to' => [(object)['mail' => 'support@example.com', 'personal' => '']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'to' => [(object) ['mail' => 'support@example.com', 'personal' => '']],
         ]);
         $this->invokeProcessMessage($mailbox1, $message1);
 
         // Now process same message in mailbox2 (BCC scenario)
         $message2 = $this->createMockMessage([
             'message_id' => $messageId,
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
-            'to' => [(object)['mail' => 'info@example.com', 'personal' => '']], // Different To
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'to' => [(object) ['mail' => 'info@example.com', 'personal' => '']], // Different To
         ]);
         $this->invokeProcessMessage($mailbox2, $message2);
 
         // Assert - Should create separate conversations for each mailbox
         $conv1 = Conversation::where('mailbox_id', $mailbox1->id)->first();
         $conv2 = Conversation::where('mailbox_id', $mailbox2->id)->first();
-        
+
         $this->assertNotNull($conv1);
         $this->assertNotNull($conv2);
         $this->assertNotEquals($conv1->id, $conv2->id);
@@ -1270,7 +1265,6 @@ This is the forwarded message content';
     /**
      * COMPREHENSIVE - Conversation Updates and Threading
      */
-
     public function test_process_message_updates_conversation_cc_list_on_reply(): void
     {
         // Arrange
@@ -1291,10 +1285,10 @@ This is the forwarded message content';
 
         // Reply with new CC
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
-            'to' => [(object)['mail' => 'support@example.com', 'personal' => '']],
-            'cc' => [(object)['mail' => 'cc2@example.com', 'personal' => 'CC2']],
+            'to' => [(object) ['mail' => 'support@example.com', 'personal' => '']],
+            'cc' => [(object) ['mail' => 'cc2@example.com', 'personal' => 'CC2']],
         ]);
 
         // Act
@@ -1327,9 +1321,9 @@ This is the forwarded message content';
 
         // Reply with BCC
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
-            'bcc' => [(object)['mail' => 'bcc@example.com', 'personal' => 'BCC User']],
+            'bcc' => [(object) ['mail' => 'bcc@example.com', 'personal' => 'BCC User']],
         ]);
 
         // Act
@@ -1360,7 +1354,7 @@ This is the forwarded message content';
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
         ]);
 
@@ -1391,7 +1385,7 @@ This is the forwarded message content';
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
         ]);
 
@@ -1406,7 +1400,6 @@ This is the forwarded message content';
     /**
      * COMPREHENSIVE - Thread Creation
      */
-
     public function test_process_message_sets_thread_first_flag_correctly(): void
     {
         // Arrange
@@ -1415,7 +1408,7 @@ This is the forwarded message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
         ]);
 
         // Act
@@ -1424,7 +1417,7 @@ This is the forwarded message content';
         // Assert
         $thread = Thread::first();
         $this->assertNotNull($thread);
-        $this->assertTrue((bool)$thread->first);
+        $this->assertTrue((bool) $thread->first);
     }
 
     public function test_process_message_sets_thread_first_flag_false_for_replies(): void
@@ -1447,7 +1440,7 @@ This is the forwarded message content';
         ]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Customer']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Customer']],
             'in_reply_to' => '<original@example.com>',
         ]);
 
@@ -1469,9 +1462,9 @@ This is the forwarded message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $rawHeaders = "From: customer@example.com\r\nTo: support@example.com\r\nSubject: Test";
-        
+
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'raw_header' => $rawHeaders,
         ]);
 
@@ -1492,10 +1485,10 @@ This is the forwarded message content';
         $folder = Folder::factory()->create(['mailbox_id' => $mailbox->id, 'type' => 1]);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'to' => [
-                (object)['mail' => 'support@example.com', 'personal' => ''],
-                (object)['mail' => 'info@example.com', 'personal' => '']
+                (object) ['mail' => 'support@example.com', 'personal' => ''],
+                (object) ['mail' => 'info@example.com', 'personal' => ''],
             ],
         ]);
 
@@ -1514,7 +1507,6 @@ This is the forwarded message content';
     /**
      * COMPREHENSIVE - Attachment Handling
      */
-
     public function test_process_message_handles_multiple_attachments(): void
     {
         // Arrange
@@ -1537,7 +1529,7 @@ This is the forwarded message content';
         $attachment2->disposition = 'attachment';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'has_attachments' => true,
             'attachments' => new AttachmentCollection([$attachment1, $attachment2]),
         ]);
@@ -1563,7 +1555,7 @@ This is the forwarded message content';
         $attachment->shouldReceive('getId')->andReturn(null);
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'has_attachments' => true,
             'attachments' => new AttachmentCollection([$attachment]),
         ]);
@@ -1598,7 +1590,7 @@ This is the forwarded message content';
         $attachment2->disposition = 'inline';
 
         $message = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer@example.com', 'personal' => 'John Doe']],
             'html_body' => '<p>Image 1: <img src="cid:img1"> and Image 2: <img src="cid:img2"></p>',
             'has_html' => true,
             'has_attachments' => true,
@@ -1630,13 +1622,13 @@ This is the forwarded message content';
         $embeddedAttachment->disposition = 'inline';
 
         $messageEmbedded = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer1@example.com', 'personal' => 'John Doe']],
+            'from' => [(object) ['mail' => 'customer1@example.com', 'personal' => 'John Doe']],
             'html_body' => '<p>Image: <img src="cid:img1"></p>',
             'has_html' => true,
             'has_attachments' => true,
             'attachments' => new AttachmentCollection([$embeddedAttachment]),
             'message_id' => '<msg1@example.com>',
-            'subject' => 'Embedded Only'
+            'subject' => 'Embedded Only',
         ]);
 
         // Act
@@ -1645,7 +1637,7 @@ This is the forwarded message content';
         // Assert
         $conversation1 = Conversation::where('subject', 'Embedded Only')->first();
         $this->assertNotNull($conversation1);
-        $this->assertFalse((bool)$conversation1->has_attachments, 'Conversation should not have attachments flag if only embedded images are present');
+        $this->assertFalse((bool) $conversation1->has_attachments, 'Conversation should not have attachments flag if only embedded images are present');
 
         // Case 2: Message with regular attachment
         $regularAttachment = Mockery::mock(ImapAttachment::class);
@@ -1656,13 +1648,13 @@ This is the forwarded message content';
         $regularAttachment->disposition = 'attachment';
 
         $messageRegular = $this->createMockMessage([
-            'from' => [(object)['mail' => 'customer2@example.com', 'personal' => 'Jane Doe']],
+            'from' => [(object) ['mail' => 'customer2@example.com', 'personal' => 'Jane Doe']],
             'html_body' => '<p>Here is the doc</p>',
             'has_html' => true,
             'has_attachments' => true,
             'attachments' => new AttachmentCollection([$regularAttachment]),
             'message_id' => '<msg2@example.com>',
-            'subject' => 'Regular Attachment'
+            'subject' => 'Regular Attachment',
         ]);
 
         // Act
@@ -1671,10 +1663,10 @@ This is the forwarded message content';
         // Assert
         $conversation2 = Conversation::where('subject', 'Regular Attachment')->first();
         $this->assertNotNull($conversation2);
-        $this->assertTrue((bool)$conversation2->has_attachments, 'Conversation should have attachments flag if regular attachment is present');
+        $this->assertTrue((bool) $conversation2->has_attachments, 'Conversation should have attachments flag if regular attachment is present');
     }
 }
-interface MessageWithRawHeader {
+interface MessageWithRawHeader
+{
     public function getRawHeader();
 }
-

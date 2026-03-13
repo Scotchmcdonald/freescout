@@ -7,21 +7,20 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * AddSentryContext Middleware
- * 
+ *
  * Enriches Sentry error reports with contextual information while
  * respecting privacy and avoiding PII (Personally Identifiable Information).
- * 
+ *
  * Context added:
  * - Request details (URL, method, headers - sensitive tokens scrubbed)
  * - User context (ID only, no email/name for privacy)
  * - Performance tags (queue, module, controller)
  * - Custom tags for filtering in Sentry dashboard
- * 
+ *
  * PII Protection:
  * - No email addresses
  * - No user names
@@ -49,7 +48,7 @@ class AddSentryContext
     public function handle(Request $request, Closure $next): Response
     {
         // Only configure Sentry if DSN is set
-        if (!config('sentry.dsn')) {
+        if (! config('sentry.dsn')) {
             return $next($request);
         }
 
@@ -65,7 +64,7 @@ class AddSentryContext
 
     /**
      * Add request context to Sentry scope
-     * 
+     *
      * Includes URL, method, and scrubbed headers
      */
     private function addRequestContext(\Sentry\State\Scope $scope, Request $request): void
@@ -87,7 +86,7 @@ class AddSentryContext
 
         // Add query parameters (if not sensitive)
         $queryParams = $request->query();
-        if (!empty($queryParams)) {
+        if (! empty($queryParams)) {
             /** @var array<string, mixed> $queryParams */
             $scope->setContext('query_params', $this->scrubSensitiveData($queryParams));
         }
@@ -95,7 +94,7 @@ class AddSentryContext
 
     /**
      * Add user context to Sentry scope
-     * 
+     *
      * Only includes user ID for privacy - no email or name
      */
     private function addUserContext(\Sentry\State\Scope $scope): void
@@ -105,7 +104,7 @@ class AddSentryContext
             if ($user === null) {
                 return;
             }
-            
+
             // Only send user ID - no PII
             $scope->setUser([
                 'id' => (string) $user->id,
@@ -149,7 +148,7 @@ class AddSentryContext
         // Add queue job context if processing a job
         if (app()->runningInConsole()) {
             $scope->setTag('context', 'console');
-            
+
             // Try to detect queue worker
             if (isset($_SERVER['argv']) && is_array($_SERVER['argv']) && in_array('queue:work', $_SERVER['argv'])) {
                 $scope->setTag('queue_worker', 'true');
@@ -162,36 +161,36 @@ class AddSentryContext
     /**
      * Scrub sensitive headers from request
      *
-     * @param array<string, array<int, string>> $headers
+     * @param  array<string, array<int, string>>  $headers
      * @return array<string, array<int, string>>
      */
     private function scrubSensitiveHeaders(array $headers): array
     {
         $scrubbed = [];
-        
+
         foreach ($headers as $key => $values) {
             $lowerKey = strtolower($key);
-            
+
             if (in_array($lowerKey, self::SENSITIVE_HEADERS)) {
                 $scrubbed[$key] = ['[REDACTED]'];
             } else {
                 $scrubbed[$key] = $values;
             }
         }
-        
+
         return $scrubbed;
     }
 
     /**
      * Scrub sensitive data from arrays (passwords, tokens, etc.)
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     private function scrubSensitiveData(array $data): array
     {
         $scrubbed = [];
-        
+
         foreach ($data as $key => $value) {
             // Check if key looks sensitive
             if (preg_match('/password|token|secret|api_key|credential/i', (string) $key)) {
@@ -203,7 +202,7 @@ class AddSentryContext
                 $scrubbed[$key] = $value;
             }
         }
-        
+
         return $scrubbed;
     }
 
@@ -213,17 +212,17 @@ class AddSentryContext
     private function extractModuleName(Request $request): ?string
     {
         $route = $request->route();
-        if (!$route) {
+        if (! $route) {
             return null;
         }
 
         /** @var array<string, mixed> $action */
         $action = $route->getAction();
-        
+
         // Try to get module from controller namespace
         if (isset($action['controller'])) {
             $controller = $action['controller'];
-            
+
             if (is_string($controller) && preg_match('/Modules\\\\([^\\\\]+)/', $controller, $matches)) {
                 return $matches[1];
             }
@@ -238,21 +237,21 @@ class AddSentryContext
     private function getControllerName(Request $request): ?string
     {
         $route = $request->route();
-        if (!$route) {
+        if (! $route) {
             return null;
         }
 
         /** @var array<string, mixed> $action */
         $action = $route->getAction();
-        
+
         if (isset($action['controller'])) {
             $controller = $action['controller'];
-            
+
             if (is_string($controller)) {
                 // Extract just the controller class name
                 $parts = explode('@', $controller);
                 $class = $parts[0];
-                
+
                 return class_basename($class);
             }
         }

@@ -49,20 +49,20 @@ class Install extends Command
         $firstName = $this->option('first_name');
         $lastName = $this->option('last_name');
 
-        if (!is_string($email)) {
+        if (! is_string($email)) {
             $email = null;
         }
-        if (!is_string($password)) {
+        if (! is_string($password)) {
             $password = null;
         }
-        if (!is_string($firstName)) {
+        if (! is_string($firstName)) {
             $firstName = 'Admin';
         }
-        if (!is_string($lastName)) {
+        if (! is_string($lastName)) {
             $lastName = 'User';
         }
 
-        if (!$email) {
+        if (! $email) {
             if ($this->confirm('Do you want to create an admin user?', true)) {
                 $email = $this->ask('Admin Email', 'admin@example.com');
                 $firstName = $this->ask('First Name', 'Admin');
@@ -70,15 +70,16 @@ class Install extends Command
                 $password = $this->secret('Admin Password');
             } else {
                 $this->info('Skipping admin user creation.');
+
                 return 0;
             }
         }
 
-        if (!$password) {
-             $password = User::generateRandomPassword();
-             if (is_string($email)) {
-                 $this->info("Generated password for {$email}: {$password}");
-             }
+        if (! $password) {
+            $password = User::generateRandomPassword();
+            if (is_string($email)) {
+                $this->info("Generated password for {$email}: {$password}");
+            }
         }
 
         $validator = Validator::make([
@@ -94,6 +95,7 @@ class Install extends Command
             foreach ($validator->errors()->all() as $error) {
                 $this->error($error);
             }
+
             return 1;
         }
 

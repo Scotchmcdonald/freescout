@@ -13,7 +13,6 @@ use Tests\UnitTestCase;
 
 class EventEdgeCasesTest extends UnitTestCase
 {
-
     public function test_new_message_received_event_with_null_preview()
     {
         $thread = Thread::factory()->create(['body' => '']);

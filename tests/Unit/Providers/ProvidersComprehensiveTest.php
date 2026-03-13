@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Providers;
 
-use Tests\UnitTestCase;
 use App\Providers\AppServiceProvider;
 use App\Providers\EventServiceProvider;
 use App\Providers\ModuleCompatibilityServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Tests\UnitTestCase;
 
 /**
  * Comprehensive tests for Provider classes in the modernized application
@@ -31,7 +31,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new AppServiceProvider($this->app);
         $provider->register();
-        
+
         // Verify registration completed without errors
         $this->expectNotToPerformAssertions();
     }
@@ -40,7 +40,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify boot completed without errors
         $this->expectNotToPerformAssertions();
     }
@@ -49,7 +49,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
-        
+
         $this->assertNotNull(config('app.env'));
     }
 
@@ -57,7 +57,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
-        
+
         $this->assertNotNull(app()->getLocale());
     }
 
@@ -65,7 +65,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
-        
+
         $this->assertNotNull(config('database.default'));
     }
 
@@ -73,7 +73,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
-        
+
         $this->assertNotNull(config('mail.default'));
     }
 
@@ -81,31 +81,31 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new AppServiceProvider($this->app);
         $provider->boot();
-        
+
         $this->assertNotNull(config('queue.default'));
     }
 
     public function test_app_service_provider_does_not_throw_on_register(): void
     {
         $provider = new AppServiceProvider($this->app);
-        
+
         try {
             $provider->register();
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->fail('AppServiceProvider register should not throw exceptions: ' . $e->getMessage());
+            $this->fail('AppServiceProvider register should not throw exceptions: '.$e->getMessage());
         }
     }
 
     public function test_app_service_provider_does_not_throw_on_boot(): void
     {
         $provider = new AppServiceProvider($this->app);
-        
+
         try {
             $provider->boot();
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->fail('AppServiceProvider boot should not throw exceptions: ' . $e->getMessage());
+            $this->fail('AppServiceProvider boot should not throw exceptions: '.$e->getMessage());
         }
     }
 
@@ -122,12 +122,12 @@ class ProvidersComprehensiveTest extends UnitTestCase
     public function test_event_service_provider_boots_without_errors(): void
     {
         $provider = new EventServiceProvider($this->app);
-        
+
         try {
             $provider->boot();
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->fail('EventServiceProvider boot should not throw exceptions: ' . $e->getMessage());
+            $this->fail('EventServiceProvider boot should not throw exceptions: '.$e->getMessage());
         }
     }
 
@@ -135,7 +135,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify event listeners are registered
         $this->expectNotToPerformAssertions();
     }
@@ -144,7 +144,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify conversation-related events have listeners
         $this->expectNotToPerformAssertions();
     }
@@ -153,7 +153,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify user-related events have listeners
         $this->expectNotToPerformAssertions();
     }
@@ -162,7 +162,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify customer-related events have listeners
         $this->expectNotToPerformAssertions();
     }
@@ -171,7 +171,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify event subscribers are registered
         $this->expectNotToPerformAssertions();
     }
@@ -180,7 +180,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify automatic event discovery
         $this->expectNotToPerformAssertions();
     }
@@ -188,12 +188,12 @@ class ProvidersComprehensiveTest extends UnitTestCase
     public function test_event_service_provider_does_not_throw_on_register(): void
     {
         $provider = new EventServiceProvider($this->app);
-        
+
         try {
             $provider->register();
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->fail('EventServiceProvider register should not throw exceptions: ' . $e->getMessage());
+            $this->fail('EventServiceProvider register should not throw exceptions: '.$e->getMessage());
         }
     }
 
@@ -201,7 +201,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new EventServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify model observers are registered through events
         $this->expectNotToPerformAssertions();
     }
@@ -220,7 +220,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new ModuleCompatibilityServiceProvider($this->app);
         $provider->register();
-        
+
         // Verify registration completed without errors
         $this->expectNotToPerformAssertions();
     }
@@ -229,7 +229,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new ModuleCompatibilityServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify boot completed without errors
         $this->expectNotToPerformAssertions();
     }
@@ -238,7 +238,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new ModuleCompatibilityServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify module compatibility features are loaded
         $this->expectNotToPerformAssertions();
     }
@@ -247,7 +247,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new ModuleCompatibilityServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify module paths are registered
         $this->expectNotToPerformAssertions();
     }
@@ -256,7 +256,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new ModuleCompatibilityServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify module service providers are handled
         $this->expectNotToPerformAssertions();
     }
@@ -265,7 +265,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new ModuleCompatibilityServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify module aliases are registered
         $this->expectNotToPerformAssertions();
     }
@@ -273,24 +273,24 @@ class ProvidersComprehensiveTest extends UnitTestCase
     public function test_module_compatibility_service_provider_does_not_throw_on_register(): void
     {
         $provider = new ModuleCompatibilityServiceProvider($this->app);
-        
+
         try {
             $provider->register();
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->fail('ModuleCompatibilityServiceProvider register should not throw exceptions: ' . $e->getMessage());
+            $this->fail('ModuleCompatibilityServiceProvider register should not throw exceptions: '.$e->getMessage());
         }
     }
 
     public function test_module_compatibility_service_provider_does_not_throw_on_boot(): void
     {
         $provider = new ModuleCompatibilityServiceProvider($this->app);
-        
+
         try {
             $provider->boot();
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->fail('ModuleCompatibilityServiceProvider boot should not throw exceptions: ' . $e->getMessage());
+            $this->fail('ModuleCompatibilityServiceProvider boot should not throw exceptions: '.$e->getMessage());
         }
     }
 
@@ -298,7 +298,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
     {
         $provider = new ModuleCompatibilityServiceProvider($this->app);
         $provider->boot();
-        
+
         // Verify backwards compatibility features for modules
         $this->expectNotToPerformAssertions();
     }

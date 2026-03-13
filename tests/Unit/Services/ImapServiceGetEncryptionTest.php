@@ -18,7 +18,7 @@ class ImapServiceGetEncryptionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImapService();
+        $this->service = new ImapService;
     }
 
     /**

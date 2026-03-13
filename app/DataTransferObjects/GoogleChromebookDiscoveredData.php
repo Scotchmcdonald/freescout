@@ -6,14 +6,14 @@ namespace App\DataTransferObjects;
 
 /**
  * GoogleChromebookDiscoveredData - Immutable DTO for GoogleChromebookDiscovered event
- * 
+ *
  * Represents Chromebook data discovered from Google Admin.
  * Uses readonly properties to prevent mutation after creation.
  */
 final readonly class GoogleChromebookDiscoveredData
 {
     /**
-     * @param array<string, mixed> $metadata
+     * @param  array<string, mixed>  $metadata
      */
     public function __construct(
         public int $clientId,
@@ -23,11 +23,12 @@ final readonly class GoogleChromebookDiscoveredData
         public ?string $assignedUserEmail,
         public array $metadata,
     ) {}
-    
+
     /**
      * Factory method for backward compatibility
-     * 
-     * @param array<string, mixed> $data Raw array data
+     *
+     * @param  array<string, mixed>  $data  Raw array data
+     *
      * @phpstan-param array{
      *     client_id?: int,
      *     serial_number?: string, serialNumber?: string,
@@ -36,7 +37,6 @@ final readonly class GoogleChromebookDiscoveredData
      *     assigned_user_email?: string|null, assignedUserEmail?: string|null,
      *     metadata?: array<string, mixed>,
      * } $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -49,10 +49,10 @@ final readonly class GoogleChromebookDiscoveredData
             metadata: $data['metadata'] ?? [],
         );
     }
-    
+
     /**
      * Convert to array representation
-     * 
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

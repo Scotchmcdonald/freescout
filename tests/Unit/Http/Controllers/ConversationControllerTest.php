@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Http\Controllers;
 
 use App\Http\Controllers\ConversationController;
-use App\Http\Requests\StoreConversationRequest;
 use App\Models\Conversation;
-use App\Models\Customer;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
@@ -19,7 +17,7 @@ use Tests\TestCase;
 
 /**
  * Test ConversationController basic functionality
- * 
+ *
  * Focus: Access control, relationship loading, basic CRUD
  */
 class ConversationControllerTest extends TestCase
@@ -33,11 +31,11 @@ class ConversationControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->controller = new ConversationController();
+
+        $this->controller = new ConversationController;
         $this->user = User::factory()->create();
         $this->mailbox = Mailbox::factory()->create();
-        
+
         // Attach user to mailbox
         $this->user->mailboxes()->attach($this->mailbox->id);
     }
@@ -65,7 +63,7 @@ class ConversationControllerTest extends TestCase
             'mailbox_id' => $this->mailbox->id,
             'state' => 2, // Published
         ]);
-        
+
         Conversation::factory()->create([
             'mailbox_id' => $this->mailbox->id,
             'state' => 1, // Draft
@@ -87,7 +85,7 @@ class ConversationControllerTest extends TestCase
             'state' => 2,
             'last_reply_at' => now()->subHours(2),
         ]);
-        
+
         $newer = Conversation::factory()->create([
             'mailbox_id' => $this->mailbox->id,
             'state' => 2,
@@ -170,7 +168,7 @@ class ConversationControllerTest extends TestCase
             'conversation_id' => $conversation->id,
             'state' => 2, // Published
         ]);
-        
+
         Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'state' => 1, // Draft
@@ -278,4 +276,3 @@ class ConversationControllerTest extends TestCase
         $this->assertGreaterThanOrEqual(3, $folders->count());
     }
 }
-

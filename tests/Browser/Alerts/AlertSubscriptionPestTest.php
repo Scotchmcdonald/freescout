@@ -12,7 +12,11 @@ function getAlertSubAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -46,14 +50,14 @@ it('notification subscription model exists', function () {
     expect(class_exists(\Modules\Alerts\Models\AlertType::class))->toBeTrue();
 
     // Verify AlertType has expected relationships and scopes
-    $type = new AlertType();
+    $type = new AlertType;
     expect(method_exists($type, 'subscriptions'))->toBeTrue();
     expect($type->getTable())->toBe('alert_types');
 })->group('alerts', 'alert-subscription');
 
 it('alert types are queryable', function () {
     $alertType = AlertType::create([
-        'code' => 'test_alert_' . uniqid(),
+        'code' => 'test_alert_'.uniqid(),
         'name' => 'Test Alert Type',
         'category' => 'system',
         'severity' => 'info',

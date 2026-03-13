@@ -13,12 +13,13 @@ function createPaymentPortalUser(string $clientName, string $emailPrefix): array
         'type' => 2,
         'first_name' => $clientName,
         'last_name' => 'User',
-        'email' => $emailPrefix . '-' . uniqid() . '@example.com',
+        'email' => $emailPrefix.'-'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
     ]);
     $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
+
     return [$user, $client, $company];
 }
 
@@ -44,7 +45,7 @@ test('failed payment retry ui', function () {
         'total_amount' => 100.00,
         'invoice_date' => now(),
         'due_date' => now()->subDays(5),
-        'invoice_number' => 'INV-FAIL-' . uniqid(),
+        'invoice_number' => 'INV-FAIL-'.uniqid(),
     ]);
 
     $this->visit('/portal/login')

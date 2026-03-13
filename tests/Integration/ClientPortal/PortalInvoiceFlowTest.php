@@ -1,10 +1,10 @@
 <?php
 
-use Modules\PIB\Models\Invoice;
-use Modules\Payment\Models\Payment;
-use Modules\Payment\Models\PaymentMethod;
 use App\Models\User;
 use Modules\Crm\Models\Company;
+use Modules\Payment\Models\Payment;
+use Modules\Payment\Models\PaymentMethod;
+use Modules\PIB\Models\Invoice;
 
 beforeEach(function () {
     $this->company = Company::factory()->create(['is_active' => true]);

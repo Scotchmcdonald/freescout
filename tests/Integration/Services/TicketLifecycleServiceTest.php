@@ -8,20 +8,19 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
-use Modules\Crm\Services\TicketLifecycleService;
-use Modules\Crm\Models\ClientConversation;
-use Modules\Crm\Models\TicketLifecycleEvent;
-use Modules\Crm\Models\Client;
-use Modules\Crm\Models\Company;
-use Modules\Crm\Models\Contact;
 use Modules\Crm\Events\ConversationLinkedToClient;
 use Modules\Crm\Events\TicketLifecycleEventRecorded;
+use Modules\Crm\Models\Client;
+use Modules\Crm\Models\ClientConversation;
+use Modules\Crm\Models\Company;
+use Modules\Crm\Models\TicketLifecycleEvent;
+use Modules\Crm\Services\TicketLifecycleService;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 /**
  * TicketLifecycleService Integration Tests
- * 
+ *
  * Tests ticket lifecycle management including:
  * - Linking conversations to clients
  * - Auto-linking via email matching
@@ -220,7 +219,7 @@ class TicketLifecycleServiceTest extends TestCase
         );
 
         $this->assertEquals($link1->id, $link2->id);
-        
+
         // Should only dispatch once
         Event::assertDispatchedTimes(ConversationLinkedToClient::class, 1);
     }
@@ -289,7 +288,7 @@ class TicketLifecycleServiceTest extends TestCase
     public function test_records_closed_event(): void
     {
         $conversationId = $this->createConversation();
-        
+
         // Link and open
         $this->service->linkConversationToClient(
             conversationId: $conversationId,
@@ -317,7 +316,7 @@ class TicketLifecycleServiceTest extends TestCase
     public function test_records_reopened_event(): void
     {
         $conversationId = $this->createConversation();
-        
+
         $this->service->linkConversationToClient(
             conversationId: $conversationId,
             clientId: $this->client->id
@@ -381,7 +380,7 @@ class TicketLifecycleServiceTest extends TestCase
         $conversationId = $this->createConversation();
 
         $this->service->recordOpened(conversationId: $conversationId);
-        
+
         // Update last event to 15 minutes ago
         DB::table('ticket_lifecycle_events')
             ->where('conversation_id', $conversationId)

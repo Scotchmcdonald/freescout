@@ -10,7 +10,7 @@ uses(RefreshDatabase::class);
 
 /**
  * Webhook Security Tests
- * 
+ *
  * Tests security features:
  * - Signature verification
  * - Replay attack prevention
@@ -18,7 +18,6 @@ uses(RefreshDatabase::class);
  * - Rate limiting
  * - HTTPS enforcement
  */
-
 beforeEach(function () {
     // Create a test webhook channel
     $this->channel = GooglePushChannel::create([
@@ -124,7 +123,7 @@ test('google webhook updates notification count', function () {
     ])->postJson('/api/webhooks/google/directory', []);
 
     $this->channel->refresh();
-    
+
     expect($this->channel->notification_count)->toBe($initialCount + 1)
         ->and($this->channel->last_notification_at)->not->toBeNull();
 });
@@ -177,7 +176,7 @@ test('action1 webhook verifies hmac signature', function () {
 
     $timestamp = time();
     $payload = json_encode(['device_id' => 'test-device-123']);
-    $signature = 'sha256=' . hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
+    $signature = 'sha256='.hash_hmac('sha256', $timestamp.'.'.$payload, $secret);
 
     $response = $this->withHeaders([
         'X-Action1-Signature' => $signature,
@@ -194,7 +193,7 @@ test('action1 webhook rejects invalid signature', function () {
     config(['action1.webhook_secret' => 'test-secret']);
 
     $timestamp = time();
-    $invalidSignature = 'sha256=' . hash_hmac('sha256', 'wrong-data', 'test-secret');
+    $invalidSignature = 'sha256='.hash_hmac('sha256', 'wrong-data', 'test-secret');
 
     $response = $this->withHeaders([
         'X-Action1-Signature' => $invalidSignature,
@@ -214,7 +213,7 @@ test('action1 webhook rejects old timestamps', function () {
     // Timestamp from 10 minutes ago (should be rejected)
     $timestamp = time() - 600;
     $payload = json_encode(['device_id' => 'test-device-123']);
-    $signature = 'sha256=' . hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
+    $signature = 'sha256='.hash_hmac('sha256', $timestamp.'.'.$payload, $secret);
 
     $response = $this->withHeaders([
         'X-Action1-Signature' => $signature,
@@ -233,12 +232,12 @@ test('webhook logs failed authentication attempts', function () {
     $securityLogger->shouldReceive('warning')
         ->once()
         ->with('Webhook signature verification failed', \Mockery::any());
-    
+
     // Expect channel('security') to return our mock
     Log::shouldReceive('channel')
         ->with('security')
         ->andReturn($securityLogger);
-    
+
     // Allow other logging calls on the main Log facade (e.g. operational warnings)
     Log::shouldReceive('warning')->andReturnNull();
     Log::shouldReceive('error')->andReturnNull();

@@ -1,8 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Blade;
 
 test('flash messages partial renders success message', function () {
     Session::flash('flash_success', 'Operation successful!');
@@ -157,7 +157,7 @@ test('editor partial renders without toolbar', function () {
 
 test('editor partial renders with custom placeholder', function () {
     $placeholder = 'Enter your custom text here...';
-    
+
     // Create a simple wrapper that includes the stack
     $html = Blade::render(
         '<html><body>@include("partials.editor", ["name" => "content", "value" => "", "placeholder" => $placeholder])@stack("scripts")</body></html>',

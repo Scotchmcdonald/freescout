@@ -17,7 +17,7 @@ class ThreadObserver
 
         if ($conversation) {
             $conversation->increment('threads_count');
-        
+
             // Update preview
             if ($thread->body && $thread->type !== Thread::TYPE_DRAFT) {
                 $conversation->preview = substr(strip_tags($thread->body), 0, 100);

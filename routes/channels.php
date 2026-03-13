@@ -36,6 +36,5 @@ Broadcast::channel('conversation.{conversationId}', function (User $user, int $c
 // Email Migration Project Channel
 Broadcast::channel('email-migration.project.{projectId}', function (User $user, int $projectId) {
     // In a real app, check if user has permission to view this project
-    return true; 
+    return true;
 });
-

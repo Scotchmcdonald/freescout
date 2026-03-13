@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
 use App\Models\Customer;
+use App\Models\User;
 
 function getCustMgmtAdmin(): User
 {
@@ -12,7 +12,11 @@ function getCustMgmtAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -49,7 +53,7 @@ it('customer detail page loads', function () {
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
-    $this->visit('/customers/' . $customer->id)
+    $this->visit('/customers/'.$customer->id)
         ->assertSee('BrowserTestCustomer');
 })->group('admin', 'customers');
 
@@ -64,7 +68,7 @@ it('customer edit page loads', function () {
         ->type('password', 'password')
         ->click('button[type="submit"]');
 
-    $this->visit('/customers/' . $customer->id . '/edit')
+    $this->visit('/customers/'.$customer->id.'/edit')
         ->assertSee('Edit Client');
 })->group('admin', 'customers');
 

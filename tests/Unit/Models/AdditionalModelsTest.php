@@ -6,7 +6,6 @@ namespace Tests\Unit\Models;
 
 use App\Models\Attachment;
 use App\Models\Channel;
-use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\CustomerChannel;
 use App\Models\Email;
@@ -15,12 +14,11 @@ use App\Models\MailboxUser;
 use App\Models\SendLog;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Tests\UnitTestCase;
 
 class AdditionalModelsTest extends UnitTestCase
 {
-// Attachment Model Tests (10 tests)
+    // Attachment Model Tests (10 tests)
     // ============================
 
     public function test_attachment_get_full_path_attribute_returns_storage_path(): void
@@ -329,7 +327,7 @@ class AdditionalModelsTest extends UnitTestCase
     {
         $customer = Customer::factory()->create();
         // Factory creates 1 email automatically
-        
+
         Email::factory()->create([
             'customer_id' => $customer->id,
             'email' => 'test1@example.com',
@@ -482,10 +480,10 @@ class AdditionalModelsTest extends UnitTestCase
 
         // Should have VIEW access
         $this->assertTrue($user->hasAccessToMailbox($mailbox->id, MailboxUser::ACCESS_VIEW));
-        
+
         // Should NOT have REPLY access (VIEW < REPLY)
         $this->assertFalse($user->hasAccessToMailbox($mailbox->id, MailboxUser::ACCESS_REPLY));
-        
+
         // Should NOT have ADMIN access (VIEW < ADMIN)
         $this->assertFalse($user->hasAccessToMailbox($mailbox->id, MailboxUser::ACCESS_ADMIN));
     }

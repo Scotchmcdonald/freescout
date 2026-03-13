@@ -10,7 +10,6 @@ use App\Services\RateLimiterService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Admin controller for Infrastructure Resilience monitoring.
@@ -32,9 +31,9 @@ class ResilienceController extends Controller
 
         foreach ($cbServices as $service) {
             $state = $allStates->get($service);
-            
-            if (!$state) {
-                $state = (object)[
+
+            if (! $state) {
+                $state = (object) [
                     'service' => $service,
                     'state' => 'closed',
                     'failure_count' => 0,
@@ -42,7 +41,7 @@ class ResilienceController extends Controller
                     'opened_at' => null,
                 ];
             }
-            
+
             $circuitBreakerStatus[] = [
                 'key' => $service,
                 'name' => $this->formatServiceName($service),
@@ -53,7 +52,7 @@ class ResilienceController extends Controller
                 'next_retry' => $state->opened_at ? \Carbon\Carbon::parse($state->opened_at)->addMinutes(5) : null,
                 'can_retry' => $state->state === 'half_open' || ($state->state === 'open' && $state->opened_at && \Carbon\Carbon::parse($state->opened_at)->addMinutes(5)->isPast()),
             ];
-            
+
             if ($state->state === 'open') {
                 $openCircuits++;
             }
@@ -61,7 +60,7 @@ class ResilienceController extends Controller
 
         // --- Rate Limiter Logic ---
         $rateLimiter = app(RateLimiterService::class);
-        
+
         // Define service rate limits
         $rateLimitServicesConfig = [
             [
@@ -85,7 +84,7 @@ class ResilienceController extends Controller
                 'limit' => 1500,
             ],
         ];
-        
+
         $rateLimitStatus = $rateLimiter->getUsageStats($rateLimitServicesConfig);
 
         return view('admin.resilience.index', [
@@ -97,29 +96,29 @@ class ResilienceController extends Controller
 
     /**
      * Reset a circuit breaker (dangerous action - requires confirmation).
-     * 
-     * @param string $service Service name (google_api, action1_api, helcim_api)
+     *
+     * @param  string  $service  Service name (google_api, action1_api, helcim_api)
      */
     public function resetCircuit(string $service): RedirectResponse
     {
         // Validate service name
         $allowedServices = ['google_api', 'action1_api', 'helcim_api', 'gemini_api'];
-        if (!in_array($service, $allowedServices, true)) {
+        if (! in_array($service, $allowedServices, true)) {
             return redirect()->back()->with('error', 'Invalid service name.');
         }
 
         // Reset the circuit
         $breaker = app(CircuitBreakerService::class);
         $breaker->reset($service);
-        
+
         $serviceName = $this->formatServiceName($service);
-        
+
         return redirect()->back()->with('success', "Circuit breaker for {$serviceName} has been reset. Service will be tested on next request.");
     }
 
     /**
      * Event Audit Log - Terminal-style view of system events.
-     * 
+     *
      * Provides full visibility into the event bus:
      * - Filtering by event type, channel, date
      * - Full-text search on JSON payload
@@ -132,10 +131,10 @@ class ResilienceController extends Controller
         // Apply filters
         if ($request->filled('search')) {
             $search = $request->string('search')->toString();
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('event', 'like', "%{$search}%")
-                  ->orWhere('payload', 'like', "%{$search}%")
-                  ->orWhere('channel', 'like', "%{$search}%");
+                    ->orWhere('payload', 'like', "%{$search}%")
+                    ->orWhere('channel', 'like', "%{$search}%");
             });
         }
 
@@ -149,7 +148,7 @@ class ResilienceController extends Controller
         }
 
         if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->string('date_to')->toString() . ' 23:59:59');
+            $query->where('created_at', '<=', $request->string('date_to')->toString().' 23:59:59');
         }
 
         $events = $query->orderBy('created_at', 'desc')
@@ -172,10 +171,10 @@ class ResilienceController extends Controller
 
             if ($request->filled('search')) {
                 $search = $request->string('search')->toString();
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('event', 'like', "%{$search}%")
-                      ->orWhere('payload', 'like', "%{$search}%")
-                      ->orWhere('channel', 'like', "%{$search}%");
+                        ->orWhere('payload', 'like', "%{$search}%")
+                        ->orWhere('channel', 'like', "%{$search}%");
                 });
             }
 
@@ -189,7 +188,7 @@ class ResilienceController extends Controller
             }
 
             if ($request->filled('date_to')) {
-                $query->where('created_at', '<=', $request->string('date_to')->toString() . ' 23:59:59');
+                $query->where('created_at', '<=', $request->string('date_to')->toString().' 23:59:59');
             }
 
             $handle = fopen('php://output', 'w');
@@ -212,7 +211,7 @@ class ResilienceController extends Controller
             });
 
             fclose($handle);
-        }, 'events-audit-' . now()->format('Y-m-d-His') . '.csv', ['Content-Type' => 'text/csv']);
+        }, 'events-audit-'.now()->format('Y-m-d-His').'.csv', ['Content-Type' => 'text/csv']);
     }
 
     /**

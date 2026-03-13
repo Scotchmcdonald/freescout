@@ -30,7 +30,7 @@ test('search finds conversations by subject', function () {
         ->assertViewIs('conversations.search')
         ->assertSee('Password Reset Help')
         ->assertDontSee('Billing Question');
-    
+
     // Check collection if available
     if ($response->viewData('conversations')) {
         $conversations = $response->viewData('conversations');
@@ -156,7 +156,7 @@ test('search finds conversations by number', function () {
 
     $this->actingAs($user)
         ->get(route('conversations.search', ['q' => '12345']))
-        ->assertOk(); 
+        ->assertOk();
 });
 
 test('search handles empty query', function () {

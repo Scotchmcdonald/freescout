@@ -25,7 +25,7 @@ class ThreadPolicy
         $customerTypes = [Thread::TYPE_CUSTOMER];
 
         // Users can edit their own messages and notes
-        if ($thread->created_by_user_id 
+        if ($thread->created_by_user_id
             && in_array($thread->type, $messageTypes)
             && $thread->created_by_user_id == $user->id
         ) {
@@ -33,8 +33,8 @@ class ThreadPolicy
         }
 
         // Users with manage_tickets can edit any user-created thread
-        if ($user->hasPermission('manage_tickets') 
-            && $thread->created_by_user_id 
+        if ($user->hasPermission('manage_tickets')
+            && $thread->created_by_user_id
             && in_array($thread->type, $messageTypes)
         ) {
             return true;

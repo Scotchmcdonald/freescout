@@ -32,9 +32,9 @@ class MailablesComprehensiveTest extends UnitTestCase
     {
         $conversation = Conversation::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $mailable = new AutoReply($conversation, $mailbox);
-        
+
         $this->assertInstanceOf(AutoReply::class, $mailable);
         $this->assertEquals($conversation->id, $mailable->conversation->id);
         $this->assertEquals($mailbox->id, $mailable->mailbox->id);
@@ -45,10 +45,10 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create(['subject' => 'Test Subject']);
         $mailbox = Mailbox::factory()->create(['auto_reply_subject' => null]);
         $customer = Customer::factory()->create();
-        
+
         $mailable = new AutoReply($conversation, $mailbox);
         $envelope = $mailable->envelope();
-        
+
         $this->assertEquals('Re: Test Subject', $envelope->subject);
     }
 
@@ -57,10 +57,10 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $mailbox = Mailbox::factory()->create(['auto_reply_subject' => 'Custom Auto Reply']);
         $customer = Customer::factory()->create();
-        
+
         $mailable = new AutoReply($conversation, $mailbox);
         $envelope = $mailable->envelope();
-        
+
         $this->assertEquals('Custom Auto Reply', $envelope->subject);
     }
 
@@ -70,22 +70,22 @@ class MailablesComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
         $headers = ['X-Custom-Header' => 'value'];
-        
+
         $mailable = new AutoReply($conversation, $mailbox, $headers);
-        
+
         $this->assertEquals($headers, $mailable->headers);
     }
 
     public function test_auto_reply_can_be_sent(): void
     {
         Mail::fake();
-        
+
         $conversation = Conversation::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create(['email' => 'customer@example.com']);
-        
+
         Mail::to('customer@example.com')->send(new AutoReply($conversation, $mailbox));
-        
+
         Mail::assertSent(AutoReply::class);
     }
 
@@ -96,9 +96,9 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create();
         $user = User::factory()->create();
-        
+
         $mailable = new ConversationReplyNotification($conversation, $thread, $user);
-        
+
         $this->assertInstanceOf(ConversationReplyNotification::class, $mailable);
         $this->assertEquals($conversation->id, $mailable->conversation->id);
         $this->assertEquals($thread->id, $mailable->thread->id);
@@ -110,23 +110,23 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create(['subject' => 'Notification Subject']);
         $thread = Thread::factory()->create();
         $user = User::factory()->create();
-        
+
         $mailable = new ConversationReplyNotification($conversation, $thread, $user);
         $envelope = $mailable->envelope();
-        
+
         $this->assertStringContainsString('Notification Subject', $envelope->subject);
     }
 
     public function test_conversation_reply_notification_can_be_sent(): void
     {
         Mail::fake();
-        
+
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create();
         $user = User::factory()->create();
-        
+
         Mail::to($user->email)->send(new ConversationReplyNotification($conversation, $thread, $user));
-        
+
         Mail::assertSent(ConversationReplyNotification::class);
     }
 
@@ -136,9 +136,9 @@ class MailablesComprehensiveTest extends UnitTestCase
     {
         $message = 'Alert message';
         $subject = 'Alert subject';
-        
+
         $mailable = new Alert($message, $subject);
-        
+
         $this->assertInstanceOf(Alert::class, $mailable);
         $this->assertEquals($message, $mailable->alert_message);
         $this->assertEquals($subject, $mailable->alert_subject);
@@ -148,16 +148,16 @@ class MailablesComprehensiveTest extends UnitTestCase
     {
         $mailable = new Alert('Message', 'Test Alert');
         $envelope = $mailable->envelope();
-        
+
         $this->assertStringContainsString('Test Alert', $envelope->subject);
     }
 
     public function test_alert_can_be_sent(): void
     {
         Mail::fake();
-        
+
         Mail::to('admin@example.com')->send(new Alert('Alert message', 'Alert'));
-        
+
         Mail::assertSent(Alert::class);
     }
 
@@ -166,9 +166,9 @@ class MailablesComprehensiveTest extends UnitTestCase
     public function test_password_changed_can_be_created(): void
     {
         $user = User::factory()->create();
-        
+
         $mailable = new PasswordChanged($user);
-        
+
         $this->assertInstanceOf(PasswordChanged::class, $mailable);
         $this->assertEquals($user->id, $mailable->user->id);
     }
@@ -176,10 +176,10 @@ class MailablesComprehensiveTest extends UnitTestCase
     public function test_password_changed_has_subject(): void
     {
         $user = User::factory()->create();
-        
+
         $mailable = new PasswordChanged($user);
         $envelope = $mailable->envelope();
-        
+
         $this->assertNotEmpty($envelope->subject);
         $this->assertStringContainsString('Password', $envelope->subject);
     }
@@ -187,11 +187,11 @@ class MailablesComprehensiveTest extends UnitTestCase
     public function test_password_changed_can_be_sent(): void
     {
         Mail::fake();
-        
+
         $user = User::factory()->create();
-        
+
         Mail::to($user->email)->send(new PasswordChanged($user));
-        
+
         Mail::assertSent(PasswordChanged::class);
     }
 
@@ -201,9 +201,9 @@ class MailablesComprehensiveTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $password = 'test-password';
-        
+
         $mailable = new UserInvite($user, $password);
-        
+
         $this->assertInstanceOf(UserInvite::class, $mailable);
         $this->assertEquals($user->id, $mailable->user->id);
         $this->assertEquals($password, $mailable->password);
@@ -212,10 +212,10 @@ class MailablesComprehensiveTest extends UnitTestCase
     public function test_user_invite_has_subject(): void
     {
         $user = User::factory()->create();
-        
+
         $mailable = new UserInvite($user, 'password');
         $envelope = $mailable->envelope();
-        
+
         $this->assertNotEmpty($envelope->subject);
         $this->assertStringContainsString('Welcome', $envelope->subject);
     }
@@ -223,11 +223,11 @@ class MailablesComprehensiveTest extends UnitTestCase
     public function test_user_invite_can_be_sent(): void
     {
         Mail::fake();
-        
+
         $user = User::factory()->create();
-        
+
         Mail::to($user->email)->send(new UserInvite($user, 'password123'));
-        
+
         Mail::assertSent(UserInvite::class);
     }
 
@@ -237,7 +237,7 @@ class MailablesComprehensiveTest extends UnitTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $mailable = new TestMailable($mailbox);
-        
+
         $this->assertInstanceOf(TestMailable::class, $mailable);
     }
 
@@ -246,17 +246,17 @@ class MailablesComprehensiveTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create();
         $mailable = new TestMailable($mailbox);
         $envelope = $mailable->envelope();
-        
+
         $this->assertNotEmpty($envelope->subject);
     }
 
     public function test_test_mailable_can_be_sent(): void
     {
         Mail::fake();
-        
+
         $mailbox = Mailbox::factory()->create();
         Mail::to('test@example.com')->send(new TestMailable($mailbox));
-        
+
         Mail::assertSent(TestMailable::class);
     }
 
@@ -265,9 +265,9 @@ class MailablesComprehensiveTest extends UnitTestCase
     public function test_user_email_reply_error_can_be_created(): void
     {
         $user = User::factory()->create();
-        
+
         $mailable = new UserEmailReplyError($user);
-        
+
         $this->assertInstanceOf(UserEmailReplyError::class, $mailable);
         $this->assertEquals($user->id, $mailable->user->id);
     }
@@ -275,21 +275,21 @@ class MailablesComprehensiveTest extends UnitTestCase
     public function test_user_email_reply_error_has_subject(): void
     {
         $user = User::factory()->create();
-        
+
         $mailable = new UserEmailReplyError($user);
         $envelope = $mailable->envelope();
-        
+
         $this->assertNotEmpty($envelope->subject);
     }
 
     public function test_user_email_reply_error_can_be_sent(): void
     {
         Mail::fake();
-        
+
         $user = User::factory()->create();
-        
+
         Mail::to($user->email)->send(new UserEmailReplyError($user));
-        
+
         Mail::assertSent(UserEmailReplyError::class);
     }
 
@@ -301,9 +301,9 @@ class MailablesComprehensiveTest extends UnitTestCase
         $threads = Thread::factory()->count(2)->create();
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
-        
+
         $this->assertInstanceOf(UserNotification::class, $mailable);
         $this->assertEquals($conversation->id, $mailable->conversation->id);
         $this->assertCount(2, $mailable->threads);
@@ -316,24 +316,24 @@ class MailablesComprehensiveTest extends UnitTestCase
         $threads = Thread::factory()->count(1)->create();
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         $envelope = $mailable->envelope();
-        
+
         $this->assertStringContainsString('Test Notification', $envelope->subject);
     }
 
     public function test_user_notification_can_be_sent(): void
     {
         Mail::fake();
-        
+
         $conversation = Conversation::factory()->create();
         $threads = Thread::factory()->count(1)->create();
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         Mail::to($user->email)->send(new UserNotification($user, $conversation, $threads, $mailbox, [], []));
-        
+
         Mail::assertSent(UserNotification::class);
     }
 
@@ -343,9 +343,9 @@ class MailablesComprehensiveTest extends UnitTestCase
         $threads = Thread::factory()->count(5)->create();
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
-        
+
         $this->assertCount(5, $mailable->threads);
     }
 
@@ -356,18 +356,18 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $mailable = new AutoReply($conversation, $mailbox, []);
-        
+
         $this->assertEquals([], $mailable->headers);
     }
 
     public function test_alert_with_long_message(): void
     {
         $longMessage = str_repeat('Alert message. ', 100);
-        
+
         $mailable = new Alert($longMessage, 'Subject');
-        
+
         $this->assertEquals($longMessage, $mailable->alert_message);
     }
 
@@ -375,9 +375,9 @@ class MailablesComprehensiveTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $complexPassword = 'P@ssw0rd!#$%^&*()_+-=[]{}|;:,.<>?';
-        
+
         $mailable = new UserInvite($user, $complexPassword);
-        
+
         $this->assertEquals($complexPassword, $mailable->password);
     }
 
@@ -386,9 +386,9 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create();
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
-        
+
         $mailable = new AutoReply($conversation, $mailbox);
-        
+
         $this->assertObjectHasProperty('connection', $mailable);
         $this->assertObjectHasProperty('queue', $mailable);
     }
@@ -396,11 +396,11 @@ class MailablesComprehensiveTest extends UnitTestCase
     public function test_mailables_serialize_models(): void
     {
         $user = User::factory()->create();
-        
+
         $mailable = new PasswordChanged($user);
         $serialized = serialize($mailable);
         $unserialized = unserialize($serialized);
-        
+
         $this->assertInstanceOf(PasswordChanged::class, $unserialized);
         $this->assertEquals($user->id, $unserialized->user->id);
     }
@@ -408,15 +408,15 @@ class MailablesComprehensiveTest extends UnitTestCase
     public function test_multiple_mailables_can_be_sent_in_sequence(): void
     {
         Mail::fake();
-        
+
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
         $thread = Thread::factory()->create();
-        
+
         Mail::to($user->email)->send(new PasswordChanged($user));
         Mail::to($user->email)->send(new UserInvite($user, 'password'));
         Mail::to($user->email)->send(new ConversationReplyNotification($conversation, $thread, $user));
-        
+
         Mail::assertSent(PasswordChanged::class);
         Mail::assertSent(UserInvite::class);
         Mail::assertSent(ConversationReplyNotification::class);
@@ -427,10 +427,10 @@ class MailablesComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create(['subject' => 'Test & <Special> "Subject"']);
         $mailbox = Mailbox::factory()->create(['auto_reply_subject' => null]);
         $customer = Customer::factory()->create();
-        
+
         $mailable = new AutoReply($conversation, $mailbox);
         $envelope = $mailable->envelope();
-        
+
         $this->assertStringContainsString('Test & <Special> "Subject"', $envelope->subject);
     }
 
@@ -440,9 +440,9 @@ class MailablesComprehensiveTest extends UnitTestCase
         $threads = collect([]);
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
-        
+
         $this->assertCount(0, $mailable->threads);
     }
 }

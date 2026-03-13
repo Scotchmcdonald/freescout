@@ -18,10 +18,10 @@ class Kernel extends ConsoleKernel
         // Send follow-up reminders daily at 9:00 AM
         // Checks for conversations with due follow-ups and sends email/database notifications
         $timezone = config('app.timezone') ?? 'UTC';
-        if (!is_string($timezone)) {
+        if (! is_string($timezone)) {
             $timezone = 'UTC';
         }
-        
+
         $schedule->command('followup:send-reminders')
             ->dailyAt('09:00')
             ->timezone($timezone)

@@ -16,12 +16,10 @@ use App\Models\Customer;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Support\Facades\Event;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class EventsTest extends UnitTestCase
 {
-
     // ConversationUserChanged Tests
 
     public function test_conversation_user_changed_can_be_instantiated(): void

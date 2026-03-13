@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Jobs;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Company;
 use Modules\Payment\Jobs\ProcessInvoicePayment;
 use Modules\Payment\Models\Payment;
 use Modules\Payment\Models\PaymentMethod;
 use Modules\PIB\Models\Invoice;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 /**
  * ProcessInvoicePayment Job Integration Tests
- * 
+ *
  * Tests job instantiation and basic properties.
  * Note: Full integration tests require the Invoice model to have
  * proper company relationship and total accessor, which need to be
@@ -44,7 +44,7 @@ class ProcessInvoicePaymentJobIntegrationTest extends TestCase
 
         $this->company = Company::factory()->create();
         $this->client = Client::factory()->create(['company_id' => $this->company->id]);
-        
+
         $this->paymentMethod = PaymentMethod::factory()->default()->create([
             'company_id' => $this->company->id,
         ]);
@@ -53,7 +53,7 @@ class ProcessInvoicePaymentJobIntegrationTest extends TestCase
     private function createRequiredTables(): void
     {
         Schema::dropIfExists('pib_invoices');
-        
+
         Schema::create('pib_invoices', function ($table) {
             $table->id();
             $table->foreignId('client_id');
@@ -78,7 +78,7 @@ class ProcessInvoicePaymentJobIntegrationTest extends TestCase
         $data = array_merge([
             'client_id' => $this->client->id,
             'company_id' => $this->company->id,
-            'invoice_number' => 'INV-' . uniqid(),
+            'invoice_number' => 'INV-'.uniqid(),
             'status' => 'pending',
             'invoice_date' => today(),
             'due_date' => today()->addDays(30),
@@ -91,7 +91,7 @@ class ProcessInvoicePaymentJobIntegrationTest extends TestCase
         ], $attributes);
 
         $id = DB::table('pib_invoices')->insertGetId($data);
-        
+
         return Invoice::find($id);
     }
 
@@ -101,9 +101,9 @@ class ProcessInvoicePaymentJobIntegrationTest extends TestCase
     public function test_job_can_be_instantiated(): void
     {
         $invoice = $this->createInvoice();
-        
+
         $job = new ProcessInvoicePayment($invoice);
-        
+
         $this->assertInstanceOf(ProcessInvoicePayment::class, $job);
         $this->assertSame($invoice->id, $job->invoice->id);
     }
@@ -139,7 +139,7 @@ class ProcessInvoicePaymentJobIntegrationTest extends TestCase
     {
         $invoice = $this->createInvoice();
         $options = ['test_mode' => true, 'custom_reference' => 'TEST-123'];
-        
+
         $job = new ProcessInvoicePayment($invoice, null, $options);
 
         $this->assertEquals($options, $job->options);
@@ -152,11 +152,11 @@ class ProcessInvoicePaymentJobIntegrationTest extends TestCase
     {
         $invoice = $this->createInvoice();
         $job = new ProcessInvoicePayment($invoice);
-        
+
         // Serialize and unserialize to test serialization
         $serialized = serialize($job);
         $unserialized = unserialize($serialized);
-        
+
         $this->assertEquals($invoice->id, $unserialized->invoice->id);
     }
 
@@ -279,7 +279,7 @@ class ProcessInvoicePaymentJobIntegrationTest extends TestCase
     public function test_invoice_total_amount(): void
     {
         $invoice = $this->createInvoice(['total_amount' => 250.00]);
-        
+
         $this->assertEquals(250.00, $invoice->total_amount);
     }
 

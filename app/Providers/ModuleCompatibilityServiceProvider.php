@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Nwidart\Modules\Facades\Module as ModuleFacade;
 use Nwidart\Modules\Laravel\LaravelFileRepository;
 use Nwidart\Modules\Module;
 
@@ -18,10 +17,7 @@ class ModuleCompatibilityServiceProvider extends ServiceProvider
     /**
      * Register services.
      */
-    public function register(): void
-    {
-        //
-    }
+    public function register(): void {}
 
     /**
      * Bootstrap services.
@@ -33,6 +29,7 @@ class ModuleCompatibilityServiceProvider extends ServiceProvider
         Module::macro('getAlias', function () {
             /** @var \Nwidart\Modules\Module $this */
             $json = $this->json();
+
             return $json->get('alias') ?? $this->getLowerName();
         });
 
@@ -46,6 +43,7 @@ class ModuleCompatibilityServiceProvider extends ServiceProvider
                     return $module;
                 }
             }
+
             return null;
         });
     }

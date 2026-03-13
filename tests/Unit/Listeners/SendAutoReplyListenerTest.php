@@ -13,7 +13,6 @@ use App\Models\Email;
 use App\Models\Mailbox;
 use App\Models\SendLog;
 use App\Models\Thread;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
@@ -61,7 +60,7 @@ class SendAutoReplyListenerTest extends TestCase
     {
         Queue::fake();
 
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $event = new CustomerCreatedConversation($this->conversation, $this->thread, $this->customer);
 
         $listener->handle($event);
@@ -78,7 +77,7 @@ class SendAutoReplyListenerTest extends TestCase
         $this->mailbox->update(['auto_reply_enabled' => false]);
         $this->conversation->refresh();
 
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $event = new CustomerCreatedConversation($this->conversation, $this->thread, $this->customer);
 
         $listener->handle($event);
@@ -92,7 +91,7 @@ class SendAutoReplyListenerTest extends TestCase
 
         $this->conversation->update(['imported' => true]);
 
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $event = new CustomerCreatedConversation($this->conversation, $this->thread, $this->customer);
 
         $listener->handle($event);
@@ -106,7 +105,7 @@ class SendAutoReplyListenerTest extends TestCase
 
         $this->conversation->update(['status' => 3]); // STATUS_SPAM
 
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $event = new CustomerCreatedConversation($this->conversation, $this->thread, $this->customer);
 
         $listener->handle($event);
@@ -129,7 +128,7 @@ class SendAutoReplyListenerTest extends TestCase
             ]);
         }
 
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $event = new CustomerCreatedConversation($this->conversation, $this->thread, $this->customer);
 
         $listener->handle($event);
@@ -145,7 +144,7 @@ class SendAutoReplyListenerTest extends TestCase
         Mailbox::factory()->create(['email' => 'customer@example.com']);
         $this->conversation->update(['customer_email' => 'customer@example.com']);
 
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $event = new CustomerCreatedConversation($this->conversation, $this->thread, $this->customer);
 
         $listener->handle($event);
@@ -163,8 +162,8 @@ class SendAutoReplyListenerTest extends TestCase
         $conversation->id = 1;
 
         $thread = Thread::factory()->make();
-        
-        $listener = new SendAutoReply();
+
+        $listener = new SendAutoReply;
         $event = new CustomerCreatedConversation($conversation, $thread, $this->customer);
 
         $listener->handle($event);
@@ -196,7 +195,7 @@ class SendAutoReplyListenerTest extends TestCase
             'created_at' => now()->subMinutes(30),
         ]);
 
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $event = new CustomerCreatedConversation($this->conversation, $this->thread, $this->customer);
 
         $listener->handle($event);

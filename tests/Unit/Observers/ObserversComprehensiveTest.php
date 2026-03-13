@@ -6,7 +6,6 @@ namespace Tests\Unit\Observers;
 
 use App\Events\ConversationStatusChanged;
 use App\Events\ConversationUserChanged;
-use App\Events\UserCreatedConversation;
 use App\Events\UserDeleted;
 use App\Models\Attachment;
 use App\Models\Conversation;
@@ -18,7 +17,6 @@ use App\Models\Thread;
 use App\Models\User;
 use App\Observers\ConversationObserver;
 use App\Observers\ThreadObserver;
-use App\Observers\UserObserver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\UnitTestCase;

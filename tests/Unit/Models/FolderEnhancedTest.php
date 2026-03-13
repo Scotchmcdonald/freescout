@@ -12,7 +12,6 @@ use Tests\UnitTestCase;
 
 class FolderEnhancedTest extends UnitTestCase
 {
-
     public function test_folder_belongs_to_mailbox(): void
     {
         $mailbox = Mailbox::factory()->create();

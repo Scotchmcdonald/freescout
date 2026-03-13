@@ -10,7 +10,10 @@ it('basic contact software assignment', function () {
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
 
     $this->visit('/login')
         ->type('email', $admin->email)
@@ -23,7 +26,7 @@ it('basic contact software assignment', function () {
 
 it('atomic counter prevents overallocation', function () {
     // Verify the ClientSoftwareSubscription model tracks assigned_count
-    $model = new \Modules\SoftwareSubscriptions\Models\ClientSoftwareSubscription();
+    $model = new \Modules\SoftwareSubscriptions\Models\ClientSoftwareSubscription;
     expect(in_array('assigned_count', $model->getFillable()) || in_array('assigned_count', array_keys($model->getCasts())))->toBeTrue();
     expect(in_array('purchased_quantity', $model->getFillable()) || in_array('purchased_quantity', array_keys($model->getCasts())))->toBeTrue();
 

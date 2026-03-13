@@ -6,7 +6,7 @@ namespace App\DataTransferObjects;
 
 /**
  * AssetStatusChangedData - Immutable DTO for AssetStatusChanged event
- * 
+ *
  * Represents asset status change events from any source.
  * Uses readonly properties to prevent mutation after creation.
  */
@@ -20,11 +20,12 @@ final readonly class AssetStatusChangedData
         public string $source, // 'GoogleAdmin', 'Action1', 'Manual'
         public ?int $userId,
     ) {}
-    
+
     /**
      * Factory method for backward compatibility
-     * 
-     * @param array<string, mixed> $data Raw array data
+     *
+     * @param  array<string, mixed>  $data  Raw array data
+     *
      * @phpstan-param array{
      *     asset_id?: int, assetId?: int,
      *     client_id?: int, clientId?: int,
@@ -33,7 +34,6 @@ final readonly class AssetStatusChangedData
      *     source?: string,
      *     user_id?: int|null, userId?: int|null,
      * } $data
-     * @return self
      */
     public static function fromArray(array $data): self
     {
@@ -46,10 +46,10 @@ final readonly class AssetStatusChangedData
             userId: $data['user_id'] ?? $data['userId'] ?? null,
         );
     }
-    
+
     /**
      * Convert to array representation
-     * 
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array

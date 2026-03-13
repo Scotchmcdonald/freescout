@@ -10,12 +10,12 @@ use Modules\Crm\Models\Company;
 
 /**
  * Client Portal Test Seeder
- * 
+ *
  * Creates test data for Client Portal browser tests:
  * - Two active companies/clients for data isolation testing
  * - Users (type=2, external) with known credentials for login testing
  * - Test invoices for each client (if PIB module exists)
- * 
+ *
  * Usage:
  * php artisan db:seed --class=ClientPortalTestSeeder
  */
@@ -55,7 +55,7 @@ class ClientPortalTestSeeder extends Seeder
                 'status' => 'active',
             ]
         );
-        if (!$clientA->company_id) {
+        if (! $clientA->company_id) {
             $clientA->update(['company_id' => $company->id]);
         }
 
@@ -71,7 +71,7 @@ class ClientPortalTestSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        if (!$company->users()->where('user_id', $userA->id)->exists()) {
+        if (! $company->users()->where('user_id', $userA->id)->exists()) {
             $company->users()->attach($userA->id, [
                 'role_id' => 1,
                 'status' => 'approved',
@@ -90,7 +90,7 @@ class ClientPortalTestSeeder extends Seeder
                 'status' => 'active',
             ]
         );
-        if (!$clientB->company_id) {
+        if (! $clientB->company_id) {
             $clientB->update(['company_id' => $company->id]);
         }
 
@@ -106,7 +106,7 @@ class ClientPortalTestSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        if (!$company->users()->where('user_id', $userB->id)->exists()) {
+        if (! $company->users()->where('user_id', $userB->id)->exists()) {
             $company->users()->attach($userB->id, [
                 'role_id' => 1,
                 'status' => 'approved',

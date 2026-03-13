@@ -20,11 +20,12 @@ final class ForwardConversationAction
     /**
      * Execute the forward action.
      *
-     * @param Conversation $sourceConversation The original conversation
-     * @param Thread $sourceThread The thread to forward
-     * @param User $user The user performing the forward
-     * @param array<string, mixed> $options Forward options
+     * @param  Conversation  $sourceConversation  The original conversation
+     * @param  Thread  $sourceThread  The thread to forward
+     * @param  User  $user  The user performing the forward
+     * @param  array<string, mixed>  $options  Forward options
      * @return Conversation The new forwarded conversation
+     *
      * @throws \Exception If forward creation fails
      */
     public function execute(
@@ -42,7 +43,7 @@ final class ForwardConversationAction
             $newConversation = Conversation::create([
                 'number' => $currentNumber + 1,
                 'type' => 1, // Email
-                'subject' => 'Fwd: ' . $sourceConversation->subject,
+                'subject' => 'Fwd: '.$sourceConversation->subject,
                 'mailbox_id' => $options['mailbox_id'] ?? $sourceConversation->mailbox_id,
                 'folder_id' => $this->getDefaultFolderId($sourceConversation),
                 'source_via' => 1, // User
@@ -93,6 +94,7 @@ final class ForwardConversationAction
         if ($mailbox === null) {
             return 1;
         }
+
         return $mailbox->folders()
             ->where('type', 1) // Inbox
             ->first()->id ?? 1;
@@ -103,19 +105,19 @@ final class ForwardConversationAction
      */
     private function buildForwardBody(Conversation $conversation, Thread $thread): string
     {
-        $separator = "---------- Forwarded message ---------";
-        $fromLine = "From: " . ($thread->from ?? 'Unknown');
-        $dateLine = "Date: " . ($thread->created_at?->format('D, M j, Y \a\t g:i A') ?? 'Unknown');
-        $subjectLine = "Subject: " . $conversation->subject;
-        
+        $separator = '---------- Forwarded message ---------';
+        $fromLine = 'From: '.($thread->from ?? 'Unknown');
+        $dateLine = 'Date: '.($thread->created_at?->format('D, M j, Y \a\t g:i A') ?? 'Unknown');
+        $subjectLine = 'Subject: '.$conversation->subject;
+
         // Decode the to field if it's a JSON string
         $toRecipients = $thread->to;
-        if (!is_array($toRecipients)) {
+        if (! is_array($toRecipients)) {
             $toRecipients = [];
         }
-        $toLine = "To: " . implode(', ', $toRecipients);
+        $toLine = 'To: '.implode(', ', $toRecipients);
 
-        return "<br><br>{$separator}<br>{$fromLine}<br>{$dateLine}<br>{$subjectLine}<br>{$toLine}<br><br>" . $thread->body;
+        return "<br><br>{$separator}<br>{$fromLine}<br>{$dateLine}<br>{$subjectLine}<br>{$toLine}<br><br>".$thread->body;
     }
 
     /**

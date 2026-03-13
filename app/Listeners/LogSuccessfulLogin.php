@@ -18,10 +18,10 @@ class LogSuccessfulLogin
         $user = $event->user;
 
         $properties = ['ip' => request()->ip()];
-        
+
         // For OAuth logins, include the email in the log
         if ($user->email) {
-            $properties['email'] = 'OAuth: ' . $user->email;
+            $properties['email'] = 'OAuth: '.$user->email;
         }
 
         activity()

@@ -6,12 +6,10 @@ namespace Tests\Unit;
 
 use App\Models\Customer;
 use App\Models\Email;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class EmailModelEnhancedTest extends UnitTestCase
 {
-
     public function test_email_has_customer_relationship(): void
     {
         // Arrange

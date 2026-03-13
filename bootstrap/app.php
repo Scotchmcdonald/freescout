@@ -27,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Set TRUSTED_PROXIES=* in .env to trust all proxies (safe behind a Cloudflare Tunnel).
         // Restrict to specific IPs in production: TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12
         $middleware->trustProxies(at: env('TRUSTED_PROXIES', '*'));
-        
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'theme' => \App\Http\Middleware\ApplyUserTheme::class,
@@ -35,7 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'impersonate.protect' => \App\Http\Middleware\PreventImpersonatorWrites::class,
             'webhook.verify' => \App\Http\Middleware\VerifyWebhookSignature::class,
         ]);
-        
+
         // Add middleware to web group:
         // - AddSentryContext: Enrich error reports with request/user context
         // - ResponseHeaders: Security headers (X-Content-Type-Options, etc.)

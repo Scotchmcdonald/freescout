@@ -56,7 +56,7 @@ test('updates user notifications', function () {
             ],
         ],
     ])->assertRedirect()->assertSessionHas('success');
-    
+
     expect($user->fresh()->subscriptions)->toHaveCount(1);
 });
 
@@ -67,7 +67,7 @@ test('updates user mailbox permissions', function () {
     $m2 = Mailbox::factory()->create();
 
     $this->actingAs($admin)->post(route('users.permissions.update', $user), [
-        'mailboxes' => [$m1->id, $m2->id]
+        'mailboxes' => [$m1->id, $m2->id],
     ])->assertRedirect()->assertSessionHas('success');
 
     expect($user->mailboxes()->count())->toBe(2);
@@ -83,7 +83,7 @@ test('prevents non-admin from viewing other users permissions', function () {
 
 test('allows users to view their own notifications', function () {
     $user = User::factory()->create(['role' => User::ROLE_USER, 'status' => 1]);
-    
+
     $this->actingAs($user)->get(route('users.notifications', $user))
         ->assertOk();
 });

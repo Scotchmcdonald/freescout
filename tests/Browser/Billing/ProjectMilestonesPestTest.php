@@ -1,8 +1,8 @@
 <?php
 
+use Modules\ContractManager\Models\Contract;
 use Modules\ContractManager\Models\Milestone;
 use Modules\Crm\Models\Client;
-use Modules\ContractManager\Models\Contract;
 use Modules\PIB\Models\Invoice;
 
 function createMilestoneContract(Client $client, array $overrides = []): Contract
@@ -10,7 +10,7 @@ function createMilestoneContract(Client $client, array $overrides = []): Contrac
     return Contract::create(array_merge([
         'client_id' => $client->id,
         'title' => 'Milestone Project',
-        'contract_number' => 'CON-MS-' . uniqid(),
+        'contract_number' => 'CON-MS-'.uniqid(),
         'status' => 'active',
         'start_date' => now(),
         'contract_type' => 'project',

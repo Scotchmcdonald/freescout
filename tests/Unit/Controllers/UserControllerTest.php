@@ -10,7 +10,6 @@ use Tests\UnitTestCase;
 
 class UserControllerTest extends UnitTestCase
 {
-
     public function test_controller_can_be_instantiated(): void
     {
         $controller = new UserController;

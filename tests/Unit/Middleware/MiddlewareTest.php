@@ -16,7 +16,6 @@ use Tests\UnitTestCase;
  */
 class MiddlewareTest extends UnitTestCase
 {
-
     // ==================== EnsureUserIsAdmin Tests ====================
 
     public function test_admin_user_can_pass_through(): void
@@ -92,7 +91,7 @@ class MiddlewareTest extends UnitTestCase
     {
         $request = Request::create('/', 'GET');
         $middleware = new FrameGuard;
-        
+
         $next = function ($req) {
             return response('Success');
         };
@@ -106,7 +105,7 @@ class MiddlewareTest extends UnitTestCase
     {
         $request = Request::create('/', 'GET');
         $middleware = new FrameGuard;
-        
+
         $next = function ($req) {
             return response('Success');
         };
@@ -120,7 +119,7 @@ class MiddlewareTest extends UnitTestCase
     {
         $request = Request::create('/', 'GET');
         $middleware = new FrameGuard;
-        
+
         $next = function ($req) {
             return response('Test Content');
         };
@@ -133,11 +132,11 @@ class MiddlewareTest extends UnitTestCase
     public function test_frame_guard_works_with_different_http_methods(): void
     {
         $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-        
+
         foreach ($methods as $method) {
             $request = Request::create('/', $method);
             $middleware = new FrameGuard;
-            
+
             $next = function ($req) {
                 return response('Success');
             };
@@ -171,11 +170,11 @@ class MiddlewareTest extends UnitTestCase
     public function test_admin_middleware_checks_is_admin_method(): void
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-        
+
         $this->assertTrue($admin->isAdmin());
-        
+
         $user = User::factory()->create(['role' => User::ROLE_USER, 'type' => 2]);
-        
+
         $this->assertFalse($user->isAdmin());
     }
 
@@ -183,10 +182,11 @@ class MiddlewareTest extends UnitTestCase
     {
         $request = Request::create('/', 'GET');
         $middleware = new FrameGuard;
-        
+
         $next = function ($req) {
             $response = response('Success');
             $response->headers->set('X-Frame-Options', 'DENY');
+
             return $response;
         };
 
@@ -209,15 +209,16 @@ class MiddlewareTest extends UnitTestCase
     {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $request = Request::create('/admin/settings', 'POST', [
-            'setting' => 'value'
+            'setting' => 'value',
         ]);
         $request->setUserResolver(fn () => $admin);
 
         $middleware = new EnsureUserIsAdmin;
         $executed = false;
-        
+
         $next = function ($req) use (&$executed) {
             $executed = true;
+
             return response('Success');
         };
 

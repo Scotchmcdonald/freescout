@@ -18,12 +18,12 @@ class LogRegisteredUserTest extends UnitTestCase
         $user = User::factory()->create();
         $request = Request::create('/register', 'POST');
         $request->server->set('REMOTE_ADDR', '192.168.1.1');
-        
+
         $event = new Registered($user);
-        $listener = new LogRegisteredUser();
+        $listener = new LogRegisteredUser;
 
         $this->app->instance('request', $request);
-        
+
         $listener->handle($event);
 
         $this->assertDatabaseHas('activity_log', [
@@ -39,12 +39,12 @@ class LogRegisteredUserTest extends UnitTestCase
         $user = User::factory()->create();
         $request = Request::create('/register', 'POST');
         $request->server->set('REMOTE_ADDR', '172.16.0.10');
-        
+
         $event = new Registered($user);
-        $listener = new LogRegisteredUser();
+        $listener = new LogRegisteredUser;
 
         $this->app->instance('request', $request);
-        
+
         $listener->handle($event);
 
         $log = ActivityLog::where('description', ActivityLog::DESCRIPTION_USER_REGISTER)
@@ -52,7 +52,7 @@ class LogRegisteredUserTest extends UnitTestCase
             ->latest()
             ->first();
         $properties = $log->properties;
-        
+
         $this->assertEquals('172.16.0.10', $properties['ip']);
     }
 
@@ -64,18 +64,18 @@ class LogRegisteredUserTest extends UnitTestCase
         ]);
         $request = Request::create('/register', 'POST');
         $request->server->set('REMOTE_ADDR', '192.168.1.1');
-        
+
         $event = new Registered($user);
-        $listener = new LogRegisteredUser();
+        $listener = new LogRegisteredUser;
 
         $this->app->instance('request', $request);
-        
+
         $listener->handle($event);
 
         $log = ActivityLog::where('description', ActivityLog::DESCRIPTION_USER_REGISTER)
             ->latest()
             ->first();
-        
+
         $this->assertEquals($user->id, $log->causer_id);
         $this->assertEquals(get_class($user), $log->causer_type);
     }
@@ -84,9 +84,9 @@ class LogRegisteredUserTest extends UnitTestCase
     {
         $user = User::factory()->create();
         $request = Request::create('/register', 'POST');
-        
+
         $event = new Registered($user);
-        $listener = new LogRegisteredUser();
+        $listener = new LogRegisteredUser;
 
         $this->app->instance('request', $request);
 
@@ -95,14 +95,14 @@ class LogRegisteredUserTest extends UnitTestCase
             $listener->handle($event);
             $this->expectNotToPerformAssertions();
         } catch (\Exception $e) {
-            $this->fail('Listener should not throw exception: ' . $e->getMessage());
+            $this->fail('Listener should not throw exception: '.$e->getMessage());
         }
     }
 
     public function test_listener_can_be_instantiated(): void
     {
-        $listener = new LogRegisteredUser();
-        
+        $listener = new LogRegisteredUser;
+
         $this->assertInstanceOf(LogRegisteredUser::class, $listener);
     }
 }

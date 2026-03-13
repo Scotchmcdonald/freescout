@@ -14,12 +14,10 @@ use App\Models\SendLog;
 use App\Models\Thread;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class SendAutoReplyTest extends UnitTestCase
 {
-
     public function test_listener_dispatches_job_for_valid_conversation(): void
     {
         Queue::fake();
@@ -40,7 +38,7 @@ class SendAutoReplyTest extends UnitTestCase
         ]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         Queue::assertPushed(SendAutoReplyJob::class);
@@ -63,7 +61,7 @@ class SendAutoReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         Queue::assertNotPushed(SendAutoReplyJob::class);
@@ -86,7 +84,7 @@ class SendAutoReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         Queue::assertNotPushed(SendAutoReplyJob::class);
@@ -110,7 +108,7 @@ class SendAutoReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         Queue::assertNotPushed(SendAutoReplyJob::class);
@@ -147,7 +145,7 @@ class SendAutoReplyTest extends UnitTestCase
         }
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         Queue::assertNotPushed(SendAutoReplyJob::class);
@@ -164,7 +162,7 @@ class SendAutoReplyTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
         $customer = Customer::factory()->create();
         $senderEmail = $customer->getMainEmail();
-        
+
         // Create previous conversation with same subject
         $prevConversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -200,7 +198,7 @@ class SendAutoReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         Queue::assertNotPushed(SendAutoReplyJob::class);
@@ -229,7 +227,7 @@ class SendAutoReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         Queue::assertNotPushed(SendAutoReplyJob::class);
@@ -254,7 +252,7 @@ class SendAutoReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         Log::shouldHaveReceived('info')
@@ -276,7 +274,7 @@ class SendAutoReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         Queue::assertPushed(SendAutoReplyJob::class, function ($job) {
@@ -336,7 +334,7 @@ class SendAutoReplyTest extends UnitTestCase
         }
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         Queue::assertNotPushed(SendAutoReplyJob::class);
@@ -353,7 +351,7 @@ class SendAutoReplyTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
         $customer = Customer::factory()->create();
         $senderEmail = $customer->getMainEmail();
-        
+
         // Create previous conversation with same subject
         $prevConversation = Conversation::factory()->create([
             'customer_id' => $customer->id,
@@ -361,7 +359,7 @@ class SendAutoReplyTest extends UnitTestCase
             'subject' => 'Test Subject',
             'created_at' => now()->subMinutes(30),
         ]);
-        
+
         // Create 2 auto-reply logs to trigger duplicate check
         for ($i = 0; $i < 2; $i++) {
             SendLog::create([
@@ -384,7 +382,7 @@ class SendAutoReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         Queue::assertNotPushed(SendAutoReplyJob::class);
@@ -400,7 +398,7 @@ class SendAutoReplyTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create(['auto_reply_enabled' => true]);
         $customer = Customer::factory()->create();
         $senderEmail = $customer->getMainEmail();
-        
+
         // Create previous conversation with different subject
         $prevConversation = Conversation::factory()->create([
             'customer_id' => $customer->id,
@@ -408,7 +406,7 @@ class SendAutoReplyTest extends UnitTestCase
             'subject' => 'Different Subject',
             'created_at' => now()->subMinutes(30),
         ]);
-        
+
         // Create 2 auto-reply logs
         for ($i = 0; $i < 2; $i++) {
             SendLog::create([
@@ -430,7 +428,7 @@ class SendAutoReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         // Should dispatch since subject is different
@@ -452,7 +450,7 @@ class SendAutoReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         // Should still dispatch - internal mailbox check is skipped
@@ -478,7 +476,7 @@ class SendAutoReplyTest extends UnitTestCase
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
         $event = new CustomerCreatedConversation($conversation, $thread, $customer);
-        $listener = new SendAutoReply();
+        $listener = new SendAutoReply;
         $listener->handle($event);
 
         // Should dispatch since email is not internal

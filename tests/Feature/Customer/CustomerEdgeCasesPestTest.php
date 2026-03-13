@@ -29,7 +29,7 @@ test('customer with special characters in name is escaped', function () {
     ]);
 
     $response = $this->actingAs($user)->get(route('customers.show', $customer->id));
-    
+
     $response->assertOk()
         ->assertSee(htmlspecialchars('<script>alert("xss")</script>'), false)
         ->assertDontSee('<script>alert("xss")</script>', false);
@@ -49,7 +49,7 @@ test('customer with null optional fields displays correctly', function () {
 
 test('guest cannot access customer pages', function () {
     $this->get(route('customers.index'))->assertRedirect(route('login'));
-    
+
     $customer = Customer::factory()->create();
     $this->get(route('customers.show', $customer->id))->assertRedirect(route('login'));
 });

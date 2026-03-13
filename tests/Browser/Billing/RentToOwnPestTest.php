@@ -1,14 +1,14 @@
 <?php
 
-use Modules\Crm\Models\Client;
 use Modules\ContractManager\Models\Contract;
+use Modules\Crm\Models\Client;
 
 function createRtoContract(Client $client, array $overrides = []): Contract
 {
     return Contract::create(array_merge([
         'client_id' => $client->id,
         'title' => 'RTO Equipment',
-        'contract_number' => 'CON-RTO-' . uniqid(),
+        'contract_number' => 'CON-RTO-'.uniqid(),
         'status' => 'active',
         'start_date' => now(),
         'contract_type' => 'rent_to_own',

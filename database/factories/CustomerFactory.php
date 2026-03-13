@@ -48,7 +48,7 @@ class CustomerFactory extends Factory
             }
         });
     }
-    
+
     /**
      * Skip automatic email creation - for tests that will create emails manually.
      * This returns a new factory that doesn't auto-create emails.
@@ -60,7 +60,7 @@ class CustomerFactory extends Factory
             $customer->emails()->delete();
         });
     }
-    
+
     /**
      * Override create to handle email attribute properly.
      * This is called directly, so we can intercept the email attribute here.
@@ -73,10 +73,10 @@ class CustomerFactory extends Factory
             $email = $attributes['email'];
             unset($attributes['email']);
         }
-        
+
         // Create the customer (this triggers afterCreating hook)
         $customer = parent::create($attributes, $parent);
-        
+
         // If email was explicitly provided, replace any auto-generated email
         if ($email && $customer instanceof Customer) {
             $customer->emails()->delete();
@@ -85,10 +85,10 @@ class CustomerFactory extends Factory
                 'type' => 1, // TYPE_WORK (primary)
             ]);
         }
-        
+
         return $customer;
     }
-    
+
     /**
      * Create a customer with a specific email address (chainable method).
      */

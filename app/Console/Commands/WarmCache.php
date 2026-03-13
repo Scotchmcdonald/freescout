@@ -7,6 +7,7 @@ namespace App\Console\Commands;
 use App\Services\CacheService;
 use Illuminate\Console\Command;
 use Modules\Crm\Models\Client;
+
 // use Modules\PIB\Services\EntitlementService; // Core Blindness
 
 /**
@@ -45,6 +46,7 @@ class WarmCache extends Command
 
         if ($clients->isEmpty()) {
             $this->warn('No active clients found to warm cache for.');
+
             return Command::SUCCESS;
         }
 
@@ -59,7 +61,7 @@ class WarmCache extends Command
         foreach ($clients as $client) {
             try {
                 // Check if already cached (unless force flag is set)
-                if (!$force && $cache->has('billing', 'entitlement', $client->id, 'current')) {
+                if (! $force && $cache->has('billing', 'entitlement', $client->id, 'current')) {
                     $skipped++;
                 } else {
                     // This will populate cache with fresh data
@@ -73,14 +75,14 @@ class WarmCache extends Command
             } catch (\Exception $e) {
                 $this->error("\nFailed to warm cache for client {$client->id}: {$e->getMessage()}");
             }
-            
+
             $bar->advance();
         }
 
         $bar->finish();
         $this->newLine();
 
-        $this->info("✅ Cache warming complete!");
+        $this->info('✅ Cache warming complete!');
         $this->line("   • Warmed: {$warmed} clients");
         $this->line("   • Skipped (already cached): {$skipped} clients");
         $this->line("   • Total processed: {$clients->count()} clients");

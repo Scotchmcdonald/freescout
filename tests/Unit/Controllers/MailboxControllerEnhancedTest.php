@@ -13,7 +13,6 @@ use Tests\UnitTestCase;
 
 class MailboxControllerEnhancedTest extends UnitTestCase
 {
-
     public function test_index_returns_view_with_mailboxes(): void
     {
         $user = User::factory()->create(['role' => User::ROLE_ADMIN]);

@@ -7,14 +7,9 @@ namespace Tests\Unit\Services;
 use App\Models\Mailbox;
 use App\Services\ImapService;
 use Illuminate\Support\Facades\Log;
-use Tests\UnitTestCase;
 use Mockery;
 use PHPUnit\Framework\Attributes\Group;
-use Webklex\PHPIMAP\Client;
-use Webklex\PHPIMAP\Folder;
-use Webklex\PHPIMAP\Message;
-use Webklex\PHPIMAP\Query\WhereQuery;
-use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
+use Tests\UnitTestCase;
 
 /**
  * Integration tests that make real IMAP connection attempts.
@@ -25,13 +20,12 @@ use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 #[Group('slow')]
 class ImapServiceTest extends UnitTestCase
 {
-
     protected ImapService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImapService();
+        $this->service = new ImapService;
     }
 
     public function test_service_can_be_instantiated(): void

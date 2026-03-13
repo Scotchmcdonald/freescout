@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Schedule;
 use App\Jobs\RenewExpiringWebhooksJob;
+use Illuminate\Support\Facades\Schedule;
 
 // Schedule automatic email fetching
 Schedule::command('freescout:fetch-emails')
@@ -38,4 +37,3 @@ Schedule::job(\Modules\PIB\Jobs\MonthEndTimeAggregationJob::class)
     ->monthlyOn(1, '03:00')
     ->withoutOverlapping()
     ->onOneServer();
-

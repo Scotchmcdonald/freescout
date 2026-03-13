@@ -13,7 +13,6 @@ use Tests\UnitTestCase;
 
 class UserObserverTest extends UnitTestCase
 {
-
     public function test_created_adds_default_subscriptions(): void
     {
         $user = User::factory()->create();

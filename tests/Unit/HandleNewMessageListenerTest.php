@@ -14,7 +14,6 @@ use Tests\UnitTestCase;
 
 class HandleNewMessageListenerTest extends UnitTestCase
 {
-
     /** Test listener can be instantiated */
     public function test_listener_can_be_instantiated(): void
     {

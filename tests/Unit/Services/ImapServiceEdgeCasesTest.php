@@ -11,7 +11,6 @@ use Tests\UnitTestCase;
 
 class ImapServiceEdgeCasesTest extends UnitTestCase
 {
-
     // Additional Edge Cases and Security Tests
 
     public function test_handles_email_with_excessive_recipients(): void

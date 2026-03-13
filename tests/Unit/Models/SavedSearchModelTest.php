@@ -12,7 +12,7 @@ class SavedSearchModelTest extends UnitTestCase
 {
     public function test_model_can_be_instantiated(): void
     {
-        $savedSearch = new SavedSearch();
+        $savedSearch = new SavedSearch;
         $this->assertInstanceOf(SavedSearch::class, $savedSearch);
     }
 

@@ -52,7 +52,7 @@ class HelpersTest extends UnitTestCase
             ->andReturn(0);
 
         Helper::queueWorkerRestart();
-        
+
         $this->assertTrue(true);
     }
 

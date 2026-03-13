@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Trait for auditing sensitive business operations.
- * 
+ *
  * Use this trait in services that perform sensitive operations like:
  * - Credit adjustments
  * - Quote approvals
@@ -17,11 +17,11 @@ use Illuminate\Support\Facades\Auth;
  * - Payment processing
  * - Data exports
  * - Permission changes
- * 
+ *
  * @example
  * class CreditService {
  *     use AuditsSensitiveOperations;
- *     
+ *
  *     public function addCredit($clientId, $amount, $reason) {
  *         // Perform operation
  *         $this->auditSensitiveOperation(
@@ -37,11 +37,10 @@ trait AuditsSensitiveOperations
     /**
      * Log a sensitive operation to the audit trail.
      *
-     * @param string $operation Operation name (e.g., 'credit_added', 'quote_approved')
-     * @param mixed $subject The model being operated on
-     * @param array $properties Additional context (amounts, reasons, etc.)
-     * @param string|null $logName Category for filtering (default: 'sensitive_operations')
-     * @return void
+     * @param  string  $operation  Operation name (e.g., 'credit_added', 'quote_approved')
+     * @param  mixed  $subject  The model being operated on
+     * @param  array  $properties  Additional context (amounts, reasons, etc.)
+     * @param  string|null  $logName  Category for filtering (default: 'sensitive_operations')
      */
     protected function auditSensitiveOperation(
         string $operation,
@@ -61,10 +60,9 @@ trait AuditsSensitiveOperations
     /**
      * Log a bulk sensitive operation with count.
      *
-     * @param string $operation Operation name
-     * @param int $count Number of items affected
-     * @param array $properties Additional context
-     * @return void
+     * @param  string  $operation  Operation name
+     * @param  int  $count  Number of items affected
+     * @param  array  $properties  Additional context
      */
     protected function auditBulkOperation(
         string $operation,
@@ -82,11 +80,10 @@ trait AuditsSensitiveOperations
     /**
      * Log a financial operation with amount tracking.
      *
-     * @param string $operation Operation name
-     * @param mixed $subject Related model
-     * @param int $amountCents Amount in cents
-     * @param array $additionalProperties Additional context
-     * @return void
+     * @param  string  $operation  Operation name
+     * @param  mixed  $subject  Related model
+     * @param  int  $amountCents  Amount in cents
+     * @param  array  $additionalProperties  Additional context
      */
     protected function auditFinancialOperation(
         string $operation,
@@ -108,11 +105,10 @@ trait AuditsSensitiveOperations
     /**
      * Log a data access operation (exports, bulk queries).
      *
-     * @param string $operation Operation name
-     * @param string $dataType Type of data accessed
-     * @param array $filters Applied filters
-     * @param int|null $recordCount Number of records accessed
-     * @return void
+     * @param  string  $operation  Operation name
+     * @param  string  $dataType  Type of data accessed
+     * @param  array  $filters  Applied filters
+     * @param  int|null  $recordCount  Number of records accessed
      */
     protected function auditDataAccess(
         string $operation,

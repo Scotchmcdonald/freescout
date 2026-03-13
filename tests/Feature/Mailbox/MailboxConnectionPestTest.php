@@ -5,8 +5,6 @@ use App\Models\User;
 use App\Services\ImapService;
 use Illuminate\Support\Facades\Crypt;
 
-
-
 // =========================================================================
 // Connection Settings UI (from MailboxConnectionTest.php)
 // =========================================================================
@@ -295,7 +293,7 @@ test('fetch test handles timeout', function () {
 
     $response->assertStatus(200)
         ->assertJson(['status' => 'error']);
-    
+
     expect(strtolower($response->json('msg')))->toContain('timeout');
 });
 

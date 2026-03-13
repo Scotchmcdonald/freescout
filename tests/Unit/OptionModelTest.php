@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Models\Option;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class OptionModelTest extends UnitTestCase
 {
-
     public function test_model_can_be_instantiated(): void
     {
         $option = new Option;

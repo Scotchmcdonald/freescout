@@ -49,7 +49,7 @@ class ReporterDashboardWidget implements Widget
             return null;
         }
 
-        $html  = '<div class="space-y-6">';
+        $html = '<div class="space-y-6">';
         $html .= $this->renderSummaryGrid();
         $html .= $this->renderMonthlyFinancials();
         $html .= '</div>';
@@ -67,8 +67,8 @@ class ReporterDashboardWidget implements Widget
 
         // CRM
         if (class_exists(\Modules\Crm\Models\Client::class)) {
-            $stats['Active Clients']   = \Modules\Crm\Models\Client::where('status', 'active')->count();
-            $stats['Total Contacts']   = \Modules\Crm\Models\Contact::count();
+            $stats['Active Clients'] = \Modules\Crm\Models\Client::where('status', 'active')->count();
+            $stats['Total Contacts'] = \Modules\Crm\Models\Contact::count();
         }
 
         // Contracts
@@ -101,8 +101,8 @@ class ReporterDashboardWidget implements Widget
 
         foreach ($stats as $label => $value) {
             $html .= '<div class="text-center p-3 bg-gray-50 rounded-lg">';
-            $html .= '<p class="text-2xl font-bold text-gray-800">' . number_format((int) $value) . '</p>';
-            $html .= '<p class="text-xs text-gray-500 mt-1">' . e($label) . '</p>';
+            $html .= '<p class="text-2xl font-bold text-gray-800">'.number_format((int) $value).'</p>';
+            $html .= '<p class="text-xs text-gray-500 mt-1">'.e($label).'</p>';
             $html .= '</div>';
         }
 
@@ -118,9 +118,9 @@ class ReporterDashboardWidget implements Widget
         }
 
         $thisMonth = now()->month;
-        $thisYear  = now()->year;
+        $thisYear = now()->year;
 
-        $billedMtd    = (float) \Modules\PIB\Models\Invoice::whereMonth('created_at', $thisMonth)
+        $billedMtd = (float) \Modules\PIB\Models\Invoice::whereMonth('created_at', $thisMonth)
             ->whereYear('created_at', $thisYear)
             ->whereNotIn('status', ['cancelled'])
             ->sum('total_amount');
@@ -134,19 +134,19 @@ class ReporterDashboardWidget implements Widget
             ->sum('total_amount');
 
         $rows = [
-            ['label' => 'Billed this month', 'value' => '$' . number_format($billedMtd, 2), 'color' => 'text-gray-800'],
-            ['label' => 'Collected this month', 'value' => '$' . number_format($collectedMtd, 2), 'color' => 'text-green-700'],
-            ['label' => 'Total overdue AR', 'value' => '$' . number_format($overdueTotalAr, 2), 'color' => $overdueTotalAr > 0 ? 'text-red-700 font-semibold' : 'text-green-700'],
+            ['label' => 'Billed this month', 'value' => '$'.number_format($billedMtd, 2), 'color' => 'text-gray-800'],
+            ['label' => 'Collected this month', 'value' => '$'.number_format($collectedMtd, 2), 'color' => 'text-green-700'],
+            ['label' => 'Total overdue AR', 'value' => '$'.number_format($overdueTotalAr, 2), 'color' => $overdueTotalAr > 0 ? 'text-red-700 font-semibold' : 'text-green-700'],
         ];
 
-        $html  = '<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">';
+        $html = '<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">';
         $html .= '<h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Monthly Financials</h3>';
         $html .= '<dl class="divide-y divide-gray-100">';
 
         foreach ($rows as $row) {
             $html .= '<div class="flex justify-between py-2.5">';
-            $html .= '<dt class="text-sm text-gray-500">' . e($row['label']) . '</dt>';
-            $html .= '<dd class="text-sm ' . $row['color'] . '">' . e($row['value']) . '</dd>';
+            $html .= '<dt class="text-sm text-gray-500">'.e($row['label']).'</dt>';
+            $html .= '<dd class="text-sm '.$row['color'].'">'.e($row['value']).'</dd>';
             $html .= '</div>';
         }
 

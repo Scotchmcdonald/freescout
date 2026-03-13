@@ -24,7 +24,7 @@ class UserNotificationMailTest extends UnitTestCase
             'subject' => 'Test Subject',
         ]);
         $threads = collect([Thread::factory()->create()]);
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         $envelope = $mailable->envelope();
 
@@ -39,7 +39,7 @@ class UserNotificationMailTest extends UnitTestCase
         $conversation = Conversation::factory()->create(['number' => 123]);
         $threads = collect([Thread::factory()->create()]);
         $fromAddress = ['address' => 'custom@example.com', 'name' => 'Custom Name'];
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], $fromAddress);
         $envelope = $mailable->envelope();
 
@@ -53,7 +53,7 @@ class UserNotificationMailTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create(['id' => 1]);
         $conversation = Conversation::factory()->create(['number' => 123]);
         $threads = collect([Thread::factory()->create()]);
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         $envelope = $mailable->envelope();
 
@@ -71,7 +71,7 @@ class UserNotificationMailTest extends UnitTestCase
         ]);
         $conversation->setRelation('customer', $customer);
         $threads = collect([Thread::factory()->create()]);
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         $content = $mailable->content();
 
@@ -89,7 +89,7 @@ class UserNotificationMailTest extends UnitTestCase
         ]);
         $conversation->setRelation('customer', $customer);
         $threads = collect([Thread::factory()->create()]);
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         $content = $mailable->content();
 
@@ -107,7 +107,7 @@ class UserNotificationMailTest extends UnitTestCase
         ]);
         $conversation->setRelation('customer', $customer);
         $threads = collect([Thread::factory()->create()]);
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         $content = $mailable->content();
 
@@ -127,7 +127,7 @@ class UserNotificationMailTest extends UnitTestCase
         $conversation->setRelation('customer', $customer);
         $thread = Thread::factory()->create(['id' => 5]);
         $threads = collect([$thread]);
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         $content = $mailable->content();
 
@@ -147,7 +147,7 @@ class UserNotificationMailTest extends UnitTestCase
         ]);
         $conversation->setRelation('customer', $customer);
         $threads = collect([Thread::factory()->create()]);
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         $content = $mailable->content();
 
@@ -164,7 +164,7 @@ class UserNotificationMailTest extends UnitTestCase
         $threads = collect([Thread::factory()->create()]);
         $headers = ['X-Custom' => 'value'];
         $fromAddress = ['address' => 'from@example.com'];
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, $headers, $fromAddress);
 
         $this->assertInstanceOf(User::class, $mailable->user);
@@ -186,7 +186,7 @@ class UserNotificationMailTest extends UnitTestCase
         ]);
         $conversation->setRelation('customer', $customer);
         $threads = collect([Thread::factory()->create()]);
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
         $result = $mailable->build();
 
@@ -200,7 +200,7 @@ class UserNotificationMailTest extends UnitTestCase
         $mailbox = Mailbox::factory()->create(['id' => 1]);
         $conversation = Conversation::factory()->create(['number' => 123]);
         $threads = collect([Thread::factory()->create()]);
-        
+
         $mailable = new UserNotification($user, $conversation, $threads, $mailbox, [], []);
 
         $this->assertInstanceOf(UserNotification::class, $mailable);

@@ -8,7 +8,7 @@ use Attribute;
 
 /**
  * Mark a test class or method as non-batchable.
- * 
+ *
  * Tests with this attribute must be run completely in isolation - one at a time,
  * in a separate PHPUnit process. Use this for tests that:
  * - Hang when run with other tests

@@ -27,7 +27,7 @@ class HandleNewMessage
         if ($event->conversation->user_id) {
             $eventType = \App\Models\Subscription::EVENT_CUSTOMER_REPLIED_TO_ASSIGNED;
         }
-        
+
         \App\Models\Subscription::registerEvent($eventType, $event->conversation);
     }
 }

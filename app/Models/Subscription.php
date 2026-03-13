@@ -90,10 +90,6 @@ class Subscription extends Model
 
     /**
      * Register an event and notify subscribers.
-     *
-     * @param  int  $eventType
-     * @param  Conversation  $conversation
-     * @param  int|null  $causedByUserId
      */
     public static function registerEvent(int $eventType, Conversation $conversation, ?int $causedByUserId = null): void
     {

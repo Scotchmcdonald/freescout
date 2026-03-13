@@ -1,29 +1,29 @@
 <?php
 
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Nwidart\Modules\Facades\Module;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 // Helper to create module
-function createTestModule($path, $name) {
+function createTestModule($path, $name)
+{
     if (! File::exists($path)) {
         File::makeDirectory($path, 0755, true);
     }
     if (! File::exists("$path/Resources/assets")) {
         File::makeDirectory("$path/Resources/assets", 0755, true);
     }
-    
+
     $moduleJson = [
         'name' => $name,
         'alias' => strtolower($name),
         'description' => "Test module {$name}",
         'active' => true,
     ];
-    
+
     File::put(
         "{$path}/module.json",
         json_encode($moduleJson, JSON_PRETTY_PRINT)
@@ -66,11 +66,11 @@ test('installs specific module successfully', function () {
 
 test('creates symlink in public directory', function () {
     $publicSymlink = public_path('modules/'.strtolower($this->testModuleName));
-    
+
     if (is_link($publicSymlink)) {
         unlink($publicSymlink);
     }
-    
+
     expect(is_link($publicSymlink))->toBeFalse();
 
     $this->artisan('freescout:module-install', ['module_alias' => strtolower($this->testModuleName)])
@@ -114,7 +114,7 @@ test('handles invalid permissions', function () {
 });
 
 test('validates module alias format', function () {
-     $this->artisan('freescout:module-install', ['module_alias' => 'Invalid-Module-Name'])
+    $this->artisan('freescout:module-install', ['module_alias' => 'Invalid-Module-Name'])
         ->expectsOutput('Module with the specified alias not found: Invalid-Module-Name')
         ->assertExitCode(0);
 });

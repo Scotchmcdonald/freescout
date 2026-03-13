@@ -7,8 +7,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Services\ModuleSourceService;
+use Illuminate\Console\Command;
 
 class ModuleUpdate extends Command
 {
@@ -50,13 +50,13 @@ class ModuleUpdate extends Command
         $modules = [];
 
         // We have to clear modules cache first to update modules cache
-        if (!app()->runningUnitTests()) {
+        if (! app()->runningUnitTests()) {
             \Artisan::call('cache:clear');
         }
 
         // Create a symlink for the module (or all modules)
         $module_alias = $this->argument('module_alias');
-        
+
         $modules_directory = $this->moduleSource->getModules();
 
         $installed_modules = \Module::all();
@@ -68,18 +68,17 @@ class ModuleUpdate extends Command
             if ($module_alias && $dir_module['alias'] != $module_alias) {
                 continue;
             }
-            
+
             $found = true;
 
             // Detect if new version is available.
             foreach ($installed_modules as $module) {
-                if ($module->getAlias() != $dir_module['alias'] /*|| !$module->active()*/) {
+                if ($module->getAlias() != $dir_module['alias'] /* || !$module->active() */) {
                     continue;
                 }
                 $dirVersion = $dir_module['version'] ?? '';
                 $dirVersionStr = is_string($dirVersion) || is_int($dirVersion) || is_float($dirVersion) ? (string) $dirVersion : '';
-                if (!empty($dirVersion) && version_compare($dirVersionStr, $module->get('version'), '>')) {
-
+                if (! empty($dirVersion) && version_compare($dirVersionStr, $module->get('version'), '>')) {
                     $dirAlias = $dir_module['alias'] ?? '';
                     $dirAliasStr = is_string($dirAlias) || is_int($dirAlias) || is_float($dirAlias) ? (string) $dirAlias : '';
                     $update_result = \App\Module::updateModule($dirAliasStr);
@@ -94,8 +93,8 @@ class ModuleUpdate extends Command
                         }
                         $this->error('ERROR: '.$msg);
                     }
-                    if (!empty($update_result['output']) && trim((string)$update_result['output'])) {
-                        $this->line((string)preg_replace("#\n#", "\n> ", '> '.trim((string)$update_result['output'])));
+                    if (! empty($update_result['output']) && trim((string) $update_result['output'])) {
+                        $this->line((string) preg_replace("#\n#", "\n> ", '> '.trim((string) $update_result['output'])));
                     }
 
                     $counter++;
@@ -125,7 +124,7 @@ class ModuleUpdate extends Command
             }
 
             // Create a new Guzzle HTTP client
-            $client = new \GuzzleHttp\Client();
+            $client = new \GuzzleHttp\Client;
 
             try {
                 // Send a GET request to the latest version URL
@@ -151,7 +150,7 @@ class ModuleUpdate extends Command
                 $update_result = \App\Module::updateModule($module->getAlias());
 
                 // Print the module name and status
-                $this->info('[' . $update_result['module_name'] . ' Module' . ']');
+                $this->info('['.$update_result['module_name'].' Module'.']');
                 if ($update_result['status'] == 'success') {
                     // If the update was successful, print the success message
                     $this->line((string) $update_result['msg_success']);
@@ -159,33 +158,33 @@ class ModuleUpdate extends Command
                     // If the update failed, print the error message
                     $msg = $update_result['msg'];
                     if ($update_result['download_msg']) {
-                        $msg .= ' (' . $update_result['download_msg'] . ')';
+                        $msg .= ' ('.$update_result['download_msg'].')';
                     }
-                    $this->error('ERROR: ' . $msg);
+                    $this->error('ERROR: '.$msg);
                 }
                 // If there's any output from the update, print it
-                if (!empty($update_result['output']) && trim((string)$update_result['output'])) {
-                    $this->line((string)preg_replace("#\n#", "\n> ", '> ' . trim((string)$update_result['output'])));
+                if (! empty($update_result['output']) && trim((string) $update_result['output'])) {
+                    $this->line((string) preg_replace("#\n#", "\n> ", '> '.trim((string) $update_result['output'])));
                 }
 
                 // Increment the counter
-                $counter ++;
+                $counter++;
             }
         }
 
-        if ($module_alias && !$found) {
+        if ($module_alias && ! $found) {
             // Check if it's a custom module
-             $isCustom = false;
-             foreach ($installed_modules as $module) {
-                 if ($module->getAlias() == $module_alias) {
-                     $isCustom = true;
-                     break;
-                 }
-             }
-             if (!$isCustom) {
+            $isCustom = false;
+            foreach ($installed_modules as $module) {
+                if ($module->getAlias() == $module_alias) {
+                    $isCustom = true;
+                    break;
+                }
+            }
+            if (! $isCustom) {
                 $this->error('Module with the following alias not found: '.$module_alias);
-             }
-        } elseif (!$counter) {
+            }
+        } elseif (! $counter) {
             $this->line('All modules are up-to-date');
         }
 

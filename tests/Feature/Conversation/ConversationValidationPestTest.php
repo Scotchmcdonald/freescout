@@ -2,7 +2,6 @@
 
 use App\Models\Conversation;
 use App\Models\Customer;
-use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
 
@@ -100,9 +99,9 @@ test('conversation subject length validation', function () {
     $longSubject = str_repeat('a', 300);
 
     // Depending on logic, this might be truncated or allowed, but usually validated max length
-    // Legacy test says basically "Expect Redirect OR 422". 
+    // Legacy test says basically "Expect Redirect OR 422".
     // We will assume it should work or fail gracefully.
-    
+
     $response = $this->actingAs($user)->post(route('conversations.store', $mailbox), [
         'customer_id' => $customer->id,
         'subject' => $longSubject,

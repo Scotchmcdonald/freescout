@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Mail;
 
 use App\Mail\CustomerReply;
-use App\Models\Attachment;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
@@ -162,7 +161,7 @@ class CustomerReplyTest extends TestCase
         $content = $mailable->content();
 
         $trackingUrl = $content->with['trackingUrl'];
-        
+
         // Should be a signed URL
         $this->assertStringContainsString('signature=', $trackingUrl);
     }

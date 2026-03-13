@@ -15,11 +15,11 @@ use Tests\TestCase;
 
 /**
  * RateLimiter Integration Tests
- * 
+ *
  * Tests API quota management service used for external API calls.
  * This prevents quota exhaustion when calling Google Admin, Action1,
  * Helcim, and other external services.
- * 
+ *
  * Critical for:
  * - API cost management
  * - Preventing account suspension
@@ -68,7 +68,7 @@ class RateLimiterTest extends TestCase
     public function test_executes_callback_within_limit(): void
     {
         $key = 'test:rate_limit_1';
-        $result = $this->limiter->attempt($key, 10, 60, fn() => 'success');
+        $result = $this->limiter->attempt($key, 10, 60, fn () => 'success');
 
         $this->assertEquals('success', $result);
     }
@@ -79,7 +79,7 @@ class RateLimiterTest extends TestCase
     public function test_returns_callback_result(): void
     {
         $key = 'test:rate_limit_2';
-        $result = $this->limiter->attempt($key, 10, 60, fn() => ['data' => 'value']);
+        $result = $this->limiter->attempt($key, 10, 60, fn () => ['data' => 'value']);
 
         $this->assertEquals(['data' => 'value'], $result);
     }
@@ -92,11 +92,11 @@ class RateLimiterTest extends TestCase
         $key = 'test:rate_limit_3';
 
         // First attempt
-        $this->limiter->attempt($key, 10, 60, fn() => true);
+        $this->limiter->attempt($key, 10, 60, fn () => true);
         $this->assertEquals(9, $this->limiter->remaining($key, 10));
 
         // Second attempt
-        $this->limiter->attempt($key, 10, 60, fn() => true);
+        $this->limiter->attempt($key, 10, 60, fn () => true);
         $this->assertEquals(8, $this->limiter->remaining($key, 10));
     }
 
@@ -106,16 +106,16 @@ class RateLimiterTest extends TestCase
     public function test_throws_when_limit_exceeded(): void
     {
         $key = 'test:rate_limit_4';
-        
+
         // Use up all attempts
         for ($i = 0; $i < 3; $i++) {
-            $this->limiter->attempt($key, 3, 60, fn() => true);
+            $this->limiter->attempt($key, 3, 60, fn () => true);
         }
 
         $this->expectException(ThrottleRequestsException::class);
         $this->expectExceptionMessage('Rate limit exceeded');
 
-        $this->limiter->attempt($key, 3, 60, fn() => true);
+        $this->limiter->attempt($key, 3, 60, fn () => true);
     }
 
     /**
@@ -124,13 +124,13 @@ class RateLimiterTest extends TestCase
     public function test_remaining_count_accurate(): void
     {
         $key = 'test:rate_limit_5';
-        
+
         $this->assertEquals(5, $this->limiter->remaining($key, 5));
-        
-        $this->limiter->attempt($key, 5, 60, fn() => true);
+
+        $this->limiter->attempt($key, 5, 60, fn () => true);
         $this->assertEquals(4, $this->limiter->remaining($key, 5));
 
-        $this->limiter->attempt($key, 5, 60, fn() => true);
+        $this->limiter->attempt($key, 5, 60, fn () => true);
         $this->assertEquals(3, $this->limiter->remaining($key, 5));
     }
 
@@ -140,11 +140,11 @@ class RateLimiterTest extends TestCase
     public function test_can_clear_rate_limit(): void
     {
         $key = 'test:rate_limit_6';
-        
+
         // Use some attempts
-        $this->limiter->attempt($key, 5, 60, fn() => true);
-        $this->limiter->attempt($key, 5, 60, fn() => true);
-        
+        $this->limiter->attempt($key, 5, 60, fn () => true);
+        $this->limiter->attempt($key, 5, 60, fn () => true);
+
         $this->assertEquals(3, $this->limiter->remaining($key, 5));
 
         // Clear the limit
@@ -162,8 +162,8 @@ class RateLimiterTest extends TestCase
         $key1 = 'test:service_a';
         $key2 = 'test:service_b';
 
-        $this->limiter->attempt($key1, 10, 60, fn() => true);
-        $this->limiter->attempt($key1, 10, 60, fn() => true);
+        $this->limiter->attempt($key1, 10, 60, fn () => true);
+        $this->limiter->attempt($key1, 10, 60, fn () => true);
 
         // key2 should be unaffected
         $this->assertEquals(10, $this->limiter->remaining($key2, 10));
@@ -177,7 +177,7 @@ class RateLimiterTest extends TestCase
     {
         $key = 'test:rate_limit_db';
 
-        $this->limiter->attempt($key, 10, 60, fn() => true);
+        $this->limiter->attempt($key, 10, 60, fn () => true);
 
         $record = DB::table('api_rate_limit_tracking')
             ->where('key', $key)
@@ -196,7 +196,7 @@ class RateLimiterTest extends TestCase
 
         // Use 3 out of 10
         for ($i = 0; $i < 3; $i++) {
-            $this->limiter->attempt($key, 10, 60, fn() => true);
+            $this->limiter->attempt($key, 10, 60, fn () => true);
         }
 
         $stats = $this->limiter->getUsageStats([
@@ -221,7 +221,7 @@ class RateLimiterTest extends TestCase
 
         // Use 7 out of 10 (70%)
         for ($i = 0; $i < 7; $i++) {
-            $this->limiter->attempt($key, 10, 60, fn() => true);
+            $this->limiter->attempt($key, 10, 60, fn () => true);
         }
 
         $stats = $this->limiter->getUsageStats([
@@ -240,7 +240,7 @@ class RateLimiterTest extends TestCase
 
         // Use 9 out of 10 (90%)
         for ($i = 0; $i < 9; $i++) {
-            $this->limiter->attempt($key, 10, 60, fn() => true);
+            $this->limiter->attempt($key, 10, 60, fn () => true);
         }
 
         $stats = $this->limiter->getUsageStats([
@@ -255,9 +255,9 @@ class RateLimiterTest extends TestCase
      */
     public function test_multiple_services_stats(): void
     {
-        $this->limiter->attempt('test:google', 100, 3600, fn() => true);
-        $this->limiter->attempt('test:action1', 50, 3600, fn() => true);
-        $this->limiter->attempt('test:action1', 50, 3600, fn() => true);
+        $this->limiter->attempt('test:google', 100, 3600, fn () => true);
+        $this->limiter->attempt('test:action1', 50, 3600, fn () => true);
+        $this->limiter->attempt('test:action1', 50, 3600, fn () => true);
 
         $stats = $this->limiter->getUsageStats([
             ['key' => 'test:google', 'name' => 'Google Admin', 'limit' => 100],
@@ -265,10 +265,10 @@ class RateLimiterTest extends TestCase
         ]);
 
         $this->assertCount(2, $stats);
-        
+
         $google = collect($stats)->firstWhere('name', 'Google Admin');
         $action1 = collect($stats)->firstWhere('name', 'Action1');
-        
+
         $this->assertEquals(1, $google['used']);
         $this->assertEquals(2, $action1['used']);
     }
@@ -295,7 +295,7 @@ class RateLimiterTest extends TestCase
         $deleted = $this->limiter->resetExpired();
 
         $this->assertEquals(1, $deleted);
-        
+
         // Verify expired is gone
         $this->assertNull(
             DB::table('api_rate_limit_tracking')
@@ -335,7 +335,7 @@ class RateLimiterTest extends TestCase
 
         $this->expectException(ThrottleRequestsException::class);
 
-        $this->limiter->attempt($key, 0, 60, fn() => true);
+        $this->limiter->attempt($key, 0, 60, fn () => true);
     }
 
     /**
@@ -345,7 +345,7 @@ class RateLimiterTest extends TestCase
     {
         $key = 'google_admin:sync:client_123:users';
 
-        $this->limiter->attempt($key, 10, 60, fn() => true);
+        $this->limiter->attempt($key, 10, 60, fn () => true);
 
         $this->assertEquals(9, $this->limiter->remaining($key, 10));
     }

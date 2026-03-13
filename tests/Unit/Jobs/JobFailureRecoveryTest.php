@@ -13,13 +13,10 @@ use App\Models\Mailbox;
 use App\Models\SendLog;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Contracts\Queue\Job as JobContract;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
-use Mockery;
 use Tests\UnitTestCase;
 
 class JobFailureRecoveryTest extends UnitTestCase
@@ -29,9 +26,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         // Verify job has retry configuration
         $this->assertObjectHasProperty('tries', $job);
         $this->assertObjectHasProperty('timeout', $job);
@@ -42,9 +39,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         // Check backoff property exists and is array
         if (isset($job->backoff)) {
             $this->assertIsArray($job->backoff);
@@ -58,7 +55,7 @@ class JobFailureRecoveryTest extends UnitTestCase
     public function test_send_auto_reply_job_creates_send_log_on_success(): void
     {
         Mail::fake();
-        
+
         $mailbox = Mailbox::factory()->create([
             'auto_reply_enabled' => true,
             'auto_reply_subject' => 'Thank you',
@@ -67,11 +64,11 @@ class JobFailureRecoveryTest extends UnitTestCase
         $conversation = Conversation::factory()->for($mailbox)->create();
         $thread = Thread::factory()->for($conversation)->create();
         $customer = Customer::factory()->create();
-        
+
         $smtpService = app(\App\Services\SmtpService::class);
         $job = new SendAutoReplyJob($conversation, $thread, $mailbox, $customer);
         $job->handle($smtpService);
-        
+
         $this->assertDatabaseHas('send_logs', [
             'customer_id' => $customer->id,
             'mail_type' => SendLog::MAIL_TYPE_AUTO_REPLY,
@@ -83,12 +80,12 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         $serialized = serialize($job);
         $unserialized = unserialize($serialized);
-        
+
         // Should preserve IDs for lazy loading
         $this->assertInstanceOf(SendNotificationToUsers::class, $unserialized);
     }
@@ -96,20 +93,20 @@ class JobFailureRecoveryTest extends UnitTestCase
     public function test_send_alert_job_handles_single_recipient_failure_gracefully(): void
     {
         Mail::fake();
-        
+
         User::factory()->count(5)->create([
             'role' => User::ROLE_ADMIN,
             'status' => User::STATUS_ACTIVE,
         ]);
-        
+
         $job = new SendAlert(
             'Test alert message',
             'Test Alert Title'
         );
-        
+
         // Job should succeed even if some emails fail
         $job->handle();
-        
+
         // At least one send log should be created
         $this->assertGreaterThan(0, SendLog::count());
     }
@@ -119,9 +116,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         // Default attempts should be 1
         $this->assertEquals(1, $job->attempts());
     }
@@ -131,9 +128,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         $this->assertTrue(method_exists($job, 'delete'));
     }
 
@@ -142,9 +139,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         $this->assertTrue(method_exists($job, 'release'));
     }
 
@@ -153,9 +150,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         $this->assertTrue(method_exists($job, 'fail'));
     }
 
@@ -164,9 +161,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         $this->assertTrue(method_exists($job, 'failed'));
     }
 
@@ -176,21 +173,21 @@ class JobFailureRecoveryTest extends UnitTestCase
             'Test message',
             'Test Title'
         );
-        
+
         $this->assertObjectHasProperty('timeout', $job);
     }
 
     public function test_job_can_be_pushed_to_specific_queue(): void
     {
         Queue::fake();
-        
+
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         SendNotificationToUsers::dispatch($users, $conversation, $threads)
             ->onQueue('emails');
-        
+
         Queue::assertPushedOn('emails', SendNotificationToUsers::class);
     }
 
@@ -199,9 +196,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         // Check if middleware method exists
         if (method_exists($job, 'middleware')) {
             $middleware = $job->middleware();
@@ -216,9 +213,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         // Job should not crash when accessing properties
         $this->assertNotNull($job);
     }
@@ -228,9 +225,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         if (method_exists($job, 'displayName')) {
             $displayName = $job->displayName();
             $this->assertIsString($displayName);
@@ -244,9 +241,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         if (method_exists($job, 'tags')) {
             $tags = $job->tags();
             $this->assertIsArray($tags);
@@ -258,20 +255,20 @@ class JobFailureRecoveryTest extends UnitTestCase
     public function test_job_connection_configuration(): void
     {
         Queue::fake();
-        
+
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         SendNotificationToUsers::dispatch($users, $conversation, $threads);
-        
+
         Queue::assertPushed(SendNotificationToUsers::class);
     }
 
     public function test_job_handles_database_transaction_properly(): void
     {
         Mail::fake();
-        
+
         $mailbox = Mailbox::factory()->create([
             'auto_reply_enabled' => true,
             'auto_reply_subject' => 'Thank you',
@@ -306,7 +303,8 @@ class JobFailureRecoveryTest extends UnitTestCase
         }
 
         // After the rolled-back savepoint the send log should not exist.
-        $this->assertFalse($sendLogCreated === false || SendLog::where('mail_type', SendLog::MAIL_TYPE_AUTO_REPLY)->exists(),
+        $this->assertFalse(
+            $sendLogCreated === false || SendLog::where('mail_type', SendLog::MAIL_TYPE_AUTO_REPLY)->exists(),
             'Send log should not persist after transaction rollback'
         );
     }
@@ -316,9 +314,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         if (method_exists($job, 'uniqueId')) {
             $uniqueId = $job->uniqueId();
             $this->assertNotEmpty($uniqueId);
@@ -332,9 +330,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         if (method_exists($job, 'retryUntil')) {
             $retryUntil = $job->retryUntil();
             $this->assertInstanceOf(\DateTimeInterface::class, $retryUntil);
@@ -348,9 +346,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         if (method_exists($job, 'shouldFailOnTimeout')) {
             $shouldFail = $job->shouldFailOnTimeout();
             $this->assertIsBool($shouldFail);
@@ -362,21 +360,21 @@ class JobFailureRecoveryTest extends UnitTestCase
     public function test_send_alert_creates_send_log_for_each_recipient(): void
     {
         Mail::fake();
-        
+
         User::factory()->count(3)->create([
             'role' => User::ROLE_ADMIN,
             'status' => User::STATUS_ACTIVE,
         ]);
-        
+
         $job = new SendAlert(
             'Test alert message',
             'Test Alert Title'
         );
-        
+
         $initialCount = SendLog::count();
-        
+
         $job->handle();
-        
+
         $this->assertGreaterThan($initialCount, SendLog::count());
     }
 
@@ -385,13 +383,13 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         // Delete models
         $threads->first()->delete();
         $conversation->delete();
-        
+
         // Job should handle gracefully
         $this->assertNotNull($job);
     }
@@ -401,9 +399,9 @@ class JobFailureRecoveryTest extends UnitTestCase
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         $job = new SendNotificationToUsers($users, $conversation, $threads);
-        
+
         if (property_exists($job, 'batchId')) {
             $this->expectNotToPerformAssertions();
         } else {
@@ -414,13 +412,13 @@ class JobFailureRecoveryTest extends UnitTestCase
     public function test_job_handles_encrypted_payload(): void
     {
         Queue::fake();
-        
+
         $users = User::factory()->count(2)->create();
         $conversation = Conversation::factory()->create();
         $threads = collect([Thread::factory()->for($conversation)->create()]);
-        
+
         SendNotificationToUsers::dispatch($users, $conversation, $threads);
-        
+
         Queue::assertPushed(SendNotificationToUsers::class, function ($job) {
             return $job->conversation instanceof Conversation;
         });

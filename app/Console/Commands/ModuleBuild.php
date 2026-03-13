@@ -32,11 +32,12 @@ class ModuleBuild extends Command
         $moduleAlias = $this->argument('module_alias');
         $buildAll = false;
 
-        if (!$moduleAlias) {
+        if (! $moduleAlias) {
             $modules = Module::all();
 
             if (empty($modules)) {
                 $this->error('No modules found');
+
                 return 1;
             }
 
@@ -51,30 +52,33 @@ class ModuleBuild extends Command
             }
         } else {
             $module = Module::findByAlias($moduleAlias);
-            if (!$module) {
+            if (! $module) {
                 $this->error("Module with the specified alias not found: {$moduleAlias}");
+
                 return 1;
             }
             $this->buildModule($module);
         }
 
         $this->info('Module build completed!');
+
         return 0;
     }
 
     /**
      * Build a specific module.
      *
-     * @param \Nwidart\Modules\Module $module
+     * @param  \Nwidart\Modules\Module  $module
      */
     protected function buildModule($module): void
     {
         $this->line("Building module: {$module->getName()}");
 
         // Check if public symlink exists
-        $publicSymlink = public_path('modules') . DIRECTORY_SEPARATOR . $module->getAlias();
-        if (!file_exists($publicSymlink)) {
+        $publicSymlink = public_path('modules').DIRECTORY_SEPARATOR.$module->getAlias();
+        if (! file_exists($publicSymlink)) {
             $this->error("Public symlink [{$publicSymlink}] not found. Run module installation command first: php artisan freescout:module-install");
+
             return;
         }
 
@@ -85,7 +89,7 @@ class ModuleBuild extends Command
     /**
      * Build module variables file.
      *
-     * @param \Nwidart\Modules\Module $module
+     * @param  \Nwidart\Modules\Module  $module
      */
     protected function buildVars($module): void
     {
@@ -94,13 +98,14 @@ class ModuleBuild extends Command
                 'locales' => config('app.locales', []),
             ];
 
-            $filesystem = new Filesystem();
+            $filesystem = new Filesystem;
             $filePath = public_path("modules/{$module->getAlias()}/js/vars.js");
 
             // Check if the view exists
             $viewPath = "{$module->getAlias()}::js/vars";
-            if (!view()->exists($viewPath)) {
+            if (! view()->exists($viewPath)) {
                 $this->comment("View {$viewPath} not found, skipping vars.js generation");
+
                 return;
             }
 
@@ -109,7 +114,7 @@ class ModuleBuild extends Command
             if ($compiled) {
                 // Ensure directory exists
                 $directory = dirname($filePath);
-                if (!is_dir($directory)) {
+                if (! is_dir($directory)) {
                     $filesystem->makeDirectory($directory, 0755, true);
                 }
 
@@ -117,7 +122,7 @@ class ModuleBuild extends Command
                 $this->info("Created: {$filePath}");
             }
         } catch (\Exception $e) {
-            $this->error("Error building vars for {$module->getName()}: " . $e->getMessage());
+            $this->error("Error building vars for {$module->getName()}: ".$e->getMessage());
         }
     }
 }

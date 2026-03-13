@@ -11,7 +11,6 @@ use Tests\UnitTestCase;
 
 class ProfileUpdateRequestTest extends UnitTestCase
 {
-
     public function test_profile_update_request_validation_rules(): void
     {
         $user = User::factory()->create();

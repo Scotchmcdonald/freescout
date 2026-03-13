@@ -10,12 +10,13 @@ function createPortalFeatureUser(string $name, string $emailPrefix): User
         'type' => 2,
         'first_name' => $name,
         'last_name' => 'User',
-        'email' => $emailPrefix . '-' . uniqid() . '@example.com',
+        'email' => $emailPrefix.'-'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
     ]);
     $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
+
     return $user;
 }
 

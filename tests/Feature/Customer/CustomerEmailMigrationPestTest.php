@@ -1,18 +1,18 @@
 <?php
 
+use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Email;
-use App\Models\User;
 use App\Models\Mailbox;
-use App\Models\Conversation;
+use App\Models\User;
 
 test('migrate email to another customer', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $source = Customer::factory()->withoutEmail()->create();
     Email::factory()->create(['customer_id' => $source->id, 'email' => 'primary@example.com', 'type' => Email::TYPE_PRIMARY]);
     $emailToMigrate = Email::factory()->create(['customer_id' => $source->id, 'email' => 'secondary@example.com', 'type' => Email::TYPE_SECONDARY]);
-    
+
     $target = Customer::factory()->withoutEmail()->create();
     $targetEmail = Email::factory()->create(['customer_id' => $target->id, 'email' => 'target@example.com', 'type' => Email::TYPE_PRIMARY]);
 
@@ -29,11 +29,11 @@ test('migrate email to another customer', function () {
 
 test('migrate main email sets new main for source', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $source = Customer::factory()->withoutEmail()->create();
     $mainEmail = Email::factory()->create(['customer_id' => $source->id, 'email' => 'primary@example.com', 'type' => Email::TYPE_PRIMARY]);
     Email::factory()->create(['customer_id' => $source->id, 'email' => 'secondary@example.com', 'type' => Email::TYPE_SECONDARY]);
-    
+
     $target = Customer::factory()->create();
 
     $this->actingAs($user)->postJson(route('customers.ajax'), [
@@ -52,11 +52,11 @@ test('migrate main email sets new main for source', function () {
 test('migrate email also migrates conversations', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox = Mailbox::factory()->create();
-    
+
     $source = Customer::factory()->withoutEmail()->create();
     Email::factory()->create(['customer_id' => $source->id, 'email' => 'primary@example.com', 'type' => Email::TYPE_PRIMARY]);
     $emailToMigrate = Email::factory()->create(['customer_id' => $source->id, 'email' => 'migrated@example.com', 'type' => Email::TYPE_SECONDARY]);
-    
+
     $target = Customer::factory()->create();
 
     $conv = Conversation::factory()->create([
@@ -79,7 +79,7 @@ test('cannot migrate only email of source customer', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $source = Customer::factory()->create(); // Has 1 email by default factory
     $target = Customer::factory()->create();
-    
+
     $onlyEmail = $source->emails()->first();
 
     $this->actingAs($user)->postJson(route('customers.ajax'), [
@@ -107,7 +107,7 @@ test('cannot migrate email not belonging to source customer', function () {
     $user = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $source = Customer::factory()->create(); // Has 1 email
     $target = Customer::factory()->create(); // Has 1 email
-    
+
     $targetEmail = $target->emails()->first();
 
     $this->actingAs($user)->postJson(route('customers.ajax'), [

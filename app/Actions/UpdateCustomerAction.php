@@ -68,6 +68,7 @@ class UpdateCustomerAction
 
             // Allow modules to modify customer after update
             \Eventy::filter('customer.update', $customer);
+
             return $customer;
         });
 

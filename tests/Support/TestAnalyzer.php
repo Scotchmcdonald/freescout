@@ -13,7 +13,7 @@ use Tests\Attributes\NonParallel;
 
 /**
  * Analyzes test files to detect patterns that indicate parallel/batch conflicts.
- * 
+ *
  * This analyzer uses multiple detection strategies:
  * 1. Explicit attributes (#[NonParallel], #[NonBatched], #[Flaky])
  * 2. PHPUnit attributes (#[RunInSeparateProcess], #[RunTestsInSeparateProcesses])
@@ -107,7 +107,7 @@ class TestAnalyzer
             ],
         ];
 
-        $finder = new Finder();
+        $finder = new Finder;
         $finder->files()
             ->in($this->testDirs)
             ->name('*Test.php')
@@ -120,7 +120,7 @@ class TestAnalyzer
 
             $analysis = $this->analyzeFile($filePath);
             $category = $analysis['category'];
-            
+
             $results[$category][] = [
                 'file' => $filePath,
                 'reasons' => $analysis['reasons'],
@@ -129,7 +129,7 @@ class TestAnalyzer
 
             // Track detection reasons for reporting
             foreach ($analysis['reasons'] as $reason) {
-                $results['metadata']['detection_reasons'][$reason] = 
+                $results['metadata']['detection_reasons'][$reason] =
                     ($results['metadata']['detection_reasons'][$reason] ?? 0) + 1;
             }
         }
@@ -179,7 +179,7 @@ class TestAnalyzer
         if ($patternAnalysis['is_non_batched']) {
             $reasons = array_merge($reasons, $patternAnalysis['reasons']);
             $confidence = max($confidence, $patternAnalysis['confidence']);
-            
+
             // High confidence pattern match for non-batched
             if ($patternAnalysis['confidence'] >= 0.8) {
                 return [
@@ -197,13 +197,14 @@ class TestAnalyzer
         // Determine final category
         if ($confidence >= 0.7 && count($reasons) > 0) {
             // Check if reasons suggest non-batched
-            $nonBatchedReasons = array_filter($reasons, fn($r) => 
-                str_contains($r, 'Process') || 
+            $nonBatchedReasons = array_filter(
+                $reasons,
+                fn ($r) => str_contains($r, 'Process') ||
                 str_contains($r, 'concurren') ||
                 str_contains($r, 'migrate') ||
                 str_contains($r, 'fork')
             );
-            
+
             if (count($nonBatchedReasons) > 0) {
                 return [
                     'category' => self::CATEGORY_NON_BATCHED,
@@ -211,7 +212,7 @@ class TestAnalyzer
                     'confidence' => $confidence,
                 ];
             }
-            
+
             return [
                 'category' => self::CATEGORY_NON_PARALLEL,
                 'reasons' => $reasons,
@@ -236,14 +237,14 @@ class TestAnalyzer
 
         // Extract class name from file
         $className = $this->extractClassName($content);
-        if (!$className) {
+        if (! $className) {
             return ['category' => $category, 'reasons' => $reasons];
         }
 
         // Try to load and reflect the class
         try {
             // We need to check if class is already loaded or can be autoloaded
-            if (!class_exists($className, false)) {
+            if (! class_exists($className, false)) {
                 // Don't autoload, just check source code for attributes
                 return $this->analyzeAttributesFromSource($content);
             }
@@ -253,22 +254,23 @@ class TestAnalyzer
             // Check class-level attributes
             foreach ($reflection->getAttributes() as $attribute) {
                 $attrName = $attribute->getName();
-                
+
                 if ($attrName === NonBatched::class) {
                     $instance = $attribute->newInstance();
-                    $reasons[] = 'Explicit #[NonBatched]' . ($instance->reason ? ": {$instance->reason}" : '');
+                    $reasons[] = 'Explicit #[NonBatched]'.($instance->reason ? ": {$instance->reason}" : '');
+
                     return ['category' => self::CATEGORY_NON_BATCHED, 'reasons' => $reasons];
                 }
-                
+
                 if ($attrName === NonParallel::class) {
                     $instance = $attribute->newInstance();
-                    $reasons[] = 'Explicit #[NonParallel]' . ($instance->reason ? ": {$instance->reason}" : '');
+                    $reasons[] = 'Explicit #[NonParallel]'.($instance->reason ? ": {$instance->reason}" : '');
                     $category = self::CATEGORY_NON_PARALLEL;
                 }
-                
+
                 if ($attrName === Flaky::class) {
                     $instance = $attribute->newInstance();
-                    $reasons[] = 'Marked as #[Flaky]' . ($instance->reason ? ": {$instance->reason}" : '');
+                    $reasons[] = 'Marked as #[Flaky]'.($instance->reason ? ": {$instance->reason}" : '');
                     // Flaky tests should be non-parallel at minimum
                     if ($category === self::CATEGORY_PARALLEL_SAFE) {
                         $category = self::CATEGORY_NON_PARALLEL;
@@ -278,24 +280,23 @@ class TestAnalyzer
 
             // Check method-level attributes
             foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-                if (!str_starts_with($method->getName(), 'test')) {
+                if (! str_starts_with($method->getName(), 'test')) {
                     continue;
                 }
 
                 foreach ($method->getAttributes() as $attribute) {
                     $attrName = $attribute->getName();
-                    
+
                     if ($attrName === NonBatched::class) {
                         return ['category' => self::CATEGORY_NON_BATCHED, 'reasons' => ['Method-level #[NonBatched]']];
                     }
-                    
+
                     if ($attrName === NonParallel::class && $category === self::CATEGORY_PARALLEL_SAFE) {
                         $category = self::CATEGORY_NON_PARALLEL;
                         $reasons[] = 'Method-level #[NonParallel]';
                     }
                 }
             }
-
         } catch (\Throwable $e) {
             // Fall back to source analysis if reflection fails
             return $this->analyzeAttributesFromSource($content);
@@ -315,16 +316,17 @@ class TestAnalyzer
         // Check for NonBatched attribute
         if (preg_match('/#\[NonBatched(?:\([\'"]([^\'"]*)[\'"])?/', $content, $matches)) {
             $reason = 'Explicit #[NonBatched]';
-            if (!empty($matches[1])) {
+            if (! empty($matches[1])) {
                 $reason .= ": {$matches[1]}";
             }
+
             return ['category' => self::CATEGORY_NON_BATCHED, 'reasons' => [$reason]];
         }
 
         // Check for NonParallel attribute
         if (preg_match('/#\[NonParallel(?:\([\'"]([^\'"]*)[\'"])?/', $content, $matches)) {
             $reason = 'Explicit #[NonParallel]';
-            if (!empty($matches[1])) {
+            if (! empty($matches[1])) {
                 $reason .= ": {$matches[1]}";
             }
             $category = self::CATEGORY_NON_PARALLEL;
@@ -334,7 +336,7 @@ class TestAnalyzer
         // Check for Flaky attribute
         if (preg_match('/#\[Flaky(?:\([\'"]([^\'"]*)[\'"])?/', $content, $matches)) {
             $reason = 'Marked as #[Flaky]';
-            if (!empty($matches[1])) {
+            if (! empty($matches[1])) {
                 $reason .= ": {$matches[1]}";
             }
             if ($category === self::CATEGORY_PARALLEL_SAFE) {
@@ -366,7 +368,7 @@ class TestAnalyzer
             $count = count($matches[0]);
             $reasons[] = "Has {$count} methods with #[RunInSeparateProcess]";
             $isNonParallel = true;
-            
+
             // Many separate process methods suggest the whole file needs isolation
             if ($count >= 3) {
                 $isNonBatched = true;
@@ -374,13 +376,13 @@ class TestAnalyzer
         }
 
         // Check for isolated group
-        if (preg_match('/#\[Group\([\'"](' . implode('|', self::ISOLATED_GROUPS) . ')[\'"]\)\]/', $content, $matches)) {
+        if (preg_match('/#\[Group\([\'"]('.implode('|', self::ISOLATED_GROUPS).')[\'"]\)\]/', $content, $matches)) {
             $reasons[] = "In group: {$matches[1]}";
             $isNonParallel = true;
         }
 
         // Check for non-batched group
-        if (preg_match('/#\[Group\([\'"](' . implode('|', self::NON_BATCHED_GROUPS) . ')[\'"]\)\]/', $content, $matches)) {
+        if (preg_match('/#\[Group\([\'"]('.implode('|', self::NON_BATCHED_GROUPS).')[\'"]\)\]/', $content, $matches)) {
             $reasons[] = "In group: {$matches[1]}";
             $isNonBatched = true;
         }
@@ -534,9 +536,9 @@ class TestAnalyzer
      */
     private function discoverTestDirectories(): array
     {
-        $dirs = [$this->baseDir . '/tests'];
+        $dirs = [$this->baseDir.'/tests'];
 
-        foreach (glob($this->baseDir . '/Modules/*/Tests') as $moduleTestDir) {
+        foreach (glob($this->baseDir.'/Modules/*/Tests') as $moduleTestDir) {
             $dirs[] = $moduleTestDir;
         }
 
@@ -549,43 +551,43 @@ class TestAnalyzer
     public function generateReport(array $analysis): string
     {
         $report = [];
-        $report[] = "# Test Isolation Analysis Report";
+        $report[] = '# Test Isolation Analysis Report';
         $report[] = "Generated: {$analysis['metadata']['analyzed_at']}";
-        $report[] = "";
-        $report[] = "## Summary";
+        $report[] = '';
+        $report[] = '## Summary';
         $report[] = "- Total test files: {$analysis['metadata']['total_files']}";
-        $report[] = "- Parallel-safe: " . count($analysis[self::CATEGORY_PARALLEL_SAFE]);
-        $report[] = "- Non-parallel: " . count($analysis[self::CATEGORY_NON_PARALLEL]);
-        $report[] = "- Non-batched: " . count($analysis[self::CATEGORY_NON_BATCHED]);
-        $report[] = "";
+        $report[] = '- Parallel-safe: '.count($analysis[self::CATEGORY_PARALLEL_SAFE]);
+        $report[] = '- Non-parallel: '.count($analysis[self::CATEGORY_NON_PARALLEL]);
+        $report[] = '- Non-batched: '.count($analysis[self::CATEGORY_NON_BATCHED]);
+        $report[] = '';
 
-        if (!empty($analysis['metadata']['detection_reasons'])) {
-            $report[] = "## Detection Reasons";
+        if (! empty($analysis['metadata']['detection_reasons'])) {
+            $report[] = '## Detection Reasons';
             arsort($analysis['metadata']['detection_reasons']);
             foreach ($analysis['metadata']['detection_reasons'] as $reason => $count) {
                 $report[] = "- {$reason}: {$count}";
             }
-            $report[] = "";
+            $report[] = '';
         }
 
-        if (!empty($analysis[self::CATEGORY_NON_BATCHED])) {
-            $report[] = "## Non-Batched Tests (run alone)";
+        if (! empty($analysis[self::CATEGORY_NON_BATCHED])) {
+            $report[] = '## Non-Batched Tests (run alone)';
             foreach ($analysis[self::CATEGORY_NON_BATCHED] as $test) {
-                $relative = str_replace($this->baseDir . '/', '', $test['file']);
+                $relative = str_replace($this->baseDir.'/', '', $test['file']);
                 $reasons = implode(', ', $test['reasons']);
                 $report[] = "- `{$relative}`: {$reasons}";
             }
-            $report[] = "";
+            $report[] = '';
         }
 
-        if (!empty($analysis[self::CATEGORY_NON_PARALLEL])) {
-            $report[] = "## Non-Parallel Tests (run sequentially)";
+        if (! empty($analysis[self::CATEGORY_NON_PARALLEL])) {
+            $report[] = '## Non-Parallel Tests (run sequentially)';
             foreach ($analysis[self::CATEGORY_NON_PARALLEL] as $test) {
-                $relative = str_replace($this->baseDir . '/', '', $test['file']);
+                $relative = str_replace($this->baseDir.'/', '', $test['file']);
                 $reasons = implode(', ', $test['reasons']);
                 $report[] = "- `{$relative}`: {$reasons}";
             }
-            $report[] = "";
+            $report[] = '';
         }
 
         return implode("\n", $report);

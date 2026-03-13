@@ -23,11 +23,11 @@ class Localize
     {
         // Get user locale from session or user preferences
         $sessionLocale = session('user_locale');
-        
+
         // Allow modules to filter/override via Eventy hook
         // Note: Eventy::filter returns void, so we use sessionLocale directly
         Eventy::filter('locale', $sessionLocale);
-        
+
         if (is_string($sessionLocale)) {
             app()->setLocale($sessionLocale);
         }

@@ -6,7 +6,6 @@ namespace Tests\Unit\Console;
 
 use App\Console\Kernel;
 use Illuminate\Console\Scheduling\Schedule;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class KernelTest extends TestCase
@@ -103,7 +102,7 @@ class KernelTest extends TestCase
         // Verify that commands are loaded by checking if our custom commands exist
         $allCommands = \Artisan::all();
         $commandNames = array_keys($allCommands);
-        
+
         // Should have freescout commands loaded
         $hasFreescoutCommands = false;
         foreach ($commandNames as $name) {
@@ -123,7 +122,7 @@ class KernelTest extends TestCase
 
         $reflection = new \ReflectionClass($kernel);
         $method = $reflection->getMethod('schedule');
-        
+
         // Verify method signature
         $parameters = $method->getParameters();
         $this->assertCount(1, $parameters);

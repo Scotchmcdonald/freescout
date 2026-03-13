@@ -2,7 +2,6 @@
 
 use App\Models\Theme;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 test('non admin cannot access themes page', function () {
     // Regular user should have type=0/default
@@ -88,7 +87,7 @@ test('user can have null theme', function () {
 
 test('user theme is persisted', function () {
     $user = User::factory()->create(['theme' => 'dark']);
-    
+
     $user = User::find($user->id);
     expect($user->theme)->toBe('dark');
 });

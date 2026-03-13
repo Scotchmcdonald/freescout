@@ -320,6 +320,7 @@ class Thread extends Model
         if ($this->user) {
             return $this->user->getFullName($short);
         }
+
         return __('Unknown');
     }
 }

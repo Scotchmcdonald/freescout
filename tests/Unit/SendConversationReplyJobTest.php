@@ -15,7 +15,6 @@ use Tests\UnitTestCase;
 
 class SendConversationReplyJobTest extends UnitTestCase
 {
-
     /** Test job has required properties */
     public function test_job_has_required_properties(): void
     {
@@ -70,7 +69,7 @@ class SendConversationReplyJobTest extends UnitTestCase
         ]);
         // Ensure mailbox is loaded for the mailable envelope
         $conversation->load('mailbox');
-        
+
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'state' => Thread::STATE_PUBLISHED,

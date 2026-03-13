@@ -8,19 +8,19 @@ use App\Enums\ConversationStatus;
 
 /**
  * Data Transfer Object for bulk conversation operations.
- * 
+ *
  * Encapsulates all the data needed for bulk operations on conversations,
  * providing type safety and validation.
  */
 readonly class BulkConversationData
 {
     /**
-     * @param array<int> $conversationIds The IDs of conversations to process
-     * @param string $action The bulk action to perform (e.g., 'change_status', 'delete')
-     * @param ConversationStatus|null $status New status for status change operations
-     * @param int|null $userId New assignee ID for assignment operations
-     * @param int|null $mailboxId Target mailbox ID for move operations
-     * @param int|null $folderId Target folder ID for folder operations
+     * @param  array<int>  $conversationIds  The IDs of conversations to process
+     * @param  string  $action  The bulk action to perform (e.g., 'change_status', 'delete')
+     * @param  ConversationStatus|null  $status  New status for status change operations
+     * @param  int|null  $userId  New assignee ID for assignment operations
+     * @param  int|null  $mailboxId  Target mailbox ID for move operations
+     * @param  int|null  $folderId  Target folder ID for folder operations
      */
     public function __construct(
         public array $conversationIds,
@@ -34,7 +34,7 @@ readonly class BulkConversationData
     /**
      * Create from validated request data.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {
@@ -44,13 +44,13 @@ readonly class BulkConversationData
         }
 
         $conversationIds = $data['conversation_ids'] ?? [];
-        if (!is_array($conversationIds)) {
+        if (! is_array($conversationIds)) {
             $conversationIds = [];
         }
         $conversationIds = array_map(fn ($id) => is_numeric($id) ? intval($id) : 0, $conversationIds);
 
         $action = $data['action'] ?? '';
-        if (!is_string($action)) {
+        if (! is_string($action)) {
             $action = '';
         }
 

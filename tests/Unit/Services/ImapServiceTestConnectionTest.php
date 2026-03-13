@@ -9,11 +9,11 @@ use App\Services\ImapService;
 use Mockery;
 use Tests\TestCase;
 use Webklex\PHPIMAP\Client;
+use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 use Webklex\PHPIMAP\Folder;
 use Webklex\PHPIMAP\Message;
 use Webklex\PHPIMAP\Query\WhereQuery;
 use Webklex\PHPIMAP\Support\MessageCollection;
-use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 
 /**
  * Comprehensive tests for ImapService::testConnection() method.
@@ -26,7 +26,7 @@ class ImapServiceTestConnectionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImapService();
+        $this->service = new ImapService;
     }
 
     protected function tearDown(): void
@@ -61,7 +61,7 @@ class ImapServiceTestConnectionTest extends TestCase
 
         $mockMessage1 = Mockery::mock(Message::class);
         $mockMessage1->shouldReceive('hasFlag')->with('Seen')->andReturn(false);
-        
+
         $mockMessage2 = Mockery::mock(Message::class);
         $mockMessage2->shouldReceive('hasFlag')->with('Seen')->andReturn(true);
 
@@ -127,10 +127,10 @@ class ImapServiceTestConnectionTest extends TestCase
 
         $mockMessage1 = Mockery::mock(Message::class);
         $mockMessage1->shouldReceive('hasFlag')->with('Seen')->andReturn(true);
-        
+
         $mockMessage2 = Mockery::mock(Message::class);
         $mockMessage2->shouldReceive('hasFlag')->with('Seen')->andReturn(true);
-        
+
         $mockMessage3 = Mockery::mock(Message::class);
         $mockMessage3->shouldReceive('hasFlag')->with('Seen')->andReturn(true);
 

@@ -13,7 +13,6 @@ use Tests\UnitTestCase;
 
 class ModelEdgeCasesTest extends UnitTestCase
 {
-
     public function test_conversation_with_null_subject(): void
     {
         $conversation = Conversation::factory()->create(['subject' => null]);

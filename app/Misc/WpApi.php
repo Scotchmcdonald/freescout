@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Misc;
 
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -36,16 +35,18 @@ class WpApi
     {
         if ($alternative) {
             $api = config('app.freescout_alt_api', 'https://api.freescout.net/');
-            if (!is_string($api)) {
+            if (! is_string($api)) {
                 $api = 'https://api.freescout.net/';
             }
+
             return $api.$path;
         }
 
         $api = config('app.freescout_api', 'https://freescout.net/wp-json/');
-        if (!is_string($api)) {
+        if (! is_string($api)) {
             $api = 'https://freescout.net/wp-json/';
         }
+
         return $api.$path;
     }
 
@@ -62,9 +63,9 @@ class WpApi
         ]);
 
         $http = \Illuminate\Support\Facades\Http::withOptions($options);
-        
+
         $version = config('app.version', '1.0.0');
-        if (!is_string($version)) {
+        if (! is_string($version)) {
             $version = '1.0.0';
         }
 
@@ -75,12 +76,12 @@ class WpApi
                 $url .= '?';
             }
             $url .= 'v='.$version;
-            
+
             return $http->asForm()->post($url, $params);
         }
 
         $params['v'] = $version;
-        
+
         return $http->get($url, $params);
     }
 

@@ -37,7 +37,7 @@ class JobsComprehensiveTest extends UnitTestCase
         ]);
     }
 
-// SendNotificationToUsers Tests
+    // SendNotificationToUsers Tests
     // ========================================
 
     public function test_send_notification_handles_empty_users_list(): void
@@ -254,7 +254,7 @@ class JobsComprehensiveTest extends UnitTestCase
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
         ]);
-        
+
         // Create threads with different timestamps
         $oldThread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
@@ -326,7 +326,7 @@ class JobsComprehensiveTest extends UnitTestCase
         ]);
 
         // Create user object without ID
-        $userWithoutId = new User();
+        $userWithoutId = new User;
         $userWithoutId->email = 'test@example.com';
         $userWithoutId->status = User::STATUS_ACTIVE;
 
@@ -701,7 +701,7 @@ class JobsComprehensiveTest extends UnitTestCase
 
     // ========================================
 
-// Additional Edge Case Tests for Jobs
+    // Additional Edge Case Tests for Jobs
     // ========================================
 
     public function test_send_notification_with_customer_thread_sets_from_name(): void
@@ -770,7 +770,7 @@ class JobsComprehensiveTest extends UnitTestCase
         // Message ID format: notification-{thread_id}-{user_id}-{timestamp}@{mailbox_email}
         $sendLog = SendLog::where('thread_id', $thread->id)->first();
         $this->assertNotNull($sendLog);
-        $this->assertStringContainsString('notification-' . $thread->id . '-' . $this->user->id, $sendLog->message_id);
+        $this->assertStringContainsString('notification-'.$thread->id.'-'.$this->user->id, $sendLog->message_id);
         $this->assertStringContainsString('@support@example.com', $sendLog->message_id);
     }
 
@@ -805,7 +805,7 @@ class JobsComprehensiveTest extends UnitTestCase
         // Message ID format: auto-reply-{thread_id}-{hash}@{domain}
         $sendLog = SendLog::where('thread_id', $thread->id)->first();
         $this->assertNotNull($sendLog);
-        $this->assertStringContainsString('auto-reply-' . $thread->id, $sendLog->message_id);
+        $this->assertStringContainsString('auto-reply-'.$thread->id, $sendLog->message_id);
     }
 
     public function test_send_notification_job_properties(): void

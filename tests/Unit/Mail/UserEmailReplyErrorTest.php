@@ -7,12 +7,10 @@ namespace Tests\Unit\Mail;
 use App\Mail\UserEmailReplyError;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\UnitTestCase;
 
 class UserEmailReplyErrorTest extends UnitTestCase
 {
-
     public function test_mailable_can_be_instantiated(): void
     {
         $user = \App\Models\User::factory()->create();
@@ -67,7 +65,7 @@ class UserEmailReplyErrorTest extends UnitTestCase
     {
         $user = \App\Models\User::factory()->create();
         $mailable = new UserEmailReplyError($user);
-        
+
         $this->assertTrue(method_exists($mailable, 'onQueue'));
         $this->assertTrue(method_exists($mailable, 'onConnection'));
     }
@@ -76,7 +74,7 @@ class UserEmailReplyErrorTest extends UnitTestCase
     {
         $user = \App\Models\User::factory()->create();
         $mailable = new UserEmailReplyError($user);
-        
+
         $this->assertInstanceOf(UserEmailReplyError::class, $mailable);
         $this->assertEquals($user->id, $mailable->user->id);
     }
@@ -84,11 +82,11 @@ class UserEmailReplyErrorTest extends UnitTestCase
     public function test_user_email_reply_error_can_be_queued(): void
     {
         Mail::fake();
-        
+
         $user = User::factory()->create();
-        
+
         Mail::to('user@example.com')->queue(new UserEmailReplyError($user));
-        
+
         Mail::assertQueued(UserEmailReplyError::class);
     }
 

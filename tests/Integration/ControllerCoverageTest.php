@@ -24,14 +24,13 @@ use Tests\IntegrationTestCase;
 
 class ControllerCoverageTest extends IntegrationTestCase
 {
-
     protected User $admin;
     protected User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $this->user = User::factory()->create(['role' => User::ROLE_USER]);
     }
@@ -43,10 +42,10 @@ class ControllerCoverageTest extends IntegrationTestCase
     public function test_clone_creates_duplicate_conversation(): void
     {
         $this->actingAs($this->admin);
-        
+
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $customer = Customer::factory()->create();
         $originalConversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -56,7 +55,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             'status' => 1,
             'state' => 2,
         ]);
-        
+
         $thread = Thread::factory()->create([
             'conversation_id' => $originalConversation->id,
             'customer_id' => $customer->id,
@@ -72,10 +71,10 @@ class ControllerCoverageTest extends IntegrationTestCase
 
         // Verify redirect response
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
-        
+
         // Verify new conversation was created
         $this->assertDatabaseCount('conversations', 2);
-        
+
         // Verify the cloned conversation has same subject
         $clonedConversation = Conversation::where('id', '!=', $originalConversation->id)->first();
         $this->assertNotNull($clonedConversation);
@@ -86,9 +85,9 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
-        
+
         $this->admin->mailboxes()->attach([$mailbox1->id, $mailbox2->id]);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox1->id,
         ]);
@@ -102,7 +101,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->move($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
-        
+
         $conversation->refresh();
         $this->assertEquals($mailbox2->id, $conversation->mailbox_id);
     }
@@ -111,11 +110,11 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
         ]);
-        
+
         $thread = Thread::factory()->create([
             'conversation_id' => $conversation->id,
             'body' => 'Original body',
@@ -130,7 +129,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->updateThread($request, $conversation, $thread);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
-        
+
         $thread->refresh();
         $this->assertEquals('Updated thread body', $thread->body);
         $this->assertEquals($this->admin->id, $thread->edited_by_user_id);
@@ -141,7 +140,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'meta' => [],
@@ -160,7 +159,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->updateSettings($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
-        
+
         $conversation->refresh();
         $this->assertIsArray($conversation->meta);
         $this->assertEquals(['urgent', 'important', 'followup'], $conversation->meta['tags']);
@@ -174,13 +173,13 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $this->user->mailboxes()->attach($mailbox->id);
-        
+
         // Create chat-type conversation
         $chatConversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'type' => 1, // Chat type
         ]);
-        
+
         // Create non-chat conversation
         $emailConversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -194,7 +193,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $view = $controller->chats($request);
 
         $this->assertEquals('conversations.chats', $view->name());
-        
+
         $conversations = $view->getData()['conversations'];
         // Should only contain chat-type conversations
         $this->assertTrue($conversations->contains('id', $chatConversation->id));
@@ -204,7 +203,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     public function test_upload_handles_file_attachment(): void
     {
         Storage::fake('public');
-        
+
         $file = UploadedFile::fake()->create('document.pdf', 100, 'application/pdf');
 
         $request = Request::create('/conversations/upload', 'POST');
@@ -214,13 +213,13 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->upload($request);
 
         $this->assertEquals(200, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['success']);
         $this->assertEquals('document.pdf', $data['filename']);
         $this->assertArrayHasKey('path', $data);
         $this->assertArrayHasKey('size', $data);
-        
+
         // Verify file was stored
         Storage::disk('public')->assertExists($data['path']);
     }
@@ -228,10 +227,10 @@ class ControllerCoverageTest extends IntegrationTestCase
     public function test_destroy_soft_deletes_conversation(): void
     {
         $this->actingAs($this->admin);
-        
+
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
         ]);
@@ -245,7 +244,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->destroy($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
-        
+
         // Verify conversation is soft deleted
         $this->assertSoftDeleted('conversations', ['id' => $conversationId]);
     }
@@ -264,7 +263,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $this->user); // Not attached to mailbox
 
         $controller = new ConversationController;
-        
+
         $this->expectException(\Illuminate\Auth\Access\AuthorizationException::class);
         $controller->clone($request, $mailbox, $thread);
     }
@@ -272,17 +271,17 @@ class ControllerCoverageTest extends IntegrationTestCase
     public function test_clone_preserves_all_thread_properties(): void
     {
         $this->actingAs($this->admin);
-        
+
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $customer = Customer::factory()->create();
         $originalConversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'customer_id' => $customer->id,
             'customer_email' => $customer->email,
         ]);
-        
+
         $thread = Thread::factory()->create([
             'conversation_id' => $originalConversation->id,
             'customer_id' => $customer->id,
@@ -301,7 +300,7 @@ class ControllerCoverageTest extends IntegrationTestCase
 
         $clonedConversation = Conversation::where('id', '!=', $originalConversation->id)->first();
         $clonedThread = Thread::where('conversation_id', $clonedConversation->id)->first();
-        
+
         $this->assertEquals($thread->body, $clonedThread->body);
         $this->assertEquals($thread->cc, $clonedThread->cc);
         $this->assertEquals($thread->bcc, $clonedThread->bcc);
@@ -312,10 +311,10 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
-        
+
         $this->user->mailboxes()->attach($mailbox1->id);
         // User does NOT have access to mailbox2
-        
+
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox1->id]);
 
         $request = Request::create('/conversations/move', 'POST', [
@@ -324,7 +323,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $this->user);
 
         $controller = new ConversationController;
-        
+
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->move($request, $conversation);
     }
@@ -333,9 +332,9 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
-        
+
         $this->admin->mailboxes()->attach([$mailbox1->id, $mailbox2->id]);
-        
+
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox1->id]);
 
         $request = Request::create('/conversations/move', 'POST', [
@@ -348,7 +347,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->move($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['success']);
     }
@@ -357,14 +356,14 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
         $request = Request::create('/conversations/move', 'POST', []);
         $request->setUserResolver(fn () => $this->admin);
 
         $controller = new ConversationController;
-        
+
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->move($request, $conversation);
     }
@@ -373,10 +372,10 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $conversation1 = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         $conversation2 = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
-        
+
         $thread = Thread::factory()->create(['conversation_id' => $conversation2->id]);
 
         $request = Request::create('/conversations/threads/update', 'POST', [
@@ -385,7 +384,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $this->admin);
 
         $controller = new ConversationController;
-        
+
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->updateThread($request, $conversation1, $thread);
     }
@@ -394,7 +393,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
@@ -408,7 +407,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->updateThread($request, $conversation, $thread);
 
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['success']);
     }
@@ -417,7 +416,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         $thread = Thread::factory()->create(['conversation_id' => $conversation->id]);
 
@@ -425,7 +424,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $this->admin);
 
         $controller = new ConversationController;
-        
+
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->updateThread($request, $conversation, $thread);
     }
@@ -434,7 +433,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'meta' => [],
@@ -458,7 +457,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
         $request = Request::create('/conversations/settings', 'POST', [
@@ -471,7 +470,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->updateSettings($request, $conversation);
 
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['success']);
     }
@@ -480,7 +479,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
 
         $request = Request::create('/conversations/settings', 'POST', [
@@ -489,7 +488,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $this->admin);
 
         $controller = new ConversationController;
-        
+
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->updateSettings($request, $conversation);
     }
@@ -498,15 +497,15 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
-        
+
         $this->user->mailboxes()->attach($mailbox1->id);
         // User does NOT have access to mailbox2
-        
+
         $chatInAccessible = Conversation::factory()->create([
             'mailbox_id' => $mailbox1->id,
             'type' => 1,
         ]);
-        
+
         $chatNotAccessible = Conversation::factory()->create([
             'mailbox_id' => $mailbox2->id,
             'type' => 1,
@@ -527,7 +526,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     {
         $mailbox = Mailbox::factory()->create();
         $this->user->mailboxes()->attach($mailbox->id);
-        
+
         $chat = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
             'type' => 1,
@@ -549,7 +548,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request = Request::create('/conversations/upload', 'POST', []);
 
         $controller = new ConversationController;
-        
+
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->upload($request);
     }
@@ -557,7 +556,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     public function test_upload_validates_file_size_limit(): void
     {
         Storage::fake('public');
-        
+
         // Try to upload file larger than 10MB
         $file = UploadedFile::fake()->create('large.pdf', 11000); // 11MB
 
@@ -565,7 +564,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->files->set('file', $file);
 
         $controller = new ConversationController;
-        
+
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->upload($request);
     }
@@ -573,7 +572,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     public function test_upload_handles_various_file_types(): void
     {
         Storage::fake('public');
-        
+
         $files = [
             UploadedFile::fake()->image('photo.jpg'),
             UploadedFile::fake()->create('document.docx', 100),
@@ -588,7 +587,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             $response = $controller->upload($request);
 
             $this->assertEquals(200, $response->getStatusCode());
-            
+
             $data = json_decode($response->getContent(), true);
             $this->assertTrue($data['success']);
         }
@@ -603,7 +602,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $this->user); // Not attached to mailbox
 
         $controller = new ConversationController;
-        
+
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->destroy($request, $conversation);
     }
@@ -611,10 +610,10 @@ class ControllerCoverageTest extends IntegrationTestCase
     public function test_destroy_only_soft_deletes(): void
     {
         $this->actingAs($this->admin);
-        
+
         $mailbox = Mailbox::factory()->create();
         $this->admin->mailboxes()->attach($mailbox->id);
-        
+
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
         $conversationId = $conversation->id;
 
@@ -626,7 +625,7 @@ class ControllerCoverageTest extends IntegrationTestCase
 
         // Verify conversation is soft deleted
         $this->assertSoftDeleted('conversations', ['id' => $conversationId]);
-        
+
         // Verify related threads are NOT deleted (unless cascade delete is set up in DB, but usually soft delete keeps them)
         // If threads don't use SoftDeletes, they might remain.
         // Let's assume threads remain for now, or check Thread model.
@@ -649,8 +648,8 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $this->actingAs($this->admin)
             ->postJson(route('settings.validate-smtp'), [
                 'out_server' => 'smtp.example.com',
-                'out_port'   => 587,
-                'email'      => 'user@example.com',
+                'out_port' => 587,
+                'email' => 'user@example.com',
             ]);
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -675,8 +674,8 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $this->actingAs($this->admin)
             ->postJson(route('settings.validate-smtp'), [
                 'out_server' => 'smtp.example.com',
-                'out_port'   => 587,
-                'email'      => 'user@example.com',
+                'out_port' => 587,
+                'email' => 'user@example.com',
             ]);
 
         $this->assertEquals(422, $response->getStatusCode());
@@ -717,13 +716,13 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->updateAlerts($request);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
-        
+
         // Verify settings were saved
         $this->assertDatabaseHas('options', [
             'name' => 'alert_system_errors',
             'value' => '1',
         ]);
-        
+
         $this->assertDatabaseHas('options', [
             'name' => 'alert_failed_jobs',
             'value' => '0',
@@ -738,7 +737,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $this->admin);
 
         $controller = new SettingsController;
-        
+
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->updateAlerts($request);
     }
@@ -751,7 +750,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $request->setUserResolver(fn () => $this->admin);
 
         $controller = new SettingsController;
-        
+
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->updateAlerts($request);
     }
@@ -782,7 +781,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             'email' => 'john@example.com',
             'status' => 1,
         ]);
-        
+
         $user2 = User::factory()->create([
             'first_name' => 'Jane',
             'last_name' => 'Smith',
@@ -800,12 +799,12 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['success']);
         $this->assertArrayHasKey('users', $data);
         $this->assertGreaterThan(0, count($data['users']));
-        
+
         // Verify John is in results
         $foundJohn = false;
         foreach ($data['users'] as $user) {
@@ -824,7 +823,7 @@ class ControllerCoverageTest extends IntegrationTestCase
             'last_name' => 'User',
             'status' => 1,
         ]);
-        
+
         $inactiveUser = User::factory()->create([
             'first_name' => 'Inactive',
             'last_name' => 'User',
@@ -841,7 +840,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->ajax($request);
 
         $data = json_decode($response->getContent(), true);
-        
+
         $foundActive = false;
         $foundInactive = false;
         foreach ($data['users'] as $user) {
@@ -852,7 +851,7 @@ class ControllerCoverageTest extends IntegrationTestCase
                 $foundInactive = true;
             }
         }
-        
+
         $this->assertTrue($foundActive);
         $this->assertFalse($foundInactive);
     }
@@ -878,7 +877,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     public function test_ajax_handles_toggle_status_action(): void
     {
         $this->actingAs($this->admin);
-        
+
         $targetUser = User::factory()->create(['status' => 1]);
 
         $request = Request::create('/users/ajax', 'POST', [
@@ -891,11 +890,11 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['success']);
         $this->assertEquals(2, $data['status']);
-        
+
         $targetUser->refresh();
         $this->assertEquals(2, $targetUser->status);
     }
@@ -903,7 +902,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     public function test_ajax_toggle_status_toggles_back(): void
     {
         $this->actingAs($this->admin);
-        
+
         $targetUser = User::factory()->create(['status' => 2]);
 
         $request = Request::create('/users/ajax', 'POST', [
@@ -917,7 +916,7 @@ class ControllerCoverageTest extends IntegrationTestCase
 
         $data = json_decode($response->getContent(), true);
         $this->assertEquals(1, $data['status']);
-        
+
         $targetUser->refresh();
         $this->assertEquals(1, $targetUser->status);
     }
@@ -933,7 +932,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->ajax($request);
 
         $this->assertEquals(400, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertFalse($data['success']);
         $this->assertEquals('Invalid action', $data['message']);
@@ -953,7 +952,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->ajax($request);
 
         $this->assertEquals(200, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertTrue($data['success']);
         $this->assertArrayHasKey('users', $data);
@@ -977,7 +976,7 @@ class ControllerCoverageTest extends IntegrationTestCase
     public function test_user_setup_returns_404_for_invalid_hash(): void
     {
         $controller = new UserController;
-        
+
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->userSetup('invalid-hash-xyz');
     }
@@ -1020,7 +1019,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->userSetupSave('test-hash-456', $request);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
-        
+
         $inviteUser->refresh();
         $this->assertEquals('updated@example.com', $inviteUser->email);
         $this->assertEquals('America/New_York', $inviteUser->timezone);
@@ -1043,7 +1042,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
 
         $controller = new UserController;
-        
+
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->userSetupSave('test-hash-valid', $request);
     }
@@ -1063,7 +1062,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
 
         $controller = new UserController;
-        
+
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->userSetupSave('test-hash-mismatch', $request);
     }
@@ -1083,7 +1082,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
 
         $controller = new UserController;
-        
+
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->userSetupSave('test-hash-short', $request);
     }
@@ -1103,7 +1102,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
 
         $controller = new UserController;
-        
+
         $this->expectException(\Illuminate\Validation\ValidationException::class);
         $controller->userSetupSave('test-hash-format', $request);
     }
@@ -1119,7 +1118,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         ]);
 
         $controller = new UserController;
-        
+
         $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
         $controller->userSetupSave('invalid-hash', $request);
     }
@@ -1146,11 +1145,11 @@ class ControllerCoverageTest extends IntegrationTestCase
         Artisan::shouldReceive('call')
             ->with('freescout:module-install', ['module_alias' => 'TestModule'], \Mockery::any())
             ->once();
-        
+
         Artisan::shouldReceive('call')
             ->with('cache:clear')
             ->once();
-        
+
         Artisan::shouldReceive('call')
             ->with('config:clear')
             ->once();
@@ -1163,7 +1162,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->enable($request, 'testmodule');
 
         $this->assertEquals(200, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('success', $data['status']);
     }
@@ -1183,7 +1182,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->enable($request, 'nonexistent');
 
         $this->assertEquals(404, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('error', $data['status']);
     }
@@ -1212,7 +1211,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->enable($request, 'testmodule');
 
         $this->assertEquals(500, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('error', $data['status']);
         $this->assertEquals('Migration failed', $data['message']);
@@ -1245,7 +1244,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->disable($request, 'testmodule');
 
         $this->assertEquals(200, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('success', $data['status']);
     }
@@ -1265,7 +1264,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->disable($request, 'nonexistent');
 
         $this->assertEquals(404, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('error', $data['status']);
     }
@@ -1291,7 +1290,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->disable($request, 'testmodule');
 
         $this->assertEquals(500, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('error', $data['status']);
         $this->assertEquals('Disable failed', $data['message']);
@@ -1329,7 +1328,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         Artisan::shouldReceive('call')
             ->with('cache:clear')
             ->once();
-        
+
         Artisan::shouldReceive('call')
             ->with('config:clear')
             ->once();
@@ -1342,7 +1341,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->delete($request, 'testmodule');
 
         $this->assertEquals(200, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('success', $data['status']);
     }
@@ -1378,7 +1377,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         Artisan::shouldReceive('call')
             ->with('cache:clear')
             ->once();
-        
+
         Artisan::shouldReceive('call')
             ->with('config:clear')
             ->once();
@@ -1412,7 +1411,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->delete($request, 'nonexistent');
 
         $this->assertEquals(404, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('error', $data['status']);
     }
@@ -1446,7 +1445,7 @@ class ControllerCoverageTest extends IntegrationTestCase
         $response = $controller->delete($request, 'testmodule');
 
         $this->assertEquals(500, $response->getStatusCode());
-        
+
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('error', $data['status']);
         $this->assertEquals('Directory deletion failed', $data['message']);

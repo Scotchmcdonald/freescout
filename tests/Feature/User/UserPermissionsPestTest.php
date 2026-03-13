@@ -2,7 +2,6 @@
 
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 test('admin can assign mailbox permissions to user', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -73,8 +72,8 @@ test('guest cannot assign permissions', function () {
     $mailbox = Mailbox::factory()->create();
 
     $this->post(route('users.permissions.update', $user), [
-            'mailboxes' => [$mailbox->id],
-        ])
+        'mailboxes' => [$mailbox->id],
+    ])
         ->assertRedirect(route('login'));
 });
 

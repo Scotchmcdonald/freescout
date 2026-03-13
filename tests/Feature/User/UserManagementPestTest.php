@@ -2,8 +2,8 @@
 
 use App\Models\Mailbox;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 
 // uses(\Tests\TestCase::class, RefreshDatabase::class);
 
@@ -13,7 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 test('admin can view users list', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     User::factory()->create(['first_name' => 'John', 'email' => 'john@example.com']);
     User::factory()->create(['first_name' => 'Jane', 'email' => 'jane@example.com']);
 
@@ -60,7 +60,7 @@ test('non-admin cannot view create user page', function () {
 
 test('admin can create user with valid data', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    $email = 'newuser' . time() . '@example.com';
+    $email = 'newuser'.time().'@example.com';
     $password = 'password123';
 
     $response = $this->actingAs($admin)
@@ -237,7 +237,7 @@ test('admin cannot delete themselves', function () {
 
 test('show returns 404 for nonexistent user', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->get(route('users.show', 99999))
         ->assertNotFound();
@@ -246,7 +246,7 @@ test('show returns 404 for nonexistent user', function () {
 test('create user with admin role', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $email = 'admin2@example.com';
-    
+
     $this->actingAs($admin)
         ->post(route('users.store'), [
             'first_name' => 'Admin2',
@@ -258,7 +258,7 @@ test('create user with admin role', function () {
             'status' => User::STATUS_ACTIVE,
         ])
         ->assertRedirect();
-        
+
     expect(User::where('email', $email)->first()->role)->toBe(User::ROLE_ADMIN);
 });
 
@@ -279,7 +279,7 @@ test('update cannot change email to existing', function () {
 
 test('store user with special characters in name', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->post(route('users.store'), [
             'first_name' => "O'Brien",
@@ -291,7 +291,7 @@ test('store user with special characters in name', function () {
             'status' => User::STATUS_ACTIVE,
         ])
         ->assertRedirect();
-        
+
     $user = User::where('email', 'special@example.com')->first();
     expect($user->first_name)->toBe("O'Brien");
     expect($user->last_name)->toBe('José-María');

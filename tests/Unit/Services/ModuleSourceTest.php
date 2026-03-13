@@ -19,8 +19,8 @@ class ModuleSourceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->moduleSource = new ModuleSourceService();
-        
+        $this->moduleSource = new ModuleSourceService;
+
         // Clear cache before each test
         Cache::forget('available_modules');
     }
@@ -38,7 +38,7 @@ class ModuleSourceTest extends TestCase
 
         $this->assertIsArray($modules);
         $this->assertNotEmpty($modules);
-        
+
         // Check structure of sample modules
         $firstModule = $modules[0] ?? null;
         $this->assertNotNull($firstModule);
@@ -67,7 +67,7 @@ class ModuleSourceTest extends TestCase
     {
         // First call - should populate cache
         $modules1 = $this->moduleSource->getModules();
-        
+
         // Second call - should use cache
         $modules2 = $this->moduleSource->getModules();
 
@@ -101,7 +101,7 @@ class ModuleSourceTest extends TestCase
 
     public function test_module_source_can_be_instantiated(): void
     {
-        $service = new ModuleSourceService();
+        $service = new ModuleSourceService;
         $this->assertInstanceOf(ModuleSourceService::class, $service);
     }
 
@@ -109,38 +109,38 @@ class ModuleSourceTest extends TestCase
     {
         // Force cache clear
         Cache::forget('available_modules');
-        
+
         // Set config to non-testing URL to test HTTP failure path
         config(['modules.source_url' => 'https://invalid.example.com/modules.json']);
-        
+
         Http::fake([
             '*' => Http::response(null, 500),
         ]);
 
         // In testing environment, it still returns sample modules
         $modules = $this->moduleSource->getModules();
-        
+
         $this->assertIsArray($modules);
     }
 
     public function test_get_modules_handles_exception(): void
     {
         Cache::forget('available_modules');
-        
+
         Http::fake(function () {
             throw new \Exception('Connection failed');
         });
 
         // Should handle exception gracefully
         $modules = $this->moduleSource->getModules();
-        
+
         $this->assertIsArray($modules);
     }
 
     public function test_cache_expires_after_one_hour(): void
     {
         $modules = $this->moduleSource->getModules();
-        
+
         // Cache should be set with 3600 second TTL
         $this->assertTrue(Cache::has('available_modules'));
     }

@@ -3,8 +3,6 @@
 use App\Models\ActivityLog;
 use App\Models\Conversation;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
 
 beforeEach(function () {
     $this->user = User::factory()->create(['role' => User::ROLE_ADMIN]);

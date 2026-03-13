@@ -48,7 +48,7 @@ class FinanceDashboardWidget implements Widget
             return null;
         }
 
-        $html  = '<div class="space-y-6">';
+        $html = '<div class="space-y-6">';
         $html .= $this->renderArKpis();
         $html .= $this->renderOverdueTable();
         $html .= $this->renderRecentPayments();
@@ -67,10 +67,10 @@ class FinanceDashboardWidget implements Widget
             return '';
         }
 
-        $openAr     = (float) \Modules\PIB\Models\Invoice::whereIn('status', ['published', 'sent', 'overdue'])->sum('total_amount');
-        $overdueAr  = (float) \Modules\PIB\Models\Invoice::where('status', 'overdue')->sum('total_amount');
+        $openAr = (float) \Modules\PIB\Models\Invoice::whereIn('status', ['published', 'sent', 'overdue'])->sum('total_amount');
+        $overdueAr = (float) \Modules\PIB\Models\Invoice::where('status', 'overdue')->sum('total_amount');
         $overdueCount = \Modules\PIB\Models\Invoice::where('status', 'overdue')->count();
-        $dueThisWeek  = \Modules\PIB\Models\Invoice::whereIn('status', ['published', 'sent'])
+        $dueThisWeek = \Modules\PIB\Models\Invoice::whereIn('status', ['published', 'sent'])
             ->whereNotNull('due_date')
             ->where('due_date', '<=', now()->addDays(7))
             ->count();
@@ -80,10 +80,10 @@ class FinanceDashboardWidget implements Widget
             ->sum('total_amount');
 
         $cards = [
-            ['label' => 'Total Open AR', 'value' => '$' . number_format($openAr, 0), 'sub' => 'across all clients', 'color' => $openAr > 0 ? 'yellow' : 'green'],
-            ['label' => 'Overdue AR', 'value' => '$' . number_format($overdueAr, 0), 'sub' => $overdueCount . ' invoice(s)', 'color' => $overdueAr > 0 ? 'red' : 'green'],
+            ['label' => 'Total Open AR', 'value' => '$'.number_format($openAr, 0), 'sub' => 'across all clients', 'color' => $openAr > 0 ? 'yellow' : 'green'],
+            ['label' => 'Overdue AR', 'value' => '$'.number_format($overdueAr, 0), 'sub' => $overdueCount.' invoice(s)', 'color' => $overdueAr > 0 ? 'red' : 'green'],
             ['label' => 'Due This Week', 'value' => (string) $dueThisWeek, 'sub' => 'invoice(s)', 'color' => $dueThisWeek > 0 ? 'blue' : 'gray'],
-            ['label' => 'Collected MTD', 'value' => '$' . number_format($collectedMtd, 0), 'sub' => 'this month', 'color' => 'green'],
+            ['label' => 'Collected MTD', 'value' => '$'.number_format($collectedMtd, 0), 'sub' => 'this month', 'color' => 'green'],
         ];
 
         $html = '<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">';
@@ -111,7 +111,7 @@ class FinanceDashboardWidget implements Widget
             return '<div class="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-700 font-medium">✓ No overdue invoices — all accounts current.</div>';
         }
 
-        $html  = '<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">';
+        $html = '<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">';
         $html .= '<h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Overdue Invoices</h3>';
         $html .= '<div class="overflow-x-auto"><table class="min-w-full text-sm">';
         $html .= '<thead><tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">';
@@ -132,11 +132,11 @@ class FinanceDashboardWidget implements Widget
             $clientName = $invoice->client?->name ?? '—';
 
             $html .= '<tr class="hover:bg-gray-50">';
-            $html .= '<td class="py-2 pr-4 font-medium text-indigo-600">' . e($invoice->invoice_number ?? "#{$invoice->id}") . '</td>';
-            $html .= '<td class="py-2 pr-4 text-gray-700">' . e($clientName) . '</td>';
-            $html .= '<td class="py-2 pr-4 text-right font-medium text-gray-900">$' . number_format($invoice->total_amount, 2) . '</td>';
-            $html .= '<td class="py-2 pr-4 text-gray-500">' . ($invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('M j, Y') : '—') . '</td>';
-            $html .= '<td class="py-2 ' . $overdueClass . '">' . (is_int($daysOverdue) ? $daysOverdue . 'd' : $daysOverdue) . '</td>';
+            $html .= '<td class="py-2 pr-4 font-medium text-indigo-600">'.e($invoice->invoice_number ?? "#{$invoice->id}").'</td>';
+            $html .= '<td class="py-2 pr-4 text-gray-700">'.e($clientName).'</td>';
+            $html .= '<td class="py-2 pr-4 text-right font-medium text-gray-900">$'.number_format($invoice->total_amount, 2).'</td>';
+            $html .= '<td class="py-2 pr-4 text-gray-500">'.($invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('M j, Y') : '—').'</td>';
+            $html .= '<td class="py-2 '.$overdueClass.'">'.(is_int($daysOverdue) ? $daysOverdue.'d' : $daysOverdue).'</td>';
             $html .= '</tr>';
         }
 
@@ -161,7 +161,7 @@ class FinanceDashboardWidget implements Widget
             return '';
         }
 
-        $html  = '<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">';
+        $html = '<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">';
         $html .= '<h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Recent Payments Received</h3>';
         $html .= '<div class="space-y-2">';
 
@@ -169,10 +169,10 @@ class FinanceDashboardWidget implements Widget
             $clientName = $payment->client?->name ?? '—';
             $html .= '<div class="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">';
             $html .= '<div>';
-            $html .= '<p class="text-sm font-medium text-gray-800">' . e($clientName) . '</p>';
-            $html .= '<p class="text-xs text-gray-400">' . ($payment->created_at?->format('M j, Y g:ia') ?? '—') . '</p>';
+            $html .= '<p class="text-sm font-medium text-gray-800">'.e($clientName).'</p>';
+            $html .= '<p class="text-xs text-gray-400">'.($payment->created_at?->format('M j, Y g:ia') ?? '—').'</p>';
             $html .= '</div>';
-            $html .= '<span class="text-sm font-semibold text-green-700">+$' . number_format((float) $payment->amount, 2) . '</span>';
+            $html .= '<span class="text-sm font-semibold text-green-700">+$'.number_format((float) $payment->amount, 2).'</span>';
             $html .= '</div>';
         }
 
@@ -182,40 +182,40 @@ class FinanceDashboardWidget implements Widget
     }
 
     /**
-     * @param array{label: string, value: string, sub: string, color: string} $card
+     * @param  array{label: string, value: string, sub: string, color: string}  $card
      */
     private function renderKpiCard(array $card): string
     {
         $colorMap = [
-            'red'    => 'bg-red-50 border-red-200',
+            'red' => 'bg-red-50 border-red-200',
             'yellow' => 'bg-yellow-50 border-yellow-200',
-            'green'  => 'bg-green-50 border-green-200',
-            'blue'   => 'bg-blue-50 border-blue-200',
-            'gray'   => 'bg-gray-50 border-gray-200',
+            'green' => 'bg-green-50 border-green-200',
+            'blue' => 'bg-blue-50 border-blue-200',
+            'gray' => 'bg-gray-50 border-gray-200',
         ];
         $textMap = [
-            'red'    => 'text-red-800',
+            'red' => 'text-red-800',
             'yellow' => 'text-yellow-800',
-            'green'  => 'text-green-800',
-            'blue'   => 'text-blue-800',
-            'gray'   => 'text-gray-700',
+            'green' => 'text-green-800',
+            'blue' => 'text-blue-800',
+            'gray' => 'text-gray-700',
         ];
         $subMap = [
-            'red'    => 'text-red-600',
+            'red' => 'text-red-600',
             'yellow' => 'text-yellow-600',
-            'green'  => 'text-green-600',
-            'blue'   => 'text-blue-600',
-            'gray'   => 'text-gray-500',
+            'green' => 'text-green-600',
+            'blue' => 'text-blue-600',
+            'gray' => 'text-gray-500',
         ];
 
-        $wrap  = $colorMap[$card['color']] ?? $colorMap['gray'];
-        $text  = $textMap[$card['color']] ?? 'text-gray-700';
+        $wrap = $colorMap[$card['color']] ?? $colorMap['gray'];
+        $text = $textMap[$card['color']] ?? 'text-gray-700';
         $subCl = $subMap[$card['color']] ?? 'text-gray-500';
 
-        $html  = '<div class="rounded-xl border p-4 ' . $wrap . '">';
-        $html .= '<p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">' . e($card['label']) . '</p>';
-        $html .= '<p class="text-2xl font-bold ' . $text . '">' . e($card['value']) . '</p>';
-        $html .= '<p class="text-xs mt-1 ' . $subCl . '">' . e($card['sub']) . '</p>';
+        $html = '<div class="rounded-xl border p-4 '.$wrap.'">';
+        $html .= '<p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">'.e($card['label']).'</p>';
+        $html .= '<p class="text-2xl font-bold '.$text.'">'.e($card['value']).'</p>';
+        $html .= '<p class="text-xs mt-1 '.$subCl.'">'.e($card['sub']).'</p>';
         $html .= '</div>';
 
         return $html;

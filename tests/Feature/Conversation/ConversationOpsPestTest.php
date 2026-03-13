@@ -5,7 +5,6 @@ use App\Models\Customer;
 use App\Models\Email;
 use App\Models\Folder;
 use App\Models\Mailbox;
-use App\Models\Thread;
 use App\Models\User;
 
 beforeEach(function () {
@@ -63,7 +62,7 @@ test('bulk restore only affects deleted conversations', function () {
         'folder_id' => $this->inboxFolder->id,
         'state' => Conversation::STATE_PUBLISHED,
     ]);
-    
+
     $deletedConv = Conversation::factory()->for($this->mailbox)->create([
         'folder_id' => $this->deletedFolder->id,
         'state' => Conversation::STATE_DELETED,
@@ -139,7 +138,7 @@ test('create phone conversation with new customer', function () {
     ]);
 
     $response->assertOk();
-    $response->assertJson(['success' => true]); 
+    $response->assertJson(['success' => true]);
 });
 
 test('merge search with empty query', function () {
@@ -167,7 +166,7 @@ test('merge search excludes self', function () {
     ]);
 
     $response->assertOk();
-    
+
     $resultIds = collect($response->json('results'))->pluck('id')->toArray();
     expect($resultIds)->not->toContain($this->conversation->id);
     // Should ideally contain otherConv if search works, but we test exclusion logic mainly
@@ -207,7 +206,7 @@ test('empty folder only works on deletable folders', function () {
     // Try to empty inbox (should be prevented)
     $response = $this->actingAs($this->admin)->postJson(route('folders.empty', $this->inboxFolder));
 
-    expect($response->status() === 403 || 
+    expect($response->status() === 403 ||
            $response->json('status') === 'error' ||
            $response->json('success') === false ||
            $response->json('count') === 0)->toBeTrue();

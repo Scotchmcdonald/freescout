@@ -10,7 +10,7 @@ use App\Models\Thread;
 
 /**
  * Action class for saving conversation drafts.
- * 
+ *
  * Encapsulates the logic for creating and updating drafts,
  * including finding existing drafts and handling attachments.
  */
@@ -67,7 +67,7 @@ class SaveDraftAction
         $draft->update($updateData);
 
         $freshDraft = $draft->fresh();
-        if (!($freshDraft instanceof Thread)) {
+        if (! ($freshDraft instanceof Thread)) {
             throw new \Exception('Failed to refresh draft');
         }
 

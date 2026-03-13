@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
             RbacSeeder::class,
             UserSeeder::class,
         ]);
-        
+
         // Run the MSP Scenario Seeder
         // $this->call(MspScenarioSeeder::class);
     }

@@ -7,7 +7,6 @@ use Tests\UnitTestCase;
 
 class PasswordResetLinkControllerTest extends UnitTestCase
 {
-
     public function test_create_shows_request_form()
     {
         $response = $this->get(route('password.request'));

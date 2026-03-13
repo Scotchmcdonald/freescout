@@ -29,6 +29,7 @@ class Test extends Mailable
     {
         $appName = config('app.name');
         $appName = is_string($appName) ? $appName : '';
+
         return new Envelope(
             subject: __('Test Email From :app_name', ['app_name' => $appName]),
         );

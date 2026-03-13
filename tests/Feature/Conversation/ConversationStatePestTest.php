@@ -25,28 +25,28 @@ test('replying to closed conversation reopens it', function () {
     // Legacy test seemed to test model attribute setting manually, which isn't a great feature test.
     // We will test the actual Reply Action or Controller path if possible.
     // But adhering to the legacy test intent: it verified state *can* be changed.
-    
+
     $this->actingAs($this->user)->post(route('conversations.reply', $conversation), [
         'body' => 'Reopening reply',
-        'status' => Conversation::STATUS_ACTIVE, // Explicit status send usually? 
+        'status' => Conversation::STATUS_ACTIVE, // Explicit status send usually?
     ]);
 
     // If the system is designed to reopen on reply automatically:
     // $conversation->refresh();
     // expect($conversation->status)->toBe(Conversation::STATUS_ACTIVE);
-    
+
     // However, the legacy test was:
     // $conversation->status = Conversation::STATUS_ACTIVE; $conversation->save();
     // This assumes it just checks if the model allows it.
-    
+
     // Let's do a real feature test: Reply should (optionally) change status.
     // If not specified, does it reopen?
-    
+
     $response = $this->actingAs($this->user)->post(route('conversations.reply', $conversation), [
         'body' => 'Reopening reply',
         // 'status' => not sent
     ]);
-    
+
     // In many helpdesks, replying to a closed ticket re-opens it (status=active/pending)
     // If we are migrating the legacy test which only checked if model is updatable:
     $conversation->update(['status' => Conversation::STATUS_ACTIVE]);
@@ -56,7 +56,7 @@ test('replying to closed conversation reopens it', function () {
 test('assign and change status in single request', function () {
     $assignee = User::factory()->create();
     $this->mailbox->users()->attach($assignee);
-    
+
     $conversation = Conversation::factory()->for($this->mailbox)->create([
         'status' => Conversation::STATUS_ACTIVE,
         'user_id' => null,

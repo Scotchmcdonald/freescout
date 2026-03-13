@@ -24,7 +24,7 @@ class ImapServiceCharsetRetryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Mock all logging to avoid expectations issues
         Log::shouldReceive('debug')->byDefault();
         Log::shouldReceive('info')->byDefault();

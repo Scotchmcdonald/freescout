@@ -12,7 +12,6 @@ use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class RbacController extends Controller
@@ -100,9 +99,9 @@ class RbacController extends Controller
 
         // is_super_admin is a derived/computed field — set by the controller, not the DTO
         Role::create([
-            'name'           => $dto->name,
-            'label'          => $dto->label,
-            'scope'          => $dto->scope,
+            'name' => $dto->name,
+            'label' => $dto->label,
+            'scope' => $dto->scope,
             'is_super_admin' => false,
         ]);
 

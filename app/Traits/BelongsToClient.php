@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 /**
  * Client Scope Trait
@@ -22,7 +22,7 @@ trait BelongsToClient
             if (Auth::check()) {
                 $user = Auth::user();
                 if ($user->isClient() && $user->client_id) {
-                    $builder->where($builder->getModel()->getTable() . '.client_id', $user->client_id);
+                    $builder->where($builder->getModel()->getTable().'.client_id', $user->client_id);
                 }
             }
         });
@@ -43,7 +43,7 @@ trait BelongsToClient
      */
     public function scopeForClient(Builder $query, int $clientId): Builder
     {
-        return $query->where($this->getTable() . '.client_id', $clientId);
+        return $query->where($this->getTable().'.client_id', $clientId);
     }
 
     /**
@@ -54,9 +54,10 @@ trait BelongsToClient
         if (Auth::check()) {
             $user = Auth::user();
             if ($user->isClient() && $user->client_id) {
-                return $query->where($this->getTable() . '.client_id', $user->client_id);
+                return $query->where($this->getTable().'.client_id', $user->client_id);
             }
         }
+
         return $query->whereRaw('1 = 0');
     }
 
@@ -81,10 +82,11 @@ trait BelongsToClient
      */
     public function belongsToAuthenticatedClient(): bool
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return false;
         }
         $user = Auth::user();
+
         return $user->isClient() && $this->client_id === $user->client_id;
     }
 }

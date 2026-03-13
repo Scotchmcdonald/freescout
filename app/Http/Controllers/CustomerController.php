@@ -51,7 +51,7 @@ class CustomerController extends Controller
         $validated = $request->validated();
 
         $email = $validated['email'];
-        if (!is_string($email)) {
+        if (! is_string($email)) {
             return back()->withErrors(['email' => 'Invalid email address']);
         }
 
@@ -477,7 +477,7 @@ class CustomerController extends Controller
 
         // Get the email
         $email = $sourceCustomer->emails()->find($validated['email_id']);
-        if (!$email) {
+        if (! $email) {
             return response()->json([
                 'success' => false,
                 'message' => __('Email not found for source customer'),
@@ -544,7 +544,7 @@ class CustomerController extends Controller
     {
         /** @var \App\Models\User|null $user */
         $user = auth()->user();
-        if (!$user || $user->role !== \App\Models\User::ROLE_ADMIN) {
+        if (! $user || $user->role !== \App\Models\User::ROLE_ADMIN) {
             abort(403);
         }
 
@@ -654,7 +654,7 @@ class CustomerController extends Controller
         $websites = (array) ($customer->websites ?? []);
 
         // Add new website if not already present
-        if (!in_array($validated['url'], $websites)) {
+        if (! in_array($validated['url'], $websites)) {
             $websites[] = $validated['url'];
         }
 

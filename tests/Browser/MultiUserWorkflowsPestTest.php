@@ -14,7 +14,11 @@ function getMultiUserAdmin(): User
         'last_name' => 'Admin',
         'email_verified_at' => now(),
     ]);
-    if (!$admin->isAdmin()) { $admin->role = User::ROLE_ADMIN; $admin->save(); }
+    if (! $admin->isAdmin()) {
+        $admin->role = User::ROLE_ADMIN;
+        $admin->save();
+    }
+
     return $admin;
 }
 
@@ -59,14 +63,14 @@ test('client portal invoice viewing', function () {
 
     $user = User::factory()->create([
         'type' => 2,
-        'email' => 'invoiceview-' . uniqid() . '@example.com',
+        'email' => 'invoiceview-'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),
     ]);
     $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
 
-    $invoiceNumber = 'INV-TEST-' . rand(1000, 9999);
+    $invoiceNumber = 'INV-TEST-'.rand(1000, 9999);
     $invoice = Invoice::factory()->create([
         'client_id' => $client->id,
         'status' => 'unpaid',
@@ -124,7 +128,7 @@ it('client portal assets and subscriptions', function () {
 
     $user = User::factory()->create([
         'type' => 2,
-        'email' => 'portal-assets-' . uniqid() . '@example.com',
+        'email' => 'portal-assets-'.uniqid().'@example.com',
         'password' => bcrypt('password'),
         'status' => User::STATUS_ACTIVE,
         'email_verified_at' => now(),

@@ -20,14 +20,14 @@ class ModulesControllerTest extends TestCase
 
     public function test_controller_can_be_instantiated(): void
     {
-        $controller = new ModulesController();
+        $controller = new ModulesController;
 
         $this->assertInstanceOf(ModulesController::class, $controller);
     }
 
     public function test_index_returns_view(): void
     {
-        $controller = new ModulesController();
+        $controller = new ModulesController;
         $view = $controller->index();
 
         $this->assertEquals('modules.index', $view->name());
@@ -35,7 +35,7 @@ class ModulesControllerTest extends TestCase
 
     public function test_index_passes_modules_array_to_view(): void
     {
-        $controller = new ModulesController();
+        $controller = new ModulesController;
         $view = $controller->index();
 
         $this->assertArrayHasKey('modules', $view->getData());
@@ -44,7 +44,7 @@ class ModulesControllerTest extends TestCase
 
     public function test_enable_returns_error_for_non_existent_module(): void
     {
-        $controller = new ModulesController();
+        $controller = new ModulesController;
         $request = Request::create('/modules/nonexistent/enable', 'POST');
 
         $response = $controller->enable($request, 'nonexistent');
@@ -56,7 +56,7 @@ class ModulesControllerTest extends TestCase
 
     public function test_disable_returns_error_for_non_existent_module(): void
     {
-        $controller = new ModulesController();
+        $controller = new ModulesController;
         $request = Request::create('/modules/nonexistent/disable', 'POST');
 
         $response = $controller->disable($request, 'nonexistent');
@@ -68,7 +68,7 @@ class ModulesControllerTest extends TestCase
 
     public function test_delete_returns_error_for_non_existent_module(): void
     {
-        $controller = new ModulesController();
+        $controller = new ModulesController;
         $request = Request::create('/modules/nonexistent/delete', 'DELETE');
 
         $response = $controller->delete($request, 'nonexistent');
@@ -80,7 +80,7 @@ class ModulesControllerTest extends TestCase
 
     public function test_enable_returns_json_response(): void
     {
-        $controller = new ModulesController();
+        $controller = new ModulesController;
         $request = Request::create('/modules/test/enable', 'POST');
 
         $response = $controller->enable($request, 'nonexistent');
@@ -90,7 +90,7 @@ class ModulesControllerTest extends TestCase
 
     public function test_disable_returns_json_response(): void
     {
-        $controller = new ModulesController();
+        $controller = new ModulesController;
         $request = Request::create('/modules/test/disable', 'POST');
 
         $response = $controller->disable($request, 'nonexistent');
@@ -100,7 +100,7 @@ class ModulesControllerTest extends TestCase
 
     public function test_delete_returns_json_response(): void
     {
-        $controller = new ModulesController();
+        $controller = new ModulesController;
         $request = Request::create('/modules/test/delete', 'DELETE');
 
         $response = $controller->delete($request, 'nonexistent');

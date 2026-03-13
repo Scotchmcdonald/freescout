@@ -3,18 +3,18 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
-use Modules\Crm\Models\Company;
-use Modules\Crm\Models\Client;
-use Modules\Crm\Models\Contact;
+use Illuminate\Support\Facades\DB;
 use Modules\AssetManagement\Entities\Asset;
-use Modules\SoftwareSubscriptions\Models\SoftwareProduct;
-use Modules\SoftwareSubscriptions\Models\ClientSoftwareSubscription;
+use Modules\Crm\Models\Client;
+use Modules\Crm\Models\Company;
+use Modules\Crm\Models\Contact;
 use Modules\Payment\Models\ClientCreditLedger;
+use Modules\Payment\Models\Payment;
 use Modules\PIB\Models\Invoice;
 use Modules\PIB\Models\InvoiceLineItem;
-use Modules\Payment\Models\Payment;
+use Modules\SoftwareSubscriptions\Models\ClientSoftwareSubscription;
+use Modules\SoftwareSubscriptions\Models\SoftwareProduct;
 
 class ExampleSilverCompanySeeder extends Seeder
 {
@@ -64,7 +64,7 @@ class ExampleSilverCompanySeeder extends Seeder
                     ['email' => $email, 'client_id' => $client->id],
                     [
                         'first_name' => 'Employee',
-                        'last_name' => (string)$i,
+                        'last_name' => (string) $i,
                         'is_primary' => $i === 1,
                         'role' => 'Employee',
                         'created_at' => $startDate,
@@ -73,16 +73,16 @@ class ExampleSilverCompanySeeder extends Seeder
                 );
                 $employees[] = $contact;
             }
-            $this->command->info("Ensured 20 Employees exist");
+            $this->command->info('Ensured 20 Employees exist');
 
             // 4. Financials - Add Credit then Purchase Laptops
             $chromebookCost = 300.00;
             $windowsCost = 800.00;
             $totalHardwareCost = (10 * $chromebookCost) + (10 * $windowsCost);
-            $totalCents = (int)round($totalHardwareCost * 100);
+            $totalCents = (int) round($totalHardwareCost * 100);
 
             // Check if initial funding exists to avoid duplication
-            if (!ClientCreditLedger::where('client_id', $client->id)->where('description', 'Upfront laptop funding')->exists()) {
+            if (! ClientCreditLedger::where('client_id', $client->id)->where('description', 'Upfront laptop funding')->exists()) {
                 // Add Credit (Upfront charge)
                 ClientCreditLedger::create([
                     'client_id' => $client->id,
@@ -104,7 +104,7 @@ class ExampleSilverCompanySeeder extends Seeder
                 ]);
                 $this->command->info("Processed financial transactions: \${$totalHardwareCost}");
             } else {
-                $this->command->info("Skipped financial transactions (already exist)");
+                $this->command->info('Skipped financial transactions (already exist)');
             }
 
             // 5. Create Assets
@@ -113,7 +113,7 @@ class ExampleSilverCompanySeeder extends Seeder
                 $isChromebook = $index < 10;
                 $p = $index + 1;
                 $serial = "SN-SILVER-{$p}";
-                
+
                 Asset::firstOrCreate(
                     ['serial_number' => $serial, 'client_id' => $client->id],
                     [
@@ -133,7 +133,7 @@ class ExampleSilverCompanySeeder extends Seeder
                     ]
                 );
             }
-            $this->command->info("Ensured 20 Assets exist");
+            $this->command->info('Ensured 20 Assets exist');
 
             // 6. Software Subscriptions Setup
             $googleProduct = SoftwareProduct::firstOrCreate(
@@ -233,7 +233,7 @@ class ExampleSilverCompanySeeder extends Seeder
                 ]
             );
 
-            $this->command->info("Ensured Software Subscriptions exist");
+            $this->command->info('Ensured Software Subscriptions exist');
 
             // 7. Generate 6 Months of History (Invoices & Payments)
             $currentMonth = $startDate->copy();
@@ -259,23 +259,23 @@ class ExampleSilverCompanySeeder extends Seeder
                 $monthIndex++;
                 $monthName = $currentMonth->format('F Y');
                 $invoiceDate = $currentMonth->copy()->addDays(1);
-                
+
                 // EVENT: Month 3 - Hiring Spree (Add 2 employees)
                 if ($monthIndex === 3) {
-                    $this->command->info("  -> Event: Hired 2 employees (Adobe users)");
+                    $this->command->info('  -> Event: Hired 2 employees (Adobe users)');
                     // Add 2 Employees
                     for ($i = 21; $i <= 22; $i++) {
                         $newEmployee = Contact::firstOrCreate(
                             ['email' => "employee{$i}@silvertech.com", 'client_id' => $client->id],
                             [
                                 'first_name' => 'New Hire',
-                                'last_name' => (string)$i,
+                                'last_name' => (string) $i,
                                 'role' => 'Employee',
                                 'created_at' => $invoiceDate,
                             ]
                         );
                         $employees[] = $newEmployee;
-                        
+
                         // Buy 2 Windows Laptops
                         Asset::firstOrCreate(
                             ['serial_number' => "SN-SILVER-{$i}"],
@@ -296,21 +296,21 @@ class ExampleSilverCompanySeeder extends Seeder
                             ]
                         );
                     }
-                    
+
                     // Hardware Purchase Transaction
                     $hwCost = 2 * $windowsCost;
-                    if (!ClientCreditLedger::where('client_id', $client->id)->where('description', 'Funding for New Hires')->exists()) {
+                    if (! ClientCreditLedger::where('client_id', $client->id)->where('description', 'Funding for New Hires')->exists()) {
                         ClientCreditLedger::create([
                             'client_id' => $client->id,
-                            'amount_cents' => (int)($hwCost * 100),
+                            'amount_cents' => (int) ($hwCost * 100),
                             'balance_after_cents' => 0, // Simplified tracking
-                            'transaction_type' => 'credit', 
+                            'transaction_type' => 'credit',
                             'description' => 'Funding for New Hires',
                             'created_at' => $invoiceDate,
                         ]);
                         ClientCreditLedger::create([
                             'client_id' => $client->id,
-                            'amount_cents' => -(int)($hwCost * 100),
+                            'amount_cents' => -(int) ($hwCost * 100),
                             'balance_after_cents' => 0,
                             'transaction_type' => 'debit',
                             'description' => 'Purchase of 2 Windows Laptops',
@@ -320,16 +320,22 @@ class ExampleSilverCompanySeeder extends Seeder
 
                     $userCount += 2;
                     $windowsCount += 2;
-                    
+
                     // Update Subscription Counts
-                    if ($googleSub) $googleSub->update(['assigned_count' => $userCount, 'purchased_quantity' => $userCount]);
-                    if ($action1Sub) $action1Sub->update(['assigned_count' => $windowsCount, 'purchased_quantity' => $windowsCount]);
-                    if ($avastSub) $avastSub->update(['assigned_count' => $windowsCount, 'purchased_quantity' => $windowsCount]);
+                    if ($googleSub) {
+                        $googleSub->update(['assigned_count' => $userCount, 'purchased_quantity' => $userCount]);
+                    }
+                    if ($action1Sub) {
+                        $action1Sub->update(['assigned_count' => $windowsCount, 'purchased_quantity' => $windowsCount]);
+                    }
+                    if ($avastSub) {
+                        $avastSub->update(['assigned_count' => $windowsCount, 'purchased_quantity' => $windowsCount]);
+                    }
                 }
 
                 // EVENT: Month 4 - Adobe Added
                 if ($monthIndex === 4) {
-                    $this->command->info("  -> Event: Added Adobe Creative Cloud (5 users)");
+                    $this->command->info('  -> Event: Added Adobe Creative Cloud (5 users)');
                     $adobeUserCount = 5;
                     ClientSoftwareSubscription::firstOrCreate(
                         ['client_id' => $client->id, 'software_product_id' => $adobeProduct->id],
@@ -347,20 +353,22 @@ class ExampleSilverCompanySeeder extends Seeder
 
                 // EVENT: Month 5 - Staff Departure
                 if ($monthIndex === 5) {
-                    $this->command->info("  -> Event: Employee 5 left the company");
+                    $this->command->info('  -> Event: Employee 5 left the company');
                     // Ensure we have the employee object from the array (which might be mixed with new hires but index 4 is safe if array is ordered)
                     // Better to find by email to be safe
-                    $leavingEmail = "employee5@silvertech.com";
+                    $leavingEmail = 'employee5@silvertech.com';
                     $leavingEmployee = Contact::where('email', $leavingEmail)->first();
-                    
+
                     if ($leavingEmployee) {
                         // Unassign Asset (Find asset for this user)
                         Asset::where('assigned_user_email', $leavingEmployee->email)
                             ->update(['status' => 'inactive', 'assigned_user_email' => null]);
                     }
-                    
+
                     $userCount -= 1;
-                    if ($googleSub) $googleSub->update(['assigned_count' => $userCount, 'purchased_quantity' => $userCount]);
+                    if ($googleSub) {
+                        $googleSub->update(['assigned_count' => $userCount, 'purchased_quantity' => $userCount]);
+                    }
                 }
 
                 // Invoice Items
@@ -388,12 +396,12 @@ class ExampleSilverCompanySeeder extends Seeder
                     [
                         'description' => "Avast Antivirus ({$monthName})",
                         'quantity' => ceil($windowsCount / 10), // Billed as block of 10
-                        'unit_price' => 29.99, 
+                        'unit_price' => 29.99,
                     ],
                 ];
 
                 if ($adobeUserCount > 0) {
-                     $items[] = [
+                    $items[] = [
                         'description' => "Adobe Creative Cloud ({$monthName})",
                         'quantity' => $adobeUserCount,
                         'unit_price' => 54.99,
@@ -411,14 +419,14 @@ class ExampleSilverCompanySeeder extends Seeder
                     ->whereMonth('invoice_date', $invoiceDate->month)
                     ->first();
 
-                if (!$existingInvoice) {
+                if (! $existingInvoice) {
                     $dueDate = $invoiceDate->copy()->addDays(15);
-                    
+
                     // Create Invoice
                     $invoice = Invoice::create([
                         'client_id' => $client->id,
                         'company_id' => $company->id,
-                        'invoice_number' => 'INV-' . strtoupper(uniqid()),
+                        'invoice_number' => 'INV-'.strtoupper(uniqid()),
                         'status' => 'paid', // All past invoices paid
                         'invoice_date' => $invoiceDate,
                         'due_date' => $dueDate,
@@ -467,7 +475,6 @@ class ExampleSilverCompanySeeder extends Seeder
 
                 $currentMonth->addMonth();
             }
-
         });
     }
 }

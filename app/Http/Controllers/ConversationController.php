@@ -69,7 +69,7 @@ class ConversationController extends Controller
 
         // Mark as read
         $user->unreadNotifications()
-            ->where('data', 'like', '%"conversation_id":'.(string)$conversation->id.'%')
+            ->where('data', 'like', '%"conversation_id":'.(string) $conversation->id.'%')
             ->update(['read_at' => now()]);
 
         // Load relationships
@@ -88,7 +88,7 @@ class ConversationController extends Controller
         ]);
 
         // Get folders for sidebar
-        if (!$conversation->mailbox) {
+        if (! $conversation->mailbox) {
             abort(404);
         }
         $folders = $conversation->mailbox->folders()
@@ -381,12 +381,13 @@ class ConversationController extends Controller
         // Additional role-based check for closing tickets
         $validated = $request->validated();
         $statusVal = $validated['status'] ?? null;
-        
+
         if ($statusVal !== null && is_numeric($statusVal) && intval($statusVal) === Conversation::STATUS_CLOSED && $user->isReporter()) {
             $message = 'Reporters cannot close tickets';
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => $message], 403);
             }
+
             return back()->withInput()->withErrors(['error' => $message]);
         }
 
@@ -407,7 +408,6 @@ class ConversationController extends Controller
             return redirect()
                 ->route('conversations.show', $conversation)
                 ->with('success', 'Reply sent');
-                
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -645,7 +645,7 @@ class ConversationController extends Controller
 
                 $prevStatus = $conversation->status;
                 $conversation->changeStatus($newStatus, $user);
-                
+
                 // Fire event hook
                 \Eventy::action('conversation.status_changed', $conversation, $user, false, $prevStatus);
 
@@ -656,7 +656,7 @@ class ConversationController extends Controller
                 $newUserId = $userIdVal && is_numeric($userIdVal) ? intval($userIdVal) : null;
                 $prevUserId = $conversation->user_id;
                 $conversation->changeUser($newUserId, $user);
-                
+
                 // Fire event hook
                 \Eventy::action('conversation.user_changed', $conversation, $user, $prevUserId);
 
@@ -669,7 +669,7 @@ class ConversationController extends Controller
 
             case 'delete':
                 $conversation->deleteToFolder($user);
-                
+
                 // Fire event hook
                 \Eventy::action('conversation.deleted', $conversation, $user);
 
@@ -678,7 +678,7 @@ class ConversationController extends Controller
             case 'delete_forever':
                 // Fire event hook before deletion
                 \Eventy::action('conversation.deleted_forever', $conversation, $user);
-                
+
                 $conversation->forceDelete();
 
                 return response()->json(['success' => true]);
@@ -713,10 +713,12 @@ class ConversationController extends Controller
 
             case 'star':
                 $conversation->star($user);
+
                 return response()->json(['success' => true, 'starred' => true]);
 
             case 'unstar':
                 $conversation->unstar($user);
+
                 return response()->json(['success' => true, 'starred' => false]);
 
             case 'change_customer':
@@ -772,7 +774,7 @@ class ConversationController extends Controller
             case 'bulk_change_status':
                 $statusVal = $request->input('status');
                 $newStatus = is_numeric($statusVal) ? intval($statusVal) : 0;
-                if (!in_array($newStatus, [Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED, Conversation::STATUS_PENDING])) {
+                if (! in_array($newStatus, [Conversation::STATUS_ACTIVE, Conversation::STATUS_CLOSED, Conversation::STATUS_PENDING])) {
                     return response()->json(['success' => false, 'message' => 'Invalid status'], 400);
                 }
 
@@ -825,7 +827,7 @@ class ConversationController extends Controller
             case 'bulk_move':
                 $mailboxIdVal = $request->input('mailbox_id');
                 $mailboxId = is_numeric($mailboxIdVal) ? intval($mailboxIdVal) : 0;
-                
+
                 // Validate mailbox exists
                 if (! Mailbox::where('id', $mailboxId)->exists()) {
                     return response()->json(['success' => false, 'message' => 'Target mailbox not found'], 400);
@@ -1000,12 +1002,12 @@ class ConversationController extends Controller
 
         // Create new conversation with same properties
         $conversation = new Conversation;
-        
+
         // Generate new conversation number
         $maxNumber = Conversation::max('number');
-        $currentNumber = is_numeric($maxNumber) ? (int)$maxNumber : 0;
+        $currentNumber = is_numeric($maxNumber) ? (int) $maxNumber : 0;
         $conversation->number = $currentNumber + 1;
-        
+
         $conversation->type = $originalConversation->type;
         $conversation->subject = $originalConversation->subject;
         $conversation->mailbox_id = $originalConversation->mailbox_id;
@@ -1103,7 +1105,7 @@ class ConversationController extends Controller
 
         // Return the appropriate partial based on action
         $viewPath = "conversations.ajax_html.{$action}";
-        
+
         if (view()->exists($viewPath)) {
             return view($viewPath, compact('conversation', 'thread'));
         }
@@ -1218,7 +1220,7 @@ class ConversationController extends Controller
             if ($validated['keep_threads'] ?? true) {
                 Thread::where('conversation_id', $conversation->id)
                     ->update(['conversation_id' => $targetConversation->id]);
-                
+
                 // Update thread count
                 $targetConversation->increment('threads_count', $conversation->threads_count);
             }
@@ -1422,7 +1424,7 @@ class ConversationController extends Controller
     {
         /** @var \App\Models\Conversation $conversation */
         $conversation = Conversation::findOrFail($id);
-        
+
         /** @var \App\Models\User|null $user */
         $user = $request->user();
 
@@ -1460,14 +1462,14 @@ class ConversationController extends Controller
 
         // Placeholder for export logic
         // In a real app, this would generate a CSV/JSON file
-        
+
         // For testing purposes, we'll just return a success response or download
         // If the test expects a file download, we might need to generate a temp file
-        
+
         // Creating a dummy export file
         $tempFile = tempnam(sys_get_temp_dir(), 'export');
-        file_put_contents($tempFile, "Conversation Export\nDate: " . now());
-        
+        file_put_contents($tempFile, "Conversation Export\nDate: ".now());
+
         return response()->download($tempFile, 'conversations_export.csv')->deleteFileAfterSend(true);
     }
 
@@ -1515,6 +1517,7 @@ class ConversationController extends Controller
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => 'Reporters cannot close tickets'], 403);
             }
+
             return back()->withErrors(['error' => 'Reporters cannot close tickets']);
         }
 
@@ -1567,14 +1570,14 @@ class ConversationController extends Controller
 
         // Create new conversation draft
         $newConversation = new Conversation;
-        
+
         // Generate new conversation number
         $maxNumber = Conversation::max('number');
-        $currentNumber = is_numeric($maxNumber) ? (int)$maxNumber : 0;
+        $currentNumber = is_numeric($maxNumber) ? (int) $maxNumber : 0;
         $newConversation->number = $currentNumber + 1;
-        
+
         $newConversation->type = 1; // Email
-        $newConversation->subject = 'Fwd: ' . $conversation->subject;
+        $newConversation->subject = 'Fwd: '.$conversation->subject;
         $newConversation->mailbox_id = $conversation->mailbox_id;
         $inboxFolder = $conversation->mailbox?->folders()->where('type', 1)->first();
         $newConversation->folder_id = $inboxFolder->id ?? 1;
@@ -1594,7 +1597,7 @@ class ConversationController extends Controller
         $newThread->type = 5; // Draft
         $newThread->status = 1;
         $newThread->state = 1; // Draft
-        $newThread->body = "<br><br>---------- Forwarded message ---------<br>From: {$thread->from}<br>Date: {$thread->created_at}<br>Subject: {$conversation->subject}<br>To: ".implode(', ', $thread->to ?? [])."<br><br>".$thread->body;
+        $newThread->body = "<br><br>---------- Forwarded message ---------<br>From: {$thread->from}<br>Date: {$thread->created_at}<br>Subject: {$conversation->subject}<br>To: ".implode(', ', $thread->to ?? []).'<br><br>'.$thread->body;
         $newThread->from = $conversation->mailbox?->email;
         $newThread->created_by_user_id = $user->id;
         $newThread->source_via = 1; // User
@@ -1639,7 +1642,7 @@ class ConversationController extends Controller
         // Check if thread is eligible for undo (e.g. created within last 15 seconds)
         // We gave 10 seconds delay, so let's allow 15 seconds to be safe/generous
         if ($thread->created_at && $thread->created_at->diffInSeconds(now()) > 15) {
-             return back()->withErrors(['error' => 'Undo time limit expired']);
+            return back()->withErrors(['error' => 'Undo time limit expired']);
         }
 
         // Change state to Draft
@@ -1747,7 +1750,7 @@ class ConversationController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create phone conversation: ' . $e->getMessage(),
+                'message' => 'Failed to create phone conversation: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -1758,7 +1761,7 @@ class ConversationController extends Controller
     protected function handleMergeConversation(Request $request, User $user, Conversation $conversation): JsonResponse
     {
         $targetConversationId = $request->input('target_conversation_id');
-        
+
         if (! $targetConversationId || ! is_numeric($targetConversationId)) {
             return response()->json(['success' => false, 'message' => 'Target conversation ID required'], 400);
         }
@@ -1804,7 +1807,7 @@ class ConversationController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to merge: ' . $e->getMessage(),
+                'message' => 'Failed to merge: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -1822,8 +1825,8 @@ class ConversationController extends Controller
             ->where('mailbox_id', $conversation->mailbox_id)
             ->where(function ($q) use ($searchQuery) {
                 // Use proper parameter binding for LIKE queries
-                $q->where('subject', 'like', '%' . addcslashes($searchQuery, '%_') . '%')
-                    ->orWhere('number', 'like', '%' . addcslashes($searchQuery, '%_') . '%');
+                $q->where('subject', 'like', '%'.addcslashes($searchQuery, '%_').'%')
+                    ->orWhere('number', 'like', '%'.addcslashes($searchQuery, '%_').'%');
             })
             ->where('state', '!=', Conversation::STATE_DELETED)
             ->limit(20)

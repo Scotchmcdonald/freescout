@@ -6,9 +6,6 @@ use App\Models\Email;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;
-use App\Models\SavedSearch;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
@@ -149,7 +146,7 @@ test('user cannot escalate own privileges', function () {
 });
 
 test('user cannot access other users saved searches', function () {
-    if (!class_exists(\App\Models\SavedSearch::class)) {
+    if (! class_exists(\App\Models\SavedSearch::class)) {
         $this->markTestSkipped('SavedSearch model not available');
     }
 
@@ -196,17 +193,17 @@ test('user cannot modify other users drafts', function () {
         'conversation_id' => $this->conversation->id,
     ]);
 
-    // Should only affect own drafts - The original test said "Should only affect own drafts" 
+    // Should only affect own drafts - The original test said "Should only affect own drafts"
     // and then asserted $response->assertOk().
     // If the backend is correct, this "discard_draft" call should likely be ignored or return success but do nothing.
-    // The legacy test used: $response->assertOk(); 
+    // The legacy test used: $response->assertOk();
     // And implies it *failed to discard* or similar. But there's no assertion that the draft still exists.
     // Wait, the test is names "user cannot modify other users drafts".
     // If response is OK, maybe it just "successfully did nothing" or "successfully discarded my draft (which was null)".
     // Let's stick to the legacy assertion for now.
-    
+
     $response->assertOk();
-    
+
     // We should ideally verify the draft logic, but sticking to legacy fidelity first.
 });
 

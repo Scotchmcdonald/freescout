@@ -8,7 +8,6 @@ use Tests\UnitTestCase;
 
 class RegisteredUserControllerTest extends UnitTestCase
 {
-
     public function test_create_shows_registration_form()
     {
         $response = $this->get(route('register'));

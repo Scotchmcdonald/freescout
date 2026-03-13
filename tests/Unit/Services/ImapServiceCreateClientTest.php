@@ -19,7 +19,7 @@ class ImapServiceCreateClientTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ImapService();
+        $this->service = new ImapService;
     }
 
     /**
@@ -224,7 +224,7 @@ class ImapServiceCreateClientTest extends TestCase
     public function test_creates_client_with_complex_password(): void
     {
         $complexPassword = 'P@$$w0rd!#%^&*()_+-=[]{}|;:,.<>?/~`';
-        
+
         $mailbox = Mailbox::factory()->make([
             'in_server' => 'imap.example.com',
             'in_port' => 993,

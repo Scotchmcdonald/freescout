@@ -21,9 +21,9 @@ class UserNotification extends Mailable
     /**
      * Create a new message instance.
      *
-     * @param Collection<int, \App\Models\Thread> $threads
-     * @param array<string, string> $headers
-     * @param array{address?: string, name?: string} $fromAddress
+     * @param  Collection<int, \App\Models\Thread>  $threads
+     * @param  array<string, string>  $headers
+     * @param  array{address?: string, name?: string}  $fromAddress
      */
     public function __construct(
         public User $user,
@@ -79,7 +79,7 @@ class UserNotification extends Mailable
 
         $configFrom = config('mail.from.address');
         $fromAddress = $this->fromAddress['address'] ?? (is_string($configFrom) ? $configFrom : '');
-        
+
         $configName = config('mail.from.name');
         $fromName = $this->fromAddress['name'] ?? (is_string($configName) ? $configName : '');
 

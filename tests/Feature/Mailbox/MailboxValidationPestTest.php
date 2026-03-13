@@ -7,7 +7,7 @@ foreach (['store', 'update'] as $action) {
     test("mailbox $action validates name required", function () use ($action) {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
-        
+
         // Pass empty string for name to trigger required validation
         // 'sometimes' rule allows skipping the field, but if present logic applies
         // But UpdateMailboxRequest has 'name' => 'sometimes|required...'
@@ -18,7 +18,7 @@ foreach (['store', 'update'] as $action) {
         ];
 
         $request = $this->actingAs($admin);
-        
+
         if ($action === 'store') {
             $request->post(route('mailboxes.store'), $data)
                 ->assertSessionHasErrors('name');
@@ -31,14 +31,14 @@ foreach (['store', 'update'] as $action) {
     test("mailbox $action validates name max length", function () use ($action) {
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $mailbox = Mailbox::factory()->create();
-        
+
         $data = [
             'name' => str_repeat('a', 256),
             'email' => 'valid@example.com',
         ];
 
         $request = $this->actingAs($admin);
-        
+
         if ($action === 'store') {
             $request->post(route('mailboxes.store'), $data)
                 ->assertSessionHasErrors('name');
@@ -51,7 +51,7 @@ foreach (['store', 'update'] as $action) {
 
 test('mailbox store validates email required', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    
+
     $this->actingAs($admin)
         ->post(route('mailboxes.store'), [
             'name' => 'Test Mailbox',

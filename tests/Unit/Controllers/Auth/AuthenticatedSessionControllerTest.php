@@ -7,7 +7,6 @@ use Tests\UnitTestCase;
 
 class AuthenticatedSessionControllerTest extends UnitTestCase
 {
-
     public function test_create_shows_login_form()
     {
         $response = $this->get(route('login'));

@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Policies;
 
 use App\Models\Conversation;
-use App\Models\Customer;
 use App\Models\Mailbox;
-use App\Models\Thread;
 use App\Models\User;
 use App\Policies\ConversationPolicy;
 use App\Policies\MailboxPolicy;
@@ -32,12 +30,12 @@ class PoliciesComprehensiveTest extends UnitTestCase
         ]);
     }
 
-// ConversationPolicy Tests
+    // ConversationPolicy Tests
     // ========================================
 
     public function test_view_cached_allows_user_with_mailbox_access(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($this->user->id);
@@ -56,7 +54,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_view_cached_allows_admin(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -70,7 +68,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_delete_prevents_unauthorized_user_from_deleting(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $otherMailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -84,7 +82,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_delete_allows_user_with_mailbox_access(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($this->user->id);
@@ -100,7 +98,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_view_allows_admin(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
         $conversation = Conversation::factory()->create();
 
         $result = $policy->view($this->admin, $conversation);
@@ -110,7 +108,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_view_allows_user_with_mailbox_access(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($this->user->id);
@@ -126,7 +124,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_view_denies_user_without_mailbox_access(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -140,7 +138,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_update_allows_admin(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
         $conversation = Conversation::factory()->create();
 
         $result = $policy->update($this->admin, $conversation);
@@ -150,7 +148,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_update_allows_user_with_mailbox_access(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox = Mailbox::factory()->create();
         $mailbox->users()->attach($this->user->id);
@@ -166,7 +164,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_update_denies_user_without_mailbox_access(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -180,7 +178,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_delete_allows_admin(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
         $conversation = Conversation::factory()->create();
 
         $result = $policy->delete($this->admin, $conversation);
@@ -190,8 +188,8 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_delete_allows_conversation_without_id(): void
     {
-        $policy = new ConversationPolicy();
-        $conversation = new Conversation();
+        $policy = new ConversationPolicy;
+        $conversation = new Conversation;
 
         $result = $policy->delete($this->user, $conversation);
 
@@ -200,7 +198,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_move_allows_user_with_multiple_mailboxes(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
@@ -217,7 +215,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
         // Clear existing mailboxes
         Mailbox::query()->delete();
 
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox1 = Mailbox::factory()->create();
         $mailbox2 = Mailbox::factory()->create();
@@ -234,7 +232,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
         // Clear existing mailboxes
         Mailbox::query()->delete();
 
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox = Mailbox::factory()->create();
         $this->user->mailboxes()->attach($mailbox->id);
@@ -246,7 +244,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_view_cached_denies_user_without_mailbox_access(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -263,7 +261,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_check_is_only_assigned_returns_true(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -278,7 +276,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_check_is_only_assigned_for_creator(): void
     {
-        $policy = new ConversationPolicy();
+        $policy = new ConversationPolicy;
 
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -297,7 +295,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_restore_allows_admin_to_restore_mailbox(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->restore($this->admin, $mailbox);
@@ -307,7 +305,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_restore_prevents_non_admin_from_restoring(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->restore($this->user, $mailbox);
@@ -317,7 +315,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_force_delete_allows_admin_to_permanently_delete(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->forceDelete($this->admin, $mailbox);
@@ -327,7 +325,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_force_delete_prevents_non_admin_from_permanently_deleting(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->forceDelete($this->user, $mailbox);
@@ -337,7 +335,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_restore_handles_null_user(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->restore(null, $mailbox);
@@ -347,7 +345,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_force_delete_handles_null_user(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->forceDelete(null, $mailbox);
@@ -357,7 +355,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_view_any_allows_authenticated_users(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
 
         $result = $policy->viewAny($this->user);
 
@@ -366,7 +364,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_view_any_denies_null_user(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
 
         $result = $policy->viewAny(null);
 
@@ -375,7 +373,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_mailbox_view_allows_admin(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->view($this->admin, $mailbox);
@@ -385,9 +383,9 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_view_allows_user_with_view_access(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
-        
+
         // Attach user with VIEW access
         $this->user->mailboxes()->attach($mailbox->id, [
             'access' => MailboxPolicy::ACCESS_VIEW,
@@ -403,7 +401,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_view_denies_user_without_access(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->view($this->user, $mailbox);
@@ -413,7 +411,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_view_denies_null_user(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->view(null, $mailbox);
@@ -423,7 +421,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_create_allows_admin(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
 
         $result = $policy->create($this->admin);
 
@@ -432,7 +430,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_create_denies_non_admin(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
 
         $result = $policy->create($this->user);
 
@@ -441,7 +439,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_create_denies_null_user(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
 
         $result = $policy->create(null);
 
@@ -450,7 +448,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_mailbox_update_allows_admin(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->update($this->admin, $mailbox);
@@ -460,9 +458,9 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_update_allows_user_with_admin_access(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
-        
+
         // Attach user with ADMIN access
         $this->user->mailboxes()->attach($mailbox->id, [
             'access' => MailboxPolicy::ACCESS_ADMIN,
@@ -478,9 +476,9 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_update_denies_user_with_reply_access_only(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
-        
+
         // Attach user with REPLY access (not enough for update)
         $this->user->mailboxes()->attach($mailbox->id, [
             'access' => MailboxPolicy::ACCESS_REPLY,
@@ -496,7 +494,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_update_denies_user_without_access(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->update($this->user, $mailbox);
@@ -506,7 +504,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_update_denies_null_user(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->update(null, $mailbox);
@@ -516,7 +514,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_mailbox_delete_allows_admin(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->delete($this->admin, $mailbox);
@@ -526,7 +524,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_delete_denies_non_admin(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->delete($this->user, $mailbox);
@@ -536,7 +534,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_delete_denies_null_user(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->delete(null, $mailbox);
@@ -546,7 +544,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_reply_allows_admin(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->reply($this->admin, $mailbox);
@@ -556,9 +554,9 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_reply_allows_user_with_reply_access(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
-        
+
         // Attach user with REPLY access
         $this->user->mailboxes()->attach($mailbox->id, [
             'access' => MailboxPolicy::ACCESS_REPLY,
@@ -574,9 +572,9 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_reply_denies_user_with_view_access_only(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
-        
+
         // Attach user with VIEW access (not enough for reply)
         $this->user->mailboxes()->attach($mailbox->id, [
             'access' => MailboxPolicy::ACCESS_VIEW,
@@ -592,7 +590,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_reply_denies_user_without_access(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->reply($this->user, $mailbox);
@@ -602,7 +600,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_reply_denies_null_user(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->reply(null, $mailbox);
@@ -612,7 +610,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_admin_policy_allows_admin_user(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->admin($this->admin, $mailbox);
@@ -622,9 +620,9 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_admin_policy_allows_user_with_admin_access(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
-        
+
         // Attach user with ADMIN access
         $this->user->mailboxes()->attach($mailbox->id, [
             'access' => MailboxPolicy::ACCESS_ADMIN,
@@ -640,9 +638,9 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_admin_policy_denies_user_with_reply_access(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
-        
+
         // Attach user with REPLY access (not enough for admin operations)
         $this->user->mailboxes()->attach($mailbox->id, [
             'access' => MailboxPolicy::ACCESS_REPLY,
@@ -658,7 +656,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_admin_policy_denies_user_without_access(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->admin($this->user, $mailbox);
@@ -668,7 +666,7 @@ class PoliciesComprehensiveTest extends UnitTestCase
 
     public function test_admin_policy_denies_null_user(): void
     {
-        $policy = new MailboxPolicy();
+        $policy = new MailboxPolicy;
         $mailbox = Mailbox::factory()->create();
 
         $result = $policy->admin(null, $mailbox);

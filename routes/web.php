@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\AnalyticsController;
+use App\Http\Controllers\AlertSubscriptionController;
+use App\Http\Controllers\Api\ConversationController as ApiConversationController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\CollisionController;
 use App\Http\Controllers\ConversationController;
@@ -11,22 +14,19 @@ use App\Http\Controllers\MailboxController;
 use App\Http\Controllers\ModulesController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicAttachmentController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SystemController;
-use App\Http\Controllers\ThemeController;
-use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\ThemeController;
+use App\Http\Controllers\TrackingController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WebhookGatewayController;
-use Modules\PIB\Http\Controllers\ReconciliationController;
+use Illuminate\Support\Facades\Route;
 use Modules\ContractManager\Http\Controllers\MilestoneController;
-use App\Http\Controllers\AlertSubscriptionController;
-use App\Http\Controllers\Admin\AnalyticsController;
-use App\Http\Controllers\Api\ConversationController as ApiConversationController;
-use App\Http\Controllers\PublicAttachmentController;
 // use App\Http\Controllers\TourController;
-use App\Http\Controllers\TrackingController;
+use Modules\PIB\Http\Controllers\ReconciliationController;
 
 Route::redirect('/', '/dashboard');
 
@@ -88,11 +88,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Guided Tours
-// Tour routes moved to KnowledgeBase module
+    // Tour routes moved to KnowledgeBase module
 
-        // Collision Detection
+    // Collision Detection
     Route::post('/conversations/{id}/viewing', [CollisionController::class, 'viewing'])->name('conversations.viewing');
-    
+
     // Mailboxes
     Route::get('/mailboxes', [MailboxController::class, 'index'])->name('mailboxes.index');
     Route::get('/mailboxes/create', [MailboxController::class, 'create'])->name('mailboxes.create');
@@ -122,11 +122,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/mailbox/{mailbox}/conversations', [ConversationController::class, 'index'])->name('conversations.index');
     // Route::get('/mailbox/{mailbox}/conversations/list', [ConversationController::class, 'index'])->name('mailbox.conversations'); // Alias for tests (Removed)
     Route::get('/conversation/{conversation}', [ConversationController::class, 'show'])->name('conversations.show');
-    
+
     // Modified for tests: use mailbox_id parameter and allow POST
     Route::get('/mailbox/{mailbox_id}/conversation/create', [ConversationController::class, 'create'])->name('conversations.create');
     Route::post('/mailbox/{mailbox_id}/conversation/create', [ConversationController::class, 'store']);
-    
+
     Route::post('/mailbox/{mailbox}/conversation', [ConversationController::class, 'store'])->name('conversations.store');
     Route::patch('/conversation/{conversation}', [ConversationController::class, 'update'])->name('conversations.update');
     // Route::post('/conversation/{conversation}/assign', [ConversationController::class, 'update'])->name('conversations.assign'); // Alias for tests (Removed)
@@ -139,27 +139,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/mailbox/{mailbox}/clone-ticket/{thread}', [ConversationController::class, 'clone'])->name('conversations.clone');
     Route::post('/conversation/{conversation}/thread/{thread}/forward', [ConversationController::class, 'forward'])->name('conversations.forward');
     Route::post('/conversation/{conversation}/thread/{thread}/undo-send', [ConversationController::class, 'undoSend'])->name('conversations.undo_send');
-    
+
     // Conversation AJAX operations
     Route::get('/conversations/ajax-html', [ConversationController::class, 'ajaxHtml'])->name('conversations.ajax_html');
     Route::post('/conversation/{conversation}/change-customer', [ConversationController::class, 'changeCustomer'])->name('conversations.change_customer');
-    
+
     // Helpdesk/Ticket aliases for Dusk tests (point to conversation routes with default mailbox)
     if (app()->environment('local', 'testing')) {
-        Route::get('/helpdesk/tickets', function() {
+        Route::get('/helpdesk/tickets', function () {
             $mailbox = \App\Models\Mailbox::first();
-            if (!$mailbox) {
+            if (! $mailbox) {
                 $mailbox = \App\Models\Mailbox::create([
                     'name' => 'Support', 'email' => 'support@example.com', 'is_default' => true,
                     'status' => 1, 'from_name' => 1, 'ticket_status' => 1, 'ticket_assignee' => 1, 'template' => 1, 'out_method' => 1,
                 ]);
             }
+
             return app(\App\Http\Controllers\ConversationController::class)->index(request(), $mailbox);
         })->name('helpdesk.tickets.index');
 
-        Route::get('/helpdesk/tickets/create', function() {
+        Route::get('/helpdesk/tickets/create', function () {
             $mailbox = \App\Models\Mailbox::first();
-            if (!$mailbox) {
+            if (! $mailbox) {
                 // Create a default mailbox for testing if none exists
                 $mailbox = \App\Models\Mailbox::create([
                     'name' => 'Support',
@@ -173,12 +174,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
                     'out_method' => 1,
                 ]);
             }
+
             return app(\App\Http\Controllers\ConversationController::class)->create(request(), $mailbox);
         })->name('helpdesk.tickets.create');
-        
-        Route::post('/helpdesk/tickets', function() {
+
+        Route::post('/helpdesk/tickets', function () {
             $mailbox = \App\Models\Mailbox::first();
-            if (!$mailbox) {
+            if (! $mailbox) {
                 // Create a default mailbox for testing if none exists
                 $mailbox = \App\Models\Mailbox::create([
                     'name' => 'Support',
@@ -192,6 +194,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                     'out_method' => 1,
                 ]);
             }
+
             return app(\App\Http\Controllers\ConversationController::class)->store(app(\App\Http\Requests\StoreConversationRequest::class), $mailbox);
         })->name('helpdesk.tickets.store');
     }
@@ -200,7 +203,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/conversations/batch-update', [ConversationController::class, 'batchUpdate'])->name('conversations.batch_update');
     Route::put('/conversation/{conversation}/thread/{thread}', [ConversationController::class, 'updateThread'])->name('conversations.update_thread');
     Route::put('/conversation/{conversation}/settings', [ConversationController::class, 'updateSettings'])->name('conversations.update_settings');
-    
+
     // Chats view
     Route::get('/conversations/chats', [ConversationController::class, 'chats'])->name('conversations.chats');
 
@@ -299,105 +302,107 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/resilience/circuit-breakers/{service}/reset', [App\Http\Controllers\Admin\ResilienceController::class, 'resetCircuit'])->name('admin.resilience.reset-circuit');
 
-    // Event Audit Log Routes
-    Route::get('/resilience/events', [App\Http\Controllers\Admin\ResilienceController::class, 'eventsAudit'])->name('admin.resilience.events-audit');
-    Route::get('/resilience/events/export', [App\Http\Controllers\Admin\ResilienceController::class, 'exportEvents'])->name('admin.resilience.events-audit.export');
+        // Event Audit Log Routes
+        Route::get('/resilience/events', [App\Http\Controllers\Admin\ResilienceController::class, 'eventsAudit'])->name('admin.resilience.events-audit');
+        Route::get('/resilience/events/export', [App\Http\Controllers\Admin\ResilienceController::class, 'exportEvents'])->name('admin.resilience.events-audit.export');
 
-    // Sync Operation Monitor (Phase 8)
-    Route::get('/sync-monitor', [App\Http\Controllers\Admin\SyncMonitorController::class, 'index'])->name('admin.sync-monitor.index');
-    Route::get('/sync-monitor/{operation}', [App\Http\Controllers\Admin\SyncMonitorController::class, 'show'])->name('admin.sync-monitor.show');
-    Route::post('/sync-monitor/{operation}/resume', [App\Http\Controllers\Admin\SyncMonitorController::class, 'resume'])->name('admin.sync-monitor.resume');
-    Route::post('/sync-monitor/{operation}/retry', [App\Http\Controllers\Admin\SyncMonitorController::class, 'retry'])->name('admin.sync-monitor.retry');
-    Route::post('/sync-monitor/{operation}/cancel', [App\Http\Controllers\Admin\SyncMonitorController::class, 'cancel'])->name('admin.sync-monitor.cancel');
+        // Sync Operation Monitor (Phase 8)
+        Route::get('/sync-monitor', [App\Http\Controllers\Admin\SyncMonitorController::class, 'index'])->name('admin.sync-monitor.index');
+        Route::get('/sync-monitor/{operation}', [App\Http\Controllers\Admin\SyncMonitorController::class, 'show'])->name('admin.sync-monitor.show');
+        Route::post('/sync-monitor/{operation}/resume', [App\Http\Controllers\Admin\SyncMonitorController::class, 'resume'])->name('admin.sync-monitor.resume');
+        Route::post('/sync-monitor/{operation}/retry', [App\Http\Controllers\Admin\SyncMonitorController::class, 'retry'])->name('admin.sync-monitor.retry');
+        Route::post('/sync-monitor/{operation}/cancel', [App\Http\Controllers\Admin\SyncMonitorController::class, 'cancel'])->name('admin.sync-monitor.cancel');
 
-    // Asset Management Routes (AssetManagement Module)
-    Route::get('/assets/inventory', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'index'])->name('admin.assets.inventory');
-    Route::post('/assets/inventory', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'store'])->name('admin.assets.store');
-    Route::get('/assets/inventory/export', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'export'])->name('admin.assets.inventory.export');
-    Route::get('/assets/conflicts', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'conflicts'])->name('admin.assets.conflicts');
-    Route::post('/assets/conflicts/{id}/approve', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'approveConflict'])->name('admin.assets.conflicts.approve');
-    Route::post('/assets/conflicts/{id}/reject', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'rejectConflict'])->name('admin.assets.conflicts.reject');
-    Route::get('/assets/assign', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'assign'])->name('admin.assets.assign');
-    Route::post('/assets/assign', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'storeAssignment'])->name('admin.assets.store_assignment');
-    Route::get('/assets/{id}', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'show'])->name('admin.assets.show');
-    Route::get('/assets/{id}/edit', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'edit'])->name('admin.assets.edit');
-    Route::put('/assets/{id}', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'update'])->name('admin.assets.update');
-    Route::patch('/assets/{id}/status', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'updateStatus'])->name('admin.assets.update_status');
+        // Asset Management Routes (AssetManagement Module)
+        Route::get('/assets/inventory', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'index'])->name('admin.assets.inventory');
+        Route::post('/assets/inventory', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'store'])->name('admin.assets.store');
+        Route::get('/assets/inventory/export', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'export'])->name('admin.assets.inventory.export');
+        Route::get('/assets/conflicts', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'conflicts'])->name('admin.assets.conflicts');
+        Route::post('/assets/conflicts/{id}/approve', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'approveConflict'])->name('admin.assets.conflicts.approve');
+        Route::post('/assets/conflicts/{id}/reject', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'rejectConflict'])->name('admin.assets.conflicts.reject');
+        Route::get('/assets/assign', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'assign'])->name('admin.assets.assign');
+        Route::post('/assets/assign', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'storeAssignment'])->name('admin.assets.store_assignment');
+        Route::get('/assets/{id}', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'show'])->name('admin.assets.show');
+        Route::get('/assets/{id}/edit', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'edit'])->name('admin.assets.edit');
+        Route::put('/assets/{id}', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'update'])->name('admin.assets.update');
+        Route::patch('/assets/{id}/status', [Modules\AssetManagement\Http\Controllers\AssetController::class, 'updateStatus'])->name('admin.assets.update_status');
 
-    // Billing Operations (PIB Module)
-    Route::get('/billing/variance-explorer', [Modules\PIB\Http\Controllers\BillingController::class, 'varianceExplorer'])->name('admin.billing.variance');
-    Route::get('/billing/templates/create', [Modules\PIB\Http\Controllers\BillingController::class, 'createTemplate'])->name('admin.billing.templates.create');
-    Route::post('/billing/templates', [Modules\PIB\Http\Controllers\BillingController::class, 'storeTemplate'])->name('admin.billing.templates.store');
-    Route::get('/billing/payments/create', [Modules\PIB\Http\Controllers\BillingController::class, 'createPayment'])->name('admin.billing.payments.create');
-    Route::post('/billing/payments', [Modules\PIB\Http\Controllers\BillingController::class, 'storePayment'])->name('admin.billing.payments.store');
+        // Billing Operations (PIB Module)
+        Route::get('/billing/variance-explorer', [Modules\PIB\Http\Controllers\BillingController::class, 'varianceExplorer'])->name('admin.billing.variance');
+        Route::get('/billing/templates/create', [Modules\PIB\Http\Controllers\BillingController::class, 'createTemplate'])->name('admin.billing.templates.create');
+        Route::post('/billing/templates', [Modules\PIB\Http\Controllers\BillingController::class, 'storeTemplate'])->name('admin.billing.templates.store');
+        Route::get('/billing/payments/create', [Modules\PIB\Http\Controllers\BillingController::class, 'createPayment'])->name('admin.billing.payments.create');
+        Route::post('/billing/payments', [Modules\PIB\Http\Controllers\BillingController::class, 'storePayment'])->name('admin.billing.payments.store');
 
-    // User Lifecycle Dashboard
-    Route::get('/users/lifecycle', [App\Http\Controllers\Admin\UserLifecycleController::class, 'index'])->name('admin.users.lifecycle');
-    Route::post('/users/lifecycle/sync', [App\Http\Controllers\Admin\UserLifecycleController::class, 'sync'])->name('admin.users.lifecycle.sync');
+        // User Lifecycle Dashboard
+        Route::get('/users/lifecycle', [App\Http\Controllers\Admin\UserLifecycleController::class, 'index'])->name('admin.users.lifecycle');
+        Route::post('/users/lifecycle/sync', [App\Http\Controllers\Admin\UserLifecycleController::class, 'sync'])->name('admin.users.lifecycle.sync');
 
-    // CRM Permission Matrix
-    Route::get('/crm/permission-matrix', [App\Http\Controllers\Admin\PermissionMatrixController::class, 'index'])->name('admin.crm.permission-matrix');
-    Route::post('/crm/permission-matrix/bulk-update', [App\Http\Controllers\Admin\PermissionMatrixController::class, 'bulkUpdate'])->name('admin.crm.permission-matrix.bulk-update');
-    Route::post('/crm/permission-matrix/apply-template', [App\Http\Controllers\Admin\PermissionMatrixController::class, 'applyTemplate'])->name('admin.crm.permission-matrix.apply-template');
-    
-    // CRM Custom Fields
-    Route::resource('crm/fields', \Modules\Crm\Http\Controllers\CustomFieldController::class)->names('crm.fields');
-    Route::post('crm/fields/save-values/{entity_type}/{id}', [\Modules\Crm\Http\Controllers\CustomFieldController::class, 'saveValues'])->name('crm.fields.save_values');
+        // CRM Permission Matrix
+        Route::get('/crm/permission-matrix', [App\Http\Controllers\Admin\PermissionMatrixController::class, 'index'])->name('admin.crm.permission-matrix');
+        Route::post('/crm/permission-matrix/bulk-update', [App\Http\Controllers\Admin\PermissionMatrixController::class, 'bulkUpdate'])->name('admin.crm.permission-matrix.bulk-update');
+        Route::post('/crm/permission-matrix/apply-template', [App\Http\Controllers\Admin\PermissionMatrixController::class, 'applyTemplate'])->name('admin.crm.permission-matrix.apply-template');
 
-    // CRM Clients (Create/Store)
-    Route::get('/crm/clients/create', [\Modules\Crm\Http\Controllers\ClientController::class, 'create'])->name('admin.crm.clients.create');
-    Route::post('/crm/clients', [\Modules\Crm\Http\Controllers\ClientController::class, 'store'])->name('admin.crm.clients.store');
-    
-    // CRM Contacts
-    Route::post('/crm/contacts', [\Modules\Crm\Http\Controllers\ContactController::class, 'store'])->name('crm.contacts.store');
-    Route::delete('/crm/contacts/{id}', [\Modules\Crm\Http\Controllers\ContactController::class, 'destroy'])->name('crm.contacts.destroy');
-});
+        // CRM Custom Fields
+        Route::resource('crm/fields', \Modules\Crm\Http\Controllers\CustomFieldController::class)->names('crm.fields');
+        Route::post('crm/fields/save-values/{entity_type}/{id}', [\Modules\Crm\Http\Controllers\CustomFieldController::class, 'saveValues'])->name('crm.fields.save_values');
 
-// Client edit routes (alias - resolves CRM Client to Customer for billing tests)
-if (app()->environment('local', 'testing')) {
-    Route::middleware(['admin'])->group(function () {
-        Route::get('/clients/{id}/edit', function ($id) {
-            // Try to find existing Customer, or create one from CRM Client
-            /** @var \App\Models\Customer|null $customer */
-            $customer = \App\Models\Customer::find($id);
-            if (!$customer) {
-                /** @var \Modules\Crm\Models\Client $client */
-                $client = \Modules\Crm\Models\Client::findOrFail($id);
-                $email = $client->email;
-                if (!$email) {
-                    // Use Company→users() (unified User model) instead of Client→users() (legacy ClientUser)
-                    $companyUser = $client->company?->users()->first();
-                    $email = $companyUser ? $companyUser->email : 'client-' . $client->id . '@portal.local';
-                }
-                $customer = \App\Models\Customer::firstOrCreate(
-                    ['email' => $email], /** @phpstan-ignore argument.type */
-                    ['first_name' => $client->name, 'company' => $client->name]
-                );
-            }
-            return view('customers.edit', compact('customer'));
-        })->name('clients.edit');
+        // CRM Clients (Create/Store)
+        Route::get('/crm/clients/create', [\Modules\Crm\Http\Controllers\ClientController::class, 'create'])->name('admin.crm.clients.create');
+        Route::post('/crm/clients', [\Modules\Crm\Http\Controllers\ClientController::class, 'store'])->name('admin.crm.clients.store');
 
-        Route::patch('/clients/{id}', function (\Illuminate\Http\Request $request, $id) {
-            /** @var \App\Models\Customer|null $customer */
-            $customer = \App\Models\Customer::find($id);
-            if (!$customer) {
-                /** @var \Modules\Crm\Models\Client $client */
-                $client = \Modules\Crm\Models\Client::findOrFail($id);
-                $email = $client->email;
-                if (!$email) {
-                    $companyUser = $client->company?->users()->first();
-                    $email = $companyUser ? $companyUser->email : 'client-' . $client->id . '@portal.local';
-                }
-                $customer = \App\Models\Customer::firstOrCreate(
-                    ['email' => $email], /** @phpstan-ignore argument.type */
-                    ['first_name' => $client->name, 'company' => $client->name]
-                );
-            }
-            $customer->update($request->only(['first_name', 'last_name', 'company', 'default_hourly_rate', 'notes']));
-            return redirect()->back()->with('success', 'Client updated');
-        })->name('clients.update');
+        // CRM Contacts
+        Route::post('/crm/contacts', [\Modules\Crm\Http\Controllers\ContactController::class, 'store'])->name('crm.contacts.store');
+        Route::delete('/crm/contacts/{id}', [\Modules\Crm\Http\Controllers\ContactController::class, 'destroy'])->name('crm.contacts.destroy');
     });
-}
+
+    // Client edit routes (alias - resolves CRM Client to Customer for billing tests)
+    if (app()->environment('local', 'testing')) {
+        Route::middleware(['admin'])->group(function () {
+            Route::get('/clients/{id}/edit', function ($id) {
+                // Try to find existing Customer, or create one from CRM Client
+                /** @var \App\Models\Customer|null $customer */
+                $customer = \App\Models\Customer::find($id);
+                if (! $customer) {
+                    /** @var \Modules\Crm\Models\Client $client */
+                    $client = \Modules\Crm\Models\Client::findOrFail($id);
+                    $email = $client->email;
+                    if (! $email) {
+                        // Use Company→users() (unified User model) instead of Client→users() (legacy ClientUser)
+                        $companyUser = $client->company?->users()->first();
+                        $email = $companyUser ? $companyUser->email : 'client-'.$client->id.'@portal.local';
+                    }
+                    $customer = \App\Models\Customer::firstOrCreate(
+                        ['email' => $email], /** @phpstan-ignore argument.type */
+                        ['first_name' => $client->name, 'company' => $client->name]
+                    );
+                }
+
+                return view('customers.edit', compact('customer'));
+            })->name('clients.edit');
+
+            Route::patch('/clients/{id}', function (\Illuminate\Http\Request $request, $id) {
+                /** @var \App\Models\Customer|null $customer */
+                $customer = \App\Models\Customer::find($id);
+                if (! $customer) {
+                    /** @var \Modules\Crm\Models\Client $client */
+                    $client = \Modules\Crm\Models\Client::findOrFail($id);
+                    $email = $client->email;
+                    if (! $email) {
+                        $companyUser = $client->company?->users()->first();
+                        $email = $companyUser ? $companyUser->email : 'client-'.$client->id.'@portal.local';
+                    }
+                    $customer = \App\Models\Customer::firstOrCreate(
+                        ['email' => $email], /** @phpstan-ignore argument.type */
+                        ['first_name' => $client->name, 'company' => $client->name]
+                    );
+                }
+                $customer->update($request->only(['first_name', 'last_name', 'company', 'default_hourly_rate', 'notes']));
+
+                return redirect()->back()->with('success', 'Client updated');
+            })->name('clients.update');
+        });
+    }
 
     // Modules (admin only)
     Route::middleware(['admin'])->group(function () {
@@ -425,7 +430,7 @@ if (app()->environment('local', 'testing')) {
         Route::get('/themes', [ThemeController::class, 'index'])->name('themes');
         Route::post('/themes', [ThemeController::class, 'update'])->name('themes.update');
         Route::post('/themes/seed', [ThemeController::class, 'seed'])->name('themes.seed');
-        
+
         // Theme Editor
         Route::get('/themes/editor', [App\Http\Controllers\ThemeEditorController::class, 'index'])->name('themes.editor.index');
         Route::get('/themes/editor/create', [App\Http\Controllers\ThemeEditorController::class, 'create'])->name('themes.editor.create');
@@ -442,13 +447,13 @@ if (app()->environment('local', 'testing')) {
     Route::post('/mailboxes/{mailbox}/permissions', [MailboxController::class, 'updatePermissions'])
         ->name('mailboxes.permissions.update');
     // Route::post('/mailboxes/{mailbox}/update-permissions', [MailboxController::class, 'updatePermissions'])
-        // ->name('mailboxes.update-permissions'); // Alias for tests (Removed)
+    // ->name('mailboxes.update-permissions'); // Alias for tests (Removed)
 
     // Mailbox Auto-Reply
     Route::get('/mailboxes/{mailbox}/auto-reply', [MailboxController::class, 'autoReply'])
         ->name('mailboxes.auto_reply');
     // Route::get('/mailboxes/{mailbox}/auto-reply-test', [MailboxController::class, 'autoReply'])
-        // ->name('mailboxes.auto-reply'); // Alias for tests (Removed)
+    // ->name('mailboxes.auto-reply'); // Alias for tests (Removed)
     Route::post('/mailboxes/{mailbox}/auto-reply', [MailboxController::class, 'saveAutoReply'])
         ->name('mailboxes.auto_reply.save');
 
@@ -523,7 +528,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark_as_read');
-    
+
     // Alert Subscriptions (Phase 12.3)
     Route::get('/alerts/subscriptions', [AlertSubscriptionController::class, 'index'])->name('alerts.subscriptions.index');
     Route::post('/alerts/subscriptions', [AlertSubscriptionController::class, 'update'])->name('alerts.subscriptions.update');
@@ -532,7 +537,7 @@ Route::middleware('auth')->group(function () {
 
     // Client 360 Workspace (Accessible to Admins and Techs)
     Route::get('/clients/{client}', [App\Http\Controllers\Admin\Client360Controller::class, 'show'])->name('admin.clients.show');
-    
+
     // CRM Clients Index (Accessible to Admins and Techs)
     Route::get('/crm/clients', [\Modules\Crm\Http\Controllers\ClientController::class, 'index'])->name('admin.crm.clients.index');
 });
