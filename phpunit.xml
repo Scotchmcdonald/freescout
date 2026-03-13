@@ -16,10 +16,8 @@
             <exclude>tests/Unit/Console/Commands</exclude>
         </testsuite>
         <testsuite name="Modules">
-            <directory>Modules/*/tests</directory>
             <directory>Modules/*/Tests</directory>
             <exclude>Modules/*/Tests/Browser</exclude>
-            <exclude>Modules/*/tests/Browser</exclude>
         </testsuite>
     </testsuites>
     <groups>
@@ -59,7 +57,7 @@
         <env name="LOG_CHANNEL" value="null"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
-        <env name="SESSION_DRIVER" value="file"/>
+        <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="STRIPE_SECRET" value="sk_test_dummy"/>
         <env name="SENTRY_TRACES_SAMPLE_RATE" value="0.1"/>
