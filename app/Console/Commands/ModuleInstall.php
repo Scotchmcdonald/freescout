@@ -99,9 +99,15 @@ class ModuleInstall extends Command
             $this->createModulePublicSymlink($module);
 
             $this->line('Clearing cache...');
-            $this->call('freescout:clear-cache', [
-                '--doNotCacheConfig' => app()->runningUnitTests(),
-            ]);
+            if (app()->runningUnitTests()) {
+                // Keep test environment stable and avoid mutating global
+                // bootstrap/cache state for subsequent tests in the same run.
+                return 0;
+            } else {
+                $this->call('freescout:clear-cache', [
+                    '--doNotCacheConfig' => false,
+                ]);
+            }
         } catch (\Exception $e) {
             $this->error($e->getMessage());
 
@@ -123,13 +129,22 @@ class ModuleInstall extends Command
     {
         $target = $module->getExtraPath('Resources/assets');
         $link = public_path('modules/'.$module->getLowerName());
+        $linkDirectory = dirname($link);
 
         if (! file_exists($target)) {
             return;
         }
 
+        if (! is_dir($linkDirectory)) {
+            mkdir($linkDirectory, 0755, true);
+        }
+
         if (file_exists($link) || is_link($link)) {
-            app('files')->delete($link);
+            if (is_link($link) || is_file($link)) {
+                app('files')->delete($link);
+            } elseif (is_dir($link)) {
+                app('files')->deleteDirectory($link);
+            }
         }
 
         app('files')->link($target, $link);

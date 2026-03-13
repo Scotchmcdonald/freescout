@@ -110,7 +110,6 @@ return new class extends Migration
                 $table->unique(['user_id', 'company_id']);
                 $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
                 $table->foreign('company_id')->references('id')->on('companies')->cascadeOnDelete();
-                $table->foreign('role_id')->references('id')->on('roles')->nullOnDelete();
                 $table->foreign('manager_id')->references('id')->on('users')->nullOnDelete();
             });
         } else {

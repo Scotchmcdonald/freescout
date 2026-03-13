@@ -18,6 +18,8 @@ class SentryBeforeSend
     {
         // Scrub sensitive data from breadcrumbs
         $breadcrumbs = $event->getBreadcrumbs();
+        $updatedBreadcrumbs = [];
+        $hasChanges = false;
         foreach ($breadcrumbs as $breadcrumb) {
             $data = $breadcrumb->getMetadata();
 
@@ -29,9 +31,14 @@ class SentryBeforeSend
                         $bindings[$key] = '[REDACTED]';
                     }
                 }
-                $data['bindings'] = $bindings;
-                $breadcrumb->setMetadata($data);
+                $breadcrumb = $breadcrumb->withMetadata('bindings', $bindings);
+                $hasChanges = true;
             }
+            $updatedBreadcrumbs[] = $breadcrumb;
+        }
+
+        if ($hasChanges) {
+            $event->setBreadcrumb($updatedBreadcrumbs);
         }
 
         return $event;

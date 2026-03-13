@@ -131,9 +131,9 @@ class CustomerController extends Controller
                 ->update(['customer_id' => $target->id]);
 
             // Merge emails (avoiding duplicates)
-            $targetEmailAddresses = $target->emails->pluck('email')->toArray();
+            $targetEmailAddresses = $target->emails()->pluck('email')->toArray();
 
-            foreach ($source->emails as $email) {
+            foreach ($source->emails()->get() as $email) {
                 if (! in_array($email->email, $targetEmailAddresses)) {
                     $email->update(['customer_id' => $target->id]);
                 }

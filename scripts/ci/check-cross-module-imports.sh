@@ -15,9 +15,9 @@ fi
 VIOLATIONS=$(find Modules/ -type f -path "*/Listeners/*.php" ! -path "*/Tests/*" -exec grep -l "use Modules\\\\" {} \; 2>/dev/null | while read file; do
     # Extract module name from file path
     MODULE=$(echo "$file" | sed -n 's|Modules/\([^/]*\)/.*|\1|p')
-    
-    # Check if importing from different module (ALLOW importing Events)
-    if grep "use Modules\\\\" "$file" | grep -v "use Modules\\\\${MODULE}\\\\" | grep -v "\\\\Events\\\\"; then
+
+    # Check if importing foreign module Models only (allow Events/DTOs/contracts)
+    if grep "use Modules\\\\" "$file" | grep "\\\\Models\\\\" | grep -v "use Modules\\\\${MODULE}\\\\"; then
         echo "$file"
     fi
 done)

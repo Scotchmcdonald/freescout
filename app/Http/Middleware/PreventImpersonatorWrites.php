@@ -30,12 +30,12 @@ class PreventImpersonatorWrites
         $startedAt = session(ImpersonationController::SESSION_STARTED_AT_KEY);
         $ttlMinutes = ImpersonationController::IMPERSONATION_TTL_MINUTES;
 
-        if ($startedAt && now()->timestamp - $startedAt > $ttlMinutes * 60) {
+        if ($startedAt && is_numeric($startedAt) && now()->getTimestamp() - (int) $startedAt > $ttlMinutes * 60) {
             Log::warning('Impersonation auto-expired after TTL', [
                 'admin_id' => session()->get('impersonated_by'),
                 'impersonated_user_id' => $user->id,
                 'ttl_minutes' => $ttlMinutes,
-                'elapsed_seconds' => now()->timestamp - $startedAt,
+                'elapsed_seconds' => now()->getTimestamp() - (int) $startedAt,
             ]);
 
             session()->forget(ImpersonationController::SESSION_STARTED_AT_KEY);

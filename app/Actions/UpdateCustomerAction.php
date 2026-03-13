@@ -98,7 +98,7 @@ class UpdateCustomerAction
         // Add phone if not exists
         if (! $phoneExists) {
             $phones[] = ['number' => $phone, 'type' => 'work'];
-            /** @var array<string, mixed> $phones */
+            /** @var array<int, array<string, mixed>> $phones */
             $customer->phones = $phones;
         }
     }

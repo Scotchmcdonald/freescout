@@ -69,7 +69,7 @@ class PruneDemoAccounts extends Command
         return 0;
     }
 
-    private function processUserCleanup(User $user)
+    private function processUserCleanup(User $user): void
     {
         $this->comment("Cleaning up user {$user->email} (ID: {$user->id})...");
 

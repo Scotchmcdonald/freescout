@@ -66,7 +66,7 @@ class UserController extends Controller
         unset($validated['client_role']);
 
         // External users always get the base User role; type column drives isClient()
-        if ((int) ($validated['type'] ?? 1) === 2) {
+        if (($validated['type'] ?? 1) === 2) {
             $validated['type'] = 2;
             $validated['role'] = User::ROLE_USER;
         } else {
@@ -151,7 +151,7 @@ class UserController extends Controller
         unset($validated['client_role']);
 
         // Normalise type and role for external users
-        if ((int) ($validated['type'] ?? 1) === 2) {
+        if (($validated['type'] ?? 1) === 2) {
             $validated['type'] = 2;
             $validated['role'] = User::ROLE_USER;
         } else {

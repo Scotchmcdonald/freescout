@@ -36,8 +36,10 @@ class UserObserver
     public function updated(User $user): void
     {
         if ($user->isDirty('status')) {
-            $oldStatusInt = (int) $user->getOriginal('status');
-            $newStatusInt = (int) $user->status;
+            $oldRaw = $user->getOriginal('status');
+            $newRaw = $user->status;
+            $oldStatusInt = is_numeric($oldRaw) ? (int) $oldRaw : 0;
+            $newStatusInt = is_numeric($newRaw) ? (int) $newRaw : 0;
 
             $oldStatus = $oldStatusInt === User::STATUS_ACTIVE ? 'active' : 'inactive';
             $newStatus = $newStatusInt === User::STATUS_ACTIVE ? 'active' : 'inactive';

@@ -30,9 +30,6 @@ class AtomicCounterConcurrencyTest extends TestCase
         }
     }
 
-    /**
-     * @param  int|string  $index
-     */
     protected function assertProcessSucceeded(Process $process, int|string $index): void
     {
         if (! $process->isSuccessful()) {

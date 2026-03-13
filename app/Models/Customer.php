@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $photo_type
  * @property int|null $channel
  * @property string|null $channel_id
- * @property array<string, mixed>|null $phones
+ * @property array<int, array<string, mixed>>|null $phones
  * @property array<string, mixed>|null $websites
  * @property array<string, mixed>|null $social_profiles
  * @property string|null $address

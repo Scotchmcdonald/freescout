@@ -168,11 +168,11 @@ class AdminDashboardWidget implements Widget
                 foreach ($expiring as $contract) {
                     $daysLeft = (int) now()->diffInDays($contract->end_date, false);
                     $urgency = $daysLeft <= 7 ? 'text-red-600 font-semibold' : ($daysLeft <= 14 ? 'text-orange-600' : 'text-yellow-700');
-                    $clientName = $contract->client?->name ?? '—';
+                    $clientName = $contract->client->name ?? '—';
                     $section .= '<tr class="hover:bg-gray-50">';
                     $section .= '<td class="py-2 pr-4 font-medium text-indigo-600">'.e($contract->contract_number ?? "#{$contract->id}").'</td>';
                     $section .= '<td class="py-2 pr-4 text-gray-700">'.e($clientName).'</td>';
-                    $section .= '<td class="py-2 pr-4 text-gray-500">'.$contract->end_date->format('M j, Y').'</td>';
+                    $section .= '<td class="py-2 pr-4 text-gray-500">'.($contract->end_date?->format('M j, Y') ?? '—').'</td>';
                     $section .= '<td class="py-2 '.$urgency.'">'.$daysLeft.'d</td>';
                     $section .= '</tr>';
                 }

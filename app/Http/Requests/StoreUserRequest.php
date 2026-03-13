@@ -26,7 +26,7 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $isExternal = (int) $this->input('type') === 2;
+        $isExternal = $this->integer('type') === 2;
 
         return [
             'first_name' => 'required|string|max:255',

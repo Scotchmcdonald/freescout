@@ -24,10 +24,11 @@ class LogSuccessfulLogin
             $properties['email'] = 'OAuth: '.$user->email;
         }
 
-        activity()
-            ->causedBy($user)
-            ->withProperties($properties)
-            ->useLog(ActivityLog::NAME_USER)
-            ->log(ActivityLog::DESCRIPTION_USER_LOGIN);
+        ActivityLog::record(
+            description: ActivityLog::DESCRIPTION_USER_LOGIN,
+            logName: ActivityLog::NAME_USER,
+            properties: $properties,
+            causer: $user,
+        );
     }
 }

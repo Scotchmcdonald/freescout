@@ -14,12 +14,13 @@ class LogUserDeletion
      */
     public function handle(UserDeleted $event): void
     {
-        activity()
-            ->causedBy($event->by_user)
-            ->withProperties([
+        ActivityLog::record(
+            description: ActivityLog::DESCRIPTION_USER_DELETED,
+            logName: ActivityLog::NAME_USER,
+            properties: [
                 'deleted_user' => $event->deleted_user->getFullName().' ['.$event->deleted_user->id.']',
-            ])
-            ->useLog(ActivityLog::NAME_USER)
-            ->log(ActivityLog::DESCRIPTION_USER_DELETED);
+            ],
+            causer: $event->by_user,
+        );
     }
 }

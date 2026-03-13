@@ -16,9 +16,13 @@ class EndImpersonation extends Command
 
     protected $description = 'Emergency: end stuck impersonation sessions by clearing session data';
 
+    private const DEFAULT_SESSION_TABLE = 'sessions';
+
+    private const DEFAULT_IMPERSONATION_KEY = 'impersonated_by';
+
     public function handle(): int
     {
-        $driver = config('session.driver');
+        $driver = $this->stringConfig('session.driver', 'file');
 
         if ($driver !== 'database') {
             $this->error("This command only supports the 'database' session driver. Current driver: {$driver}");
@@ -27,8 +31,8 @@ class EndImpersonation extends Command
             return self::FAILURE;
         }
 
-        $table = config('session.table', 'sessions');
-        $sessionKey = config('laravel-impersonate.session_key', 'impersonated_by');
+        $table = $this->stringConfig('session.table', self::DEFAULT_SESSION_TABLE);
+        $sessionKey = $this->stringConfig('laravel-impersonate.session_key', self::DEFAULT_IMPERSONATION_KEY);
 
         if ($this->option('all')) {
             $affected = DB::table($table)
@@ -107,5 +111,12 @@ class EndImpersonation extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    private function stringConfig(string $key, string $default): string
+    {
+        $value = config($key, $default);
+
+        return is_string($value) && $value !== '' ? $value : $default;
     }
 }

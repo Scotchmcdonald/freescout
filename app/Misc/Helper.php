@@ -215,6 +215,11 @@ class Helper
             return false;
         }
 
+        // Safety guard: prevent extracting archives to arbitrary absolute paths.
+        if (str_starts_with($destPath, DIRECTORY_SEPARATOR) && ! str_starts_with($destPath, base_path())) {
+            return false;
+        }
+
         $zip = new \ZipArchive;
         if ($zip->open($zipPath) !== true) {
             return false;

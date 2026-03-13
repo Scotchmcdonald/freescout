@@ -20,7 +20,7 @@ class SentryBeforeBreadcrumb
         if ($breadcrumb->getCategory() === 'sql.query') {
             $message = $breadcrumb->getMessage();
             if (strlen((string) $message) > 1000) {
-                $breadcrumb->setMessage(substr((string) $message, 0, 1000).'... [truncated]');
+                return $breadcrumb->withMessage(substr((string) $message, 0, 1000).'... [truncated]');
             }
         }
 

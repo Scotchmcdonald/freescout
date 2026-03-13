@@ -41,6 +41,7 @@ use Illuminate\Notifications\Notifiable;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role> $roles
  *
  * @method static \Illuminate\Database\Eloquent\Builder<User>|User create(array<string, mixed> $attributes = [])
+ * @method \Illuminate\Database\Eloquent\Relations\HasMany<\Modules\Alerts\Models\NotificationSubscription, $this> notificationSubscriptions()
  *
  * @mixin \Illuminate\Database\Eloquent\Builder<User>
  */
@@ -756,7 +757,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Get the primary company ID for this user.
      */
-    public function getCompanyIdAttribute()
+    public function getCompanyIdAttribute(): ?int
     {
         return $this->company()?->id;
     }
@@ -766,7 +767,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @deprecated Use company_id instead. Will be removed after Phase 3.
      */
-    public function getClientIdAttribute()
+    public function getClientIdAttribute(): ?int
     {
         // During transition, client_id maps through the company relationship
         return $this->company_id;

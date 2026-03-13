@@ -94,6 +94,7 @@ class MailHelper
     public static function replaceMailVars(string $text, array $data = [], bool $escape = false, bool $remove_non_replaced = false): string
     {
         // Available variables to insert into email in UI.
+        /** @var array<string, string> $vars */
         $vars = [];
 
         if (! empty($data['conversation'])) {
@@ -109,7 +110,7 @@ class MailHelper
                 $vars['{%mailbox.fromName%}'] = $data['mailbox_from_name'];
             } else {
                 $fromInfo = $data['mailbox']->getMailFrom(! empty($data['user']) ? $data['user'] : null);
-                $vars['{%mailbox.fromName%}'] = $fromInfo['name'];
+                $vars['{%mailbox.fromName%}'] = is_array($fromInfo) && isset($fromInfo['name']) ? (string) $fromInfo['name'] : '';
             }
         }
         if (! empty($data['customer'])) {
@@ -130,7 +131,16 @@ class MailHelper
 
         // Allow modules to add custom variables via Eventy filters
         if (function_exists('eventy')) {
-            $vars = eventy()->filter('mail_vars.replace', $vars, $data);
+            $filteredVars = eventy()->filter('mail_vars.replace', $vars, $data);
+            if (is_array($filteredVars)) {
+                $normalizedVars = [];
+                foreach ($filteredVars as $key => $value) {
+                    if (is_string($key)) {
+                        $normalizedVars[$key] = is_scalar($value) ? (string) $value : '';
+                    }
+                }
+                $vars = $normalizedVars;
+            }
         }
 
         /**
@@ -145,13 +155,17 @@ class MailHelper
             $matches
         );
 
+        $matchedVars = $matches['var'];
+        $fullMatches = $matches[0];
+        $fallbacks = $matches['fallback'];
+
         // Add fallback values to the $vars array, if present.
-        foreach ($matches['var'] as $i => $var) {
+        foreach ($matchedVars as $i => $var) {
             $merge_code = "{%{$var}%}";
-            $full_match = $matches[0][$i];
+            $full_match = isset($fullMatches[$i]) ? (string) $fullMatches[$i] : '';
             $has_fallback = strpos($full_match, ',fallback=') !== false;
-            $fallback_val = $has_fallback ? ($matches['fallback'][$i] ?? null) : null;
-            $merge_val = isset($vars[$merge_code]) ? $vars[$merge_code] : $fallback_val;
+            $fallback_val = $has_fallback ? ($fallbacks[$i] ?? null) : null;
+            $merge_val = isset($vars[$merge_code]) ? $vars[$merge_code] : (is_scalar($fallback_val) ? (string) $fallback_val : null);
 
             if ($merge_val !== null || $remove_non_replaced === true) {
                 $vars[$full_match] = $merge_val ?? '';
@@ -161,7 +175,16 @@ class MailHelper
 
         // Allow modules to modify variables after fallback processing
         if (function_exists('eventy')) {
-            $vars = eventy()->filter('mail_vars.replace_after_fallback', $vars, $data);
+            $filteredVars = eventy()->filter('mail_vars.replace_after_fallback', $vars, $data);
+            if (is_array($filteredVars)) {
+                $normalizedVars = [];
+                foreach ($filteredVars as $key => $value) {
+                    if (is_string($key)) {
+                        $normalizedVars[$key] = is_scalar($value) ? (string) $value : '';
+                    }
+                }
+                $vars = $normalizedVars;
+            }
         }
 
         if ($escape) {

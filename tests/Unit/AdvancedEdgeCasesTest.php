@@ -11,6 +11,7 @@ use App\Models\Email;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
@@ -103,7 +104,12 @@ class AdvancedEdgeCasesTest extends UnitTestCase
     public function test_orphaned_children_are_handled(): void
     {
         if (DB::connection()->getDriverName() === 'sqlite') {
-            $this->markTestIncomplete('SQLite cannot disable FK constraints within transactions (RefreshDatabase)');
+            $this->expectException(QueryException::class);
+
+            // SQLite enforces FK constraints in this test setup, so orphans are rejected.
+            Thread::factory()->create(['conversation_id' => 99999]);
+
+            return;
         }
 
         Schema::disableForeignKeyConstraints();

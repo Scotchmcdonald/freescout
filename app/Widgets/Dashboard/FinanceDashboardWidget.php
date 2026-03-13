@@ -129,7 +129,7 @@ class FinanceDashboardWidget implements Widget
             $overdueClass = is_int($daysOverdue) && $daysOverdue > 30
                 ? 'text-red-700 font-semibold'
                 : 'text-orange-600';
-            $clientName = $invoice->client?->name ?? '—';
+            $clientName = $invoice->client->name ?? '—';
 
             $html .= '<tr class="hover:bg-gray-50">';
             $html .= '<td class="py-2 pr-4 font-medium text-indigo-600">'.e($invoice->invoice_number ?? "#{$invoice->id}").'</td>';
@@ -151,7 +151,7 @@ class FinanceDashboardWidget implements Widget
             return '';
         }
 
-        $payments = \Modules\Payment\Models\Payment::with('client')
+        $payments = \Modules\Payment\Models\Payment::with('company')
             ->where('status', 'completed')
             ->orderByDesc('created_at')
             ->take(5)
@@ -166,7 +166,7 @@ class FinanceDashboardWidget implements Widget
         $html .= '<div class="space-y-2">';
 
         foreach ($payments as $payment) {
-            $clientName = $payment->client?->name ?? '—';
+            $clientName = $payment->company->name ?? '—';
             $html .= '<div class="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">';
             $html .= '<div>';
             $html .= '<p class="text-sm font-medium text-gray-800">'.e($clientName).'</p>';

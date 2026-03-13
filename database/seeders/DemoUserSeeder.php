@@ -99,7 +99,7 @@ class DemoUserSeeder extends Seeder
 
             // Attach user ↔ company if not already linked
             try {
-                if (! $company->users()->where('user_id', $user->id)->exists()) {
+                if (! $company->users()->whereKey($user->id)->exists()) {
                     $company->users()->attach($user->id, [
                         'role_id' => 1,
                         'status' => 'approved',
@@ -141,7 +141,7 @@ class DemoUserSeeder extends Seeder
                 ]
             );
 
-            if (! $company->users()->where('user_id', $portalUser->id)->exists()) {
+            if (! $company->users()->whereKey($portalUser->id)->exists()) {
                 $company->users()->attach($portalUser->id, [
                     'role_id' => 1,
                     'status' => 'approved',

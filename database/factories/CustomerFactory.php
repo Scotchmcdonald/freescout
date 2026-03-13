@@ -69,9 +69,14 @@ class CustomerFactory extends Factory
     {
         // Extract email if present
         $email = null;
+        $emails = [];
         if (is_array($attributes) && isset($attributes['email'])) {
             $email = $attributes['email'];
             unset($attributes['email']);
+        }
+        if (is_array($attributes) && isset($attributes['emails']) && is_array($attributes['emails'])) {
+            $emails = array_values(array_filter($attributes['emails'], fn ($value) => is_string($value) && $value !== ''));
+            unset($attributes['emails']);
         }
 
         // Create the customer (this triggers afterCreating hook)
@@ -84,6 +89,16 @@ class CustomerFactory extends Factory
                 'email' => $email,
                 'type' => 1, // TYPE_WORK (primary)
             ]);
+        }
+
+        if (! empty($emails) && $customer instanceof Customer) {
+            $customer->emails()->delete();
+            foreach ($emails as $index => $emailValue) {
+                $customer->emails()->create([
+                    'email' => $emailValue,
+                    'type' => $index === 0 ? 1 : 2,
+                ]);
+            }
         }
 
         return $customer;

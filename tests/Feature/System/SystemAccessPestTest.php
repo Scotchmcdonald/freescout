@@ -97,7 +97,7 @@ test('download logs returns binary file response', function () {
         ->assertDownload();
 });
 
-test('admin can clear logs (skipped in parallel)', function () {
+test('admin can clear logs', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
     $logFile = storage_path('logs/laravel.log');

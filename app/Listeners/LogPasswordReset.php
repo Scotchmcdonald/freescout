@@ -17,10 +17,11 @@ class LogPasswordReset
         /** @var \App\Models\User $user */
         $user = $event->user;
 
-        activity()
-            ->causedBy($user)
-            ->withProperties(['ip' => request()->ip()])
-            ->useLog(ActivityLog::NAME_USER)
-            ->log(ActivityLog::DESCRIPTION_USER_PASSWORD_RESET);
+        ActivityLog::record(
+            description: ActivityLog::DESCRIPTION_USER_PASSWORD_RESET,
+            logName: ActivityLog::NAME_USER,
+            properties: ['ip' => request()->ip()],
+            causer: $user,
+        );
     }
 }

@@ -71,7 +71,7 @@ class ClientPortalTestSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        if (! $company->users()->where('user_id', $userA->id)->exists()) {
+        if (! $company->users()->whereKey($userA->id)->exists()) {
             $company->users()->attach($userA->id, [
                 'role_id' => 1,
                 'status' => 'approved',
@@ -106,7 +106,7 @@ class ClientPortalTestSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        if (! $company->users()->where('user_id', $userB->id)->exists()) {
+        if (! $company->users()->whereKey($userB->id)->exists()) {
             $company->users()->attach($userB->id, [
                 'role_id' => 1,
                 'status' => 'approved',

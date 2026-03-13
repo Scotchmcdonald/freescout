@@ -25,6 +25,8 @@ class CacheService
     public const TTL_QUERY_RESULTS = 300;          // 5 minutes
     public const TTL_HOT_DATA = 60;                // 1 minute
 
+    private ?bool $supportsTags = null;
+
     /**
      * Remember a value with standardized key naming.
      *
@@ -45,12 +47,31 @@ class CacheService
         callable $callback
     ): mixed {
         $key = $this->buildKey($domain, $entityType, $entityId, $attribute);
+        $tag = $this->buildTag($domain, $entityType, $entityId);
 
-        return Cache::remember($key, $ttl, function () use ($key, $callback) {
+        if ($this->supportsTags()) {
+            $value = Cache::tags([$tag])->remember($key, $ttl, function () use ($key, $callback) {
+                Log::debug("Cache miss: {$key}");
+
+                return $callback();
+            });
+
+            // Keep a direct key copy for stores/tests that check untagged keys.
+            Cache::put($key, $value, $ttl);
+            $this->registerEntityKey($tag, $key);
+
+            return $value;
+        }
+
+        $value = Cache::remember($key, $ttl, function () use ($key, $callback) {
             Log::debug("Cache miss: {$key}");
 
             return $callback();
         });
+
+        $this->registerEntityKey($tag, $key);
+
+        return $value;
     }
 
     /**
@@ -69,7 +90,17 @@ class CacheService
         ?string $attribute = null
     ): bool {
         $key = $this->buildKey($domain, $entityType, $entityId, $attribute);
+        $tag = $this->buildTag($domain, $entityType, $entityId);
         Log::debug("Cache invalidate: {$key}");
+
+        $this->unregisterEntityKey($tag, $key);
+
+        if ($this->supportsTags()) {
+            $taggedForgotten = Cache::tags([$tag])->forget($key);
+            $directForgotten = Cache::forget($key);
+
+            return $taggedForgotten || $directForgotten;
+        }
 
         return Cache::forget($key);
     }
@@ -86,10 +117,36 @@ class CacheService
         string $entityType,
         int|string $entityId
     ): void {
-        $tag = "{$domain}:{$entityType}:{$entityId}";
+        $tag = $this->buildTag($domain, $entityType, $entityId);
+        $registryKey = $this->buildRegistryKey($tag);
+        $keys = Cache::get($registryKey, []);
         Log::debug("Cache flush tag: {$tag}");
 
-        Cache::tags([$tag])->flush();
+        if ($this->supportsTags()) {
+            if (is_array($keys)) {
+                foreach ($keys as $key) {
+                    if (is_string($key)) {
+                        // Keep mirrored untagged key space in sync with tag flushes.
+                        Cache::forget($key);
+                    }
+                }
+            }
+
+            Cache::tags([$tag])->flush();
+            Cache::forget($registryKey);
+
+            return;
+        }
+
+        if (is_array($keys)) {
+            foreach ($keys as $key) {
+                if (is_string($key)) {
+                    Cache::forget($key);
+                }
+            }
+        }
+
+        Cache::forget($registryKey);
     }
 
     /**
@@ -112,7 +169,17 @@ class CacheService
         int $ttl
     ): bool {
         $key = $this->buildKey($domain, $entityType, $entityId, $attribute);
+        $tag = $this->buildTag($domain, $entityType, $entityId);
         Log::debug("Cache put: {$key}");
+
+        $this->registerEntityKey($tag, $key);
+
+        if ($this->supportsTags()) {
+            $taggedStored = Cache::tags([$tag])->put($key, $value, $ttl);
+            $directStored = Cache::put($key, $value, $ttl);
+
+            return $taggedStored && $directStored;
+        }
 
         return Cache::put($key, $value, $ttl);
     }
@@ -135,6 +202,13 @@ class CacheService
         mixed $default = null
     ): mixed {
         $key = $this->buildKey($domain, $entityType, $entityId, $attribute);
+        $tag = $this->buildTag($domain, $entityType, $entityId);
+
+        if ($this->supportsTags()) {
+            $value = Cache::tags([$tag])->get($key, null);
+
+            return $value ?? Cache::get($key, $default);
+        }
 
         return Cache::get($key, $default);
     }
@@ -155,8 +229,67 @@ class CacheService
         ?string $attribute = null
     ): bool {
         $key = $this->buildKey($domain, $entityType, $entityId, $attribute);
+        $tag = $this->buildTag($domain, $entityType, $entityId);
+
+        if ($this->supportsTags()) {
+            return Cache::tags([$tag])->has($key) || Cache::has($key);
+        }
 
         return Cache::has($key);
+    }
+
+    private function supportsTags(): bool
+    {
+        if ($this->supportsTags !== null) {
+            return $this->supportsTags;
+        }
+
+        $this->supportsTags = method_exists(Cache::getStore(), 'tags');
+
+        return $this->supportsTags;
+    }
+
+    private function buildTag(string $domain, string $entityType, int|string $entityId): string
+    {
+        return "{$domain}:{$entityType}:{$entityId}";
+    }
+
+    private function buildRegistryKey(string $tag): string
+    {
+        return "cache_registry:{$tag}";
+    }
+
+    private function registerEntityKey(string $tag, string $key): void
+    {
+        $registryKey = $this->buildRegistryKey($tag);
+        $keys = Cache::get($registryKey, []);
+        if (! is_array($keys)) {
+            $keys = [];
+        }
+
+        if (! in_array($key, $keys, true)) {
+            $keys[] = $key;
+            Cache::forever($registryKey, $keys);
+        }
+    }
+
+    private function unregisterEntityKey(string $tag, string $key): void
+    {
+        $registryKey = $this->buildRegistryKey($tag);
+        $keys = Cache::get($registryKey, []);
+        if (! is_array($keys)) {
+            return;
+        }
+
+        $remaining = array_values(array_filter($keys, fn (mixed $value): bool => $value !== $key));
+
+        if ($remaining === []) {
+            Cache::forget($registryKey);
+
+            return;
+        }
+
+        Cache::forever($registryKey, $remaining);
     }
 
     /**

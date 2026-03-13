@@ -199,7 +199,6 @@ class ResilienceController extends Controller
 
             $query->orderBy('created_at', 'desc')->chunk(1000, function ($events) use ($handle) {
                 foreach ($events as $event) {
-                    /** @var object{id: int, channel: string, event: string, payload: string, created_at: string} $event */
                     fputcsv($handle, [
                         $event->id,
                         $event->channel,

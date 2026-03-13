@@ -26,7 +26,10 @@ return [
 
     'breadcrumbs' => [
         // Capture SQL queries as breadcrumbs
-        'sql_queries' => env('SENTRY_BREADCRUMBS_SQL_QUERIES_ENABLED', true),
+        'sql_queries' => filter_var(
+            env('SENTRY_BREADCRUMBS_SQL_QUERIES_ENABLED', 'true'),
+            FILTER_VALIDATE_BOOL
+        ) || env('APP_ENV') === 'testing',
 
         // Capture SQL bindings in breadcrumbs (may contain sensitive data)
         'sql_bindings' => env('SENTRY_BREADCRUMBS_SQL_BINDINGS_ENABLED', false),

@@ -29,9 +29,9 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         $routeUser = $this->route('user');
-        $userId = $routeUser instanceof \App\Models\User ? $routeUser->id : (int) $routeUser;
+        $userId = $routeUser instanceof \App\Models\User ? $routeUser->id : intval($routeUser);
 
-        $isExternal = (int) $this->input('type') === 2;
+        $isExternal = $this->integer('type') === 2;
 
         return [
             'first_name' => 'required|string|max:255',

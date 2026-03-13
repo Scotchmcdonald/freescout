@@ -14,12 +14,13 @@ class LogLockout
      */
     public function handle(Lockout $event): void
     {
-        activity()
-            ->withProperties([
+        ActivityLog::record(
+            description: ActivityLog::DESCRIPTION_USER_LOCKED,
+            logName: ActivityLog::NAME_USER,
+            properties: [
                 'ip' => request()->ip(),
                 'email' => $event->request->input('email'),
-            ])
-            ->useLog(ActivityLog::NAME_USER)
-            ->log(ActivityLog::DESCRIPTION_USER_LOCKED);
+            ],
+        );
     }
 }

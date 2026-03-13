@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Mail\AutoReply;
 use App\Models\Conversation;
 use App\Models\Customer;
+use App\Models\Email;
 use App\Models\Mailbox;
 use App\Models\SendLog;
 use App\Models\Thread;
@@ -32,28 +33,41 @@ class SendAutoReplyJob implements ShouldQueue
     public Conversation $conversation;
     public Thread $thread;
     public Mailbox $mailbox;
-    /** Always stored as an array regardless of what was passed to the constructor. */
+    public ?Customer $customer = null;
+    /**
+     * Always stored as a normalized sender payload.
+     *
+     * @var array{email: string, name: string}
+     */
     public array $senderInfo;
 
     /**
      * Create a new job instance.
      *
-     * @param  Customer|array  $senderInfo  Either a Customer model (transformed to an array
-     *                                      internally) or a plain array with 'email'/'name'.
+     * @param  Customer|array<string, mixed>|null  $senderInfo  Either a Customer model (transformed to an array
+     *                                                          internally) or a plain associative array with 'email'/'name' keys.
      */
     public function __construct(
         Conversation $conversation,
         Thread $thread,
         Mailbox $mailbox,
-        Customer|array $senderInfo
+        Customer|array|null $senderInfo
     ) {
         $this->conversation = $conversation;
         $this->thread = $thread;
         $this->mailbox = $mailbox;
 
-        $this->senderInfo = $senderInfo instanceof Customer
-            ? ['email' => $senderInfo->getMainEmail() ?? '', 'name' => $senderInfo->getFullName()]
-            : $senderInfo;
+        if ($senderInfo instanceof Customer) {
+            $this->customer = $senderInfo;
+            $this->senderInfo = ['email' => $senderInfo->getMainEmail() ?? '', 'name' => $senderInfo->getFullName()];
+        } elseif (is_array($senderInfo)) {
+            $this->senderInfo = [
+                'email' => isset($senderInfo['email']) && is_string($senderInfo['email']) ? $senderInfo['email'] : '',
+                'name' => isset($senderInfo['name']) && is_string($senderInfo['name']) ? $senderInfo['name'] : '',
+            ];
+        } else {
+            $this->senderInfo = ['email' => '', 'name' => ''];
+        }
     }
 
     /**
@@ -155,9 +169,15 @@ class SendAutoReplyJob implements ShouldQueue
                     $status = 1; // SendLog::STATUS_ACCEPTED
                 }
 
+                $customerId = $this->customer !== null
+                    ? $this->customer->id
+                    : ($this->conversation->customer_id
+                        ?? Email::query()->where('email', $recipient)->value('customer_id'));
+
                 SendLog::create([
                     'thread_id' => $this->thread->id,
                     'message_id' => $messageId,
+                    'customer_id' => $customerId,
                     'email' => $recipient,
                     'mail_type' => 3, // SendLog::MAIL_TYPE_AUTO_REPLY
                     'status' => $status,

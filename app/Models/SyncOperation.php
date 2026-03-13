@@ -147,7 +147,7 @@ class SyncOperation extends Model
         }
 
         $secondsElapsed = now()->diffInSeconds($this->started_at);
-        if ($secondsElapsed === 0) {
+        if ($secondsElapsed == 0) {
             return 0;
         }
 

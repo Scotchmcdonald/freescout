@@ -261,20 +261,17 @@ test('flush entity removes all caches for specific entity', function () {
     $service = app(CacheService::class);
     $clientId = 123;
 
-    // This test requires cache tags support (Redis/Memcached)
-    // If using array/file cache, this will skip
-    if (! in_array(config('cache.default'), ['redis', 'memcached'])) {
-        $this->markTestIncomplete('Cache tags require Redis or Memcached');
-    }
-
     // Create multiple caches for same entity
-    Cache::tags(["billing:client:{$clientId}"])->put('billing:client:'.$clientId.':balance', 1000, 60);
-    Cache::tags(["billing:client:{$clientId}"])->put('billing:client:'.$clientId.':invoices', [], 60);
+    $service->put('billing', 'client', $clientId, 'balance', 1000, 60);
+    $service->put('billing', 'client', $clientId, 'invoices', [], 60);
+
+    expect($service->has('billing', 'client', $clientId, 'balance'))->toBeTrue();
+    expect($service->has('billing', 'client', $clientId, 'invoices'))->toBeTrue();
 
     // Flush entity
     $service->flushEntity('billing', 'client', $clientId);
 
     // Verify all related caches cleared
-    expect(Cache::tags(["billing:client:{$clientId}"])->get('billing:client:'.$clientId.':balance'))->toBeNull();
-    expect(Cache::tags(["billing:client:{$clientId}"])->get('billing:client:'.$clientId.':invoices'))->toBeNull();
+    expect($service->get('billing', 'client', $clientId, 'balance'))->toBeNull();
+    expect($service->get('billing', 'client', $clientId, 'invoices'))->toBeNull();
 });

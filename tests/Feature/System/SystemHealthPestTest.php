@@ -120,6 +120,11 @@ test('perform update', function () {
     // Clear rate limiter to avoid cross-test interference
     \Illuminate\Support\Facades\RateLimiter::clear('system-update');
 
+    Artisan::shouldReceive('call')
+        ->once()
+        ->with('freescout:update', ['--force' => true])
+        ->andReturn(0);
+
     $response = $this->actingAs($user)
         ->post(route('system.perform_update'));
 

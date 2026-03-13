@@ -105,6 +105,8 @@ return new class extends Migration
 
     /**
      * Safely add a foreign key if it does not already exist.
+     *
+     * @param  'cascade'|'no action'|'restrict'|'set null'  $onDelete
      */
     private function addForeignKeyIfMissing(
         string $table,

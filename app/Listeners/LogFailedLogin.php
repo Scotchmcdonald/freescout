@@ -14,12 +14,13 @@ class LogFailedLogin
      */
     public function handle(Failed $event): void
     {
-        activity()
-            ->withProperties([
+        ActivityLog::record(
+            description: ActivityLog::DESCRIPTION_USER_LOGIN_FAILED,
+            logName: ActivityLog::NAME_USER,
+            properties: [
                 'ip' => request()->ip(),
                 'email' => request()->input('email'),
-            ])
-            ->useLog(ActivityLog::NAME_USER)
-            ->log(ActivityLog::DESCRIPTION_USER_LOGIN_FAILED);
+            ],
+        );
     }
 }

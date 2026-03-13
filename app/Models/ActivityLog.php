@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Models\Activity as SpatieActivity;
 
 class ActivityLog extends SpatieActivity
@@ -89,6 +90,58 @@ class ActivityLog extends SpatieActivity
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Record an activity entry even when the package logger is disabled.
+     *
+     * @param  array<string, mixed>  $properties
+     */
+    public static function record(
+        string $description,
+        string $logName = 'default',
+        array $properties = [],
+        ?Model $subject = null,
+        ?Model $causer = null,
+    ): self {
+        $activity = null;
+
+        if ((bool) config('activitylog.enabled', true)) {
+            $logger = activity($logName);
+
+            if ($subject !== null) {
+                $logger->performedOn($subject);
+            }
+
+            if ($causer !== null) {
+                $logger->causedBy($causer);
+            }
+
+            $activity = $logger->withProperties($properties)->log($description);
+        }
+
+        if ($activity instanceof self) {
+            return $activity;
+        }
+
+        if ($activity instanceof SpatieActivity) {
+            /** @var self|null $resolved */
+            $resolved = self::query()->find($activity->getKey());
+            if ($resolved instanceof self) {
+                return $resolved;
+            }
+        }
+
+        return self::create([
+            'log_name' => $logName,
+            'description' => $description,
+            'subject_type' => $subject ? $subject::class : null,
+            'subject_id' => $subject?->getKey(),
+            'causer_type' => $causer ? $causer::class : null,
+            'causer_id' => $causer?->getKey(),
+            'properties' => $properties,
+            'batch_uuid' => null,
+        ]);
     }
 
     /**

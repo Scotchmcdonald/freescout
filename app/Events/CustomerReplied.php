@@ -16,6 +16,7 @@ class CustomerReplied
 
     public Conversation $conversation;
     public Thread $thread;
+    /** @var array<string, mixed>|null */
     public ?array $senderInfo;
     /** Populated when a Customer model is passed to the constructor. */
     public ?Customer $customer;
@@ -23,9 +24,9 @@ class CustomerReplied
     /**
      * Create a new event instance.
      *
-     * @param  Customer|array|null  $senderInfo  Either a Customer model (which will be
-     *                                           transformed to an array internally) or a
-     *                                           plain associative array with 'email' / 'name'.
+     * @param  Customer|array<string, mixed>|null  $senderInfo  Either a Customer model (which will be
+     *                                                          transformed to an array internally) or a
+     *                                                          plain associative array with 'email' / 'name'.
      */
     public function __construct(Conversation $conversation, Thread $thread, Customer|array|null $senderInfo = null)
     {

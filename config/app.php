@@ -45,6 +45,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Trusted Proxies
+    |--------------------------------------------------------------------------
+    |
+    | Set to '*' to trust all proxies (safe behind Cloudflare Tunnel / OrbStack).
+    | In production, restrict to specific CIDR ranges: TRUSTED_PROXIES=10.0.0.0/8
+    |
+    */
+
+    'trusted_proxies' => env('TRUSTED_PROXIES', '*'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |

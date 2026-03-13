@@ -26,7 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Trust proxies — required for OrbStack/Docker/Cloudflare Tunnel deployments.
         // Set TRUSTED_PROXIES=* in .env to trust all proxies (safe behind a Cloudflare Tunnel).
         // Restrict to specific IPs in production: TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12
-        $middleware->trustProxies(at: env('TRUSTED_PROXIES', '*'));
+        /** @var array<int,string>|string $trustedProxies */
+        $trustedProxies = config('app.trusted_proxies', '*');
+        $middleware->trustProxies(at: $trustedProxies);
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,

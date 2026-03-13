@@ -6,8 +6,10 @@ namespace App\Services;
 
 use App\Models\Conversation;
 use App\Models\Customer;
+use App\Models\Email;
 use App\Models\Mailbox;
 use App\Models\Thread;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Webklex\PHPIMAP\ClientManager;
@@ -324,7 +326,7 @@ class ImapService
                 }
             }
 
-            if (! $converted && method_exists($from, 'toArray')) {
+            if (! $converted && is_object($from) && method_exists($from, 'toArray')) {
                 // toArray() fallback (for some mock setups)
                 try {
                     $from = $from->toArray();
@@ -334,8 +336,25 @@ class ImapService
                 }
             }
 
+            if (! $converted && is_object($from) && method_exists($from, 'get')) {
+                // get() may return a first address object in some versions/mocks.
+                try {
+                    $single = $from->get();
+                    if (is_array($single)) {
+                        $from = $single;
+                    } elseif ($single !== null) {
+                        $from = [$single];
+                    } else {
+                        $from = [];
+                    }
+                    $converted = true;
+                } catch (\Throwable $e3) {
+                    // Ignore
+                }
+            }
+
             if (! $converted) {
-                // If both fail, set empty array
+                // If all conversions fail, set empty array
                 $from = [];
             }
         }
@@ -648,9 +667,12 @@ class ImapService
             }
         }
 
+        $resolvedCustomer = $this->resolveCustomerByEmail($fromEmail);
+
         $conversation = Conversation::create([
             'mailbox_id' => $mailbox->id,
             'client_user_id' => $clientUserId,
+            'customer_id' => $resolvedCustomer?->id,
             'sender_email' => $fromEmail,
             'sender_name' => $fromName,
             'folder_id' => $folder->id,
@@ -698,7 +720,8 @@ class ImapService
             }
 
             // We no longer require a Customer model here
-            $clientUserId = ($senderUser && $senderUser->isClient()) ? $senderUser->id : null;
+            /** @var int<0, max>|null $clientUserId */
+            $clientUserId = $this->resolveClientUserId($senderUser);
 
             // Check if conversation already exists by Message-ID
             $messageIdRaw = $message->getMessageId();
@@ -826,9 +849,19 @@ class ImapService
             // Update conversation if it's a reply to an existing one
             if ($conversation->exists) {
                 // Update conversation metadata
-                $conversation->client_user_id = $clientUserId;
+                if (is_int($clientUserId) && $clientUserId >= 0) {
+                    /** @var int<0, max> $clientUserId */
+                    $conversation->client_user_id = $clientUserId;
+                } else {
+                    $conversation->client_user_id = null;
+                }
                 $conversation->sender_email = $fromEmail;
                 $conversation->sender_name = $fromName;
+
+                $resolvedCustomer = $this->resolveCustomerByEmail($fromEmail);
+                if ($resolvedCustomer) {
+                    $conversation->customer_id = $resolvedCustomer->id;
+                }
 
                 $conversation->customer_email = $fromEmail;
                 $conversation->status = 1; // Active
@@ -871,7 +904,7 @@ class ImapService
                 'bcc' => ! empty($bcc) ? json_encode($bcc) : null,
                 'message_id' => $messageId,
                 'headers' => $this->getMessageHeaders($message),
-                'first' => $conversation->threads_count === 0,
+                'first' => (int) $conversation->threads_count === 0,
             ];
 
             // If sender is an internal user, set created_by_user_id and mark as from user
@@ -931,8 +964,22 @@ class ImapService
         // ── Fire events AFTER commit so module listener failures never roll back
         // ── the core email storage. Each event is wrapped independently.
         try {
-            if ($isNewConversation) {
-                event(new \App\Events\CustomerCreatedConversation($conversation, $thread, ['email' => $fromEmail, 'name' => $fromName]));
+            if ($thread->first) {
+                $customerForEvent = $this->resolveCustomerByEmail($fromEmail);
+                if (! $customerForEvent && (! $senderUser || $senderUser->isClient())) {
+                    $nameParts = preg_split('/\s+/', trim($fromName), 2) ?: [];
+                    $safeFromEmail = is_string($fromEmail) ? $fromEmail : '';
+                    $customerForEvent = Customer::create($safeFromEmail, [
+                        'first_name' => $nameParts[0] ?? '',
+                        'last_name' => $nameParts[1] ?? '',
+                    ]);
+                }
+
+                event(new \App\Events\CustomerCreatedConversation(
+                    $conversation,
+                    $thread,
+                    $customerForEvent ?? ['email' => $fromEmail, 'name' => $fromName]
+                ));
                 Log::debug('Fired CustomerCreatedConversation event');
             } else {
                 if ($senderUser && ! $senderUser->isClient()) {
@@ -960,6 +1007,39 @@ class ImapService
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Resolve a customer model from an email address.
+     */
+    protected function resolveCustomerByEmail(string $email): ?Customer
+    {
+        if (trim($email) === '') {
+            return null;
+        }
+
+        $emailModel = Email::query()->where('email', $email)->first();
+
+        return $emailModel?->customer;
+    }
+
+    /**
+     * @return int<0, max>|null
+     */
+    protected function resolveClientUserId(?User $senderUser): ?int
+    {
+        if (! $senderUser || ! $senderUser->isClient()) {
+            return null;
+        }
+
+        if ($senderUser->id < 0) {
+            return null;
+        }
+
+        /** @var int<0, max> $senderId */
+        $senderId = $senderUser->id;
+
+        return $senderId;
     }
 
     /**

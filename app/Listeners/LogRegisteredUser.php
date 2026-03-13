@@ -17,10 +17,11 @@ class LogRegisteredUser
         /** @var \App\Models\User $user */
         $user = $event->user;
 
-        activity()
-            ->causedBy($user)
-            ->withProperties(['ip' => request()->ip()])
-            ->useLog(ActivityLog::NAME_USER)
-            ->log(ActivityLog::DESCRIPTION_USER_REGISTER);
+        ActivityLog::record(
+            description: ActivityLog::DESCRIPTION_USER_REGISTER,
+            logName: ActivityLog::NAME_USER,
+            properties: ['ip' => request()->ip()],
+            causer: $user,
+        );
     }
 }

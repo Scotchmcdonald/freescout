@@ -75,12 +75,14 @@ class AgentDashboardWidget implements Widget
             ->where('state', Conversation::STATE_PUBLISHED)
             ->count();
 
-        $unassigned = $data['unassignedConversations'] ?? 0;
-        $totalActive = $data['activeConversations'] ?? 0;
+        $unassignedRaw = $data['unassignedConversations'] ?? 0;
+        $totalActiveRaw = $data['activeConversations'] ?? 0;
+        $unassigned = is_numeric($unassignedRaw) ? (int) $unassignedRaw : 0;
+        $totalActive = is_numeric($totalActiveRaw) ? (int) $totalActiveRaw : 0;
 
         $cards = [
             ['label' => 'Assigned to Me', 'value' => (string) $assignedToMe, 'sub' => 'open conversations', 'color' => $assignedToMe > 0 ? 'blue' : 'green'],
-            ['label' => 'Unassigned', 'value' => (string) $unassigned, 'sub' => 'need someone', 'color' => ((int) $unassigned) > 5 ? 'red' : (((int) $unassigned) > 0 ? 'yellow' : 'green')],
+            ['label' => 'Unassigned', 'value' => (string) $unassigned, 'sub' => 'need someone', 'color' => $unassigned > 5 ? 'red' : ($unassigned > 0 ? 'yellow' : 'green')],
             ['label' => 'Total Active', 'value' => (string) $totalActive, 'sub' => 'team pipeline', 'color' => 'gray'],
         ];
 
@@ -142,7 +144,7 @@ class AgentDashboardWidget implements Widget
 
         foreach ($cases as $case) {
             [$stateBadge, $stateLabel] = $stateLabels[$case->state] ?? ['bg-gray-100 text-gray-700', ucfirst($case->state)];
-            $subject = $case->conversation?->subject ?? "Case #{$case->id}";
+            $subject = $case->conversation->subject ?? "Case #{$case->id}";
             $escalation = $case->needs_escalation
                 ? '<span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">⚡ Escalate</span>'
                 : '';

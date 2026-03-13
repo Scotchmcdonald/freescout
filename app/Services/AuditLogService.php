@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\Models\Activity;
@@ -40,16 +41,13 @@ class AuditLogService
         // Enrich properties with request context
         $enrichedProperties = $this->enrichProperties($properties);
 
-        $activityLogger = activity($logName);
-
-        if ($subject !== null) {
-            $activityLogger->performedOn($subject);
-        }
-
-        $activity = $activityLogger
-            ->causedBy($causer)
-            ->withProperties($enrichedProperties)
-            ->log($operation);
+        $activity = ActivityLog::record(
+            description: $operation,
+            logName: $logName,
+            properties: $enrichedProperties,
+            subject: $subject,
+            causer: $causer,
+        );
 
         // Also log to Laravel log for redundancy
         Log::channel('audit')->info("Audit: {$operation}", [
@@ -61,7 +59,6 @@ class AuditLogService
             'properties' => $enrichedProperties,
         ]);
 
-        /** @var \Spatie\Activitylog\Models\Activity $activity */
         return $activity;
     }
 

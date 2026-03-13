@@ -74,6 +74,7 @@ class SettingsController extends Controller
         // Allow modules to add/remove sections
         $sections = \Eventy::filter('settings.sections', $sections);
 
+        /** @var array<string, array{title: string, route: string, icon: string, order: int}> $sections */
         return $sections;
     }
 
@@ -735,7 +736,7 @@ class SettingsController extends Controller
         $currentSection = 'integrations';
 
         // Get active tab from request, default to first available integration
-        $activeTab = $request->get('tab');
+        $activeTab = $request->string('tab')->value();
 
         // Determine available integrations
         $integrations = [];
@@ -774,7 +775,11 @@ class SettingsController extends Controller
         } elseif ($activeTab === 'action1') {
             $settings = [
                 'sync_enabled' => Option::where('name', 'action1_sync_enabled')->value('value') === '1',
-                'sync_interval_hours' => (int) (Option::where('name', 'action1_sync_interval_hours')->value('value') ?? 24),
+                'sync_interval_hours' => (function () {
+                    $val = Option::where('name', 'action1_sync_interval_hours')->value('value');
+
+                    return is_numeric($val) ? (int) $val : 24;
+                })(),
                 'region' => config('action1.region', 'us'),
             ];
 
