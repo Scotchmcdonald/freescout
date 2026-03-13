@@ -277,16 +277,17 @@ class Helper
     public static function getWebCronHash(): string
     {
         $key = config('app.key');
-        if (!is_string($key)) {
+        if (! is_string($key)) {
             $key = '';
         }
+
         return hash_hmac('sha256', 'cron', $key);
     }
 
     /**
      * Run artisan command.
-     * 
-     * @param array<string, mixed> $params
+     *
+     * @param  array<string, mixed>  $params
      */
     public static function runCommand(string $command, array $params = []): string
     {
@@ -303,6 +304,10 @@ class Helper
      */
     public static function backgroundAction(string $command, array $params = []): void
     {
+        if (app()->runningUnitTests()) {
+            return;
+        }
+
         $artisan = base_path('artisan');
         $escapedCommand = escapeshellarg($command);
         $paramsStr = implode(' ', array_map('escapeshellarg', $params));
@@ -325,6 +330,7 @@ class Helper
                 /** @var array<string, mixed> $decoded */
                 return $decoded;
             }
+
             return [];
         }
 
@@ -402,6 +408,7 @@ class Helper
         if (request()->segment(1) == $segment) {
             return 'active';
         }
+
         return '';
     }
 

@@ -8,9 +8,9 @@ use App\Models\ActivityLog;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
+use App\Models\Theme;
 use App\Models\Thread;
 use App\Models\User;
-use App\Models\Theme;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -238,8 +238,8 @@ class SystemController extends Controller
                 // Ensure theme directories exist before optimizing
                 $themes = Theme::all();
                 foreach ($themes as $theme) {
-                    $themePath = base_path('themes/' . $theme->name . '/views');
-                    if (!File::exists($themePath)) {
+                    $themePath = base_path('themes/'.$theme->name.'/views');
+                    if (! File::exists($themePath)) {
                         File::makeDirectory($themePath, 0755, true);
                     }
                 }
@@ -268,7 +268,7 @@ class SystemController extends Controller
         // App Health
         $checks['app'] = [
             'status' => 'ok',
-            'message' => 'Application is running (' . app()->environment() . ')',
+            'message' => 'Application is running ('.app()->environment().')',
         ];
 
         // Database connection
@@ -284,7 +284,7 @@ class SystemController extends Controller
             \Illuminate\Support\Facades\Redis::connection()->ping();
             $checks['redis'] = ['status' => 'ok', 'message' => 'Redis connection successful'];
         } catch (\Throwable $e) {
-            $checks['redis'] = ['status' => 'error', 'message' => 'Redis connection failed: ' . $e->getMessage()];
+            $checks['redis'] = ['status' => 'error', 'message' => 'Redis connection failed: '.$e->getMessage()];
         }
 
         // Queue Health
@@ -301,7 +301,7 @@ class SystemController extends Controller
                 $checks['queue'] = ['status' => 'info', 'message' => 'Queue tables not found'];
             }
         } catch (\Throwable $e) {
-            $checks['queue'] = ['status' => 'warning', 'message' => 'Could not check queue health: ' . $e->getMessage()];
+            $checks['queue'] = ['status' => 'warning', 'message' => 'Could not check queue health: '.$e->getMessage()];
         }
 
         // Cron Health
@@ -319,16 +319,16 @@ class SystemController extends Controller
 
         // Reverb Health
         if (config('reverb.apps.apps.0.app_id') && config('reverb.apps.apps.0.key') && config('reverb.apps.apps.0.secret')) {
-             $checks['reverb'] = ['status' => 'ok', 'message' => 'Reverb is configured'];
+            $checks['reverb'] = ['status' => 'ok', 'message' => 'Reverb is configured'];
         } else {
-             $checks['reverb'] = ['status' => 'warning', 'message' => 'Reverb is not fully configured'];
+            $checks['reverb'] = ['status' => 'warning', 'message' => 'Reverb is not fully configured'];
         }
 
         // Tunnel Health
         if (config('services.cloudflare.tunnel_token')) {
-             $checks['tunnel'] = ['status' => 'ok', 'message' => 'Cloudflare Tunnel token is present'];
+            $checks['tunnel'] = ['status' => 'ok', 'message' => 'Cloudflare Tunnel token is present'];
         } else {
-             $checks['tunnel'] = ['status' => 'info', 'message' => 'Cloudflare Tunnel not configured'];
+            $checks['tunnel'] = ['status' => 'info', 'message' => 'Cloudflare Tunnel not configured'];
         }
 
         // Storage writable
@@ -411,7 +411,7 @@ class SystemController extends Controller
                 }
 
                 return response()->json([
-                    'success' => !$hasError,
+                    'success' => ! $hasError,
                     'message' => $hasError ? 'Some caches failed to clear.' : 'All caches cleared successfully.',
                     'details' => $results,
                 ]);
@@ -421,28 +421,28 @@ class SystemController extends Controller
                     // Ensure theme directories exist before optimizing to prevent errors
                     $themes = Theme::all();
                     foreach ($themes as $theme) {
-                        $themePath = base_path('themes/' . $theme->name . '/views');
-                        if (!File::exists($themePath)) {
+                        $themePath = base_path('themes/'.$theme->name.'/views');
+                        if (! File::exists($themePath)) {
                             File::makeDirectory($themePath, 0755, true);
                         }
                     }
-                    
+
                     // Ensure module view directories exist
                     $modulesPath = base_path('Modules');
                     if (File::exists($modulesPath)) {
                         $modules = File::directories($modulesPath);
                         foreach ($modules as $modulePath) {
                             $moduleName = basename($modulePath);
-                            
+
                             // Create Resources/views directory if it doesn't exist
-                            $moduleViewsPath = $modulePath . '/Resources/views';
-                            if (!File::exists($moduleViewsPath)) {
+                            $moduleViewsPath = $modulePath.'/Resources/views';
+                            if (! File::exists($moduleViewsPath)) {
                                 File::makeDirectory($moduleViewsPath, 0755, true);
                             }
-                            
+
                             // Create resources/views/modules/{module} symlink/directory
-                            $publicModuleViewPath = resource_path('views/modules/' . strtolower($moduleName));
-                            if (!File::exists($publicModuleViewPath)) {
+                            $publicModuleViewPath = resource_path('views/modules/'.strtolower($moduleName));
+                            if (! File::exists($publicModuleViewPath)) {
                                 File::makeDirectory($publicModuleViewPath, 0755, true);
                             }
                         }
@@ -456,8 +456,9 @@ class SystemController extends Controller
                         'output' => Artisan::output(),
                     ]);
                 } catch (\Exception $e) {
-                    Log::error('Optimization failed: ' . $e->getMessage());
+                    Log::error('Optimization failed: '.$e->getMessage());
                     Log::error($e->getTraceAsString());
+
                     return response()->json([
                         'success' => false,
                         'message' => 'Optimization failed: '.$e->getMessage(),
@@ -468,11 +469,11 @@ class SystemController extends Controller
                 try {
                     // Increase time limit for build process
                     set_time_limit(300);
-                    
+
                     $basePath = base_path();
                     $output = [];
                     $returnVar = 0;
-                    
+
                     // Try to find npm
                     $npm = 'npm';
                     // Common paths for npm if not in PATH
@@ -481,13 +482,13 @@ class SystemController extends Controller
                         '/usr/local/bin/npm',
                         '/root/.nvm/versions/node/v*/bin/npm', // NVM support
                     ];
-                    
+
                     // Check if npm is in PATH
                     exec('which npm', $whichOutput, $whichReturn);
                     if ($whichReturn !== 0) {
                         foreach ($possiblePaths as $path) {
                             $glob = glob($path);
-                            if (!empty($glob)) {
+                            if (! empty($glob)) {
                                 $npm = $glob[0];
                                 break;
                             }
@@ -497,7 +498,7 @@ class SystemController extends Controller
                     // Run build command
                     $command = "cd {$basePath} && {$npm} run build 2>&1";
                     exec($command, $output, $returnVar);
-                    
+
                     $outputStr = implode("\n", $output);
 
                     if ($returnVar !== 0) {
@@ -510,15 +511,23 @@ class SystemController extends Controller
                         'output' => $outputStr,
                     ]);
                 } catch (\Exception $e) {
-                    Log::error('NPM Build failed: ' . $e->getMessage());
+                    Log::error('NPM Build failed: '.$e->getMessage());
+
                     return response()->json([
                         'success' => false,
-                        'message' => 'Build failed: ' . $e->getMessage(),
+                        'message' => 'Build failed: '.$e->getMessage(),
                     ], 500);
                 }
 
             case 'queue_work':
                 try {
+                    if (app()->runningUnitTests()) {
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Queue worker start skipped in testing environment.',
+                        ]);
+                    }
+
                     // Start queue worker in background
                     exec('php artisan queue:work --daemon > /dev/null 2>&1 &');
 
@@ -702,30 +711,30 @@ class SystemController extends Controller
     public function update(): View|Factory
     {
         $updateInfo = $this->checkForAppUpdates();
-        
+
         return view('system.update', [
-            'update_available' => !empty($updateInfo),
+            'update_available' => ! empty($updateInfo),
             'update_info' => $updateInfo,
         ]);
     }
-    
+
     /**
      * Check for application updates from git repository.
-     * 
+     *
      * @return array{current_version: mixed, current_commit: string, remote_commit?: string, commits_behind?: int, branch: string, latest_message?: string, has_update: bool}|null
      */
     private function checkForAppUpdates(): ?array
     {
         try {
             $appPath = base_path();
-            
+
             // Get current version from config
             $currentVersion = config('app.version', '1.0.0');
-            
+
             // Get current branch
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $appPath);
             $process->run();
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 return null;
             }
             $branch = trim($process->getOutput());
@@ -733,17 +742,17 @@ class SystemController extends Controller
             // Get current commit hash
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', 'HEAD'], $appPath);
             $process->run();
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 return null;
             }
             $localHash = trim($process->getOutput());
             $localHashShort = substr($localHash, 0, 7);
-            
+
             // Get repository URL
             $process = new \Symfony\Component\Process\Process(['git', 'config', '--get', 'remote.origin.url'], $appPath);
             $process->run();
             $repoUrl = trim($process->getOutput());
-            
+
             // Convert git URL to web URL for commit links
             $commitBaseUrl = null;
             if (preg_match('/github\.com[:\/](.+?)(\.git)?$/', $repoUrl, $matches)) {
@@ -761,14 +770,14 @@ class SystemController extends Controller
             $process = new \Symfony\Component\Process\Process(['git', 'fetch', 'origin', $branch], $appPath);
             $process->setTimeout(30);
             $process->run();
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 return null;
             }
 
             // Get remote commit hash
             $process = new \Symfony\Component\Process\Process(['git', 'rev-parse', "origin/$branch"], $appPath);
             $process->run();
-            if (!$process->isSuccessful()) {
+            if (! $process->isSuccessful()) {
                 return null;
             }
             $remoteHash = trim($process->getOutput());
@@ -804,7 +813,7 @@ class SystemController extends Controller
                     'has_update' => $commitsBehind > 0, // Only show update if actually behind
                 ];
             }
-            
+
             // No updates available - return current info without updates
             return [
                 'current_version' => $currentVersion,
@@ -814,16 +823,15 @@ class SystemController extends Controller
                 'commits_behind' => 0,
                 'has_update' => false,
             ];
-            
         } catch (\Exception $e) {
             Log::error('App update check failed', [
                 'error' => $e->getMessage(),
             ]);
         }
-        
+
         return null;
     }
-    
+
     /**
      * Get app update banner data for admins.
      */
@@ -832,24 +840,25 @@ class SystemController extends Controller
         // Only check once per hour
         if (Cache::has('app_update_banner')) {
             $cached = Cache::get('app_update_banner');
+
             return response()->json($cached);
         }
-        
+
         $updateInfo = $this->checkForAppUpdates();
-        
+
         // Only show banner if there's an actual update (not just info)
         $hasUpdate = $updateInfo && $updateInfo['has_update'] === true;
-        
+
         $result = [
             'has_update' => $hasUpdate,
             'update_info' => $hasUpdate ? $updateInfo : null,
         ];
-        
+
         Cache::put('app_update_banner', $result, now()->addHour());
-        
+
         return response()->json($result);
     }
-    
+
     /**
      * Perform git pull to update application.
      */
@@ -857,33 +866,33 @@ class SystemController extends Controller
     {
         try {
             $appPath = base_path();
-            
+
             // Stash any local changes
             $stashProcess = new \Symfony\Component\Process\Process(['git', 'stash'], $appPath);
             $stashProcess->setTimeout(30);
             $stashProcess->run();
             $hasStash = str_contains($stashProcess->getOutput(), 'Saved working directory');
-            
+
             // Pull latest changes
             $process = new \Symfony\Component\Process\Process(['git', 'pull'], $appPath);
             $process->setTimeout(120);
             $process->run();
-            
-            if (!$process->isSuccessful()) {
+
+            if (! $process->isSuccessful()) {
                 // Try to restore stashed changes even on failure
                 if ($hasStash) {
                     $restoreProcess = new \Symfony\Component\Process\Process(['git', 'stash', 'pop'], $appPath);
                     $restoreProcess->run();
                 }
-                throw new \Exception('Git pull failed: ' . $process->getErrorOutput());
+                throw new \Exception('Git pull failed: '.$process->getErrorOutput());
             }
-            
+
             // Restore stashed changes if any
             if ($hasStash) {
                 $restoreProcess = new \Symfony\Component\Process\Process(['git', 'stash', 'pop'], $appPath);
                 $restoreProcess->run();
-                
-                if (!$restoreProcess->isSuccessful()) {
+
+                if (! $restoreProcess->isSuccessful()) {
                     return response()->json([
                         'success' => true,
                         'message' => 'Update downloaded, but local changes conflicted. Please resolve conflicts manually.',
@@ -892,17 +901,16 @@ class SystemController extends Controller
                     ]);
                 }
             }
-            
+
             // Clear update cache
             Cache::forget('app_update_banner');
             Cache::forget('app_update_checked');
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Application updated successfully. Please run migrations if needed.',
                 'needs_migration' => true,
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -1029,6 +1037,7 @@ class SystemController extends Controller
         // Rate Limiting: 1 update per minute to prevent abuse
         if (RateLimiter::tooManyAttempts('system-update', 1)) {
             $seconds = RateLimiter::availableIn('system-update');
+
             return back()->with('error', "Please wait $seconds seconds before retrying update.");
         }
         RateLimiter::hit('system-update', 60);
@@ -1071,18 +1080,18 @@ class SystemController extends Controller
     {
         $appKey = config('app.key');
         $appKeyStr = is_string($appKey) || is_int($appKey) || is_float($appKey) ? (string) $appKey : '';
+
         return hash_hmac('sha256', 'cron', $appKeyStr);
     }
 
     /**
      * Parse Laravel log file.
      *
-     * @param string $path
      * @return array<int, array<string, string>>
      */
     private function getParsedLogFile(string $path): array
     {
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return [];
         }
 
@@ -1115,7 +1124,7 @@ class SystemController extends Controller
                 ];
             } else {
                 if ($currentLog) {
-                    $currentLog['context'] .= $line . "\n";
+                    $currentLog['context'] .= $line."\n";
                 }
             }
         }

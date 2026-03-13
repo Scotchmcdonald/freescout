@@ -4,41 +4,33 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Models\Attachment;
 use App\Models\Conversation;
-use App\Models\Customer;
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Permission;
 use App\Models\Thread;
 use App\Models\User;
-use App\Services\Ui\WidgetRegistryService;
-use App\Widgets\Dashboard\AdminDashboardWidget;
-use App\Widgets\Dashboard\AgentDashboardWidget;
-use App\Widgets\Dashboard\FinanceDashboardWidget;
-use App\Widgets\Dashboard\ReporterDashboardWidget;
-use App\Observers\AttachmentObserver;
-use App\Observers\ConversationObserver;
-use App\Observers\CustomerObserver;
-use App\Observers\MailboxObserver;
-use App\Observers\ThreadObserver;
-use App\Observers\UserObserver;
 use App\Policies\ClientPolicy;
 use App\Policies\ClientUserPolicy;
 use App\Policies\ConversationPolicy;
 use App\Policies\FolderPolicy;
 use App\Policies\MailboxPolicy;
 use App\Policies\ThreadPolicy;
+use App\Services\Ui\WidgetRegistryService;
+use App\Widgets\Dashboard\AdminDashboardWidget;
+use App\Widgets\Dashboard\AgentDashboardWidget;
+use App\Widgets\Dashboard\FinanceDashboardWidget;
+use App\Widgets\Dashboard\ReporterDashboardWidget;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Cache\RateLimiting\Limit;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -48,35 +40,36 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(WidgetRegistryService::class, function ($app) {
-            return new WidgetRegistryService();
+            return new WidgetRegistryService;
         });
 
         // Alias bindings for backward compatibility & test resolution
         $this->app->alias(WidgetRegistryService::class, 'App\Services\Ui\WidgetRegistry');
 
         // Register Data Import Setting Section
-        \Eventy::addFilter('settings.sections', function($sections) {
+        \Eventy::addFilter('settings.sections', function ($sections) {
             $sections['data_import'] = [
                 'title' => __('Data Import'),
                 'route' => 'settings.data_import',
                 'icon' => 'upload',
-                'order' => 800
+                'order' => 800,
             ];
+
             return $sections;
         });
 
         // Canonical EntitlementEngine singleton — lives in PIB module.
         $this->app->singleton(\Modules\PIB\Services\EntitlementEngineService::class, function ($app) {
-            return new \Modules\PIB\Services\EntitlementEngineService();
+            return new \Modules\PIB\Services\EntitlementEngineService;
         });
         $this->app->alias(\Modules\PIB\Services\EntitlementEngineService::class, \App\Services\EntitlementEngine::class);
 
         $this->app->singleton(\App\Services\UserDirectoryRegistryService::class, function ($app) {
-             return new \App\Services\UserDirectoryRegistryService();
+            return new \App\Services\UserDirectoryRegistryService;
         });
 
         $this->app->singleton(\App\Services\Navigation\NavigationService::class, function ($app) {
-            return new \App\Services\Navigation\NavigationService();
+            return new \App\Services\Navigation\NavigationService;
         });
 
         // Register class aliases for backward compatibility
@@ -89,6 +82,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // ── Production database destruction guard ────────────────────────────
+        // Blocks migrate:fresh, db:wipe, and migrate:reset from running when
+        // APP_ENV=production. These commands drop all data and must never run
+        // against a live database. This cannot be bypassed without explicitly
+        // changing APP_ENV first.
+        if ($this->app->isProduction()) {
+            $destructiveCommands = ['migrate:fresh', 'db:wipe', 'migrate:reset'];
+
+            Event::listen(\Illuminate\Console\Events\CommandStarting::class, function (\Illuminate\Console\Events\CommandStarting $event) use ($destructiveCommands) {
+                if (in_array($event->command, $destructiveCommands, true)) {
+                    fwrite(
+                        STDERR,
+                        PHP_EOL
+                        .'  [FATAL] Destructive command "'.$event->command.'" is blocked in production.'.PHP_EOL
+                        .'  Set APP_ENV to "local" or "testing" before running this command.'.PHP_EOL
+                        .PHP_EOL
+                    );
+                    exit(1);
+                }
+            });
+        }
+
         // Register billing UI component namespace (x-billing::tabs, x-billing::tab-panel)
         Blade::componentNamespace('App\\View\\Components\\Billing', 'billing');
 
@@ -96,7 +111,8 @@ class AppServiceProvider extends ServiceProvider
         if (DB::connection() instanceof \Illuminate\Database\SQLiteConnection) {
             DB::connection()->getPdo()->sqliteCreateFunction('REGEXP', function ($pattern, $value) {
                 mb_regex_encoding('UTF-8');
-                return (false !== mb_ereg($pattern, $value)) ? 1 : 0;
+
+                return (mb_ereg($pattern, $value) !== false) ? 1 : 0;
             });
         }
 
@@ -115,6 +131,7 @@ class AppServiceProvider extends ServiceProvider
             if ($user instanceof \App\Models\User) {
                 return $user->isAdmin() ? true : null;
             }
+
             return null;
         });
 
@@ -130,7 +147,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Register rate limiters for webhooks
         $this->configureWebhookRateLimiters();
-        
+
         // Client Portal policies for data isolation
         Gate::policy(\Modules\Crm\Models\Client::class, ClientPolicy::class);
         // ClientUserPolicy now operates on User instances (ClientUser merged into User)
@@ -145,10 +162,10 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->bound(\Modules\WidgetRegistry\Services\WidgetRegistryService::class)) {
             /** @var \Modules\WidgetRegistry\Services\WidgetRegistryService $registry */
             $registry = $this->app->make(\Modules\WidgetRegistry\Services\WidgetRegistryService::class);
-            $registry->register(new AdminDashboardWidget());
-            $registry->register(new FinanceDashboardWidget());
-            $registry->register(new AgentDashboardWidget());
-            $registry->register(new ReporterDashboardWidget());
+            $registry->register(new AdminDashboardWidget);
+            $registry->register(new FinanceDashboardWidget);
+            $registry->register(new AgentDashboardWidget);
+            $registry->register(new ReporterDashboardWidget);
         }
     }
 
@@ -179,7 +196,7 @@ class AppServiceProvider extends ServiceProvider
     protected function registerDynamicGates(): void
     {
         try {
-            if (!\Illuminate\Support\Facades\Schema::hasTable('permissions')) {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('permissions')) {
                 return;
             }
 
@@ -200,7 +217,7 @@ class AppServiceProvider extends ServiceProvider
             }
         } catch (\Exception $e) {
             // Silently fail during migrations or when DB is not yet available
-            Log::debug('[RBAC] Could not register dynamic gates: ' . $e->getMessage());
+            Log::debug('[RBAC] Could not register dynamic gates: '.$e->getMessage());
         }
     }
 }
