@@ -1,5 +1,7 @@
 <?php
 
+// @intelephense-ignore-file
+
 /**
  * IDE helper stubs for symbols that language servers miss.
  *
@@ -108,6 +110,26 @@ namespace {
         {
             return null;
         }
+
+        function data_get(mixed $target, string|int|null $key, mixed $default = null): mixed
+        {
+            return $default;
+        }
+
+        function encrypt(mixed $value, bool $serialize = true): string
+        {
+            return '';
+        }
+
+        function decrypt(string $payload, bool $unserialize = true): mixed
+        {
+            return null;
+        }
+
+        function bcrypt(string $value, array $options = []): string
+        {
+            return '';
+        }
     }
 }
 
@@ -163,6 +185,12 @@ namespace {
         function view(?string $view = null, array $data = [], array $mergeData = []): mixed
         {
             return null;
+        }
+
+        /** Generate a URL to a named route. */
+        function route(string $name, mixed $parameters = [], bool $absolute = true): string
+        {
+            return '';
         }
 
         /** Resolve auth manager / guard. */
@@ -242,7 +270,11 @@ namespace {
             return new class
             {
                 public function put(string|array $key, mixed $value = null): void {}
-                public function get(string $key, mixed $default = null): mixed { return $default; }
+
+                public function get(string $key, mixed $default = null): mixed
+                {
+                    return $default;
+                }
             };
         }
 
@@ -258,14 +290,17 @@ namespace {
             return new class
             {
                 public function info(string $message, array $context = []): void {}
+
                 public function warning(string $message, array $context = []): void {}
+
                 public function error(string $message, array $context = []): void {}
+
                 public function debug(string $message, array $context = []): void {}
             };
         }
 
         /** Create a redirector response factory. */
-        function redirect(?string $to = null, int $status = 302, array $headers = [], bool $secure = null): object
+        function redirect(?string $to = null, int $status = 302, array $headers = [], ?bool $secure = null): object
         {
             return new class
             {
@@ -369,6 +404,16 @@ namespace Illuminate\Foundation {
          */
         class Application
         {
+            public static function __callStatic(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public function __call(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
             public function make(string $abstract, array $parameters = []): mixed
             {
                 return null;
@@ -415,6 +460,49 @@ namespace Illuminate\Contracts\Console {
         {
             public function bootstrap(): void;
         }
+    }
+}
+
+namespace Illuminate\Contracts\Queue {
+    if (false) {
+        interface ShouldQueue {}
+    }
+}
+
+namespace Illuminate\Bus {
+    if (false) {
+        trait Queueable
+        {
+            public function onQueue(?string $queue): static
+            {
+                return $this;
+            }
+
+            public function onConnection(?string $connection): static
+            {
+                return $this;
+            }
+        }
+    }
+}
+
+namespace Illuminate\Queue {
+    if (false) {
+        trait InteractsWithQueue
+        {
+            public function delete(): void {}
+
+            public function fail(mixed $exception = null): void {}
+
+            public function release(int $delay = 0): void {}
+
+            public function attempts(): int
+            {
+                return 1;
+            }
+        }
+
+        trait SerializesModels {}
     }
 }
 
@@ -466,7 +554,17 @@ namespace Illuminate\Support {
                 return $this;
             }
 
+            public function subDays(int $days): static
+            {
+                return $this;
+            }
+
             public function lt(mixed $date): bool
+            {
+                return false;
+            }
+
+            public function lte(mixed $date): bool
             {
                 return false;
             }
@@ -477,6 +575,11 @@ namespace Illuminate\Support {
             }
 
             public function diffInMinutes(mixed $date = null, bool $absolute = true): int
+            {
+                return 0;
+            }
+
+            public function diffInSeconds(mixed $date = null, bool $absolute = true): int
             {
                 return 0;
             }
@@ -524,6 +627,11 @@ namespace Illuminate\Support {
                 return [];
             }
 
+            public function all(): array
+            {
+                return [];
+            }
+
             public function count(): int
             {
                 return 0;
@@ -557,6 +665,16 @@ namespace Illuminate\Support {
                 return $value;
             }
 
+            public static function lower(string $value): string
+            {
+                return $value;
+            }
+
+            public static function limit(string $value, int $limit = 100, string $end = '...'): string
+            {
+                return $value;
+            }
+
             public static function random(int $length = 16): string
             {
                 return '';
@@ -579,9 +697,174 @@ namespace Illuminate\Support {
             /** @var \Illuminate\Foundation\Application */
             protected $app;
 
-            public function register(): void {}
+            public function register() {}
 
-            public function boot(): void {}
+            public function boot() {}
+
+            public function commands(array $commands): void {}
+
+            public function publishes(array $paths, mixed $groups = null): void {}
+
+            public function loadMigrationsFrom(array|string $paths): void {}
+
+            public function loadViewsFrom(array|string $path, string $namespace): void {}
+        }
+    }
+}
+
+namespace Illuminate\Console {
+    if (false) {
+        abstract class Command
+        {
+            public const SUCCESS = 0;
+            public const FAILURE = 1;
+
+            public function option(?string $key = null): mixed
+            {
+                return null;
+            }
+
+            public function info(string $string, int|string|null $verbosity = null): void {}
+
+            public function error(string $string, int|string|null $verbosity = null): void {}
+
+            public function confirm(string $question, bool $default = false): bool
+            {
+                return true;
+            }
+        }
+    }
+}
+
+namespace Illuminate\Console\Scheduling {
+    if (false) {
+        class Schedule
+        {
+            public function command(string $command, array $parameters = []): object
+            {
+                return new class
+                {
+                    public function daily(): static
+                    {
+                        return $this;
+                    }
+
+                    public function everyMinute(): static
+                    {
+                        return $this;
+                    }
+                };
+            }
+        }
+    }
+}
+
+namespace Illuminate\Auth\Access {
+    if (false) {
+        trait HandlesAuthorization {}
+    }
+}
+
+namespace Illuminate\Database {
+    if (false) {
+        abstract class Seeder
+        {
+            public function call(array|string $class, bool $silent = false, array $parameters = []): void {}
+        }
+    }
+}
+
+namespace Illuminate\Cache {
+    if (false) {
+        class RateLimiter
+        {
+            public function tooManyAttempts(string $key, int $maxAttempts): bool
+            {
+                return false;
+            }
+
+            public function availableIn(string $key): int
+            {
+                return 0;
+            }
+
+            public function hit(string $key, int $decaySeconds = 60): int
+            {
+                return 0;
+            }
+        }
+    }
+}
+
+namespace Illuminate\Notifications {
+    if (false) {
+        class Notification {}
+
+        class AnonymousNotifiable
+        {
+            public function route(string $channel, mixed $route): static
+            {
+                return $this;
+            }
+
+            public function notify(mixed $instance): void {}
+        }
+
+        class ChannelManager
+        {
+            public function route(string $channel, mixed $route): AnonymousNotifiable
+            {
+                return new AnonymousNotifiable;
+            }
+
+            public function __call(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public static function __callStatic(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+        }
+    }
+}
+
+namespace Illuminate\Notifications\Messages {
+    if (false) {
+        class MailMessage
+        {
+            public function subject(string $subject): static
+            {
+                return $this;
+            }
+
+            public function greeting(string $greeting): static
+            {
+                return $this;
+            }
+
+            public function line(string $line): static
+            {
+                return $this;
+            }
+
+            public function action(string $text, string $url): static
+            {
+                return $this;
+            }
+        }
+    }
+}
+
+namespace Webklex\PHPIMAP\Support {
+    if (false) {
+        class FlagCollection
+        {
+            public function toArray(): array
+            {
+                return [];
+            }
         }
     }
 }
@@ -625,8 +908,87 @@ namespace Illuminate\Database {
     if (false) {
         class DatabaseManager
         {
+            public static function __callStatic(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public function __call(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public function connection(?string $name = null): mixed
+            {
+                return null;
+            }
+
+            public function build(array $config): mixed
+            {
+                return null;
+            }
+
+            public static function calculateDynamicConnectionName(array $config): string
+            {
+                return '';
+            }
+
+            public function connectUsing(string $name, array $config, bool $force = false): mixed
+            {
+                return null;
+            }
+
+            public function purge(?string $name = null): void {}
+
+            public function disconnect(?string $name = null): void {}
+
+            public function reconnect(?string $name = null): mixed
+            {
+                return null;
+            }
+
+            public function usingConnection(string $name, callable $callback): mixed
+            {
+                return $callback();
+            }
+
+            public function getDefaultConnection(): string
+            {
+                return '';
+            }
+
+            public function setDefaultConnection(string $name): void {}
+
+            public function supportedDrivers(): array
+            {
+                return [];
+            }
+
+            public function availableDrivers(): array
+            {
+                return [];
+            }
+
+            public function extend(string $name, callable $resolver): void {}
+
+            public function forgetExtension(string $name): void {}
+
+            public function getConnections(): array
+            {
+                return [];
+            }
+
+            public function setReconnector(callable $reconnector): void {}
+
+            public function setApplication(mixed $app): static
+            {
+                return $this;
+            }
+
             public function beginTransaction(): void {}
+
             public function commit(): void {}
+
             public function rollBack(): void {}
 
             public function getSchemaBuilder(): object
@@ -642,7 +1004,7 @@ namespace Illuminate\Database {
 
             public function table(string $table): \Illuminate\Database\Eloquent\Builder
             {
-                return new \Illuminate\Database\Eloquent\Builder;
+                throw new \BadMethodCallException('stub');
             }
         }
 
@@ -652,6 +1014,250 @@ namespace Illuminate\Database {
             {
                 throw new \BadMethodCallException('stub');
             }
+        }
+    }
+}
+
+namespace Lab404\Impersonate\Guard {
+    if (false) {
+        class SessionGuard
+        {
+            public static function __callStatic(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public function __call(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public static function macro(string $name, callable $macro): void {}
+
+            public static function mixin(object $mixin, bool $replace = true): void {}
+
+            public static function hasMacro(string $name): bool
+            {
+                return false;
+            }
+
+            public static function flushMacros(): void {}
+        }
+    }
+}
+
+namespace Illuminate\View\Compilers {
+    if (false) {
+        class BladeCompiler
+        {
+            public static function __callStatic(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public function __call(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public static function render(string $string, array $data = [], bool $deleteCachedView = false): string
+            {
+                return '';
+            }
+
+            public static function renderComponent(mixed $component): string
+            {
+                return '';
+            }
+
+            public static function newComponentHash(string $component): string
+            {
+                return '';
+            }
+
+            public static function compileClassComponentOpening(string $component, string $alias, array $data, string $hash): string
+            {
+                return '';
+            }
+
+            public static function sanitizeComponentAttribute(mixed $value): mixed
+            {
+                return $value;
+            }
+        }
+    }
+}
+
+namespace Illuminate\Cache {
+    if (false) {
+        class Repository
+        {
+            public static function __callStatic(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public function __call(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public static function macro(string $name, callable $macro): void {}
+
+            public static function mixin(object $mixin, bool $replace = true): void {}
+
+            public static function hasMacro(string $name): bool
+            {
+                return false;
+            }
+
+            public static function flushMacros(): void {}
+        }
+    }
+}
+
+namespace Illuminate\Config {
+    if (false) {
+        class Repository
+        {
+            public static function __callStatic(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public function __call(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public static function macro(string $name, callable $macro): void {}
+
+            public static function mixin(object $mixin, bool $replace = true): void {}
+
+            public static function hasMacro(string $name): bool
+            {
+                return false;
+            }
+
+            public static function flushMacros(): void {}
+        }
+    }
+}
+
+namespace Illuminate\Log\Context {
+    if (false) {
+        class Repository
+        {
+            public static function __callStatic(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public function __call(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public static function macro(string $name, callable $macro): void {}
+
+            public static function mixin(object $mixin, bool $replace = true): void {}
+
+            public static function hasMacro(string $name): bool
+            {
+                return false;
+            }
+
+            public static function flushMacros(): void {}
+        }
+    }
+}
+
+namespace Illuminate\Cookie {
+    if (false) {
+        class CookieJar
+        {
+            public static function __callStatic(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public function __call(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public static function macro(string $name, callable $macro): void {}
+
+            public static function mixin(object $mixin, bool $replace = true): void {}
+
+            public static function hasMacro(string $name): bool
+            {
+                return false;
+            }
+
+            public static function flushMacros(): void {}
+        }
+    }
+}
+
+namespace Illuminate\Encryption {
+    if (false) {
+        class Encrypter
+        {
+            public static function __callStatic(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public function __call(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public static function supported(mixed $key, string $cipher): bool
+            {
+                return true;
+            }
+
+            public static function generateKey(string $cipher): string
+            {
+                return '';
+            }
+
+            public static function appearsEncrypted(string $value): bool
+            {
+                return false;
+            }
+        }
+    }
+}
+
+namespace Illuminate\Support {
+    if (false) {
+        class DateFactory
+        {
+            public static function __callStatic(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public function __call(string $method, array $parameters): mixed
+            {
+                return null;
+            }
+
+            public static function use(mixed $handler): mixed
+            {
+                return null;
+            }
+
+            public static function useDefault(): void {}
+
+            public static function useCallable(callable $callable): void {}
+
+            public static function useClass(string $dateClass): void {}
+
+            public static function useFactory(mixed $factory): void {}
         }
     }
 }
@@ -713,7 +1319,22 @@ namespace Illuminate\Database\Schema {
     if (false) {
         class Blueprint
         {
+            public function id(string $column = 'id'): mixed
+            {
+                return null;
+            }
+
             public function string(string $column, int $length = 255): mixed
+            {
+                return null;
+            }
+
+            public function date(string $column): mixed
+            {
+                return null;
+            }
+
+            public function decimal(string $column, int $total = 8, int $places = 2): mixed
             {
                 return null;
             }
@@ -771,6 +1392,11 @@ namespace Illuminate\Database\Schema {
             }
 
             public function unsignedBigInteger(string $column, bool $autoIncrement = false): mixed
+            {
+                return null;
+            }
+
+            public function unsignedInteger(string $column, bool $autoIncrement = false): mixed
             {
                 return null;
             }
@@ -954,14 +1580,14 @@ namespace Symfony\Component\Process {
                 return $this;
             }
 
-            public function start(callable $callback = null, array $env = []): void {}
+            public function start(?callable $callback = null, array $env = []): void {}
 
-            public function wait(callable $callback = null): int
+            public function wait(?callable $callback = null): int
             {
                 return 0;
             }
 
-            public function run(callable $callback = null, array $env = []): int
+            public function run(?callable $callback = null, array $env = []): int
             {
                 return 0;
             }
@@ -976,7 +1602,7 @@ namespace Symfony\Component\Process {
                 return false;
             }
 
-            public function stop(float $timeout = 10, int $signal = null): ?int
+            public function stop(float $timeout = 10, ?int $signal = null): ?int
             {
                 return 0;
             }
@@ -1048,6 +1674,11 @@ namespace Illuminate\Database\Eloquent {
                 return $this;
             }
 
+            public function whereRaw(string $sql, array $bindings = []): static
+            {
+                return $this;
+            }
+
             public function latest(?string $column = null): static
             {
                 return $this;
@@ -1088,9 +1719,9 @@ namespace Illuminate\Database\Eloquent {
                 return 0;
             }
 
-            public function pluck(string $column, ?string $key = null): mixed
+            public function pluck(string $column, ?string $key = null): \Illuminate\Support\Collection
             {
-                return null;
+                return new \Illuminate\Support\Collection;
             }
 
             public function value(string $column): mixed
@@ -1133,6 +1764,21 @@ namespace Illuminate\Database\Eloquent {
         {
             protected static function boot() {}
 
+            protected function newEloquentBuilder(mixed $query): Builder
+            {
+                throw new \BadMethodCallException('stub');
+            }
+
+            public function newModelQuery(): Builder
+            {
+                throw new \BadMethodCallException('stub');
+            }
+
+            public function newQuery(): Builder
+            {
+                throw new \BadMethodCallException('stub');
+            }
+
             public static function creating(callable $callback): void {}
 
             public static function factory(mixed ...$parameters): mixed
@@ -1142,32 +1788,32 @@ namespace Illuminate\Database\Eloquent {
 
             public static function query(): Builder
             {
-                return new Builder;
+                throw new \BadMethodCallException('stub');
             }
 
             public static function with(string|array $relations): Builder
             {
-                return new Builder;
+                throw new \BadMethodCallException('stub');
             }
 
             public static function latest(?string $column = null): Builder
             {
-                return new Builder;
+                throw new \BadMethodCallException('stub');
             }
 
             public static function orderBy(string $column, string $direction = 'asc'): Builder
             {
-                return new Builder;
+                throw new \BadMethodCallException('stub');
             }
 
             public static function where(string $column, mixed $operator = null, mixed $value = null): Builder
             {
-                return new Builder;
+                throw new \BadMethodCallException('stub');
             }
 
             public static function whereIn(string $column, array $values): Builder
             {
-                return new Builder;
+                throw new \BadMethodCallException('stub');
             }
 
             public static function pluck(string $column, ?string $key = null): mixed
@@ -1192,7 +1838,7 @@ namespace Illuminate\Database\Eloquent {
 
             public static function __callStatic(string $method, array $parameters): mixed
             {
-                return new Builder;
+                throw new \BadMethodCallException('stub');
             }
 
             public static function findOrFail(int|string $id, array $columns = ['*']): static
@@ -1202,12 +1848,17 @@ namespace Illuminate\Database\Eloquent {
 
             public function belongsTo(string $related, ?string $foreignKey = null, ?string $ownerKey = null, ?string $relation = null): \Illuminate\Database\Eloquent\Relations\BelongsTo
             {
-                return new \Illuminate\Database\Eloquent\Relations\BelongsTo;
+                throw new \BadMethodCallException('stub');
             }
 
             public function hasMany(string $related, ?string $foreignKey = null, ?string $localKey = null): \Illuminate\Database\Eloquent\Relations\HasMany
             {
-                return new \Illuminate\Database\Eloquent\Relations\HasMany;
+                throw new \BadMethodCallException('stub');
+            }
+
+            public function belongsToMany(string $related, ?string $table = null, ?string $foreignPivotKey = null, ?string $relatedPivotKey = null, ?string $parentKey = null, ?string $relatedKey = null, ?string $relation = null): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+            {
+                throw new \BadMethodCallException('stub');
             }
 
             public function update(array $attributes = [], array $options = []): bool
@@ -1242,6 +1893,26 @@ namespace Illuminate\Database\Eloquent {
 namespace Illuminate\Database\Eloquent\Relations {
     if (false) {
         class BelongsTo {}
+        class BelongsToMany
+        {
+            public function where(string $column, mixed $operator = null, mixed $value = null): static
+            {
+                return $this;
+            }
+
+            public function first(array $columns = ['*']): mixed
+            {
+                return null;
+            }
+
+            public function attach(mixed $id, array $attributes = [], bool $touch = true): void {}
+
+            public function syncWithoutDetaching(array $ids): array
+            {
+                return [];
+            }
+        }
+
         class HasMany
         {
             public function delete(): int
@@ -1260,13 +1931,56 @@ namespace Illuminate\Database\Eloquent\Factories {
     if (false) {
         abstract class Factory
         {
+            /** @var object */
+            protected $faker;
+
+            public function __construct()
+            {
+                $this->faker = new class
+                {
+                    public string $slug = 'sample-slug';
+
+                    public function numberBetween(int $min = 0, int $max = 100): int
+                    {
+                        return $min;
+                    }
+                };
+            }
+
             public static function new(array $attributes = []): static
             {
                 throw new \BadMethodCallException('stub');
             }
+
+            public function count(int $count): static
+            {
+                return $this;
+            }
+
+            public function create(array $attributes = []): mixed
+            {
+                return null;
+            }
+
+            public function make(array $attributes = []): mixed
+            {
+                return null;
+            }
         }
 
         trait HasFactory {}
+    }
+}
+
+namespace Illuminate\Database\Eloquent\Casts {
+    if (false) {
+        class Attribute
+        {
+            public static function make(?callable $get = null, ?callable $set = null): static
+            {
+                return new static;
+            }
+        }
     }
 }
 
@@ -1285,7 +1999,7 @@ namespace Illuminate\Http {
 
             public function download(string $file, ?string $name = null, array $headers = [], ?string $disposition = null): \Symfony\Component\HttpFoundation\BinaryFileResponse
             {
-                return new \Symfony\Component\HttpFoundation\BinaryFileResponse;
+                throw new \BadMethodCallException('stub');
             }
         }
 
@@ -1311,7 +2025,7 @@ namespace Illuminate\Http {
                 return new \Illuminate\Support\Stringable($default);
             }
 
-            public function input(string $key = null, mixed $default = null): mixed
+            public function input(?string $key = null, mixed $default = null): mixed
             {
                 return $default;
             }
@@ -1411,12 +2125,12 @@ namespace Illuminate\Http\Client {
 
             public function post(string $url, array $data = []): Response
             {
-                return new Response;
+                throw new \BadMethodCallException('stub');
             }
 
             public function get(string $url, array $query = []): Response
             {
-                return new Response;
+                throw new \BadMethodCallException('stub');
             }
         }
     }
@@ -1481,7 +2195,7 @@ namespace Spatie\Activitylog\Models {
         {
             public static function inLog(string $logName): \Illuminate\Database\Eloquent\Builder
             {
-                return new \Illuminate\Database\Eloquent\Builder;
+                throw new \BadMethodCallException('stub');
             }
         }
     }
@@ -1535,12 +2249,27 @@ namespace Carbon {
                 return $this;
             }
 
+            public function subDays(int $days): static
+            {
+                return $this;
+            }
+
             public function isFuture(): bool
             {
                 return false;
             }
 
+            public function lte(mixed $date): bool
+            {
+                return false;
+            }
+
             public function diffInMinutes(mixed $date = null, bool $absolute = true): int
+            {
+                return 0;
+            }
+
+            public function diffInSeconds(mixed $date = null, bool $absolute = true): int
             {
                 return 0;
             }
@@ -1585,7 +2314,7 @@ namespace Illuminate\Process {
                 return $this;
             }
 
-            public function run(string|array $command, callable $output = null): object
+            public function run(string|array $command, ?callable $output = null): object
             {
                 return new class
                 {
@@ -1611,7 +2340,7 @@ namespace Illuminate\Process {
         {
             public function newPendingProcess(): PendingProcess
             {
-                return new PendingProcess;
+                throw new \BadMethodCallException('stub');
             }
         }
     }
@@ -1624,5 +2353,206 @@ namespace Illuminate\Process {
 namespace Illuminate\View {
     if (false) {
         interface View {}
+    }
+}
+
+// Compatibility stubs that some language servers only resolve when declarations
+// are not inside an `if (false)` block.
+
+namespace Modules\EmailMigration\Services {
+    if (! function_exists(__NAMESPACE__.'\\data_get')) {
+        function data_get(mixed $target, string|int|null $key, mixed $default = null): mixed
+        {
+            return \data_get($target, $key, $default);
+        }
+    }
+}
+
+namespace Modules\EmailMigration\Jobs {
+    if (! function_exists(__NAMESPACE__.'\\decrypt')) {
+        function decrypt(string $payload, bool $unserialize = true): mixed
+        {
+            return \decrypt($payload, $unserialize);
+        }
+    }
+}
+
+namespace Modules\KnowledgeBase\Services {
+    if (! function_exists(__NAMESPACE__.'\\bcrypt')) {
+        function bcrypt(string $value, array $options = []): string
+        {
+            return \bcrypt($value, $options);
+        }
+    }
+}
+
+namespace Modules\GoogleAdmin\Models {
+    if (! function_exists(__NAMESPACE__.'\\encrypt')) {
+        function encrypt(mixed $value, bool $serialize = true): string
+        {
+            return \encrypt($value, $serialize);
+        }
+    }
+
+    if (! function_exists(__NAMESPACE__.'\\decrypt')) {
+        function decrypt(string $payload, bool $unserialize = true): mixed
+        {
+            return \decrypt($payload, $unserialize);
+        }
+    }
+}
+
+namespace Illuminate\Support {
+    if (! class_exists(ServiceProvider::class)) {
+        abstract class ServiceProvider
+        {
+            protected mixed $app;
+
+            public function register() {}
+
+            public function boot() {}
+
+            public function commands(array $commands): void {}
+
+            public function publishes(array $paths, mixed $groups = null): void {}
+
+            public function loadMigrationsFrom(array|string $paths): void {}
+
+            public function loadViewsFrom(array|string $path, string $namespace): void {}
+        }
+    }
+}
+
+namespace Illuminate\Console {
+    if (! class_exists(Command::class)) {
+        abstract class Command
+        {
+            public const SUCCESS = 0;
+            public const FAILURE = 1;
+
+            public function option(?string $key = null): mixed
+            {
+                return null;
+            }
+
+            public function info(string $string, int|string|null $verbosity = null): void {}
+
+            public function error(string $string, int|string|null $verbosity = null): void {}
+
+            public function confirm(string $question, bool $default = false): bool
+            {
+                return true;
+            }
+        }
+    }
+}
+
+namespace Illuminate\Console\Scheduling {
+    if (! class_exists(Schedule::class)) {
+        class Schedule {}
+    }
+}
+
+namespace Illuminate\Auth\Access {
+    if (! trait_exists(HandlesAuthorization::class)) {
+        trait HandlesAuthorization {}
+    }
+}
+
+namespace Illuminate\Database {
+    if (! class_exists(Seeder::class)) {
+        abstract class Seeder
+        {
+            public function call(array|string $class, bool $silent = false, array $parameters = []): void {}
+        }
+    }
+}
+
+namespace Illuminate\Cache {
+    if (! class_exists(RateLimiter::class)) {
+        class RateLimiter
+        {
+            public function tooManyAttempts(string $key, int $maxAttempts): bool
+            {
+                return false;
+            }
+
+            public function availableIn(string $key): int
+            {
+                return 0;
+            }
+
+            public function hit(string $key, int $decaySeconds = 60): int
+            {
+                return 0;
+            }
+        }
+    }
+}
+
+namespace Illuminate\Notifications {
+    if (! class_exists(Notification::class)) {
+        class Notification {}
+    }
+
+    if (! class_exists(AnonymousNotifiable::class)) {
+        class AnonymousNotifiable
+        {
+            public function route(string $channel, mixed $route): static
+            {
+                return $this;
+            }
+
+            public function notify(mixed $instance): void {}
+        }
+    }
+
+    if (! class_exists(ChannelManager::class)) {
+        class ChannelManager
+        {
+            public function route(string $channel, mixed $route): AnonymousNotifiable
+            {
+                return new AnonymousNotifiable;
+            }
+        }
+    }
+}
+
+namespace Illuminate\Notifications\Messages {
+    if (! class_exists(MailMessage::class)) {
+        class MailMessage
+        {
+            public function subject(string $subject): static
+            {
+                return $this;
+            }
+
+            public function greeting(string $greeting): static
+            {
+                return $this;
+            }
+
+            public function line(string $line): static
+            {
+                return $this;
+            }
+
+            public function action(string $text, string $url): static
+            {
+                return $this;
+            }
+        }
+    }
+}
+
+namespace Webklex\PHPIMAP\Support {
+    if (! class_exists(FlagCollection::class)) {
+        class FlagCollection
+        {
+            public function toArray(): array
+            {
+                return [];
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+// @intelephense-ignore-file
 // @formatter:off
 // phpcs:ignoreFile
 /**
@@ -249,7 +250,7 @@ namespace App\Models{
  * @property string|null $chats
  * @property string|null $background
  * @property string|null $meta
- * @property numeric|null $default_hourly_rate
+ * @property float|int|null $default_hourly_rate
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Channel> $channels
  * @property-read int|null $channels_count
  * @property-read \Modules\Crm\Models\Company|null $companyRel
@@ -600,7 +601,7 @@ namespace App\Models\Modules\Crm\Models{
 /**
  * @property int $id
  * @property string $name
- * @property numeric $base_price
+ * @property float|int $base_price
  * @property string $billing_frequency
  * @property string|null $description
  * @property string|null $features
@@ -824,7 +825,7 @@ namespace App\Models{
  * @property string|null $error_message
  * @property array<array-key, mixed>|null $checkpoint_data
  * @property array<array-key, mixed>|null $failures
- * @property numeric|null $items_per_second
+ * @property float|int|null $items_per_second
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read string|null $estimated_time_remaining
@@ -1083,6 +1084,25 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  */
-	class User extends \Eloquent implements \Illuminate\Contracts\Auth\MustVerifyEmail {}
+	class User extends \Eloquent implements \Illuminate\Contracts\Auth\MustVerifyEmail {
+		public function hasVerifiedEmail()
+		{
+			return true;
+		}
+
+		public function getEmailForVerification()
+		{
+			return '';
+		}
+
+		public function markEmailAsVerified()
+		{
+			return true;
+		}
+
+		public function sendEmailVerificationNotification()
+		{
+		}
+	}
 }
 
