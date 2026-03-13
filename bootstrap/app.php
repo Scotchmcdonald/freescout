@@ -27,7 +27,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // Set TRUSTED_PROXIES=* in .env to trust all proxies (safe behind a Cloudflare Tunnel).
         // Restrict to specific IPs in production: TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12
         /** @var array<int,string>|string $trustedProxies */
-        $trustedProxies = config('app.trusted_proxies', '*');
+        $trustedProxies = env('TRUSTED_PROXIES', '*');
+
+        if (is_string($trustedProxies) && $trustedProxies !== '*') {
+            $trustedProxies = array_values(array_filter(array_map('trim', explode(',', $trustedProxies))));
+        }
+
         $middleware->trustProxies(at: $trustedProxies);
 
         $middleware->alias([
