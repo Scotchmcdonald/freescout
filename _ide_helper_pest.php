@@ -81,17 +81,40 @@ namespace {
 
         class Mockery
         {
-            public static function mock(mixed ...$args): mixed
+            /**
+             * Create a mock for the given class/interface.
+             *
+             * The template annotation teaches Intelephense (and PHPStan) that
+             * mock(Foo::class) returns a value typed as Foo, so the mock can
+             * be passed to typed parameters without generating type errors.
+             *
+             * @template T of object
+             * @param  class-string<T>|T  $type
+             * @return T&\Mockery\MockInterface
+             */
+            public static function mock(mixed $type, mixed ...$args): object
             {
                 throw new \BadMethodCallException('stub');
             }
 
-            public static function spy(mixed ...$args): mixed
+            /**
+             * Create a spy (partial mock) for the given class/interface.
+             *
+             * @template T of object
+             * @param  class-string<T>|T  $type
+             * @return T&\Mockery\MockInterface
+             */
+            public static function spy(mixed $type, mixed ...$args): object
             {
                 throw new \BadMethodCallException('stub');
             }
 
-            public static function namedMock(mixed ...$args): mixed
+            /**
+             * @template T of object
+             * @param  class-string<T>|T  $type
+             * @return T&\Mockery\MockInterface
+             */
+            public static function namedMock(mixed $type, mixed ...$args): object
             {
                 throw new \BadMethodCallException('stub');
             }

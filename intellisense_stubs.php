@@ -290,3 +290,39 @@ namespace Illuminate\Database\Eloquent\Factories {
         }
     }
 }
+
+// ─── Mockery — fix @return self → @return static on chaining methods ─────────
+//
+// The vendor Mockery\LegacyMockInterface declares shouldIgnoreMissing() and
+// makePartial() with `@return self`.  `self` in an interface context always
+// resolves to the interface itself (LegacyMockInterface) and collapses the
+// generic intersection type `LegacyMockInterface&MockInterface&T` that
+// Mockery::mock() returns — causing Intelephense to report type mismatches
+// wherever a mock is passed to a typed parameter.
+//
+// Declaring the interface here with `@return static` (or the `static` native
+// return type) lets Intelephense resolve the return as the full intersection
+// and carry `T` through the chain.
+//
+// NOTE: Intelephense merges multiple declarations of the same interface;
+//       only the methods listed here need to differ from the vendor copy.
+namespace Mockery {
+    interface LegacyMockInterface
+    {
+        /** @return static */
+        public function makePartial(): static;
+
+        /**
+         * @param  mixed  $returnValue
+         * @param  mixed  $mock
+         * @return static
+         */
+        public function shouldIgnoreMissing($returnValue = null, $mock = null): static;
+
+        /** @return static */
+        public function byDefault(): static;
+
+        /** @return static */
+        public function shouldAllowMockingProtectedMethods(): static;
+    }
+}
