@@ -48,6 +48,12 @@ class AfterAppUpdate extends Command
         }
         $this->call('migrate', $options);
 
+        // Provision module system records (idempotent seeders)
+        $this->info('Provisioning module system records...');
+        if (! app()->environment('testing')) {
+            $this->call('module:seed', ['module' => 'CaseManager', '--force' => true]);
+        }
+
         // Restart queue workers
         $this->info('Restarting queue workers...');
         $this->call('queue:restart');
