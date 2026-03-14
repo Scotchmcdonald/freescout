@@ -76,6 +76,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public const ROLE_FINANCE = 4;
 
+    // Type constants — mirrors UserType enum
+    public const TYPE_INTERNAL = 1;
+
+    public const TYPE_CLIENT = 2;
+
+    public const TYPE_AUTOMATON = 3;
+
     // Status constants
     public const STATUS_ACTIVE = 1;
 
@@ -422,7 +429,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isInternalStaff(): bool
     {
-        return (int) $this->type === 1;
+        return (int) $this->type === self::TYPE_INTERNAL;
     }
 
     /**
@@ -443,7 +450,19 @@ class User extends Authenticatable implements MustVerifyEmail
             return true;
         }
 
-        return (int) $this->type === 2;
+        return (int) $this->type === self::TYPE_CLIENT;
+    }
+
+    /**
+     * Check if this is an automaton user — a system-registered AI agent.
+     *
+     * Automaton users are not internal staff and are not clients. They are used
+     * by modules (e.g. CaseManager) to send AI-authored replies with a distinct
+     * identity. They cannot log in.
+     */
+    public function isAutomaton(): bool
+    {
+        return (int) $this->type === self::TYPE_AUTOMATON;
     }
 
     /**
