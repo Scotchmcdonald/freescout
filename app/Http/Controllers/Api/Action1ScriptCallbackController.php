@@ -67,15 +67,15 @@ class Action1ScriptCallbackController extends Controller
 
         // Store the result — refresh TTL so run_status can read it
         cache()->put($cacheKey, [
-            'status'          => 'received',
+            'status' => 'received',
             'endpoint_status' => substr($request->string('status')->toString(), 0, 32),
-            'output'          => $output,
-            'host'            => substr($request->string('host')->toString(), 0, 255),
-            'user'            => substr($request->string('user')->toString(), 0, 255),
-            'script_id'       => $record['script_id'] ?? null,
-            'org_id'          => $record['org_id'] ?? null,
-            'minted_at'       => $record['minted_at'] ?? null,
-            'received_at'     => now()->toIso8601String(),
+            'output' => $output,
+            'host' => substr($request->string('host')->toString(), 0, 255),
+            'user' => substr($request->string('user')->toString(), 0, 255),
+            'script_id' => $record['script_id'] ?? null,
+            'org_id' => $record['org_id'] ?? null,
+            'minted_at' => $record['minted_at'] ?? null,
+            'received_at' => now()->toIso8601String(),
         ], self::TOKEN_TTL);
 
         logger()->info('Action1 script callback received', [

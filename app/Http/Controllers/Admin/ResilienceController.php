@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Api\Action1ScriptCallbackController;
 use App\Http\Controllers\Controller;
 use App\Services\CircuitBreakerService;
-use App\Services\RateLimiterService;
 use Google\Client as GoogleClient;
 use Google\Service\Directory;
 use Illuminate\Contracts\View\View;
@@ -16,14 +15,14 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Modules\CaseManager\Services\GeminiClient;
+use Illuminate\Support\Str;
 use Modules\Action1\Contracts\Action1ManageClient;
 use Modules\Action1\Contracts\Action1RunClient;
 use Modules\Action1\Contracts\Action1SyncClient;
 use Modules\Action1\Enums\Action1Role;
 use Modules\Action1\Enums\MspScriptCategory;
 use Modules\Action1\Services\MspScriptService;
-use Illuminate\Support\Str;
+use Modules\CaseManager\Services\GeminiClient;
 use Nwidart\Modules\Facades\Module as ModuleFacade;
 
 /**
@@ -43,7 +42,7 @@ class ResilienceController extends Controller
         // --- Circuit Breaker Logic ---
         $breaker = app(CircuitBreakerService::class);
         $cbServices = array_values(array_unique(array_map(
-            fn (array $api): string => $api['circuit_service'],
+            fn (array $api): string => is_string($api['circuit_service']) ? $api['circuit_service'] : '',
             $apiIntegrations
         )));
         $allStates = collect($breaker->getAllStates())->keyBy('service');
@@ -84,8 +83,7 @@ class ResilienceController extends Controller
 
         // --- API Health Matrix (module-aware) ---
         $apiHealthChecks = array_map(function (array $api) use ($allStates, $rateLimitStatus): array {
-            /** @var object|null $state */
-            $state = $allStates->get($api['circuit_service']);
+            $state = $allStates->get(is_string($api['circuit_service']) ? $api['circuit_service'] : '');
             $rate = collect($rateLimitStatus)->firstWhere('api_key', $api['key']);
 
             return [
@@ -97,11 +95,10 @@ class ResilienceController extends Controller
                 'supports_deep_test' => $api['key'] === 'action1',
                 'circuit' => [
                     'service' => $api['circuit_service'],
-                    'state' => $state?->state ?? 'closed',
-                    'failure_count' => $state?->failure_count ?? 0,
-                    'last_checked_human' => isset($state?->opened_at) && $state?->opened_at
-                        ?
-                            \Carbon\Carbon::parse($state->opened_at)->diffForHumans()
+                    'state' => $state !== null ? ($state->state ?? 'closed') : 'closed',
+                    'failure_count' => $state !== null ? (int) ($state->failure_count ?? 0) : 0,
+                    'last_checked_human' => $state !== null && isset($state->opened_at) && $state->opened_at
+                        ? \Carbon\Carbon::parse((string) $state->opened_at)->diffForHumans()
                         : 'Never',
                 ],
                 'rate_limit' => is_array($rate) ? $rate : null,
@@ -135,7 +132,7 @@ class ResilienceController extends Controller
                 'group_name' => config('action1.test_probe.group_name'),
                 'configured' => ! empty(config('action1.test_probe.org_id')),
             ],
-            'hasAction1Api' => collect($apiHealthChecks)->contains(fn (array $api): bool => $api['key'] === 'action1'),
+            'hasAction1Api' => collect($apiHealthChecks)->contains('key', 'action1'),
         ]);
     }
 
@@ -442,7 +439,7 @@ class ResilienceController extends Controller
             // the param is declared in the script definition's params array.
             if ($step === 'run') {
                 $endpointId = $request->string('endpoint_id')->toString();
-                $scriptId   = $request->string('script_id')->toString();
+                $scriptId = $request->string('script_id')->toString();
 
                 if (empty($testOrgId) || $endpointId === '' || $scriptId === '') {
                     return response()->json([
@@ -459,10 +456,10 @@ class ResilienceController extends Controller
                 cache()->put(
                     Action1ScriptCallbackController::CACHE_PREFIX.$token,
                     [
-                        'status'     => 'pending',
-                        'script_id'  => $scriptId,
-                        'org_id'     => $testOrgId,
-                        'minted_at'  => now()->toIso8601String(),
+                        'status' => 'pending',
+                        'script_id' => $scriptId,
+                        'org_id' => $testOrgId,
+                        'minted_at' => now()->toIso8601String(),
                     ],
                     Action1ScriptCallbackController::TOKEN_TTL
                 );
@@ -532,26 +529,27 @@ class ResilienceController extends Controller
                                 (string) $record['org_id'],
                                 (string) $record['automation_id'],
                             );
-                        } catch (\Throwable) {}
+                        } catch (\Throwable) {
+                        }
                     }
 
                     $endpointStatus = (string) ($record['endpoint_status'] ?? 'OK');
                     $phoneHomeOk = strtoupper($endpointStatus) === 'OK';
 
                     $phoneHomePayload = [
-                        'status'      => $endpointStatus,
-                        'host'        => $record['host'] ?? null,
-                        'user'        => $record['user'] ?? null,
+                        'status' => $endpointStatus,
+                        'host' => $record['host'] ?? null,
+                        'user' => $record['user'] ?? null,
                         'received_at' => $record['received_at'] ?? null,
                     ];
 
                     return response()->json([
-                        'ok'                => $phoneHomeOk,
-                        'pending'           => false,
-                        'message'           => $phoneHomeOk
+                        'ok' => $phoneHomeOk,
+                        'pending' => false,
+                        'message' => $phoneHomeOk
                             ? 'Endpoint phoned home successfully.'
                             : 'Endpoint phoned home but reported status: '.$endpointStatus,
-                        'latency_ms'        => (int) round((microtime(true) - $start) * 1000),
+                        'latency_ms' => (int) round((microtime(true) - $start) * 1000),
                         'phone_home_payload' => $phoneHomePayload,
                     ]);
                 }
@@ -565,9 +563,11 @@ class ResilienceController extends Controller
                             (string) $record['org_id'],
                             (string) $record['automation_id'],
                         );
-                        $items = $resultsPage['items'] ?? [];
+                        /** @var list<array<string, mixed>> $items */
+                        $items = is_array($resultsPage['items'] ?? null) ? $resultsPage['items'] : [];
                         if (! empty($items)) {
-                            $epStatus = strtolower((string) ($items[0]['status'] ?? ''));
+                            $firstItem = is_array($items[0]) ? $items[0] : [];
+                            $epStatus = strtolower(is_string($firstItem['status'] ?? null) ? ($firstItem['status'] ?? '') : '');
                             // Action1 endpoint-result status enum: Pending, Running, Stopped, Success, Warning, Error
                             $terminalFailures = ['error', 'warning', 'stopped', 'failed', 'cancelled', 'aborted'];
                             if (in_array($epStatus, $terminalFailures, true)) {
@@ -576,7 +576,8 @@ class ResilienceController extends Controller
                                         (string) $record['org_id'],
                                         (string) $record['automation_id'],
                                     );
-                                } catch (\Throwable) {}
+                                } catch (\Throwable) {
+                                }
 
                                 return response()->json([
                                     'ok' => false,
@@ -584,7 +585,7 @@ class ResilienceController extends Controller
                                     'message' => 'Script failed before phoning home (Action1 status: '.$epStatus.').',
                                     'latency_ms' => (int) round((microtime(true) - $start) * 1000),
                                     'action1_status' => $epStatus,
-                                    'description' => $items[0]['description'] ?? null,
+                                    'description' => is_string($firstItem['description'] ?? null) ? $firstItem['description'] : null,
                                 ]);
                             }
                         }
@@ -654,6 +655,9 @@ class ResilienceController extends Controller
 
         try {
             foreach (ModuleFacade::allEnabled() as $module) {
+                if (! is_object($module)) {
+                    continue;
+                }
                 if (method_exists($module, 'getAlias')) {
                     $aliases[] = strtolower((string) $module->getAlias());
                 }
@@ -702,7 +706,7 @@ class ResilienceController extends Controller
                 'module_aliases' => ['googleadmin', 'assetmanagement', 'clientportal'],
                 'circuit_service' => 'google_workspace',
                 'rate_prefix' => 'google_api:',
-                'limit' => (int) config('google.rate_limit', 100),
+                'limit' => config()->integer('google.rate_limit', 100),
                 'description' => 'Directory and device synchronization API.',
             ],
             [
@@ -728,7 +732,6 @@ class ResilienceController extends Controller
         ];
 
         return array_values(array_filter($catalog, function (array $api) use ($enabledModules): bool {
-            /** @var array<int, string> $aliases */
             $aliases = $api['module_aliases'];
 
             foreach ($aliases as $alias) {
@@ -754,7 +757,7 @@ class ResilienceController extends Controller
         $status = [];
 
         foreach ($apiIntegrations as $api) {
-            $prefix = (string) $api['rate_prefix'];
+            $prefix = is_string($api['rate_prefix']) ? $api['rate_prefix'] : '';
             $limit = is_numeric($api['limit']) ? (int) $api['limit'] : null;
             $used = 0;
             $keyCount = 0;
@@ -789,8 +792,8 @@ class ResilienceController extends Controller
             }
 
             $status[] = [
-                'api_key' => (string) $api['key'],
-                'name' => (string) $api['name'],
+                'api_key' => is_string($api['key']) ? $api['key'] : '',
+                'name' => is_string($api['name']) ? $api['name'] : '',
                 'limit' => $limit,
                 'used' => $used,
                 'remaining' => ($limit !== null && $limit > 0) ? max(0, $limit - $used) : null,
@@ -815,7 +818,7 @@ class ResilienceController extends Controller
             Action1Role::cases(),
         );
         $allConfigured = collect($roles)->every(fn (array $role): bool => (bool) ($role['ok'] ?? false));
-        $latencyMs = array_sum(array_map(fn (array $role): int => (int) ($role['latency_ms'] ?? 0), $roles));
+        $latencyMs = array_sum(array_map(fn (array $role): int => is_numeric($role['latency_ms'] ?? null) ? (int) $role['latency_ms'] : 0, $roles));
 
         return response()->json([
             'ok' => $allConfigured,
@@ -859,7 +862,7 @@ class ResilienceController extends Controller
                 $testEpName = config()->string('action1.test_probe.endpoint_name', '');
                 if ($testOrgId !== '' && $testEpName !== '') {
                     $endpoints = $service->listEndpoints($testOrgId);
-                    $match = collect($endpoints)->first(fn (array $ep): bool => strcasecmp((string) ($ep['name'] ?? ''), $testEpName) === 0);
+                    $match = collect($endpoints)->first(fn (array $ep): bool => strcasecmp(is_string($ep['name'] ?? null) ? ($ep['name'] ?? '') : '', $testEpName) === 0);
                     if ($match !== null) {
                         $message .= " Test endpoint '{$testEpName}' resolved.";
                         $details['test_endpoint_name'] = $testEpName;
@@ -959,9 +962,9 @@ class ResilienceController extends Controller
         $start = microtime(true);
 
         try {
-            $credentialsPath = (string) config('google.credentials_path', storage_path('app/google-credentials.json'));
-            $adminEmail = (string) config('google.admin_email', '');
-            $customerId = (string) config('google.customer_id', 'my_customer');
+            $credentialsPath = config()->string('google.credentials_path', storage_path('app/google-credentials.json'));
+            $adminEmail = config()->string('google.admin_email', '');
+            $customerId = config()->string('google.customer_id', 'my_customer');
 
             if ($credentialsPath === '' || ! is_file($credentialsPath)) {
                 return response()->json([
@@ -1009,8 +1012,8 @@ class ResilienceController extends Controller
         $start = microtime(true);
 
         try {
-            $apiToken = (string) config('services.helcim.api_token', '');
-            $apiUrl = rtrim((string) config('services.helcim.api_url', 'https://api.helcim.com/v2'), '/');
+            $apiToken = config()->string('services.helcim.api_token', '');
+            $apiUrl = rtrim(config()->string('services.helcim.api_url', 'https://api.helcim.com/v2'), '/');
 
             if ($apiToken === '') {
                 return response()->json([
@@ -1024,7 +1027,7 @@ class ResilienceController extends Controller
             $response = Http::withHeaders([
                 'api-token' => $apiToken,
                 'Accept' => 'application/json',
-            ])->timeout((int) config('services.helcim.timeout', 30))
+            ])->timeout(config()->integer('services.helcim.timeout', 30))
                 ->get("{$apiUrl}/customers", ['limit' => 1]);
 
             if (! $response->successful()) {
