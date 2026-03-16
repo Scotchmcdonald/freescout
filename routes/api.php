@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Action1ScriptCallbackController;
 use App\Http\Controllers\Webhooks\Action1WebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 */
 
 // Google Workspace Webhooks - Moved to Modules/GoogleAdmin/Routes/api.php
+
+// Action1 script phone-home callback (push model — no Action1 API polling)
+// Token-secured, no auth header required (endpoints can't provide one).
+Route::post('/action1/script-callback/{token}', [Action1ScriptCallbackController::class, 'receive'])
+    ->middleware('throttle:action1_script_callbacks')
+    ->name('action1.script-callback');
 
 // Action1 RMM Webhooks
 Route::prefix('webhooks/action1')->group(function () {

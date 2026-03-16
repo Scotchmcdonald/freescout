@@ -183,6 +183,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('action1_webhooks', function ($request) {
             return Limit::perMinute(60)->by($request->ip());
         });
+
+        // Action1 script phone-home callbacks: 30 per minute per IP.
+        // Scripts POST their output exactly once; the low limit prevents token enumeration.
+        RateLimiter::for('action1_script_callbacks', function ($request) {
+            return Limit::perMinute(30)->by($request->ip());
+        });
     }
 
     /**

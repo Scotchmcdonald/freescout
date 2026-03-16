@@ -302,6 +302,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/resilience/circuit-breakers/{service}/reset', [App\Http\Controllers\Admin\ResilienceController::class, 'resetCircuit'])->name('admin.resilience.reset-circuit');
 
+        // Action1 per-role live connectivity probe (on-demand, returns JSON)
+        Route::post('/resilience/action1/probe/{role}', [App\Http\Controllers\Admin\ResilienceController::class, 'probeAction1'])->name('admin.resilience.action1-probe');
+        Route::post('/resilience/action1/sequence/{step}', [App\Http\Controllers\Admin\ResilienceController::class, 'probeAction1Sequence'])->name('admin.resilience.action1-sequence');
+        Route::post('/resilience/api/probe/{api}', [App\Http\Controllers\Admin\ResilienceController::class, 'probeApi'])->name('admin.resilience.api-probe');
+
         // Event Audit Log Routes
         Route::get('/resilience/events', [App\Http\Controllers\Admin\ResilienceController::class, 'eventsAudit'])->name('admin.resilience.events-audit');
         Route::get('/resilience/events/export', [App\Http\Controllers\Admin\ResilienceController::class, 'exportEvents'])->name('admin.resilience.events-audit.export');

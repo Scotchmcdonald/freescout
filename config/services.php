@@ -87,13 +87,13 @@ return [
             'client_id' => env('ACTION1_SYNC_CLIENT_ID'),
             'client_secret' => env('ACTION1_SYNC_CLIENT_SECRET'),
         ],
-        'run_key' => [
-            'client_id' => env('ACTION1_RUN_CLIENT_ID'),
-            'client_secret' => env('ACTION1_RUN_CLIENT_SECRET'),
+        'automation_runner_key' => [
+            'client_id' => env('ACTION1_AUTOMATION_RUNNER_CLIENT_ID'),
+            'client_secret' => env('ACTION1_AUTOMATION_RUNNER_CLIENT_SECRET'),
         ],
-        'manage_key' => [
-            'client_id' => env('ACTION1_MANAGE_CLIENT_ID'),
-            'client_secret' => env('ACTION1_MANAGE_CLIENT_SECRET'),
+        'script_manager_key' => [
+            'client_id' => env('ACTION1_SCRIPT_MANAGER_CLIENT_ID'),
+            'client_secret' => env('ACTION1_SCRIPT_MANAGER_CLIENT_SECRET'),
         ],
     ],
 
