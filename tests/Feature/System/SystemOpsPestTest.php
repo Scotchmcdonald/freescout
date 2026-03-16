@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
 
 uses(RefreshDatabase::class);
 
@@ -17,13 +18,15 @@ test('system can clear cache', function () {
 test('system can run migrations', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
 
-    // Mock Artisan?
-    // The legacy test didn't mock artisan explicitly, assuming it runs safely or just redirects.
-    // If it runs actually, it might be slow.
-    // Ideally we mock Artisan::call if the controller calls it.
-    // But for feature test, we often let it run if harmless (migrate --force is usually what it does).
+    Artisan::shouldReceive('call')
+        ->with('migrate', ['--force' => true])
+        ->once()
+        ->andReturn(0);
 
-    // Let's modify to mock if possible, but first let's try mimicking legacy behavior.
+    Artisan::shouldReceive('call')
+        ->with('module:migrate', ['--force' => true])
+        ->once()
+        ->andReturn(0);
 
     $response = $this->actingAs($admin)->post(route('settings.migrate'));
 

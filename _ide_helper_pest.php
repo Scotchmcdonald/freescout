@@ -89,6 +89,7 @@ namespace {
              * be passed to typed parameters without generating type errors.
              *
              * @template T of object
+             *
              * @param  class-string<T>|T  $type
              * @return T&\Mockery\MockInterface
              */
@@ -101,6 +102,7 @@ namespace {
              * Create a spy (partial mock) for the given class/interface.
              *
              * @template T of object
+             *
              * @param  class-string<T>|T  $type
              * @return T&\Mockery\MockInterface
              */
@@ -111,6 +113,7 @@ namespace {
 
             /**
              * @template T of object
+             *
              * @param  class-string<T>|T  $type
              * @return T&\Mockery\MockInterface
              */

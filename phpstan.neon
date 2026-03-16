@@ -22,6 +22,7 @@ parameters:
         - _ide_helper_controller_traits.php
         - intellisense_stubs.php
         - intellisense_framework_stubs.php
+        - bootstrap/app.php
         - archive/*
         - vendor/*
         - storage/*

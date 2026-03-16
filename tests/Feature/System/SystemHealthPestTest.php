@@ -11,12 +11,6 @@ use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
 
-afterEach(function () {
-    // Clear any Artisan facade mocks to prevent cross-test contamination
-    Artisan::clearResolvedInstances();
-    \Illuminate\Support\Facades\Facade::clearResolvedInstances();
-});
-
 test('fetch emails command updates cache', function () {
     // We need a mailbox so the command actually attempts to fetch
     Mailbox::factory()->create(['in_server' => 'imap.example.com']);

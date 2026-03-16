@@ -5,7 +5,7 @@ The Case Manager module is an AI-powered IT Support orchestration engine. It tra
 > **See also:**
 > - [Executive Technical Overview](CASE_MANAGER_EXECUTIVE.md) — Safety, cost controls, decision flows, benefits to Clients and Technicians
 > - [Architecture Reference](CASE_MANAGER_ARCHITECTURE.md) — Service architecture, strategy pattern, DTOs, event flow, resilience layer, state machine, database schema
-> - [Implementation Critique](CASE_MANAGER_CRITIQUE.md) — Gaps, incomplete features, and prioritized improvement recommendations
+> - [Implementation Critique](CASE_MANAGER_CRITIQUE_2026_03.md) — Implementation analysis and verification record
 
 ## Architecture: Decision Engine
 
@@ -18,7 +18,7 @@ The Decision Engine analyzes incoming support tickets (conversations) to intelli
     - Extracts distinct keywords from the ticket subject and body.
     - Queries the KnowledgeBase module using a fast semantic search.
     - Evaluates and ranks the results using a Gemini AI model to find high-confidence article matches.
-3.  **Endpoint Health (Future RMM Integration)**: Checks `action1_device_cache` for the state of associated client devices.
+3.  **Endpoint Health**: Resolves the customer's managed endpoint via `action1_device_cache` and fetches device health telemetry via `RmmBridgeService`.
 4.  **Insightful Intake (`CaseManagerAiService`)**: Enriches the basic ticket info with the gathered history and KB results, performing an initial AI analysis to determine the user's intent.
 5.  **Strategy Routing**: Analyzes the intake output to determine the ticket's optimal path.
 6.  **Strategy Execution**: The matched strategy applies its logic, generating customer-facing messages or tech briefings.
@@ -46,8 +46,9 @@ The `CaseRecord` progresses through the following states:
 | `new` | Record created, no processing has started. |
 | `triaging` | AI pipeline is actively analyzing the ticket. |
 | `awaiting_clarity` | AI has sent clarifying questions; waiting for the customer to reply. `HandleCustomerReplied` monitors for responses and re-triggers the Decision Engine. |
-| `awaiting_split_confirmation` | Customer has been asked to confirm a proposed ticket split. `HandleCustomerReplied` monitors for affirmative/negative replies; affirmative → `ready_for_tech`, negative → re-triage via Decision Engine. |
+| `awaiting_split_confirmation` | Customer has been asked to confirm a proposed ticket split. `HandleCustomerReplied` monitors for affirmative/negative replies; affirmative → `split_completed`, negative → re-triage via Decision Engine. |
 | `ready_for_tech` | Triage complete; a technician can now work the case using the AI-generated briefing. |
+| `split_completed` | Original ticket successfully split into child tickets. Terminal state. Set by `HandleCustomerReplied::performTicketSplit()`. |
 | `api_error_needs_human` | Gemini API failed after retries; a technician must manually triage. Set by `CheckCaseApiErrorJob` via the `AiPipelineFailureHandler` trait. An internal note and alert are generated automatically. |
 
 ### Key Technical Concepts
@@ -181,7 +182,7 @@ Fern uses its own model (`FernCaseRecord`, table `fern_case_records`) — separa
 1. **Feature Flag Guard** — `casemanager_fern_enabled` (Options table + config fallback). If disabled, the listener returns immediately.
 2. **Audience Targeting** (`AudienceTargetingService`) — Pre-flight check against allowlist/blocklist rules. Rejected senders are transitioned to `ignored`.
 3. **Customer History** (`HistoryService`) — Retrieves the customer's recent ticket history via `getHistorySummary()` for AI context enrichment.
-4. **Triage Router** (`CaseManagerAiService::runFernTriage()`) — Runs the AI triage with ticket context, history summary, and asset telemetry (asset telemetry is a follow-up pending RMM bridge integration).
+4. **Triage Router** (`CaseManagerAiService::runFernTriage()`) — Runs the AI triage with ticket context, history summary, and asset telemetry sourced from the Action1 device cache when an endpoint match is available.
 5. **Budget Controls** (`FernBudgetService`) — Enforces monthly cost cap, work-hour throttling for non-critical actions, and a daily budget curve to prevent front-loading spend.
 
 ### Error Handling

@@ -1,8 +1,8 @@
 # Case Manager Module — Executive Technical Overview
 
-> **Audience:** Technical Executives, Engineering Leadership, MSP Stakeholders  
-> **Last Updated:** 2025-07-15  
-> **Module Status:** Production — Active Development  
+> **Audience:** Technical Executives, Engineering Leadership, MSP Stakeholders
+> **Last Updated:** 2026-03-15
+> **Module Status:** Production — Active Development
 
 ---
 
@@ -109,8 +109,8 @@ Every incoming ticket follows a 7-stage pipeline:
 │ Stage 2: KB Concierge                                           │
 │   Extracts keywords → Searches Knowledge Base → AI-ranks results│
 ├──────────────────────────────────────────────────────────────────┤
-│ Stage 3: Endpoint Health (future RMM integration)               │
-│   Will pull real-time device health from Action1 / RMM          │
+│ Stage 3: Endpoint Health                                        │
+│   Resolves managed endpoint via Action1 device cache            │
 ├──────────────────────────────────────────────────────────────────┤
 │ Stage 4: Insightful Intake                                      │
 │   AI analyzes ticket + all gathered context → structured output │

@@ -55,6 +55,7 @@ composer.phar
 /database/*.sqlite-wal
 /coverage-report/*
 /reports/*
+/tests/Browser/screenshots/
 
 # Logs
 npm-debug.log

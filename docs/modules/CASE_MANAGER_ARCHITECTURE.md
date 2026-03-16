@@ -1,9 +1,9 @@
 # Case Manager Module — Architecture Reference
 
-> **Audience:** Software Architects, Senior Engineers  
-> **Last Updated:** 2026-03-04  
-> **PHPStan Level:** 9 — 0 errors  
-> **Runtime:** PHP 8.2+ / Laravel 12 / FreeScout  
+> **Audience:** Software Architects, Senior Engineers
+> **Last Updated:** 2026-03-15
+> **PHPStan Level:** 9 — 0 errors
+> **Runtime:** PHP 8.2+ / Laravel 12 / FreeScout
 
 ---
 
@@ -70,7 +70,7 @@ Modules/CaseManager/
 │   ├── CaseManagerAiService.php   # Unified AI service — main + Fern pipelines (scoped)
 │   ├── AudienceTargetingService.php # Fern audience pre-flight gate (scoped)
 │   ├── FernBudgetService.php      # Monthly budget + throttling
-│   ├── DecisionEngine.php         # Strategy pattern orchestrator (singleton)
+│   ├── DecisionEngine.php         # Strategy pattern orchestrator (scoped)
 │   ├── HistoryService.php         # Customer history + recurrence (singleton)
 │   ├── KnowledgeEngine.php        # KB Concierge integration
 │   ├── RmmBridgeService.php       # Action1 / RMM bridge
@@ -101,7 +101,7 @@ Modules/CaseManager/
 | `GeminiClient` | **Scoped** (per-request) | Shared HTTP transport, rate limiting, circuit breaking, context caching. Scoped for consistent state per request. |
 | `CaseManagerAiService` | **Scoped** (per-request) | Holds mutable `conversationId`, `caseId`, and `fernCaseId` for prompt logging. Unified service for both main and Fern pipelines. |
 | `AudienceTargetingService` | **Scoped** | Pre-flight audience gate for Fern pipeline. Pure business logic (User/Contract queries). |
-| `DecisionEngine` | **Singleton** | Stateless orchestrator. Strategies are resolved via `app()` at construction. |
+| `DecisionEngine` | **Scoped** | Stateless orchestrator. Strategies injected via constructor from the service provider. |
 | `HistoryService` | **Singleton** | Stateless service — all state comes from method arguments. |
 | `KnowledgeEngine` | Resolved fresh | Depends on KnowledgeBase module availability. |
 | `FernBudgetService` | Resolved fresh | Reads config on construction. |
@@ -150,7 +150,7 @@ Stage 2       │     KnowledgeEngine         │  → context.withKbResults()
                              │
               ┌──────────────▼──────────────┐
 Stage 3       │     Endpoint Health         │  → context.withEndpointHealth()
-              │  (Future — RMM Integration) │
+              │  RmmBridgeService (Action1) │
               └──────────────┬──────────────┘
                              │
               ┌──────────────▼──────────────┐
@@ -389,6 +389,8 @@ Shared across all 4 listeners. Provides:
 | `awaiting_clarity` | Waiting for customer to answer clarifying questions. | `TriageAndClarifyStrategy` |
 | `awaiting_split_confirmation` | Waiting for customer to confirm ticket split. | `ProposeTicketSplitStrategy` |
 | `ready_for_tech` | Pipeline complete — technician can pick up. | Most strategies |
+| `split_completed` | Original ticket successfully split into child tickets. Terminal state. | `HandleCustomerReplied::performTicketSplit()` |
+| `pending_kb_review` | Case closed; KB assessment by `KnowledgeEngine` in progress. Transient. | `HandleConversationClosed` |
 | `in_progress` | Technician is actively working. | Manual / UI |
 | `resolved` | Case resolved. | Manual / UI |
 | `api_error_needs_human` | AI pipeline failed — manual routing required. | `AiPipelineFailureHandler` |
@@ -425,6 +427,7 @@ The Fern pipeline is intentionally isolated:
 - **Never disrupts email flow** — operates on its own model (`fern_case_records`).
 - Fern errors do not affect the main pipeline.
 - Budget exhaustion stops only Fern; the main pipeline continues unaffected.
+- When an endpoint can be resolved from the Action1 device cache, Fern triage includes cached asset telemetry from `RmmBridgeService`.
 
 ### Code Duplication Note
 
@@ -614,7 +617,7 @@ The CaseManager integrates with the Alerts module via two module-specific alert 
 |---|---|---|
 | `casemanager_api_error` | `ai` | AI pipeline failure after all retries exhausted. |
 | `casemanager_model_deprecation` | `ai` | `CheckGeminiModelsCommand` detects sunset/deprecated/newer model. |
-| `listener.failed` | `system` | Any `ShouldQueue` listener using `ResilientListener` fails permanently. See [Event Robustness WIP](../development/WIP/event_robustness.md). |
+| `listener.failed` | `system` | Any `ShouldQueue` listener using `ResilientListener` fails permanently. |
 
 Alerts are dispatched via `AlertService::dispatch(AlertPayload)` and include actionable metadata: case ID, conversation ID, error details, and direct action URLs.
 

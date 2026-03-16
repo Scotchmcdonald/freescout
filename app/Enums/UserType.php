@@ -25,7 +25,7 @@ enum UserType: int
     {
         return match ($this) {
             self::Internal => 'Internal',
-            self::Client   => 'Client',
+            self::Client => 'Client',
             self::Automaton => 'Automaton',
         };
     }

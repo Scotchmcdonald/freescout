@@ -121,7 +121,8 @@ class ReplyToConversationAction
 
         if ($isReply) {
             SendConversationReplyJob::dispatch($conversation, $thread)
-                ->delay(now()->addSeconds(10));
+                ->delay(now()->addSeconds(10))
+                ->afterCommit();
         }
     }
 }

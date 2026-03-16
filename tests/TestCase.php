@@ -2,11 +2,13 @@
 
 namespace Tests;
 
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\ParallelTesting;
+use Illuminate\Support\Facades\RateLimiter;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -22,6 +24,21 @@ abstract class TestCase extends BaseTestCase
         // BEST PRACTICE: Isolate filesystem for parallel tests
         \Illuminate\Support\Facades\Storage::fake('local');
         \Illuminate\Support\Facades\Storage::fake('public');
+
+        // BEST PRACTICE: Prevent actual mail sending in all tests
+        \Illuminate\Support\Facades\Mail::fake();
+
+        // BEST PRACTICE: Ensure RateLimiter uses the array cache store for test isolation.
+        // During bootstrap, AppServiceProvider::boot() resolves the RateLimiter singleton
+        // before CreatesApplication can apply config(['cache.default' => 'array']), so it
+        // may end up backed by Redis (a persistent store). Rebinding it here ensures each
+        // test starts with a clean, in-memory rate-limit counter.
+        $this->app->instance(
+            \Illuminate\Cache\RateLimiter::class,
+            new \Illuminate\Cache\RateLimiter($this->app->make('cache')->driver('array'))
+        );
+        \Illuminate\Support\Facades\RateLimiter::clearResolvedInstance(\Illuminate\Cache\RateLimiter::class);
+        $this->registerTestRateLimiters();
 
         // BEST PRACTICE: Robust mock for missing/broken Eventy package
         // This binds a Null Object to the container, preventing "Facade root not set" errors
@@ -115,6 +132,24 @@ abstract class TestCase extends BaseTestCase
                 '--path' => 'database/migrations',
                 '--realpath' => true,
             ]);
+        });
+    }
+
+    /**
+     * Restore named limiters after swapping the RateLimiter singleton in tests.
+     */
+    protected function registerTestRateLimiters(): void
+    {
+        RateLimiter::for('google_webhooks', function ($request) {
+            return Limit::perMinute(60)->by($request->ip());
+        });
+
+        RateLimiter::for('action1_webhooks', function ($request) {
+            return Limit::perMinute(60)->by($request->ip());
+        });
+
+        RateLimiter::for('action1_script_callbacks', function ($request) {
+            return Limit::perMinute(30)->by($request->ip());
         });
     }
 }

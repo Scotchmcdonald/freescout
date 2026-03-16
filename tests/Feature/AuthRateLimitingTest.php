@@ -2,12 +2,12 @@
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Cache;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    RateLimiter::clear('');
+    Cache::flush();
 });
 
 test('login endpoint is rate limited to 5 attempts per minute', function () {

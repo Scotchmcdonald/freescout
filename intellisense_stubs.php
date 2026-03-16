@@ -6,6 +6,34 @@
  */
 
 namespace {
+    if (! function_exists('uses')) {
+        /** @param class-string ...$classAndTraits */
+        function uses(string ...$classAndTraits): mixed
+        {
+            return null;
+        }
+    }
+
+    if (! function_exists('it')) {
+        /**
+         * @param-closure-this \Tests\TestCase $closure
+         */
+        function it(string $description, ?\Closure $closure = null): mixed
+        {
+            return null;
+        }
+    }
+
+    if (! function_exists('test')) {
+        /**
+         * @param-closure-this \Tests\TestCase $closure
+         */
+        function test(?string $description = null, ?\Closure $closure = null): mixed
+        {
+            return null;
+        }
+    }
+
     if (! function_exists('data_get')) {
         function data_get(mixed $target, string|int|null $key, mixed $default = null): mixed
         {
@@ -32,6 +60,18 @@ namespace {
         {
             return '';
         }
+    }
+
+    if (! function_exists('auth')) {
+        /** @return \Illuminate\Contracts\Auth\Factory|\Illuminate\Contracts\Auth\StatefulGuard|\Illuminate\Contracts\Auth\Guard */
+        function auth(?string $guard = null): mixed
+        {
+            return null;
+        }
+    }
+
+    if (! class_exists('Config')) {
+        class Config extends \Illuminate\Support\Facades\Config {}
     }
 }
 
@@ -306,23 +346,20 @@ namespace Illuminate\Database\Eloquent\Factories {
 //
 // NOTE: Intelephense merges multiple declarations of the same interface;
 //       only the methods listed here need to differ from the vendor copy.
+
 namespace Mockery {
     interface LegacyMockInterface
     {
-        /** @return static */
         public function makePartial(): static;
 
         /**
          * @param  mixed  $returnValue
          * @param  mixed  $mock
-         * @return static
          */
         public function shouldIgnoreMissing($returnValue = null, $mock = null): static;
 
-        /** @return static */
         public function byDefault(): static;
 
-        /** @return static */
         public function shouldAllowMockingProtectedMethods(): static;
     }
 }
