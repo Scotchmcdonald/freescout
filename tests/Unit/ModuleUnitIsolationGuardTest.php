@@ -51,11 +51,19 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      *
      * @var array<int, string>
      */
-    private array $allowlistedExternalHttpMockBaseline = [
-        'Modules/Action1/Tests/Feature/SyncAction1DevicesJobPestTest.php',
-        'Modules/GoogleAdmin/Tests/Feature/SyncGoogleChromebooksJobPestTest.php',
-        'Modules/GoogleAdmin/Tests/Feature/SyncGoogleUsersJobPestTest.php',
-        'Modules/GoogleAdmin/Tests/Feature/UserProvisioningActionPestTest.php',
+    private array $allowlistedExternalHttpMockBaseline = [];
+
+    /**
+     * Guarded hotspot tests where mocking the gateway/service-under-test internals
+     * causes false confidence. Keep this list explicit and narrow.
+     *
+     * @var array<string, string>
+     */
+    private array $guardedGatewayHotspotPatterns = [
+        'Modules/Action1/Tests/Feature/SyncAction1DevicesJobPestTest.php' => '/Mockery::mock\(\s*(?:\\\\)?Modules\\\\Action1\\\\Services\\\\(?:Action1Service|Action1SyncService)::class/',
+        'Modules/GoogleAdmin/Tests/Feature/SyncGoogleUsersJobPestTest.php' => '/Mockery::mock\(\s*(?:\\\\)?Modules\\\\GoogleAdmin\\\\Services\\\\GoogleWorkspaceService::class/',
+        'Modules/GoogleAdmin/Tests/Feature/SyncGoogleChromebooksJobPestTest.php' => '/Mockery::mock\(\s*(?:\\\\)?Modules\\\\GoogleAdmin\\\\Services\\\\GoogleWorkspaceService::class/',
+        'Modules/GoogleAdmin/Tests/Feature/UserProvisioningActionPestTest.php' => '/Mockery::mock\(\s*(?:\\\\)?Modules\\\\GoogleAdmin\\\\Services\\\\GoogleWorkspaceService::class/',
     ];
 
     public function test_module_unit_tests_do_not_use_refresh_database_or_cross_module_persistence(): void
@@ -66,6 +74,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
         $newAllowlistedRefreshDatabaseViolations = [];
         $crossModulePersistenceViolations = [];
         $newExternalHttpMockViolations = [];
+        $newGatewayOverMockViolations = [];
 
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($unitRoot));
 
@@ -82,6 +91,10 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
                 if (! in_array($normalizedPath, $this->allowlistedExternalHttpMockBaseline, true)) {
                     $newExternalHttpMockViolations[] = $normalizedPath;
                 }
+            }
+
+            if ($this->isGatewayOverMockHotspot($normalizedPath, $contents)) {
+                $newGatewayOverMockViolations[] = $normalizedPath;
             }
 
             if (! str_contains($normalizedPath, '/Tests/Unit/')) {
@@ -137,6 +150,12 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
             [],
             $newExternalHttpMockViolations,
             "Module feature tests importing external API services must include Http::fake() or Http::preventStrayRequests(). New violations:\n".implode("\n", $newExternalHttpMockViolations)
+        );
+
+        $this->assertSame(
+            [],
+            $newGatewayOverMockViolations,
+            "Gateway hotspot tests must not mock external service internals directly. New violations:\n".implode("\n", $newGatewayOverMockViolations)
         );
     }
 
@@ -207,5 +226,14 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
             || str_contains($contents, 'Http::preventStrayRequests(');
 
         return ! $hasHttpSafety;
+    }
+
+    private function isGatewayOverMockHotspot(string $path, string $contents): bool
+    {
+        if (! isset($this->guardedGatewayHotspotPatterns[$path])) {
+            return false;
+        }
+
+        return preg_match($this->guardedGatewayHotspotPatterns[$path], $contents) === 1;
     }
 }
