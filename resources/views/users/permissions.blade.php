@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
             {{ __('User Permissions') }} - {{ $user->getFullName() }}
         </h2>
     </x-slot>
@@ -10,7 +10,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {{-- Sidebar --}}
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div class="bg-white rounded-lg shadow-sm border border-neutral-200 p-4">
                         <x-user-sidebar-menu :user="$user" :users="$users ?? collect()" />
                     </div>
                 </div>
@@ -33,13 +33,13 @@
                                     
                                     <div class="mb-4 text-sm">
                                         <button type="button" 
-                                                class="text-blue-600 hover:text-blue-800 select-all-link"
+                                                class="text-primary-600 hover:text-primary-800 select-all-link"
                                                 onclick="document.querySelectorAll('.mailbox-checkbox').forEach(cb => cb.checked = true); return false;">
                                             {{ __('all') }}
                                         </button>
-                                        <span class="text-gray-500">/</span>
+                                        <span class="text-neutral-500">/</span>
                                         <button type="button" 
-                                                class="text-blue-600 hover:text-blue-800 select-none-link"
+                                                class="text-primary-600 hover:text-primary-800 select-none-link"
                                                 onclick="document.querySelectorAll('.mailbox-checkbox').forEach(cb => cb.checked = false); return false;">
                                             {{ __('none') }}
                                         </button>
@@ -47,17 +47,17 @@
                                     
                                     <div class="space-y-2">
                                         @foreach($mailboxes as $mailbox)
-                                            <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition">
+                                            <label class="flex items-center p-3 rounded-lg border border-neutral-200 hover:bg-neutral-50 cursor-pointer transition">
                                                 <input type="checkbox" 
                                                        name="mailboxes[]" 
                                                        id="mailbox-{{ $mailbox->id }}" 
                                                        value="{{ $mailbox->id }}" 
                                                        @if($user_mailboxes->contains($mailbox->id)) checked @endif
-                                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 mailbox-checkbox">
-                                                <span class="ml-3 text-sm font-medium text-gray-900">
+                                                       class="rounded border-neutral-300 text-primary-600 focus:ring-primary-500 mailbox-checkbox">
+                                                <span class="ml-3 text-sm font-medium text-neutral-900">
                                                     {{ $mailbox->name }}
                                                 </span>
-                                                <span class="ml-2 text-xs text-gray-500">
+                                                <span class="ml-2 text-xs text-neutral-500">
                                                     ({{ $mailbox->email }})
                                                 </span>
                                             </label>
@@ -65,7 +65,7 @@
                                     </div>
                                 </div>
                             @else
-                                <div class="mb-8 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
+                                <div class="mb-8 p-4 bg-neutral-50 rounded-lg text-sm text-neutral-600">
                                     {{ __('No mailboxes available. Please create a mailbox first.') }}
                                 </div>
                             @endif
@@ -87,14 +87,14 @@
                                         @endphp
                                         
                                         @foreach($userPermissions as $permKey => $permName)
-                                            <label class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition">
+                                            <label class="flex items-center p-3 rounded-lg border border-neutral-200 hover:bg-neutral-50 cursor-pointer transition">
                                                 <input type="checkbox" 
                                                        name="user_permissions[]" 
                                                        value="{{ $permKey }}" 
                                                        id="user_permission_{{ $permKey }}"
                                                        @if(in_array($permKey, $user->permissions ?? [])) checked @endif
-                                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                                <span class="ml-3 text-sm font-medium text-gray-900">
+                                                       class="rounded border-neutral-300 text-primary-600 focus:ring-primary-500">
+                                                <span class="ml-3 text-sm font-medium text-neutral-900">
                                                     {{ $permName }}
                                                 </span>
                                             </label>
@@ -117,11 +117,11 @@
                             {{-- Action buttons --}}
                             <div class="flex items-center justify-end space-x-3">
                                 <a href="{{ route('users.show', $user) }}" 
-                                   class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                                   class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition">
                                     {{ __('Cancel') }}
                                 </a>
                                 <button type="submit" 
-                                        class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                                        class="px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition">
                                     {{ __('Save Permissions') }}
                                 </button>
                             </div>

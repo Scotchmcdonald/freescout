@@ -1,10 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
                 {{ __('Alert Subscription Center') }}
             </h2>
-            <div class="text-sm text-gray-500">
+            <div class="text-sm text-neutral-500">
                 {{ __('Manage your notification preferences') }}
             </div>
         </div>
@@ -13,7 +13,7 @@
     <div class="py-12" x-data="alertSubscriptions()">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-neutral-900">
 
                     <!-- Introduction / Empty State Context -->
                     <div class="mb-8 bg-primary-50 border-l-4 border-primary-500 p-4 rounded-r-lg">
@@ -38,27 +38,27 @@
                     <form @submit.prevent="saveSubscriptions" class="space-y-8">
                         
                         <!-- Alert Matrix -->
-                        <div class="overflow-x-auto ring-1 ring-gray-200 sm:rounded-lg">
+                        <div class="overflow-x-auto ring-1 ring-neutral-200 sm:rounded-lg">
                             <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
+                                <thead class="bg-neutral-50">
                                     <tr>
-                                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+                                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-neutral-900 sm:pl-6">
                                             {{ __('Alert Type') }}
                                         </th>
-                                        <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
+                                        <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-neutral-900">
                                             {{ __('Channels') }}
                                         </th>
-                                        <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
+                                        <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-neutral-900">
                                             {{ __('Frequency') }}
                                         </th>
-                                        <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">
+                                        <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-neutral-900">
                                             {{ __('Status') }}
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 bg-white">
                                     @foreach($definitions as $key => $def)
-                                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                        <tr class="hover:bg-neutral-50 transition-colors duration-150">
                                             <!-- Alert Info -->
                                             <td class="py-4 pl-4 pr-3 text-sm sm:pl-6">
                                                 <div class="flex items-start">
@@ -77,9 +77,9 @@
                                                         @endif
                                                     </div>
                                                     <div class="ml-4">
-                                                        <div class="font-medium text-gray-900">{{ $def['label'] }}</div>
-                                                        <div class="text-gray-500">{{ $def['description'] }}</div>
-                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 mt-1 capitalize">
+                                                        <div class="font-medium text-neutral-900">{{ $def['label'] }}</div>
+                                                        <div class="text-neutral-500">{{ $def['description'] }}</div>
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-neutral-100 text-neutral-800 mt-1 capitalize">
                                                             {{ $def['category'] }}
                                                         </span>
                                                     </div>
@@ -87,7 +87,7 @@
                                             </td>
 
                                             <!-- Channels -->
-                                            <td class="px-3 py-4 text-sm text-gray-500 text-center">
+                                            <td class="px-3 py-4 text-sm text-neutral-500 text-center">
                                                 <div class="flex justify-center space-x-4">
                                                     <!-- Email Toggle -->
                                                     <label class="flex flex-col items-center cursor-pointer group">
@@ -95,10 +95,10 @@
                                                                x-model="subscriptions['{{ $key }}'].channels" 
                                                                value="email"
                                                                class="sr-only peer">
-                                                        <span class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center peer-checked:bg-primary-100 peer-checked:text-primary-600 text-gray-400 transition-all duration-200 group-hover:ring-2 group-hover:ring-primary-200">
+                                                        <span class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center peer-checked:bg-primary-100 peer-checked:text-primary-600 text-neutral-400 transition-all duration-200 group-hover:ring-2 group-hover:ring-primary-200">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                                         </span>
-                                                        <span class="text-xs mt-1 text-gray-500 group-hover:text-primary-600">Email</span>
+                                                        <span class="text-xs mt-1 text-neutral-500 group-hover:text-primary-600">Email</span>
                                                     </label>
 
                                                     <!-- Slack Toggle -->
@@ -107,10 +107,10 @@
                                                                x-model="subscriptions['{{ $key }}'].channels" 
                                                                value="slack"
                                                                class="sr-only peer">
-                                                        <span class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center peer-checked:bg-purple-100 peer-checked:text-purple-600 text-gray-400 transition-all duration-200 group-hover:ring-2 group-hover:ring-purple-200">
+                                                        <span class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center peer-checked:bg-primary-100 peer-checked:text-primary-600 text-neutral-400 transition-all duration-200 group-hover:ring-2 group-hover:ring-primary-200">
                                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.527 2.527 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.52v-6.315zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.52v2.522h-2.52zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.522 2.521 2.527 2.527 0 0 1-2.522-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.522-2.522v-2.522h2.522zM15.165 17.688a2.527 2.527 0 0 1-2.522-2.522 2.527 2.527 0 0 1 2.522-2.522h6.312A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.522h-6.313z"/></svg>
                                                         </span>
-                                                        <span class="text-xs mt-1 text-gray-500 group-hover:text-purple-600">Slack</span>
+                                                        <span class="text-xs mt-1 text-neutral-500 group-hover:text-primary-600">Slack</span>
                                                     </label>
 
                                                     <!-- SMS Toggle -->
@@ -119,18 +119,18 @@
                                                                x-model="subscriptions['{{ $key }}'].channels" 
                                                                value="sms"
                                                                class="sr-only peer">
-                                                        <span class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center peer-checked:bg-success-100 peer-checked:text-success-600 text-gray-400 transition-all duration-200 group-hover:ring-2 group-hover:ring-success-200">
+                                                        <span class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center peer-checked:bg-success-100 peer-checked:text-success-600 text-neutral-400 transition-all duration-200 group-hover:ring-2 group-hover:ring-success-200">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                                         </span>
-                                                        <span class="text-xs mt-1 text-gray-500 group-hover:text-success-600">SMS</span>
+                                                        <span class="text-xs mt-1 text-neutral-500 group-hover:text-success-600">SMS</span>
                                                     </label>
                                                 </div>
                                             </td>
 
                                             <!-- Frequency -->
-                                            <td class="px-3 py-4 text-sm text-gray-500 text-center">
+                                            <td class="px-3 py-4 text-sm text-neutral-500 text-center">
                                                 <select x-model="subscriptions['{{ $key }}'].frequency" 
-                                                        class="block w-full rounded-md border-gray-300 py-1.5 pl-3 pr-8 text-base focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm">
+                                                        class="block w-full rounded-md border-neutral-300 py-1.5 pl-3 pr-8 text-base focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm">
                                                     <option value="immediate">{{ __('Immediate') }}</option>
                                                     <option value="daily">{{ __('Daily Digest') }}</option>
                                                     <option value="weekly">{{ __('Weekly Summary') }}</option>
@@ -141,7 +141,7 @@
                                             <td class="px-3 py-4 text-sm text-center">
                                                 <button type="button" 
                                                         @click="subscriptions['{{ $key }}'].is_active = !subscriptions['{{ $key }}'].is_active"
-                                                        :class="subscriptions['{{ $key }}'].is_active ? 'bg-success-100 text-success-700' : 'bg-gray-100 text-gray-400'"
+                                                        :class="subscriptions['{{ $key }}'].is_active ? 'bg-success-100 text-success-700' : 'bg-neutral-100 text-neutral-400'"
                                                         class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-200">
                                                     <span x-text="subscriptions['{{ $key }}'].is_active ? '{{ __('Active') }}' : '{{ __('Paused') }}'"></span>
                                                 </button>
@@ -153,7 +153,7 @@
                         </div>
 
                         <!-- Actions -->
-                        <div class="flex justify-end pt-4 border-t border-gray-100">
+                        <div class="flex justify-end pt-4 border-t border-neutral-100">
                             <button type="submit" 
                                     :disabled="saving"
                                     class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -168,11 +168,11 @@
                     @else
                         <!-- Empty State -->
                         <div class="text-center py-12">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="mx-auto h-12 w-12 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                             </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('No Alerts Defined') }}</h3>
-                            <p class="mt-1 text-sm text-gray-500">{{ __('There are currently no system alerts available for subscription.') }}</p>
+                            <h3 class="mt-2 text-sm font-medium text-neutral-900">{{ __('No Alerts Defined') }}</h3>
+                            <p class="mt-1 text-sm text-neutral-500">{{ __('There are currently no system alerts available for subscription.') }}</p>
                         </div>
                     @endif
                 </div>
@@ -199,7 +199,7 @@
                     </svg>
                 </div>
                 <div class="ml-3 w-0 flex-1 pt-0.5">
-                    <p class="text-sm font-medium text-gray-900" x-text="message"></p>
+                    <p class="text-sm font-medium text-neutral-900" x-text="message"></p>
                 </div>
             </div>
         </div>

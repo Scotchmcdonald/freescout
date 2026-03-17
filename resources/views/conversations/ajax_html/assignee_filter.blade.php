@@ -6,10 +6,10 @@
 
 <div class="assignee-filter">
     {{-- Search Field --}}
-    <div class="p-3 border-b border-gray-200">
+    <div class="p-3 border-b border-neutral-200">
         <input type="text" 
                placeholder="{{ __('Search users...') }}"
-               class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+               class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                x-data
                @input="filterUsers($event.target.value)">
     </div>
@@ -19,18 +19,18 @@
         {{-- Unassigned Option --}}
         <button type="button" 
                 data-user-id=""
-                class="assignee-option w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                class="assignee-option w-full text-left px-4 py-2 hover:bg-neutral-100 transition"
                 style="{{ !$selected_user_id ? 'background-color: var(--theme-primary-50);' : '' }}"
                 onclick="selectAssignee(null)">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                    <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-8 h-8 rounded-full bg-neutral-300 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </div>
                 <div>
-                    <div class="text-sm font-medium text-gray-900">{{ __('Unassigned') }}</div>
-                    <div class="text-xs text-gray-500">{{ __('Remove assignment') }}</div>
+                    <div class="text-sm font-medium text-neutral-900">{{ __('Unassigned') }}</div>
+                    <div class="text-xs text-neutral-500">{{ __('Remove assignment') }}</div>
                 </div>
             </div>
         </button>
@@ -40,7 +40,7 @@
             <button type="button" 
                     data-user-id="{{ $user->id }}"
                     data-user-name="{{ $user->getFullName() }}"
-                    class="assignee-option w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                    class="assignee-option w-full text-left px-4 py-2 hover:bg-neutral-100 transition"
                     style="{{ $selected_user_id == $user->id ? 'background-color: var(--theme-primary-50);' : '' }}"
                     onclick="selectAssignee({{ $user->id }}, '{{ addslashes($user->getFullName()) }}')">
                 <div class="flex items-center gap-2">
@@ -48,8 +48,8 @@
                         {{ substr($user->first_name, 0, 1) }}{{ substr($user->last_name, 0, 1) }}
                     </div>
                     <div>
-                        <div class="text-sm font-medium text-gray-900">{{ $user->getFullName() }}</div>
-                        <div class="text-xs text-gray-500">{{ $user->email }}</div>
+                        <div class="text-sm font-medium text-neutral-900">{{ $user->getFullName() }}</div>
+                        <div class="text-xs text-neutral-500">{{ $user->email }}</div>
                     </div>
                 </div>
             </button>

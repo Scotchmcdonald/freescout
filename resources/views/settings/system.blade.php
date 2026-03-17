@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
             {{ __('System Information') }}
         </h2>
     </x-slot>
@@ -16,55 +16,55 @@
                         <h3 class="text-lg font-semibold mb-4">{{ __('System Information') }}</h3>
                         
                         <dl class="space-y-3 text-sm">
-                        <div class="flex justify-between py-2 border-b border-gray-200">
-                            <dt class="font-medium text-gray-700">App Version</dt>
-                            <dd class="text-gray-900">{{ config('app.version', '1.0.0') }}</dd>
+                        <div class="flex justify-between py-2 border-b border-neutral-200">
+                            <dt class="font-medium text-neutral-700">App Version</dt>
+                            <dd class="text-neutral-900">{{ config('app.version', '1.0.0') }}</dd>
                         </div>
                         @if($updateInfo)
-                        <div class="flex justify-between py-2 border-b border-gray-200">
-                            <dt class="font-medium text-gray-700">Current Commit</dt>
-                            <dd class="text-gray-900 font-mono">
+                        <div class="flex justify-between py-2 border-b border-neutral-200">
+                            <dt class="font-medium text-neutral-700">Current Commit</dt>
+                            <dd class="text-neutral-900 font-mono">
                                 @if(!empty($updateInfo['current_commit_url']))
-                                    <a href="{{ $updateInfo['current_commit_url'] }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">{{ $updateInfo['current_commit'] }}</a>
+                                    <a href="{{ $updateInfo['current_commit_url'] }}" target="_blank" class="text-primary-600 hover:text-primary-800 hover:underline">{{ $updateInfo['current_commit'] }}</a>
                                 @else
                                     {{ $updateInfo['current_commit'] }}
                                 @endif
                             </dd>
                         </div>
-                        <div class="flex justify-between py-2 border-b border-gray-200">
-                            <dt class="font-medium text-gray-700">Branch</dt>
-                            <dd class="text-gray-900">{{ $updateInfo['branch'] }}</dd>
+                        <div class="flex justify-between py-2 border-b border-neutral-200">
+                            <dt class="font-medium text-neutral-700">Branch</dt>
+                            <dd class="text-neutral-900">{{ $updateInfo['branch'] }}</dd>
                         </div>
                         @if($updateInfo['has_update'])
-                        <div class="flex justify-between py-2 border-b border-gray-200">
-                            <dt class="font-medium text-gray-700">Update Status</dt>
-                            <dd class="text-yellow-600 font-medium">{{ $updateInfo['commits_behind'] ?? 0 }} commits behind</dd>
+                        <div class="flex justify-between py-2 border-b border-neutral-200">
+                            <dt class="font-medium text-neutral-700">Update Status</dt>
+                            <dd class="text-warning-600 font-medium">{{ $updateInfo['commits_behind'] ?? 0 }} commits behind</dd>
                         </div>
                         @endif
                         @endif
-                        <div class="flex justify-between py-2 border-b border-gray-200">
-                            <dt class="font-medium text-gray-700">PHP Version</dt>
-                            <dd class="text-gray-900">{{ $settings['php_version'] }}</dd>
+                        <div class="flex justify-between py-2 border-b border-neutral-200">
+                            <dt class="font-medium text-neutral-700">PHP Version</dt>
+                            <dd class="text-neutral-900">{{ $settings['php_version'] }}</dd>
                         </div>
-                        <div class="flex justify-between py-2 border-b border-gray-200">
-                            <dt class="font-medium text-gray-700">Laravel Version</dt>
-                            <dd class="text-gray-900">{{ $settings['laravel_version'] }}</dd>
+                        <div class="flex justify-between py-2 border-b border-neutral-200">
+                            <dt class="font-medium text-neutral-700">Laravel Version</dt>
+                            <dd class="text-neutral-900">{{ $settings['laravel_version'] }}</dd>
                         </div>
-                        <div class="flex justify-between py-2 border-b border-gray-200">
-                            <dt class="font-medium text-gray-700">Database Connection</dt>
-                            <dd class="text-gray-900">{{ $settings['db_connection'] }}</dd>
+                        <div class="flex justify-between py-2 border-b border-neutral-200">
+                            <dt class="font-medium text-neutral-700">Database Connection</dt>
+                            <dd class="text-neutral-900">{{ $settings['db_connection'] }}</dd>
                         </div>
-                        <div class="flex justify-between py-2 border-b border-gray-200">
-                            <dt class="font-medium text-gray-700">Cache Driver</dt>
-                            <dd class="text-gray-900">{{ $settings['cache_driver'] }}</dd>
+                        <div class="flex justify-between py-2 border-b border-neutral-200">
+                            <dt class="font-medium text-neutral-700">Cache Driver</dt>
+                            <dd class="text-neutral-900">{{ $settings['cache_driver'] }}</dd>
                         </div>
-                        <div class="flex justify-between py-2 border-b border-gray-200">
-                            <dt class="font-medium text-gray-700">Queue Connection</dt>
-                            <dd class="text-gray-900">{{ $settings['queue_connection'] }}</dd>
+                        <div class="flex justify-between py-2 border-b border-neutral-200">
+                            <dt class="font-medium text-neutral-700">Queue Connection</dt>
+                            <dd class="text-neutral-900">{{ $settings['queue_connection'] }}</dd>
                         </div>
-                        <div class="flex justify-between py-2 border-b border-gray-200">
-                            <dt class="font-medium text-gray-700">Session Driver</dt>
-                            <dd class="text-gray-900">{{ $settings['session_driver'] }}</dd>
+                        <div class="flex justify-between py-2 border-b border-neutral-200">
+                            <dt class="font-medium text-neutral-700">Session Driver</dt>
+                            <dd class="text-neutral-900">{{ $settings['session_driver'] }}</dd>
                         </div>
                     </dl>
                 </div>
@@ -76,7 +76,7 @@
                     <div class="space-y-3">
                         @if($updateInfo && $updateInfo['has_update'])
                         <a href="{{ route('system.update') }}" 
-                           class="block w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-left flex justify-between items-center">
+                           class="block w-full px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-left flex justify-between items-center">
                             <div>
                                 <span class="font-medium">{{ __('Update Application') }}</span>
                                 <span class="block text-xs mt-1 opacity-90">{{ $updateInfo['commits_behind'] ?? 0 }} commits behind</span>
@@ -89,7 +89,7 @@
                         
                         <button @click="clearCache()" 
                                 :disabled="loading"
-                                class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-left flex justify-between items-center disabled:opacity-50">
+                                class="w-full px-4 py-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-lg text-left flex justify-between items-center disabled:opacity-50">
                             <span class="font-medium">{{ __('Clear Cache') }}</span>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -98,7 +98,7 @@
                         
                         <button @click="runMigrations()" 
                                 :disabled="loading"
-                                class="w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-left flex justify-between items-center disabled:opacity-50">
+                                class="w-full px-4 py-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-lg text-left flex justify-between items-center disabled:opacity-50">
                             <span class="font-medium">{{ __('Run Migrations') }}</span>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
@@ -106,7 +106,7 @@
                         </button>
                         
                         <a href="{{ route('system.logs') }}" 
-                           class="block w-full px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-left flex justify-between items-center">
+                           class="block w-full px-4 py-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-lg text-left flex justify-between items-center">
                             <span class="font-medium">{{ __('View Logs') }}</span>
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

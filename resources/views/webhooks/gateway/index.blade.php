@@ -328,7 +328,7 @@
 </div>
 
 <!-- Create Channel Modal -->
-<div id="createChannelModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="createChannelTitle">
+<div id="createChannelModal" class="hidden fixed inset-0 bg-neutral-900 bg-opacity-50 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="createChannelTitle">
     <div class="rounded-lg shadow-xl max-w-2xl w-full mx-4" style="background-color: var(--theme-background, white);">
         <form action="{{ route('webhooks.gateway.store') }}" method="POST" id="createChannelForm">
             @csrf
@@ -460,7 +460,7 @@
 </div>
 
 <!-- Renew Channel Modal -->
-<div id="renewModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="renewModalTitle">
+<div id="renewModal" class="hidden fixed inset-0 bg-neutral-900 bg-opacity-50 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="renewModalTitle">
     <div class="rounded-lg shadow-xl max-w-md w-full mx-4" style="background-color: var(--theme-background, white);">
         <form id="renewForm" method="POST">
             @csrf
@@ -525,7 +525,7 @@
 </div>
 
 <!-- Test Result Modal -->
-<div id="testResultModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="testResultTitle">
+<div id="testResultModal" class="hidden fixed inset-0 bg-neutral-900 bg-opacity-50 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="testResultTitle">
     <div class="rounded-lg shadow-xl max-w-lg w-full mx-4" style="background-color: var(--theme-background, white);">
         <div class="px-6 py-4 border-b" style="border-color: var(--theme-gray-200, #E5E7EB);">
             <h3 id="testResultTitle" class="text-lg font-semibold" style="color: var(--theme-gray-900, #111827);">

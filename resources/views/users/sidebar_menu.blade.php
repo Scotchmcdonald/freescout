@@ -1,13 +1,13 @@
 {{-- User management sidebar menu --}}
 <div class="mb-6">
-    <h3 class="text-lg font-semibold text-gray-900 px-4 mb-2">
+    <h3 class="text-lg font-semibold text-neutral-900 px-4 mb-2">
         {{ $user->getFullName() }}
     </h3>
     
     @if(isset($users) && $users->count() > 1)
         <div class="px-4 mb-4">
             <select onchange="if(this.value) window.location.href=this.value" 
-                    class="w-full rounded-lg border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500">
+                    class="w-full rounded-lg border-neutral-300 text-sm focus:border-primary-500 focus:ring-primary-500">
                 @foreach($users as $userItem)
                     <option value="{{ route('users.show', $userItem) }}" 
                             @if($userItem->id == $user->id) selected @endif>
@@ -21,9 +21,9 @@
 
 <nav class="space-y-1 px-2">
     <a href="{{ route('users.show', $user) }}" 
-       class="@if(Route::currentRouteName() == 'users.show') border-l-4 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-transparent border-l-4 @endif group flex items-center px-3 py-2 text-sm font-medium transition"
+       class="@if(Route::currentRouteName() == 'users.show') border-l-4 @else text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 border-transparent border-l-4 @endif group flex items-center px-3 py-2 text-sm font-medium transition"
        style="@if(Route::currentRouteName() == 'users.show') background-color: var(--theme-primary-50); color: var(--theme-primary-700); border-color: var(--theme-primary-700); @endif">
-        <svg class="@if(Route::currentRouteName() == 'users.show') @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5 flex-shrink-0" 
+        <svg class="@if(Route::currentRouteName() == 'users.show') @else text-neutral-400 group-hover:text-neutral-500 @endif mr-3 h-5 w-5 flex-shrink-0" 
              style="@if(Route::currentRouteName() == 'users.show') color: var(--theme-primary-500); @endif"
              fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -34,9 +34,9 @@
     
     @if(Auth::user()->isAdmin())
         <a href="{{ route('users.permissions', $user) }}" 
-           class="@if(Route::currentRouteName() == 'users.permissions') border-l-4 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-transparent border-l-4 @endif group flex items-center px-3 py-2 text-sm font-medium transition"
+           class="@if(Route::currentRouteName() == 'users.permissions') border-l-4 @else text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 border-transparent border-l-4 @endif group flex items-center px-3 py-2 text-sm font-medium transition"
            style="@if(Route::currentRouteName() == 'users.permissions') background-color: var(--theme-primary-50); color: var(--theme-primary-700); border-color: var(--theme-primary-700); @endif">
-            <svg class="@if(Route::currentRouteName() == 'users.permissions') @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5 flex-shrink-0" 
+            <svg class="@if(Route::currentRouteName() == 'users.permissions') @else text-neutral-400 group-hover:text-neutral-500 @endif mr-3 h-5 w-5 flex-shrink-0" 
                  style="@if(Route::currentRouteName() == 'users.permissions') color: var(--theme-primary-500); @endif"
                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -47,9 +47,9 @@
     @endif
     
     <a href="{{ route('users.notifications', $user) }}" 
-       class="@if(Route::currentRouteName() == 'users.notifications') border-l-4 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-transparent border-l-4 @endif group flex items-center px-3 py-2 text-sm font-medium transition"
+       class="@if(Route::currentRouteName() == 'users.notifications') border-l-4 @else text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 border-transparent border-l-4 @endif group flex items-center px-3 py-2 text-sm font-medium transition"
        style="@if(Route::currentRouteName() == 'users.notifications') background-color: var(--theme-primary-50); color: var(--theme-primary-700); border-color: var(--theme-primary-700); @endif">
-        <svg class="@if(Route::currentRouteName() == 'users.notifications') @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5 flex-shrink-0" 
+        <svg class="@if(Route::currentRouteName() == 'users.notifications') @else text-neutral-400 group-hover:text-neutral-500 @endif mr-3 h-5 w-5 flex-shrink-0" 
              style="@if(Route::currentRouteName() == 'users.notifications') color: var(--theme-primary-500); @endif"
              fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -59,9 +59,9 @@
     </a>
     
     <a href="{{ route('users.password', $user) }}" 
-       class="@if(Route::currentRouteName() == 'users.password') border-l-4 @else text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-transparent border-l-4 @endif group flex items-center px-3 py-2 text-sm font-medium transition"
+       class="@if(Route::currentRouteName() == 'users.password') border-l-4 @else text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 border-transparent border-l-4 @endif group flex items-center px-3 py-2 text-sm font-medium transition"
        style="@if(Route::currentRouteName() == 'users.password') background-color: var(--theme-primary-50); color: var(--theme-primary-700); border-color: var(--theme-primary-700); @endif">
-        <svg class="@if(Route::currentRouteName() == 'users.password') @else text-gray-400 group-hover:text-gray-500 @endif mr-3 h-5 w-5 flex-shrink-0" 
+        <svg class="@if(Route::currentRouteName() == 'users.password') @else text-neutral-400 group-hover:text-neutral-500 @endif mr-3 h-5 w-5 flex-shrink-0" 
              style="@if(Route::currentRouteName() == 'users.password') color: var(--theme-primary-500); @endif"
              fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 

@@ -4,7 +4,7 @@
 
 @php
 $classes = match($variant) {
-    'secondary' => 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500',
+    'secondary' => 'bg-white border border-neutral-300 text-neutral-700 hover:bg-neutral-50 focus:ring-neutral-500',
     'success' => 'bg-success-600 border border-transparent text-white hover:bg-success-700 focus:ring-success-500',
     'warning' => 'bg-warning-600 border border-transparent text-white hover:bg-warning-700 focus:ring-warning-500',
     'danger' => 'bg-danger-600 border border-transparent text-white hover:bg-danger-700 focus:ring-danger-500',

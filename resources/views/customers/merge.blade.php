@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
                 {{ $customer->getFullName() }} - {{ __('Merge Customer') }}
             </h2>
             <x-customer-profile-menu :customer="$customer" />
@@ -70,13 +70,13 @@
                             
                             {{-- Source customer (current) --}}
                             <div class="mb-6">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <label class="block text-sm font-medium text-neutral-700 mb-2">
                                     {{ __('Source Customer (will be deleted)') }}
                                 </label>
                                 <div class="p-4 border rounded-lg" style="background-color: var(--theme-bg-hover); border-color: var(--theme-border)">
-                                    <div class="font-medium text-gray-900">{{ $customer->getFullName() }}</div>
-                                    <div class="text-sm text-gray-600">{{ $customer->getMainEmail() }}</div>
-                                    <div class="text-sm text-gray-500 mt-1">
+                                    <div class="font-medium text-neutral-900">{{ $customer->getFullName() }}</div>
+                                    <div class="text-sm text-neutral-600">{{ $customer->getMainEmail() }}</div>
+                                    <div class="text-sm text-neutral-500 mt-1">
                                         {{ $customer->conversations()->count() }} {{ __('conversations') }}
                                     </div>
                                 </div>
@@ -84,17 +84,17 @@
                             
                             {{-- Target customer (search) --}}
                             <div class="mb-6">
-                                <label for="target_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                    {{ __('Merge With (target customer)') }} <span class="text-red-500">*</span>
+                                <label for="target_id" class="block text-sm font-medium text-neutral-700 mb-2">
+                                    {{ __('Merge With (target customer)') }} <span class="text-danger-500">*</span>
                                 </label>
                                 <select name="target_id" 
                                         id="target_id" 
-                                        class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                                        class="w-full rounded-lg border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                                         required>
                                     <option value="">{{ __('Search for a customer by name or email') }}...</option>
                                 </select>
                                 @error('target_id')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    <p class="mt-1 text-sm text-danger-600">{{ $message }}</p>
                                 @enderror
                             </div>
                             
@@ -106,14 +106,14 @@
                                 <div class="text-sm font-medium mb-2" style="color: var(--theme-status-info-text)">
                                     {{ __('Target Customer (data will be merged here)') }}
                                 </div>
-                                <div class="font-medium text-gray-900" x-text="selectedCustomer?.name"></div>
-                                <div class="text-sm text-gray-600" x-text="selectedCustomer?.email"></div>
+                                <div class="font-medium text-neutral-900" x-text="selectedCustomer?.name"></div>
+                                <div class="text-sm text-neutral-600" x-text="selectedCustomer?.email"></div>
                             </div>
                             
                             {{-- Action buttons --}}
                             <div class="flex items-center justify-end space-x-3">
                                 <a href="{{ route('customers.show', $customer) }}" 
-                                   class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                                   class="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition">
                                     {{ __('Cancel') }}
                                 </a>
                                 <button type="submit" 

@@ -23,9 +23,9 @@ $colors = [
     'paused' => 'bg-[var(--theme-status-warning-bg)] text-[var(--theme-status-warning-text)] border-[var(--theme-status-warning-bg)]',
     'throttled' => 'bg-[var(--theme-status-warning-bg)] text-[var(--theme-status-warning-text)] border-[var(--theme-status-warning-bg)]',
     'pending_renewal' => 'bg-[var(--theme-status-warning-bg)] text-[var(--theme-status-warning-text)] border-[var(--theme-status-warning-bg)]',
-    'delta_syncing' => 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
-    'delta' => 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
-    'initial' => 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
+    'delta_syncing' => 'bg-primary-100 text-primary-800 border-primary-200 dark:bg-primary-900 dark:text-primary-200 dark:border-primary-700',
+    'delta' => 'bg-primary-100 text-primary-800 border-primary-200 dark:bg-primary-900 dark:text-primary-200 dark:border-primary-700',
+    'initial' => 'bg-primary-100 text-primary-800 border-primary-200 dark:bg-primary-900 dark:text-primary-200 dark:border-primary-700',
     
     'danger' => 'bg-[var(--theme-status-error-bg)] text-[var(--theme-status-error-text)] border-[var(--theme-status-error-bg)]',
     'failed' => 'bg-[var(--theme-status-error-bg)] text-[var(--theme-status-error-text)] border-[var(--theme-status-error-bg)]',
@@ -35,10 +35,10 @@ $colors = [
     'rejected' => 'bg-[var(--theme-status-error-bg)] text-[var(--theme-status-error-text)] border-[var(--theme-status-error-bg)]',
     'overdue' => 'bg-[var(--theme-status-error-bg)] text-[var(--theme-status-error-text)] border-[var(--theme-status-error-bg)]',
     
-    'neutral' => 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
-    'draft' => 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
-    'expired' => 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
-    'cancelled' => 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
+    'neutral' => 'bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-neutral-700 dark:text-neutral-200 dark:border-neutral-600',
+    'draft' => 'bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-neutral-700 dark:text-neutral-200 dark:border-neutral-600',
+    'expired' => 'bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-neutral-700 dark:text-neutral-200 dark:border-neutral-600',
+    'cancelled' => 'bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-neutral-700 dark:text-neutral-200 dark:border-neutral-600',
 ];
 
 // Default to neutral if status not found, or try to match by key existence

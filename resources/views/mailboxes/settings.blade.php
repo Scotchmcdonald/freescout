@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
             Mailbox Settings: {{ $mailbox->name }}
         </h2>
     </x-slot>
@@ -9,15 +9,15 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <!-- Connection Settings -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-neutral-900">
                     <h3 class="text-lg font-semibold mb-4">Connection Settings</h3>
                     <div class="flex space-x-4">
                         <a href="{{ route('mailboxes.connection.incoming', $mailbox) }}"
-                           class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                           class="px-4 py-2 bg-neutral-600 text-white rounded hover:bg-neutral-700">
                             Incoming (IMAP)
                         </a>
                         <a href="{{ route('mailboxes.connection.outgoing', $mailbox) }}"
-                           class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                           class="px-4 py-2 bg-neutral-600 text-white rounded hover:bg-neutral-700">
                             Outgoing (SMTP)
                         </a>
                     </div>
@@ -26,16 +26,16 @@
 
             <!-- SMTP Settings -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-neutral-900">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold">Test Outgoing Mail (SMTP)</h3>
                         @if(!empty($mailbox->out_server))
                             <button @click="showSmtpTestForm = true"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                    class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
                                 Test Connection
                             </button>
                         @else
-                            <p class="text-sm text-gray-500">Configure outgoing mail to test.</p>
+                            <p class="text-sm text-neutral-500">Configure outgoing mail to test.</p>
                         @endif
                     </div>
 
@@ -55,7 +55,7 @@
                         </div>
                     </template>
                     <template x-if="smtpResultType === 'info'">
-                        <div class="mt-4 p-4 rounded bg-gray-100 text-gray-600" x-text="smtpResult"></div>
+                        <div class="mt-4 p-4 rounded bg-neutral-100 text-neutral-600" x-text="smtpResult"></div>
                     </template>
 
                     <!-- Test Email Form -->
@@ -64,15 +64,15 @@
                             <input type="email"
                                    x-model="testEmail"
                                    placeholder="Enter test email address"
-                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                   class="flex-1 px-3 py-2 border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
                             <button @click="sendTestEmail()"
                                     :disabled="loading"
-                                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50">
+                                    class="px-4 py-2 bg-success-600 text-white rounded hover:bg-success-700 disabled:opacity-50">
                                 <span x-show="!loading">Send Test Email</span>
                                 <span x-show="loading" class="inline-block animate-spin">⟳</span>
                             </button>
                             <button @click="cancelSmtpTest()"
-                                    class="px-4 py-2 bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-200 rounded hover:bg-gray-400 dark:hover:bg-gray-500">
+                                    class="px-4 py-2 bg-neutral-300 text-neutral-700 dark:bg-neutral-600 dark:text-neutral-200 rounded hover:bg-neutral-400 dark:hover:bg-neutral-500">
                                 Cancel
                             </button>
                         </div>
@@ -82,18 +82,18 @@
 
             <!-- IMAP Settings -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-neutral-900">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold">Test Incoming Mail (IMAP)</h3>
                         @if(!empty($mailbox->in_server))
                             <button @click="testImap()"
                                     :disabled="loading"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">
+                                    class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 disabled:opacity-50">
                                 <span x-show="!loading">Test Connection</span>
                                 <span x-show="loading" class="inline-block animate-spin">⟳</span>
                             </button>
                         @else
-                            <p class="text-sm text-gray-500">Configure incoming mail to test.</p>
+                            <p class="text-sm text-neutral-500">Configure incoming mail to test.</p>
                         @endif
                     </div>
 
@@ -113,26 +113,26 @@
                         </div>
                     </template>
                     <template x-if="imapResultType === 'info'">
-                        <div class="mt-4 p-4 rounded bg-gray-100 text-gray-600" x-text="imapResult"></div>
+                        <div class="mt-4 p-4 rounded bg-neutral-100 text-neutral-600" x-text="imapResult"></div>
                     </template>
                 </div>
             </div>
             
             <!-- Quick Actions -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-neutral-900">
                     <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
                     
                     <div class="flex space-x-4">
                         <button @click="fetchEmails()" 
                                 :disabled="loading"
-                                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50">
+                                class="px-4 py-2 bg-success-600 text-white rounded hover:bg-success-700 disabled:opacity-50">
                             <span x-show="!loading">Fetch Emails Now</span>
                             <span x-show="loading" class="inline-block animate-spin">⟳</span>
                         </button>
                         
                         <a href="{{ route('mailboxes.view', $mailbox) }}" 
-                           class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                           class="px-4 py-2 bg-neutral-600 text-white rounded hover:bg-neutral-700">
                             View Conversations
                         </a>
                     </div>
@@ -141,7 +141,7 @@
                     <div x-show="fetchResult" 
                          x-cloak
                          class="mt-4 p-4 rounded"
-                         :class="fetchResultType === 'success' ? 'bg-green-100 text-green-800' : (fetchResultType === 'error' ? 'bg-red-100 text-red-800' : 'text-gray-600')"
+                         :class="fetchResultType === 'success' ? 'bg-success-100 text-success-800' : (fetchResultType === 'error' ? 'bg-danger-100 text-danger-800' : 'text-neutral-600')"
                          x-text="fetchResult">
                     </div>
                 </div>

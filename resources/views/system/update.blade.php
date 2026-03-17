@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
             {{ __('System Update') }}
         </h2>
     </x-slot>
@@ -21,24 +21,24 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <h3 class="text-lg font-medium text-neutral-900 mb-4">
                         {{ __('Application Version') }}
                     </h3>
                     
                     <div class="space-y-4">
                         <div class="flex items-center justify-between py-3 border-b">
-                            <span class="text-gray-700">{{ __('Version') }}:</span>
-                            <span class="font-mono text-gray-900">{{ config('app.version', '1.0.0') }}</span>
+                            <span class="text-neutral-700">{{ __('Version') }}:</span>
+                            <span class="font-mono text-neutral-900">{{ config('app.version', '1.0.0') }}</span>
                         </div>
                         
                         @if(!empty($update_info))
                             <div class="flex items-center justify-between py-3 border-b">
-                                <span class="text-gray-700">{{ __('Current Commit') }}:</span>
+                                <span class="text-neutral-700">{{ __('Current Commit') }}:</span>
                                 <code class="px-2 py-1 rounded text-sm" style="background-color: var(--theme-bg-input)">{{ $update_info['current_commit'] }}</code>
                             </div>
                             <div class="flex items-center justify-between py-3 border-b">
-                                <span class="text-gray-700">{{ __('Branch') }}:</span>
-                                <span class="font-mono text-gray-900">{{ $update_info['branch'] }}</span>
+                                <span class="text-neutral-700">{{ __('Branch') }}:</span>
+                                <span class="font-mono text-neutral-900">{{ $update_info['branch'] }}</span>
                             </div>
                         @endif
                     </div>
@@ -97,17 +97,17 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <h3 class="text-lg font-medium text-neutral-900 mb-4">
                         {{ __('Post-Update Tasks') }}
                     </h3>
                     
-                    <p class="text-gray-600 mb-4">
+                    <p class="text-neutral-600 mb-4">
                         {{ __('After pulling updates, run migrations and clear caches to ensure everything works properly.') }}
                     </p>
 
                     <form action="{{ route('system.perform_update') }}" method="POST" x-data="{ loading: false }" x-on:submit="if(!confirm('{{ __('Run database migrations and clear caches?') }}')) { $event.preventDefault(); return; } loading = true;">
                         @csrf
-                        <button type="submit" :disabled="loading" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                        <button type="submit" :disabled="loading" class="inline-flex items-center px-4 py-2 bg-neutral-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-neutral-700 active:bg-neutral-900 focus:outline-none focus:border-neutral-900 focus:ring ring-neutral-300 disabled:opacity-25 transition ease-in-out duration-150">
                             <svg x-show="loading" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

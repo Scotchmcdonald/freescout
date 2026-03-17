@@ -28,7 +28,7 @@
     </head>
     <body class="font-sans antialiased" x-data="dynamicFavicon">
         @action('layout.body_start')
-        <div class="min-h-screen bg-gray-100" x-data="guidedTour" @start-tour.window="startTour($event.detail.tourId)" @dismiss-tour.window="dismissTour($event.detail.tourId)">
+        <div class="min-h-screen bg-neutral-100" x-data="guidedTour" @start-tour.window="startTour($event.detail.tourId)" @dismiss-tour.window="dismissTour($event.detail.tourId)">
             <x-layouts.navigation />
             
             <!-- Impersonation Banner -->
@@ -50,15 +50,15 @@
             <main>
                 @if(session('success'))
                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-                        <div class="bg-green-50 border-l-4 border-green-400 p-4">
+                        <div class="bg-success-50 border-l-4 border-success-400 p-4">
                             <div class="flex">
                                 <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="h-5 w-5 text-success-400" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                     </svg>
                                 </div>
                                 <div class="ml-3">
-                                    <p class="text-sm text-green-700">{{ session('success') }}</p>
+                                    <p class="text-sm text-success-700">{{ session('success') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -115,19 +115,19 @@
                  x-transition:leave="transition ease-in duration-150"
                  x-transition:leave-start="opacity-100 translate-y-0"
                  x-transition:leave-end="opacity-0 translate-y-2"
-                 class="w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 border border-gray-200 dark:border-gray-700"
+                 class="w-80 bg-white dark:bg-neutral-800 rounded-lg shadow-xl p-4 border border-neutral-200 dark:border-neutral-700"
                  style="display: none;">
-                <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">{{ __('Interactive Tour Available') }}</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <h3 class="font-bold text-lg mb-2 text-neutral-900 dark:text-neutral-100">{{ __('Interactive Tour Available') }}</h3>
+                <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
                     {{ __('Learn about the features on this page with a guided tour.') }}
                 </p>
 
                 <div class="mb-4">
-                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{{ __($suggestedTour['name']) }}</p>
+                    <p class="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">{{ __($suggestedTour['name']) }}</p>
                     
                     <div class="flex flex-col gap-2">
                         <button @click="$dispatch('start-tour', { tourId: '{{ $suggestedTour['id'] }}' }); showCard = false" 
-                                class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center justify-center">
+                                class="w-full px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors flex items-center justify-center">
                             <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -136,7 +136,7 @@
                         </button>
                         
                         <button @click="$dispatch('dismiss-tour', { tourId: '{{ $suggestedTour['id'] }}' }); showCard = false" 
-                                class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex items-center justify-center">
+                                class="w-full px-4 py-2 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-md hover:bg-neutral-300 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 transition-colors flex items-center justify-center">
                             <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
@@ -145,13 +145,13 @@
                     </div>
                 </div>
                 
-                <div class="flex justify-end items-center mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <button @click="showCard = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm">{{ __('Close') }}</button>
+                <div class="flex justify-end items-center mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-700">
+                    <button @click="showCard = false" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 text-sm">{{ __('Close') }}</button>
                 </div>
             </div>
             
-            <button @click="showCard = !showCard" class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200" title="{{ __('Need Help?') }}">
-                <svg class="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <button @click="showCard = !showCard" class="bg-white dark:bg-neutral-800 p-3 rounded-full shadow-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200" title="{{ __('Need Help?') }}">
+                <svg class="h-6 w-6 text-neutral-600 dark:text-neutral-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
                 </svg>
             </button>
@@ -190,31 +190,31 @@
         aria-modal="true">
             <!-- Backdrop -->
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div x-show="show" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="close()"></div>
+                <div x-show="show" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-neutral-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="close()"></div>
 
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                 <div x-show="show" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div class="sm:flex sm:items-start">
-                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                                <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-danger-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <svg class="h-6 w-6 text-danger-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
                             </div>
                             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title" x-text="title"></h3>
+                                <h3 class="text-lg leading-6 font-bold text-neutral-900" id="modal-title" x-text="title"></h3>
                                 <div class="mt-2">
-                                    <p class="text-sm text-gray-500" x-text="message"></p>
+                                    <p class="text-sm text-neutral-500" x-text="message"></p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="button" @click="confirm()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    <div class="bg-neutral-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="button" @click="confirm()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-danger-600 text-base font-medium text-white hover:bg-danger-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger-500 sm:ml-3 sm:w-auto sm:text-sm">
                             Confirm
                         </button>
-                        <button type="button" @click="close()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        <button type="button" @click="close()" class="mt-3 w-full inline-flex justify-center rounded-md border border-neutral-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-neutral-700 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                             Cancel
                         </button>
                     </div>
@@ -227,7 +227,7 @@
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             
-            const bgColor = type === 'success' ? 'bg-green-500' : (type === 'error' ? 'bg-red-500' : 'bg-blue-500');
+            const bgColor = type === 'success' ? 'bg-success-500' : (type === 'error' ? 'bg-danger-500' : 'bg-primary-500');
             const icon = type === 'success' 
                 ? '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'
                 : (type === 'error' 

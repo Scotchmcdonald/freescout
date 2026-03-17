@@ -10,7 +10,7 @@ Run all compliance checks:
 bash scripts/ci/check-architecture-compliance.sh
 ```
 
-**Exit Code 0** = All checks pass ✅  
+**Exit Code 0** = All checks pass ✅
 **Exit Code 1** = Violations detected ❌
 
 ## Individual Checks
@@ -91,7 +91,23 @@ app(CircuitBreaker::class)->call(
 );
 ```
 
-### 4. Event Inheritance (`check-event-inheritance.sh`)
+### 4. UI/UX Standards (`check-ui-ux-standards.sh`)
+
+**Enforces:** Theme-agnostic UI standards from `docs/development/UX_STYLE_GUIDE.md`
+
+**Rules:**
+- ❌ Hardcoded Tailwind palette classes (e.g., `text-blue-600`, `bg-red-50`)
+- ❌ Inline hardcoded color values in `style="..."` (hex/rgb/hsl)
+- ✅ Semantic theme classes/tokens (`text-primary-600`, CSS variables)
+
+**Modes:**
+- `bash scripts/ci/check-ui-ux-standards.sh` scans all UI files in `resources/`, `Modules/`, `themes/`
+- `bash scripts/ci/check-ui-ux-standards.sh --changed` scans only changed UI files (staged + unstaged)
+
+**Optional exception marker:**
+- Add `uiux-ignore` on a line to suppress a justified one-off exception.
+
+### 5. Event Inheritance (`check-event-inheritance.sh`)
 
 **Enforces:** Versioned event pattern
 
@@ -108,7 +124,7 @@ class InvoiceGenerated extends Event { } // ❌ FAIL
 ```php
 class InvoiceGenerated extends VersionedEvent {
     public const CURRENT_VERSION = 1;
-    
+
     public function __construct(
         public readonly InvoiceGeneratedData $data,
         ?string $eventId = null
@@ -118,7 +134,7 @@ class InvoiceGenerated extends VersionedEvent {
 }
 ```
 
-### 5. Listener Inheritance (`check-listener-inheritance.sh`)
+### 6. Listener Inheritance (`check-listener-inheritance.sh`)
 
 **Enforces:** Idempotent event processing
 
@@ -139,7 +155,7 @@ class ProcessPayment extends IdempotentListener {
     protected function getIdempotencyKey($event): string {
         return "payment:process:{$event->data->paymentId}";
     }
-    
+
     public function handleEvent($event): void {
         // Process payment - safe to replay
     }

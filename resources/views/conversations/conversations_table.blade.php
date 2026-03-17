@@ -5,14 +5,14 @@
 
 <div class="conversations-table overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+        <thead class="bg-neutral-50">
             <tr>
                 <th scope="col" class="w-12 px-3 py-3 text-left">
                     <input type="checkbox" 
-                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                           class="rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
                            onclick="toggleAllConversations(this)">
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('number')">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100" onclick="sortTable('number')">
                     <div class="flex items-center gap-1">
                         {{ __('#') }}
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,19 +20,19 @@
                         </svg>
                     </div>
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('status')">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100" onclick="sortTable('status')">
                     {{ __('Status') }}
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('subject')">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100" onclick="sortTable('subject')">
                     {{ __('Subject') }}
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('customer')">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100" onclick="sortTable('customer')">
                     {{ __('Customer') }}
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('assigned')">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100" onclick="sortTable('assigned')">
                     {{ __('Assigned') }}
                 </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('updated')">
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer hover:bg-neutral-100" onclick="sortTable('updated')">
                     {{ __('Last Activity') }}
                 </th>
                 <th scope="col" class="relative px-6 py-3">
@@ -42,15 +42,15 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             @forelse($conversations as $conversation)
-                <tr class="hover:bg-gray-50 transition">
+                <tr class="hover:bg-neutral-50 transition">
                     <td class="px-3 py-4 whitespace-nowrap">
                         <input type="checkbox" 
-                               class="conversation-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                               class="conversation-checkbox rounded border-neutral-300 text-primary-600 focus:ring-primary-500"
                                value="{{ $conversation->id }}">
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <a href="{{ route('conversations.show', $conversation) }}" 
-                           class="text-sm font-medium text-blue-600 hover:underline">
+                           class="text-sm font-medium text-primary-600 hover:underline">
                             #{{ $conversation->number }}
                         </a>
                     </td>
@@ -58,14 +58,14 @@
                         <x-conversation-badges :conversation="$conversation" />
                     </td>
                     <td class="px-6 py-4">
-                        <div class="text-sm text-gray-900">
+                        <div class="text-sm text-neutral-900">
                             <a href="{{ route('conversations.show', $conversation) }}" 
-                               class="hover:text-blue-600">
+                               class="hover:text-primary-600">
                                 {{ $conversation->subject }}
                             </a>
                         </div>
                         @if($conversation->preview)
-                            <div class="text-sm text-gray-500 truncate max-w-md">
+                            <div class="text-sm text-neutral-500 truncate max-w-md">
                                 {{ $conversation->preview }}
                             </div>
                         @endif
@@ -73,15 +73,15 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 h-8 w-8">
-                                <div class="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs font-semibold">
+                                <div class="h-8 w-8 rounded-full bg-neutral-400 flex items-center justify-center text-white text-xs font-semibold">
                                     {{ substr($conversation->customer->first_name, 0, 1) }}{{ substr($conversation->customer->last_name ?? '', 0, 1) }}
                                 </div>
                             </div>
                             <div class="ml-3">
-                                <div class="text-sm font-medium text-gray-900">
+                                <div class="text-sm font-medium text-neutral-900">
                                     {{ $conversation->customer->getFullName(true) }}
                                 </div>
-                                <div class="text-sm text-gray-500">
+                                <div class="text-sm text-neutral-500">
                                     {{ $conversation->customer_email }}
                                 </div>
                             </div>
@@ -91,28 +91,28 @@
                         @if($conversation->user)
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-6 w-6">
-                                    <div class="h-6 w-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-semibold">
+                                    <div class="h-6 w-6 rounded-full bg-primary-600 flex items-center justify-center text-white text-xs font-semibold">
                                         {{ substr($conversation->user->first_name, 0, 1) }}{{ substr($conversation->user->last_name, 0, 1) }}
                                     </div>
                                 </div>
-                                <div class="ml-2 text-sm text-gray-900">
+                                <div class="ml-2 text-sm text-neutral-900">
                                     {{ $conversation->user->getFullName() }}
                                 </div>
                             </div>
                         @else
-                            <span class="text-sm text-gray-500">{{ __('Unassigned') }}</span>
+                            <span class="text-sm text-neutral-500">{{ __('Unassigned') }}</span>
                         @endif
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
                         <div>{{ $conversation->updated_at->diffForHumans() }}</div>
-                        <div class="text-xs text-gray-400">
+                        <div class="text-xs text-neutral-400">
                             {{ $conversation->updated_at->format('M d, Y') }}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex items-center justify-end gap-2">
                             <a href="{{ route('conversations.show', $conversation) }}" 
-                               class="text-blue-600 hover:text-blue-900">
+                               class="text-primary-600 hover:text-primary-900">
                                 {{ __('View') }}
                             </a>
                         </div>
@@ -121,8 +121,8 @@
             @empty
                 <tr>
                     <td colspan="8" class="px-6 py-12 text-center">
-                        <div class="text-gray-500">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="text-neutral-500">
+                            <svg class="mx-auto h-12 w-12 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                             </svg>
                             <p class="mt-2">{{ __('No conversations found') }}</p>

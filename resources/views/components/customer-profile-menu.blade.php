@@ -5,7 +5,7 @@
 
 <div class="relative inline-block" x-data="{ open: false }">
     <button @click="open = !open" 
-            class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition"
+            class="text-neutral-500 hover:text-neutral-700 p-2 rounded-lg hover:bg-neutral-100 transition"
             type="button">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -18,9 +18,9 @@
     <div x-show="open" 
          @click.away="open = false"
          x-cloak
-         class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+         class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-1 z-50">
         <a href="{{ route('customers.edit', $customer) }}" 
-           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+           class="block px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100">
             {{ __('Edit Customer') }}
         </a>
         @can('delete', $customer)
@@ -30,7 +30,7 @@
                 @csrf
                 @method('DELETE')
                 <button type="submit" 
-                        class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                        class="w-full text-left px-4 py-2 text-sm text-danger-600 hover:bg-neutral-100">
                     {{ __('Delete Customer') }}
                 </button>
             </form>

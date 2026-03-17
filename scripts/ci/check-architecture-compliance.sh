@@ -12,6 +12,7 @@ bash "$SCRIPT_DIR/check-core-blindness.sh" || EXIT_CODE=1
 bash "$SCRIPT_DIR/check-cross-module-imports.sh" || EXIT_CODE=1
 bash "$SCRIPT_DIR/check-atomic-counters.sh" || EXIT_CODE=1
 bash "$SCRIPT_DIR/check-rate-limiter-usage.sh" || EXIT_CODE=1
+bash "$SCRIPT_DIR/check-ui-ux-standards.sh" || EXIT_CODE=1
 bash "$SCRIPT_DIR/check-event-inheritance.sh" || EXIT_CODE=1
 bash "$SCRIPT_DIR/check-listener-inheritance.sh" || EXIT_CODE=1
 

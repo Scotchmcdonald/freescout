@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
             {{ __('Edit Client') }} - {{ $customer->getFullName() }}
         </h2>
     </x-slot>
@@ -8,7 +8,7 @@
     <div class="py-12" x-data="customerForm({{ count(old('emails', $customer->emails ?? [['email' => '', 'type' => 'work']])) }})">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-neutral-900">
                     @if($errors->any())
                         <div class="mb-6 border-l-4 p-4" style="background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg)">
                             <ul class="list-disc list-inside text-sm" style="color: var(--theme-status-error-text)">
@@ -39,41 +39,41 @@
                                 <div class="space-y-6">
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label for="first_name" class="block text-sm font-medium text-neutral-700 mb-2">
                                                 {{ __('First Name') }} *
                                             </label>
                                             <input type="text" name="first_name" id="first_name" required
                                                    value="{{ old('first_name', $customer->first_name) }}"
-                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                   class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                         </div>
                                         
                                         <div>
-                                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label for="last_name" class="block text-sm font-medium text-neutral-700 mb-2">
                                                 {{ __('Last Name') }}
                                             </label>
                                             <input type="text" name="last_name" id="last_name"
                                                    value="{{ old('last_name', $customer->last_name) }}"
-                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                   class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                         </div>
                                     </div>
 
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label for="company" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label for="company" class="block text-sm font-medium text-neutral-700 mb-2">
                                                 {{ __('Company') }}
                                             </label>
                                             <input type="text" name="company" id="company"
                                                    value="{{ old('company', $customer->company) }}"
-                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                   class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                         </div>
                                         
                                         <div>
-                                            <label for="job_title" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label for="job_title" class="block text-sm font-medium text-neutral-700 mb-2">
                                                 {{ __('Job Title') }}
                                             </label>
                                             <input type="text" name="job_title" id="job_title"
                                                    value="{{ old('job_title', $customer->job_title) }}"
-                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                   class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                         </div>
                                     </div>
                                 </div>
@@ -82,7 +82,7 @@
                             <x-billing::tab-panel id="contact">
                                 <div class="space-y-6">
                                     <div id="emails-container">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label class="block text-sm font-medium text-neutral-700 mb-2">
                                             {{ __('Email Addresses') }}
                                         </label>
                                         @php
@@ -93,9 +93,9 @@
                                                 <input type="email" name="emails[{{ $index }}][email]"
                                                        value="{{ is_array($email) ? ($email['email'] ?? '') : $email }}"
                                                        placeholder="email@example.com"
-                                                       class="flex-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                       class="flex-1 border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                                 <select name="emails[{{ $index }}][type]"
-                                                        class="border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                        class="border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                                     <option value="work" {{ (is_array($email) && ($email['type'] ?? '') == 'work') ? 'selected' : '' }}>Work</option>
                                                     <option value="home" {{ (is_array($email) && ($email['type'] ?? '') == 'home') ? 'selected' : '' }}>Home</option>
                                                     <option value="other" {{ (is_array($email) && ($email['type'] ?? '') == 'other') ? 'selected' : '' }}>Other</option>
@@ -115,51 +115,51 @@
                                     </div>
 
                                     <div>
-                                        <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label for="address" class="block text-sm font-medium text-neutral-700 mb-2">
                                             {{ __('Address') }}
                                         </label>
                                         <input type="text" name="address" id="address"
                                                value="{{ old('address', $customer->address) }}"
-                                               class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                               class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                     </div>
                                     
                                     <div class="grid grid-cols-3 gap-4">
                                         <div>
-                                            <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label for="city" class="block text-sm font-medium text-neutral-700 mb-2">
                                                 {{ __('City') }}
                                             </label>
                                             <input type="text" name="city" id="city"
                                                    value="{{ old('city', $customer->city) }}"
-                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                   class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                         </div>
                                         
                                         <div>
-                                            <label for="state" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label for="state" class="block text-sm font-medium text-neutral-700 mb-2">
                                                 {{ __('State/Province') }}
                                             </label>
                                             <input type="text" name="state" id="state"
                                                    value="{{ old('state', $customer->state) }}"
-                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                   class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                         </div>
                                         
                                         <div>
-                                            <label for="zip" class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label for="zip" class="block text-sm font-medium text-neutral-700 mb-2">
                                                 {{ __('ZIP/Postal Code') }}
                                             </label>
                                             <input type="text" name="zip" id="zip"
                                                    value="{{ old('zip', $customer->zip) }}"
-                                                   class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                   class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                         </div>
                                     </div>
                                     
                                     <div>
-                                        <label for="country" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label for="country" class="block text-sm font-medium text-neutral-700 mb-2">
                                             {{ __('Country') }}
                                         </label>
                                         <input type="text" name="country" id="country" maxlength="2"
                                                value="{{ old('country', $customer->country) }}"
                                                placeholder="US"
-                                               class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                               class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                     </div>
                                 </div>
                             </x-billing::tab-panel>
@@ -167,7 +167,7 @@
                             <x-billing::tab-panel id="notes">
                                 <div class="space-y-6">
                                     <div>
-                                        <label for="default_hourly_rate" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label for="default_hourly_rate" class="block text-sm font-medium text-neutral-700 mb-2">
                                             {{ __('Default Hourly Rate') }}
                                         </label>
                                         <input type="number" 
@@ -178,16 +178,16 @@
                                                min="0"
                                                value="{{ old('default_hourly_rate', $customer->default_hourly_rate ?? '') }}"
                                                placeholder="150.00"
-                                               class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                        <p class="mt-1 text-sm text-gray-500">Set a custom hourly billing rate for this client</p>
+                                               class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                                        <p class="mt-1 text-sm text-neutral-500">Set a custom hourly billing rate for this client</p>
                                     </div>
                                     
                                     <div>
-                                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <label for="notes" class="block text-sm font-medium text-neutral-700 mb-2">
                                             {{ __('Notes') }}
                                         </label>
                                         <textarea name="notes" id="notes" rows="4"
-                                                  class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('notes', $customer->notes) }}</textarea>
+                                                  class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">{{ old('notes', $customer->notes) }}</textarea>
                                     </div>
                                 </div>
                             </x-billing::tab-panel>
@@ -196,7 +196,7 @@
                         
                         <div class="mt-6 flex justify-between">
                             <a href="{{ route('customers.show', $customer) }}" 
-                               class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                               class="px-4 py-2 border border-neutral-300 rounded-md text-neutral-700 hover:bg-neutral-50">
                                 {{ __('Cancel') }}
                             </a>
                             <button type="submit" 

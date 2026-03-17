@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
             {{ __('Modules') }}
         </h2>
     </x-slot>
@@ -44,18 +44,18 @@
             </style>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 bg-white border-b border-gray-200">
+                <div class="p-6 bg-white border-b border-neutral-200">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900">
+                            <h3 class="text-lg font-medium text-neutral-900">
                                 {{ __('Install Module from GitHub') }}
                             </h3>
-                            <p class="mt-1 text-sm text-gray-600">
+                            <p class="mt-1 text-sm text-neutral-600">
                                 {{ __('Install a module directly from a GitHub repository with advanced options.') }}
                             </p>
                         </div>
                         <div class="flex space-x-3">
-                            <a href="{{ route('modules.activity') }}" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center">
+                            <a href="{{ route('modules.activity') }}" class="px-6 py-3 bg-neutral-600 hover:bg-neutral-700 text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                 </svg>
@@ -72,17 +72,17 @@
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
+                <div class="p-6 bg-white border-b border-neutral-200">
                     <div class="mb-6 flex justify-between items-center">
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900">
+                            <h3 class="text-lg font-medium text-neutral-900">
                                 {{ __('Installed Modules') }}
                             </h3>
-                            <p class="mt-1 text-sm text-gray-600">
+                            <p class="mt-1 text-sm text-neutral-600">
                                 {{ __('Manage your installed modules. Enable or disable modules as needed.') }}
                             </p>
                         </div>
-                        <button type="button" id="check-updates-btn" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                        <button type="button" id="check-updates-btn" class="inline-flex items-center px-4 py-2 bg-neutral-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-neutral-700 active:bg-neutral-900 focus:outline-none focus:border-neutral-900 focus:ring ring-neutral-300 disabled:opacity-25 transition ease-in-out duration-150">
                             {{ __('Check for Updates') }}
                         </button>
                     </div>
@@ -90,13 +90,13 @@
                     @if(count($modules) > 0)
                         <div class="space-y-4">
                             @foreach($modules as $module)
-                                <div class="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors module-item"
+                                <div class="border border-neutral-200 rounded-lg p-4 hover:border-neutral-300 transition-colors module-item"
                                      data-alias="{{ $module['alias'] }}"
                                      x-data="{ processing: false, updating: false, updated: false }">
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1">
                                             <div class="flex items-center">
-                                                <h4 class="text-lg font-medium text-gray-900">
+                                                <h4 class="text-lg font-medium text-neutral-900">
                                                     {{ $module['name'] }}
                                                 </h4>
                                                 <x-status-badge :status="$module['enabled'] ? 'success' : 'neutral'" :text="$module['enabled'] ? __('Enabled') : __('Disabled')" class="ml-3" />
@@ -104,12 +104,12 @@
                                             </div>
                                             
                                             @if($module['description'])
-                                                <p class="mt-1 text-sm text-gray-600">
+                                                <p class="mt-1 text-sm text-neutral-600">
                                                     {{ $module['description'] }}
                                                 </p>
                                             @endif
 
-                                            <div class="mt-2 flex items-center space-x-4 text-xs text-gray-500">
+                                            <div class="mt-2 flex items-center space-x-4 text-xs text-neutral-500">
                                                 <span>{{ __('Alias') }}: <code class="px-1 py-0.5 rounded" style="background-color: var(--theme-bg-input)">{{ $module['alias'] }}</code></span>
                                                 <span>{{ __('Version') }}: {{ $module['version'] }}</span>
                                                 @if($module['commit'])
@@ -125,7 +125,7 @@
                                                         </span>
                                                     </span>
                                                 @endif
-                                                <span class="update-info hidden text-indigo-600 font-bold ml-2"></span>
+                                                <span class="update-info hidden text-primary-600 font-bold ml-2"></span>
                                                 <button class="update-btn hidden ml-2 inline-flex items-center px-2 py-1 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest focus:outline-none focus:ring disabled:opacity-25 transition ease-in-out duration-150"
                                                     @click="
                                                         updating = true;
@@ -135,8 +135,8 @@
                                                         
                                                         if (statusBadge) {
                                                             statusBadge.innerText = '{{ __('Updating...') }}';
-                                                            statusBadge.classList.remove('hidden', 'bg-yellow-100', 'text-yellow-800', 'bg-green-100', 'text-green-800');
-                                                            statusBadge.classList.add('bg-blue-100', 'text-blue-800');
+                                                            statusBadge.classList.remove('hidden', 'bg-warning-100', 'text-warning-800', 'bg-success-100', 'text-success-800');
+                                                            statusBadge.classList.add('bg-primary-100', 'text-primary-800');
                                                         }
                                                         
                                                         fetch('{{ route('modules.ajax') }}', {
@@ -185,8 +185,8 @@
                                                                 
                                                                 if (statusBadge) {
                                                                     statusBadge.innerText = '{{ __('Updated!') }}';
-                                                                    statusBadge.classList.remove('bg-blue-100', 'text-blue-800');
-                                                                    statusBadge.classList.add('bg-green-100', 'text-green-800');
+                                                                    statusBadge.classList.remove('bg-primary-100', 'text-primary-800');
+                                                                    statusBadge.classList.add('bg-success-100', 'text-success-800');
                                                                     
                                                                     // Fade out update info and button after 2 seconds
                                                                     setTimeout(() => {
@@ -211,8 +211,8 @@
                                                             } else {
                                                                 if (statusBadge) {
                                                                     statusBadge.innerText = '{{ __('Update Failed') }}';
-                                                                    statusBadge.classList.remove('bg-blue-100', 'text-blue-800');
-                                                                    statusBadge.classList.add('bg-red-100', 'text-red-800');
+                                                                    statusBadge.classList.remove('bg-primary-100', 'text-primary-800');
+                                                                    statusBadge.classList.add('bg-danger-100', 'text-danger-800');
                                                                     setTimeout(() => statusBadge.classList.add('hidden'), 3000);
                                                                 }
                                                                 showToast(data.message, 'error');
@@ -222,8 +222,8 @@
                                                         .catch(error => {
                                                             if (statusBadge) {
                                                                 statusBadge.innerText = '{{ __('Update Failed') }}';
-                                                                statusBadge.classList.remove('bg-blue-100', 'text-blue-800');
-                                                                statusBadge.classList.add('bg-red-100', 'text-red-800');
+                                                                statusBadge.classList.remove('bg-primary-100', 'text-primary-800');
+                                                                statusBadge.classList.add('bg-danger-100', 'text-danger-800');
                                                                 setTimeout(() => statusBadge.classList.add('hidden'), 3000);
                                                             }
                                                             showToast('{{ __('An error occurred') }}', 'error');
@@ -279,7 +279,7 @@
                                                         });
                                                     "
                                                     :disabled="processing"
-                                                    class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                                    class="px-4 py-2 bg-neutral-600 hover:bg-neutral-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                                     <span x-show="!processing">{{ __('Disable') }}</span>
                                                     <span x-show="processing">{{ __('Processing...') }}</span>
                                                 </button>
@@ -311,7 +311,7 @@
                                                         });
                                                     "
                                                     :disabled="processing"
-                                                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                                    class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                                     <span x-show="!processing">{{ __('Enable') }}</span>
                                                     <span x-show="processing">{{ __('Processing...') }}</span>
                                                 </button>
@@ -345,16 +345,16 @@
                                                                             const link = document.createElement('a');
                                                                             link.href = data.new_commit_url;
                                                                             link.target = '_blank';
-                                                                            link.className = 'text-blue-600 hover:text-blue-800 hover:underline';
+                                                                            link.className = 'text-primary-600 hover:text-primary-800 hover:underline';
                                                                             const code = document.createElement('code');
-                                                                            code.className = 'bg-gray-100 px-1 py-0.5 rounded font-mono';
+                                                                            code.className = 'bg-neutral-100 px-1 py-0.5 rounded font-mono';
                                                                             code.textContent = data.new_commit;
                                                                             link.appendChild(code);
                                                                             commitWrapper.innerHTML = '';
                                                                             commitWrapper.appendChild(link);
                                                                         } else if (commitWrapper) {
                                                                             const code = document.createElement('code');
-                                                                            code.className = 'bg-gray-100 px-1 py-0.5 rounded font-mono';
+                                                                            code.className = 'bg-neutral-100 px-1 py-0.5 rounded font-mono';
                                                                             code.textContent = data.new_commit;
                                                                             commitWrapper.innerHTML = '';
                                                                             commitWrapper.appendChild(code);
@@ -374,7 +374,7 @@
                                                         });
                                                     "
                                                     :disabled="resetting"
-                                                    class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                                    class="px-4 py-2 bg-warning-600 hover:bg-warning-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                                     <span x-show="!resetting">{{ __('Hard Refresh') }}</span>
                                                     <span x-show="resetting">{{ __('Refreshing...') }}</span>
                                                 </button>
@@ -409,7 +409,7 @@
                                                     });
                                                 "
                                                 :disabled="processing"
-                                                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                                class="px-4 py-2 bg-danger-600 hover:bg-danger-700 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                                 <span x-show="!processing">{{ __('Delete') }}</span>
                                                 <span x-show="processing">{{ __('Deleting...') }}</span>
                                             </button>
@@ -420,11 +420,11 @@
                         </div>
                     @else
                         <div class="text-center py-12">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="mx-auto h-12 w-12 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                             </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('No modules installed') }}</h3>
-                            <p class="mt-1 text-sm text-gray-500">
+                            <h3 class="mt-2 text-sm font-medium text-neutral-900">{{ __('No modules installed') }}</h3>
+                            <p class="mt-1 text-sm text-neutral-500">
                                 {{ __('Install modules by placing them in the Modules directory.') }}
                             </p>
                         </div>
@@ -433,13 +433,13 @@
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-6" x-data="{ open: false }">
-                <div class="p-6 bg-white border-b border-gray-200">
+                <div class="p-6 bg-white border-b border-neutral-200">
                     <div class="mb-6 flex justify-between items-center cursor-pointer" @click="open = !open">
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900">
+                            <h3 class="text-lg font-medium text-neutral-900">
                                 {{ __('Official Freescout Module Roster') }}
                             </h3>
-                            <p class="mt-1 text-sm text-gray-600">
+                            <p class="mt-1 text-sm text-neutral-600">
                                 {{ __('Browse and install modules from the repository.') }}
                             </p>
                         </div>
@@ -452,27 +452,27 @@
                         @if(isset($remoteModules) && count($remoteModules) > 0)
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             @foreach($remoteModules as $module)
-                                <div class="border border-gray-200 rounded-lg p-4 flex flex-col h-full hover:border-gray-300 transition-colors">
+                                <div class="border border-neutral-200 rounded-lg p-4 flex flex-col h-full hover:border-neutral-300 transition-colors">
                                     <div class="flex items-center mb-4">
                                         @if(!empty($module['icon']))
                                             <img src="{{ $module['icon'] }}" alt="{{ $module['name'] }}" class="w-10 h-10 mr-3">
                                         @else
-                                            <div class="w-10 h-10 mr-3 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
+                                            <div class="w-10 h-10 mr-3 bg-neutral-100 rounded-full flex items-center justify-center text-neutral-400">
                                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                                             </div>
                                         @endif
                                         <div>
-                                            <h4 class="text-lg font-medium text-gray-900">{{ $module['name'] }}</h4>
-                                            <span class="text-xs text-gray-500">{{ $module['version'] ?? '' }}</span>
+                                            <h4 class="text-lg font-medium text-neutral-900">{{ $module['name'] }}</h4>
+                                            <span class="text-xs text-neutral-500">{{ $module['version'] ?? '' }}</span>
                                         </div>
                                     </div>
                                     
-                                    <p class="text-sm text-gray-600 flex-grow mb-4">
+                                    <p class="text-sm text-neutral-600 flex-grow mb-4">
                                         {{ Str::limit($module['details'] ?? $module['description'] ?? '', 100) }}
                                     </p>
 
-                                    <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
-                                        <span class="text-sm font-medium text-gray-900">
+                                    <div class="mt-auto pt-4 border-t border-neutral-100 flex items-center justify-between">
+                                        <span class="text-sm font-medium text-neutral-900">
                                             {{ $module['price'] ?? 'Free' }}
                                         </span>
                                         
@@ -482,14 +482,14 @@
                                         @endphp
 
                                         @if($isInstalled)
-                                            <span class="px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                            <span class="px-3 py-1 bg-success-100 text-success-800 text-xs rounded-full">
                                                 {{ __('Installed') }}
                                             </span>
                                         @else
                                             <form action="{{ route('modules.install') }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" name="alias" value="{{ $module['alias'] ?? '' }}">
-                                                <button type="submit" class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors">
+                                                <button type="submit" class="px-3 py-1 bg-primary-600 text-white text-xs rounded hover:bg-primary-700 transition-colors">
                                                     {{ __('Install') }}
                                                 </button>
                                             </form>
@@ -499,7 +499,7 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="text-center py-12 text-gray-500">
+                        <div class="text-center py-12 text-neutral-500">
                             {{ __('No modules available at the moment.') }}
                         </div>
                     @endif
@@ -545,8 +545,8 @@
                     const badge = item.querySelector('.update-status-badge');
                     if (badge) {
                         badge.innerText = '{{ __('Checking...') }}';
-                        badge.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800', 'bg-blue-100', 'text-blue-800');
-                        badge.classList.add('bg-blue-100', 'text-blue-800');
+                        badge.classList.remove('hidden', 'bg-success-100', 'text-success-800', 'bg-warning-100', 'text-warning-800', 'bg-primary-100', 'text-primary-800');
+                        badge.classList.add('bg-primary-100', 'text-primary-800');
                         badge.classList.remove('hidden');
                     }
                 });
@@ -577,7 +577,7 @@
                                     
                                     if (badge) {
                                         // Clear existing classes
-                                        badge.classList.remove('bg-blue-100', 'text-blue-800', 'bg-green-100', 'text-green-800', 'bg-yellow-100', 'text-yellow-800');
+                                        badge.classList.remove('bg-primary-100', 'text-primary-800', 'bg-success-100', 'text-success-800', 'bg-warning-100', 'text-warning-800');
                                         
                                         if (updates[alias]) {
                                             // Has update
@@ -591,7 +591,7 @@
                                                 
                                                 // Add commit link if available
                                                 if (updates[alias].remote_commit_url && updates[alias].remote_commit) {
-                                                    msg += ' → <a href="' + updates[alias].remote_commit_url + '" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-mono">' + updates[alias].remote_commit + '</a>';
+                                                    msg += ' → <a href="' + updates[alias].remote_commit_url + '" target="_blank" class="text-primary-600 hover:text-primary-800 hover:underline font-mono">' + updates[alias].remote_commit + '</a>';
                                                 }
                                                 
                                                 infoSpan.innerHTML = msg;
@@ -604,13 +604,13 @@
                                             
                                             badge.innerText = '{{ __('Update Available') }}';
                                             badge.classList.remove('hidden');
-                                            badge.classList.add('bg-yellow-100', 'text-yellow-800');
+                                            badge.classList.add('bg-warning-100', 'text-warning-800');
                                             count++;
                                         } else {
                                             // Show "Up to Date" for all checks (both auto and manual)
                                             badge.innerText = '{{ __('Up to Date') }}';
                                             badge.classList.remove('hidden');
-                                            badge.classList.add('bg-green-100', 'text-green-800');
+                                            badge.classList.add('bg-success-100', 'text-success-800');
                                             
                                             // Auto-hide "Up to Date" after 3 seconds
                                             const timeout = setTimeout(() => {

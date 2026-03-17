@@ -40,9 +40,9 @@
                     <h3 class="text-sm font-medium" style="color: var(--theme-gray-500, #6B7280);">Status</h3>
                     <p class="mt-1">
                         @if($channel->is_active)
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">Active</span>
                         @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactive</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-100 text-danger-800">Inactive</span>
                         @endif
                     </p>
                 </div>
@@ -63,13 +63,13 @@
                         Duration (hours)
                     </label>
                     <input type="number" name="duration_hours" id="duration_hours" value="168" min="1" max="43200"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                           class="mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                            placeholder="e.g. 168 for 7 days">
                     <p class="mt-1 text-xs" style="color: var(--theme-gray-500, #6B7280);">
                         Maximum: 43200 hours (30 days)
                     </p>
                     @error('duration_hours')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-1 text-sm text-danger-600">{{ $message }}</p>
                     @enderror
                 </div>
                 <div class="flex justify-end">

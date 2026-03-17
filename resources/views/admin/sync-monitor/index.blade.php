@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
                 {{ __('Sync Operation Monitor') }}
             </h2>
             <div class="flex gap-2">
@@ -37,8 +37,8 @@
             <x-card class="mb-6">
                 <form method="GET" action="{{ route('admin.sync-monitor.index') }}" class="flex gap-4">
                     <div class="flex-1">
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select name="status" id="status" class="w-full border-gray-300 rounded-md shadow-sm">
+                        <label for="status" class="block text-sm font-medium text-neutral-700 mb-1">Status</label>
+                        <select name="status" id="status" class="w-full border-neutral-300 rounded-md shadow-sm">
                             <option value="">All Statuses</option>
                             <option value="running" {{ request('status') === 'running' ? 'selected' : '' }}>Running</option>
                             <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
@@ -49,8 +49,8 @@
                     </div>
 
                     <div class="flex-1">
-                        <label for="source" class="block text-sm font-medium text-gray-700 mb-1">Source</label>
-                        <select name="source" id="source" class="w-full border-gray-300 rounded-md shadow-sm">
+                        <label for="source" class="block text-sm font-medium text-neutral-700 mb-1">Source</label>
+                        <select name="source" id="source" class="w-full border-neutral-300 rounded-md shadow-sm">
                             <option value="">All Sources</option>
                             @foreach($sources as $source)
                                 <option value="{{ $source }}" {{ request('source') === $source ? 'selected' : '' }}>
@@ -61,8 +61,8 @@
                     </div>
 
                     <div class="flex-1">
-                        <label for="hours" class="block text-sm font-medium text-gray-700 mb-1">Time Range</label>
-                        <select name="hours" id="hours" class="w-full border-gray-300 rounded-md shadow-sm">
+                        <label for="hours" class="block text-sm font-medium text-neutral-700 mb-1">Time Range</label>
+                        <select name="hours" id="hours" class="w-full border-neutral-300 rounded-md shadow-sm">
                             <option value="1" {{ request('hours', 24) == 1 ? 'selected' : '' }}>Last Hour</option>
                             <option value="6" {{ request('hours', 24) == 6 ? 'selected' : '' }}>Last 6 Hours</option>
                             <option value="24" {{ request('hours', 24) == 24 ? 'selected' : '' }}>Last 24 Hours</option>
@@ -92,7 +92,7 @@
                     </x-slot>
 
                     @forelse($operations as $operation)
-                        <tr class="border-t hover:bg-gray-50">
+                        <tr class="border-t hover:bg-neutral-50">
                             <td class="px-4 py-3 text-sm">
                                 <a href="{{ route('admin.sync-monitor.show', $operation) }}" class="text-primary-600 hover:text-primary-800 font-mono">
                                     #{{ $operation->id }}
@@ -125,12 +125,12 @@
                                         <span>{{ $operation->processed_items }} / {{ $operation->total_items }}</span>
                                         <span class="font-medium">{{ $operation->progress_percentage }}%</span>
                                     </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="w-full bg-neutral-200 rounded-full h-2">
                                         <div class="bg-primary-600 h-2 rounded-full transition-all"
                                              style="width: {{ $operation->progress_percentage }}%"></div>
                                     </div>
                                     @if($operation->failed_items > 0)
-                                        <div class="text-xs text-red-600 mt-1">
+                                        <div class="text-xs text-danger-600 mt-1">
                                             {{ $operation->failed_items }} failures
                                         </div>
                                     @endif
@@ -140,17 +140,17 @@
                                 @if($operation->items_per_second > 0)
                                     {{ number_format($operation->items_per_second, 1) }}/s
                                     @if($operation->estimated_time_remaining)
-                                        <div class="text-xs text-gray-500">
+                                        <div class="text-xs text-neutral-500">
                                             ~{{ $operation->estimated_time_remaining }} remaining
                                         </div>
                                     @endif
                                 @else
-                                    <span class="text-gray-400">-</span>
+                                    <span class="text-neutral-400">-</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-600">
+                            <td class="px-4 py-3 text-sm text-neutral-600">
                                 {{ $operation->started_at->diffForHumans() }}
-                                <div class="text-xs text-gray-400">
+                                <div class="text-xs text-neutral-400">
                                     {{ $operation->started_at->format('H:i:s') }}
                                 </div>
                             </td>
@@ -192,7 +192,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="8" class="px-4 py-8 text-center text-neutral-500">
                                 No sync operations found in the selected time range.
                             </td>
                         </tr>

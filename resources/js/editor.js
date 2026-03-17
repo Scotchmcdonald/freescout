@@ -60,7 +60,7 @@ export class RichTextEditor {
                 Link.configure({
                     openOnClick: false,
                     HTMLAttributes: {
-                        class: 'text-blue-600 hover:underline'
+                        class: 'text-primary-600 hover:underline'
                     }
                 }),
                 Image.configure({
@@ -85,7 +85,7 @@ export class RichTextEditor {
 
     createToolbar() {
         const toolbar = document.createElement('div');
-        toolbar.className = 'editor-toolbar flex items-center gap-1 p-2 bg-gray-50 border border-gray-300 rounded-t';
+        toolbar.className = 'editor-toolbar flex items-center gap-1 p-2 bg-neutral-50 border border-neutral-300 rounded-t';
         
         const buttons = [
             { 
@@ -140,25 +140,25 @@ export class RichTextEditor {
                 icon: '✓', 
                 title: 'Save Draft', 
                 action: () => this.options.onSaveDraft?.(),
-                className: 'text-green-600'
+                className: 'text-success-600'
             },
             { 
                 icon: '🗑', 
                 title: 'Discard', 
                 action: () => this.options.onDiscard?.(),
-                className: 'text-red-600'
+                className: 'text-danger-600'
             }
         ];
         
         buttons.forEach(btn => {
             if (btn.type === 'separator') {
                 const sep = document.createElement('div');
-                sep.className = 'w-px h-6 bg-gray-300 mx-1';
+                sep.className = 'w-px h-6 bg-neutral-300 mx-1';
                 toolbar.appendChild(sep);
             } else {
                 const button = document.createElement('button');
                 button.type = 'button';
-                button.className = `editor-btn px-3 py-1 rounded hover:bg-gray-200 ${btn.className || ''}`;
+                button.className = `editor-btn px-3 py-1 rounded hover:bg-neutral-200 ${btn.className || ''}`;
                 button.innerHTML = btn.icon;
                 button.title = btn.title;
                 

@@ -6,12 +6,12 @@
 
 <div class="show-original-view p-6">
     <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">{{ __('Original Message') }}</h3>
+        <h3 class="text-lg font-semibold text-neutral-900">{{ __('Original Message') }}</h3>
         
         @if($thread)
             <button type="button"
                     onclick="downloadOriginal()"
-                    class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    class="inline-flex items-center px-3 py-2 border border-neutral-300 shadow-sm text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-neutral-50">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                 </svg>
@@ -23,8 +23,8 @@
     @if($thread)
         {{-- Email Headers --}}
         <div class="mb-6">
-            <h4 class="text-sm font-semibold text-gray-700 mb-2">{{ __('Email Headers') }}</h4>
-            <div class="bg-gray-50 rounded-lg p-4 font-mono text-xs text-gray-700 overflow-x-auto">
+            <h4 class="text-sm font-semibold text-neutral-700 mb-2">{{ __('Email Headers') }}</h4>
+            <div class="bg-neutral-50 rounded-lg p-4 font-mono text-xs text-neutral-700 overflow-x-auto">
                 @if($thread->headers && is_array($thread->headers))
                     @foreach($thread->headers as $header => $value)
                         <div class="mb-1">
@@ -32,14 +32,14 @@
                         </div>
                     @endforeach
                 @else
-                    <div class="text-gray-500">{{ __('No headers available') }}</div>
+                    <div class="text-neutral-500">{{ __('No headers available') }}</div>
                 @endif
             </div>
         </div>
 
         {{-- Message Source --}}
         <div>
-            <h4 class="text-sm font-semibold text-gray-700 mb-2">{{ __('Message Source') }}</h4>
+            <h4 class="text-sm font-semibold text-neutral-700 mb-2">{{ __('Message Source') }}</h4>
             <div class="rounded-lg p-4 overflow-x-auto" style="background-color: var(--theme-bg-input); color: var(--theme-text-main);">
                 <pre class="text-xs whitespace-pre-wrap break-words" style="color: var(--theme-text-muted);"><code>{{-- Raw email source would go here --}}
 From: {{ $thread->from ?? 'N/A' }}
@@ -65,11 +65,11 @@ Message-ID: {{ $thread->message_id ?? 'N/A' }}
         </div>
     @else
         <div class="text-center py-12">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="mx-auto h-12 w-12 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('Thread not found') }}</h3>
-            <p class="mt-1 text-sm text-gray-500">{{ __('Unable to load the original message.') }}</p>
+            <h3 class="mt-2 text-sm font-medium text-neutral-900">{{ __('Thread not found') }}</h3>
+            <p class="mt-1 text-sm text-neutral-500">{{ __('Unable to load the original message.') }}</p>
         </div>
     @endif
 </div>

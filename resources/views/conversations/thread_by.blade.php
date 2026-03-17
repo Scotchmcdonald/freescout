@@ -18,7 +18,7 @@
     <span class="thread-by inline-flex items-center gap-2">
         @if($show_avatar)
             <span class="flex-shrink-0">
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full {{ $is_customer ? 'bg-gray-400' : 'bg-blue-600' }} text-white text-xs font-semibold"
+                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full {{ $is_customer ? 'bg-neutral-400' : 'bg-primary-600' }} text-white text-xs font-semibold"
                       @if($show_tooltip) 
                           title="{{ $person->getFullName() }}" 
                       @endif>
@@ -35,7 +35,7 @@
         </span>
         
         @if($created_by && $created_by->id != $person->id)
-            <span class="text-xs text-gray-500"
+            <span class="text-xs text-neutral-500"
                   @if($show_tooltip) 
                       title="{{ __('Created by :name', ['name' => $created_by->getFullName()]) }}" 
                   @endif>
@@ -44,7 +44,7 @@
         @endif
     </span>
 @else
-    <span class="thread-by text-sm text-gray-500">
+    <span class="thread-by text-sm text-neutral-500">
         {{ __('Unknown') }}
     </span>
 @endif

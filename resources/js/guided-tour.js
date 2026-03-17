@@ -360,7 +360,7 @@ export function guidedTour(config = {}) {
                 if (step.checkpoint) {
                     const buttonsHtml = `
                         <div class="mt-4 flex flex-col gap-2 border-t pt-3">
-                            <p class="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                            <p class="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
                                 ${step.checkpoint.question || 'How would you like to proceed?'}
                             </p>
                             <div class="flex gap-2">
@@ -370,7 +370,7 @@ export function guidedTour(config = {}) {
                                         class="px-3 py-1.5 text-xs font-medium rounded transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary-500
                                         ${action.primary 
                                             ? 'bg-primary-600 text-white hover:bg-primary-700' 
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                                            : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-700 dark:text-neutral-300'
                                         }"
                                     >
                                         ${action.label}

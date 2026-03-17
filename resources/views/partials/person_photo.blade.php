@@ -48,7 +48,7 @@
     @if ($photoUrl)
         <img class="person-photo inline-block {{ $sizeClass }} rounded-full object-cover" src="{{ $photoUrl }}" alt="{{ $altText }}">
     @else
-        <span class="person-photo person-photo-auto inline-flex items-center justify-center {{ $sizeClass }} rounded-full bg-gray-500">
+        <span class="person-photo person-photo-auto inline-flex items-center justify-center {{ $sizeClass }} rounded-full bg-neutral-500">
             <span class="font-medium leading-none text-white">{{ $initials }}</span>
         </span>
     @endif

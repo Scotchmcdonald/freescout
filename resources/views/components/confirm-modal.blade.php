@@ -15,11 +15,11 @@
             @method($method)
         @endif
 
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <h2 class="text-lg font-medium text-neutral-900 dark:text-neutral-100">
             {{ $title }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
             {{ $content }}
         </p>
 

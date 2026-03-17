@@ -107,41 +107,41 @@
         color: var(--theme-nav-text) !important;
     }
     
-    .theme-nav .text-gray-500, .theme-nav .text-gray-400 {
+    .theme-nav .text-neutral-500, .theme-nav .text-neutral-400 {
         color: var(--theme-nav-text) !important;
         opacity: 0.8;
     }
 
     /* Status Colors Overrides - Apply globally based on theme variables */
-    .bg-green-100, .bg-green-50 { background-color: var(--theme-status-success-bg) !important; }
-    .text-green-800, .text-green-600, .text-green-700 { color: var(--theme-status-success-text) !important; }
+    .bg-success-100, .bg-success-50 { background-color: var(--theme-status-success-bg) !important; }
+    .text-success-800, .text-success-600, .text-success-700 { color: var(--theme-status-success-text) !important; }
 
-    .bg-yellow-100, .bg-yellow-50, .bg-orange-50 { background-color: var(--theme-status-warning-bg) !important; }
-    .text-yellow-800, .text-yellow-700, .text-yellow-600, .text-orange-600, .text-orange-700 { color: var(--theme-status-warning-text) !important; }
+    .bg-warning-100, .bg-warning-50, .bg-warning-50 { background-color: var(--theme-status-warning-bg) !important; }
+    .text-warning-800, .text-warning-700, .text-warning-600, .text-warning-600, .text-warning-700 { color: var(--theme-status-warning-text) !important; }
 
-    .bg-red-100, .bg-red-50 { background-color: var(--theme-status-error-bg) !important; }
-    .text-red-800, .text-red-700, .text-red-600 { color: var(--theme-status-error-text) !important; }
+    .bg-danger-100, .bg-danger-50 { background-color: var(--theme-status-error-bg) !important; }
+    .text-danger-800, .text-danger-700, .text-danger-600 { color: var(--theme-status-error-text) !important; }
 
     /* Backgrounds */
-    .bg-blue-50 { background-color: var(--theme-primary-50) !important; }
-    .bg-blue-100 { background-color: var(--theme-primary-100) !important; }
-    .bg-blue-500 { background-color: var(--theme-primary-500) !important; }
-    .bg-blue-600 { background-color: var(--theme-primary-600) !important; }
-    .bg-blue-700 { background-color: var(--theme-primary-700) !important; }
+    .bg-primary-50 { background-color: var(--theme-primary-50) !important; }
+    .bg-primary-100 { background-color: var(--theme-primary-100) !important; }
+    .bg-primary-500 { background-color: var(--theme-primary-500) !important; }
+    .bg-primary-600 { background-color: var(--theme-primary-600) !important; }
+    .bg-primary-700 { background-color: var(--theme-primary-700) !important; }
 
     /* Text Colors */
-    .text-blue-50 { color: var(--theme-primary-50) !important; }
-    .text-blue-100 { color: var(--theme-primary-100) !important; }
-    .text-blue-500 { color: var(--theme-primary-500) !important; }
-    .text-blue-600 { color: var(--theme-primary-600) !important; }
-    .text-blue-700 { color: var(--theme-primary-700) !important; }
-    .text-blue-800 { color: var(--theme-primary-700) !important; }
-    .text-blue-900 { color: var(--theme-primary-700) !important; }
+    .text-primary-50 { color: var(--theme-primary-50) !important; }
+    .text-primary-100 { color: var(--theme-primary-100) !important; }
+    .text-primary-500 { color: var(--theme-primary-500) !important; }
+    .text-primary-600 { color: var(--theme-primary-600) !important; }
+    .text-primary-700 { color: var(--theme-primary-700) !important; }
+    .text-primary-800 { color: var(--theme-primary-700) !important; }
+    .text-primary-900 { color: var(--theme-primary-700) !important; }
     
     /* Hover Overrides */
-    .hover\:bg-gray-50:hover { background-color: var(--theme-bg-hover) !important; }
-    .hover\:bg-gray-100:hover { background-color: var(--theme-bg-hover) !important; }
-    .focus\:bg-gray-100:focus { background-color: var(--theme-bg-hover) !important; }
+    .hover\:bg-neutral-50:hover { background-color: var(--theme-bg-hover) !important; }
+    .hover\:bg-neutral-100:hover { background-color: var(--theme-bg-hover) !important; }
+    .focus\:bg-neutral-100:focus { background-color: var(--theme-bg-hover) !important; }
 
     /* App.css Component Overrides (Fix for @apply not picking up overrides) */
     .sidebar-menu > li.active > a {
@@ -206,35 +206,35 @@
     }
 
     /* Text */
-    .text-blue-500 { color: var(--theme-primary-500) !important; }
-    .text-blue-600 { color: var(--theme-primary-600) !important; }
-    .text-blue-700, .text-blue-800 { color: var(--theme-primary-700) !important; }
+    .text-primary-500 { color: var(--theme-primary-500) !important; }
+    .text-primary-600 { color: var(--theme-primary-600) !important; }
+    .text-primary-700, .text-primary-800 { color: var(--theme-primary-700) !important; }
     
     /* Borders */
-    .border-blue-500 { border-color: var(--theme-primary-500) !important; }
-    .ring-blue-500 { --tw-ring-color: var(--theme-primary-500) !important; }
-    .focus\:border-blue-500:focus { border-color: var(--theme-primary-500) !important; }
-    .focus\:ring-blue-500:focus { --tw-ring-color: var(--theme-primary-500) !important; }
+    .border-primary-500 { border-color: var(--theme-primary-500) !important; }
+    .ring-primary-500 { --tw-ring-color: var(--theme-primary-500) !important; }
+    .focus\:border-primary-500:focus { border-color: var(--theme-primary-500) !important; }
+    .focus\:ring-primary-500:focus { --tw-ring-color: var(--theme-primary-500) !important; }
 
     /* Indigo Overrides (Navigation & Components) */
-    .border-indigo-400 { border-color: var(--theme-primary-600) !important; }
-    .text-indigo-400 { color: var(--theme-primary-500) !important; }
-    .text-indigo-500 { color: var(--theme-primary-500) !important; }
-    .text-indigo-600 { color: var(--theme-primary-600) !important; }
-    .text-indigo-700 { color: var(--theme-primary-700) !important; }
+    .border-primary-400 { border-color: var(--theme-primary-600) !important; }
+    .text-primary-400 { color: var(--theme-primary-500) !important; }
+    .text-primary-500 { color: var(--theme-primary-500) !important; }
+    .text-primary-600 { color: var(--theme-primary-600) !important; }
+    .text-primary-700 { color: var(--theme-primary-700) !important; }
     
-    .bg-indigo-50 { background-color: var(--theme-primary-50) !important; }
+    .bg-primary-50 { background-color: var(--theme-primary-50) !important; }
     
-    .focus\:border-indigo-500:focus { border-color: var(--theme-primary-500) !important; }
-    .focus\:border-indigo-700:focus { border-color: var(--theme-primary-700) !important; }
+    .focus\:border-primary-500:focus { border-color: var(--theme-primary-500) !important; }
+    .focus\:border-primary-700:focus { border-color: var(--theme-primary-700) !important; }
     
-    .focus\:text-indigo-800:focus { color: var(--theme-primary-700) !important; }
-    .focus\:bg-indigo-100:focus { background-color: var(--theme-primary-100) !important; }
+    .focus\:text-primary-800:focus { color: var(--theme-primary-700) !important; }
+    .focus\:bg-primary-100:focus { background-color: var(--theme-primary-100) !important; }
 
-    .focus\:ring-indigo-500:focus { --tw-ring-color: var(--theme-primary-500) !important; }
+    .focus\:ring-primary-500:focus { --tw-ring-color: var(--theme-primary-500) !important; }
     
-    .focus-within\:ring-indigo-500:focus-within { --tw-ring-color: var(--theme-primary-500) !important; }
-    .focus-within\:border-indigo-500:focus-within { border-color: var(--theme-primary-500) !important; }
+    .focus-within\:ring-primary-500:focus-within { --tw-ring-color: var(--theme-primary-500) !important; }
+    .focus-within\:border-primary-500:focus-within { border-color: var(--theme-primary-500) !important; }
 
     /* Primary Class Overrides (for tailwind.config.js 'primary' color) */
     .bg-primary-50 { background-color: var(--theme-primary-50) !important; }
@@ -257,16 +257,16 @@
     .ring-primary-500 { --tw-ring-color: var(--theme-primary-500) !important; }
 
     /* Additional Blue Overrides */
-    .text-blue-400 { color: var(--theme-primary-500) !important; }
-    .border-blue-200 { border-color: var(--theme-primary-100) !important; }
-    .hover\:text-blue-900:hover { color: var(--theme-primary-700) !important; }
+    .text-primary-400 { color: var(--theme-primary-500) !important; }
+    .border-primary-200 { border-color: var(--theme-primary-100) !important; }
+    .hover\:text-primary-900:hover { color: var(--theme-primary-700) !important; }
 
     /* Primary Button Override (Global) */
-    .bg-gray-800 { background-color: var(--theme-primary-600) !important; }
-    .bg-gray-800 .text-white { color: #ffffff !important; }
-    .hover\:bg-gray-700:hover { background-color: var(--theme-primary-500) !important; }
-    .focus\:bg-gray-700:focus { background-color: var(--theme-primary-500) !important; }
-    .active\:bg-gray-900:active { background-color: var(--theme-primary-700) !important; }
+    .bg-neutral-800 { background-color: var(--theme-primary-600) !important; }
+    .bg-neutral-800 .text-white { color: #ffffff !important; }
+    .hover\:bg-neutral-700:hover { background-color: var(--theme-primary-500) !important; }
+    .focus\:bg-neutral-700:focus { background-color: var(--theme-primary-500) !important; }
+    .active\:bg-neutral-900:active { background-color: var(--theme-primary-700) !important; }
 
     /* Global Overrides for Dark Mode / Theming */
     @if($isDarkMode || ($normalizedTheme === 'default' && $mode === 'dark') || $mode === 'dark')
@@ -276,18 +276,18 @@
         }
         
         .bg-white { background-color: var(--theme-bg-card) !important; }
-        .bg-gray-50 { background-color: var(--theme-bg-main) !important; }
-        .bg-gray-100 { background-color: var(--theme-bg-main) !important; }
-        .bg-gray-200 { background-color: var(--theme-bg-input) !important; }
+        .bg-neutral-50 { background-color: var(--theme-bg-main) !important; }
+        .bg-neutral-100 { background-color: var(--theme-bg-main) !important; }
+        .bg-neutral-200 { background-color: var(--theme-bg-input) !important; }
         
-        .text-gray-900 { color: var(--theme-text-main) !important; }
-        .text-gray-800 { color: var(--theme-text-main) !important; }
-        .text-gray-700 { color: var(--theme-text-main) !important; }
-        .text-gray-600 { color: var(--theme-text-muted) !important; }
-        .text-gray-500 { color: var(--theme-text-muted) !important; }
+        .text-neutral-900 { color: var(--theme-text-main) !important; }
+        .text-neutral-800 { color: var(--theme-text-main) !important; }
+        .text-neutral-700 { color: var(--theme-text-main) !important; }
+        .text-neutral-600 { color: var(--theme-text-muted) !important; }
+        .text-neutral-500 { color: var(--theme-text-muted) !important; }
         
-        .border-gray-200 { border-color: var(--theme-border) !important; }
-        .border-gray-300 { border-color: var(--theme-border) !important; }
+        .border-neutral-200 { border-color: var(--theme-border) !important; }
+        .border-neutral-300 { border-color: var(--theme-border) !important; }
         
         input, select, textarea {
             background-color: var(--theme-bg-input) !important;
@@ -302,7 +302,7 @@
         
         /* Fix for white text on primary buttons */
         .text-white { color: var(--theme-text-inverted) !important; }
-        .bg-blue-600 .text-white { color: #ffffff !important; } /* Keep buttons white text usually */
+        .bg-primary-600 .text-white { color: #ffffff !important; } /* Keep buttons white text usually */
         
         /* Specific Dark Mode Fixes */
         .shadow-sm, .shadow, .shadow-lg {
@@ -311,8 +311,8 @@
         }
         
         /* Invert icons if needed, or handle svg fills */
-        svg.text-gray-400 { color: var(--theme-text-muted) !important; }
-        svg.text-gray-500 { color: var(--theme-text-muted) !important; }
+        svg.text-neutral-400 { color: var(--theme-text-muted) !important; }
+        svg.text-neutral-500 { color: var(--theme-text-muted) !important; }
     @endif
 
     /* Semantic Progress Bar / Strong Backgrounds */

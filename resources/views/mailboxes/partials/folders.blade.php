@@ -4,8 +4,8 @@
     @if (method_exists(\App\Helpers\Helper::class, 'isChatModeAvailable') && \App\Helpers\Helper::isChatModeAvailable() && $mailbox->id >= 0)
         <li>
             <a href="{{ route('conversations.chats', ['mailbox_id' => $mailbox->id, 'chat_mode' => '1']) }}" 
-               class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-50 hover:text-gray-900">
-                <svg class="mr-3 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               class="flex items-center px-3 py-2 text-sm font-medium text-neutral-700 rounded-md hover:bg-neutral-50 hover:text-neutral-900">
+                <svg class="mr-3 h-5 w-5 text-neutral-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
                 <span class="flex-1">{{ __('Chats') }}</span>
@@ -46,9 +46,9 @@
         @if ($should_show)
             <li data-folder-id="{{ $folder_item->id }}" data-active-count="{{ $active_count }}">
                 <a href="{{ route('mailboxes.view', ['mailbox' => $mailbox->id, 'folder' => $folder_item->id]) }}" 
-                   class="flex items-center px-3 py-2 text-sm font-medium rounded-md {{ $folder_item->id == $folder->id ? '' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }} {{ !$active_count ? 'opacity-60' : '' }}"
+                   class="flex items-center px-3 py-2 text-sm font-medium rounded-md {{ $folder_item->id == $folder->id ? '' : 'text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900' }} {{ !$active_count ? 'opacity-60' : '' }}"
                    style="{{ $folder_item->id == $folder->id ? 'background-color: var(--theme-primary-50); color: var(--theme-primary-700);' : '' }}">
-                    <svg class="mr-3 h-5 w-5 {{ $folder_item->id == $folder->id ? '' : 'text-gray-400' }}" 
+                    <svg class="mr-3 h-5 w-5 {{ $folder_item->id == $folder->id ? '' : 'text-neutral-400' }}" 
                          style="{{ $folder_item->id == $folder->id ? 'color: var(--theme-primary-500);' : '' }}"
                          xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $folder_icon }}" />

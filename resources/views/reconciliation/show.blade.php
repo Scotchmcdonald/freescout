@@ -24,7 +24,7 @@
 }">
     <!-- Header with back link -->
     <div class="mb-8">
-        <a href="{{ route('reconciliation.index') }}" class="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4">
+        <a href="{{ route('reconciliation.index') }}" class="inline-flex items-center text-sm text-neutral-600 hover:text-neutral-900 mb-4">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
@@ -33,8 +33,8 @@
         
         <div class="flex items-start justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Reconciliation Run Details</h1>
-                <p class="mt-2 text-gray-600">
+                <h1 class="text-3xl font-bold text-neutral-900">Reconciliation Run Details</h1>
+                <p class="mt-2 text-neutral-600">
                     {{ ucfirst($run->run_type) }} reconciliation - 
                     Started {{ $run->started_at->format('M j, Y g:i A') }}
                 </p>
@@ -47,7 +47,7 @@
                 </span>
                 
                 @if($run->critical_issues > 0)
-                    <span class="px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800">
+                    <span class="px-3 py-1 text-sm font-medium rounded-full bg-danger-100 text-danger-800">
                         {{ $run->critical_issues }} Critical
                     </span>
                 @endif
@@ -58,33 +58,33 @@
     <!-- Run Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Items Checked Card -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div class="border-l-4 border-blue-500 p-6">
+        <div class="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+            <div class="border-l-4 border-primary-500 p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-600">Items Checked</span>
-                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span class="text-sm font-medium text-neutral-600">Items Checked</span>
+                    <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                     </svg>
                 </div>
-                <p class="text-3xl font-bold text-gray-900">{{ number_format($run->items_checked) }}</p>
-                <p class="text-sm text-gray-500 mt-1">{{ $run->scope ?? 'All entities' }}</p>
+                <p class="text-3xl font-bold text-neutral-900">{{ number_format($run->items_checked) }}</p>
+                <p class="text-sm text-neutral-500 mt-1">{{ $run->scope ?? 'All entities' }}</p>
             </div>
         </div>
 
         <!-- Success Rate Card -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div class="border-l-4 border-green-500 p-6">
+        <div class="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+            <div class="border-l-4 border-success-500 p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-600">Success Rate</span>
-                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span class="text-sm font-medium text-neutral-600">Success Rate</span>
+                    <svg class="w-5 h-5 text-success-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
-                <p class="text-3xl font-bold text-gray-900">{{ number_format($run->success_rate, 1) }}%</p>
-                <div class="mt-3 w-full bg-gray-200 rounded-full h-2">
+                <p class="text-3xl font-bold text-neutral-900">{{ number_format($run->success_rate, 1) }}%</p>
+                <div class="mt-3 w-full bg-neutral-200 rounded-full h-2">
                     @php
-                        $progressColor = $run->success_rate >= 95 ? 'bg-green-500' : 
-                                       ($run->success_rate >= 85 ? 'bg-yellow-500' : 'bg-red-500');
+                        $progressColor = $run->success_rate >= 95 ? 'bg-success-500' : 
+                                       ($run->success_rate >= 85 ? 'bg-warning-500' : 'bg-danger-500');
                     @endphp
                     <div class="{{ $progressColor }} h-2 rounded-full transition-all duration-300" 
                          style="width: {{ $run->success_rate }}%"></div>
@@ -93,35 +93,35 @@
         </div>
 
         <!-- Total Discrepancies Card -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div class="border-l-4 border-orange-500 p-6">
+        <div class="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+            <div class="border-l-4 border-warning-500 p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-600">Total Discrepancies</span>
-                    <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span class="text-sm font-medium text-neutral-600">Total Discrepancies</span>
+                    <svg class="w-5 h-5 text-warning-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
                 </div>
-                <p class="text-3xl font-bold text-gray-900">{{ $run->total_discrepancies }}</p>
-                <div class="mt-2 text-sm text-gray-600">
-                    <span class="text-green-600">{{ $run->auto_corrected }} auto-corrected</span>
+                <p class="text-3xl font-bold text-neutral-900">{{ $run->total_discrepancies }}</p>
+                <div class="mt-2 text-sm text-neutral-600">
+                    <span class="text-success-600">{{ $run->auto_corrected }} auto-corrected</span>
                     @if($run->manual_review_required > 0)
-                        <span class="text-yellow-600 ml-2">{{ $run->manual_review_required }} need review</span>
+                        <span class="text-warning-600 ml-2">{{ $run->manual_review_required }} need review</span>
                     @endif
                 </div>
             </div>
         </div>
 
         <!-- Duration Card -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div class="border-l-4 border-purple-500 p-6">
+        <div class="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+            <div class="border-l-4 border-primary-500 p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-600">Duration</span>
-                    <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span class="text-sm font-medium text-neutral-600">Duration</span>
+                    <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
-                <p class="text-3xl font-bold text-gray-900">{{ $run->duration }}</p>
-                <p class="text-sm text-gray-500 mt-1">
+                <p class="text-3xl font-bold text-neutral-900">{{ $run->duration }}</p>
+                <p class="text-sm text-neutral-500 mt-1">
                     @if($run->completed_at)
                         Completed {{ $run->completed_at->diffForHumans() }}
                     @else
@@ -134,16 +134,16 @@
 
     @if($run->summary)
         <!-- Run Summary -->
-        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8">
+        <div class="bg-primary-50 border-l-4 border-primary-500 p-4 mb-8">
             <div class="flex">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-5 w-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-blue-800">Run Summary</h3>
-                    <p class="mt-1 text-sm text-blue-700">{{ $run->summary }}</p>
+                    <h3 class="text-sm font-medium text-primary-800">Run Summary</h3>
+                    <p class="mt-1 text-sm text-primary-700">{{ $run->summary }}</p>
                 </div>
             </div>
         </div>
@@ -151,45 +151,45 @@
 
     @if($discrepanciesByType->isNotEmpty())
         <!-- Discrepancies by Entity Type -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900">Discrepancies by Entity Type</h2>
-                <p class="text-sm text-gray-600 mt-1">Issues grouped by the type of entity affected</p>
+        <div class="bg-white rounded-lg shadow-sm border border-neutral-200 mb-8">
+            <div class="px-6 py-4 border-b border-neutral-200">
+                <h2 class="text-lg font-semibold text-neutral-900">Discrepancies by Entity Type</h2>
+                <p class="text-sm text-neutral-600 mt-1">Issues grouped by the type of entity affected</p>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-neutral-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entity</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Field</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expected / Actual</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Severity</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Entity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Field</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Expected / Actual</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Severity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($discrepanciesByType as $type => $discrepancies)
-                            <tr class="bg-gray-50">
+                            <tr class="bg-neutral-50">
                                 <td colspan="6" class="px-6 py-3">
-                                    <span class="text-sm font-semibold text-gray-700">{{ ucfirst(str_replace('_', ' ', $type)) }}</span>
-                                    <span class="ml-2 text-xs text-gray-500">({{ $discrepancies->count() }} issues)</span>
+                                    <span class="text-sm font-semibold text-neutral-700">{{ ucfirst(str_replace('_', ' ', $type)) }}</span>
+                                    <span class="ml-2 text-xs text-neutral-500">({{ $discrepancies->count() }} issues)</span>
                                 </td>
                             </tr>
                             @foreach($discrepancies as $discrepancy)
-                                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <tr class="hover:bg-neutral-50 transition-colors duration-150">
                                     <td class="px-6 py-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ $discrepancy->entity_type }}</div>
-                                        <div class="text-sm text-gray-500">ID: {{ $discrepancy->entity_id }}</div>
+                                        <div class="text-sm font-medium text-neutral-900">{{ $discrepancy->entity_type }}</div>
+                                        <div class="text-sm text-neutral-500">ID: {{ $discrepancy->entity_id }}</div>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-900">
-                                        <code class="px-2 py-1 bg-gray-100 rounded text-xs">{{ $discrepancy->field_name }}</code>
+                                    <td class="px-6 py-4 text-sm text-neutral-900">
+                                        <code class="px-2 py-1 bg-neutral-100 rounded text-xs">{{ $discrepancy->field_name }}</code>
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="text-sm">
-                                            <div class="text-gray-500">Expected: <span class="font-medium text-gray-900">{{ $discrepancy->expected_value }}</span></div>
-                                            <div class="text-gray-500">Actual: <span class="font-medium text-red-600">{{ $discrepancy->actual_value }}</span></div>
+                                            <div class="text-neutral-500">Expected: <span class="font-medium text-neutral-900">{{ $discrepancy->expected_value }}</span></div>
+                                            <div class="text-neutral-500">Actual: <span class="font-medium text-danger-600">{{ $discrepancy->actual_value }}</span></div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4">
@@ -218,12 +218,12 @@
                                                     'expected_value' => $discrepancy->expected_value,
                                                     'actual_value' => $discrepancy->actual_value
                                                 ]) }})"
-                                                class="text-indigo-600 hover:text-indigo-900"
+                                                class="text-primary-600 hover:text-primary-900"
                                             >
                                                 Resolve
                                             </button>
                                         @else
-                                            <span class="text-gray-400">Resolved</span>
+                                            <span class="text-neutral-400">Resolved</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -235,12 +235,12 @@
         </div>
     @else
         <!-- Empty State -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-lg shadow-sm border border-neutral-200 p-12 text-center">
+            <svg class="mx-auto h-12 w-12 text-success-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">No Discrepancies Found</h3>
-            <p class="mt-2 text-sm text-gray-500">
+            <h3 class="mt-4 text-lg font-medium text-neutral-900">No Discrepancies Found</h3>
+            <p class="mt-2 text-sm text-neutral-500">
                 This reconciliation run completed successfully with no issues detected.
             </p>
         </div>
@@ -262,7 +262,7 @@
                  x-transition:leave="ease-in duration-200"
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0"
-                 class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                 class="fixed inset-0 bg-neutral-500 bg-opacity-75 transition-opacity"
                  @click="closeResolveModal()"></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
@@ -284,37 +284,37 @@
                     
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div class="sm:flex sm:items-start">
-                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
-                                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-primary-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <svg class="h-6 w-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                             </div>
                             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
-                                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                <h3 class="text-lg leading-6 font-medium text-neutral-900" id="modal-title">
                                     Resolve Discrepancy
                                 </h3>
                                 
                                 <!-- Discrepancy Details -->
-                                <div class="mt-4 bg-gray-50 rounded-lg p-3" x-show="selectedDiscrepancy">
+                                <div class="mt-4 bg-neutral-50 rounded-lg p-3" x-show="selectedDiscrepancy">
                                     <dl class="space-y-2">
                                         <div>
-                                            <dt class="text-xs font-medium text-gray-500">Entity</dt>
-                                            <dd class="text-sm text-gray-900" x-text="`${selectedDiscrepancy?.entity_type} #${selectedDiscrepancy?.entity_id}`"></dd>
+                                            <dt class="text-xs font-medium text-neutral-500">Entity</dt>
+                                            <dd class="text-sm text-neutral-900" x-text="`${selectedDiscrepancy?.entity_type} #${selectedDiscrepancy?.entity_id}`"></dd>
                                         </div>
                                         <div>
-                                            <dt class="text-xs font-medium text-gray-500">Field</dt>
-                                            <dd class="text-sm text-gray-900">
-                                                <code class="px-2 py-0.5 bg-white border border-gray-200 rounded text-xs" x-text="selectedDiscrepancy?.field_name"></code>
+                                            <dt class="text-xs font-medium text-neutral-500">Field</dt>
+                                            <dd class="text-sm text-neutral-900">
+                                                <code class="px-2 py-0.5 bg-white border border-neutral-200 rounded text-xs" x-text="selectedDiscrepancy?.field_name"></code>
                                             </dd>
                                         </div>
                                         <div class="grid grid-cols-2 gap-3">
                                             <div>
-                                                <dt class="text-xs font-medium text-gray-500">Expected</dt>
-                                                <dd class="text-sm font-medium text-gray-900" x-text="selectedDiscrepancy?.expected_value"></dd>
+                                                <dt class="text-xs font-medium text-neutral-500">Expected</dt>
+                                                <dd class="text-sm font-medium text-neutral-900" x-text="selectedDiscrepancy?.expected_value"></dd>
                                             </div>
                                             <div>
-                                                <dt class="text-xs font-medium text-gray-500">Actual</dt>
-                                                <dd class="text-sm font-medium text-red-600" x-text="selectedDiscrepancy?.actual_value"></dd>
+                                                <dt class="text-xs font-medium text-neutral-500">Actual</dt>
+                                                <dd class="text-sm font-medium text-danger-600" x-text="selectedDiscrepancy?.actual_value"></dd>
                                             </div>
                                         </div>
                                     </dl>
@@ -322,15 +322,15 @@
 
                                 <!-- Resolution Action -->
                                 <div class="mt-4">
-                                    <label for="resolution_action" class="block text-sm font-medium text-gray-700">
-                                        Resolution Action <span class="text-red-500">*</span>
+                                    <label for="resolution_action" class="block text-sm font-medium text-neutral-700">
+                                        Resolution Action <span class="text-danger-500">*</span>
                                     </label>
                                     <select 
                                         id="resolution_action" 
                                         name="resolution_action"
                                         x-model="resolutionAction"
                                         required
-                                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-neutral-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
                                     >
                                         <option value="">Select an action...</option>
                                         <option value="corrected_in_source">Corrected in Source System</option>
@@ -344,7 +344,7 @@
 
                                 <!-- Resolution Notes -->
                                 <div class="mt-4">
-                                    <label for="resolution_notes" class="block text-sm font-medium text-gray-700">
+                                    <label for="resolution_notes" class="block text-sm font-medium text-neutral-700">
                                         Resolution Notes
                                     </label>
                                     <textarea 
@@ -353,20 +353,20 @@
                                         x-model="resolutionNotes"
                                         rows="3"
                                         placeholder="Describe how this discrepancy was resolved..."
-                                        class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                                        class="mt-1 block w-full shadow-sm sm:text-sm border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                                     ></textarea>
-                                    <p class="mt-1 text-xs text-gray-500">Optional: Provide additional context for this resolution</p>
+                                    <p class="mt-1 text-xs text-neutral-500">Optional: Provide additional context for this resolution</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <div class="bg-neutral-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                         <button 
                             type="submit"
                             :disabled="isSubmitting || !resolutionAction"
                             :class="{ 'opacity-50 cursor-not-allowed': isSubmitting || !resolutionAction }"
-                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
                         >
                             <span x-show="!isSubmitting">Mark as Resolved</span>
                             <span x-show="isSubmitting" class="flex items-center">
@@ -381,7 +381,7 @@
                             type="button"
                             @click="closeResolveModal()"
                             :disabled="isSubmitting"
-                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-neutral-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-neutral-700 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                         >
                             Cancel
                         </button>

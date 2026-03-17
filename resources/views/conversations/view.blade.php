@@ -128,7 +128,7 @@
                         <div x-data="{ open: false }" class="relative">
                             <button type="button" 
                                     @click="open = !open"
-                                    class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50"
+                                    class="flex items-center gap-2 px-3 py-2 bg-white border border-neutral-300 rounded hover:bg-neutral-50"
                                     data-toggle="tooltip"
                                     title="{{ __('Assignee') }}: {{ $conversation->getAssigneeName(true) }}">
                                 <i class="glyphicon glyphicon-user"></i>
@@ -197,7 +197,7 @@
                                 @endif
                             </div>
                         @else
-                            <button type="button" class="flex items-center gap-2 px-3 py-2 bg-gray-200 rounded">
+                            <button type="button" class="flex items-center gap-2 px-3 py-2 bg-neutral-200 rounded">
                                 <i class="glyphicon glyphicon-trash"></i>
                                 <span>{{ __('Deleted') }}</span>
                             </button>
@@ -235,15 +235,15 @@
                             <input type="text" 
                                    x-ref="subjectInput"
                                    value="{{ $conversation->getSubject() }}" 
-                                   class="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" />
+                                   class="flex-1 px-3 py-2 border border-neutral-300 rounded focus:ring-2 focus:ring-primary-500" />
                             <button type="button" 
                                     @click="window.conversationManager.updateSubject($refs.subjectInput.value); editing = false"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                    class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700">
                                 <i class="glyphicon glyphicon-ok"></i>
                             </button>
                             <button type="button" 
                                     @click="editing = false"
-                                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                                    class="px-4 py-2 bg-neutral-300 text-neutral-700 rounded hover:bg-neutral-400">
                                 <i class="glyphicon glyphicon-remove"></i>
                             </button>
                         </div>
@@ -279,7 +279,7 @@
                                 title="@if ($conversation->isStarredByUser()){{ __('Unstar Conversation') }}@else{{ __('Star Conversation') }}@endif">
                             <i class="glyphicon @if ($conversation->isStarredByUser()) glyphicon-star @else glyphicon-star-empty @endif"></i>
                         </button>
-                        <span class="text-sm text-gray-600">#<strong>{{ $conversation->number }}</strong></span>
+                        <span class="text-sm text-neutral-600">#<strong>{{ $conversation->number }}</strong></span>
                     </div>
                 </div>
 
@@ -300,19 +300,19 @@
                         @if ($conversation->user_id != Auth::user()->id)
                             <button type="button" 
                                     @click="window.conversationManager.acceptChat()"
-                                    class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                    class="px-4 py-2 bg-success-600 text-white rounded hover:bg-success-700">
                                 {{ __('Accept Chat') }}
                             </button>
                         @elseif (!$conversation->isClosed())
                             <button type="button" 
                                     @click="window.conversationManager.endChat()"
-                                    class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                                    class="px-4 py-2 bg-neutral-600 text-white rounded hover:bg-neutral-700">
                                 {{ __('End Chat') }}
                             </button>
                         @endif
                         <button type="button" 
                                 @click="$refs.details.classList.toggle('hidden')"
-                                class="ml-2 text-blue-600 hover:underline">
+                                class="ml-2 text-primary-600 hover:underline">
                             {{ __('Show Details') }}
                         </button>
                     </div>
@@ -327,7 +327,7 @@
 
                 {{-- Reply Form --}}
                 <div class="conv-action-wrapper mt-4" x-show="$store.showReplyForm">
-                    <div class="conv-reply-block bg-white rounded-lg border border-gray-300 p-4">
+                    <div class="conv-reply-block bg-white rounded-lg border border-neutral-300 p-4">
                         <form class="form-reply" 
                               method="POST" 
                               action="{{ route('conversations.ajax_html', ['action' => 'send_reply']) }}"
@@ -343,8 +343,8 @@
                             {{-- From Alias --}}
                             @if (count($from_aliases))
                                 <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('From') }}</label>
-                                    <select name="from_alias" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                                    <label class="block text-sm font-medium text-neutral-700 mb-1">{{ __('From') }}</label>
+                                    <select name="from_alias" class="w-full px-3 py-2 border border-neutral-300 rounded focus:ring-2 focus:ring-primary-500">
                                         @foreach ($from_aliases as $from_alias_email => $from_alias_name)
                                             <option value="@if ($from_alias_email != $mailbox->email){{ $from_alias_email }}@endif" @if (!empty($from_alias) && $from_alias == $from_alias_email)selected@endif>
                                                 @if ($from_alias_name){{ $from_alias_email }} ({{ $from_alias_name }})@else{{ $from_alias_email }}@endif
@@ -357,8 +357,8 @@
                             {{-- To Field --}}
                             @if (!empty($to_customers))
                                 <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('To') }}</label>
-                                    <select name="to" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                                    <label class="block text-sm font-medium text-neutral-700 mb-1">{{ __('To') }}</label>
+                                    <select name="to" class="w-full px-3 py-2 border border-neutral-300 rounded focus:ring-2 focus:ring-primary-500">
                                         @foreach ($to_customers as $to_customer)
                                             <option value="{{ $to_customer['email'] }}" @if ($to_customer['email'] == $conversation->customer_email)selected@endif>
                                                 {{ $to_customer['customer']->getFullName(true) }} &lt;{{ $to_customer['email'] }}&gt;
@@ -372,13 +372,13 @@
                             <div class="mb-4" x-data="{ showCc: {{ $cc ? 'true' : 'false' }}, showBcc: {{ $bcc ? 'true' : 'false' }} }">
                                 <button type="button" 
                                         @click="showCc = !showCc"
-                                        class="text-sm text-blue-600 hover:underline">
+                                        class="text-sm text-primary-600 hover:underline">
                                     {{ __('Cc/Bcc') }}
                                 </button>
                                 
                                 <div x-show="showCc" class="mt-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Cc') }}</label>
-                                    <select name="cc[]" multiple class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                                    <label class="block text-sm font-medium text-neutral-700 mb-1">{{ __('Cc') }}</label>
+                                    <select name="cc[]" multiple class="w-full px-3 py-2 border border-neutral-300 rounded focus:ring-2 focus:ring-primary-500">
                                         @if ($cc)
                                             @foreach ($cc as $cc_email)
                                                 <option value="{{ $cc_email }}" selected>{{ $cc_email }}</option>
@@ -388,8 +388,8 @@
                                 </div>
 
                                 <div x-show="showBcc" class="mt-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Bcc') }}</label>
-                                    <select name="bcc[]" multiple class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                                    <label class="block text-sm font-medium text-neutral-700 mb-1">{{ __('Bcc') }}</label>
+                                    <select name="bcc[]" multiple class="w-full px-3 py-2 border border-neutral-300 rounded focus:ring-2 focus:ring-primary-500">
                                         @if ($bcc)
                                             @foreach ($bcc as $bcc_email)
                                                 <option value="{{ $bcc_email }}" selected>{{ $bcc_email }}</option>
@@ -401,10 +401,10 @@
 
                             {{-- Alert for switching to note --}}
                             @if (!empty($threads[0]) && $threads[0]->type == App\Thread::TYPE_NOTE && $threads[0]->created_by_user_id != Auth::user()->id && $threads[0]->created_by_user)
-                                <div class="alert alert-warning mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                                <div class="alert alert-warning mb-4 p-3 bg-warning-50 border border-warning-200 rounded">
                                     <i class="glyphicon glyphicon-exclamation-sign"></i>
                                     {!! __('This reply will go to the customer. :%switch_start%Switch to a note:%switch_end% if you are replying to :user_name.', [
-                                        '%switch_start%' => '<a href="#" class="text-blue-600 hover:underline switch-to-note">', 
+                                        '%switch_start%' => '<a href="#" class="text-primary-600 hover:underline switch-to-note">', 
                                         '%switch_end%' => '</a>', 
                                         'user_name' => htmlspecialchars($threads[0]->created_by_user->getFullName())
                                     ]) !!}
@@ -430,9 +430,9 @@
                                     <input type="checkbox" 
                                            id="enable_follow_up" 
                                            x-model="showFollowUp"
-                                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
+                                           class="rounded border-neutral-300 text-primary-600 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer"
                                            aria-describedby="follow-up-description">
-                                    <label for="enable_follow_up" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                                    <label for="enable_follow_up" class="text-sm font-medium text-neutral-700 cursor-pointer select-none">
                                         {{ __('Set follow-up reminder') }}
                                     </label>
                                 </div>
@@ -445,7 +445,7 @@
                                      x-transition:leave-end="opacity-0 transform -translate-y-2"
                                      class="mt-3 space-y-2">
                                     <div>
-                                        <label for="follow_up_date" class="block text-xs font-medium text-gray-700 mb-1">
+                                        <label for="follow_up_date" class="block text-xs font-medium text-neutral-700 mb-1">
                                             {{ __('Follow-up date') }}
                                         </label>
                                         <input type="date" 
@@ -455,10 +455,10 @@
                                                value="{{ date('Y-m-d', strtotime('+' . config('app.default_follow_up_days', 3) . ' days')) }}"
                                                x-ref="followUpDateInput"
                                                @focus="$el.showPicker && $el.showPicker()"
-                                               class="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                               class="w-full sm:w-64 px-3 py-2 border border-neutral-300 rounded-md shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
                                     </div>
-                                    <p id="follow-up-description" class="text-xs text-gray-500 flex items-start gap-1">
-                                        <svg class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <p id="follow-up-description" class="text-xs text-neutral-500 flex items-start gap-1">
+                                        <svg class="w-4 h-4 text-primary-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                         <span>{{ __('You will receive an email reminder on this date. If unchecked, automatic reminder will be set for :days days.', ['days' => config('app.default_follow_up_days', 3)]) }}</span>
@@ -469,22 +469,22 @@
                             {{-- Bottom Toolbar --}}
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" dusk="send-reply-button">
+                                    <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700" dusk="send-reply-button">
                                         {{ __('Send Reply') }}
                                     </button>
                                     <button type="button" 
                                             @click="window.conversationManager.createNote()"
-                                            class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                                            class="px-4 py-2 bg-neutral-600 text-white rounded hover:bg-neutral-700"
                                             dusk="add-note-button">
                                         {{ __('Add Note') }}
                                     </button>
                                     <button type="button" 
                                             @click="window.conversationManager.saveDraft()"
-                                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                                            class="px-4 py-2 bg-neutral-300 text-neutral-700 rounded hover:bg-neutral-400">
                                         {{ __('Save Draft') }}
                                     </button>
                                 </div>
-                                <div class="text-sm text-gray-500">
+                                <div class="text-sm text-neutral-500">
                                     <span x-show="$store.draftSaved">{{ __('Draft saved') }}</span>
                                 </div>
                             </div>

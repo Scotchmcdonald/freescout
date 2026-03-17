@@ -1,17 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
                 {{ __('Theme Editor') }}
             </h2>
-            <a href="{{ route('themes') }}" class="text-sm text-blue-600 hover:underline">{{ __('Back to Selection') }}</a>
+            <a href="{{ route('themes') }}" class="text-sm text-primary-600 hover:underline">{{ __('Back to Selection') }}</a>
         </div>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-neutral-900">
                     
                     @if(session('error'))
                         <div class="mb-6 border-l-4 p-4" style="background-color: var(--theme-status-error-bg); border-color: var(--theme-status-error-bg)">
@@ -32,24 +32,24 @@
                     <h3 class="text-lg font-medium mb-4">Available Themes</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-neutral-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($themes as $theme)
                                     <tr style="{{ isset($activeTheme) && $activeTheme === $theme->name ? 'background-color: var(--theme-primary-50)' : '' }}">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">
+                                            <div class="text-sm font-medium text-neutral-900">
                                                 {{ $theme->title }}
                                                 @if(isset($activeTheme) && $activeTheme === $theme->name)
                                                     <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full" style="background-color: var(--theme-primary-100); color: var(--theme-primary-700)">Active</span>
                                                 @endif
                                             </div>
-                                            <div class="text-sm text-gray-500">{{ $theme->name }}</div>
+                                            <div class="text-sm text-neutral-500">{{ $theme->name }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($theme->is_system)

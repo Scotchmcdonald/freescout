@@ -7,14 +7,14 @@
 ])
 
 <div class="w-full md:w-64 bg-white shadow-sm rounded-lg mr-6 mb-6 md:mb-0">
-    <div class="p-4 border-b border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900">{{ __('Settings') }}</h3>
+    <div class="p-4 border-b border-neutral-200">
+        <h3 class="text-lg font-medium text-neutral-900">{{ __('Settings') }}</h3>
     </div>
     <nav class="flex flex-col p-2">
         @foreach($sections as $key => $section)
             @if(isset($section['route']))
             <a href="{{ route($section['route']) }}" 
-               class="flex items-center px-4 py-2 text-sm font-medium rounded-md mb-1 {{ $currentSection === $key ? '' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}"
+               class="flex items-center px-4 py-2 text-sm font-medium rounded-md mb-1 {{ $currentSection === $key ? '' : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900' }}"
                style="{{ $currentSection === $key ? 'background-color: var(--theme-primary-50); color: var(--theme-primary-700);' : '' }}">
                 @if(isset($section['icon']))
                     <span class="mr-3">

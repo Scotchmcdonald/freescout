@@ -21,13 +21,13 @@
     <div class="prev-conversations-short">
         <div class="space-y-2">
             @foreach($prev_conversations as $prev_conv)
-                <div class="border-l-2 border-gray-300 pl-3 py-1 hover:border-blue-500 transition">
+                <div class="border-l-2 border-neutral-300 pl-3 py-1 hover:border-primary-500 transition">
                     <a href="{{ route('conversations.show', $prev_conv) }}" 
                        class="block group">
-                        <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 truncate">
+                        <div class="text-sm font-medium text-neutral-900 group-hover:text-primary-600 truncate">
                             #{{ $prev_conv->number }} - {{ $prev_conv->subject }}
                         </div>
-                        <div class="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                        <div class="flex items-center gap-2 text-xs text-neutral-500 mt-1">
                             @include('conversations.partials.badges', ['conversation' => $prev_conv])
                             <span>•</span>
                             <span>{{ $prev_conv->created_at->format('M d, Y') }}</span>
@@ -38,16 +38,16 @@
         </div>
         
         @if(isset($customer) && method_exists($customer, 'url'))
-            <div class="mt-3 pt-3 border-t border-gray-200">
+            <div class="mt-3 pt-3 border-t border-neutral-200">
                 <a href="{{ $customer->url() }}" 
-                   class="text-sm text-blue-600 hover:underline">
+                   class="text-sm text-primary-600 hover:underline">
                     {{ __('View all conversations') }} →
                 </a>
             </div>
         @endif
     </div>
 @else
-    <div class="text-sm text-gray-500">
+    <div class="text-sm text-neutral-500">
         {{ __('No other conversations') }}
     </div>
 @endif

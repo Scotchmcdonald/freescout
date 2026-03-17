@@ -1,7 +1,7 @@
 {{-- Thread Attachments Partial - Displays attachments for a thread --}}
 @if(isset($attachments) && $attachments->count() > 0)
-    <div class="mt-4 pt-4 border-t border-gray-200">
-        <div class="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+    <div class="mt-4 pt-4 border-t border-neutral-200">
+        <div class="text-sm font-medium text-neutral-700 mb-2 flex items-center gap-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
             </svg>
@@ -16,10 +16,10 @@
                     $file_size_kb = round($attachment->size / 1024, 2);
                 @endphp
                 
-                <div class="flex items-center gap-2 p-2 bg-gray-50 rounded hover:bg-gray-100 transition">
+                <div class="flex items-center gap-2 p-2 bg-neutral-50 rounded hover:bg-neutral-100 transition">
                     {{-- File Icon or Image Thumbnail --}}
                     @if($is_image && !empty($attachment->url))
-                        <div class="flex-shrink-0 w-12 h-12 overflow-hidden rounded border border-gray-200">
+                        <div class="flex-shrink-0 w-12 h-12 overflow-hidden rounded border border-neutral-200">
                             <img src="{{ $attachment->url }}" 
                                  alt="{{ $attachment->file_name }}" 
                                  class="w-full h-full object-cover"
@@ -35,10 +35,10 @@
                     
                     {{-- File Info --}}
                     <div class="flex-1 min-w-0">
-                        <div class="text-sm font-medium text-gray-900 truncate">
+                        <div class="text-sm font-medium text-neutral-900 truncate">
                             {{ $attachment->file_name }}
                         </div>
-                        <div class="text-xs text-gray-500">
+                        <div class="text-xs text-neutral-500">
                             {{ $file_size_kb }} KB
                             @if($file_extension)
                                 <span class="mx-1">•</span>

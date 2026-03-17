@@ -7,7 +7,7 @@
      x-show="open"
      style="display: none;">
     
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+    <div class="fixed inset-0 bg-neutral-500 bg-opacity-75 transition-opacity" 
          x-show="open"
          x-transition:enter="ease-in-out duration-500"
          x-transition:enter-start="opacity-0"
@@ -34,7 +34,7 @@
                             <div class="flex items-start justify-between">
                                 <h2 class="text-lg font-medium" style="color: var(--theme-text-main)" id="slide-over-title">System Activity</h2>
                                 <div class="ml-3 flex h-7 items-center">
-                                    <button type="button" class="rounded-md hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" 
+                                    <button type="button" class="rounded-md hover:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2" 
                                             style="background-color: var(--theme-bg-card); color: var(--theme-text-muted)"
                                             @click="open = false">
                                         <span class="sr-only">Close panel</span>

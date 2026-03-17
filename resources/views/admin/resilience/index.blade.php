@@ -5,7 +5,7 @@
                 {{ __('Resilience Dashboard') }}
             </h2>
             <a href="{{ route('admin.resilience.events-audit') }}"
-                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                class="inline-flex items-center px-4 py-2 bg-neutral-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-neutral-700 focus:bg-neutral-700 active:bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 {{ __('View Audit Log') }}
             </a>
         </div>
@@ -55,10 +55,10 @@
                                 </h3>
                                 @php
                                     $badgeColor = match ($service['state']) {
-                                        'closed' => 'bg-green-100 text-green-800',
-                                        'half_open' => 'bg-yellow-100 text-yellow-800',
-                                        'open' => 'bg-red-100 text-red-800',
-                                        default => 'bg-gray-100 text-gray-800',
+                                        'closed' => 'bg-success-100 text-success-800',
+                                        'half_open' => 'bg-warning-100 text-warning-800',
+                                        'open' => 'bg-danger-100 text-danger-800',
+                                        default => 'bg-neutral-100 text-neutral-800',
                                     };
                                     $badgeIcon = match ($service['state']) {
                                         'closed' => '🟢',
@@ -77,7 +77,7 @@
                             <dl class="space-y-2 text-sm" style="color: var(--theme-text-secondary)">
                                 <div class="flex justify-between">
                                     <dt>Failures detected:</dt>
-                                    <dd class="font-medium text-red-600">{{ $service['failure_count'] }}</dd>
+                                    <dd class="font-medium text-danger-600">{{ $service['failure_count'] }}</dd>
                                 </div>
                                 <div class="flex justify-between">
                                     <dt>Last changed:</dt>
@@ -97,7 +97,7 @@
                                         action="{{ route('admin.resilience.reset-circuit', $service['key']) }}">
                                         @csrf
                                         <button type="submit"
-                                            class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                            class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
                                             Reset Circuit
                                         </button>
                                     </form>
@@ -148,17 +148,17 @@
                                         @endif
                                     </span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="w-full bg-neutral-200 rounded-full h-3">
                                     @php
                                         $rateBarPercent = is_numeric($service['used_percent'])
                                             ? min(100, (float) $service['used_percent'])
                                             : min(100, (float) (($service['key_count'] ?? 0) * 10));
                                     @endphp
                                     <div class="h-3 rounded-full transition-all duration-300 {{ $service['color'] === 'danger'
-                                        ? 'bg-red-600'
+                                        ? 'bg-danger-600'
                                         : ($service['color'] === 'warning'
-                                            ? 'bg-yellow-500'
-                                            : 'bg-green-600') }}"
+                                            ? 'bg-warning-500'
+                                            : 'bg-success-600') }}"
                                         style="width: {{ $rateBarPercent }}%">
                                     </div>
                                 </div>
@@ -222,9 +222,9 @@
                         @php
                             $state = $api['circuit']['state'] ?? 'closed';
                             $stateBadge = match ($state) {
-                                'open' => 'bg-red-100 text-red-800',
-                                'half_open' => 'bg-yellow-100 text-yellow-800',
-                                default => 'bg-green-100 text-green-800',
+                                'open' => 'bg-danger-100 text-danger-800',
+                                'half_open' => 'bg-warning-100 text-warning-800',
+                                default => 'bg-success-100 text-success-800',
                             };
                             $stateLabel = ucfirst(str_replace('_', ' ', $state));
                         @endphp
@@ -286,7 +286,7 @@
                                 style="border-color: var(--theme-border)">
                                 <button @click="run()" :disabled="running"
                                     class="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-md disabled:opacity-60 disabled:cursor-not-allowed transition"
-                                    style="background-color: var(--theme-primary); color: #fff;">
+                                    style="background-color: var(--theme-primary); color: white;">
                                     <span x-show="running"
                                         class="relative flex h-3.5 w-3.5 items-center justify-center animate-pulse">
                                         <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none"
@@ -298,8 +298,17 @@
                                             </path>
                                         </svg>
                                     </span>
-                                    <span x-text="running ? 'Testing…' : 'Run Connectivity Test'"></span>
+                                    <span x-text="running ? 'Testing…' : '{{ $api['primary_probe_label'] }}'"></span>
                                 </button>
+
+                                @if ($api['secondary_probe_label'] && $api['secondary_probe_mode'])
+                                    <button @click="run({ mode: '{{ $api['secondary_probe_mode'] }}' })"
+                                        :disabled="running"
+                                        class="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-md border disabled:opacity-60 disabled:cursor-not-allowed transition"
+                                        style="border-color: var(--theme-border); color: var(--theme-text-main); background-color: var(--theme-bg-card);">
+                                        <span x-text="'{{ $api['secondary_probe_label'] }}'"></span>
+                                    </button>
+                                @endif
 
                                 @if ($api['supports_deep_test'])
                                     <span class="text-xs px-2 py-1 rounded-md"
@@ -310,18 +319,42 @@
                             </div>
 
                             <div x-show="result !== null" class="mt-3 text-xs rounded-md px-3 py-2"
-                                :class="result?.ok ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-700'">
+                                :class="result?.ok ? 'bg-success-50 text-success-800' : 'bg-danger-50 text-danger-700'">
                                 <div class="font-semibold" x-text="result?.ok ? 'Healthy' : 'Issue detected'"></div>
                                 <div class="mt-0.5" x-text="result?.message"></div>
                                 <div class="mt-0.5 text-[11px] opacity-70" x-show="result?.latency_ms"
                                     x-text="'Latency: ' + result?.latency_ms + 'ms'"></div>
 
+                                <template
+                                    x-if="Array.isArray(result?.details?.checks) && result.details.checks.length">
+                                    <div class="mt-3 space-y-2 border-t pt-3"
+                                        style="border-color: rgba(255,255,255,0.3);"> {{-- uiux-ignore: translucent white separator on themed step card --}}
+                                        <template x-for="check in result.details.checks"
+                                            :key="check.client_id || check.target || check.label">
+                                            <div class="rounded-md px-2 py-2"
+                                                :class="check.ok ? 'bg-white/60 text-success-900' : 'bg-white/60 text-danger-900'">
+                                                <div class="flex items-center justify-between gap-3">
+                                                    <div>
+                                                        <div class="font-semibold"
+                                                            x-text="check.label || check.client_name || 'Check'"></div>
+                                                        <div class="text-[11px] opacity-70"
+                                                            x-text="check.target || check.domain || ''"></div>
+                                                    </div>
+                                                    <span class="text-[11px] opacity-70"
+                                                        x-text="(check.latency_ms || 0) + 'ms'"></span>
+                                                </div>
+                                                <div class="mt-1 text-[11px] opacity-90" x-text="check.message"></div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+
                                 <template x-if="Array.isArray(result?.details?.roles) && result.details.roles.length">
                                     <div class="mt-3 space-y-2 border-t pt-3"
-                                        style="border-color: rgba(255,255,255,0.3);">
+                                        style="border-color: rgba(255,255,255,0.3);"> {{-- uiux-ignore: translucent white separator on themed step card --}}
                                         <template x-for="role in result.details.roles" :key="role.role">
                                             <div class="rounded-md px-2 py-2"
-                                                :class="role.ok ? 'bg-white/60 text-green-900' : 'bg-white/60 text-red-900'">
+                                                :class="role.ok ? 'bg-white/60 text-success-900' : 'bg-white/60 text-danger-900'">
                                                 <div class="flex items-center justify-between gap-3">
                                                     <span class="font-semibold"
                                                         x-text="role.label || role.role"></span>
@@ -356,25 +389,25 @@
 
                     {{-- Test / canary endpoint banner --}}
                     <div
-                        class="mb-5 rounded-lg border px-4 py-3 flex items-start gap-3 text-sm {{ $action1TestProbe['configured'] ? 'border-blue-200 bg-blue-50' : 'border-amber-200 bg-amber-50' }}">
+                        class="mb-5 rounded-lg border px-4 py-3 flex items-start gap-3 text-sm {{ $action1TestProbe['configured'] ? 'border-primary-200 bg-primary-50' : 'border-warning-200 bg-warning-50' }}">
                         <div class="mt-0.5 text-base">{{ $action1TestProbe['configured'] ? '🖥' : '⚠️' }}</div>
                         <div>
                             <span
-                                class="font-medium {{ $action1TestProbe['configured'] ? 'text-blue-800' : 'text-amber-800' }}">Test
+                                class="font-medium {{ $action1TestProbe['configured'] ? 'text-primary-800' : 'text-warning-800' }}">Test
                                 endpoint:</span>
                             @if ($action1TestProbe['configured'])
-                                <span class="font-mono text-blue-900">{{ $action1TestProbe['endpoint_name'] }}</span>
-                                <span class="text-blue-700"> &mdash; {{ $action1TestProbe['group_name'] }}
+                                <span class="font-mono text-primary-900">{{ $action1TestProbe['endpoint_name'] }}</span>
+                                <span class="text-primary-700"> &mdash; {{ $action1TestProbe['group_name'] }}
                                     group</span>
-                                <span class="ml-2 text-xs text-blue-600">(org:
+                                <span class="ml-2 text-xs text-primary-600">(org:
                                     {{ $action1TestProbe['org_id'] }})</span>
-                                <p class="mt-0.5 text-xs text-blue-600">The test will verify the endpoint,
+                                <p class="mt-0.5 text-xs text-primary-600">The test will verify the endpoint,
                                     create/run/delete a canary <code>msp_dx_ApiTest</code> script end-to-end.</p>
                             @else
-                                <span class="font-mono text-amber-900">{{ $action1TestProbe['endpoint_name'] }}</span>
-                                <span class="text-amber-700"> &mdash; {{ $action1TestProbe['group_name'] }}
+                                <span class="font-mono text-warning-900">{{ $action1TestProbe['endpoint_name'] }}</span>
+                                <span class="text-warning-700"> &mdash; {{ $action1TestProbe['group_name'] }}
                                     group</span>
-                                <p class="mt-0.5 text-xs text-amber-700">Set <code>ACTION1_TEST_ORG_ID</code> in
+                                <p class="mt-0.5 text-xs text-warning-700">Set <code>ACTION1_TEST_ORG_ID</code> in
                                     <code>.env</code> to enable the sequential test.
                                 </p>
                             @endif
@@ -422,9 +455,8 @@
                                                 <template x-if="stepState(index + 1) === 'active'">
                                                     <span
                                                         class="relative flex h-5 w-5 items-center justify-center animate-pulse">
-                                                        <svg class="animate-spin h-4 w-4"
-                                                            style="color: var(--theme-status-info-text);"
-                                                            fill="none" viewBox="0 0 24 24">
+                                                        <svg class="animate-spin h-4 w-4" fill="none"
+                                                            viewBox="0 0 24 24">
                                                             <circle class="opacity-25" cx="12" cy="12"
                                                                 r="10" stroke="currentColor" stroke-width="4">
                                                             </circle>
@@ -458,12 +490,12 @@
                         <div class="mt-10 space-y-2 min-h-[4rem]">
                             <template x-for="(result, index) in stepResults" :key="index">
                                 <div x-show="result !== null" class="text-xs rounded px-3 py-2"
-                                    :class="result?.ok ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-700'">
+                                    :class="result?.ok ? 'bg-success-50 text-success-800' : 'bg-danger-50 text-danger-700'">
                                     <div class="flex items-start gap-2">
                                         <span class="font-bold shrink-0" x-text="'Step ' + (index + 1) + ':'"></span>
                                         <span x-text="result?.message"></span>
                                         <span x-show="result?.latency_ms"
-                                            class="ml-auto shrink-0 text-gray-400 font-mono"
+                                            class="ml-auto shrink-0 text-neutral-400 font-mono"
                                             x-text="result?.latency_ms + 'ms'"></span>
                                     </div>
                                     <template x-if="result?.debug_payload">
@@ -488,10 +520,10 @@
                                 style="color: var(--theme-text-muted)">
                                 Press <strong>Run Full Test</strong> to execute the end-to-end sequence.
                             </p>
-                            <p x-show="allDone && overallOk" class="text-sm font-semibold text-green-700 text-center">
+                            <p x-show="allDone && overallOk" class="text-sm font-semibold text-success-700 text-center">
                                 ✓
                                 All 5 steps passed — Action1 API is fully operational.</p>
-                            <p x-show="allDone && !overallOk" class="text-sm font-semibold text-red-600 text-center">✗
+                            <p x-show="allDone && !overallOk" class="text-sm font-semibold text-danger-600 text-center">✗
                                 Test sequence failed — see step results above.</p>
                         </div>
 
@@ -500,7 +532,7 @@
                             style="border-color: var(--theme-border)">
                             <button @click="start()" :disabled="running || !configured"
                                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition"
-                                style="background-color: var(--theme-primary); color: #fff;">
+                                style="background-color: var(--theme-primary); color: white;">
                                 <span x-show="running"
                                     class="relative flex h-4 w-4 items-center justify-center animate-pulse">
                                     <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none"
@@ -517,7 +549,7 @@
                             <button x-show="currentStep > 0 && !running" @click="reset()" class="text-sm underline"
                                 style="color: var(--theme-text-muted)">Reset</button>
                             @if (!$action1TestProbe['configured'])
-                                <span class="text-xs text-amber-600">⚠ Set ACTION1_TEST_ORG_ID in .env to enable</span>
+                                <span class="text-xs text-warning-600">⚠ Set ACTION1_TEST_ORG_ID in .env to enable</span>
                             @endif
                         </div>
                     </div>
@@ -533,7 +565,7 @@
                 running: false,
                 result: null,
 
-                async run() {
+                async run(body = {}) {
                     if (this.running) return;
                     this.running = true;
 
@@ -545,7 +577,7 @@
                                 'Accept': 'application/json',
                                 'Content-Type': 'application/json',
                             },
-                            body: JSON.stringify({}),
+                            body: JSON.stringify(body),
                         });
 
                         this.result = await response.json();

@@ -138,7 +138,7 @@ export class ConversationManager {
                 const indicator = document.querySelector('#autosave-indicator');
                 if (indicator) {
                     indicator.textContent = 'Draft saved at ' + new Date().toLocaleTimeString();
-                    indicator.className = 'text-sm text-green-600';
+                    indicator.className = 'text-sm text-success-600';
                 }
 
                 if (showNotification) {
@@ -334,7 +334,7 @@ export class ConversationManager {
                 const data = await response.json();
                 const icon = document.querySelector('[data-action="toggle-star"] svg');
                 if (icon) {
-                    icon.classList.toggle('fill-yellow-400', data.starred);
+                    icon.classList.toggle('fill-warning-400', data.starred);
                 }
             }
         } catch (error) {
@@ -371,7 +371,7 @@ export class ConversationManager {
         if (!warning) {
             warning = document.createElement('div');
             warning.id = 'collision-warning';
-            warning.className = 'fixed top-20 right-4 bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded shadow-lg z-50';
+            warning.className = 'fixed top-20 right-4 bg-warning-100 border-l-4 border-warning-500 p-4 rounded shadow-lg z-50';
             document.body.appendChild(warning);
         }
         warning.textContent = message;
@@ -410,10 +410,10 @@ export class ConversationManager {
 
     getStatusClass(status) {
         const classes = {
-            1: 'px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800',
-            2: 'px-2 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-800',
-            3: 'px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-800',
-            4: 'px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800'
+            1: 'px-2 py-1 text-xs font-semibold rounded bg-success-100 text-success-800',
+            2: 'px-2 py-1 text-xs font-semibold rounded bg-warning-100 text-warning-800',
+            3: 'px-2 py-1 text-xs font-semibold rounded bg-neutral-100 text-neutral-800',
+            4: 'px-2 py-1 text-xs font-semibold rounded bg-danger-100 text-danger-800'
         };
         return classes[status] || classes[1];
     }

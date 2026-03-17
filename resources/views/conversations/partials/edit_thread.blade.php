@@ -6,34 +6,34 @@
         @csrf
         @method('PUT')
         
-        <div class="bg-white rounded-lg border border-gray-300 p-4">
+        <div class="bg-white rounded-lg border border-neutral-300 p-4">
             {{-- Rich Text Editor --}}
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-neutral-700 mb-2">
                     {{ __('Message') }}
                 </label>
                 <textarea name="body" 
                           rows="10" 
                           required
-                          class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                          class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500"
                           :disabled="saving">{{ old('body', $thread->body) }}</textarea>
                 @error('body')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-sm text-danger-600">{{ $message }}</p>
                 @enderror
             </div>
 
             {{-- Attachments Section --}}
             @if($thread->has_attachments && $thread->attachments && $thread->attachments->count() > 0)
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-neutral-700 mb-2">
                         {{ __('Current Attachments') }}
                     </label>
                     <div class="space-y-2">
                         @foreach($thread->attachments as $attachment)
-                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                                <span class="text-sm text-gray-700">{{ $attachment->file_name }}</span>
+                            <div class="flex items-center justify-between p-2 bg-neutral-50 rounded">
+                                <span class="text-sm text-neutral-700">{{ $attachment->file_name }}</span>
                                 <button type="button" 
-                                        class="text-red-600 hover:text-red-800 text-sm"
+                                        class="text-danger-600 hover:text-danger-800 text-sm"
                                         onclick="if(confirm('{{ __('Are you sure you want to remove this attachment?') }}')) { /* handle removal */ }">
                                     {{ __('Remove') }}
                                 </button>
@@ -45,13 +45,13 @@
 
             {{-- Add New Attachments --}}
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-neutral-700 mb-2">
                     {{ __('Add Attachments') }}
                 </label>
                 <input type="file" 
                        name="attachments[]" 
                        multiple
-                       class="block w-full text-sm text-gray-500
+                       class="block w-full text-sm text-neutral-500
                               file:mr-4 file:py-2 file:px-4
                               file:rounded file:border-0
                               file:text-sm file:font-semibold
@@ -63,7 +63,7 @@
             {{-- Action Buttons --}}
             <div class="flex items-center justify-end gap-2">
                 <button type="button" 
-                        class="px-4 py-2 text-sm bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition cancel-edit-trigger"
+                        class="px-4 py-2 text-sm bg-neutral-200 text-neutral-800 rounded hover:bg-neutral-300 transition cancel-edit-trigger"
                         :disabled="saving">
                     {{ __('Cancel') }}
                 </button>

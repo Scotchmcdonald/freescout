@@ -5,7 +5,7 @@
 <button 
     type="button" 
     @click="sidebarOpen = !sidebarOpen"
-    class="sidebar-menu-toggle inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-colors duration-150"
+    class="sidebar-menu-toggle inline-flex items-center justify-center p-2 rounded-md text-neutral-400 hover:text-neutral-500 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 transition-colors duration-150"
     aria-expanded="false"
     aria-label="{{ __('Toggle Navigation') }}"
 >

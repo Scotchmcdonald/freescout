@@ -10,7 +10,7 @@
     }"
 >
     {{-- Tab navigation bar --}}
-    <div class="border-b border-gray-200 mb-6">
+    <div class="border-b border-neutral-200 mb-6">
         <nav class="-mb-px flex space-x-8" aria-label="Tabs">
             @foreach ($tabs as $tab)
                 <button

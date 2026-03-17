@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
             {{ __('Create a Mailbox') }}
         </h2>
     </x-slot>
@@ -8,9 +8,9 @@
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-neutral-900">
                     <div class="mb-6">
-                        <p class="text-sm text-gray-600">
+                        <p class="text-sm text-neutral-600">
                             {{ __('Customers email this address for help (e.g. support@domain.com)') }}
                         </p>
                     </div>
@@ -30,7 +30,7 @@
                                           autofocus 
                                           maxlength="128" />
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                            <p class="mt-2 text-sm text-gray-500">{{ __('You can edit this later') }}</p>
+                            <p class="mt-2 text-sm text-neutral-500">{{ __('You can edit this later') }}</p>
                         </div>
 
                         <!-- Mailbox Name -->
@@ -56,17 +56,17 @@
                                           :value="old('from_name')" 
                                           maxlength="255" />
                             <x-input-error :messages="$errors->get('from_name')" class="mt-2" />
-                            <p class="mt-2 text-sm text-gray-500">{{ __('Name that will appear in the "From" field of outgoing emails') }}</p>
+                            <p class="mt-2 text-sm text-neutral-500">{{ __('Name that will appear in the "From" field of outgoing emails') }}</p>
                         </div>
 
                         <!-- Connection Settings -->
-                        <div class="border-t border-gray-200 pt-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Incoming Email Settings (IMAP)') }}</h3>
+                        <div class="border-t border-neutral-200 pt-6">
+                            <h3 class="text-lg font-medium text-neutral-900 mb-4">{{ __('Incoming Email Settings (IMAP)') }}</h3>
                             
                             <!-- Protocol -->
                             <div class="mt-4">
                                 <x-input-label for="in_protocol" :value="__('Protocol')" />
-                                <select id="in_protocol" name="in_protocol" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <select id="in_protocol" name="in_protocol" class="block mt-1 w-full rounded-md shadow-sm border-neutral-300 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                     <option value="imap" @if(old('in_protocol') == 'imap') selected @endif>IMAP</option>
                                     <option value="pop3" @if(old('in_protocol') == 'pop3') selected @endif>POP3</option>
                                 </select>
@@ -91,7 +91,7 @@
                                 <!-- Encryption -->
                                 <div>
                                     <x-input-label for="in_encryption" :value="__('Encryption')" />
-                                    <select id="in_encryption" name="in_encryption" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    <select id="in_encryption" name="in_encryption" class="block mt-1 w-full rounded-md shadow-sm border-neutral-300 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                         <option value="none" @if(old('in_encryption') == 'none') selected @endif>None</option>
                                         <option value="ssl" @if(old('in_encryption', 'ssl') == 'ssl') selected @endif>SSL</option>
                                         <option value="tls" @if(old('in_encryption') == 'tls') selected @endif>TLS</option>
@@ -115,13 +115,13 @@
                             </div>
                         </div>
 
-                        <div class="border-t border-gray-200 pt-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Outgoing Email Settings (SMTP)') }}</h3>
+                        <div class="border-t border-neutral-200 pt-6">
+                            <h3 class="text-lg font-medium text-neutral-900 mb-4">{{ __('Outgoing Email Settings (SMTP)') }}</h3>
                             
                             <!-- Method -->
                             <div class="mt-4">
                                 <x-input-label for="out_method" :value="__('Method')" />
-                                <select id="out_method" name="out_method" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <select id="out_method" name="out_method" class="block mt-1 w-full rounded-md shadow-sm border-neutral-300 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                     <option value="smtp" @if(old('out_method') == 'smtp') selected @endif>SMTP</option>
                                     <option value="mail" @if(old('out_method') == 'mail') selected @endif>PHP Mail</option>
                                 </select>
@@ -146,7 +146,7 @@
                                 <!-- Encryption -->
                                 <div>
                                     <x-input-label for="out_encryption" :value="__('Encryption')" />
-                                    <select id="out_encryption" name="out_encryption" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    <select id="out_encryption" name="out_encryption" class="block mt-1 w-full rounded-md shadow-sm border-neutral-300 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                         <option value="none" @if(old('out_encryption') == 'none') selected @endif>None</option>
                                         <option value="ssl" @if(old('out_encryption', 'ssl') == 'ssl') selected @endif>SSL</option>
                                         <option value="tls" @if(old('out_encryption') == 'tls') selected @endif>TLS</option>
@@ -176,11 +176,11 @@
                             <x-input-label for="users" :value="__('Who Else Will Use This Mailbox')" />
                             <div class="mt-2 space-y-2">
                                 <div class="text-sm mb-2">
-                                    <a href="#" class="text-blue-600 hover:text-blue-800" onclick="event.preventDefault(); document.querySelectorAll('input[name=\'users[]\']').forEach(el => el.checked = true);">{{ __('all') }}</a>
+                                    <a href="#" class="text-primary-600 hover:text-primary-800" onclick="event.preventDefault(); document.querySelectorAll('input[name=\'users[]\']').forEach(el => el.checked = true);">{{ __('all') }}</a>
                                     /
-                                    <a href="#" class="text-blue-600 hover:text-blue-800" onclick="event.preventDefault(); document.querySelectorAll('input[name=\'users[]\']').forEach(el => el.checked = false);">{{ __('none') }}</a>
+                                    <a href="#" class="text-primary-600 hover:text-primary-800" onclick="event.preventDefault(); document.querySelectorAll('input[name=\'users[]\']').forEach(el => el.checked = false);">{{ __('none') }}</a>
                                 </div>
-                                <div class="space-y-2 max-h-64 overflow-y-auto border border-gray-300 rounded-md p-4">
+                                <div class="space-y-2 max-h-64 overflow-y-auto border border-neutral-300 rounded-md p-4">
                                     @foreach ($users as $user)
                                     <div class="flex items-center">
                                         <input type="checkbox" 
@@ -188,8 +188,8 @@
                                                id="user-{{ $user->id }}" 
                                                value="{{ $user->id }}"
                                                @if (is_array(old('users')) && in_array($user->id, old('users'))) checked @endif
-                                               class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <label for="user-{{ $user->id }}" class="ml-2 text-sm text-gray-700">
+                                               class="rounded border-neutral-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                                        <label for="user-{{ $user->id }}" class="ml-2 text-sm text-neutral-700">
                                             {{ $user->getFullName() }}
                                         </label>
                                     </div>
@@ -203,7 +203,7 @@
                         <!-- Submit Buttons -->
                         <div class="flex items-center justify-end gap-4">
                             <a href="{{ route('mailboxes.index') }}" 
-                               class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                               class="inline-flex items-center px-4 py-2 bg-white border border-neutral-300 rounded-md font-semibold text-xs text-neutral-700 uppercase tracking-widest shadow-sm hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                                 {{ __('Cancel') }}
                             </a>
                             <x-primary-button>

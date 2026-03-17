@@ -1,10 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
                 {{ __('Install Module from GitHub') }}
             </h2>
-            <a href="{{ route('modules') }}" class="text-sm text-gray-600 hover:text-gray-900">
+            <a href="{{ route('modules') }}" class="text-sm text-neutral-600 hover:text-neutral-900">
                 ← {{ __('Back to Modules') }}
             </a>
         </div>
@@ -15,10 +15,10 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="mb-6">
-                        <h3 class="text-lg font-medium text-gray-900">
+                        <h3 class="text-lg font-medium text-neutral-900">
                             {{ __('Repository Details') }}
                         </h3>
-                        <p class="mt-1 text-sm text-gray-600">
+                        <p class="mt-1 text-sm text-neutral-600">
                             {{ __('Install a module directly from a GitHub repository.') }}
                         </p>
                     </div>
@@ -27,8 +27,8 @@
 
                         <!-- Repository Selection -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ __('Repository') }} <span class="text-red-500">*</span>
+                            <label class="block text-sm font-medium text-neutral-700 mb-2">
+                                {{ __('Repository') }} <span class="text-danger-500">*</span>
                             </label>
                             
                             <div class="space-y-3">
@@ -37,23 +37,23 @@
                                     <select 
                                         x-model="selectedRepo"
                                         @change="onRepoChange"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                        class="w-full rounded-md border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                                     >
                                         <option value="">{{ __('Select from catalog...') }}</option>
                                         <template x-for="repo in knownRepos" :key="repo.url">
                                             <option :value="repo.url" x-text="repo.name"></option>
                                         </template>
                                     </select>
-                                    <p class="mt-1 text-xs text-gray-500" x-show="selectedRepo" x-transition>
+                                    <p class="mt-1 text-xs text-neutral-500" x-show="selectedRepo" x-transition>
                                         <span x-text="selectedRepoDescription"></span>
                                     </p>
                                 </div>
                                 
                                 <!-- OR Divider -->
                                 <div class="flex items-center">
-                                    <div class="flex-1 border-t border-gray-300"></div>
-                                    <span class="px-3 text-xs text-gray-500 uppercase font-medium">{{ __('or enter custom url') }}</span>
-                                    <div class="flex-1 border-t border-gray-300"></div>
+                                    <div class="flex-1 border-t border-neutral-300"></div>
+                                    <span class="px-3 text-xs text-neutral-500 uppercase font-medium">{{ __('or enter custom url') }}</span>
+                                    <div class="flex-1 border-t border-neutral-300"></div>
                                 </div>
                                 
                                 <!-- Custom URL -->
@@ -66,7 +66,7 @@
                                         @input="onCustomUrlInput"
                                         placeholder="https://github.com/username/repository or git@github.com:username/repository.git" 
                                     />
-                                    <p class="mt-1 text-xs text-gray-500">
+                                    <p class="mt-1 text-xs text-neutral-500">
                                         {{ __('Supports HTTPS or SSH URLs') }}
                                     </p>
                                 </div>
@@ -75,9 +75,9 @@
 
                         <!-- Access Token -->
                         <div>
-                            <label for="github_token" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="github_token" class="block text-sm font-medium text-neutral-700 mb-2">
                                 {{ __('Personal Access Token') }}
-                                <span class="text-gray-500 text-xs font-normal">{{ __('(Optional - for private repos)') }}</span>
+                                <span class="text-neutral-500 text-xs font-normal">{{ __('(Optional - for private repos)') }}</span>
                             </label>
                             
                             <div class="flex items-center space-x-2">
@@ -94,7 +94,7 @@
                                     type="button"
                                     @click="saveToken"
                                     :disabled="!accessToken || savingToken"
-                                    class="px-3 py-2 text-sm font-medium bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    class="px-3 py-2 text-sm font-medium bg-success-600 text-white rounded-md hover:bg-success-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     title="{{ __('Save token for future use') }}"
                                 >
                                     <span x-show="!savingToken">{{ __('Save') }}</span>
@@ -106,7 +106,7 @@
                                     @click="clearToken"
                                     x-show="hasSavedToken"
                                     :disabled="clearingToken"
-                                    class="px-3 py-2 text-sm font-medium bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    class="px-3 py-2 text-sm font-medium bg-danger-600 text-white rounded-md hover:bg-danger-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     title="{{ __('Clear saved token') }}"
                                 >
                                     <span x-show="!clearingToken">{{ __('Clear') }}</span>
@@ -123,7 +123,7 @@
                                 <button 
                                     type="button"
                                     @click="expanded = !expanded"
-                                    class="flex items-center text-sm text-blue-600 hover:text-blue-700"
+                                    class="flex items-center text-sm text-primary-600 hover:text-primary-700"
                                 >
                                     <svg class="w-4 h-4 mr-1 transition-transform" :class="{ 'rotate-90': expanded }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -151,7 +151,7 @@
                                 type="button"
                                 @click="previewModule"
                                 :disabled="!repoUrl || previewing"
-                                class="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 <span class="flex items-center">
                                     <svg x-show="previewing" class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
@@ -168,7 +168,7 @@
                                 type="button"
                                 @click="testConnection"
                                 :disabled="!repoUrl || testing"
-                                class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                class="px-4 py-2 bg-success-600 text-white text-sm font-medium rounded-md hover:bg-success-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 <span class="flex items-center">
                                     <svg x-show="testing" class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
@@ -184,7 +184,7 @@
                                 @click="loadBranches"
                                 :disabled="!canLoadBranches || loading"
                                 x-show="!isSSHUrl"
-                                class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                class="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 <span class="flex items-center">
                                     <svg x-show="loading" class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
@@ -196,7 +196,7 @@
                                 </span>
                             </button>
                             
-                            <p class="text-xs text-gray-500" x-show="!repoUrl">
+                            <p class="text-xs text-neutral-500" x-show="!repoUrl">
                                 {{ __('Enter a repository URL first') }}
                             </p>
                         </div>
@@ -234,45 +234,45 @@
 
                         <!-- Branch Selection -->
                         <div x-show="branches.length > 0" x-transition>
-                            <label for="github_branch" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="github_branch" class="block text-sm font-medium text-neutral-700 mb-2">
                                 {{ __('Branch') }}
-                                <span class="text-gray-500 text-xs font-normal">{{ __('(Optional)') }}</span>
+                                <span class="text-neutral-500 text-xs font-normal">{{ __('(Optional)') }}</span>
                             </label>
                             <select 
                                 id="github_branch" 
                                 name="github_branch"
                                 x-model="selectedBranch"
                                 @change="loadCommits"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                class="block w-full rounded-md border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                             >
                                 <option value="">{{ __('Select a branch...') }}</option>
                                 <template x-for="branch in branches" :key="branch.name">
                                     <option :value="branch.name" x-text="branch.name + (branch.name === defaultBranch ? ' (default)' : '')"></option>
                                 </template>
                             </select>
-                            <p class="mt-1 text-xs text-gray-500">
+                            <p class="mt-1 text-xs text-neutral-500">
                                 {{ __('Leave blank to use the default branch') }}
                             </p>
                         </div>
 
                         <!-- Commit Selection -->
                         <div x-show="commits.length > 0" x-transition>
-                            <label for="github_commit" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="github_commit" class="block text-sm font-medium text-neutral-700 mb-2">
                                 {{ __('Commit') }}
-                                <span class="text-gray-500 text-xs font-normal">{{ __('(Optional)') }}</span>
+                                <span class="text-neutral-500 text-xs font-normal">{{ __('(Optional)') }}</span>
                             </label>
                             <select 
                                 id="github_commit" 
                                 name="github_commit"
                                 x-model="selectedCommit"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                class="block w-full rounded-md border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                             >
                                 <option value="">{{ __('Select a commit (latest)...') }}</option>
                                 <template x-for="commit in commits" :key="commit.sha">
                                     <option :value="commit.sha" x-text="`${commit.sha.substring(0, 7)} - ${commit.message} (${commit.date})`"></option>
                                 </template>
                             </select>
-                            <p class="mt-1 text-xs text-gray-500">
+                            <p class="mt-1 text-xs text-neutral-500">
                                 {{ __('Leave blank to use the latest commit') }}
                             </p>
                         </div>
@@ -281,7 +281,7 @@
                         <div class="pt-4 border-t">
                             <!-- Progress Display -->
                             <div x-show="installing && installProgress > 0" class="mb-4" x-transition>
-                                <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                                <div class="flex items-center justify-between text-sm text-neutral-600 mb-2">
                                     <span x-text="installMessage"></span>
                                     <span x-text="installProgress + '%'"></span>
                                 </div>
@@ -289,7 +289,7 @@
                                     alpine="installProgress" 
                                     color="primary" 
                                 />
-                                <p class="text-xs text-gray-500 mt-1 capitalize" x-text="installStage"></p>
+                                <p class="text-xs text-neutral-500 mt-1 capitalize" x-text="installStage"></p>
                             </div>
 
                             <button 
@@ -326,7 +326,7 @@
                          x-transition:leave="ease-in duration-200"
                          x-transition:leave-start="opacity-100"
                          x-transition:leave-end="opacity-0"
-                         class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+                         class="fixed inset-0 transition-opacity bg-neutral-500 bg-opacity-75"
                          @click="showPreviewModal = false"></div>
 
                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
@@ -344,7 +344,7 @@
                         <div class="absolute top-0 right-0 pt-4 pr-4">
                             <button type="button" 
                                     @click="showPreviewModal = false"
-                                    class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none">
+                                    class="bg-white rounded-md text-neutral-400 hover:text-neutral-500 focus:outline-none">
                                 <span class="sr-only">Close</span>
                                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -354,15 +354,15 @@
 
                         <div class="sm:flex sm:items-start">
                             <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
-                                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                                <h3 class="text-lg leading-6 font-medium text-neutral-900 mb-4">
                                     {{ __('Module Preview') }}
                                 </h3>
 
                                 <div x-show="previewData" class="space-y-4">
                                     <!-- Module Info -->
-                                    <div x-show="previewData?.module_info" class="bg-gray-50 rounded-lg p-4">
-                                        <h4 class="font-semibold text-gray-900 mb-2" x-text="previewData?.module_info?.name || '{{ __('Module') }}'"></h4>
-                                        <div class="text-sm space-y-1 text-gray-600">
+                                    <div x-show="previewData?.module_info" class="bg-neutral-50 rounded-lg p-4">
+                                        <h4 class="font-semibold text-neutral-900 mb-2" x-text="previewData?.module_info?.name || '{{ __('Module') }}'"></h4>
+                                        <div class="text-sm space-y-1 text-neutral-600">
                                             <p><strong>{{ __('Version:') }}</strong> <span x-text="previewData?.module_info?.version"></span></p>
                                             <p x-show="previewData?.module_info?.description"><strong>{{ __('Description:') }}</strong> <span x-text="previewData?.module_info?.description"></span></p>
                                             <p x-show="previewData?.module_info?.author"><strong>{{ __('Author:') }}</strong> <span x-text="previewData?.module_info?.author"></span></p>
@@ -371,12 +371,12 @@
 
                                     <!-- Composer Dependencies -->
                                     <div x-show="previewData?.composer_info?.require" class="rounded-lg p-4" style="background-color: var(--theme-primary-50)">
-                                        <h4 class="font-semibold text-gray-900 mb-2">{{ __('Dependencies') }}</h4>
+                                        <h4 class="font-semibold text-neutral-900 mb-2">{{ __('Dependencies') }}</h4>
                                         <div class="text-sm space-y-1">
                                             <template x-for="(version, package) in previewData?.composer_info?.require" :key="package">
-                                                <p class="text-gray-700">
+                                                <p class="text-neutral-700">
                                                     <code class="text-xs bg-white px-2 py-1 rounded" x-text="package"></code>
-                                                    <span class="text-gray-500" x-text="': ' + version"></span>
+                                                    <span class="text-neutral-500" x-text="': ' + version"></span>
                                                 </p>
                                             </template>
                                         </div>
@@ -399,7 +399,7 @@
                                                 <strong>{{ __('Current:') }}</strong> 
                                                 <span x-text="previewData?.current_php_version || '{{ PHP_VERSION }}'"></span>
                                             </p>
-                                            <p x-show="!previewData?.php_version_compatible" class="text-yellow-800 mt-2">
+                                            <p x-show="!previewData?.php_version_compatible" class="text-warning-800 mt-2">
                                                 <svg class="inline w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                                 </svg>
@@ -410,12 +410,12 @@
 
                                     <!-- README -->
                                     <div x-show="previewData?.readme" class="bg-white border rounded-lg p-4 max-h-96 overflow-y-auto">
-                                        <h4 class="font-semibold text-gray-900 mb-2">{{ __('README') }}</h4>
+                                        <h4 class="font-semibold text-neutral-900 mb-2">{{ __('README') }}</h4>
                                         <div class="prose prose-sm max-w-none text-left" x-html="previewData?.readme ? previewData.readme.replace(/\n/g, '<br>') : ''"></div>
                                     </div>
 
                                     <!-- No data available -->
-                                    <div x-show="!previewData?.module_info && !previewData?.readme && !previewData?.composer_info" class="text-center text-gray-500 py-8">
+                                    <div x-show="!previewData?.module_info && !previewData?.readme && !previewData?.composer_info" class="text-center text-neutral-500 py-8">
                                         <p>{{ __('No preview data available') }}</p>
                                     </div>
                                 </div>
@@ -423,7 +423,7 @@
                                 <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                                     <button type="button"
                                             @click="showPreviewModal = false"
-                                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-800 text-base font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-neutral-800 text-base font-medium text-white hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-500 sm:ml-3 sm:w-auto sm:text-sm">
                                         {{ __('Close') }}
                                     </button>
                                 </div>

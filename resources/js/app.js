@@ -210,7 +210,7 @@ function initTooltips() {
         element.addEventListener('mouseenter', function() {
             const text = this.dataset.tooltip;
             const tooltip = document.createElement('div');
-            tooltip.className = 'fixed bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg z-50';
+            tooltip.className = 'fixed bg-neutral-900 text-white text-xs px-2 py-1 rounded shadow-lg z-50';
             tooltip.textContent = text;
             tooltip.id = 'tooltip-' + Math.random().toString(36).substr(2, 9);
             

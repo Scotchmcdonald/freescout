@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
             <a href="{{ route('mailboxes.settings', $mailbox) }}">{{ $mailbox->name }}</a> &raquo; Incoming Connection
         </h2>
     </x-slot>
@@ -8,9 +8,9 @@
     <div class="py-12">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
+                <div class="p-6 bg-white border-b border-neutral-200">
                     @if (session('success'))
-                        <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
+                        <div class="mb-4 p-4 bg-success-100 text-success-800 rounded">
                             {{ session('success') }}
                         </div>
                     @endif
@@ -21,7 +21,7 @@
                         <!-- Protocol -->
                         <div class="mt-4">
                             <x-input-label for="in_protocol" :value="__('Protocol')" />
-                            <select id="in_protocol" name="in_protocol" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <select id="in_protocol" name="in_protocol" class="block mt-1 w-full rounded-md shadow-sm border-neutral-300 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                 <option value="imap" @if(old('in_protocol', $mailbox->in_protocol) == 'imap' || old('in_protocol', $mailbox->in_protocol) == 1) selected @endif>IMAP</option>
                                 <option value="pop3" @if(old('in_protocol', $mailbox->in_protocol) == 'pop3' || old('in_protocol', $mailbox->in_protocol) == 2) selected @endif>POP3</option>
                             </select>
@@ -45,7 +45,7 @@
                         <!-- Encryption -->
                         <div class="mt-4">
                             <x-input-label for="in_encryption" :value="__('Encryption')" />
-                            <select id="in_encryption" name="in_encryption" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <select id="in_encryption" name="in_encryption" class="block mt-1 w-full rounded-md shadow-sm border-neutral-300 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                                 <option value="none" @if(old('in_encryption', $mailbox->in_encryption) == 'none' || old('in_encryption', $mailbox->in_encryption) == 0) selected @endif>None</option>
                                 <option value="ssl" @if(old('in_encryption', $mailbox->in_encryption) == 'ssl' || old('in_encryption', $mailbox->in_encryption) == 1) selected @endif>SSL</option>
                                 <option value="tls" @if(old('in_encryption', $mailbox->in_encryption) == 'tls' || old('in_encryption', $mailbox->in_encryption) == 2) selected @endif>TLS</option>
@@ -57,7 +57,7 @@
                         <div class="mt-4">
                             <x-input-label for="in_imap_folders" :value="__('Folder (Optional)')" />
                             <x-text-input id="in_imap_folders" class="block mt-1 w-full" type="text" name="in_imap_folders" :value="old('in_imap_folders', $mailbox->in_imap_folders)" placeholder="INBOX" />
-                            <p class="text-sm text-gray-500 mt-1">Comma separated list of folders to fetch emails from. Default: INBOX</p>
+                            <p class="text-sm text-neutral-500 mt-1">Comma separated list of folders to fetch emails from. Default: INBOX</p>
                             <x-input-error :messages="$errors->get('in_imap_folders')" class="mt-2" />
                         </div>
 
@@ -72,13 +72,13 @@
                         <div class="mt-4">
                             <x-input-label for="in_password" :value="__('Password')" />
                             <x-text-input id="in_password" class="block mt-1 w-full" type="password" name="in_password" />
-                            <p class="text-sm text-gray-500 mt-1">Leave blank to keep the current password.</p>
+                            <p class="text-sm text-neutral-500 mt-1">Leave blank to keep the current password.</p>
                             <x-input-error :messages="$errors->get('in_password')" class="mt-2" />
                         </div>
 
                         <div class="flex items-center justify-end mt-4 gap-4">
                             <a href="{{ route('mailboxes.settings', $mailbox) }}" 
-                               class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
+                               class="inline-flex items-center px-4 py-2 bg-white border border-neutral-300 rounded-md font-semibold text-xs text-neutral-700 uppercase tracking-widest shadow-sm hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150">
                                 {{ __('Return') }}
                             </a>
                             <x-primary-button>

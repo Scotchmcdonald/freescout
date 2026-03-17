@@ -2,14 +2,14 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800">
+                <h2 class="text-2xl font-bold text-neutral-800">
                     🔐 {{ __('Contact & Permission Matrix') }}
                 </h2>
-                <p class="text-sm text-gray-500 mt-1">Manage client contact permissions and role assignments</p>
+                <p class="text-sm text-neutral-500 mt-1">Manage client contact permissions and role assignments</p>
             </div>
             <div class="flex items-center space-x-3">
                 <form method="GET" class="flex items-center space-x-2">
-                    <select name="client_id" onchange="this.form.submit()" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    <select name="client_id" onchange="this.form.submit()" class="rounded-md border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
                         <option value="">All Clients</option>
                         @foreach($allClients as $client)
                             <option value="{{ $client->id }}" {{ request('client_id') == $client->id ? 'selected' : '' }}>
@@ -26,7 +26,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
             {{-- Role Templates Quick Actions --}}
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-neutral-200">
                 <div class="border-l-4 p-6" style="border-color: var(--theme-primary-500, #6366f1)">
                     <div class="flex items-start">
                         <div class="flex-shrink-0">
@@ -35,8 +35,8 @@
                             </svg>
                         </div>
                         <div class="ml-3 flex-1">
-                            <h3 class="text-lg font-medium text-gray-900">⚡ Quick Role Templates</h3>
-                            <p class="text-sm text-gray-600 mt-1">Bulk-apply a permission role to all contacts under a specific client. Use with caution.</p>
+                            <h3 class="text-lg font-medium text-neutral-900">⚡ Quick Role Templates</h3>
+                            <p class="text-sm text-neutral-600 mt-1">Bulk-apply a permission role to all contacts under a specific client. Use with caution.</p>
                         </div>
                     </div>
                     <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -68,11 +68,11 @@
 
             {{-- Permission Matrix --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900">📋 Permission Matrix</h3>
-                            <p class="text-sm text-gray-600 mt-1">Select role-based permissions for each contact. Changes are saved in bulk.</p>
+                            <h3 class="text-lg font-semibold text-neutral-900">📋 Permission Matrix</h3>
+                            <p class="text-sm text-neutral-600 mt-1">Select role-based permissions for each contact. Changes are saved in bulk.</p>
                         </div>
                         <div class="flex items-center space-x-3">
                             <div x-show="selectedCount > 0" 
@@ -101,20 +101,20 @@
 
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-neutral-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-10">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider sticky left-0 bg-neutral-50 z-10">
                                     Contact
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                                     Client
                                 </th>
                                 @foreach($permissionTypes as $key => $label)
-                                    <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">
                                         {{ $label }}
                                     </th>
                                 @endforeach
-                                <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">
                                     Current
                                 </th>
                             </tr>
@@ -126,22 +126,22 @@
                                         <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-white z-10">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-10 w-10">
-                                                    <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold">
+                                                    <div class="h-10 w-10 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-600 font-bold">
                                                         {{ substr($contact->first_name, 0, 1) }}{{ substr($contact->last_name, 0, 1) }}
                                                     </div>
                                                 </div>
                                                 <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900">
+                                                    <div class="text-sm font-medium text-neutral-900">
                                                         {{ $contact->full_name }}
                                                         @if($contact->is_primary)
                                                             <x-status-badge status="success" text="Primary" />
                                                         @endif
                                                     </div>
-                                                    <div class="text-sm text-gray-500">{{ $contact->email }}</div>
+                                                    <div class="text-sm text-neutral-500">{{ $contact->email }}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
                                             {{ $client->name }}
                                         </td>
                                         @foreach($permissionTypes as $key => $label)
@@ -151,7 +151,7 @@
                                                        value="{{ $key }}"
                                                        @change="updatePermission({{ $contact->id }}, '{{ $key }}')"
                                                        {{ $contact->permissions->where('permission_type', $key)->isNotEmpty() ? 'checked' : '' }}
-                                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                                       class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300">
                                             </td>
                                         @endforeach
                                         <td class="px-4 py-4 text-center text-sm">
@@ -175,8 +175,8 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                                 </svg>
                                             </div>
-                                            <h3 class="mt-4 text-base font-medium text-gray-900">No contacts available</h3>
-                                            <p class="mt-1 text-sm text-gray-500">Get started by adding contacts to your clients in the CRM module.</p>
+                                            <h3 class="mt-4 text-base font-medium text-neutral-900">No contacts available</h3>
+                                            <p class="mt-1 text-sm text-neutral-500">Get started by adding contacts to your clients in the CRM module.</p>
                                             <div class="mt-6">
                                                 <a href="{{ route('admin.crm.clients.index') }}" class="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium text-white transition-colors" style="background-color: var(--theme-primary-600, #4f46e5)" onmouseover="this.style.backgroundColor='var(--theme-primary-700, #4338ca)'" onmouseout="this.style.backgroundColor='var(--theme-primary-600, #4f46e5)'">
                                                     <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -196,15 +196,15 @@
 
             {{-- Permission Legend --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Permission Details</h3>
+                <h3 class="text-lg font-medium text-neutral-900 mb-4">Permission Details</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     @foreach($permissionTypes as $key => $label)
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <h4 class="font-medium text-gray-900 mb-2">{{ $label }}</h4>
-                            <ul class="text-sm text-gray-600 space-y-1">
+                        <div class="border border-neutral-200 rounded-lg p-4">
+                            <h4 class="font-medium text-neutral-900 mb-2">{{ $label }}</h4>
+                            <ul class="text-sm text-neutral-600 space-y-1">
                                 @foreach(\Modules\Crm\Models\ContactPermission::getActionsByType($key) as $action)
                                     <li class="flex items-center">
-                                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg class="h-4 w-4 text-success-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                         </svg>
                                         {{ ucwords(str_replace('_', ' ', $action)) }}

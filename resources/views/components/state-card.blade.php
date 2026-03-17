@@ -30,7 +30,7 @@
     $colors = $colorMap[$color] ?? $colorMap['primary'];
 @endphp
 
-<div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-100 transition-shadow hover:shadow-md">
+<div class="bg-white overflow-hidden shadow-sm rounded-lg border border-neutral-100 transition-shadow hover:shadow-md">
     <div class="p-5">
         <div class="flex items-center">
             <div class="flex-shrink-0 rounded-md p-3" style="background-color: {{ $colors['bg'] }}">
@@ -45,9 +45,9 @@
             </div>
             <div class="ml-5 w-0 flex-1">
                 <dl>
-                    <dt class="text-sm font-medium text-gray-500 truncate">{{ $title }}</dt>
+                    <dt class="text-sm font-medium text-neutral-500 truncate">{{ $title }}</dt>
                     <dd class="flex items-baseline">
-                        <span class="text-2xl font-semibold text-gray-900">{{ $value }}</span>
+                        <span class="text-2xl font-semibold text-neutral-900">{{ $value }}</span>
                         @if($trend)
                             <span class="ml-2 text-sm font-medium" style="color: {{ $trendDirection === 'up' ? $colorMap['success']['text'] : $colorMap['danger']['text'] }}">
                                 {{ $trend }}

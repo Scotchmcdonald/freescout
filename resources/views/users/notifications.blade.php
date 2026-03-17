@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
             {{ __('Notifications') }} - {{ $user->getFullName() }}
         </h2>
     </x-slot>
@@ -10,7 +10,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {{-- Sidebar --}}
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div class="bg-white rounded-lg shadow-sm border border-neutral-200 p-4">
                         <x-user-sidebar-menu :user="$user" :users="$users ?? collect()" />
                     </div>
                 </div>
@@ -34,7 +34,7 @@
                             
                             <div class="mt-6 flex items-center justify-end">
                                 <button type="submit" 
-                                        class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                                        class="px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition">
                                     {{ __('Save Notifications') }}
                                 </button>
                             </div>

@@ -25,6 +25,8 @@ export default {
                 warning: colors.amber,
                 danger: colors.rose,
                 primary: colors.indigo,
+                info: colors.sky,
+                neutral: colors.gray,
             },
         },
     },

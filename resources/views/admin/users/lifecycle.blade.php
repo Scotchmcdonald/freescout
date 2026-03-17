@@ -2,14 +2,14 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800">
+                <h2 class="text-2xl font-bold text-neutral-800">
                     👥 {{ __('User Lifecycle Dashboard') }}
                 </h2>
-                <p class="text-sm text-gray-500 mt-1">Monitor user identities synced from Google Workspace and other providers</p>
+                <p class="text-sm text-neutral-500 mt-1">Monitor user identities synced from Google Workspace and other providers</p>
             </div>
             <div class="flex items-center space-x-3">
                 @if($lastSync)
-                    <span class="text-sm text-gray-500">
+                    <span class="text-sm text-neutral-500">
                         Synced {{ $lastSync->diffForHumans() }}
                     </span>
                 @endif
@@ -76,44 +76,44 @@
 
             {{-- Main Table --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200">
+                <div class="px-6 py-4 border-b border-neutral-200">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            <h3 class="text-lg leading-6 font-medium text-neutral-900">
                                 Identity Directory
                             </h3>
-                            <p class="mt-1 text-sm text-gray-500">
+                            <p class="mt-1 text-sm text-neutral-500">
                                 Unified view of user accounts across Google Workspace and other providers.
                             </p>
                         </div>
-                        <div class="text-sm text-gray-500">
+                        <div class="text-sm text-neutral-500">
                             <span class="font-medium">{{ count($users) }}</span> users
                         </div>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-neutral-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                                     User
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                                     Org Unit
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                                     Status
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                                     Security
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                                     Last Login
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                                     Source
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
                                     Actions
                                 </th>
                             </tr>
@@ -124,21 +124,21 @@
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-10 w-10">
-                                                <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 font-bold">
+                                                <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-500 font-bold">
                                                     {{ substr($user['name'], 0, 1) }}
                                                 </div>
                                             </div>
                                             <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">
+                                                <div class="text-sm font-medium text-neutral-900">
                                                     {{ $user['name'] }}
                                                 </div>
-                                                <div class="text-sm text-gray-500">
+                                                <div class="text-sm text-neutral-500">
                                                     {{ $user['email'] }}
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
                                         {{ $user['org_unit'] }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -155,10 +155,10 @@
                                             <x-status-badge status="warning" text="No 2FA" />
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
                                         {{ \Carbon\Carbon::parse($user['last_login'])->diffForHumans() }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
                                         <div class="flex items-center">
                                             @if($user['source'] === 'Google Workspace')
                                                 <img class="h-4 w-4 mr-2" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
@@ -187,11 +187,11 @@
                             @empty
                                 <tr>
                                     <td colspan="7" class="px-6 py-8 text-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg class="mx-auto h-12 w-12 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                         </svg>
-                                        <p class="mt-2 text-sm text-gray-500">No users found.</p>
-                                        <p class="text-xs text-gray-400 mt-1">Check your Google Workspace configuration and try syncing again.</p>
+                                        <p class="mt-2 text-sm text-neutral-500">No users found.</p>
+                                        <p class="text-xs text-neutral-400 mt-1">Check your Google Workspace configuration and try syncing again.</p>
                                     </td>
                                 </tr>
                             @endforelse

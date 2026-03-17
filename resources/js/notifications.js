@@ -119,7 +119,7 @@ export class RealtimeNotifications {
     showInAppNotification({ title, message, from, url, type = 'info' }) {
         const notification = document.createElement('div');
         notification.className = `
-            bg-white border-l-4 border-blue-500 rounded-lg shadow-lg p-4 
+            bg-white border-l-4 border-primary-500 rounded-lg shadow-lg p-4 
             transform transition-all duration-300 ease-in-out
             hover:shadow-xl cursor-pointer max-w-sm
         `;
@@ -127,17 +127,17 @@ export class RealtimeNotifications {
         notification.innerHTML = `
             <div class="flex items-start">
                 <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="h-6 w-6 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                               d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                 </div>
                 <div class="ml-3 flex-1">
-                    <p class="text-sm font-medium text-gray-900">${this.escapeHtml(title)}</p>
-                    ${from ? `<p class="mt-1 text-xs text-gray-500">${this.escapeHtml(from)}</p>` : ''}
-                    ${message ? `<p class="mt-1 text-sm text-gray-600">${this.escapeHtml(message)}</p>` : ''}
+                    <p class="text-sm font-medium text-neutral-900">${this.escapeHtml(title)}</p>
+                    ${from ? `<p class="mt-1 text-xs text-neutral-500">${this.escapeHtml(from)}</p>` : ''}
+                    ${message ? `<p class="mt-1 text-sm text-neutral-600">${this.escapeHtml(message)}</p>` : ''}
                 </div>
-                <button class="ml-4 flex-shrink-0 text-gray-400 hover:text-gray-500" onclick="this.parentElement.parentElement.remove()">
+                <button class="ml-4 flex-shrink-0 text-neutral-400 hover:text-neutral-500" onclick="this.parentElement.parentElement.remove()">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -194,13 +194,13 @@ export class RealtimeNotifications {
         
         if (!viewer) {
             viewer = document.createElement('div');
-            viewer.className = `viewer-${userId} flex items-center space-x-2 text-sm text-gray-600 p-2 bg-blue-50 rounded`;
+            viewer.className = `viewer-${userId} flex items-center space-x-2 text-sm text-neutral-600 p-2 bg-primary-50 rounded`;
             viewersContainer.appendChild(viewer);
         }
 
         viewer.innerHTML = `
             <div class="flex-shrink-0">
-                <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs">
+                <div class="h-8 w-8 rounded-full bg-primary-500 flex items-center justify-center text-white text-xs">
                     ${userName.charAt(0).toUpperCase()}
                 </div>
             </div>
@@ -283,12 +283,12 @@ export class RealtimeNotifications {
 
     getStatusClass(status) {
         const classes = {
-            1: 'px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800',
-            2: 'px-2 py-1 text-xs font-semibold rounded bg-yellow-100 text-yellow-800',
-            3: 'px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-800',
-            4: 'px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800'
+            1: 'px-2 py-1 text-xs font-semibold rounded bg-success-100 text-success-800',
+            2: 'px-2 py-1 text-xs font-semibold rounded bg-warning-100 text-warning-800',
+            3: 'px-2 py-1 text-xs font-semibold rounded bg-neutral-100 text-neutral-800',
+            4: 'px-2 py-1 text-xs font-semibold rounded bg-danger-100 text-danger-800'
         };
-        return classes[status] || 'px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-800';
+        return classes[status] || 'px-2 py-1 text-xs font-semibold rounded bg-neutral-100 text-neutral-800';
     }
 
     escapeHtml(text) {

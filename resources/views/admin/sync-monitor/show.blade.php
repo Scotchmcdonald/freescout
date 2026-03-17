@@ -2,10 +2,10 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <h2 class="font-semibold text-xl text-neutral-800 leading-tight">
                     Sync Operation #{{ $operation->id }}
                 </h2>
-                <p class="text-sm text-gray-600 mt-1">
+                <p class="text-sm text-neutral-600 mt-1">
                     {{ $operation->source }} - {{ $operation->operation_type }}
                 </p>
             </div>
@@ -54,7 +54,7 @@
                 <h3 class="text-lg font-semibold mb-4">Operation Status</h3>
                 <div class="grid grid-cols-4 gap-4">
                     <div>
-                        <div class="text-sm text-gray-600">Status</div>
+                        <div class="text-sm text-neutral-600">Status</div>
                         <div class="mt-1">
                             @php
                                 $statusVariants = [
@@ -73,26 +73,26 @@
                     </div>
 
                     <div>
-                        <div class="text-sm text-gray-600">Progress</div>
+                        <div class="text-sm text-neutral-600">Progress</div>
                         <div class="mt-1 font-semibold text-lg">
                             {{ $operation->progress_percentage }}%
                         </div>
                     </div>
 
                     <div>
-                        <div class="text-sm text-gray-600">Items Processed</div>
+                        <div class="text-sm text-neutral-600">Items Processed</div>
                         <div class="mt-1 font-semibold text-lg">
                             {{ number_format($operation->processed_items) }} / {{ number_format($operation->total_items) }}
                         </div>
                     </div>
 
                     <div>
-                        <div class="text-sm text-gray-600">Speed</div>
+                        <div class="text-sm text-neutral-600">Speed</div>
                         <div class="mt-1 font-semibold text-lg font-mono">
                             @if($operation->items_per_second > 0)
                                 {{ number_format($operation->items_per_second, 1) }}/s
                             @else
-                                <span class="text-gray-400">N/A</span>
+                                <span class="text-neutral-400">N/A</span>
                             @endif
                         </div>
                     </div>
@@ -100,8 +100,8 @@
 
                 <!-- Progress Bar -->
                 <div class="mt-6">
-                    <div class="w-full bg-gray-200 rounded-full h-4">
-                        <div class="bg-blue-600 h-4 rounded-full transition-all flex items-center justify-end pr-2"
+                    <div class="w-full bg-neutral-200 rounded-full h-4">
+                        <div class="bg-primary-600 h-4 rounded-full transition-all flex items-center justify-end pr-2"
                              style="width: {{ $operation->progress_percentage }}%">
                             <span class="text-xs text-white font-medium">{{ $operation->progress_percentage }}%</span>
                         </div>
@@ -110,22 +110,22 @@
 
                 <div class="grid grid-cols-3 gap-4 mt-6 pt-6 border-t">
                     <div>
-                        <div class="text-sm text-gray-600">Success</div>
-                        <div class="mt-1 text-lg font-semibold text-green-600">
+                        <div class="text-sm text-neutral-600">Success</div>
+                        <div class="mt-1 text-lg font-semibold text-success-600">
                             {{ number_format($operation->success_items) }}
                         </div>
                     </div>
 
                     <div>
-                        <div class="text-sm text-gray-600">Failed</div>
-                        <div class="mt-1 text-lg font-semibold text-red-600">
+                        <div class="text-sm text-neutral-600">Failed</div>
+                        <div class="mt-1 text-lg font-semibold text-danger-600">
                             {{ number_format($operation->failed_items) }}
                         </div>
                     </div>
 
                     <div>
-                        <div class="text-sm text-gray-600">Remaining</div>
-                        <div class="mt-1 text-lg font-semibold text-gray-600">
+                        <div class="text-sm text-neutral-600">Remaining</div>
+                        <div class="mt-1 text-lg font-semibold text-neutral-600">
                             {{ number_format($operation->total_items - $operation->processed_items) }}
                         </div>
                     </div>
@@ -137,41 +137,41 @@
                 <h3 class="text-lg font-semibold mb-4">Timing</h3>
                 <div class="grid grid-cols-3 gap-4">
                     <div>
-                        <div class="text-sm text-gray-600">Started At</div>
+                        <div class="text-sm text-neutral-600">Started At</div>
                         <div class="mt-1 font-mono text-sm">
                             {{ $operation->started_at->format('Y-m-d H:i:s') }}
                         </div>
-                        <div class="text-xs text-gray-500">
+                        <div class="text-xs text-neutral-500">
                             {{ $operation->started_at->diffForHumans() }}
                         </div>
                     </div>
 
                     <div>
-                        <div class="text-sm text-gray-600">Last Progress</div>
+                        <div class="text-sm text-neutral-600">Last Progress</div>
                         <div class="mt-1 font-mono text-sm">
                             @if($operation->last_progress_at)
                                 {{ $operation->last_progress_at->format('Y-m-d H:i:s') }}
-                                <div class="text-xs text-gray-500">
+                                <div class="text-xs text-neutral-500">
                                     {{ $operation->last_progress_at->diffForHumans() }}
                                 </div>
                             @else
-                                <span class="text-gray-400">N/A</span>
+                                <span class="text-neutral-400">N/A</span>
                             @endif
                         </div>
                     </div>
 
                     <div>
-                        <div class="text-sm text-gray-600">Completed At</div>
+                        <div class="text-sm text-neutral-600">Completed At</div>
                         <div class="mt-1 font-mono text-sm">
                             @if($operation->completed_at)
                                 {{ $operation->completed_at->format('Y-m-d H:i:s') }}
-                                <div class="text-xs text-gray-500">
+                                <div class="text-xs text-neutral-500">
                                     Duration: {{ $operation->started_at->diff($operation->completed_at)->format('%H:%I:%S') }}
                                 </div>
                             @else
-                                <span class="text-gray-400">In Progress</span>
+                                <span class="text-neutral-400">In Progress</span>
                                 @if($operation->estimated_time_remaining)
-                                    <div class="text-xs text-gray-500">
+                                    <div class="text-xs text-neutral-500">
                                         ~{{ $operation->estimated_time_remaining }} remaining
                                     </div>
                                 @endif
@@ -184,7 +184,7 @@
             <!-- Error Message -->
             @if($operation->error_message)
                 <x-card>
-                    <h3 class="text-lg font-semibold mb-4 text-red-600">Error Details</h3>
+                    <h3 class="text-lg font-semibold mb-4 text-danger-600">Error Details</h3>
                     <x-alert variant="danger">
                         {{ $operation->error_message }}
                     </x-alert>
@@ -197,11 +197,11 @@
                     <h3 class="text-lg font-semibold mb-4">Failed Items ({{ count($operation->failures) }})</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-neutral-50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Failed At</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">Item</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">Reason</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">Failed At</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -210,10 +210,10 @@
                                         <td class="px-4 py-3 text-sm font-mono">
                                             {{ $failure['item'] }}
                                         </td>
-                                        <td class="px-4 py-3 text-sm text-red-600">
+                                        <td class="px-4 py-3 text-sm text-danger-600">
                                             {{ $failure['reason'] }}
                                         </td>
-                                        <td class="px-4 py-3 text-sm text-gray-600">
+                                        <td class="px-4 py-3 text-sm text-neutral-600">
                                             {{ \Carbon\Carbon::parse($failure['failed_at'])->format('H:i:s') }}
                                         </td>
                                     </tr>
@@ -221,7 +221,7 @@
                             </tbody>
                         </table>
                         @if(count($operation->failures) > 50)
-                            <div class="px-4 py-3 text-sm text-gray-600 bg-gray-50 border-t">
+                            <div class="px-4 py-3 text-sm text-neutral-600 bg-neutral-50 border-t">
                                 Showing first 50 failures. Total: {{ count($operation->failures) }}
                             </div>
                         @endif
@@ -233,7 +233,7 @@
             @if($operation->checkpoint_data)
                 <x-card>
                     <h3 class="text-lg font-semibold mb-4">Checkpoint Data</h3>
-                    <pre class="bg-gray-100 p-4 rounded text-xs font-mono overflow-x-auto">{{ json_encode($operation->checkpoint_data, JSON_PRETTY_PRINT) }}</pre>
+                    <pre class="bg-neutral-100 p-4 rounded text-xs font-mono overflow-x-auto">{{ json_encode($operation->checkpoint_data, JSON_PRETTY_PRINT) }}</pre>
                 </x-card>
             @endif
         </div>

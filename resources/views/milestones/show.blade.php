@@ -33,7 +33,7 @@
                     {{ $statusInfo['label'] }}
                 </span>
                 @if($milestone->isOverdue())
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-danger-100 text-danger-800">
                         Overdue
                     </span>
                 @endif
@@ -62,7 +62,7 @@
                     <h3 class="text-sm font-medium" style="color: var(--theme-gray-500, #6B7280);">Progress</h3>
                     <div class="mt-2">
                         <div class="flex items-center">
-                            <div class="flex-1 bg-gray-200 rounded-full h-2.5 mr-3">
+                            <div class="flex-1 bg-neutral-200 rounded-full h-2.5 mr-3">
                                 <div class="h-2.5 rounded-full" style="width: {{ $milestone->progress_percentage }}%; background-color: var(--theme-primary-600, #4F46E5);"></div>
                             </div>
                             <span class="text-sm font-medium" style="color: var(--theme-gray-700, #374151);">{{ $milestone->progress_percentage }}%</span>
@@ -115,8 +115,8 @@
 
             @if($milestone->blockers)
             <div class="mt-6 pt-6 border-t" style="border-color: var(--theme-gray-200, #E5E7EB);">
-                <h3 class="text-sm font-medium text-red-600">Blockers</h3>
-                <p class="mt-1 text-red-700">{{ $milestone->blockers }}</p>
+                <h3 class="text-sm font-medium text-danger-600">Blockers</h3>
+                <p class="mt-1 text-danger-700">{{ $milestone->blockers }}</p>
             </div>
             @endif
         </div>

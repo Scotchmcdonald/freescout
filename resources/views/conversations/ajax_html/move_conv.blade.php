@@ -7,20 +7,20 @@
         <div class="space-y-6">
             {{-- Current Mailbox --}}
             @if(isset($conversation) && $conversation->mailbox)
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="text-sm text-gray-600 mb-1">{{ __('Current Mailbox') }}</div>
-                    <div class="font-medium text-gray-900">{{ $conversation->mailbox->name }}</div>
+                <div class="bg-neutral-50 rounded-lg p-4">
+                    <div class="text-sm text-neutral-600 mb-1">{{ __('Current Mailbox') }}</div>
+                    <div class="font-medium text-neutral-900">{{ $conversation->mailbox->name }}</div>
                 </div>
             @endif
 
             {{-- Mailbox Selector --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-neutral-700 mb-2">
                     {{ __('Move to Mailbox') }}
                 </label>
                 <select name="mailbox_id" 
                         required
-                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500">
                     <option value="">{{ __('Select a mailbox...') }}</option>
                     @foreach(\App\Models\Mailbox::orderBy('name')->get() as $mailbox)
                         @if(!isset($conversation) || $mailbox->id != $conversation->mailbox_id)
@@ -49,11 +49,11 @@
         <div class="mt-6 flex items-center justify-end gap-3">
             <button type="button" 
                     onclick="window.parent.closeModal()"
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition">
+                    class="px-4 py-2 text-sm font-medium text-neutral-700 bg-neutral-200 rounded-md hover:bg-neutral-300 transition">
                 {{ __('Cancel') }}
             </button>
             <button type="submit" 
-                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition">
+                    class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 transition">
                 {{ __('Move Conversation') }}
             </button>
         </div>
