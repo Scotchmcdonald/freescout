@@ -7,8 +7,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Api\Action1ScriptCallbackController;
 use App\Http\Controllers\Controller;
 use App\Services\CircuitBreakerService;
-use Google\Client as GoogleClient;
-use Google\Service\Directory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +21,8 @@ use Modules\Action1\Enums\Action1Role;
 use Modules\Action1\Enums\MspScriptCategory;
 use Modules\Action1\Services\MspScriptService;
 use Modules\CaseManager\Services\GeminiClient;
+use Modules\GoogleAdmin\Models\GoogleConfig;
+use Modules\GoogleAdmin\Services\GoogleWorkspaceService;
 use Nwidart\Modules\Facades\Module as ModuleFacade;
 
 /**
@@ -92,6 +92,9 @@ class ResilienceController extends Controller
                 'module' => $api['module_name'],
                 'description' => $api['description'],
                 'probe_url' => route('admin.resilience.api-probe', ['api' => $api['key']]),
+                'primary_probe_label' => $api['primary_probe_label'] ?? 'Run Connectivity Test',
+                'secondary_probe_label' => $api['secondary_probe_label'] ?? null,
+                'secondary_probe_mode' => $api['secondary_probe_mode'] ?? null,
                 'supports_deep_test' => $api['key'] === 'action1',
                 'circuit' => [
                     'service' => $api['circuit_service'],
@@ -277,11 +280,12 @@ class ResilienceController extends Controller
     /**
      * Lightweight API probe for installed integrations.
      */
-    public function probeApi(string $api): JsonResponse
+    public function probeApi(Request $request, string $api): JsonResponse
     {
         $allowedApis = collect($this->installedApiIntegrations($this->enabledModuleAliases()))
             ->pluck('key')
             ->all();
+        $mode = $request->string('mode')->toString();
 
         if (! in_array($api, $allowedApis, true)) {
             return response()->json([
@@ -293,7 +297,9 @@ class ResilienceController extends Controller
 
         return match ($api) {
             'action1' => $this->probeAction1Summary(),
-            'google_workspace' => $this->probeGoogleWorkspace(),
+            'google_workspace' => $mode === 'tenant_sweep'
+                ? $this->probeGoogleWorkspaceTenantSweep()
+                : $this->probeGoogleWorkspaceHomeDomain(),
             'helcim' => $this->probeHelcim(),
             'gemini_api' => $this->probeGemini(),
             default => response()->json([
@@ -698,6 +704,7 @@ class ResilienceController extends Controller
                 'rate_prefix' => 'action1_api:',
                 'limit' => 5000,
                 'description' => 'RMM sync and automation execution API.',
+                'primary_probe_label' => 'Run Connectivity Test',
             ],
             [
                 'key' => 'google_workspace',
@@ -708,6 +715,9 @@ class ResilienceController extends Controller
                 'rate_prefix' => 'google_api:',
                 'limit' => config()->integer('google.rate_limit', 100),
                 'description' => 'Directory and device synchronization API.',
+                'primary_probe_label' => 'Run Home Domain Test',
+                'secondary_probe_label' => 'Run Tenant Sweep',
+                'secondary_probe_mode' => 'tenant_sweep',
             ],
             [
                 'key' => 'helcim',
@@ -718,6 +728,7 @@ class ResilienceController extends Controller
                 'rate_prefix' => 'helcim_api:',
                 'limit' => null,
                 'description' => 'Vaulting, charge, and payment settlement API.',
+                'primary_probe_label' => 'Run Connectivity Test',
             ],
             [
                 'key' => 'gemini_api',
@@ -728,6 +739,7 @@ class ResilienceController extends Controller
                 'rate_prefix' => 'gemini_api_hourly',
                 'limit' => 1500,
                 'description' => 'AI analysis and response generation API.',
+                'primary_probe_label' => 'Run Connectivity Test',
             ],
         ];
 
@@ -957,53 +969,236 @@ class ResilienceController extends Controller
         }
     }
 
-    private function probeGoogleWorkspace(): JsonResponse
+    private function probeGoogleWorkspaceHomeDomain(): JsonResponse
     {
         $start = microtime(true);
+        $credentialsPath = config()->string('google.credentials_path', storage_path('app/google-credentials.json'));
+        $adminEmail = config()->string('google.admin_email', '');
+        $domain = config()->string('google.domain', '');
 
-        try {
-            $credentialsPath = config()->string('google.credentials_path', storage_path('app/google-credentials.json'));
-            $adminEmail = config()->string('google.admin_email', '');
-            $customerId = config()->string('google.customer_id', 'my_customer');
-
-            if ($credentialsPath === '' || ! is_file($credentialsPath)) {
-                return response()->json([
-                    'ok' => false,
-                    'api' => 'google_workspace',
-                    'message' => 'GOOGLE_CREDENTIALS_PATH is missing or file does not exist.',
-                    'latency_ms' => (int) round((microtime(true) - $start) * 1000),
-                ]);
-            }
-
-            $client = new GoogleClient;
-            $client->setAuthConfig($credentialsPath);
-            $client->setScopes([Directory::ADMIN_DIRECTORY_USER_READONLY]);
-            if ($adminEmail !== '') {
-                $client->setSubject($adminEmail);
-            }
-
-            $directory = new Directory($client);
-            $users = $directory->users->listUsers([
-                'customer' => $customerId !== '' ? $customerId : 'my_customer',
-                'maxResults' => 1,
-            ]);
-
-            return response()->json([
-                'ok' => true,
-                'api' => 'google_workspace',
-                'message' => 'Google Workspace API reachable. Directory read succeeded.',
-                'latency_ms' => (int) round((microtime(true) - $start) * 1000),
-                'details' => [
-                    'sample_user_count' => count($users->getUsers() ?? []),
-                ],
-            ]);
-        } catch (\Throwable $e) {
+        if ($credentialsPath === '' || ! is_file($credentialsPath)) {
             return response()->json([
                 'ok' => false,
                 'api' => 'google_workspace',
+                'mode' => 'home_domain',
+                'message' => 'GOOGLE_CREDENTIALS_PATH is missing or file does not exist.',
+                'latency_ms' => (int) round((microtime(true) - $start) * 1000),
+            ]);
+        }
+
+        if ($adminEmail === '') {
+            return response()->json([
+                'ok' => false,
+                'api' => 'google_workspace',
+                'mode' => 'home_domain',
+                'message' => 'GOOGLE_ADMIN_EMAIL is required for the home-domain probe.',
+                'latency_ms' => (int) round((microtime(true) - $start) * 1000),
+            ]);
+        }
+
+        if ($domain === '') {
+            return response()->json([
+                'ok' => false,
+                'api' => 'google_workspace',
+                'mode' => 'home_domain',
+                'message' => 'GOOGLE_DOMAIN must be configured for the home-domain probe.',
+                'latency_ms' => (int) round((microtime(true) - $start) * 1000),
+            ]);
+        }
+
+        $result = $this->runGoogleWorkspaceConnectivityCheck(
+            credentials: $credentialsPath,
+            adminEmail: $adminEmail,
+            domain: $domain,
+            label: 'Home domain',
+            target: $domain,
+        );
+
+        return response()->json([
+            'ok' => $result['ok'],
+            'api' => 'google_workspace',
+            'mode' => 'home_domain',
+            'message' => $result['ok']
+                ? 'Home-domain Google Workspace probe passed.'
+                : $result['message'],
+            'latency_ms' => (int) round((microtime(true) - $start) * 1000),
+            'details' => [
+                'home_domain' => $domain,
+                'checks' => [$result],
+            ],
+        ], 200);
+    }
+
+    private function probeGoogleWorkspaceTenantSweep(): JsonResponse
+    {
+        $start = microtime(true);
+
+        $configs = GoogleConfig::query()
+            ->with('client:id,name')
+            ->whereNotNull('domain')
+            ->where('domain', '!=', '')
+            ->orderBy('domain')
+            ->get();
+
+        if ($configs->isEmpty()) {
+            return response()->json([
+                'ok' => false,
+                'api' => 'google_workspace',
+                'mode' => 'tenant_sweep',
+                'message' => 'No enrolled Google domains were found in GoogleAdmin settings.',
+                'latency_ms' => (int) round((microtime(true) - $start) * 1000),
+                'details' => [
+                    'checked_count' => 0,
+                    'passed_count' => 0,
+                    'failed_count' => 0,
+                    'checks' => [],
+                ],
+            ], 200);
+        }
+
+        $checks = [];
+
+        foreach ($configs as $config) {
+            $clientName = is_object($config->client) ? (string) ($config->client->name ?? 'Unknown client') : 'Unknown client';
+            $label = $clientName;
+            $target = (string) $config->domain;
+
+            if (! $config->hasCredentials()) {
+                $checks[] = [
+                    'ok' => false,
+                    'label' => $label,
+                    'target' => $target,
+                    'message' => 'Credentials missing for enrolled domain.',
+                    'latency_ms' => 0,
+                    'client_id' => $config->client_id,
+                    'client_name' => $clientName,
+                    'domain' => $target,
+                ];
+
+                continue;
+            }
+
+            if (blank($config->admin_email)) {
+                $checks[] = [
+                    'ok' => false,
+                    'label' => $label,
+                    'target' => $target,
+                    'message' => 'Admin email is missing for domain-wide delegation.',
+                    'latency_ms' => 0,
+                    'client_id' => $config->client_id,
+                    'client_name' => $clientName,
+                    'domain' => $target,
+                ];
+
+                continue;
+            }
+
+            $credentials = $config->getDecryptedCredentials();
+            if (! is_array($credentials) || $credentials === []) {
+                $checks[] = [
+                    'ok' => false,
+                    'label' => $label,
+                    'target' => $target,
+                    'message' => 'Stored credentials could not be decrypted or parsed.',
+                    'latency_ms' => 0,
+                    'client_id' => $config->client_id,
+                    'client_name' => $clientName,
+                    'domain' => $target,
+                ];
+
+                continue;
+            }
+
+            $checks[] = $this->runGoogleWorkspaceConnectivityCheck(
+                credentials: $credentials,
+                adminEmail: (string) $config->admin_email,
+                domain: $target,
+                label: $label,
+                target: $target,
+                clientId: (int) $config->client_id,
+                clientName: $clientName,
+                orgUnitPath: $config->org_unit_path,
+            );
+        }
+
+        $passedCount = collect($checks)->where('ok', true)->count();
+        $failedCount = count($checks) - $passedCount;
+
+        return response()->json([
+            'ok' => $failedCount === 0,
+            'api' => 'google_workspace',
+            'mode' => 'tenant_sweep',
+            'message' => $failedCount === 0
+                ? 'All enrolled Google Workspace domains passed connectivity tests.'
+                : $passedCount.'/'.count($checks).' enrolled Google Workspace domains passed connectivity tests.',
+            'latency_ms' => (int) round((microtime(true) - $start) * 1000),
+            'details' => [
+                'checked_count' => count($checks),
+                'passed_count' => $passedCount,
+                'failed_count' => $failedCount,
+                'checks' => $checks,
+            ],
+        ], 200);
+    }
+
+    /**
+     * @param  string|array<mixed>  $credentials
+     * @return array<string, mixed>
+     */
+    private function runGoogleWorkspaceConnectivityCheck(
+        string|array $credentials,
+        string $adminEmail,
+        string $domain,
+        string $label,
+        string $target,
+        ?int $clientId = null,
+        ?string $clientName = null,
+        ?string $orgUnitPath = null,
+    ): array {
+        $start = microtime(true);
+
+        try {
+            /** @var GoogleWorkspaceService $googleService */
+            $googleService = app(GoogleWorkspaceService::class);
+            $connected = $googleService->connect($credentials, $adminEmail);
+
+            if (! $connected) {
+                return [
+                    'ok' => false,
+                    'label' => $label,
+                    'target' => $target,
+                    'message' => 'Google client initialization failed with the configured credentials.',
+                    'latency_ms' => (int) round((microtime(true) - $start) * 1000),
+                    'client_id' => $clientId,
+                    'client_name' => $clientName,
+                    'domain' => $domain,
+                ];
+            }
+
+            $users = $googleService->listUsers($domain, $orgUnitPath);
+
+            return [
+                'ok' => true,
+                'label' => $label,
+                'target' => $target,
+                'message' => 'Directory read succeeded. '.count($users).' user(s) visible in the sample query.',
+                'latency_ms' => (int) round((microtime(true) - $start) * 1000),
+                'sample_user_count' => count($users),
+                'client_id' => $clientId,
+                'client_name' => $clientName,
+                'domain' => $domain,
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'ok' => false,
+                'label' => $label,
+                'target' => $target,
                 'message' => $e->getMessage(),
                 'latency_ms' => (int) round((microtime(true) - $start) * 1000),
-            ], 200);
+                'client_id' => $clientId,
+                'client_name' => $clientName,
+                'domain' => $domain,
+            ];
         }
     }
 

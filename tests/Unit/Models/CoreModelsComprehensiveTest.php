@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models;
 
-use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Email;
 use App\Models\Mailbox;

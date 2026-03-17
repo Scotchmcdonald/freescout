@@ -267,7 +267,7 @@ class ModuleBuildRecordingOutputStyle extends OutputStyle
 
     public function __construct()
     {
-        parent::__construct(new ArrayInput([]), new BufferedOutput());
+        parent::__construct(new ArrayInput([]), new BufferedOutput);
     }
 
     public function writeln(string|iterable $messages, int $type = self::OUTPUT_NORMAL): void

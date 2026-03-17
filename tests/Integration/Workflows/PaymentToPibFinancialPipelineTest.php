@@ -16,7 +16,6 @@ use Modules\Payment\Services\ClientCreditService;
 use Modules\PIB\Events\InvoicePaid;
 use Modules\PIB\Listeners\PaymentDisputedListener;
 use Modules\PIB\Models\Invoice;
-use PHPUnit\Framework\Attributes\Group;
 use Tests\IntegrationTestCase;
 
 /**

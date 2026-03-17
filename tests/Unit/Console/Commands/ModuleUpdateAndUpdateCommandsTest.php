@@ -162,9 +162,7 @@ class UpdateCommandLock
 {
     public bool $released = false;
 
-    public function __construct(private readonly bool $getResult)
-    {
-    }
+    public function __construct(private readonly bool $getResult) {}
 
     public function get(): bool
     {
@@ -187,7 +185,7 @@ class UpdateCommandRecordingOutputStyle extends OutputStyle
 
     public function __construct()
     {
-        parent::__construct(new ArrayInput([]), new BufferedOutput());
+        parent::__construct(new ArrayInput([]), new BufferedOutput);
     }
 
     public function writeln(string|iterable $messages, int $type = self::OUTPUT_NORMAL): void

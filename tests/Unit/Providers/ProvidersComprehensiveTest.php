@@ -165,9 +165,7 @@ class ProvidersComprehensiveTest extends UnitTestCase
 
         $repository = new class([$matchingModule, $otherModule]) extends LaravelFileRepository
         {
-            public function __construct(private array $modules)
-            {
-            }
+            public function __construct(private array $modules) {}
 
             public function all(): array
             {

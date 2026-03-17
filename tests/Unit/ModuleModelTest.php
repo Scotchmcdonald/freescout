@@ -139,5 +139,4 @@ class ModuleModelTest extends UnitTestCase
         $this->assertEquals('1.2.3', $module->version);
         $this->assertMatchesRegularExpression('/^\d+\.\d+\.\d+$/', $module->version);
     }
-
 }

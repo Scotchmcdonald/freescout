@@ -20,13 +20,13 @@ trait MakesRoleActors
      */
     protected function makeAdminUser(): User
     {
-        return User::create([
+        return User::factory()->create([
             'first_name' => 'Admin',
             'last_name' => 'User',
             'email' => 'admin-'.uniqid().'@test.local',
-            'type' => 1, // TYPE_INTERNAL
-            'role_id' => 2, // ROLE_ADMIN
-            'password' => bcrypt('password'),
+            'type' => User::TYPE_INTERNAL,
+            'role' => User::ROLE_ADMIN,
+            'status' => User::STATUS_ACTIVE,
         ]);
     }
 
@@ -36,13 +36,13 @@ trait MakesRoleActors
      */
     protected function makeFinanceUser(Company $company): User
     {
-        $user = User::create([
+        $user = User::factory()->create([
             'first_name' => 'Finance',
             'last_name' => 'User',
             'email' => 'finance-'.uniqid().'@test.local',
-            'type' => 1, // TYPE_INTERNAL
-            'role_id' => 4, // ROLE_FINANCE
-            'password' => bcrypt('password'),
+            'type' => User::TYPE_INTERNAL,
+            'role' => User::ROLE_FINANCE,
+            'status' => User::STATUS_ACTIVE,
         ]);
 
         $user->companies()->attach($company->id, [
@@ -60,13 +60,13 @@ trait MakesRoleActors
      */
     protected function makeTechnicianUser(Company $company): User
     {
-        $user = User::create([
+        $user = User::factory()->create([
             'first_name' => 'Technician',
             'last_name' => 'User',
             'email' => 'tech-'.uniqid().'@test.local',
-            'type' => 1, // TYPE_INTERNAL
-            'role_id' => 1, // ROLE_USER
-            'password' => bcrypt('password'),
+            'type' => User::TYPE_INTERNAL,
+            'role' => User::ROLE_USER,
+            'status' => User::STATUS_ACTIVE,
         ]);
 
         $user->companies()->attach($company->id, [
@@ -84,13 +84,13 @@ trait MakesRoleActors
      */
     protected function makeTechnicianWithoutAccess(): User
     {
-        return User::create([
+        return User::factory()->create([
             'first_name' => 'Isolated',
             'last_name' => 'Technician',
             'email' => 'isolated-tech-'.uniqid().'@test.local',
-            'type' => 1, // TYPE_INTERNAL
-            'role_id' => 1, // ROLE_USER
-            'password' => bcrypt('password'),
+            'type' => User::TYPE_INTERNAL,
+            'role' => User::ROLE_USER,
+            'status' => User::STATUS_ACTIVE,
         ]);
     }
 
@@ -98,17 +98,17 @@ trait MakesRoleActors
      * Create a client user (TYPE_CLIENT = 2).
      * Attached to a company and has client_id set.
      */
-    protected function makeClientUser(Company $company, Client $client = null): User
+    protected function makeClientUser(Company $company, ?Client $client = null): User
     {
         $client = $client ?? Client::factory()->create(['company_id' => $company->id]);
 
-        $user = User::create([
+        $user = User::factory()->create([
             'first_name' => 'Client',
             'last_name' => 'User',
             'email' => 'client-'.uniqid().'@test.local',
-            'type' => 2, // TYPE_CLIENT
-            'client_id' => $client->id,
-            'password' => bcrypt('password'),
+            'type' => User::TYPE_CLIENT,
+            'role' => User::ROLE_USER,
+            'status' => User::STATUS_ACTIVE,
         ]);
 
         $user->companies()->attach($company->id, [
@@ -126,12 +126,13 @@ trait MakesRoleActors
      */
     protected function makeGuestUser(): User
     {
-        return User::create([
+        return User::factory()->create([
             'first_name' => 'Guest',
             'last_name' => 'User',
             'email' => 'guest-'.uniqid().'@test.local',
-            'type' => 1, // TYPE_INTERNAL
-            'password' => bcrypt('password'),
+            'type' => User::TYPE_INTERNAL,
+            'role' => User::ROLE_USER,
+            'status' => User::STATUS_ACTIVE,
         ]);
     }
 }
