@@ -82,7 +82,9 @@ fi
 
 echo ""
 echo "Rule 2: No inline hardcoded color values in style attributes (use CSS variables/theme tokens)."
-R2_MATCHES="$(echo "$TARGET_FILES" | xargs -r grep -nE "$INLINE_HARDCODED_COLORS" 2>/dev/null | grep -v "$IGNORE_MARKER" || true)"
+# Email templates require inline styles for email-client compatibility — exclude resources/views/emails/ and */emails/*.blade.php
+R2_FILES="$(echo "$TARGET_FILES" | grep -v '/emails/')"
+R2_MATCHES="$(echo "$R2_FILES" | xargs -r grep -nE "$INLINE_HARDCODED_COLORS" 2>/dev/null | grep -v "$IGNORE_MARKER" || true)"
 if [[ -n "$R2_MATCHES" ]]; then
     echo "❌ FAIL: Found inline hardcoded color values:"
     echo "$R2_MATCHES"
