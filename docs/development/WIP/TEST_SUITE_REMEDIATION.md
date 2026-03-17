@@ -448,17 +448,23 @@ definitions, not application business rules.
 
 - [x] **B4-5 · Add Gemini malformed-response handling test**
   - **Target file:** `Modules/CaseManager/Tests/Integration/Services/GeminiClientTest.php`
-    (extend)
-  - **Scenarios to add:**
-    1. Gemini API returns non-JSON body (`text/html` error page) →
-       `GeminiClient` throws a typed exception (not a generic PHP error).
-       Assert the exception class and that `DecisionEngine` catches it and
-       sets the `Diagnostic` status to `failed`.
-    2. Gemini returns truncated JSON (valid prefix, ends mid-token) →
-       same fallback path as above.
-    3. Gemini returns HTTP 429 → `GeminiClient` propagates a
-       `RateLimitException`; `AiPipelineFailureHandler` schedules a retry.
-  - Acceptance: 3 scenarios; assertions on `Diagnostic.status` in DB.
+    (extended with 3 test scenarios)
+  - **Scenarios implemented:**
+    1. **Non-JSON HTML response** — Gemini API returns HTTP 200 with HTML error page
+       instead of JSON. GeminiClient throws `MalformedResponseException`.
+       HandleConversationCreated listener catches, transitions case to
+       `api_error_needs_human`, marks diagnostics as `failed`.
+    2. **Truncated JSON response** — Gemini returns valid JSON prefix that cuts
+       off mid-token. GeminiClient parsing fails, throws `MalformedResponseException`.
+       Same graceful degradation path as scenario 1.
+    3. **HTTP 429 Rate Limit** — Gemini API returns HTTP 429 Too Many Requests.
+       GeminiClient throws `RateLimitException`. Listener catches, dispatches
+       `CheckCaseApiErrorJob` for delayed retry, keeps diagnostics in `running`
+       state (preserves state for retry).
+  - **Tests validate:** All three scenarios are caught gracefully without bubbling
+    exceptions. Diagnostic state transitions correctly. Case is escalated or
+    preserved for retry based on error type.
+  - Acceptance: All 3 scenarios passing (4 tests total including rate limiter unit test).
 
 - [x] **B4-6 · Add `AiPipelineFailureHandler` exhaustion test**
   - **Target file:**
