@@ -1,14 +1,14 @@
 <?php
 
-namespace Tests\Unit\Controllers\Auth;
+namespace Tests\Integration\Controllers\Auth;
 
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class VerifyEmailControllerTest extends UnitTestCase
+class VerifyEmailControllerTest extends IntegrationTestCase
 {
     public function test_email_can_be_verified()
     {

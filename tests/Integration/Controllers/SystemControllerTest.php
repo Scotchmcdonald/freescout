@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Controllers;
+namespace Tests\Integration\Controllers;
 
 use App\Http\Controllers\SystemController;
 use App\Models\Conversation;
@@ -11,9 +11,9 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class SystemControllerTest extends UnitTestCase
+class SystemControllerTest extends IntegrationTestCase
 {
     public function test_controller_can_be_instantiated(): void
     {

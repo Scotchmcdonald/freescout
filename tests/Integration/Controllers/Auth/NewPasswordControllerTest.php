@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Unit\Controllers\Auth;
+namespace Tests\Integration\Controllers\Auth;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class NewPasswordControllerTest extends UnitTestCase
+class NewPasswordControllerTest extends IntegrationTestCase
 {
     protected function setUp(): void
     {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\Unit\Controllers\Auth;
+namespace Tests\Integration\Controllers\Auth;
 
 use App\Models\User;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class ConfirmablePasswordControllerTest extends UnitTestCase
+class ConfirmablePasswordControllerTest extends IntegrationTestCase
 {
     public function test_show_displays_confirmation_form()
     {

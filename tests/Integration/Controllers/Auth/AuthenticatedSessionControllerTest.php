@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\Unit\Controllers\Auth;
+namespace Tests\Integration\Controllers\Auth;
 
 use App\Models\User;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class AuthenticatedSessionControllerTest extends UnitTestCase
+class AuthenticatedSessionControllerTest extends IntegrationTestCase
 {
     public function test_create_shows_login_form()
     {

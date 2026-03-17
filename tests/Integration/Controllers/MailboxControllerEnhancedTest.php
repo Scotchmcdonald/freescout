@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Controllers;
+namespace Tests\Integration\Controllers;
 
 use App\Http\Controllers\MailboxController;
 use App\Models\Mailbox;
 use App\Models\User;
 use App\Services\ImapService;
 use Illuminate\Http\Request;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class MailboxControllerEnhancedTest extends UnitTestCase
+class MailboxControllerEnhancedTest extends IntegrationTestCase
 {
     public function test_index_returns_view_with_mailboxes(): void
     {

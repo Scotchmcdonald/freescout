@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\Unit\Controllers;
+namespace Tests\Integration\Controllers;
 
 use App\Models\User;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class ProfileControllerTest extends UnitTestCase
+class ProfileControllerTest extends IntegrationTestCase
 {
     public function test_edit_shows_profile_form()
     {

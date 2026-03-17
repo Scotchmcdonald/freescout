@@ -1,12 +1,12 @@
 <?php
 
-namespace Tests\Unit\Controllers\Auth;
+namespace Tests\Integration\Controllers\Auth;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class RegisteredUserControllerTest extends UnitTestCase
+class RegisteredUserControllerTest extends IntegrationTestCase
 {
     public function test_create_shows_registration_form()
     {

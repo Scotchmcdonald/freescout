@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\Unit\Controllers\Auth;
+namespace Tests\Integration\Controllers\Auth;
 
 use App\Models\User;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class EmailVerificationReminderControllerTest extends UnitTestCase
+class EmailVerificationReminderControllerTest extends IntegrationTestCase
 {
     public function test_user_can_request_verification_email()
     {

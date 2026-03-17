@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Controllers;
+namespace Tests\Integration\Controllers;
 
 use App\Actions\Conversations\ReplyToConversationAction;
 use App\Http\Controllers\ConversationController;
@@ -16,9 +16,9 @@ use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class ConversationControllerTest extends UnitTestCase
+class ConversationControllerTest extends IntegrationTestCase
 {
     public function test_controller_can_be_instantiated(): void
     {

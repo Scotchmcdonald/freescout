@@ -8,9 +8,9 @@ abstract class UnitTestCase extends TestCase
 {
     use RefreshDatabase;
 
-    // TODO (WS-C): RefreshDatabase is temporarily declared here for backward compatibility
-    // while DB-heavy unit tests are migrated to the Integration layer.
-    // Remove this trait once all factory()->create() usages in tests/Unit/ are eliminated
-    // or converted to factory()->make() / mocked equivalents.
-    // Tracking: docs/development/WIP/TESTING_SUITE_REFACTOR_PLAN_2026-03-17.md WS-C
+    // NOTE: RefreshDatabase is retained here because root Unit tests for models,
+    // observers, listeners, and jobs call factory()->create() and require DB isolation.
+    // tests/Unit/Controllers/ has been migrated to tests/Integration/Controllers/ (WS-C).
+    // The remaining DB-touching Unit tests are documented temporary exceptions
+    // per the WS-C exit criteria; a broader model/observer/listener migration is tracked separately.
 }

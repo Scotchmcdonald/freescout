@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\Unit\Controllers\Auth;
+namespace Tests\Integration\Controllers\Auth;
 
 use App\Models\User;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class PasswordResetLinkControllerTest extends UnitTestCase
+class PasswordResetLinkControllerTest extends IntegrationTestCase
 {
     public function test_create_shows_request_form()
     {
