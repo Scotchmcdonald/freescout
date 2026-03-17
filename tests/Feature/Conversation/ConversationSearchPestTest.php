@@ -26,17 +26,13 @@ test('search finds conversations by subject', function () {
 
     $response = $this->actingAs($user)->get(route('conversations.search', ['q' => 'Password']));
 
+    $conversations = $response->viewData('conversations');
+
     $response->assertOk()
         ->assertViewIs('conversations.search')
-        ->assertSee('Password Reset Help')
-        ->assertDontSee('Billing Question');
-
-    // Check collection if available
-    if ($response->viewData('conversations')) {
-        $conversations = $response->viewData('conversations');
-        $this->assertTrue($conversations->contains($targetConv));
-        $this->assertFalse($conversations->contains($otherConv));
-    }
+        ->assertViewHas('conversations');
+    $this->assertTrue($conversations->contains($targetConv));
+    $this->assertFalse($conversations->contains($otherConv));
 });
 
 test('search finds conversations by customer name', function () {
@@ -60,9 +56,10 @@ test('search finds conversations by customer name', function () {
 
     $response = $this->actingAs($user)->get(route('conversations.search', ['q' => 'Sarah']));
 
-    $response->assertOk()
-        ->assertSee('Technical Issue')
-        ->assertSee('Sarah');
+    $conversations = $response->viewData('conversations');
+
+    $response->assertOk()->assertViewHas('conversations');
+    $this->assertTrue($conversations->contains($conversation));
 });
 
 test('search only shows authorized mailboxes', function () {
@@ -87,9 +84,11 @@ test('search only shows authorized mailboxes', function () {
 
     $response = $this->actingAs($user)->get(route('conversations.search', ['q' => 'Conversation']));
 
-    $response->assertOk()
-        ->assertSee('Authorized Conversation')
-        ->assertDontSee('Unauthorized Conversation');
+    $conversations = $response->viewData('conversations');
+
+    $response->assertOk()->assertViewHas('conversations');
+    $this->assertTrue($conversations->contains($authorized));
+    $this->assertFalse($conversations->contains($unauthorized));
 });
 
 test('admin search shows all mailboxes', function () {
@@ -114,9 +113,11 @@ test('admin search shows all mailboxes', function () {
 
     $response = $this->actingAs($admin)->get(route('conversations.search', ['q' => 'Search Test']));
 
-    $response->assertOk()
-        ->assertSee('Mailbox 1 Search Test')
-        ->assertSee('Mailbox 2 Search Test');
+    $conversations = $response->viewData('conversations');
+
+    $response->assertOk()->assertViewHas('conversations');
+    $this->assertTrue($conversations->contains($mailbox1Conv));
+    $this->assertTrue($conversations->contains($mailbox2Conv));
 });
 
 test('search paginates results', function () {

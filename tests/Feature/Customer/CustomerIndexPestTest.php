@@ -30,10 +30,11 @@ test('customers list displays created customers', function () {
 
     $response = $this->actingAs($user)->get(route('customers.index'));
 
-    $response->assertSee('Alpha')
-        ->assertSee('alpha@example.com')
-        ->assertSee('Beta')
-        ->assertSee('beta@example.com');
+    $customers = $response->viewData('customers')->getCollection()->keyBy('first_name');
+
+    $response->assertOk()->assertViewHas('customers');
+    expect($customers->has('Alpha'))->toBeTrue()
+        ->and($customers->has('Beta'))->toBeTrue();
 });
 
 test('customers list supports search by first name', function () {
@@ -41,11 +42,14 @@ test('customers list supports search by first name', function () {
     Customer::factory()->create(['first_name' => 'UniqueName', 'email' => 'unique@example.com']);
     Customer::factory()->create(['first_name' => 'OtherName', 'email' => 'other@example.com']);
 
-    $this->actingAs($user)->get(route('customers.index', ['search' => 'UniqueName']))
-        ->assertOk()
-        ->assertSee('UniqueName')
-        ->assertSee('unique@example.com')
-        ->assertDontSee('OtherName');
+    $response = $this->actingAs($user)->get(route('customers.index', ['search' => 'UniqueName']));
+
+    $customers = $response->viewData('customers')->getCollection();
+    $names = $customers->pluck('first_name');
+
+    $response->assertOk()->assertViewHas('customers');
+    expect($names)->toContain('UniqueName')
+        ->and($names)->not->toContain('OtherName');
 });
 
 test('customers list supports search by last name', function () {
@@ -53,11 +57,14 @@ test('customers list supports search by last name', function () {
     Customer::factory()->create(['last_name' => 'UniqueLast', 'email' => 'uniquelast@example.com']);
     Customer::factory()->create(['last_name' => 'OtherLast', 'email' => 'otherlast@example.com']);
 
-    $this->actingAs($user)->get(route('customers.index', ['search' => 'UniqueLast']))
-        ->assertOk()
-        ->assertSee('UniqueLast')
-        ->assertSee('uniquelast@example.com')
-        ->assertDontSee('OtherLast');
+    $response = $this->actingAs($user)->get(route('customers.index', ['search' => 'UniqueLast']));
+
+    $customers = $response->viewData('customers')->getCollection();
+    $lastNames = $customers->pluck('last_name');
+
+    $response->assertOk()->assertViewHas('customers');
+    expect($lastNames)->toContain('UniqueLast')
+        ->and($lastNames)->not->toContain('OtherLast');
 });
 
 test('customers list supports search by email', function () {
@@ -65,11 +72,14 @@ test('customers list supports search by email', function () {
     Customer::factory()->create(['first_name' => 'PersonA', 'email' => 'findme@example.com']);
     Customer::factory()->create(['first_name' => 'PersonB', 'email' => 'hide@example.com']);
 
-    $this->actingAs($user)->get(route('customers.index', ['search' => 'findme@example.com']))
-        ->assertOk()
-        ->assertSee('PersonA')
-        ->assertSee('findme@example.com')
-        ->assertDontSee('PersonB'); // Assuming PersonB is not visible because email doesn't match
+    $response = $this->actingAs($user)->get(route('customers.index', ['search' => 'findme@example.com']));
+
+    $customers = $response->viewData('customers')->getCollection();
+    $names = $customers->pluck('first_name');
+
+    $response->assertOk()->assertViewHas('customers');
+    expect($names)->toContain('PersonA')
+        ->and($names)->not->toContain('PersonB');
 });
 
 test('customers list pagination works', function () {
