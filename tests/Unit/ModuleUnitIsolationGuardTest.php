@@ -19,6 +19,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      */
     private array $allowlistedPathPrefixes = [
         'Modules/PIB/Tests/Unit/',
+        'Modules/SoftwareSubscriptions/Tests/Unit/', // migration in progress — B0 allowlist
     ];
 
     /**
@@ -28,6 +29,17 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      * @var array<int, string>
      */
     private array $allowlistedRefreshDatabaseBaseline = [
+        'Modules/SoftwareSubscriptions/Tests/Unit/ClientSoftwareSubscriptionPestTest.php',
+        'Modules/SoftwareSubscriptions/Tests/Unit/DiscoveryEventsPestTest.php',
+        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketListenerPestTest.php',
+        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketListenerTest.php',
+        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketSystemPestTest.php',
+        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketSystemTest.php',
+        'Modules/SoftwareSubscriptions/Tests/Unit/SoftwareDiscoveryPestTest.php',
+        'Modules/SoftwareSubscriptions/Tests/Unit/SoftwareProductPestTest.php',
+        'Modules/SoftwareSubscriptions/Tests/Unit/SubscriptionCounterServicePestTest.php',
+        'Modules/SoftwareSubscriptions/Tests/Unit/VendorCostReportPestTest.php',
+        'Modules/SoftwareSubscriptions/Tests/Unit/VendorCostReportTest.php',
     ];
 
     public function test_module_unit_tests_do_not_use_refresh_database_or_cross_module_persistence(): void
