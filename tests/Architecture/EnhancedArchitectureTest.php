@@ -287,3 +287,23 @@ test('PIB module listeners are registered in ServiceProvider')
  *     })
  *     ->toBeTrue();
  */
+
+// ---------------------------------------------------------------------------
+// No-Fly List enforcement — keeps No-Fly violations from re-accumulating
+// ---------------------------------------------------------------------------
+
+test('unit model tests do not assert database row counts')
+    ->expect('Tests\Unit\Models')
+    ->not->toUse('assertDatabaseCount');
+
+test('unit tests do not use wall-clock timing assertions')
+    ->expect('Tests\Unit')
+    ->not->toUse('microtime');
+
+test('unit tests do not assert database has records')
+    ->expect('Tests\Unit\Models')
+    ->not->toUse('assertDatabaseHas');
+
+test('unit tests do not assert eloquent relationship types directly')
+    ->expect('Tests\Unit\Models')
+    ->not->toUse('assertInstanceOf');
