@@ -9,11 +9,6 @@ use Modules\PIB\Services\Examples\CreditBalanceReportService;
 
 uses(RefreshDatabase::class);
 
-test('interface segregation: credit reader interface exists', function () {
-    $this->assertTrue(interface_exists(CreditReader::class));
-    $this->assertTrue(interface_exists(CreditWriter::class));
-});
-
 test('interface segregation: client credit service implements both interfaces', function () {
     $service = app(ClientCreditService::class);
 
@@ -55,16 +50,6 @@ test('interface segregation: legacy interface still works for backward compatibi
 
     $this->assertInstanceOf(CreditLedgerInterface::class, $legacy);
     $this->assertInstanceOf(ClientCreditService::class, $legacy);
-});
-
-test('interface segregation: read methods exist on credit reader', function () {
-    $this->assertTrue(method_exists(CreditReader::class, 'getBalance'));
-    $this->assertTrue(method_exists(CreditReader::class, 'hasSufficientCredit'));
-});
-
-test('interface segregation: write methods exist on credit writer', function () {
-    $this->assertTrue(method_exists(CreditWriter::class, 'addCredit'));
-    $this->assertTrue(method_exists(CreditWriter::class, 'deductCredit'));
 });
 
 test('interface segregation: mocking read-only interface is easier', function () {

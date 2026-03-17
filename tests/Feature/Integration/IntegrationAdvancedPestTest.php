@@ -275,7 +275,15 @@ test('filter by multiple criteria', function () {
         'status' => Conversation::STATUS_CLOSED,
     ]);
 
-    // Filter by my open conversations
-    // (Implementation of filter test depends on how your app filters, assuming basic structure here)
-    $this->assertTrue(true);
+    // The mailbox should have 2 conversations total: one active, one closed.
+    $this->assertDatabaseCount('conversations', 2);
+    $this->assertDatabaseHas('conversations', [
+        'mailbox_id' => $mailbox->id,
+        'status' => Conversation::STATUS_ACTIVE,
+        'user_id' => $user->id,
+    ]);
+    $this->assertDatabaseHas('conversations', [
+        'mailbox_id' => $mailbox->id,
+        'status' => Conversation::STATUS_CLOSED,
+    ]);
 });
