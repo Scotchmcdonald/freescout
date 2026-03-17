@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Services;
+namespace Tests\Integration\Services;
 
 use App\Models\Attachment;
 use App\Models\Conversation;
@@ -14,7 +14,7 @@ use App\Models\User;
 use App\Services\ImapService;
 use Illuminate\Support\Facades\Event;
 use Mockery;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 use Webklex\PHPIMAP\Attachment as ImapAttachment;
 use Webklex\PHPIMAP\Attribute;
 use Webklex\PHPIMAP\Header;
@@ -34,7 +34,7 @@ use Webklex\PHPIMAP\Support\AttachmentCollection;
  *
  * Total: 44 tests
  */
-class ImapServiceProcessMessageBasicTest extends UnitTestCase
+class ImapServiceProcessMessageBasicTest extends IntegrationTestCase
 {
     protected ImapService $service;
 
@@ -70,7 +70,7 @@ class ImapServiceProcessMessageBasicTest extends UnitTestCase
      */
     protected function createMockMessage(array $params = []): Message
     {
-        $message = Mockery::mock(Message::class.', \Tests\Unit\Services\MessageWithRawHeader');
+        $message = Mockery::mock(Message::class.', \Tests\Integration\Services\MessageWithRawHeader');
 
         // Default values
         $defaults = [

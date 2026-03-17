@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Services;
+namespace Tests\Integration\Services;
 
 use App\Models\Attachment;
 use App\Models\Conversation;
@@ -15,7 +15,7 @@ use App\Services\ImapService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Mockery;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 use Webklex\PHPIMAP\Attachment as ImapAttachment;
 use Webklex\PHPIMAP\Attribute;
 use Webklex\PHPIMAP\Header;
@@ -35,7 +35,7 @@ use Webklex\PHPIMAP\Support\AttachmentCollection;
  *
  * Total: 50 tests
  */
-class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
+class ImapServiceProcessMessageAdvancedTest extends IntegrationTestCase
 {
     protected ImapService $service;
 
