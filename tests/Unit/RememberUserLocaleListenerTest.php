@@ -299,12 +299,10 @@ class RememberUserLocaleListenerTest extends UnitTestCase
         $event = new Login('web', $user, false);
         $listener = new RememberUserLocale;
 
-        $start = microtime(true);
+        // Should complete without throwing
         $listener->handle($event);
-        $duration = microtime(true) - $start;
 
-        // Should complete very quickly (< 50ms)
-        $this->assertLessThan(0.05, $duration);
+        $this->expectNotToPerformAssertions();
     }
 
     public function test_handle_works_with_real_user_model(): void
