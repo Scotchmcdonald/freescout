@@ -8,7 +8,7 @@ use App\Models\Mailbox;
 use App\Services\ImapService;
 use Illuminate\Support\Facades\Log;
 use Mockery;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 use Webklex\PHPIMAP\Folder;
@@ -21,7 +21,7 @@ use Webklex\PHPIMAP\Support\MessageCollection;
  * Integration smoke tests for ImapService to validate all methods work together.
  * These tests verify that the service handles realistic scenarios correctly.
  */
-class ImapServiceIntegrationSmokeTest extends TestCase
+class ImapServiceIntegrationSmokeTest extends UnitTestCase
 {
     protected function setUp(): void
     {

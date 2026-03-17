@@ -2,9 +2,14 @@
 
 namespace Tests;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
 abstract class IntegrationTestCase extends TestCase
 {
-    // RefreshDatabase is inherited from the base TestCase.
+    use RefreshDatabase;
+
+    // RefreshDatabase is explicitly declared here (not inherited via TestCase).
+    // Integration tests are DB-backed by policy.
 
     protected function setUp(): void
     {

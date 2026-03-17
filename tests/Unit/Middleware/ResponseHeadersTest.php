@@ -5,9 +5,9 @@ namespace Tests\Unit\Middleware;
 use App\Http\Middleware\ResponseHeaders;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class ResponseHeadersTest extends TestCase
+class ResponseHeadersTest extends UnitTestCase
 {
     public function test_csp_headers_contain_cloudflare_insights()
     {

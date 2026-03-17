@@ -12,9 +12,9 @@ use App\Events\UserViewingConversation;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Thread;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class EventsTest extends TestCase
+class EventsTest extends UnitTestCase
 {
     public function test_conversation_updated_event_has_conversation(): void
     {

@@ -8,7 +8,7 @@ use App\Models\Mailbox;
 use App\Services\ImapService;
 use Illuminate\Support\Facades\Log;
 use Mockery;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\Folder;
 use Webklex\PHPIMAP\Message;
@@ -19,7 +19,7 @@ use Webklex\PHPIMAP\Support\MessageCollection;
  * Comprehensive tests for charset error handling and retry logic in ImapService::fetchEmails().
  * This covers an important code path for MS mailboxes that don't support charset.
  */
-class ImapServiceCharsetRetryTest extends TestCase
+class ImapServiceCharsetRetryTest extends UnitTestCase
 {
     protected function setUp(): void
     {

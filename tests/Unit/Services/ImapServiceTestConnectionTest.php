@@ -7,7 +7,7 @@ namespace Tests\Unit\Services;
 use App\Models\Mailbox;
 use App\Services\ImapService;
 use Mockery;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 use Webklex\PHPIMAP\Folder;
@@ -19,7 +19,7 @@ use Webklex\PHPIMAP\Support\MessageCollection;
  * Comprehensive tests for ImapService::testConnection() method.
  * This method currently has ~21% coverage and needs additional testing.
  */
-class ImapServiceTestConnectionTest extends TestCase
+class ImapServiceTestConnectionTest extends UnitTestCase
 {
     protected ImapService $service;
 

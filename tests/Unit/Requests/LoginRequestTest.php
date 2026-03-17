@@ -6,9 +6,9 @@ namespace Tests\Unit\Requests;
 
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Support\Facades\Validator;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class LoginRequestTest extends TestCase
+class LoginRequestTest extends UnitTestCase
 {
     public function test_login_request_authorization_returns_true(): void
     {

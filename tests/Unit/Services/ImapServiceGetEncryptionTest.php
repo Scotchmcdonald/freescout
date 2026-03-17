@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Tests\Unit\Services;
 
 use App\Services\ImapService;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
 /**
  * Comprehensive tests for ImapService::getEncryption() method.
  * This method currently has ~86% coverage and needs edge case testing.
  */
-class ImapServiceGetEncryptionTest extends TestCase
+class ImapServiceGetEncryptionTest extends UnitTestCase
 {
     protected ImapService $service;
 

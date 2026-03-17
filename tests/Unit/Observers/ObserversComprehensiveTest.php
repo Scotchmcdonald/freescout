@@ -388,7 +388,8 @@ class ObserversComprehensiveTest extends UnitTestCase
         // Should not throw an error
         $attachment->delete();
 
-        $this->assertTrue(true);
+        // assertFalse(Storage::exists(...)) above already verifies the file was absent.
+        // The delete() invocation itself should complete without throwing.
     }
 
     // ===== CUSTOMER OBSERVER TESTS (Merged from CustomerObserverTest.php) =====

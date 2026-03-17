@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Providers;
 
 use App\Providers\AppServiceProvider;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class AppServiceProviderTest extends TestCase
+class AppServiceProviderTest extends UnitTestCase
 {
     public function test_service_provider_can_be_instantiated(): void
     {

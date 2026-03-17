@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Http\Controllers\DashboardController;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class DashboardControllerTest extends TestCase
+class DashboardControllerTest extends UnitTestCase
 {
     public function test_controller_can_be_instantiated(): void
     {

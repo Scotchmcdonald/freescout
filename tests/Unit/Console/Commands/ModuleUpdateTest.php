@@ -4,348 +4,270 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Console\Commands;
 
+use App\Console\Commands\ModuleUpdate;
+use App\Module;
+use App\Services\ModuleSourceService;
+use Illuminate\Console\OutputStyle;
 use Illuminate\Support\Facades\Artisan;
-use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Nwidart\Modules\Facades\Module as ModuleFacade;
+use Nwidart\Modules\Laravel\Module as InstalledModule;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
+use Tests\UnitTestCase;
 
-/** @group console */
-class ModuleUpdateTest extends TestCase
+class ModuleUpdateTest extends UnitTestCase
 {
-    public function test_command_has_correct_signature(): void
+    protected function tearDown(): void
     {
-        $exitCode = Artisan::call('freescout:module-update', ['--help' => true]);
+        Module::$updateCallback = null;
+        Module::$isOfficialResult = null;
 
-        $this->assertEquals(0, $exitCode);
+        parent::tearDown();
     }
 
-    public function test_command_has_correct_description(): void
+    public function test_command_metadata_is_correct(): void
     {
-        $output = Artisan::output();
+        $command = new ModuleUpdate($this->mockModuleSource([]));
 
-        // Command should exist
-        $this->expectNotToPerformAssertions();
+        $this->assertSame('freescout:module-update', $command->getName());
+        $this->assertStringContainsString('update', strtolower($command->getDescription()));
+        $this->assertFalse($command->getDefinition()->getArgument('module_alias')->isRequired());
     }
 
-    public function test_command_accepts_module_alias_argument(): void
+    public function test_handle_reports_all_modules_up_to_date_when_nothing_changes(): void
     {
-        // Test that command can be called with optional argument
-        try {
-            Artisan::call('freescout:module-update', ['module_alias' => 'nonexistent']);
-        } catch (\Exception $e) {
-            // Expected - module doesn't exist
-        }
+        ModuleFacade::shouldReceive('all')->once()->andReturn([]);
+        Artisan::shouldReceive('call')->once()->with('freescout:clear-cache')->andReturn(0);
 
-        $this->expectNotToPerformAssertions();
+        $command = new TestableModuleUpdate($this->mockModuleSource([]));
+
+        $command->handle();
+
+        $this->assertContains('All modules are up-to-date', $command->recordingOutput()->lines);
     }
 
-    public function test_command_clears_cache_before_update(): void
+    public function test_handle_updates_official_module_when_directory_version_is_newer(): void
     {
-        // Command should clear cache first
-        $this->expectNotToPerformAssertions();
+        $installedModule = $this->mockInstalledModule('test-module', '1.0.0');
 
-        try {
-            Artisan::call('freescout:module-update');
-        } catch (\Exception $e) {
-            // Expected
-        }
-    }
+        ModuleFacade::shouldReceive('all')->once()->andReturn([$installedModule]);
+        Artisan::shouldReceive('call')->once()->with('freescout:clear-cache')->andReturn(0);
 
-    public function test_command_can_update_single_module(): void
-    {
-        // When module_alias is provided, only that module should be updated
-        $this->expectNotToPerformAssertions();
-    }
+        Module::$updateCallback = function (string $alias): array {
+            $this->assertSame('test-module', $alias);
 
-    public function test_command_can_update_all_modules(): void
-    {
-        // When no module_alias is provided, all modules should be checked
-        $this->assertTrue(true);
-    }
-
-    public function test_command_checks_version_before_updating(): void
-    {
-        // Command should compare directory version with installed version
-        $this->assertTrue(true);
-    }
-
-    public function test_command_shows_error_for_nonexistent_module(): void
-    {
-        try {
-            Artisan::call('freescout:module-update', ['module_alias' => 'definitely_does_not_exist_module']);
-            $output = Artisan::output();
-
-            // Should contain error message
-            $this->assertStringContainsString('not found', $output);
-        } catch (\Exception $e) {
-            // Some exception is expected
-            $this->assertTrue(true);
-        }
-    }
-
-    public function test_command_reports_no_updates_when_all_current(): void
-    {
-        try {
-            Artisan::call('freescout:module-update');
-            $output = Artisan::output();
-
-            // Should report status
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            // Expected
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_command_displays_update_success_message(): void
-    {
-        // Command should display success message after updates
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_command_displays_update_error_message(): void
-    {
-        // Command should display error message if update fails
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_command_displays_update_output(): void
-    {
-        // Command should display output from update process
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_command_handles_api_errors_gracefully(): void
-    {
-        // Command should handle WpApi errors
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_command_updates_official_modules(): void
-    {
-        // Command should check official modules from directory
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_command_updates_custom_modules(): void
-    {
-        // Command should check custom modules via latestVersionUrl
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_command_skips_official_modules_in_custom_check(): void
-    {
-        // Custom module loop should skip official modules
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_command_handles_network_errors_for_custom_modules(): void
-    {
-        // Command should handle Guzzle exceptions gracefully
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_command_clears_cache_after_updates(): void
-    {
-        // Command should call freescout:clear-cache at the end
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_command_counts_updated_modules(): void
-    {
-        // Command should track number of updated modules
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_command_validates_version_numbers(): void
-    {
-        // Command should use version_compare to check for updates
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_command_instance_can_be_created(): void
-    {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
-        $command = new \App\Console\Commands\ModuleUpdate($mockModuleSource);
-
-        $this->assertInstanceOf(\App\Console\Commands\ModuleUpdate::class, $command);
-        $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
-    }
-
-    public function test_command_has_handle_method(): void
-    {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
-        $command = new \App\Console\Commands\ModuleUpdate($mockModuleSource);
-
-        $this->assertTrue(method_exists($command, 'handle'));
-    }
-
-    public function test_command_signature_includes_optional_argument(): void
-    {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
-        $command = new \App\Console\Commands\ModuleUpdate($mockModuleSource);
-        $definition = $command->getDefinition();
-
-        $this->assertTrue($definition->hasArgument('module_alias'));
-        $argument = $definition->getArgument('module_alias');
-        $this->assertFalse($argument->isRequired());
-    }
-
-    public function test_command_description_mentions_update(): void
-    {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
-        $command = new \App\Console\Commands\ModuleUpdate($mockModuleSource);
-        $description = $command->getDescription();
-
-        $this->assertNotEmpty($description);
-        $this->assertStringContainsString('update', strtolower($description));
-    }
-
-    public function test_command_is_registered_in_artisan(): void
-    {
-        $kernel = $this->app->make(\Illuminate\Contracts\Console\Kernel::class);
-        $commands = $kernel->all();
-
-        $this->assertArrayHasKey('freescout:module-update', $commands);
-    }
-
-    public function test_command_shows_all_modules_up_to_date_message(): void
-    {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
-        $mockModuleSource->method('getModules')->willReturn([]);
-        $this->app->instance(\App\Services\ModuleSourceService::class, $mockModuleSource);
-
-        // Mock Module facade
-        \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([]);
-        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
-
-        $this->artisan('freescout:module-update')
-            ->expectsOutput('All modules are up-to-date')
-            ->assertExitCode(0);
-    }
-
-    public function test_handle_clears_cache_on_execution(): void
-    {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
-        $mockModuleSource->method('getModules')->willReturn([]);
-        $this->app->instance(\App\Services\ModuleSourceService::class, $mockModuleSource);
-
-        \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([]);
-        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
-
-        $this->artisan('freescout:module-update')
-            ->assertExitCode(0);
-    }
-
-    public function test_handle_processes_module_with_newer_version(): void
-    {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
-        $mockModuleSource->method('getModules')->willReturn([
-            ['alias' => 'test-module', 'version' => '2.0.0'],
-        ]);
-        $this->app->instance(\App\Services\ModuleSourceService::class, $mockModuleSource);
-
-        $mockModule = \Mockery::mock(\Nwidart\Modules\Laravel\Module::class);
-        $mockModule->shouldReceive('getAlias')->andReturn('test-module');
-        $mockModule->shouldReceive('get')->with('version')->andReturn('1.0.0');
-        $mockModule->shouldReceive('get')->with('authorUrl')->andReturn('https://example.com');
-        $mockModule->shouldReceive('getExtraPath')->andReturn('');
-
-        \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([$mockModule]);
-        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([$mockModule]);
-
-        \App\Module::$isOfficialResult = true;
-        \App\Module::$updateCallback = function ($alias) {
-            if ($alias === 'test-module') {
-                return [
-                    'module_name' => 'Test Module',
-                    'status' => 'success',
-                    'msg_success' => 'Updated successfully',
-                    'output' => 'Some output',
-                ];
-            }
-
-            return [];
+            return [
+                'module_name' => 'Test Module',
+                'status' => 'success',
+                'msg_success' => 'Updated successfully',
+                'msg' => '',
+                'download_error' => false,
+                'download_msg' => '',
+                'output' => "Line one\nLine two",
+            ];
         };
 
-        $this->artisan('freescout:module-update')
-            ->expectsOutput('[Test Module Module]')
-            ->expectsOutput('Updated successfully')
-            ->assertExitCode(0);
+        $command = new TestableModuleUpdate($this->mockModuleSource([
+            ['alias' => 'test-module', 'version' => '2.0.0'],
+        ]));
+
+        $command->handle();
+
+        $this->assertContains('[Test Module Module]', $command->recordingOutput()->infos);
+        $this->assertContains('Updated successfully', $command->recordingOutput()->lines);
+        $this->assertTrue(
+            collect($command->recordingOutput()->lines)->contains(
+                fn (string $line): bool => str_contains($line, '> Line one')
+            )
+        );
     }
 
-    public function test_handle_shows_error_for_failed_update(): void
+    public function test_handle_prints_error_when_update_fails(): void
     {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
-        $mockModuleSource->method('getModules')->willReturn([
-            ['alias' => 'test-module', 'version' => '2.0.0'],
-        ]);
-        $this->app->instance(\App\Services\ModuleSourceService::class, $mockModuleSource);
+        $installedModule = $this->mockInstalledModule('test-module', '1.0.0');
 
-        $mockModule = \Mockery::mock(\Nwidart\Modules\Laravel\Module::class);
-        $mockModule->shouldReceive('getAlias')->andReturn('test-module');
-        $mockModule->shouldReceive('get')->with('version')->andReturn('1.0.0');
-        $mockModule->shouldReceive('get')->with('authorUrl')->andReturn('https://example.com');
-        $mockModule->shouldReceive('getExtraPath')->andReturn('');
+        ModuleFacade::shouldReceive('all')->once()->andReturn([$installedModule]);
+        Artisan::shouldReceive('call')->once()->with('freescout:clear-cache')->andReturn(0);
 
-        \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([$mockModule]);
-        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([$mockModule]);
-
-        \App\Module::$isOfficialResult = true;
-        \App\Module::$updateCallback = function ($alias) {
+        Module::$updateCallback = function (): array {
             return [
                 'module_name' => 'Test Module',
                 'status' => 'error',
+                'msg_success' => '',
                 'msg' => 'Update failed',
+                'download_error' => true,
                 'download_msg' => 'Download failed',
                 'output' => '',
             ];
         };
 
-        $this->artisan('freescout:module-update')
-            ->expectsOutput('ERROR: Update failed (Download failed)')
-            ->assertExitCode(0);
+        $command = new TestableModuleUpdate($this->mockModuleSource([
+            ['alias' => 'test-module', 'version' => '2.0.0'],
+        ]));
+
+        $command->handle();
+
+        $this->assertContains('ERROR: Update failed (Download failed)', $command->recordingOutput()->errors);
     }
 
-    public function test_handle_filters_by_module_alias(): void
+    public function test_handle_filters_updates_by_module_alias_argument(): void
     {
-        $mockModuleSource = $this->createMock(\App\Services\ModuleSourceService::class);
-        $mockModuleSource->method('getModules')->willReturn([
-            ['alias' => 'target-module', 'version' => '2.0.0'],
-            ['alias' => 'other-module', 'version' => '2.0.0'],
-        ]);
-        $this->app->instance(\App\Services\ModuleSourceService::class, $mockModuleSource);
+        $target = $this->mockInstalledModule('target-module', '1.0.0');
+        $other = $this->mockInstalledModule('other-module', '1.0.0');
 
-        $targetModule = \Mockery::mock(\Nwidart\Modules\Laravel\Module::class);
-        $targetModule->shouldReceive('getAlias')->andReturn('target-module');
-        $targetModule->shouldReceive('get')->with('version')->andReturn('1.0.0');
-        $targetModule->shouldReceive('get')->with('authorUrl')->andReturn('https://example.com');
-        $targetModule->shouldReceive('getExtraPath')->andReturn('');
+        ModuleFacade::shouldReceive('all')->once()->andReturn([$target, $other]);
+        Artisan::shouldReceive('call')->once()->with('freescout:clear-cache')->andReturn(0);
 
-        $otherModule = \Mockery::mock(\Nwidart\Modules\Laravel\Module::class);
-        $otherModule->shouldReceive('getAlias')->andReturn('other-module');
-        $otherModule->shouldReceive('get')->with('version')->andReturn('1.0.0');
-        $otherModule->shouldReceive('get')->with('authorUrl')->andReturn('https://example.com');
-        $otherModule->shouldReceive('getExtraPath')->andReturn('');
-
-        \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([$targetModule, $otherModule]);
-        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([$targetModule, $otherModule]);
-
-        \App\Module::$isOfficialResult = true;
-        \App\Module::$updateCallback = function ($alias) {
-            if ($alias === 'target-module') {
-                return [
-                    'module_name' => 'Target Module',
-                    'status' => 'success',
-                    'msg_success' => 'Updated',
-                    'output' => '',
-                ];
-            }
-
-            return [];
+        Module::$updateCallback = function (string $alias): array {
+            return [
+                'module_name' => $alias === 'target-module' ? 'Target Module' : 'Unexpected Module',
+                'status' => 'success',
+                'msg_success' => 'Updated',
+                'msg' => '',
+                'download_error' => false,
+                'download_msg' => '',
+                'output' => '',
+            ];
         };
 
-        $this->artisan('freescout:module-update', ['module_alias' => 'target-module'])
-            ->expectsOutput('[Target Module Module]')
-            ->assertExitCode(0);
+        $command = new TestableModuleUpdate($this->mockModuleSource([
+            ['alias' => 'target-module', 'version' => '2.0.0'],
+            ['alias' => 'other-module', 'version' => '2.0.0'],
+        ]));
+        $command->moduleAlias = 'target-module';
+
+        $command->handle();
+
+        $this->assertContains('[Target Module Module]', $command->recordingOutput()->infos);
+        $this->assertFalse(
+            collect($command->recordingOutput()->infos)->contains(
+                fn (string $line): bool => str_contains($line, 'Unexpected Module')
+            )
+        );
+    }
+
+    public function test_handle_reports_not_found_for_unknown_alias(): void
+    {
+        ModuleFacade::shouldReceive('all')->once()->andReturn([]);
+        Artisan::shouldReceive('call')->once()->with('freescout:clear-cache')->andReturn(0);
+
+        $command = new TestableModuleUpdate($this->mockModuleSource([]));
+        $command->moduleAlias = 'missing-module';
+
+        $command->handle();
+
+        $this->assertContains(
+            'Module with the following alias not found: missing-module',
+            $command->recordingOutput()->errors
+        );
+    }
+
+    public function test_handle_does_not_report_not_found_for_installed_custom_alias(): void
+    {
+        $customInstalled = $this->mockInstalledModule('custom-module', '1.0.0', null);
+
+        ModuleFacade::shouldReceive('all')->once()->andReturn([$customInstalled]);
+        Artisan::shouldReceive('call')->once()->with('freescout:clear-cache')->andReturn(0);
+
+        $command = new TestableModuleUpdate($this->mockModuleSource([]));
+        $command->moduleAlias = 'custom-module';
+
+        $command->handle();
+
+        $this->assertFalse(
+            collect($command->recordingOutput()->errors)->contains(
+                fn (string $line): bool => str_contains($line, 'not found')
+            )
+        );
+    }
+
+    private function mockModuleSource(array $modules): ModuleSourceService
+    {
+        $source = $this->createMock(ModuleSourceService::class);
+        $source->method('getModules')->willReturn($modules);
+
+        return $source;
+    }
+
+    private function mockInstalledModule(string $alias, string $version, ?string $latestVersionUrl = 'https://example.com/version'): InstalledModule
+    {
+        /** @var InstalledModule $module */
+        $module = \Mockery::mock(InstalledModule::class);
+        $module->shouldReceive('getAlias')->byDefault()->andReturn($alias);
+        $module->shouldReceive('get')->byDefault()->with('version')->andReturn($version);
+        $module->shouldReceive('get')->byDefault()->with('latestVersionUrl')->andReturn($latestVersionUrl);
+
+        return $module;
+    }
+}
+
+class TestableModuleUpdate extends ModuleUpdate
+{
+    public ?string $moduleAlias = null;
+
+    private ModuleUpdateRecordingOutputStyle $recordingOutput;
+
+    public function __construct(ModuleSourceService $moduleSource)
+    {
+        parent::__construct($moduleSource);
+
+        $this->recordingOutput = new ModuleUpdateRecordingOutputStyle;
+
+        $property = new \ReflectionProperty(\Illuminate\Console\Command::class, 'output');
+        $property->setAccessible(true);
+        $property->setValue($this, $this->recordingOutput);
+    }
+
+    public function argument($key = null)
+    {
+        if ($key === 'module_alias') {
+            return $this->moduleAlias;
+        }
+
+        return parent::argument($key);
+    }
+
+    public function recordingOutput(): ModuleUpdateRecordingOutputStyle
+    {
+        return $this->recordingOutput;
+    }
+}
+
+class ModuleUpdateRecordingOutputStyle extends OutputStyle
+{
+    /** @var array<int, string> */
+    public array $lines = [];
+
+    /** @var array<int, string> */
+    public array $infos = [];
+
+    /** @var array<int, string> */
+    public array $errors = [];
+
+    public function __construct()
+    {
+        parent::__construct(new ArrayInput([]), new BufferedOutput);
+    }
+
+    public function writeln(string|iterable $messages, int $type = self::OUTPUT_NORMAL): void
+    {
+        $text = is_iterable($messages)
+            ? implode(PHP_EOL, array_map(static fn (mixed $message): string => (string) $message, iterator_to_array($messages)))
+            : (string) $messages;
+
+        $plain = preg_replace('/<[^>]+>/', '', $text);
+        $value = $plain ?? $text;
+
+        $this->lines[] = $value;
+
+        if (str_contains($text, '<info>')) {
+            $this->infos[] = $value;
+        }
+
+        if (str_contains($text, '<error>')) {
+            $this->errors[] = $value;
+        }
+
+        parent::writeln($messages, $type);
     }
 }

@@ -13,9 +13,9 @@ use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Broadcasting\PresenceChannel;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class EventBroadcastingEnhancedTest extends TestCase
+class EventBroadcastingEnhancedTest extends UnitTestCase
 {
     public function test_new_message_received_has_correct_properties(): void
     {

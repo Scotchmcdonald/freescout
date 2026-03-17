@@ -6,10 +6,10 @@ namespace Tests\Unit\Console\Commands;
 
 use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
 /** @group console */
-class LogoutUsersTest extends TestCase
+class LogoutUsersTest extends UnitTestCase
 {
     public function test_command_has_correct_signature(): void
     {

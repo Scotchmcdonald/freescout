@@ -9,9 +9,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class EnsureUserIsAdminTest extends TestCase
+class EnsureUserIsAdminTest extends UnitTestCase
 {
     public function test_admin_user_can_pass_through_middleware(): void
     {

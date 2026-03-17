@@ -8,7 +8,7 @@ use App\Models\Mailbox;
 use App\Services\ImapService;
 use Illuminate\Support\Facades\Log;
 use Mockery;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\Folder;
 use Webklex\PHPIMAP\Query\WhereQuery;
@@ -18,7 +18,7 @@ use Webklex\PHPIMAP\Support\MessageCollection;
  * Comprehensive tests for folder path handling in ImapService::fetchEmails().
  * Tests various input types: null, string, array, empty, whitespace, etc.
  */
-class ImapServiceFolderPathTest extends TestCase
+class ImapServiceFolderPathTest extends UnitTestCase
 {
     protected function setUp(): void
     {

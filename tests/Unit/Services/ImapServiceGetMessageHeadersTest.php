@@ -6,12 +6,12 @@ namespace Tests\Unit\Services;
 
 use App\Services\ImapService;
 use Mockery;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
 /**
  * Comprehensive tests for ImapService::getMessageHeaders() method.
  */
-class ImapServiceGetMessageHeadersTest extends TestCase
+class ImapServiceGetMessageHeadersTest extends UnitTestCase
 {
     protected ImapService $service;
 

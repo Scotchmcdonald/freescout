@@ -7,7 +7,7 @@ namespace Tests\Unit\Services;
 use App\Models\Mailbox;
 use App\Services\ImapService;
 use Mockery;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\Exceptions\ConnectionFailedException;
 use Webklex\PHPIMAP\Folder;
@@ -17,7 +17,7 @@ use Webklex\PHPIMAP\Support\FolderCollection;
  * Comprehensive tests for ImapService::getFolders() method.
  * This method currently has ~50% coverage and needs additional testing.
  */
-class ImapServiceGetFoldersTest extends TestCase
+class ImapServiceGetFoldersTest extends UnitTestCase
 {
     protected ImapService $service;
 

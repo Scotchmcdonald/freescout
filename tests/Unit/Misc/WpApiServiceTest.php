@@ -6,14 +6,14 @@ namespace Tests\Unit\Misc;
 
 use App\Misc\WpApi;
 use Illuminate\Support\Facades\Http;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
 /**
  * Unit tests for WpApi service.
  *
  * Uses mocked HTTP responses to test the marketplace API integration.
  */
-class WpApiServiceTest extends TestCase
+class WpApiServiceTest extends UnitTestCase
 {
     protected function setUp(): void
     {

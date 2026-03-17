@@ -5,751 +5,361 @@ declare(strict_types=1);
 namespace Tests\Unit\Console\Commands;
 
 use App\Console\Commands\ModuleInstall;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Console\OutputStyle;
+use Nwidart\Modules\Facades\Module as ModuleFacade;
+use Nwidart\Modules\Module as NwidartModule;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Tests\UnitTestCase;
 
-/**
- * Comprehensive Test Suite for Module Install Command
- *
- * Extracted from ConsoleCommandsTest.php (212 tests) as part of reorganization
- * to achieve ~50 tests per file target.
- *
- * Coverage:
- * - Command structure and registration (8 tests)
- * - Execution and cache operations (3 tests)
- * - Symlink management (10 tests)
- * - Migration operations (3 tests)
- * - Error handling and edge cases (15 tests)
- * - Installation workflows (15 tests)
- *
- * Total: 54 tests targeting 95%+ coverage of ModuleInstall command
- *
- * @group console
- */
 class ModuleInstallCommandsTest extends UnitTestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Cache::flush();
-    }
-
     protected function tearDown(): void
     {
         $this->cleanupTestArtifacts();
+
         parent::tearDown();
     }
 
-    protected function cleanupTestArtifacts(): void
+    public function test_command_metadata_is_correct(): void
+    {
+        $command = new ModuleInstall;
+
+        $this->assertSame('freescout:module-install', $command->getName());
+        $this->assertStringContainsString('install', strtolower($command->getDescription()));
+        $this->assertFalse($command->getDefinition()->getArgument('module_alias')->isRequired());
+        $this->assertTrue(method_exists($command, 'createModulePublicSymlink'));
+    }
+
+    public function test_handle_reports_missing_module_alias_after_clearing_cache(): void
+    {
+        ModuleFacade::shouldReceive('find')
+            ->once()
+            ->with('missing-module')
+            ->andReturn(null);
+
+        $command = new TestableModuleInstall;
+        $command->argumentValue = 'missing-module';
+
+        $exitCode = $command->handle();
+
+        $this->assertSame(0, $exitCode);
+        $this->assertSame([['cache:clear', []]], $command->commandCalls);
+        $this->assertSame(['Module with the specified alias not found: missing-module'], $command->recordingOutput()->errors);
+    }
+
+    public function test_handle_reports_when_no_modules_are_available(): void
+    {
+        ModuleFacade::shouldReceive('all')
+            ->once()
+            ->andReturn([]);
+
+        $command = new TestableModuleInstall;
+
+        $exitCode = $command->handle();
+
+        $this->assertSame(0, $exitCode);
+        $this->assertSame([['cache:clear', []]], $command->commandCalls);
+        $this->assertSame(['No modules found.'], $command->recordingOutput()->infos);
+    }
+
+    public function test_handle_installs_all_modules_after_confirmation(): void
+    {
+        $billing = $this->mockModule('Billing', 'billing');
+        $support = $this->mockModule('Support', 'support');
+
+        ModuleFacade::shouldReceive('all')
+            ->once()
+            ->andReturn([$billing, $support]);
+
+        $command = new TestableModuleInstall;
+        $command->recordingOutput()->confirmResult = true;
+        $command->installResults = [0, 0];
+
+        $exitCode = $command->handle();
+
+        $this->assertSame(0, $exitCode);
+        $this->assertSame([['cache:clear', []]], $command->commandCalls);
+        $this->assertSame(['Billing', 'Support'], $command->installedModules);
+        $this->assertSame(['Install all modules (Billing, Support)?'], $command->recordingOutput()->confirmQuestions);
+    }
+
+    public function test_handle_stops_when_an_installation_fails(): void
+    {
+        $billing = $this->mockModule('Billing', 'billing');
+        $support = $this->mockModule('Support', 'support');
+
+        ModuleFacade::shouldReceive('all')
+            ->once()
+            ->andReturn([$billing, $support]);
+
+        $command = new TestableModuleInstall;
+        $command->recordingOutput()->confirmResult = true;
+        $command->installResults = [1];
+
+        $exitCode = $command->handle();
+
+        $this->assertSame(1, $exitCode);
+        $this->assertSame(['Billing'], $command->installedModules);
+    }
+
+    public function test_install_module_enables_module_runs_migrations_and_skips_clear_cache_during_tests(): void
+    {
+        $module = $this->mockModule('Billing', 'billing');
+        $module->shouldReceive('enable')->once();
+
+        $command = new TestableModuleInstall;
+
+        $exitCode = $command->runInstallModule($module);
+
+        $this->assertSame(0, $exitCode);
+        $this->assertSame(['Billing'], $command->symlinkedModules);
+        $this->assertSame([
+            ['module:migrate', ['module' => 'Billing', '--force' => true]],
+        ], $command->commandCalls);
+        $this->assertContains('Installing module: Billing', $command->recordingOutput()->lines);
+        $this->assertContains('Clearing cache...', $command->recordingOutput()->lines);
+    }
+
+    public function test_install_module_returns_error_when_symlink_creation_fails(): void
+    {
+        $module = $this->mockModule('Billing', 'billing');
+        $module->shouldReceive('enable')->once();
+
+        $command = new TestableModuleInstall;
+        $command->throwDuringSymlink = 'Cannot create symlink';
+
+        $exitCode = $command->runInstallModule($module);
+
+        $this->assertSame(1, $exitCode);
+        $this->assertSame(['Cannot create symlink'], $command->recordingOutput()->errors);
+    }
+
+    public function test_create_module_public_symlink_creates_a_symlink_for_existing_assets(): void
+    {
+        $target = storage_path('framework/testing/module-assets-existing');
+        $this->ensureDirectory($target);
+        file_put_contents($target.'/app.js', 'console.log("test");');
+
+        $module = $this->mockModule('TestModule', 'testmodule', $target);
+        $command = $this->commandWithOutput(new ModuleInstall);
+
+        $command->createModulePublicSymlink($module);
+
+        $link = public_path('modules/testmodule');
+
+        $this->assertTrue(is_link($link));
+        $this->assertSame($target, readlink($link));
+    }
+
+    public function test_create_module_public_symlink_replaces_existing_directory(): void
+    {
+        $target = storage_path('framework/testing/module-assets-replace');
+        $this->ensureDirectory($target);
+
+        $link = public_path('modules/testmodule');
+        $this->ensureDirectory($link);
+        file_put_contents($link.'/old.txt', 'stale');
+
+        $module = $this->mockModule('TestModule', 'testmodule', $target);
+        $command = $this->commandWithOutput(new ModuleInstall);
+
+        $command->createModulePublicSymlink($module);
+
+        $this->assertTrue(is_link($link));
+        $this->assertSame($target, readlink($link));
+    }
+
+    public function test_create_module_public_symlink_skips_when_assets_are_missing(): void
+    {
+        $module = $this->mockModule('MissingAssets', 'missingassets', storage_path('framework/testing/does-not-exist'));
+        $command = $this->commandWithOutput(new ModuleInstall);
+
+        $command->createModulePublicSymlink($module);
+
+        $this->assertFalse(file_exists(public_path('modules/missingassets')));
+        $this->assertFalse(is_link(public_path('modules/missingassets')));
+    }
+
+    private function mockModule(string $name, string $lowerName, ?string $assetsPath = null): NwidartModule
+    {
+        /** @var NwidartModule $module */
+        $module = \Mockery::mock(NwidartModule::class);
+        $module->shouldReceive('getName')->byDefault()->andReturn($name);
+        $module->shouldReceive('getLowerName')->byDefault()->andReturn($lowerName);
+        $module->shouldReceive('getExtraPath')
+            ->byDefault()
+            ->with('Resources/assets')
+            ->andReturn($assetsPath ?? storage_path('framework/testing/'.$lowerName));
+
+        return $module;
+    }
+
+    private function ensureDirectory(string $path): void
+    {
+        if (! is_dir($path)) {
+            mkdir($path, 0755, true);
+        }
+    }
+
+    private function commandWithOutput(ModuleInstall $command): ModuleInstall
+    {
+        $property = new \ReflectionProperty(\Illuminate\Console\Command::class, 'output');
+        $property->setAccessible(true);
+        $property->setValue($command, new RecordingOutputStyle);
+
+        return $command;
+    }
+
+    private function cleanupTestArtifacts(): void
     {
         $paths = [
-            public_path('modules/TestModule'),
-            public_path('modules/test'),
             public_path('modules/testmodule'),
+            public_path('modules/missingassets'),
+            storage_path('framework/testing/module-assets-existing'),
+            storage_path('framework/testing/module-assets-replace'),
         ];
 
         foreach ($paths as $path) {
-            if (file_exists($path) || is_link($path)) {
-                if (is_link($path)) {
-                    @unlink($path);
-                } elseif (is_dir($path)) {
-                    @rmdir($path);
-                }
+            if (is_link($path) || is_file($path)) {
+                @unlink($path);
+                continue;
+            }
+
+            if (is_dir($path)) {
+                app('files')->deleteDirectory($path);
             }
         }
     }
+}
 
-    // =================================================================
-    // BASIC STRUCTURE TESTS (8 tests)
-    // =================================================================
+class TestableModuleInstall extends ModuleInstall
+{
+    public ?string $argumentValue = null;
 
-    public function test_module_install_command_class_exists(): void
+    /** @var array<int, array{0:string,1:array<string,mixed>}> */
+    public array $commandCalls = [];
+
+    /** @var array<int, string> */
+    public array $installedModules = [];
+
+    /** @var array<int, int> */
+    public array $installResults = [];
+
+    /** @var array<int, string> */
+    public array $symlinkedModules = [];
+
+    public ?string $throwDuringSymlink = null;
+
+    private RecordingOutputStyle $recordingOutput;
+
+    public function __construct()
     {
-        $this->assertTrue(
-            class_exists(ModuleInstall::class),
-            'ModuleInstall command class must exist'
-        );
+        parent::__construct();
+
+        $this->recordingOutput = new RecordingOutputStyle;
+
+        $property = new \ReflectionProperty(\Illuminate\Console\Command::class, 'output');
+        $property->setAccessible(true);
+        $property->setValue($this, $this->recordingOutput);
     }
 
-    public function test_module_install_command_can_be_instantiated(): void
+    public function argument($key = null)
     {
-        $command = new ModuleInstall;
-
-        $this->assertInstanceOf(ModuleInstall::class, $command);
-        $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
-    }
-
-    public function test_module_install_has_correct_signature(): void
-    {
-        $command = new ModuleInstall;
-
-        $this->assertEquals('freescout:module-install', $command->getName());
-    }
-
-    public function test_module_install_signature_has_optional_module_alias(): void
-    {
-        $command = new ModuleInstall;
-        $definition = $command->getDefinition();
-
-        $this->assertTrue($definition->hasArgument('module_alias'));
-        $this->assertFalse($definition->getArgument('module_alias')->isRequired());
-    }
-
-    public function test_module_install_has_description(): void
-    {
-        $command = new ModuleInstall;
-
-        $this->assertNotEmpty($command->getDescription());
-        $this->assertStringContainsString('install', strtolower($command->getDescription()));
-    }
-
-    public function test_module_install_has_handle_method(): void
-    {
-        $command = new ModuleInstall;
-
-        $this->assertTrue(method_exists($command, 'handle'));
-    }
-
-    public function test_module_install_has_create_module_public_symlink_method(): void
-    {
-        $command = new ModuleInstall;
-
-        $this->assertTrue(
-            method_exists($command, 'createModulePublicSymlink'),
-            'createModulePublicSymlink method must exist'
-        );
-    }
-
-    public function test_module_install_method_is_public(): void
-    {
-        $reflection = new \ReflectionClass(ModuleInstall::class);
-        $method = $reflection->getMethod('createModulePublicSymlink');
-
-        $this->assertTrue($method->isPublic());
-    }
-
-    // =================================================================
-    // EXECUTION TESTS (3 tests)
-    // =================================================================
-
-    public function test_module_install_executes_without_fatal_error(): void
-    {
-        try {
-            $exitCode = Artisan::call('freescout:module-install', [
-                'module_alias' => 'test',
-            ]);
-
-            $this->assertIsInt($exitCode);
-        } catch (\Exception $e) {
-            // Expected if module doesn't exist
-            $this->assertInstanceOf(\Exception::class, $e);
-        }
-    }
-
-    public function test_module_install_clears_cache_before_operation(): void
-    {
-        // Command should call cache:clear at the beginning
-        Cache::put('test_key', 'test_value', 60);
-
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'test',
-            ]);
-        } catch (\Exception $e) {
-            // Expected
+        if ($key === 'module_alias') {
+            return $this->argumentValue;
         }
 
-        // Cache should have been cleared (or attempted)
-        $this->expectNotToPerformAssertions();
+        return parent::argument($key);
     }
 
-    public function test_module_install_shows_error_for_non_existent_module(): void
+    public function recordingOutput(): RecordingOutputStyle
     {
-        Artisan::call('freescout:module-install', [
-            'module_alias' => 'CompletelyNonExistentModule12345',
-        ]);
-
-        $output = Artisan::output();
-
-        $this->assertStringContainsString('not found', strtolower($output));
+        return $this->recordingOutput;
     }
 
-    // =================================================================
-    // SYMLINK MANAGEMENT TESTS (10 tests)
-    // =================================================================
-
-    public function test_module_install_creates_public_symlink(): void
+    public function call($command, array $arguments = [])
     {
-        // Method should attempt to create symlink
-        $command = new ModuleInstall;
+        $this->commandCalls[] = [$command, $arguments];
 
-        $this->assertTrue(method_exists($command, 'createModulePublicSymlink'));
+        return 0;
     }
 
-    public function test_module_install_handles_existing_symlink(): void
+    public function runInstallModule(NwidartModule $module): int
     {
-        // Should handle case where symlink already exists
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
+        return $this->installModule($module);
+    }
 
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
+    protected function installModule(NwidartModule $module): int
+    {
+        $this->installedModules[] = $module->getName();
+
+        if ($this->installResults !== []) {
+            return array_shift($this->installResults);
         }
+
+        return parent::installModule($module);
     }
 
-    public function test_module_install_handles_broken_symlink(): void
+    public function createModulePublicSymlink($module)
     {
-        // Should handle broken symlinks gracefully
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
+        if ($this->throwDuringSymlink !== null) {
+            throw new \RuntimeException($this->throwDuringSymlink);
         }
+
+        $this->symlinkedModules[] = $module->getName();
+    }
+}
+
+class RecordingOutputStyle extends OutputStyle
+{
+    public bool $confirmResult = false;
+
+    /** @var array<int, string> */
+    public array $lines = [];
+
+    /** @var array<int, string> */
+    public array $infos = [];
+
+    /** @var array<int, string> */
+    public array $errors = [];
+
+    /** @var array<int, string> */
+    public array $confirmQuestions = [];
+
+    public function __construct()
+    {
+        parent::__construct(new ArrayInput([]), new BufferedOutput);
     }
 
-    public function test_module_install_creates_public_directory_if_missing(): void
+    public function confirm(string $question, bool $default = true): bool
     {
-        // Should attempt to create Public directory if it doesn't exist
-        $command = new ModuleInstall;
+        $this->confirmQuestions[] = $question;
 
-        // Method exists to handle this
-        $this->assertTrue(method_exists($command, 'createModulePublicSymlink'));
+        return $this->confirmResult;
     }
 
-    public function test_module_install_renames_existing_directory(): void
+    public function writeln(string|iterable $messages, int $type = self::OUTPUT_NORMAL): void
     {
-        // If a directory exists at symlink location, should rename it
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
+        $messageText = is_iterable($messages) ? implode(PHP_EOL, iterator_to_array((function () use ($messages) {
+            foreach ($messages as $message) {
+                yield (string) $message;
+            }
+        })())) : (string) $messages;
 
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
+        $plain = preg_replace('/<[^>]+>/', '', $messageText);
+        $text = $plain ?? $messageText;
+
+        $this->lines[] = $text;
+
+        if (str_contains($messageText, '<info>')) {
+            $this->infos[] = $text;
         }
-    }
 
-    public function test_module_install_handles_symlink_creation_errors(): void
-    {
-        // Should catch and display symlink creation errors
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(\Exception::class, $e);
+        if (str_contains($messageText, '<error>')) {
+            $this->errors[] = $text;
         }
-    }
 
-    public function test_module_install_handles_open_basedir_restriction(): void
-    {
-        // Should handle open_basedir restrictions gracefully
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_checks_if_symlink_exists(): void
-    {
-        // Should check if symlink already exists
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_uses_correct_directory_separator(): void
-    {
-        // Should use DIRECTORY_SEPARATOR for cross-platform compatibility
-        $command = new ModuleInstall;
-
-        $this->assertTrue(defined('DIRECTORY_SEPARATOR'));
-    }
-
-    public function test_module_install_shows_symlink_creation_message(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $output = Artisan::output();
-            $this->assertIsString($output);
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    // =================================================================
-    // MIGRATION OPERATIONS TESTS (3 tests)
-    // =================================================================
-
-    public function test_module_install_calls_module_migrate(): void
-    {
-        // Command should call module:migrate
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            // Expected
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_uses_force_flag_for_migrations(): void
-    {
-        // Single module installation should use --force flag
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_clears_cache_after_installation(): void
-    {
-        // Should call freescout:clear-cache at the end
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    // =================================================================
-    // ERROR HANDLING AND EDGE CASES (15 tests)
-    // =================================================================
-
-    public function test_module_install_shows_module_name_during_installation(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $output = Artisan::output();
-            $this->assertIsString($output);
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_handles_case_sensitive_aliases(): void
-    {
-        // Module aliases might be case-sensitive
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'testmodule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_prompts_for_confirmation_when_no_alias(): void
-    {
-        // When no module_alias, should ask for confirmation
-        // This is interactive, so we just verify structure
-        $command = new ModuleInstall;
-
-        $this->assertTrue(method_exists($command, 'handle'));
-    }
-
-    public function test_module_install_can_install_all_modules(): void
-    {
-        // Should be able to install all modules at once
-        try {
-            // Without interaction, should handle gracefully
-            $exitCode = Artisan::call('freescout:module-install', ['--no-interaction' => true]);
-
-            $this->assertIsInt($exitCode);
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_lists_available_modules(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', ['--no-interaction' => true]);
-
-            $output = Artisan::output();
-            $this->assertIsString($output);
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_handles_null_module_alias(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => null,
-                '--no-interaction' => true,
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_handles_empty_string_alias(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => '',
-                '--no-interaction' => true,
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_handles_special_characters_in_alias(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'test@#$%',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_handles_very_long_alias(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => str_repeat('a', 256),
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_handles_unicode_alias(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'モジュール',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_validates_module_path(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => '../../../etc/passwd',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_handles_concurrent_installations(): void
-    {
-        // Multiple calls should handle race conditions
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_preserves_existing_module_config(): void
-    {
-        // Installing should not overwrite existing configuration
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_validates_module_structure(): void
-    {
-        // Should validate that module has required structure
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_handles_permission_errors(): void
-    {
-        // Should handle filesystem permission errors gracefully
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    // =================================================================
-    // INSTALLATION WORKFLOW TESTS (15 tests added for comprehensive coverage)
-    // =================================================================
-
-    public function test_module_install_clears_compiled_views(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_clears_route_cache(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_clears_config_cache(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_publishes_assets(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_runs_module_seeds(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_registers_module_providers(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_loads_module_routes(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_registers_module_middleware(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_publishes_translations(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_creates_database_tables(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_handles_rollback_on_failure(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'FailModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_shows_installation_progress(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $output = Artisan::output();
-            $this->assertIsString($output);
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_shows_success_message(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $output = Artisan::output();
-            $this->assertIsString($output);
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_shows_failure_message(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'NonExistent',
-            ]);
-
-            $output = Artisan::output();
-            $this->assertStringContainsString('not found', strtolower($output));
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_module_install_logs_installation_activity(): void
-    {
-        try {
-            Artisan::call('freescout:module-install', [
-                'module_alias' => 'TestModule',
-            ]);
-
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->expectNotToPerformAssertions();
-        }
+        parent::writeln($messages, $type);
     }
 }

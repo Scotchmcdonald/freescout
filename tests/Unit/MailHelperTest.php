@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Misc\MailHelper;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class MailHelperTest extends TestCase
+class MailHelperTest extends UnitTestCase
 {
     public function test_is_auto_responder_detects_x_autoreply(): void
     {

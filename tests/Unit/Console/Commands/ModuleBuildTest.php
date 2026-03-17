@@ -5,476 +5,292 @@ declare(strict_types=1);
 namespace Tests\Unit\Console\Commands;
 
 use App\Console\Commands\ModuleBuild;
+use Illuminate\Console\OutputStyle;
+use Nwidart\Modules\Facades\Module as ModuleFacade;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Tests\UnitTestCase;
 
-/**
- * Test ModuleBuild Command
- *
- * Target: 90-95% coverage for App\Console\Commands\ModuleBuild
- * Current coverage: 50%
- *
- * @group console
- */
+/** @group console */
 class ModuleBuildTest extends UnitTestCase
 {
-    public function test_command_can_be_instantiated(): void
+    protected function tearDown(): void
+    {
+        $this->cleanupPath(public_path('modules/test-build'));
+        $this->cleanupPath(public_path('modules/vars-build'));
+        $this->cleanupPath(public_path('modules/missing-symlink'));
+
+        parent::tearDown();
+    }
+
+    public function test_command_metadata_is_correct(): void
     {
         $command = new ModuleBuild;
 
-        $this->assertInstanceOf(ModuleBuild::class, $command);
+        $this->assertSame('freescout:module-build', $command->getName());
+        $this->assertStringContainsString('build module', strtolower($command->getDescription()));
+        $this->assertTrue($command->getDefinition()->hasArgument('module_alias'));
+        $this->assertFalse($command->getDefinition()->getArgument('module_alias')->isRequired());
     }
 
-    public function test_command_extends_command_class(): void
+    public function test_handle_returns_error_when_no_modules_exist(): void
     {
-        $command = new ModuleBuild;
+        ModuleFacade::shouldReceive('all')->once()->andReturn([]);
 
-        $this->assertInstanceOf(\Illuminate\Console\Command::class, $command);
+        $command = new TestableModuleBuildCommand;
+
+        $exitCode = $command->handle();
+
+        $this->assertSame(1, $exitCode);
+        $this->assertContains('No modules found', $command->recordingOutput()->errors);
     }
 
-    public function test_command_has_correct_signature(): void
+    public function test_handle_builds_all_modules_when_alias_is_not_provided(): void
     {
-        $command = new ModuleBuild;
-        $reflection = new \ReflectionClass($command);
-        $property = $reflection->getProperty('signature');
-        $signature = $property->getValue($command);
+        $moduleA = $this->mockModule('Module A', 'module-a');
+        $moduleB = $this->mockModule('Module B', 'module-b');
 
-        $this->assertEquals('freescout:module-build {module_alias?}', $signature);
+        ModuleFacade::shouldReceive('all')->once()->andReturn([$moduleA, $moduleB]);
+        ModuleFacade::shouldReceive('all')->once()->andReturn([$moduleA, $moduleB]);
+
+        $command = new TestableModuleBuildCommand;
+
+        $exitCode = $command->handle();
+
+        $this->assertSame(0, $exitCode);
+        $this->assertSame(['module-a', 'module-b'], $command->builtAliases);
+        $this->assertContains('Building all modules...', $command->recordingOutput()->infos);
+        $this->assertContains('Module build completed!', $command->recordingOutput()->infos);
     }
 
-    public function test_command_has_description(): void
+    public function test_handle_returns_error_when_specific_alias_is_not_found(): void
     {
-        $command = new ModuleBuild;
+        ModuleFacade::shouldReceive('findByAlias')->once()->with('missing')->andReturn(null);
 
-        $description = $command->getDescription();
-        $this->assertNotEmpty($description);
-        $this->assertStringContainsString('module', strtolower($description));
+        $command = new TestableModuleBuildCommand;
+        $command->moduleAlias = 'missing';
+
+        $exitCode = $command->handle();
+
+        $this->assertSame(1, $exitCode);
+        $this->assertContains('Module with the specified alias not found: missing', $command->recordingOutput()->errors);
     }
 
-    public function test_command_is_registered_in_artisan(): void
+    public function test_handle_builds_specific_module_when_alias_is_provided(): void
     {
-        $kernel = $this->app->make(\Illuminate\Contracts\Console\Kernel::class);
-        $commands = $kernel->all();
+        $module = $this->mockModule('Module A', 'module-a');
 
-        $this->assertArrayHasKey('freescout:module-build', $commands);
+        ModuleFacade::shouldReceive('findByAlias')->once()->with('module-a')->andReturn($module);
+
+        $command = new TestableModuleBuildCommand;
+        $command->moduleAlias = 'module-a';
+
+        $exitCode = $command->handle();
+
+        $this->assertSame(0, $exitCode);
+        $this->assertSame(['module-a'], $command->builtAliases);
+        $this->assertContains('Module build completed!', $command->recordingOutput()->infos);
     }
 
-    public function test_command_accepts_optional_module_alias_argument(): void
+    public function test_build_module_reports_missing_public_symlink(): void
     {
-        $command = new ModuleBuild;
-        $definition = $command->getDefinition();
+        $module = $this->mockModule('Missing Symlink', 'missing-symlink');
 
-        $this->assertTrue($definition->hasArgument('module_alias'));
-        $argument = $definition->getArgument('module_alias');
-        $this->assertFalse($argument->isRequired());
+        $command = new ExposedModuleBuildCommand;
+        $command->runBuildModule($module);
+
+        $this->assertTrue(
+            collect($command->recordingOutput()->errors)
+                ->contains(fn (string $line): bool => str_contains($line, 'Public symlink [') && str_contains($line, 'not found'))
+        );
     }
 
-    public function test_command_has_handle_method(): void
+    public function test_build_vars_skips_generation_when_view_does_not_exist(): void
     {
-        $command = new ModuleBuild;
+        $module = $this->mockModule('Test Build', 'test-build');
 
-        $this->assertTrue(method_exists($command, 'handle'));
+        $command = new ExposedModuleBuildCommand;
+        $command->runBuildVars($module);
+
+        $this->assertTrue(
+            collect($command->recordingOutput()->comments)
+                ->contains(fn (string $line): bool => str_contains($line, 'View test-build::js/vars not found'))
+        );
     }
 
-    public function test_command_handle_method_is_public(): void
+    public function test_build_vars_creates_vars_js_when_view_exists(): void
     {
-        $reflection = new \ReflectionClass(ModuleBuild::class);
-        $method = $reflection->getMethod('handle');
+        config(['app.locales' => ['en', 'fr']]);
 
-        $this->assertTrue($method->isPublic());
-    }
+        $module = $this->mockModule('Vars Build', 'vars-build');
+        $viewBase = storage_path('framework/testing/modulebuild/views/vars-build');
+        $viewDir = $viewBase.'/js';
 
-    public function test_command_has_build_module_method(): void
-    {
-        $command = new ModuleBuild;
-
-        $this->assertTrue(method_exists($command, 'buildModule'));
-    }
-
-    public function test_build_module_method_is_protected(): void
-    {
-        $reflection = new \ReflectionClass(ModuleBuild::class);
-        $method = $reflection->getMethod('buildModule');
-
-        $this->assertTrue($method->isProtected());
-    }
-
-    public function test_command_has_build_vars_method(): void
-    {
-        $command = new ModuleBuild;
-
-        $this->assertTrue(method_exists($command, 'buildVars'));
-    }
-
-    public function test_build_vars_method_is_protected(): void
-    {
-        $reflection = new \ReflectionClass(ModuleBuild::class);
-        $method = $reflection->getMethod('buildVars');
-
-        $this->assertTrue($method->isProtected());
-    }
-
-    public function test_command_can_be_called_without_argument(): void
-    {
-        $this->artisan('freescout:module-build --help')
-            ->assertExitCode(0);
-    }
-
-    public function test_command_shows_correct_description_in_list(): void
-    {
-        $this->artisan('list')
-            ->expectsOutputToContain('module-build')
-            ->assertExitCode(0);
-    }
-
-    public function test_handle_returns_integer(): void
-    {
-        $reflection = new \ReflectionClass(ModuleBuild::class);
-        $method = $reflection->getMethod('handle');
-        $returnType = $method->getReturnType();
-
-        $this->assertEquals('int', $returnType->getName());
-    }
-
-    public function test_build_module_accepts_module_parameter(): void
-    {
-        $reflection = new \ReflectionClass(ModuleBuild::class);
-        $method = $reflection->getMethod('buildModule');
-        $params = $method->getParameters();
-
-        $this->assertCount(1, $params);
-        $this->assertEquals('module', $params[0]->getName());
-    }
-
-    public function test_build_vars_accepts_module_parameter(): void
-    {
-        $reflection = new \ReflectionClass(ModuleBuild::class);
-        $method = $reflection->getMethod('buildVars');
-        $params = $method->getParameters();
-
-        $this->assertCount(1, $params);
-        $this->assertEquals('module', $params[0]->getName());
-    }
-
-    public function test_build_module_returns_void(): void
-    {
-        $reflection = new \ReflectionClass(ModuleBuild::class);
-        $method = $reflection->getMethod('buildModule');
-        $returnType = $method->getReturnType();
-
-        $this->assertEquals('void', $returnType->getName());
-    }
-
-    public function test_build_vars_returns_void(): void
-    {
-        $reflection = new \ReflectionClass(ModuleBuild::class);
-        $method = $reflection->getMethod('buildVars');
-        $returnType = $method->getReturnType();
-
-        $this->assertEquals('void', $returnType->getName());
-    }
-
-    public function test_command_signature_includes_module_alias_argument(): void
-    {
-        $command = new ModuleBuild;
-        $reflection = new \ReflectionClass($command);
-        $property = $reflection->getProperty('signature');
-        $signature = $property->getValue($command);
-
-        $this->assertStringContainsString('module_alias', $signature);
-        $this->assertStringContainsString('?', $signature); // Optional argument
-    }
-
-    public function test_handle_returns_error_when_no_modules_found(): void
-    {
-        // Mock Module facade to return empty array
-        \Nwidart\Modules\Facades\Module::shouldReceive('all')->andReturn([]);
-        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
-
-        $this->artisan('freescout:module-build')
-            ->expectsOutput('No modules found')
-            ->assertExitCode(1);
-    }
-
-    public function test_handle_returns_error_when_module_not_found(): void
-    {
-        // Mock Module facade
-        \Nwidart\Modules\Facades\Module::shouldReceive('findByAlias')
-            ->with('nonexistent')
-            ->andReturn(null);
-        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
-
-        $this->artisan('freescout:module-build nonexistent')
-            ->expectsOutput('Module with the specified alias not found: nonexistent')
-            ->assertExitCode(1);
-    }
-
-    public function test_handle_builds_all_modules_when_no_alias_provided(): void
-    {
-        // Create mock module
-        $mockModule = \Mockery::mock();
-        $mockModule->shouldReceive('getName')->andReturn('TestModule');
-        $mockModule->shouldReceive('getAlias')->andReturn('test-module');
-
-        \Nwidart\Modules\Facades\Module::shouldReceive('all')
-            ->andReturn([$mockModule])
-            ->twice();
-        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
-
-        // Create temp public/modules directory for test
-        $publicModulesPath = public_path('modules/test-module');
-        $publicModulesDir = dirname($publicModulesPath);
-
-        if (! is_dir($publicModulesDir)) {
-            mkdir($publicModulesDir, 0755, true);
+        if (! is_dir($viewDir)) {
+            mkdir($viewDir, 0755, true);
         }
 
-        if (! is_link($publicModulesPath) && ! file_exists($publicModulesPath)) {
-            symlink(__DIR__, $publicModulesPath);
-        }
+        file_put_contents($viewDir.'/vars.blade.php', 'window.moduleLocales = @json($locales);');
+        view()->addNamespace('vars-build', $viewBase);
 
-        try {
-            $this->artisan('freescout:module-build')
-                ->expectsOutput('Building all modules...')
-                ->expectsOutput('Building module: TestModule')
-                ->expectsOutput('Module build completed!')
-                ->assertExitCode(0);
-        } finally {
-            // Cleanup
-            if (is_link($publicModulesPath)) {
-                @unlink($publicModulesPath);
-            }
-        }
+        $targetRoot = public_path('modules/vars-build');
+        $this->cleanupPath($targetRoot);
+
+        $command = new ExposedModuleBuildCommand;
+        $command->runBuildVars($module);
+
+        $targetFile = public_path('modules/vars-build/js/vars.js');
+
+        $this->assertFileExists($targetFile);
+        $this->assertStringContainsString('["en","fr"]', (string) file_get_contents($targetFile));
     }
 
-    public function test_build_module_shows_error_if_public_symlink_missing(): void
+    public function test_build_vars_catches_exceptions_and_reports_error(): void
     {
-        $mockModule = \Mockery::mock();
-        $mockModule->shouldReceive('getName')->andReturn('TestModule');
-        $mockModule->shouldReceive('getAlias')->andReturn('missing-symlink-module');
+        $module = \Mockery::mock();
+        $module->shouldReceive('getAlias')->andThrow(new \RuntimeException('boom'));
+        $module->shouldReceive('getName')->andReturn('Exploding Module');
 
-        \Nwidart\Modules\Facades\Module::shouldReceive('findByAlias')
-            ->with('missing-symlink-module')
-            ->andReturn($mockModule);
-        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
+        $command = new ExposedModuleBuildCommand;
+        $command->runBuildVars($module);
 
-        $this->artisan('freescout:module-build missing-symlink-module')
-            ->expectsOutput('Building module: TestModule')
-            ->assertExitCode(0);
+        $this->assertTrue(
+            collect($command->recordingOutput()->errors)
+                ->contains(fn (string $line): bool => str_contains($line, 'Error building vars for Exploding Module: boom'))
+        );
     }
 
-    public function test_build_vars_skips_when_view_does_not_exist(): void
+    private function mockModule(string $name, string $alias)
     {
-        $mockModule = \Mockery::mock();
-        $mockModule->shouldReceive('getName')->andReturn('NoViewModule');
-        $mockModule->shouldReceive('getAlias')->andReturn('no-view-module');
+        $module = \Mockery::mock();
+        $module->shouldReceive('getName')->byDefault()->andReturn($name);
+        $module->shouldReceive('getAlias')->byDefault()->andReturn($alias);
 
-        \Nwidart\Modules\Facades\Module::shouldReceive('findByAlias')
-            ->with('no-view-module')
-            ->andReturn($mockModule);
-        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
-
-        // Create temp symlink
-        $publicModulesPath = public_path('modules/no-view-module');
-        $publicModulesDir = dirname($publicModulesPath);
-
-        if (! is_dir($publicModulesDir)) {
-            mkdir($publicModulesDir, 0755, true);
-        }
-
-        if (! is_link($publicModulesPath) && ! file_exists($publicModulesPath)) {
-            symlink(__DIR__, $publicModulesPath);
-        }
-
-        try {
-            $this->artisan('freescout:module-build no-view-module')
-                ->assertExitCode(0);
-        } finally {
-            if (is_link($publicModulesPath)) {
-                @unlink($publicModulesPath);
-            }
-        }
+        return $module;
     }
 
-    public function test_command_uses_app_locales_config(): void
+    private function cleanupPath(string $path): void
     {
-        config(['app.locales' => ['en', 'es', 'fr']]);
+        if (is_link($path) || is_file($path)) {
+            @unlink($path);
 
-        $mockModule = \Mockery::mock();
-        $mockModule->shouldReceive('getName')->andReturn('LocaleModule');
-        $mockModule->shouldReceive('getAlias')->andReturn('locale-module');
-
-        \Nwidart\Modules\Facades\Module::shouldReceive('findByAlias')
-            ->with('locale-module')
-            ->andReturn($mockModule);
-        \Nwidart\Modules\Facades\Module::shouldReceive('allEnabled')->andReturn([]);
-
-        $publicModulesPath = public_path('modules/locale-module');
-        $publicModulesDir = dirname($publicModulesPath);
-
-        if (! is_dir($publicModulesDir)) {
-            mkdir($publicModulesDir, 0755, true);
+            return;
         }
 
-        if (! is_link($publicModulesPath) && ! file_exists($publicModulesPath)) {
-            symlink(__DIR__, $publicModulesPath);
-        }
-
-        try {
-            $this->artisan('freescout:module-build locale-module')
-                ->assertExitCode(0);
-        } finally {
-            if (is_link($publicModulesPath)) {
-                @unlink($publicModulesPath);
-            }
+        if (is_dir($path)) {
+            app('files')->deleteDirectory($path);
         }
     }
+}
 
-    public function test_build_module_method_is_called_via_reflection(): void
+class TestableModuleBuildCommand extends ModuleBuild
+{
+    public ?string $moduleAlias = null;
+
+    /** @var array<int, string> */
+    public array $builtAliases = [];
+
+    private ModuleBuildRecordingOutputStyle $recordingOutput;
+
+    public function __construct()
     {
-        $mockModule = \Mockery::mock();
-        $mockModule->shouldReceive('getName')->andReturn('ReflectionModule');
-        $mockModule->shouldReceive('getAlias')->andReturn('reflection-test');
+        parent::__construct();
 
-        $publicModulesPath = public_path('modules/reflection-test');
-        $publicModulesDir = dirname($publicModulesPath);
+        $this->recordingOutput = new ModuleBuildRecordingOutputStyle;
 
-        if (! is_dir($publicModulesDir)) {
-            mkdir($publicModulesDir, 0755, true);
-        }
-
-        if (! is_link($publicModulesPath) && ! file_exists($publicModulesPath)) {
-            symlink(__DIR__, $publicModulesPath);
-        }
-
-        try {
-            $command = new ModuleBuild;
-
-            // Mock the output property
-            $output = \Mockery::mock(\Symfony\Component\Console\Output\OutputInterface::class);
-            $output->shouldReceive('writeln')->andReturn(null);
-            $reflection = new \ReflectionClass($command);
-            $outputProperty = $reflection->getProperty('output');
-            $outputProperty->setAccessible(true);
-            $outputProperty->setValue($command, $output);
-
-            $method = $reflection->getMethod('buildModule');
-            $method->setAccessible(true);
-
-            // This will actually execute buildModule
-            $method->invoke($command, $mockModule);
-
-            // If we get here without exception, buildModule was called
-            $this->assertTrue(true);
-        } finally {
-            if (is_link($publicModulesPath)) {
-                @unlink($publicModulesPath);
-            }
-        }
+        $property = new \ReflectionProperty(\Illuminate\Console\Command::class, 'output');
+        $property->setAccessible(true);
+        $property->setValue($this, $this->recordingOutput);
     }
 
-    public function test_build_vars_method_is_called_via_reflection(): void
+    public function argument($key = null)
     {
-        $mockModule = \Mockery::mock();
-        $mockModule->shouldReceive('getName')->andReturn('VarsModule');
-        $mockModule->shouldReceive('getAlias')->andReturn('vars-test');
+        if ($key === 'module_alias') {
+            return $this->moduleAlias;
+        }
 
-        $command = new ModuleBuild;
-
-        // Mock the output property
-        $output = \Mockery::mock(\Symfony\Component\Console\Output\OutputInterface::class);
-        $output->shouldReceive('writeln')->andReturn(null);
-        $reflection = new \ReflectionClass($command);
-        $outputProperty = $reflection->getProperty('output');
-        $outputProperty->setAccessible(true);
-        $outputProperty->setValue($command, $output);
-
-        $method = $reflection->getMethod('buildVars');
-        $method->setAccessible(true);
-
-        // This will actually execute buildVars
-        $method->invoke($command, $mockModule);
-
-        // If we get here without exception, buildVars was called
-        $this->assertTrue(true);
+        return parent::argument($key);
     }
 
-    public function test_build_vars_creates_directory_if_not_exists(): void
+    protected function buildModule($module): void
     {
-        $mockModule = \Mockery::mock();
-        $mockModule->shouldReceive('getName')->andReturn('DirTestModule');
-        $mockModule->shouldReceive('getAlias')->andReturn('dir-test');
-
-        $publicModulesPath = public_path('modules/dir-test');
-        $jsPath = $publicModulesPath.'/js';
-
-        // Ensure directory doesn't exist
-        if (is_dir($jsPath)) {
-            rmdir($jsPath);
-        }
-        if (is_dir($publicModulesPath)) {
-            rmdir($publicModulesPath);
-        }
-
-        try {
-            // Create view to trigger file generation
-            view()->addNamespace('dir-test', __DIR__);
-
-            $command = new ModuleBuild;
-
-            // Mock the output property
-            $output = \Mockery::mock(\Symfony\Component\Console\Output\OutputInterface::class);
-            $output->shouldReceive('writeln')->andReturn(null);
-            $reflection = new \ReflectionClass($command);
-            $outputProperty = $reflection->getProperty('output');
-            $outputProperty->setAccessible(true);
-            $outputProperty->setValue($command, $output);
-
-            $method = $reflection->getMethod('buildVars');
-            $method->setAccessible(true);
-
-            $method->invoke($command, $mockModule);
-
-            $this->assertTrue(true);
-        } catch (\Exception $e) {
-            // Expected - view doesn't exist
-            $this->assertTrue(true);
-        } finally {
-            // Cleanup
-            if (is_file($jsPath.'/vars.js')) {
-                @unlink($jsPath.'/vars.js');
-            }
-            if (is_dir($jsPath)) {
-                @rmdir($jsPath);
-            }
-            if (is_dir($publicModulesPath)) {
-                @rmdir($publicModulesPath);
-            }
-        }
+        $this->builtAliases[] = (string) $module->getAlias();
     }
 
-    public function test_build_vars_handles_exception_gracefully(): void
+    public function recordingOutput(): ModuleBuildRecordingOutputStyle
     {
-        $mockModule = \Mockery::mock();
-        $mockModule->shouldReceive('getName')->andReturn('ExceptionModule');
-        $mockModule->shouldReceive('getAlias')->andReturn('exception-test');
+        return $this->recordingOutput;
+    }
+}
 
-        $command = new ModuleBuild;
+class ExposedModuleBuildCommand extends ModuleBuild
+{
+    private ModuleBuildRecordingOutputStyle $recordingOutput;
 
-        // Mock the output property
-        $output = \Mockery::mock(\Symfony\Component\Console\Output\OutputInterface::class);
-        $output->shouldReceive('writeln')->andReturn(null);
-        $reflection = new \ReflectionClass($command);
-        $outputProperty = $reflection->getProperty('output');
-        $outputProperty->setAccessible(true);
-        $outputProperty->setValue($command, $output);
+    public function __construct()
+    {
+        parent::__construct();
 
-        $method = $reflection->getMethod('buildVars');
-        $method->setAccessible(true);
+        $this->recordingOutput = new ModuleBuildRecordingOutputStyle;
 
-        // This should handle exception internally
-        $method->invoke($command, $mockModule);
+        $property = new \ReflectionProperty(\Illuminate\Console\Command::class, 'output');
+        $property->setAccessible(true);
+        $property->setValue($this, $this->recordingOutput);
+    }
 
-        // If we get here, exception was handled
-        $this->assertTrue(true);
+    public function runBuildModule($module): void
+    {
+        $this->buildModule($module);
+    }
+
+    public function runBuildVars($module): void
+    {
+        $this->buildVars($module);
+    }
+
+    public function recordingOutput(): ModuleBuildRecordingOutputStyle
+    {
+        return $this->recordingOutput;
+    }
+}
+
+class ModuleBuildRecordingOutputStyle extends OutputStyle
+{
+    /** @var array<int, string> */
+    public array $infos = [];
+
+    /** @var array<int, string> */
+    public array $errors = [];
+
+    /** @var array<int, string> */
+    public array $comments = [];
+
+    public function __construct()
+    {
+        parent::__construct(new ArrayInput([]), new BufferedOutput());
+    }
+
+    public function writeln(string|iterable $messages, int $type = self::OUTPUT_NORMAL): void
+    {
+        $text = is_iterable($messages)
+            ? implode(PHP_EOL, array_map(static fn (mixed $m): string => (string) $m, iterator_to_array($messages)))
+            : (string) $messages;
+
+        $plain = preg_replace('/<[^>]+>/', '', $text);
+        $value = $plain ?? $text;
+
+        if (str_contains($text, '<info>')) {
+            $this->infos[] = $value;
+        }
+
+        if (str_contains($text, '<error>')) {
+            $this->errors[] = $value;
+        }
+
+        if (str_contains($text, '<comment>')) {
+            $this->comments[] = $value;
+        }
+
+        parent::writeln($messages, $type);
     }
 }

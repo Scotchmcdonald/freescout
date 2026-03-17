@@ -443,21 +443,21 @@ class HelperEdgeCasesTest extends UnitTestCase
 
     public function test_log_exception_handles_exception(): void
     {
+        $this->expectNotToPerformAssertions();
+
         $exception = new \Exception('Test exception');
 
         // Should not throw
         Helper::logException($exception);
-
-        $this->assertTrue(true); // If we get here, it worked
     }
 
     public function test_log_exception_with_custom_message(): void
     {
+        $this->expectNotToPerformAssertions();
+
         $exception = new \Exception('Test');
 
         // Should not throw
         Helper::logException($exception, 'Custom context');
-
-        $this->assertTrue(true);
     }
 }

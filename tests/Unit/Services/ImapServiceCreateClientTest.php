@@ -6,13 +6,13 @@ namespace Tests\Unit\Services;
 
 use App\Models\Mailbox;
 use App\Services\ImapService;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
 /**
  * Comprehensive tests for ImapService::createClient() method.
  * This method has 100% coverage but we add edge case tests for robustness.
  */
-class ImapServiceCreateClientTest extends TestCase
+class ImapServiceCreateClientTest extends UnitTestCase
 {
     protected ImapService $service;
 

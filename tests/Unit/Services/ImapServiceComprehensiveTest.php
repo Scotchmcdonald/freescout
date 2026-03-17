@@ -208,7 +208,8 @@ class ImapServiceComprehensiveTest extends UnitTestCase
         $service = new ImapService;
         $service->fetchEmails($mailbox);
 
-        $this->assertTrue(true);
+        // Log::shouldReceive('error')->once() expectation verified by Mockery tearDown.
+        $this->addToAssertionCount(1);
     }
 
     // Story 1.1.2: Email Structure Parsing

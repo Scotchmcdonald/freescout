@@ -7,9 +7,9 @@ namespace Tests\Unit;
 use App\Models\Mailbox;
 use App\Models\User;
 use App\Policies\MailboxPolicy;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class MailboxPolicyTest extends TestCase
+class MailboxPolicyTest extends UnitTestCase
 {
     public function test_admin_can_view_any_mailboxes(): void
     {

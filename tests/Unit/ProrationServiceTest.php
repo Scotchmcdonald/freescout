@@ -6,14 +6,14 @@ namespace Tests\Unit;
 
 use Carbon\Carbon;
 use Modules\PIB\Services\ProrationService;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
 /**
  * ProrationServiceTest
  *
  * Tests proration calculations for mid-month billing changes
  */
-class ProrationServiceTest extends TestCase
+class ProrationServiceTest extends UnitTestCase
 {
     private ProrationService $service;
 

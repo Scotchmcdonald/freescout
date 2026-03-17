@@ -8,14 +8,14 @@ use App\Contracts\EntitlementResolver;
 use App\DataTransferObjects\EntitlementResult;
 use Modules\ContractManager\Models\BillingTemplate;
 use Modules\PIB\Services\EntitlementEngineService;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
 /**
  * EntitlementEngineTest
  *
  * Tests the core EntitlementEngine resolver registry
  */
-class EntitlementEngineTest extends TestCase
+class EntitlementEngineTest extends UnitTestCase
 {
     private EntitlementEngineService $engine;
 

@@ -3,16 +3,21 @@
 namespace Tests;
 
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Facades\RateLimiter;
 
 abstract class TestCase extends BaseTestCase
 {
-    use CreatesApplication, RefreshDatabase, WithFaker;
+    use CreatesApplication, WithFaker;
+
+    // RefreshDatabase is NOT here. It is applied explicitly in:
+    // - IntegrationTestCase (for integration tests)
+    // - UnitTestCase (temporary, pending WS-C migration of DB-heavy unit tests)
+    // - Feature/Browser/Integration tests via explicit Pest .use(RefreshDatabase::class) binding
 
     protected function setUp(): void
     {
@@ -20,6 +25,10 @@ abstract class TestCase extends BaseTestCase
         ini_set('memory_limit', '4096M');
 
         parent::setUp();
+
+        // Prevent accidental outbound HTTP in tests. Individual tests must
+        // opt in with Http::fake() or explicitly allow real requests.
+        Http::preventStrayRequests();
 
         // BEST PRACTICE: Isolate filesystem for parallel tests
         \Illuminate\Support\Facades\Storage::fake('local');

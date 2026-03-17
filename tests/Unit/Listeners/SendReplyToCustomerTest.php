@@ -268,12 +268,6 @@ class SendReplyToCustomerTest extends UnitTestCase
         \Queue::assertPushedOn('emails', \App\Jobs\SendConversationReplyJob::class);
     }
 
-    public function test_listener_handles_event_without_thread_property(): void
-    {
-        // This test is invalid as UserReplied event requires a thread in constructor
-        $this->assertTrue(true);
-    }
-
     public function test_listener_passes_correct_parameters_to_job(): void
     {
         \Queue::fake();

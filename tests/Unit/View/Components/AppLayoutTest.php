@@ -6,9 +6,9 @@ namespace Tests\Unit\View\Components;
 
 use App\View\Components\AppLayout;
 use Illuminate\View\View;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class AppLayoutTest extends TestCase
+class AppLayoutTest extends UnitTestCase
 {
     public function test_app_layout_can_be_instantiated(): void
     {

@@ -8,9 +8,9 @@ use App\Misc\MailHelper;
 use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class MailVarsTest extends TestCase
+class MailVarsTest extends UnitTestCase
 {
     /**
      * Retrieves an array of mocked data that can be passed to the {@see MailHelper::replaceMailVars()} method's $data parameter.

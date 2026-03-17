@@ -8,7 +8,7 @@ use App\Models\Mailbox;
 use App\Services\ImapService;
 use Illuminate\Support\Facades\Log;
 use Mockery;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 use Webklex\PHPIMAP\Client;
 use Webklex\PHPIMAP\Folder;
 use Webklex\PHPIMAP\Message;
@@ -19,7 +19,7 @@ use Webklex\PHPIMAP\Support\MessageCollection;
  * Basic tests for ImapService::fetchEmails() to improve coverage.
  * These tests focus on core functionality without complex mocking scenarios.
  */
-class ImapServiceFetchEmailsBasicTest extends TestCase
+class ImapServiceFetchEmailsBasicTest extends UnitTestCase
 {
     protected function setUp(): void
     {

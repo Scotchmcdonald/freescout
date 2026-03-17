@@ -162,8 +162,10 @@ class ImapServiceProcessMessageAdvancedTest extends UnitTestCase
         // Act
         $this->invokeProcessMessage($mailbox, $message);
 
-        // Assert
-        $this->assertTrue(true);
+        // Assert: a conversation was created for this mailbox
+        $this->assertDatabaseHas('conversations', [
+            'mailbox_id' => $mailbox->id,
+        ]);
     }
 
     public function test_process_message_sets_has_attachments_flag_only_for_non_embedded(): void

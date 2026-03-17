@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use App\DataTransferObjects\GoogleUserSyncedData;
 use App\Events\VersionedEvent;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
 /**
  * Concrete implementation for testing
@@ -24,7 +24,7 @@ class TestVersionedEvent extends VersionedEvent
     }
 }
 
-class VersionedEventTest extends TestCase
+class VersionedEventTest extends UnitTestCase
 {
     public function test_generates_unique_event_id(): void
     {

@@ -53,7 +53,8 @@ class HelpersTest extends UnitTestCase
 
         Helper::queueWorkerRestart();
 
-        $this->assertTrue(true);
+        // Mockery verifies the ->once() expectation in tearDown.
+        $this->addToAssertionCount(1);
     }
 
     public function test_dir_permissions_constant_is_defined(): void

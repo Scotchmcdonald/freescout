@@ -6,9 +6,9 @@ namespace Tests\Unit\View\Components;
 
 use App\View\Components\GuestLayout;
 use Illuminate\View\View;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
-class GuestLayoutTest extends TestCase
+class GuestLayoutTest extends UnitTestCase
 {
     public function test_guest_layout_can_be_instantiated(): void
     {

@@ -6,7 +6,7 @@ namespace Tests\Unit\Misc;
 
 use App\Misc\Helper;
 use Illuminate\Support\Facades\File;
-use Tests\TestCase;
+use Tests\UnitTestCase;
 
 /**
  * Unit tests for Helper class utility methods.
@@ -14,7 +14,7 @@ use Tests\TestCase;
  * These tests use the base TestCase (not UnitTestCase) as they don't
  * require database access - they test pure utility functions.
  */
-class HelperMethodsTest extends TestCase
+class HelperMethodsTest extends UnitTestCase
 {
     // ===== checkRequiredExtensions tests =====
 

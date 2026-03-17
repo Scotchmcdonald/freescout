@@ -4,302 +4,179 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Providers;
 
+use App\Events\ConversationStatusChanged;
+use App\Events\ConversationUserChanged;
+use App\Events\CustomerCreatedConversation;
+use App\Events\NewMessageReceived;
+use App\Policies\ClientPolicy;
+use App\Policies\ClientUserPolicy;
+use App\Policies\ConversationPolicy;
+use App\Policies\FolderPolicy;
+use App\Policies\MailboxPolicy;
+use App\Policies\ThreadPolicy;
 use App\Providers\AppServiceProvider;
 use App\Providers\EventServiceProvider;
 use App\Providers\ModuleCompatibilityServiceProvider;
-use Illuminate\Support\Facades\Event;
+use App\Services\EntitlementEngine;
+use App\Services\Navigation\NavigationService;
+use App\Services\Ui\WidgetRegistryService;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Modules\PIB\Services\EntitlementEngineService;
+use Nwidart\Modules\Laravel\LaravelFileRepository;
+use Nwidart\Modules\Module;
 use Tests\UnitTestCase;
 
 /**
- * Comprehensive tests for Provider classes in the modernized application
- * Testing only the 3 providers that exist: AppServiceProvider, EventServiceProvider, ModuleCompatibilityServiceProvider
- * Following TESTING_GUIDE.md - using test_ prefix, UnitTestCase base class
+ * Focused provider contract tests.
+ *
+ * These assertions target concrete container bindings, policies, listener
+ * registrations, and compatibility macros instead of placeholder "does not
+ * throw" coverage.
  */
 class ProvidersComprehensiveTest extends UnitTestCase
 {
-    // ========================================
-    // AppServiceProvider Tests (10 tests)
-    // ========================================
-
-    public function test_app_service_provider_can_be_instantiated(): void
+    /**
+     * @return mixed
+     */
+    private function readProtectedProperty(object $instance, string $property)
     {
-        $provider = new AppServiceProvider($this->app);
-        $this->assertInstanceOf(AppServiceProvider::class, $provider);
+        $reflection = new \ReflectionClass($instance);
+        $propertyReflection = $reflection->getProperty($property);
+        $propertyReflection->setAccessible(true);
+
+        return $propertyReflection->getValue($instance);
     }
 
-    public function test_app_service_provider_registers_services(): void
+    public function test_app_service_provider_registers_core_singletons_and_aliases(): void
     {
         $provider = new AppServiceProvider($this->app);
         $provider->register();
 
-        // Verify registration completed without errors
-        $this->expectNotToPerformAssertions();
+        $widgetRegistry = $this->app->make(WidgetRegistryService::class);
+        $this->assertInstanceOf(WidgetRegistryService::class, $widgetRegistry);
+        $this->assertSame($widgetRegistry, $this->app->make(WidgetRegistryService::class));
+        $this->assertSame($widgetRegistry, $this->app->make('App\Services\Ui\WidgetRegistry'));
+
+        $entitlementEngine = $this->app->make(EntitlementEngine::class);
+        $this->assertInstanceOf(EntitlementEngineService::class, $entitlementEngine);
+        $this->assertSame($entitlementEngine, $this->app->make(EntitlementEngineService::class));
     }
 
-    public function test_app_service_provider_boots_services(): void
+    public function test_app_service_provider_boot_registers_navigation_policies_and_rate_limiters(): void
     {
         $provider = new AppServiceProvider($this->app);
-        $provider->boot();
-
-        // Verify boot completed without errors
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_app_service_provider_handles_environment_configuration(): void
-    {
-        $provider = new AppServiceProvider($this->app);
-        $provider->boot();
-
-        $this->assertNotNull(config('app.env'));
-    }
-
-    public function test_app_service_provider_sets_locale(): void
-    {
-        $provider = new AppServiceProvider($this->app);
-        $provider->boot();
-
-        $this->assertNotNull(app()->getLocale());
-    }
-
-    public function test_app_service_provider_configures_database(): void
-    {
-        $provider = new AppServiceProvider($this->app);
-        $provider->boot();
-
-        $this->assertNotNull(config('database.default'));
-    }
-
-    public function test_app_service_provider_configures_mail(): void
-    {
-        $provider = new AppServiceProvider($this->app);
-        $provider->boot();
-
-        $this->assertNotNull(config('mail.default'));
-    }
-
-    public function test_app_service_provider_configures_queue(): void
-    {
-        $provider = new AppServiceProvider($this->app);
-        $provider->boot();
-
-        $this->assertNotNull(config('queue.default'));
-    }
-
-    public function test_app_service_provider_does_not_throw_on_register(): void
-    {
-        $provider = new AppServiceProvider($this->app);
-
-        try {
-            $provider->register();
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->fail('AppServiceProvider register should not throw exceptions: '.$e->getMessage());
-        }
-    }
-
-    public function test_app_service_provider_does_not_throw_on_boot(): void
-    {
-        $provider = new AppServiceProvider($this->app);
-
-        try {
-            $provider->boot();
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->fail('AppServiceProvider boot should not throw exceptions: '.$e->getMessage());
-        }
-    }
-
-    // ========================================
-    // EventServiceProvider Tests (10 tests)
-    // ========================================
-
-    public function test_event_service_provider_can_be_instantiated(): void
-    {
-        $provider = new EventServiceProvider($this->app);
-        $this->assertInstanceOf(EventServiceProvider::class, $provider);
-    }
-
-    public function test_event_service_provider_boots_without_errors(): void
-    {
-        $provider = new EventServiceProvider($this->app);
-
-        try {
-            $provider->boot();
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->fail('EventServiceProvider boot should not throw exceptions: '.$e->getMessage());
-        }
-    }
-
-    public function test_event_service_provider_registers_event_listeners(): void
-    {
-        $provider = new EventServiceProvider($this->app);
-        $provider->boot();
-
-        // Verify event listeners are registered
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_event_service_provider_handles_conversation_events(): void
-    {
-        $provider = new EventServiceProvider($this->app);
-        $provider->boot();
-
-        // Verify conversation-related events have listeners
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_event_service_provider_handles_user_events(): void
-    {
-        $provider = new EventServiceProvider($this->app);
-        $provider->boot();
-
-        // Verify user-related events have listeners
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_event_service_provider_handles_customer_events(): void
-    {
-        $provider = new EventServiceProvider($this->app);
-        $provider->boot();
-
-        // Verify customer-related events have listeners
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_event_service_provider_registers_subscribers(): void
-    {
-        $provider = new EventServiceProvider($this->app);
-        $provider->boot();
-
-        // Verify event subscribers are registered
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_event_service_provider_discovers_events_automatically(): void
-    {
-        $provider = new EventServiceProvider($this->app);
-        $provider->boot();
-
-        // Verify automatic event discovery
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_event_service_provider_does_not_throw_on_register(): void
-    {
-        $provider = new EventServiceProvider($this->app);
-
-        try {
-            $provider->register();
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->fail('EventServiceProvider register should not throw exceptions: '.$e->getMessage());
-        }
-    }
-
-    public function test_event_service_provider_handles_model_observers(): void
-    {
-        $provider = new EventServiceProvider($this->app);
-        $provider->boot();
-
-        // Verify model observers are registered through events
-        $this->expectNotToPerformAssertions();
-    }
-
-    // ========================================
-    // ModuleCompatibilityServiceProvider Tests (10 tests)
-    // ========================================
-
-    public function test_module_compatibility_service_provider_can_be_instantiated(): void
-    {
-        $provider = new ModuleCompatibilityServiceProvider($this->app);
-        $this->assertInstanceOf(ModuleCompatibilityServiceProvider::class, $provider);
-    }
-
-    public function test_module_compatibility_service_provider_registers_services(): void
-    {
-        $provider = new ModuleCompatibilityServiceProvider($this->app);
         $provider->register();
+        $provider->boot();
 
-        // Verify registration completed without errors
-        $this->expectNotToPerformAssertions();
+        $navigation = $this->app->make(NavigationService::class);
+        $items = collect($navigation->getItems());
+
+        $this->assertTrue($items->contains(fn (array $item): bool => $item['label'] === 'Milestones' && $item['route'] === 'milestones.index'));
+        $this->assertTrue($items->contains(fn (array $item): bool => $item['label'] === 'Knowledge Base' && $item['route'] === 'knowledgebase.index'));
+
+        $this->assertInstanceOf(ConversationPolicy::class, Gate::getPolicyFor(\App\Models\Conversation::class));
+        $this->assertInstanceOf(MailboxPolicy::class, Gate::getPolicyFor(\App\Models\Mailbox::class));
+        $this->assertInstanceOf(ThreadPolicy::class, Gate::getPolicyFor(\App\Models\Thread::class));
+        $this->assertInstanceOf(FolderPolicy::class, Gate::getPolicyFor(\App\Models\Folder::class));
+        $this->assertInstanceOf(ClientPolicy::class, Gate::getPolicyFor(\Modules\Crm\Models\Client::class));
+        $this->assertInstanceOf(ClientUserPolicy::class, Gate::getPolicyFor(\App\Models\User::class));
+
+        $this->assertIsCallable(RateLimiter::limiter('google_webhooks'));
+        $this->assertIsCallable(RateLimiter::limiter('action1_webhooks'));
+        $this->assertIsCallable(RateLimiter::limiter('action1_script_callbacks'));
     }
 
-    public function test_module_compatibility_service_provider_boots_services(): void
+    public function test_event_service_provider_registers_expected_listener_mappings(): void
+    {
+        $provider = new EventServiceProvider($this->app);
+        $listen = $this->readProtectedProperty($provider, 'listen');
+
+        $this->assertSame([\App\Listeners\LogRegisteredUser::class], $listen[Registered::class]);
+        $this->assertSame([\App\Listeners\UpdateMailboxCounters::class], $listen[ConversationStatusChanged::class]);
+        $this->assertSame([
+            \App\Listeners\UpdateMailboxCounters::class,
+            \App\Listeners\SendNotificationToUsers::class,
+        ], $listen[ConversationUserChanged::class]);
+        $this->assertSame([
+            \App\Listeners\SendAutoReply::class,
+            \App\Listeners\SendNotificationToUsers::class,
+        ], $listen[CustomerCreatedConversation::class]);
+        $this->assertSame([\App\Listeners\HandleNewMessage::class], $listen[NewMessageReceived::class]);
+    }
+
+    public function test_event_service_provider_registers_expected_model_observers(): void
+    {
+        $provider = new EventServiceProvider($this->app);
+        $observers = $this->readProtectedProperty($provider, 'observers');
+
+        $this->assertSame([\App\Observers\AttachmentObserver::class], $observers[\App\Models\Attachment::class]);
+        $this->assertSame([\App\Observers\ConversationObserver::class], $observers[\App\Models\Conversation::class]);
+        $this->assertSame([\App\Observers\UserObserver::class], $observers[\App\Models\User::class]);
+    }
+
+    public function test_event_service_provider_disables_automatic_discovery(): void
+    {
+        $provider = new EventServiceProvider($this->app);
+
+        $this->assertFalse($provider->shouldDiscoverEvents());
+    }
+
+    public function test_module_compatibility_service_provider_registers_module_macros(): void
     {
         $provider = new ModuleCompatibilityServiceProvider($this->app);
         $provider->boot();
 
-        // Verify boot completed without errors
-        $this->expectNotToPerformAssertions();
+        $this->assertTrue(Module::hasMacro('getAlias'));
+        $this->assertTrue(LaravelFileRepository::hasMacro('findByAlias'));
     }
 
-    public function test_module_compatibility_service_provider_handles_module_loading(): void
+    public function test_module_repository_can_find_modules_by_alias_or_lower_name(): void
     {
         $provider = new ModuleCompatibilityServiceProvider($this->app);
         $provider->boot();
 
-        // Verify module compatibility features are loaded
-        $this->expectNotToPerformAssertions();
-    }
+        $matchingModule = new class
+        {
+            public function get(string $key): ?string
+            {
+                return $key === 'alias' ? 'billing' : null;
+            }
 
-    public function test_module_compatibility_service_provider_registers_module_paths(): void
-    {
-        $provider = new ModuleCompatibilityServiceProvider($this->app);
-        $provider->boot();
+            public function getLowerName(): string
+            {
+                return 'pib';
+            }
+        };
 
-        // Verify module paths are registered
-        $this->expectNotToPerformAssertions();
-    }
+        $otherModule = new class
+        {
+            public function get(string $key): ?string
+            {
+                return $key === 'alias' ? 'support' : null;
+            }
 
-    public function test_module_compatibility_service_provider_handles_module_service_providers(): void
-    {
-        $provider = new ModuleCompatibilityServiceProvider($this->app);
-        $provider->boot();
+            public function getLowerName(): string
+            {
+                return 'helpdesk';
+            }
+        };
 
-        // Verify module service providers are handled
-        $this->expectNotToPerformAssertions();
-    }
+        $repository = new class([$matchingModule, $otherModule]) extends LaravelFileRepository
+        {
+            public function __construct(private array $modules)
+            {
+            }
 
-    public function test_module_compatibility_service_provider_registers_module_aliases(): void
-    {
-        $provider = new ModuleCompatibilityServiceProvider($this->app);
-        $provider->boot();
+            public function all(): array
+            {
+                return $this->modules;
+            }
+        };
 
-        // Verify module aliases are registered
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_module_compatibility_service_provider_does_not_throw_on_register(): void
-    {
-        $provider = new ModuleCompatibilityServiceProvider($this->app);
-
-        try {
-            $provider->register();
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->fail('ModuleCompatibilityServiceProvider register should not throw exceptions: '.$e->getMessage());
-        }
-    }
-
-    public function test_module_compatibility_service_provider_does_not_throw_on_boot(): void
-    {
-        $provider = new ModuleCompatibilityServiceProvider($this->app);
-
-        try {
-            $provider->boot();
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->fail('ModuleCompatibilityServiceProvider boot should not throw exceptions: '.$e->getMessage());
-        }
-    }
-
-    public function test_module_compatibility_service_provider_handles_backwards_compatibility(): void
-    {
-        $provider = new ModuleCompatibilityServiceProvider($this->app);
-        $provider->boot();
-
-        // Verify backwards compatibility features for modules
-        $this->expectNotToPerformAssertions();
+        $this->assertSame($matchingModule, $repository->findByAlias('billing'));
+        $this->assertSame($matchingModule, $repository->findByAlias('pib'));
+        $this->assertNull($repository->findByAlias('missing'));
     }
 }
