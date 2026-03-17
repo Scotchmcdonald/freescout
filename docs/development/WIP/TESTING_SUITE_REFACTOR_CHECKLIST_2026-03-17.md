@@ -324,3 +324,43 @@ Use this section to track execution in chronological order.
 - Tests run: 7/7 pass (36 assertions)
 - Runtime delta: neutral
 - Risks / follow-ups: Other modules with `assertSee` pattern unchecked
+
+---
+
+- Date: 2026-03-18
+- Workstream: WS-C continued (ImapService migration) + WS-D (Full allowlist clearance) + WS-E (Module fake sweep)
+- PR/Commit: ImapService `8d042da`, WS-D root `b70ed1c1e`, WS-E root `87d770f2a`
+- Files touched:
+  - `tests/Unit/Services/ImapServiceProcessMessageBasicTest.php` — **deleted** (45 tests)
+  - `tests/Unit/Services/ImapServiceProcessMessageAdvancedTest.php` — **deleted** (52 tests)
+  - `tests/Integration/Services/ImapServiceProcessMessageBasicTest.php` — **new** (namespace + extends updated)
+  - `tests/Integration/Services/ImapServiceProcessMessageAdvancedTest.php` — **new**
+  - `tests/Unit/ModuleUnitIsolationGuardTest.php` — `allowlistedRefreshDatabaseBaseline = []`; `allowlistedPathPrefixes = ['Modules/PIB/Tests/Unit/']` only
+  - PIB: 3 tests Unit→Integration (MonthEndTimeAggregation, PaymentDisputed, TimeEntry)
+  - Alerts: 2 tests Unit→Integration (AlertService, AlertSubscriptionService); Pest.php binding added
+  - CRM: 8 tests Unit→Integration (5 services/listeners + 3 models)
+  - Action1: 1 test Unit→Integration (MspScriptService)
+  - CaseManager: 22 tests Unit→Integration (Jobs/Listeners/Models/Services/Traits)
+  - EmailMigration `MigrateMailboxJobPestTest.php` — added `Event::assertDispatched(MailboxCompleted::class, ...)`
+  - CRM `ClientTicketServicePestTest.php` — added `Event::assertDispatched('eloquent.created: App\Models\Conversation')` to 2 tests
+- Tests run: 3,778 all pass (6,787 assertions)
+- Runtime delta: −36 allowlist entries; guard now fully enforced
+- Risks / follow-ups: None — allowlist is empty
+
+---
+
+- Date: 2026-03-18
+- Workstream: WS-G (Business Invariants) — CaseManager + Payment
+- PR/Commit: CaseManager submodule `e49c365`, root `64061142c`; Payment submodule `9bbcce1`, root bump
+- Files touched:
+  - `Modules/CaseManager/Tests/Feature/DiagnosticFlowIntegrationTest.php` — added 3 invariants:
+    - `ProcessCompletedDiagnosticsJob is not dispatched until every diagnostic is resolved` (gate with 3 diags)
+    - `CheckDiagnosticTimeoutJob marks running diagnostics timed_out and still reaches ready_for_tech`
+    - `duplicate webhook callback for the same diagnostic is idempotent` (200 already_completed, 1 job)
+  - `Modules/Payment/Http/Controllers/HelcimWebhookController.php` — added terminal-state guard in `handleTransactionDeclined` (successful/refunded payments cannot be downgraded)
+  - `Modules/Payment/Tests/Feature/WebhookHandlingPestTest.php` — added 2 invariants:
+    - `duplicate transaction.approved webhook id is idempotent`
+    - `transaction.declined webhook does not downgrade a payment already successful`
+- Tests run: CaseManager Feature 5/5 (47 assertions); Payment 37/37 (165 assertions)
+- Runtime delta: +5 CaseManager Feature tests, +2 Payment Feature tests
+- Risks / follow-ups: WS-G complete for all three target domains
