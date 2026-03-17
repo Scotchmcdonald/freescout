@@ -1,5 +1,22 @@
 <?php
 
+/**
+ * ControllerCoverageTest — MIGRATION CANDIDATE
+ *
+ * ⚠️  WARNING: This test class instantiates controllers directly and calls their
+ * action methods without going through the HTTP kernel.  As a result:
+ *
+ *  - Middleware (auth, RBAC, CSRF, throttle) is BYPASSED entirely.
+ *  - Route model binding does NOT run.
+ *  - Request lifecycle hooks (before/after middleware) do NOT fire.
+ *  - Assertions here give false confidence that production routes are protected.
+ *
+ * @todo Migrate these tests to proper HTTP-layer Feature tests that use
+ *       `$this->actingAs(...)->get(route(...))` so middleware is exercised.
+ *       Tracked in: docs/development/WIP/TEST_SUITE_REMEDIATION_2026-03-17.md (P2-1)
+ *       Do NOT add new tests to this file — add them as Feature tests instead.
+ */
+
 declare(strict_types=1);
 
 namespace Tests\Integration;
