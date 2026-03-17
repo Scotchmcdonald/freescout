@@ -1,0 +1,71 @@
+# Laravel Testing Standards & Best Practices
+
+## 1. The Core Philosophy
+We test to ensure **business logic remains intact** during refactoring and to provide **living documentation** of the application’s features. We do not waste resources testing the Laravel framework itself.
+
+---
+
+## 2. The Testing Hierarchy
+We follow a balanced Testing Pyramid to optimize for both confidence and execution speed.
+
+| Test Type | Frequency | Focus | Target Speed |
+| :--- | :--- | :--- | :--- |
+| **Unit** | ~60% | Pure logic, helper classes, DTOs (No DB). | < 50ms |
+| **Feature** | ~30% | Controllers, Middleware, Form Requests. | < 200ms |
+| **Integration** | ~7% | External APIs, Service Providers, Modules. | < 1s |
+| **End-to-End** | ~3% | Critical "Happy Paths" (Dusk/Playwright). | Slow |
+
+---
+
+## 3. The "No-Fly List" (Identifying Junk Tests)
+To keep the suite lean, **do not** write tests for the following:
+* **Eloquent Relationships:** (e.g., `User hasMany Post`) — This is framework-level logic.
+* **Basic CRUD:** Saving a model to the DB without custom logic/observers.
+* **Native Validation:** Testing that `required` works (test custom rules only).
+* **Static Config:** Verifying that a `config()` value matches a file.
+
+---
+
+## 4. Modular Isolation Standards
+In our modular architecture, tests must respect strict boundaries:
+* **No Cross-Talk:** A test for `Module A` must never directly query `Module B` database tables.
+* **Contract Testing:** Use Interfaces/Service Providers to interact with other modules; mock these in Unit tests.
+* **Scoped Factories:** Keep factories localized to the module they represent.
+
+---
+
+## 5. Technical Requirements
+* **Database:** Use `RefreshDatabase` for Feature tests. Prefer `sqlite :memory:` for speed.
+* **Mocking:** Use `Http::fake()` for all external API calls. Never hit a live production/staging API.
+* **Naming:** Use descriptive, human-readable names: `it_prevents_non_admin_users_from_deleting_modules`.
+* **State:** Tests must be **stateless**. One test's success must never depend on a previous test's data.
+
+---
+
+## 6. Pest Architecture Rules (Auto-Enforcement)
+We use Pest's Architecture testing to programmatically enforce these standards.
+
+```php
+// tests/ArchTest.php
+
+test('globals')
+    ->expect(['dd', 'dump', 'ray', 'env'])
+    ->not->toBeUsed();
+
+test('controllers')
+    ->expect('App\Modules\*\Http\Controllers')
+    ->not->toUse(['Illuminate\Http\Request']) // Use FormRequests instead
+    ->toHaveSuffix('Controller');
+
+test('models')
+    ->expect('App\Modules\*\Models')
+    ->toExtend('Illuminate\Database\Eloquent\Model')
+    ->not->toUse('Illuminate\Support\Facades\DB'); // Use Repositories/Eloquent
+```
+
+## 7. Performance Thresholds
+The entire CI/CD testing pipeline must complete in under 5 minutes.
+
+If the suite slows down, we audit for missing mocks or unnecessary database persistence.
+
+Run php artisan test --parallel in CI to maximize resource usage.
