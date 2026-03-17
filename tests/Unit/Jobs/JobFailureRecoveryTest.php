@@ -7,6 +7,8 @@ namespace Tests\Unit\Jobs;
 use App\Jobs\SendAlertJob as SendAlert;
 use App\Jobs\SendAutoReplyJob;
 use App\Jobs\SendNotificationToUsersJob as SendNotificationToUsers;
+use App\Mail\Alert;
+use App\Mail\AutoReply;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
@@ -21,37 +23,6 @@ use Tests\UnitTestCase;
 
 class JobFailureRecoveryTest extends UnitTestCase
 {
-    public function test_send_notification_job_has_retry_properties(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        // Verify job has retry configuration
-        $this->assertObjectHasProperty('tries', $job);
-        $this->assertObjectHasProperty('timeout', $job);
-    }
-
-    public function test_send_notification_job_has_exponential_backoff(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        // Check backoff property exists and is array
-        if (isset($job->backoff)) {
-            $this->assertIsArray($job->backoff);
-            // Should have increasing delays
-            $this->assertGreaterThan(0, count($job->backoff));
-        } else {
-            $this->expectNotToPerformAssertions(); // Optional property
-        }
-    }
-
     public function test_send_auto_reply_job_creates_send_log_on_success(): void
     {
         Mail::fake();
@@ -73,6 +44,7 @@ class JobFailureRecoveryTest extends UnitTestCase
             'customer_id' => $customer->id,
             'mail_type' => SendLog::MAIL_TYPE_AUTO_REPLY,
         ]);
+        Mail::assertSent(AutoReply::class, 1);
     }
 
     public function test_job_serialization_preserves_model_data(): void
@@ -109,6 +81,7 @@ class JobFailureRecoveryTest extends UnitTestCase
 
         // At least one send log should be created
         $this->assertGreaterThan(0, SendLog::count());
+        Mail::assertSent(Alert::class);
     }
 
     public function test_job_attempts_tracking(): void
@@ -123,60 +96,6 @@ class JobFailureRecoveryTest extends UnitTestCase
         $this->assertEquals(1, $job->attempts());
     }
 
-    public function test_job_delete_method_exists(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        $this->assertTrue(method_exists($job, 'delete'));
-    }
-
-    public function test_job_release_method_exists(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        $this->assertTrue(method_exists($job, 'release'));
-    }
-
-    public function test_job_fail_method_exists(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        $this->assertTrue(method_exists($job, 'fail'));
-    }
-
-    public function test_job_failed_callback_exists(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        $this->assertTrue(method_exists($job, 'failed'));
-    }
-
-    public function test_send_alert_job_has_timeout_configuration(): void
-    {
-        $job = new SendAlert(
-            'Test message',
-            'Test Title'
-        );
-
-        $this->assertObjectHasProperty('timeout', $job);
-    }
-
     public function test_job_can_be_pushed_to_specific_queue(): void
     {
         Queue::fake();
@@ -189,67 +108,6 @@ class JobFailureRecoveryTest extends UnitTestCase
             ->onQueue('emails');
 
         Queue::assertPushedOn('emails', SendNotificationToUsers::class);
-    }
-
-    public function test_job_middleware_property_exists(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        // Check if middleware method exists
-        if (method_exists($job, 'middleware')) {
-            $middleware = $job->middleware();
-            $this->assertIsArray($middleware);
-        } else {
-            $this->expectNotToPerformAssertions(); // Not all jobs have middleware
-        }
-    }
-
-    public function test_job_handles_null_models_gracefully(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        // Job should not crash when accessing properties
-        $this->assertNotNull($job);
-    }
-
-    public function test_job_display_name_for_logging(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        if (method_exists($job, 'displayName')) {
-            $displayName = $job->displayName();
-            $this->assertIsString($displayName);
-        } else {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_job_tags_for_horizon_tracking(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        if (method_exists($job, 'tags')) {
-            $tags = $job->tags();
-            $this->assertIsArray($tags);
-        } else {
-            $this->expectNotToPerformAssertions();
-        }
     }
 
     public function test_job_connection_configuration(): void
@@ -309,54 +167,6 @@ class JobFailureRecoveryTest extends UnitTestCase
         );
     }
 
-    public function test_job_unique_id_for_deduplication(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        if (method_exists($job, 'uniqueId')) {
-            $uniqueId = $job->uniqueId();
-            $this->assertNotEmpty($uniqueId);
-        } else {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_job_retry_until_configuration(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        if (method_exists($job, 'retryUntil')) {
-            $retryUntil = $job->retryUntil();
-            $this->assertInstanceOf(\DateTimeInterface::class, $retryUntil);
-        } else {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
-    public function test_job_should_fail_on_timeout_configuration(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        if (method_exists($job, 'shouldFailOnTimeout')) {
-            $shouldFail = $job->shouldFailOnTimeout();
-            $this->assertIsBool($shouldFail);
-        } else {
-            $this->expectNotToPerformAssertions();
-        }
-    }
-
     public function test_send_alert_creates_send_log_for_each_recipient(): void
     {
         Mail::fake();
@@ -376,37 +186,7 @@ class JobFailureRecoveryTest extends UnitTestCase
         $job->handle();
 
         $this->assertGreaterThan($initialCount, SendLog::count());
-    }
-
-    public function test_job_handles_model_soft_deletion(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        // Delete models
-        $threads->first()->delete();
-        $conversation->delete();
-
-        // Job should handle gracefully
-        $this->assertNotNull($job);
-    }
-
-    public function test_job_batch_processing_identifier(): void
-    {
-        $users = User::factory()->count(2)->create();
-        $conversation = Conversation::factory()->create();
-        $threads = collect([Thread::factory()->for($conversation)->create()]);
-
-        $job = new SendNotificationToUsers($users, $conversation, $threads);
-
-        if (property_exists($job, 'batchId')) {
-            $this->expectNotToPerformAssertions();
-        } else {
-            $this->expectNotToPerformAssertions(); // Optional property
-        }
+        Mail::assertSent(Alert::class, 3);
     }
 
     public function test_job_handles_encrypted_payload(): void

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Jobs;
 
 use App\Jobs\SendAlertJob as SendAlert;
+use App\Mail\Alert;
 use App\Models\SendLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
@@ -33,16 +34,6 @@ class SendAlertTest extends UnitTestCase
         $job = new SendAlert($text, $title);
 
         $this->assertEquals(120, $job->timeout);
-    }
-
-    public function test_handle_method_exists(): void
-    {
-        $text = 'Test alert message';
-        $title = 'Test Alert';
-
-        $job = new SendAlert($text, $title);
-
-        $this->assertTrue(method_exists($job, 'handle'));
     }
 
     public function test_job_can_be_created_without_title(): void
@@ -75,6 +66,7 @@ class SendAlertTest extends UnitTestCase
         $job->handle();
 
         $this->assertEquals(2, SendLog::where('mail_type', SendLog::MAIL_TYPE_ALERT)->count());
+        Mail::assertSent(Alert::class, 2);
     }
 
     public function test_job_skips_inactive_admins(): void
@@ -99,6 +91,7 @@ class SendAlertTest extends UnitTestCase
         $this->assertEquals(1, SendLog::where('mail_type', SendLog::MAIL_TYPE_ALERT)->count());
         $this->assertDatabaseHas('send_logs', ['email' => 'active@example.com']);
         $this->assertDatabaseMissing('send_logs', ['email' => 'inactive@example.com']);
+        Mail::assertSent(Alert::class, 1);
     }
 
     public function test_job_skips_non_admin_users(): void
@@ -123,6 +116,7 @@ class SendAlertTest extends UnitTestCase
         $this->assertEquals(1, SendLog::where('mail_type', SendLog::MAIL_TYPE_ALERT)->count());
         $this->assertDatabaseHas('send_logs', ['email' => 'admin@example.com']);
         $this->assertDatabaseMissing('send_logs', ['email' => 'user@example.com']);
+        Mail::assertSent(Alert::class, 1);
     }
 
     public function test_job_creates_send_log_on_success(): void
@@ -144,6 +138,7 @@ class SendAlertTest extends UnitTestCase
             'mail_type' => SendLog::MAIL_TYPE_ALERT,
             'status' => SendLog::STATUS_ACCEPTED,
         ]);
+        Mail::assertSent(Alert::class, 1);
     }
 
     public function test_job_logs_info_when_sending(): void
@@ -183,6 +178,7 @@ class SendAlertTest extends UnitTestCase
         $job->handle();
 
         $this->assertEquals(0, SendLog::where('mail_type', SendLog::MAIL_TYPE_ALERT)->count());
+        Mail::assertNothingSent();
     }
 
     public function test_job_processes_multiple_recipients(): void
@@ -199,6 +195,7 @@ class SendAlertTest extends UnitTestCase
         $job->handle();
 
         $this->assertEquals(3, SendLog::where('mail_type', SendLog::MAIL_TYPE_ALERT)->count());
+        Mail::assertSent(Alert::class, 3);
     }
 
     public function test_job_stores_null_for_thread_and_user_ids(): void
