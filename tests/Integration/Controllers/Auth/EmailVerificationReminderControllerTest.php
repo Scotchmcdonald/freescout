@@ -38,13 +38,14 @@ class EmailVerificationReminderControllerTest extends IntegrationTestCase
     {
         $user = User::factory()->create(['email_verified_at' => null]);
 
-        // Send multiple requests
-        $this->actingAs($user)->post(route('verification.send'));
-        $this->actingAs($user)->post(route('verification.send'));
+        // Exhaust throttling budget first, then assert throttle response.
+        for ($i = 0; $i < 6; $i++) {
+            $this->actingAs($user)->post(route('verification.send'));
+        }
 
         $response = $this->actingAs($user)->post(route('verification.send'));
 
-        // Should be rate limited
-        $this->expectNotToPerformAssertions(); // Rate limiting test placeholder
+        $this->assertTrue(in_array($response->status(), [302, 429], true));
+        $this->assertNotNull($response->headers->get('X-RateLimit-Limit'));
     }
 }

@@ -13,12 +13,15 @@ use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
+use Illuminate\Support\Facades\Queue;
 use Tests\UnitTestCase;
 
 class SendReplyToCustomerTest extends UnitTestCase
 {
     public function test_listener_handles_user_replied_event(): void
     {
+        Queue::fake();
+
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -37,11 +40,13 @@ class SendReplyToCustomerTest extends UnitTestCase
 
         // Should handle without exception
         $listener->handle($event);
-        $this->expectNotToPerformAssertions();
+        Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, 1);
     }
 
     public function test_listener_handles_user_created_conversation_event(): void
     {
+        Queue::fake();
+
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -59,11 +64,13 @@ class SendReplyToCustomerTest extends UnitTestCase
         $listener = new SendReplyToCustomer;
 
         $listener->handle($event);
-        $this->expectNotToPerformAssertions();
+        Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, 1);
     }
 
     public function test_listener_skips_imported_threads(): void
     {
+        Queue::fake();
+
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
@@ -81,11 +88,13 @@ class SendReplyToCustomerTest extends UnitTestCase
 
         // Should skip imported threads
         $listener->handle($event);
-        $this->expectNotToPerformAssertions();
+        Queue::assertNotPushed(\App\Jobs\SendConversationReplyJob::class);
     }
 
     public function test_listener_handles_phone_conversation_with_email(): void
     {
+        Queue::fake();
+
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
         $customer->emails()->create(['email' => 'customer@example.com', 'type' => 'work']);
@@ -104,11 +113,13 @@ class SendReplyToCustomerTest extends UnitTestCase
 
         // Should process phone conversation with customer email
         $listener->handle($event);
-        $this->expectNotToPerformAssertions();
+        Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, 1);
     }
 
     public function test_listener_processes_multiple_threads(): void
     {
+        Queue::fake();
+
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['customer_id' => $customer->id]);
@@ -125,7 +136,7 @@ class SendReplyToCustomerTest extends UnitTestCase
         $listener = new SendReplyToCustomer;
 
         $listener->handle($event);
-        $this->expectNotToPerformAssertions();
+        Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, 1);
     }
 
     public function test_listener_handles_event_with_thread_property(): void
@@ -147,6 +158,8 @@ class SendReplyToCustomerTest extends UnitTestCase
 
     public function test_listener_handles_conversation_with_thread(): void
     {
+        Queue::fake();
+
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
         $mailbox = Mailbox::factory()->create();
@@ -164,7 +177,7 @@ class SendReplyToCustomerTest extends UnitTestCase
 
         // Should handle conversation with thread
         $listener->handle($event);
-        $this->expectNotToPerformAssertions();
+        Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, 1);
     }
 
     public function test_listener_handles_user_replied_with_customer(): void

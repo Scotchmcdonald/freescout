@@ -8,6 +8,7 @@ use App\Events\ConversationStatusChanged;
 use App\Events\ConversationUserChanged;
 use App\Events\UserCreatedConversation;
 use App\Events\UserReplied;
+use App\Mail\PasswordChanged;
 use App\Jobs\SendConversationReplyJob as SendConversationReply;
 use App\Listeners\RememberUserLocale;
 use App\Listeners\SendPasswordChanged;
@@ -20,6 +21,7 @@ use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Tests\UnitTestCase;
 
@@ -48,7 +50,7 @@ class AdditionalListenersTest extends UnitTestCase
 
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        $this->assertNull(session('user_locale'));
     }
 
     public function test_remember_user_locale_handles_api_guard(): void
@@ -59,7 +61,7 @@ class AdditionalListenersTest extends UnitTestCase
 
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        $this->assertNull(session('user_locale'));
     }
 
     public function test_remember_user_locale_handles_remember_me(): void
@@ -70,7 +72,7 @@ class AdditionalListenersTest extends UnitTestCase
 
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        $this->assertNull(session('user_locale'));
     }
 
     public function test_remember_user_locale_checks_method_exists(): void
@@ -89,14 +91,17 @@ class AdditionalListenersTest extends UnitTestCase
 
     public function test_send_password_changed_handles_password_reset_event(): void
     {
+        Mail::fake();
+
         $user = User::factory()->create();
         $event = new PasswordReset($user);
         $listener = new SendPasswordChanged;
 
         $listener->handle($event);
 
-        // User model has sendPasswordChanged method, it should execute
-        $this->expectNotToPerformAssertions();
+        Mail::assertSent(PasswordChanged::class, function ($mail) use ($user) {
+            return $mail->hasTo($user->email);
+        });
     }
 
     public function test_send_password_changed_checks_method_exists(): void
@@ -113,24 +118,32 @@ class AdditionalListenersTest extends UnitTestCase
 
     public function test_send_password_changed_handles_admin_user(): void
     {
+        Mail::fake();
+
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $event = new PasswordReset($admin);
         $listener = new SendPasswordChanged;
 
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        Mail::assertSent(PasswordChanged::class, function ($mail) use ($admin) {
+            return $mail->hasTo($admin->email);
+        });
     }
 
     public function test_send_password_changed_handles_regular_user(): void
     {
+        Mail::fake();
+
         $user = User::factory()->create(['role' => User::ROLE_USER]);
         $event = new PasswordReset($user);
         $listener = new SendPasswordChanged;
 
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        Mail::assertSent(PasswordChanged::class, function ($mail) use ($user) {
+            return $mail->hasTo($user->email);
+        });
     }
 
     // UpdateMailboxCounters Listener Tests (5 tests)
@@ -147,8 +160,7 @@ class AdditionalListenersTest extends UnitTestCase
 
         $listener->handle($event);
 
-        // Just verify no exception thrown
-        $this->expectNotToPerformAssertions();
+        $this->assertSame($mailbox->id, $conversation->fresh()->mailbox_id);
     }
 
     public function test_update_mailbox_counters_handles_user_changed(): void
@@ -164,7 +176,7 @@ class AdditionalListenersTest extends UnitTestCase
 
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        $this->assertSame($mailbox->id, $conversation->fresh()->mailbox_id);
     }
 
     public function test_update_mailbox_counters_handles_mailbox_without_method(): void
@@ -195,7 +207,7 @@ class AdditionalListenersTest extends UnitTestCase
 
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        $this->assertSame(Conversation::STATUS_CLOSED, $conversation->fresh()->status);
     }
 
     public function test_update_mailbox_counters_handles_active_conversation(): void
@@ -211,7 +223,7 @@ class AdditionalListenersTest extends UnitTestCase
 
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        $this->assertSame(Conversation::STATUS_ACTIVE, $conversation->fresh()->status);
     }
 
     // SendReplyToCustomer Listener Tests (6 tests)

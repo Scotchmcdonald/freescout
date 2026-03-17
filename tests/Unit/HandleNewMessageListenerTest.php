@@ -10,6 +10,8 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
+use App\Jobs\SendNotificationToUsersJob;
+use Illuminate\Support\Facades\Queue;
 use Tests\UnitTestCase;
 
 class HandleNewMessageListenerTest extends UnitTestCase
@@ -33,7 +35,11 @@ class HandleNewMessageListenerTest extends UnitTestCase
     /** Test listener handle accepts NewMessageReceived event */
     public function test_listener_accepts_new_message_received_event(): void
     {
+        Queue::fake();
+
         $mailbox = Mailbox::factory()->create();
+        $agent = \App\Models\User::factory()->create();
+        $mailbox->users()->attach($agent->id);
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -49,7 +55,11 @@ class HandleNewMessageListenerTest extends UnitTestCase
         // Should not throw exception
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        $this->assertDatabaseHas('conversations', [
+            'id' => $conversation->id,
+            'status' => Conversation::STATUS_ACTIVE,
+        ]);
+        Queue::assertPushed(SendNotificationToUsersJob::class);
     }
 
     /** Test listener can be constructed without parameters */
@@ -79,8 +89,12 @@ class HandleNewMessageListenerTest extends UnitTestCase
     /** Test listener processes multiple events */
     public function test_listener_processes_multiple_events(): void
     {
+        Queue::fake();
+
         $listener = new HandleNewMessage;
         $mailbox = Mailbox::factory()->create();
+        $agent = \App\Models\User::factory()->create();
+        $mailbox->users()->attach($agent->id);
         $customer = Customer::factory()->create();
 
         for ($i = 0; $i < 3; $i++) {
@@ -96,14 +110,19 @@ class HandleNewMessageListenerTest extends UnitTestCase
             $listener->handle($event);
         }
 
-        // Should handle multiple events without error
-        $this->expectNotToPerformAssertions();
+        $this->assertSame(3, Conversation::count());
+        $this->assertSame(3, Thread::count());
+        Queue::assertPushed(SendNotificationToUsersJob::class, 3);
     }
 
     /** Test listener does not throw on empty event */
     public function test_listener_handles_event_gracefully(): void
     {
+        Queue::fake();
+
         $mailbox = Mailbox::factory()->create();
+        $agent = \App\Models\User::factory()->create();
+        $mailbox->users()->attach($agent->id);
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -116,18 +135,23 @@ class HandleNewMessageListenerTest extends UnitTestCase
         $event = new NewMessageReceived($thread, $conversation);
         $listener = new HandleNewMessage;
 
-        try {
-            $listener->handle($event);
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->fail('Listener should not throw exception: '.$e->getMessage());
-        }
+        $listener->handle($event);
+
+        $this->assertDatabaseHas('threads', [
+            'id' => $thread->id,
+            'conversation_id' => $conversation->id,
+        ]);
+        Queue::assertPushed(SendNotificationToUsersJob::class, 1);
     }
 
     /** Test listener handles events with different thread types */
     public function test_listener_handles_different_thread_types(): void
     {
+        Queue::fake();
+
         $mailbox = Mailbox::factory()->create();
+        $agent = \App\Models\User::factory()->create();
+        $mailbox->users()->attach($agent->id);
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -146,20 +170,22 @@ class HandleNewMessageListenerTest extends UnitTestCase
 
             $event = new NewMessageReceived($thread, $conversation);
 
-            try {
-                $listener->handle($event);
-                $this->expectNotToPerformAssertions();
-            } catch (\Exception $e) {
-                $this->fail('Listener should handle all thread types');
-            }
+            $listener->handle($event);
         }
+
+        $this->assertSame(4, Thread::where('conversation_id', $conversation->id)->count());
+        Queue::assertPushed(SendNotificationToUsersJob::class, 4);
     }
 
     /** Test listener handles rapid successive events */
     public function test_listener_handles_rapid_successive_events(): void
     {
+        Queue::fake();
+
         $listener = new HandleNewMessage;
         $mailbox = Mailbox::factory()->create();
+        $agent = \App\Models\User::factory()->create();
+        $mailbox->users()->attach($agent->id);
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create([
             'mailbox_id' => $mailbox->id,
@@ -176,15 +202,19 @@ class HandleNewMessageListenerTest extends UnitTestCase
             $listener->handle($event);
         }
 
-        // Should handle all without memory or performance issues
-        $this->expectNotToPerformAssertions();
+        $this->assertSame(10, Thread::where('conversation_id', $conversation->id)->count());
+        Queue::assertPushed(SendNotificationToUsersJob::class, 10);
     }
 
     /** Test listener is stateless between calls */
     public function test_listener_is_stateless(): void
     {
+        Queue::fake();
+
         $listener = new HandleNewMessage;
         $mailbox = Mailbox::factory()->create();
+        $agent = \App\Models\User::factory()->create();
+        $mailbox->users()->attach($agent->id);
         $customer = Customer::factory()->create();
 
         // First event
@@ -205,8 +235,9 @@ class HandleNewMessageListenerTest extends UnitTestCase
         $event2 = new NewMessageReceived($thread2, $conversation2);
         $listener->handle($event2);
 
-        // No state should be retained
-        $this->expectNotToPerformAssertions();
+        $this->assertNotSame($conversation1->id, $conversation2->id);
+        $this->assertSame(2, Thread::count());
+        Queue::assertPushed(SendNotificationToUsersJob::class, 2);
     }
 
     /** Test listener constructor is idempotent */
@@ -224,10 +255,16 @@ class HandleNewMessageListenerTest extends UnitTestCase
     /** Test listener handles events from different mailboxes */
     public function test_listener_handles_events_from_different_mailboxes(): void
     {
+        Queue::fake();
+
         $listener = new HandleNewMessage;
+        $mailboxIds = [];
 
         for ($i = 0; $i < 3; $i++) {
             $mailbox = Mailbox::factory()->create();
+            $mailboxIds[] = $mailbox->id;
+            $agent = \App\Models\User::factory()->create();
+            $mailbox->users()->attach($agent->id);
             $customer = Customer::factory()->create();
             $conversation = Conversation::factory()->create([
                 'mailbox_id' => $mailbox->id,
@@ -241,7 +278,8 @@ class HandleNewMessageListenerTest extends UnitTestCase
             $listener->handle($event);
         }
 
-        // Should handle events from different mailboxes
-        $this->expectNotToPerformAssertions();
+        $this->assertCount(3, array_unique($mailboxIds));
+        $this->assertSame(3, Conversation::count());
+        Queue::assertPushed(SendNotificationToUsersJob::class, 3);
     }
 }

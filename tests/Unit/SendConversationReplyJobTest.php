@@ -11,6 +11,7 @@ use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Tests\UnitTestCase;
 
 class SendConversationReplyJobTest extends UnitTestCase
@@ -114,7 +115,7 @@ class SendConversationReplyJobTest extends UnitTestCase
     /** Test job can be dispatched and queued */
     public function test_job_can_be_dispatched(): void
     {
-        Mail::fake();
+        Queue::fake();
 
         $mailbox = Mailbox::factory()->create();
         $customer = Customer::factory()->create();
@@ -128,8 +129,10 @@ class SendConversationReplyJobTest extends UnitTestCase
 
         SendConversationReply::dispatch($conversation, $thread);
 
-        // Job was dispatched successfully
-        $this->expectNotToPerformAssertions();
+        Queue::assertPushed(SendConversationReply::class, function ($job) use ($conversation, $thread) {
+            return $job->conversation->id === $conversation->id
+                && $job->thread->id === $thread->id;
+        });
     }
 
     /** Test job handles different email formats */
@@ -189,7 +192,7 @@ class SendConversationReplyJobTest extends UnitTestCase
             $job->handle();
         }
 
-        $this->expectNotToPerformAssertions(); // All processed without error
+        Mail::assertSent(CustomerReply::class, count($emails));
     }
 
     /** Test job uses Queueable trait */
@@ -219,14 +222,9 @@ class SendConversationReplyJobTest extends UnitTestCase
         $conversation->customer_email = $longEmail;
 
         $job = new SendConversationReply($conversation, $thread);
+        $job->handle();
 
-        try {
-            $job->handle();
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            // Job may fail validation but should not crash
-            $this->assertInstanceOf(\Exception::class, $e);
-        }
+        Mail::assertSent(CustomerReply::class, 1);
     }
 
     /** Test job properties are readonly */
@@ -245,7 +243,7 @@ class SendConversationReplyJobTest extends UnitTestCase
     /** Test multiple jobs can be dispatched simultaneously */
     public function test_multiple_jobs_can_be_dispatched(): void
     {
-        Mail::fake();
+        Queue::fake();
 
         $mailbox = Mailbox::factory()->create();
         $conversation = Conversation::factory()->create(['mailbox_id' => $mailbox->id]);
@@ -259,7 +257,6 @@ class SendConversationReplyJobTest extends UnitTestCase
             SendConversationReply::dispatch($conversation, $thread);
         }
 
-        // All jobs dispatched successfully
-        $this->expectNotToPerformAssertions();
+        Queue::assertPushed(SendConversationReply::class, count($emails));
     }
 }

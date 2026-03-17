@@ -110,7 +110,7 @@ class UpdateMailboxCountersTest extends UnitTestCase
         $listener->handle($event1);
         $listener->handle($event2);
 
-        $this->expectNotToPerformAssertions();
+        $this->assertSame($mailbox->id, $conversation->fresh()->mailbox_id);
     }
 
     public function test_handle_is_non_blocking(): void
@@ -125,7 +125,7 @@ class UpdateMailboxCountersTest extends UnitTestCase
         // Should complete without throwing
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        $this->assertSame($mailbox->id, $conversation->fresh()->mailbox_id);
     }
 
     public function test_handle_updates_mailbox_counters_on_status_change(): void
@@ -142,7 +142,7 @@ class UpdateMailboxCountersTest extends UnitTestCase
 
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        $this->assertSame(Conversation::STATUS_ACTIVE, $conversation->fresh()->status);
     }
 
     public function test_handle_updates_mailbox_counters_on_user_change(): void
@@ -160,7 +160,7 @@ class UpdateMailboxCountersTest extends UnitTestCase
 
         $listener->handle($event);
 
-        $this->expectNotToPerformAssertions();
+        $this->assertSame($user->id, $conversation->fresh()->user_id);
     }
 
     public function test_handle_works_with_unassigned_conversation(): void
@@ -205,7 +205,7 @@ class UpdateMailboxCountersTest extends UnitTestCase
         ]);
         $listener->handle(new ConversationStatusChanged($spamConv));
 
-        $this->expectNotToPerformAssertions();
+        $this->assertSame(Conversation::STATUS_SPAM, $spamConv->fresh()->status);
     }
 
     public function test_handle_safely_handles_mailbox_relationship(): void
