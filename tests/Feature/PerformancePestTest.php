@@ -40,17 +40,20 @@ test('large conversation list loads efficiently', function () {
             'state' => Conversation::STATE_PUBLISHED,
         ]);
 
-    // Load conversations page
+    DB::enableQueryLog();
     $response = $this->actingAs($this->admin)
         ->get(route('conversations.index', $this->mailbox));
+    $queryCount = count(DB::getQueryLog());
+    DB::disableQueryLog();
 
     $response->assertOk();
     $response->assertViewHas('conversations');
+    expect($queryCount)->toBeLessThan(50, "N+1 regression: {$queryCount} queries loading 50 conversations");
 
     // Verify pagination or limit is working
     $conversations = $response->viewData('conversations');
     expect($conversations)->not->toBeNull('Conversations should be present in view data');
-});
+})->group('performance');
 
 test('search performs efficiently with large dataset', function () {
     // Create 30 conversations with searchable content
@@ -69,19 +72,21 @@ test('search performs efficiently with large dataset', function () {
         'status' => Conversation::STATUS_ACTIVE,
     ]);
 
-    // Perform search
+    DB::enableQueryLog();
     $response = $this->actingAs($this->admin)
         ->get(route('conversations.index', [
             'mailbox' => $this->mailbox->id,
             'q' => 'XYZ123',
         ]));
+    $queryCount = count(DB::getQueryLog());
+    DB::disableQueryLog();
 
-    // Assert search completes successfully
     $response->assertOk();
+    expect($queryCount)->toBeLessThan(50, "N+1 regression: {$queryCount} queries on search");
 
     // Should find the target conversation
     $response->assertSee('Unique Search Term XYZ123');
-});
+})->group('performance');
 
 test('mailbox with many conversations remains responsive', function () {
     // Create multiple customers
@@ -110,19 +115,28 @@ test('mailbox with many conversations remains responsive', function () {
     expect($totalConversations)->toBe(50);
 
     // Test mailbox dashboard loads
+    DB::enableQueryLog();
     $response = $this->actingAs($this->admin)
         ->get(route('conversations.index', $this->mailbox));
+    $queryCount = count(DB::getQueryLog());
+    DB::disableQueryLog();
 
     $response->assertOk();
     $response->assertViewHas('conversations');
+    expect($queryCount)->toBeLessThan(50, "N+1 regression: {$queryCount} queries loading mailbox with 50 conversations");
 
     // Test individual conversation loads
     $conversation = Conversation::where('mailbox_id', $this->mailbox->id)->first();
+
+    DB::enableQueryLog();
     $response = $this->actingAs($this->admin)
         ->get(route('conversations.show', $conversation));
+    $queryCount = count(DB::getQueryLog());
+    DB::disableQueryLog();
 
     $response->assertOk();
-});
+    expect($queryCount)->toBeLessThan(30, "N+1 regression: {$queryCount} queries loading single conversation");
+})->group('performance');
 
 test('conversation with many threads loads correctly', function () {
     $conversation = Conversation::factory()->create([
@@ -142,11 +156,15 @@ test('conversation with many threads loads correctly', function () {
     }
 
     // Load conversation with all threads
+    DB::enableQueryLog();
     $response = $this->actingAs($this->admin)
         ->get(route('conversations.show', $conversation));
+    $queryCount = count(DB::getQueryLog());
+    DB::disableQueryLog();
 
     $response->assertOk();
     $response->assertViewHas('conversation');
+    expect($queryCount)->toBeLessThan(30, "N+1 regression: {$queryCount} queries loading conversation with 20 threads");
 
     // Verify threads are displayed
     $response->assertSee('Message #1 in the thread discussion');
@@ -155,7 +173,7 @@ test('conversation with many threads loads correctly', function () {
     // Verify thread count
     $threadCount = Thread::where('conversation_id', $conversation->id)->count();
     expect($threadCount)->toBe(20);
-});
+})->group('performance');
 
 test('conversation list avoids n plus one queries', function () {
     // Create 10 conversations with related data
@@ -198,7 +216,7 @@ test('conversation list avoids n plus one queries', function () {
         50,
         "Query count is {$queryCount}, might indicate N+1 problem. Review eager loading."
     );
-});
+})->group('performance');
 
 test('database queries use indexes effectively', function () {
     // Create test data
@@ -210,35 +228,46 @@ test('database queries use indexes effectively', function () {
     }
 
     // Test query with mailbox_id (should use index)
+    DB::enableQueryLog();
     $conversations = Conversation::where('mailbox_id', $this->mailbox->id)
         ->where('status', Conversation::STATUS_ACTIVE)
         ->get();
+    $queryCount = count(DB::getQueryLog());
+    DB::disableQueryLog();
 
     expect($conversations)->toHaveCount(20);
+    expect($queryCount)->toBeLessThan(10, "Inefficient mailbox/status query: {$queryCount} queries");
 
     // Test pagination is efficient
+    DB::enableQueryLog();
     $paginated = Conversation::where('mailbox_id', $this->mailbox->id)
         ->paginate(10);
+    $paginationQueryCount = count(DB::getQueryLog());
+    DB::disableQueryLog();
 
     expect($paginated->count())->toBe(10)
         ->and($paginated->total())->toBe(20);
-});
+    expect($paginationQueryCount)->toBeLessThan(10, "Inefficient pagination query: {$paginationQueryCount} queries");
+})->group('performance');
 
 test('empty conversation list performs efficiently', function () {
     // Ensure mailbox has no conversations
     Conversation::where('mailbox_id', $this->mailbox->id)->delete();
 
-    // Load empty conversation list
+    DB::enableQueryLog();
     $response = $this->actingAs($this->admin)
         ->get(route('conversations.index', $this->mailbox));
+    $queryCount = count(DB::getQueryLog());
+    DB::disableQueryLog();
 
     $response->assertOk();
     $response->assertViewHas('conversations');
+    expect($queryCount)->toBeLessThan(30, "N+1 regression: {$queryCount} queries loading empty inbox");
 
     // Verify result is actually empty
     $conversations = $response->viewData('conversations');
     expect($conversations->count())->toBe(0);
-});
+})->group('performance');
 
 test('conversation with maximum threads loads acceptably', function () {
     $conversation = Conversation::factory()->create([
@@ -253,8 +282,12 @@ test('conversation with maximum threads loads acceptably', function () {
     ]);
 
     // Load conversation with many threads
+    DB::enableQueryLog();
     $response = $this->actingAs($this->admin)
         ->get(route('conversations.show', $conversation));
+    $queryCount = count(DB::getQueryLog());
+    DB::disableQueryLog();
 
     $response->assertOk();
-});
+    expect($queryCount)->toBeLessThan(30, "N+1 regression: {$queryCount} queries loading conversation with 100 threads");
+})->group('performance');

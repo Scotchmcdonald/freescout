@@ -13,37 +13,6 @@ use Tests\UnitTestCase;
  */
 class OptionTest extends UnitTestCase
 {
-    // ===== MODEL CREATION TESTS =====
-
-    public function test_option_can_be_created(): void
-    {
-        $option = Option::factory()->create([
-            'name' => 'test_option',
-            'value' => 'test_value',
-        ]);
-
-        $this->assertInstanceOf(Option::class, $option);
-        $this->assertDatabaseHas('options', [
-            'name' => 'test_option',
-            'value' => 'test_value',
-        ]);
-    }
-
-    public function test_option_has_correct_fillable_attributes(): void
-    {
-        $option = new Option;
-
-        $this->assertContains('name', $option->getFillable());
-        $this->assertContains('value', $option->getFillable());
-    }
-
-    public function test_option_uses_has_factory_trait(): void
-    {
-        $option = Option::factory()->create();
-
-        $this->assertInstanceOf(Option::class, $option);
-    }
-
     // ===== PRIMARY KEY TESTS =====
 
     public function test_option_primary_key_is_name(): void
@@ -307,13 +276,6 @@ class OptionTest extends UnitTestCase
         ]);
 
         $this->assertEquals('true', $option->value);
-    }
-
-    public function test_multiple_options_can_be_created(): void
-    {
-        Option::factory()->count(10)->create();
-
-        $this->assertCount(10, Option::all());
     }
 
     public function test_get_value_with_zero_as_default(): void

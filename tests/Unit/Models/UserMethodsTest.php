@@ -195,6 +195,22 @@ class UserMethodsTest extends UnitTestCase
         });
     }
 
+    // ===== isAdmin tests =====
+
+    public function test_user_is_admin_returns_true_for_admin_role(): void
+    {
+        $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+        $this->assertTrue($admin->isAdmin());
+    }
+
+    public function test_user_is_admin_returns_false_for_regular_user(): void
+    {
+        $user = User::factory()->create(['role' => User::ROLE_USER]);
+
+        $this->assertFalse($user->isAdmin());
+    }
+
     // ===== isDeleted tests =====
 
     public function test_is_deleted_returns_true_for_deleted_user(): void

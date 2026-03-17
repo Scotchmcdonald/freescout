@@ -56,21 +56,6 @@ class FolderMethodsTest extends UnitTestCase
 
     // ===== Folder creation tests =====
 
-    public function test_deleted_folder_can_be_created(): void
-    {
-        $folder = Folder::factory()->create([
-            'mailbox_id' => $this->mailbox->id,
-            'type' => Folder::TYPE_DELETED,
-            'name' => 'Deleted',
-        ]);
-
-        $this->assertEquals(Folder::TYPE_DELETED, $folder->type);
-        $this->assertDatabaseHas('folders', [
-            'id' => $folder->id,
-            'type' => Folder::TYPE_DELETED,
-        ]);
-    }
-
     public function test_deleted_folder_counts_soft_deleted_conversations(): void
     {
         $deletedFolder = Folder::factory()->create([

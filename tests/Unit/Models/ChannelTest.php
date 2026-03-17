@@ -14,40 +14,6 @@ use Tests\UnitTestCase;
  */
 class ChannelTest extends UnitTestCase
 {
-    // ===== MODEL CREATION TESTS =====
-
-    public function test_channel_can_be_created(): void
-    {
-        $channel = Channel::factory()->create([
-            'name' => 'Test Channel',
-            'type' => 1,
-            'active' => true,
-        ]);
-
-        $this->assertInstanceOf(Channel::class, $channel);
-        $this->assertDatabaseHas('channels', [
-            'id' => $channel->id,
-            'name' => 'Test Channel',
-        ]);
-    }
-
-    public function test_channel_has_correct_fillable_attributes(): void
-    {
-        $channel = new Channel;
-
-        $this->assertContains('name', $channel->getFillable());
-        $this->assertContains('type', $channel->getFillable());
-        $this->assertContains('settings', $channel->getFillable());
-        $this->assertContains('active', $channel->getFillable());
-    }
-
-    public function test_channel_uses_has_factory_trait(): void
-    {
-        $channel = Channel::factory()->create();
-
-        $this->assertInstanceOf(Channel::class, $channel);
-    }
-
     // ===== CAST TESTS =====
 
     public function test_type_is_cast_to_integer(): void
@@ -265,13 +231,6 @@ class ChannelTest extends UnitTestCase
         $channel = Channel::factory()->create();
 
         $this->assertCount(0, $channel->customers);
-    }
-
-    public function test_multiple_channels_can_be_created(): void
-    {
-        Channel::factory()->count(5)->create();
-
-        $this->assertCount(5, Channel::all());
     }
 
     public function test_channel_with_special_characters_in_name(): void

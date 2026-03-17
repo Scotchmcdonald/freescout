@@ -235,36 +235,60 @@ test('billing services use database transactions')
  *
  * This test parses ServiceProvider files to verify Event::listen() registrations exist.
  */
-test('PIB module listeners are registered in ServiceProvider')
+test('all module listeners are registered in module providers')
     ->expect(function () {
-        $serviceProviderPath = '/var/www/html/Modules/PIB/Providers/PIBServiceProvider.php';
-
-        if (! file_exists($serviceProviderPath)) {
-            throw new \Exception('PIBServiceProvider not found');
-        }
-
-        $content = file_get_contents($serviceProviderPath);
-
-        // List of listeners that should be registered
-        $expectedListeners = [
-            'BillingTemplateDueListener',
-            // Add more as they are created
+        $legacyUnregisteredAllowlist = [
+            'Modules\\ClientPortal\\Listeners\\CreateQuoteApprovalRequest',
+            'Modules\\PIB\\Listeners\\AdjustBillingOnSoftwareCountChange',
+            'Modules\\PIB\\Listeners\\RecalculateProrationOnContractChange',
+            'Modules\\PIB\\Listeners\\UpdateEntitlementSnapshots',
         ];
 
         $missingRegistrations = [];
 
-        foreach ($expectedListeners as $listener) {
-            // Check if listener is referenced in Event::listen() calls
-            if (! str_contains($content, "\\Modules\\PIB\\Listeners\\{$listener}")) {
-                $missingRegistrations[] = $listener;
+        foreach (glob(base_path('Modules/*/Listeners'), GLOB_ONLYDIR) as $listenersDir) {
+            $module = basename(dirname($listenersDir));
+            $providerFiles = glob(base_path("Modules/{$module}/Providers/*.php"));
+
+            if (! is_array($providerFiles) || $providerFiles === []) {
+                continue;
+            }
+
+            $providersContent = '';
+            foreach ($providerFiles as $providerFile) {
+                $providersContent .= (string) file_get_contents($providerFile);
+            }
+
+            foreach (glob($listenersDir.'/*.php') as $listenerFile) {
+                $listenerClass = pathinfo($listenerFile, PATHINFO_FILENAME);
+                $listenerContents = (string) file_get_contents($listenerFile);
+
+                if (preg_match('/abstract\\s+class\\s+'.preg_quote($listenerClass, '/').'\\b/', $listenerContents) === 1) {
+                    continue;
+                }
+
+                $fqcn = "Modules\\{$module}\\Listeners\\{$listenerClass}";
+
+                $isReferenced = str_contains($providersContent, $fqcn)
+                    || str_contains($providersContent, "{$listenerClass}::class");
+
+                if ($isReferenced) {
+                    continue;
+                }
+
+                if (in_array($fqcn, $legacyUnregisteredAllowlist, true)) {
+                    continue;
+                }
+
+                $missingRegistrations[] = $fqcn;
             }
         }
 
-        if (! empty($missingRegistrations)) {
+        if ($missingRegistrations !== []) {
+            sort($missingRegistrations);
             throw new \Exception(
-                'The following listeners are not registered in PIBServiceProvider: '.
-                implode(', ', $missingRegistrations).
-                '. Add Event::listen() registration in the boot() method.'
+                'Listener registration guard failed. The following listeners are not referenced in any module provider: '.PHP_EOL.
+                implode(PHP_EOL, $missingRegistrations)
             );
         }
 

@@ -275,3 +275,13 @@ test('flush entity removes all caches for specific entity', function () {
     expect($service->get('billing', 'client', $clientId, 'balance'))->toBeNull();
     expect($service->get('billing', 'client', $clientId, 'invoices'))->toBeNull();
 });
+
+test('cache warm artisan command runs successfully', function () {
+    // Create some active clients
+    \Modules\Crm\Models\Client::factory()->count(5)->create(['status' => 'active']);
+    \Modules\Crm\Models\Client::factory()->count(3)->create(['status' => 'inactive']);
+
+    $this->artisan('cache:warm', ['--clients' => 3])
+        ->expectsOutput('🔥 Warming cache...')
+        ->assertExitCode(0);
+});

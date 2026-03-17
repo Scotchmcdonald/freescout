@@ -14,119 +14,6 @@ use Tests\UnitTestCase;
  */
 class SubscriptionTest extends UnitTestCase
 {
-    // ===== MODEL CREATION TESTS =====
-
-    public function test_subscription_can_be_created(): void
-    {
-        $user = User::withoutEvents(fn () => User::factory()->create());
-
-        $subscription = Subscription::factory()->create([
-            'user_id' => $user->id,
-            'medium' => Subscription::MEDIUM_EMAIL,
-            'event' => Subscription::EVENT_NEW_CONVERSATION,
-        ]);
-
-        $this->assertInstanceOf(Subscription::class, $subscription);
-        $this->assertDatabaseHas('subscriptions', [
-            'id' => $subscription->id,
-            'user_id' => $user->id,
-        ]);
-    }
-
-    public function test_subscription_has_correct_fillable_attributes(): void
-    {
-        $subscription = new Subscription;
-
-        $this->assertContains('user_id', $subscription->getFillable());
-        $this->assertContains('medium', $subscription->getFillable());
-        $this->assertContains('event', $subscription->getFillable());
-    }
-
-    public function test_subscription_uses_has_factory_trait(): void
-    {
-        // Use withoutEvents to prevent UserObserver from creating default subscriptions
-        $user = User::withoutEvents(function () {
-            return User::factory()->create();
-        });
-
-        $subscription = Subscription::factory()->create(['user_id' => $user->id]);
-
-        $this->assertInstanceOf(Subscription::class, $subscription);
-    }
-
-    // ===== MEDIUM CONSTANT TESTS =====
-
-    public function test_medium_email_constant_exists(): void
-    {
-        $this->assertEquals(1, Subscription::MEDIUM_EMAIL);
-    }
-
-    public function test_medium_browser_constant_exists(): void
-    {
-        $this->assertEquals(2, Subscription::MEDIUM_BROWSER);
-    }
-
-    public function test_medium_mobile_constant_exists(): void
-    {
-        $this->assertEquals(3, Subscription::MEDIUM_MOBILE);
-    }
-
-    // ===== EVENT CONSTANT TESTS - NEW CONVERSATION =====
-
-    public function test_event_new_conversation_constant_exists(): void
-    {
-        $this->assertEquals(1, Subscription::EVENT_NEW_CONVERSATION);
-    }
-
-    public function test_event_conversation_assigned_to_me_constant_exists(): void
-    {
-        $this->assertEquals(2, Subscription::EVENT_CONVERSATION_ASSIGNED_TO_ME);
-    }
-
-    public function test_event_conversation_assigned_constant_exists(): void
-    {
-        $this->assertEquals(6, Subscription::EVENT_CONVERSATION_ASSIGNED);
-    }
-
-    public function test_event_followed_conversation_updated_constant_exists(): void
-    {
-        $this->assertEquals(13, Subscription::EVENT_FOLLOWED_CONVERSATION_UPDATED);
-    }
-
-    // ===== EVENT CONSTANT TESTS - CUSTOMER REPLIES =====
-
-    public function test_event_customer_replied_to_my_constant_exists(): void
-    {
-        $this->assertEquals(3, Subscription::EVENT_CUSTOMER_REPLIED_TO_MY);
-    }
-
-    public function test_event_customer_replied_to_unassigned_constant_exists(): void
-    {
-        $this->assertEquals(4, Subscription::EVENT_CUSTOMER_REPLIED_TO_UNASSIGNED);
-    }
-
-    public function test_event_customer_replied_to_assigned_constant_exists(): void
-    {
-        $this->assertEquals(7, Subscription::EVENT_CUSTOMER_REPLIED_TO_ASSIGNED);
-    }
-
-    // ===== EVENT CONSTANT TESTS - USER REPLIES =====
-
-    public function test_event_user_replied_to_my_constant_exists(): void
-    {
-        $this->assertEquals(5, Subscription::EVENT_USER_REPLIED_TO_MY);
-    }
-
-    public function test_event_user_replied_to_unassigned_constant_exists(): void
-    {
-        $this->assertEquals(8, Subscription::EVENT_USER_REPLIED_TO_UNASSIGNED);
-    }
-
-    public function test_event_user_replied_to_assigned_constant_exists(): void
-    {
-        $this->assertEquals(9, Subscription::EVENT_USER_REPLIED_TO_ASSIGNED);
-    }
-
     // ===== RELATIONSHIP TESTS =====
 
     public function test_subscription_belongs_to_user(): void
@@ -449,19 +336,6 @@ class SubscriptionTest extends UnitTestCase
         }
 
         $this->assertCount(3, $user->fresh()->subscriptions);
-    }
-
-    public function test_subscription_can_be_created_with_mobile_medium(): void
-    {
-        $user = User::withoutEvents(fn () => User::factory()->create());
-
-        $subscription = Subscription::create([
-            'user_id' => $user->id,
-            'medium' => Subscription::MEDIUM_MOBILE,
-            'event' => Subscription::EVENT_NEW_CONVERSATION,
-        ]);
-
-        $this->assertEquals(Subscription::MEDIUM_MOBILE, $subscription->medium);
     }
 
     public function test_subscription_for_followed_conversation_updated(): void

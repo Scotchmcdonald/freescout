@@ -8,8 +8,8 @@
 
 ## 🎯 Project Status
 
-**Branch**: `laravel-11-foundation`  
-**Progress**: **97% Complete** (Email and Core Modules Functional)  
+**Branch**: `laravel-11-foundation`
+**Progress**: **97% Complete** (Email and Core Modules Functional)
 **Latest Update**: February 28, 2026
 
 ### What's Working ✅
@@ -23,7 +23,7 @@
 - Real-time features with Laravel Echo + Reverb
 - Modern frontend with Vite, Tailwind, Alpine.js
 - Authorization policies (100% complete)
-- **Automated Testing**: 
+- **Automated Testing**:
   - Comprehensive Playwright E2E Test Suite (Replaced Dusk)
   - Critical workflows like "Quote-to-Cash" verified
   - Software Licensing & Atomic Counters verified
@@ -141,7 +141,7 @@ Other methods (Official FreeScout):
 * [Community Modules](https://freescout.net/community-modules/)
 
 ## Tools & Integrations
-  
+
   * [API](https://api-docs.freescout.net/)
   * [Migrate to FreeScout](http://freescout.net/migrate/) (from any help desk)
   * [Zapier](https://freescout.net/zapier/)
@@ -264,4 +264,22 @@ To set up a local development environment manually (without Docker):
 
 ```bash
 php artisan test
+```
+
+Fast local feedback (unit + architecture):
+
+```bash
+php artisan test --testsuite=fast --exclude-group=browser,performance
+```
+
+Integration tests:
+
+```bash
+php artisan test --testsuite=integration
+```
+
+Browser tests:
+
+```bash
+php artisan test --testsuite=browser --group=browser
 ```

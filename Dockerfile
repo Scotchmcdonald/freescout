@@ -16,8 +16,8 @@ RUN apt-get update && apt-get install -y gnupg curl ca-certificates unzip git &&
     apt-get install -y nodejs && \
     # Install PHP extensions
     curl -sSLf \
-        -o /usr/local/bin/install-php-extensions \
-        https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
+    -o /usr/local/bin/install-php-extensions \
+    https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
     chmod +x /usr/local/bin/install-php-extensions && \
     install-php-extensions imap gmp soap intl bcmath gd redis && \
     apt-get clean && \
@@ -26,15 +26,24 @@ RUN apt-get update && apt-get install -y gnupg curl ca-certificates unzip git &&
 # Configure Docker socket access for www-data user
 RUN mkdir -p /etc/entrypoint.d && \
     printf "#!/bin/sh\n\
-if [ -S /var/run/docker.sock ]; then\n\
+    if [ -S /var/run/docker.sock ]; then\n\
     SOCK_GID=\$(stat -c '%%g' /var/run/docker.sock)\n\
     echo \"Fixing docker socket permissions (GID: \$SOCK_GID)...\"\n\
     if getent group \$SOCK_GID; then\n\
-        GROUP_NAME=\$(getent group \$SOCK_GID | cut -d: -f1)\n\
-        usermod -aG \$GROUP_NAME www-data\n\
+    GROUP_NAME=\$(getent group \$SOCK_GID | cut -d: -f1)\n\
+    usermod -aG \$GROUP_NAME www-data\n\
     else\n\
-        groupadd -g \$SOCK_GID docker_sock_runtime\n\
-        usermod -aG docker_sock_runtime www-data\n\
+    groupadd -g \$SOCK_GID docker_sock_runtime\n\
+    usermod -aG docker_sock_runtime www-data\n\
     fi\n\
-fi\n" > /etc/entrypoint.d/99-fix-docker-sock.sh && \
+    fi\n" > /etc/entrypoint.d/99-fix-docker-sock.sh && \
     chmod +x /etc/entrypoint.d/99-fix-docker-sock.sh
+
+# Fix storage/logs permissions at startup so www-data can write files created by root
+RUN printf '#!/bin/sh\n\
+    LOG_DIR="${APP_BASE_DIR:-/var/www/html}/storage/logs"\n\
+    if [ -d "$LOG_DIR" ]; then\n\
+    chmod -R a+rw "$LOG_DIR"\n\
+    find "$LOG_DIR" -type d -exec chmod a+rwx {} +\n\
+    fi\n' > /etc/entrypoint.d/40-fix-storage-permissions.sh && \
+    chmod +x /etc/entrypoint.d/40-fix-storage-permissions.sh

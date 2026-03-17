@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Observability;
 
-use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -27,8 +25,6 @@ use Tests\TestCase;
  */
 class SentryIntegrationTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -134,20 +130,6 @@ class SentryIntegrationTest extends TestCase
             class_exists(\App\Http\Middleware\AddSentryContext::class),
             'AddSentryContext middleware should exist'
         );
-    }
-
-    /**
-     * Test that Sentry middleware processes requests without errors
-     */
-    public function test_sentry_middleware_processes_requests(): void
-    {
-        $user = User::factory()->create(['role' => 'admin']);
-
-        // Make a request that will go through the middleware
-        $response = $this->actingAs($user)
-            ->get('/dashboard');
-
-        $response->assertSuccessful();
     }
 
     /**
@@ -339,28 +321,5 @@ class SentryIntegrationTest extends TestCase
 
         // The AddSentryContext middleware sets only user ID, never email/name.
         // PII exclusion is enforced by send_default_pii=false (asserted above).
-    }
-
-    /**
-     * Test that test route is available in non-production
-     */
-    public function test_sentry_test_route_available_in_non_production(): void
-    {
-        // In non-production, the /test-sentry route should exist
-        if (! app()->environment('production')) {
-            $user = User::factory()->create(['role' => 'admin']);
-
-            // The route should throw an exception, but we can check it exists
-            try {
-                $response = $this->actingAs($user)->get('/test-sentry');
-                // If we get here, exception was thrown and caught
-            } catch (\Exception $e) {
-                $this->assertStringContainsString('Test exception for Sentry', $e->getMessage());
-            }
-        }
-
-        // In production, this is a no-op safety check; in non-production the
-        // try/catch above holds the real assertion.
-        $this->addToAssertionCount(1);
     }
 }

@@ -19,6 +19,22 @@
             <directory>Modules/*/Tests</directory>
             <exclude>Modules/*/Tests/Browser</exclude>
         </testsuite>
+        <testsuite name="fast">
+            <directory>tests/Unit</directory>
+            <directory>tests/Architecture</directory>
+            <directory>Modules/*/Tests/Unit</directory>
+            <exclude>tests/Unit/Console/Commands</exclude>
+        </testsuite>
+        <testsuite name="integration">
+            <directory>tests/Feature</directory>
+            <directory>tests/Integration</directory>
+            <directory>Modules/*/Tests/Feature</directory>
+            <directory>Modules/*/Tests/Integration</directory>
+        </testsuite>
+        <testsuite name="browser">
+            <directory>tests/Browser</directory>
+            <directory>Modules/*/Tests/Browser</directory>
+        </testsuite>
     </testsuites>
     <groups>
         <exclude>

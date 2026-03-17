@@ -332,7 +332,8 @@
                                         <template x-for="check in result.details.checks"
                                             :key="check.client_id || check.target || check.label">
                                             <div class="rounded-md px-2 py-2"
-                                                :class="check.ok ? 'bg-white/60 text-success-900' : 'bg-white/60 text-danger-900'">
+                                                :class="check.ok ? 'bg-white/60 text-success-900' :
+                                                    'bg-white/60 text-danger-900'">
                                                 <div class="flex items-center justify-between gap-3">
                                                     <div>
                                                         <div class="font-semibold"
@@ -396,7 +397,8 @@
                                 class="font-medium {{ $action1TestProbe['configured'] ? 'text-primary-800' : 'text-warning-800' }}">Test
                                 endpoint:</span>
                             @if ($action1TestProbe['configured'])
-                                <span class="font-mono text-primary-900">{{ $action1TestProbe['endpoint_name'] }}</span>
+                                <span
+                                    class="font-mono text-primary-900">{{ $action1TestProbe['endpoint_name'] }}</span>
                                 <span class="text-primary-700"> &mdash; {{ $action1TestProbe['group_name'] }}
                                     group</span>
                                 <span class="ml-2 text-xs text-primary-600">(org:
@@ -404,7 +406,8 @@
                                 <p class="mt-0.5 text-xs text-primary-600">The test will verify the endpoint,
                                     create/run/delete a canary <code>msp_dx_ApiTest</code> script end-to-end.</p>
                             @else
-                                <span class="font-mono text-warning-900">{{ $action1TestProbe['endpoint_name'] }}</span>
+                                <span
+                                    class="font-mono text-warning-900">{{ $action1TestProbe['endpoint_name'] }}</span>
                                 <span class="text-warning-700"> &mdash; {{ $action1TestProbe['group_name'] }}
                                     group</span>
                                 <p class="mt-0.5 text-xs text-warning-700">Set <code>ACTION1_TEST_ORG_ID</code> in
@@ -520,10 +523,12 @@
                                 style="color: var(--theme-text-muted)">
                                 Press <strong>Run Full Test</strong> to execute the end-to-end sequence.
                             </p>
-                            <p x-show="allDone && overallOk" class="text-sm font-semibold text-success-700 text-center">
+                            <p x-show="allDone && overallOk"
+                                class="text-sm font-semibold text-success-700 text-center">
                                 ✓
                                 All 5 steps passed — Action1 API is fully operational.</p>
-                            <p x-show="allDone && !overallOk" class="text-sm font-semibold text-danger-600 text-center">✗
+                            <p x-show="allDone && !overallOk"
+                                class="text-sm font-semibold text-danger-600 text-center">✗
                                 Test sequence failed — see step results above.</p>
                         </div>
 
@@ -549,7 +554,8 @@
                             <button x-show="currentStep > 0 && !running" @click="reset()" class="text-sm underline"
                                 style="color: var(--theme-text-muted)">Reset</button>
                             @if (!$action1TestProbe['configured'])
-                                <span class="text-xs text-warning-600">⚠ Set ACTION1_TEST_ORG_ID in .env to enable</span>
+                                <span class="text-xs text-warning-600">⚠ Set ACTION1_TEST_ORG_ID in .env to
+                                    enable</span>
                             @endif
                         </div>
                     </div>

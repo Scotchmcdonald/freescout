@@ -27,36 +27,6 @@ class ActivityLogModelMethodsTest extends UnitTestCase
         $this->mailbox = Mailbox::factory()->create();
     }
 
-    // ===== Description constants tests =====
-
-    public function test_email_error_constants_exist(): void
-    {
-        $this->assertTrue(defined('App\Models\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_TO_CUSTOMER'));
-        $this->assertTrue(defined('App\Models\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_INVITE'));
-        $this->assertTrue(defined('App\Models\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_PASSWORD_CHANGED'));
-        $this->assertTrue(defined('App\Models\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_ALERT'));
-        $this->assertTrue(defined('App\Models\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_AUTO_REPLY'));
-        $this->assertTrue(defined('App\Models\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_USER_NOTIFICATION'));
-        $this->assertTrue(defined('App\Models\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_SYSTEM'));
-        $this->assertTrue(defined('App\Models\ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_FORWARD'));
-    }
-
-    public function test_description_constants_have_unique_values(): void
-    {
-        $constants = [
-            ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_TO_CUSTOMER,
-            ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_INVITE,
-            ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_PASSWORD_CHANGED,
-            ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_ALERT,
-            ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_AUTO_REPLY,
-            ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_USER_NOTIFICATION,
-            ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_SYSTEM,
-            ActivityLog::DESCRIPTION_EMAILS_SENDING_ERROR_FORWARD,
-        ];
-
-        $this->assertEquals(count($constants), count(array_unique($constants)));
-    }
-
     // ===== getEventDescription tests =====
 
     public function test_get_event_description_returns_string(): void

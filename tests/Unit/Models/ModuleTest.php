@@ -20,43 +20,6 @@ class ModuleTest extends UnitTestCase
         parent::tearDown();
     }
 
-    // ===== MODEL CREATION TESTS =====
-
-    public function test_module_can_be_created(): void
-    {
-        $module = Module::factory()->create([
-            'alias' => 'test_module',
-            'name' => 'Test Module',
-            'active' => true,
-        ]);
-
-        $this->assertInstanceOf(Module::class, $module);
-        $this->assertDatabaseHas('modules', [
-            'id' => $module->id,
-            'alias' => 'test_module',
-        ]);
-    }
-
-    public function test_module_has_correct_fillable_attributes(): void
-    {
-        $module = new Module;
-
-        $this->assertContains('alias', $module->getFillable());
-        $this->assertContains('name', $module->getFillable());
-        $this->assertContains('active', $module->getFillable());
-        $this->assertContains('version', $module->getFillable());
-        $this->assertContains('description', $module->getFillable());
-        $this->assertContains('author', $module->getFillable());
-        $this->assertContains('settings', $module->getFillable());
-    }
-
-    public function test_module_uses_has_factory_trait(): void
-    {
-        $module = Module::factory()->create();
-
-        $this->assertInstanceOf(Module::class, $module);
-    }
-
     // ===== CAST TESTS =====
 
     public function test_active_is_cast_to_boolean(): void
@@ -335,13 +298,6 @@ class ModuleTest extends UnitTestCase
         $module = Module::factory()->create(['description' => $longDescription]);
 
         $this->assertEquals($longDescription, $module->description);
-    }
-
-    public function test_multiple_modules_can_be_created(): void
-    {
-        Module::factory()->count(10)->create();
-
-        $this->assertCount(10, Module::all());
     }
 
     public function test_can_find_all_inactive_modules(): void

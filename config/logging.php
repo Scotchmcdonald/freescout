@@ -1,5 +1,6 @@
 <?php
 
+use App\Logging\ResilientStreamHandler;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -56,10 +57,16 @@ return [
         ],
 
         'single' => [
-            'driver' => 'single',
-            'path' => storage_path('logs/laravel.log'),
+            'driver' => 'monolog',
+            'handler' => ResilientStreamHandler::class,
             'level' => (string) env('LOG_LEVEL', 'debug'),
-            'replace_placeholders' => true,
+            'handler_with' => [
+                'stream' => storage_path('logs/laravel.log'),
+                'filePermission' => 0666,
+                'useLocking' => true,
+                'fallbackDirectory' => storage_path('logs'),
+            ],
+            'processors' => [PsrLogMessageProcessor::class],
         ],
 
         'daily' => [
@@ -68,6 +75,7 @@ return [
             'level' => (string) env('LOG_LEVEL', 'debug'),
             'days' => (int) env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
+            'permission' => 0666,
         ],
 
         // Business Events Channel - For audit trail and business logic events
@@ -77,6 +85,7 @@ return [
             'level' => 'info',
             'days' => 90, // Longer retention for audit purposes
             'replace_placeholders' => true,
+            'permission' => 0666,
         ],
 
         // Performance Metrics Channel - For slow queries, API calls, etc.
@@ -86,6 +95,7 @@ return [
             'level' => 'warning',
             'days' => 7,
             'replace_placeholders' => true,
+            'permission' => 0666,
         ],
 
         // Security Events Channel - For authentication, authorization, etc.
@@ -95,6 +105,7 @@ return [
             'level' => 'warning',
             'days' => 90, // Longer retention for compliance
             'replace_placeholders' => true,
+            'permission' => 0666,
         ],
 
         // Audit Trail Channel - For sensitive operations (credit adjustments, approvals, etc.)
@@ -104,6 +115,7 @@ return [
             'level' => 'info',
             'days' => 365, // 1 year retention for compliance
             'replace_placeholders' => true,
+            'permission' => 0666,
         ],
 
         // Queue Processing Channel - For job failures and retries
@@ -113,6 +125,7 @@ return [
             'level' => 'info',
             'days' => 14,
             'replace_placeholders' => true,
+            'permission' => 0666,
         ],
 
         'slack' => [

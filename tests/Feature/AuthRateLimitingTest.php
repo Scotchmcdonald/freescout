@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 
@@ -8,6 +9,10 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     Cache::flush();
+});
+
+afterEach(function () {
+    Carbon::setTestNow();
 });
 
 test('login endpoint is rate limited to 5 attempts per minute', function () {
@@ -151,6 +156,60 @@ test('rate limits are per IP address', function () {
     $this->assertDatabaseMissing('failed_jobs', [
         'exception' => 'Rate limit exceeded',
     ]);
+});
+
+test('valid login is blocked while inside lockout window', function () {
+    $user = User::factory()->create([
+        'email' => 'lockout-user@example.com',
+        'password' => bcrypt('correct-password'),
+    ]);
+
+    for ($i = 0; $i < 5; $i++) {
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ]);
+    }
+
+    $response = $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'correct-password',
+    ]);
+
+    $response->assertStatus(429);
+    $response->assertHeader('Retry-After');
+    expect((int) $response->headers->get('Retry-After'))->toBeGreaterThan(0);
+});
+
+test('valid login succeeds immediately after lockout window expires', function () {
+    $user = User::factory()->create([
+        'email' => 'lockout-expiry@example.com',
+        'password' => bcrypt('correct-password'),
+    ]);
+
+    for ($i = 0; $i < 5; $i++) {
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ]);
+    }
+
+    $throttled = $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'correct-password',
+    ]);
+    $throttled->assertStatus(429);
+    $throttled->assertHeader('Retry-After');
+
+    Carbon::setTestNow(now()->addSeconds(61));
+
+    $response = $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'correct-password',
+    ]);
+
+    expect($response->status())->not->toBe(429);
+    $this->assertAuthenticatedAs($user);
 });
 
 test('rate limit applies correctly before threshold', function () {

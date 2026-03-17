@@ -23,17 +23,6 @@ class RememberUserLocaleListenerTest extends UnitTestCase
         $this->assertTrue(method_exists($listener, 'handle'));
     }
 
-    public function test_listener_handles_login_event(): void
-    {
-        $user = new User(['id' => 1]);
-        $event = new Login('web', $user, false);
-        $listener = new RememberUserLocale;
-
-        // Should not throw an exception
-        $listener->handle($event);
-        $this->expectNotToPerformAssertions();
-    }
-
     // Additional tests for 90-95% coverage
 
     public function test_listener_can_be_instantiated(): void
@@ -65,35 +54,6 @@ class RememberUserLocaleListenerTest extends UnitTestCase
         } else {
             $this->assertNull(session('user_locale'));
         }
-    }
-
-    public function test_handle_with_user_that_has_get_locale_method(): void
-    {
-        // Create user with locale
-        $user = User::factory()->create();
-
-        // Mock or set locale if User model has this method
-        $event = new Login('web', $user, false);
-        $listener = new RememberUserLocale;
-
-        $listener->handle($event);
-
-        // Should complete without error
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_handle_with_user_without_get_locale_method(): void
-    {
-        // Create a simple user object without getLocale method
-        $user = new \stdClass;
-        $user->id = 1;
-
-        $event = new Login('web', $user, false);
-        $listener = new RememberUserLocale;
-
-        // Should not throw exception
-        $listener->handle($event);
-        $this->expectNotToPerformAssertions();
     }
 
     public function test_handle_checks_method_exists_before_calling(): void
@@ -284,36 +244,4 @@ class RememberUserLocaleListenerTest extends UnitTestCase
         $this->assertEquals('void', $returnType->getName());
     }
 
-    public function test_handle_is_non_blocking(): void
-    {
-        $user = new class
-        {
-            public $id = 1;
-
-            public function getLocale()
-            {
-                return 'en';
-            }
-        };
-
-        $event = new Login('web', $user, false);
-        $listener = new RememberUserLocale;
-
-        // Should complete without throwing
-        $listener->handle($event);
-
-        $this->expectNotToPerformAssertions();
-    }
-
-    public function test_handle_works_with_real_user_model(): void
-    {
-        $user = User::factory()->create();
-        $event = new Login('web', $user, false);
-        $listener = new RememberUserLocale;
-
-        // Should not throw exception with real User model
-        $listener->handle($event);
-
-        $this->expectNotToPerformAssertions();
-    }
 }

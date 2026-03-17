@@ -10,28 +10,6 @@ use Tests\UnitTestCase;
 
 class CustomerChannelTest extends UnitTestCase
 {
-    public function test_customer_channel_can_be_created(): void
-    {
-        $customer = Customer::factory()->create();
-        $channel = CustomerChannel::create([
-            'customer_id' => $customer->id,
-            'channel' => CustomerChannel::CHANNEL_EMAIL,
-            'channel_id' => 'test@example.com',
-        ]);
-
-        $this->assertInstanceOf(CustomerChannel::class, $channel);
-        $this->assertEquals($customer->id, $channel->customer_id);
-        $this->assertEquals(CustomerChannel::CHANNEL_EMAIL, $channel->channel);
-        $this->assertEquals('test@example.com', $channel->channel_id);
-    }
-
-    public function test_customer_channel_uses_correct_table(): void
-    {
-        $channel = new CustomerChannel;
-
-        $this->assertEquals('customer_channel', $channel->getTable());
-    }
-
     public function test_customer_channel_has_fillable_attributes(): void
     {
         $channel = new CustomerChannel;

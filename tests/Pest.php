@@ -23,6 +23,7 @@ pest()->extend(Tests\UnitTestCase::class)
 
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->group('browser')
     ->in('Browser');
 
 /*

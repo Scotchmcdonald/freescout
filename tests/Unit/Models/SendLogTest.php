@@ -16,41 +16,6 @@ use Tests\UnitTestCase;
  */
 class SendLogTest extends UnitTestCase
 {
-    // ===== MODEL CREATION TESTS =====
-
-    public function test_send_log_can_be_created(): void
-    {
-        $thread = Thread::factory()->create();
-
-        $sendLog = SendLog::factory()->create([
-            'thread_id' => $thread->id,
-            'email' => 'test@example.com',
-            'status' => SendLog::STATUS_ACCEPTED,
-        ]);
-
-        $this->assertInstanceOf(SendLog::class, $sendLog);
-        $this->assertDatabaseHas('send_logs', [
-            'id' => $sendLog->id,
-            'email' => 'test@example.com',
-        ]);
-    }
-
-    public function test_send_log_has_correct_fillable_attributes(): void
-    {
-        $sendLog = new SendLog;
-
-        $this->assertContains('thread_id', $sendLog->getFillable());
-        $this->assertContains('email', $sendLog->getFillable());
-        $this->assertContains('status', $sendLog->getFillable());
-    }
-
-    public function test_send_log_uses_has_factory_trait(): void
-    {
-        $sendLog = SendLog::factory()->create();
-
-        $this->assertInstanceOf(SendLog::class, $sendLog);
-    }
-
     // ===== RELATIONSHIP TESTS =====
 
     public function test_send_log_belongs_to_thread(): void

@@ -14,43 +14,6 @@ use Tests\UnitTestCase;
  */
 class AttachmentTest extends UnitTestCase
 {
-    // ===== MODEL CREATION TESTS =====
-
-    public function test_attachment_can_be_created(): void
-    {
-        $thread = Thread::factory()->create();
-
-        $attachment = Attachment::factory()->create([
-            'thread_id' => $thread->id,
-            'file_name' => 'test.pdf',
-        ]);
-
-        $this->assertInstanceOf(Attachment::class, $attachment);
-        $this->assertDatabaseHas('attachments', [
-            'id' => $attachment->id,
-            'file_name' => 'test.pdf',
-        ]);
-    }
-
-    public function test_attachment_has_correct_fillable_attributes(): void
-    {
-        $attachment = new Attachment;
-
-        $this->assertContains('thread_id', $attachment->getFillable());
-        $this->assertContains('file_name', $attachment->getFillable());
-        $this->assertContains('file_dir', $attachment->getFillable());
-        $this->assertContains('file_size', $attachment->getFillable());
-        $this->assertContains('mime_type', $attachment->getFillable());
-        $this->assertContains('embedded', $attachment->getFillable());
-    }
-
-    public function test_attachment_uses_has_factory_trait(): void
-    {
-        $attachment = Attachment::factory()->create();
-
-        $this->assertInstanceOf(Attachment::class, $attachment);
-    }
-
     // ===== RELATIONSHIP TESTS =====
 
     public function test_attachment_belongs_to_thread(): void

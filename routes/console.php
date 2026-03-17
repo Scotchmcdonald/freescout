@@ -37,3 +37,9 @@ Schedule::job(\Modules\PIB\Jobs\MonthEndTimeAggregationJob::class)
     ->monthlyOn(1, '03:00')
     ->withoutOverlapping()
     ->onOneServer();
+
+// PIB: Daily recurring invoice generation (1:00 AM) — with duplicate-job guard for concurrent workers
+Schedule::job(\Modules\PIB\Jobs\GenerateRecurringInvoicesJob::class)
+    ->dailyAt('01:00')
+    ->withoutOverlapping()
+    ->onOneServer();

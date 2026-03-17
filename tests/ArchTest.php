@@ -7,6 +7,10 @@ arch('globals')
     ->expect(['dd', 'dump', 'ray', 'var_dump', 'die'])
     ->not->toBeUsed();
 
+arch('architecture tests do not hit the database')
+    ->expect('Tests\\Architecture')
+    ->not->toUse('Illuminate\\Foundation\\Testing\\RefreshDatabase');
+
 // 2. Core Blindness: App (FreeScout Core) should not depend on Feature Modules
 // The App namespace contains the core application. It should be agnostic of specific feature modules.
 arch('app core blindness')
