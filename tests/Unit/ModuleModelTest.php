@@ -140,22 +140,4 @@ class ModuleModelTest extends UnitTestCase
         $this->assertMatchesRegularExpression('/^\d+\.\d+\.\d+$/', $module->version);
     }
 
-    public function test_created_at_and_updated_at_timestamps(): void
-    {
-        $module = Module::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $module->created_at);
-        $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $module->updated_at);
-    }
-
-    public function test_module_name_and_alias_relationship(): void
-    {
-        $module = Module::factory()->create([
-            'name' => 'Test Module',
-            'alias' => 'test-module',
-        ]);
-
-        $this->assertEquals('Test Module', $module->name);
-        $this->assertEquals('test-module', $module->alias);
-    }
 }

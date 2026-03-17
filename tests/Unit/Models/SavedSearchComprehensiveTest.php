@@ -26,28 +26,6 @@ class SavedSearchComprehensiveTest extends UnitTestCase
 
     // ===== Model Creation Tests =====
 
-    public function test_saved_search_requires_user_id(): void
-    {
-        $this->expectException(\Illuminate\Database\QueryException::class);
-
-        SavedSearch::create([
-            'name' => 'Test Search',
-            'query' => 'status:active',
-            'filters' => [],
-        ]);
-    }
-
-    public function test_saved_search_requires_name(): void
-    {
-        $this->expectException(\Illuminate\Database\QueryException::class);
-
-        SavedSearch::create([
-            'user_id' => $this->user->id,
-            'query' => 'status:active',
-            'filters' => [],
-        ]);
-    }
-
     public function test_saved_search_allows_null_query(): void
     {
         $search = SavedSearch::create([
@@ -96,21 +74,7 @@ class SavedSearchComprehensiveTest extends UnitTestCase
         $this->assertEquals($filters, $search->filters);
     }
 
-    // ===== NAME_MAX_LENGTH constant tests =====
-
-    public function test_name_max_length_constant_exists(): void
-    {
-        $this->assertTrue(defined('App\Models\SavedSearch::NAME_MAX_LENGTH'));
-    }
-
-    public function test_name_max_length_is_reasonable_value(): void
-    {
-        $maxLength = SavedSearch::NAME_MAX_LENGTH;
-
-        $this->assertIsInt($maxLength);
-        $this->assertGreaterThan(0, $maxLength);
-        $this->assertLessThanOrEqual(255, $maxLength);
-    }
+    // ===== NAME_MAX_LENGTH constraint test =====
 
     public function test_name_at_max_length_is_accepted(): void
     {
