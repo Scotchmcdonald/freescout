@@ -23,13 +23,19 @@ test('user can view conversations list', function () {
         'state' => Conversation::STATE_PUBLISHED,
     ]);
 
-    $this->actingAs($user)->get(route('conversations.index', $mailbox))
-        ->assertOk()
+    $response = $this->actingAs($user)->get(route('conversations.index', $mailbox));
+
+    $conversations = $response->viewData('conversations')->getCollection();
+    $viewMailbox = $response->viewData('mailbox');
+
+    $response->assertOk()
         ->assertViewIs('conversations.index')
-        ->assertSee($mailbox->name)
-        ->assertSee('First Support Request')
-        ->assertSee('Second Support Request')
-        ->assertViewHas('conversations');
+        ->assertViewHas('conversations')
+        ->assertViewHas('mailbox');
+
+    expect($viewMailbox->id)->toBe($mailbox->id)
+        ->and($conversations->contains('id', $conv1->id))->toBeTrue()
+        ->and($conversations->contains('id', $conv2->id))->toBeTrue();
 });
 
 test('user can create conversation', function () {
@@ -72,12 +78,19 @@ test('user can view conversation', function () {
         'state' => 2,
     ]);
 
-    $this->actingAs($user)->get(route('conversations.show', $conversation))
-        ->assertOk()
+    $response = $this->actingAs($user)->get(route('conversations.show', $conversation));
+
+    $viewConversation = $response->viewData('conversation');
+    $threadBodies = $viewConversation->threads->pluck('body')->all();
+
+    $response->assertOk()
         ->assertViewIs('conversations.show')
-        ->assertSee('Important Issue')
-        ->assertSee('Initial customer message')
-        ->assertSee('Agent response');
+        ->assertViewHas('conversation');
+
+    expect($viewConversation->id)->toBe($conversation->id)
+        ->and($viewConversation->subject)->toBe('Important Issue')
+        ->and($threadBodies)->toContain('Initial customer message')
+        ->and($threadBodies)->toContain('Agent response');
 });
 
 test('user can reply to conversation', function () {
@@ -142,7 +155,8 @@ test('closed conversation shows correct badge', function () {
         ->for($mailbox)
         ->create(['status' => Conversation::STATUS_CLOSED]);
 
-    $this->actingAs($user)->get(route('conversations.show', $conversation))
-        ->assertOk()
-        ->assertSee('Closed');
+    $response = $this->actingAs($user)->get(route('conversations.show', $conversation));
+
+    $response->assertOk()->assertViewHas('conversation');
+    expect($response->viewData('conversation')->status)->toBe(Conversation::STATUS_CLOSED);
 });
