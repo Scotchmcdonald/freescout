@@ -18,11 +18,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      * @var array<int, string>
      */
     private array $allowlistedPathPrefixes = [
-        'Modules/CaseManager/Tests/Unit/',
-        'Modules/Crm/Tests/Unit/',
-        'Modules/Alerts/Tests/Unit/',
         'Modules/PIB/Tests/Unit/',
-        'Modules/Action1/Tests/Unit/',
     ];
 
     /**
@@ -32,42 +28,6 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      * @var array<int, string>
      */
     private array $allowlistedRefreshDatabaseBaseline = [
-        'Modules/Action1/Tests/Unit/MspScriptServicePestTest.php',
-        'Modules/Alerts/Tests/Unit/AlertServicePestTest.php',
-        'Modules/Alerts/Tests/Unit/AlertSubscriptionServicePestTest.php',
-        'Modules/CaseManager/Tests/Unit/Jobs/CheckCaseApiErrorJobTest.php',
-        'Modules/CaseManager/Tests/Unit/Jobs/CheckDiagnosticTimeoutJobTest.php',
-        'Modules/CaseManager/Tests/Unit/Jobs/ProcessCompletedDiagnosticsJobTest.php',
-        'Modules/CaseManager/Tests/Unit/Jobs/ProcessDiagnosticResultJobTest.php',
-        'Modules/CaseManager/Tests/Unit/Listeners/HandleConversationClosedTest.php',
-        'Modules/CaseManager/Tests/Unit/Listeners/HandleConversationCreatedTest.php',
-        'Modules/CaseManager/Tests/Unit/Listeners/HandleCustomerRepliedTest.php',
-        'Modules/CaseManager/Tests/Unit/Listeners/HandleFernConversationCreatedTest.php',
-        'Modules/CaseManager/Tests/Unit/Listeners/HandleSplitConfirmationTest.php',
-        'Modules/CaseManager/Tests/Unit/Models/CaseRecordHelpersTest.php',
-        'Modules/CaseManager/Tests/Unit/Models/CaseRecordTransitionTest.php',
-        'Modules/CaseManager/Tests/Unit/Models/DiagnosticTest.php',
-        'Modules/CaseManager/Tests/Unit/Models/FernCaseRecordTest.php',
-        'Modules/CaseManager/Tests/Unit/Models/PromptLogQuickWinTest.php',
-        'Modules/CaseManager/Tests/Unit/Services/AudienceTargetingServiceTest.php',
-        'Modules/CaseManager/Tests/Unit/Services/AutomatonUserServiceTest.php',
-        'Modules/CaseManager/Tests/Unit/Services/CaseManagerAiServiceTest.php',
-        'Modules/CaseManager/Tests/Unit/Services/DecisionEngineProcessTest.php',
-        'Modules/CaseManager/Tests/Unit/Services/FernBudgetServiceTest.php',
-        'Modules/CaseManager/Tests/Unit/Services/GeminiClientTest.php',
-        'Modules/CaseManager/Tests/Unit/Services/KnowledgeEngineTest.php',
-        'Modules/CaseManager/Tests/Unit/Traits/AiPipelineFailureHandlerTest.php',
-        'Modules/Crm/Tests/Unit/CalculateClientServiceMetricsJobPestTest.php',
-        'Modules/Crm/Tests/Unit/ClientTicketServicePestTest.php',
-        'Modules/Crm/Tests/Unit/ConversationEventListenerPestTest.php',
-        'Modules/Crm/Tests/Unit/CrmEventDispatchPestTest.php',
-        'Modules/Crm/Tests/Unit/Models/ClientModelPestTest.php',
-        'Modules/Crm/Tests/Unit/Models/ContactModelPestTest.php',
-        'Modules/Crm/Tests/Unit/Models/CustomFieldModelPestTest.php',
-        'Modules/Crm/Tests/Unit/TicketLifecycleServicePestTest.php',
-        'Modules/PIB/Tests/Unit/MonthEndTimeAggregationJobPestTest.php',
-        'Modules/PIB/Tests/Unit/PaymentDisputedListenerPestTest.php',
-        'Modules/PIB/Tests/Unit/TimeEntryServicePestTest.php',
     ];
 
     public function test_module_unit_tests_do_not_use_refresh_database_or_cross_module_persistence(): void
