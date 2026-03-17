@@ -237,6 +237,7 @@ test('billing services use database transactions')
  */
 test('all module listeners are registered in module providers')
     ->expect(function () {
+        $projectRoot = dirname(__DIR__, 2);
         $legacyUnregisteredAllowlist = [
             'Modules\\ClientPortal\\Listeners\\CreateQuoteApprovalRequest',
             'Modules\\PIB\\Listeners\\AdjustBillingOnSoftwareCountChange',
@@ -246,9 +247,9 @@ test('all module listeners are registered in module providers')
 
         $missingRegistrations = [];
 
-        foreach (glob(base_path('Modules/*/Listeners'), GLOB_ONLYDIR) as $listenersDir) {
+        foreach (glob($projectRoot.'/Modules/*/Listeners', GLOB_ONLYDIR) as $listenersDir) {
             $module = basename(dirname($listenersDir));
-            $providerFiles = glob(base_path("Modules/{$module}/Providers/*.php"));
+            $providerFiles = glob($projectRoot."/Modules/{$module}/Providers/*.php");
 
             if (! is_array($providerFiles) || $providerFiles === []) {
                 continue;
