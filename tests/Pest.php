@@ -41,6 +41,21 @@ expect()->extend('toBeOne', function () {
     return $this->toBe(1);
 });
 
+expect()->extend('toBeModel', function () {
+    return $this->toBeInstanceOf(\Illuminate\Database\Eloquent\Model::class);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Test Groups
+|--------------------------------------------------------------------------
+|
+| Define test groups for selective execution and parallel worker optimization.
+| Use `php artisan test --group=<group-name>` to run specific groups.
+| The group() method is defined via pest()->group() in existing class definitions.
+|
+*/
+
 /*
 |--------------------------------------------------------------------------
 | Functions

@@ -50,7 +50,9 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <ini name="memory_limit" value="4096M"/>
+        <!-- Memory limit: 1024M is sufficient for tests; excessive memory wastes startup time -->
+        <ini name="memory_limit" value="1024M"/>
+        <!-- Enable garbage collection: set higher (1 = immediate, 0 = disabled) -->
         <ini name="zend.enable_gc" value="1"/>
         <ini name="report_memleaks" value="0"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>

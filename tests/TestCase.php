@@ -21,8 +21,8 @@ abstract class TestCase extends BaseTestCase
 
     protected function setUp(): void
     {
-        // FORCE MEMORY LIMIT
-        ini_set('memory_limit', '4096M');
+        // Align memory limit with phpunit.xml (1024M sufficient for tests)
+        ini_set('memory_limit', '1024M');
 
         parent::setUp();
 
@@ -85,12 +85,12 @@ abstract class TestCase extends BaseTestCase
     {
         parent::tearDown();
 
-        // Force garbage collection every 50 tests to free memory
-        // More frequent GC causes transaction state issues
+        // Force garbage collection every 150 tests to balance memory and performance
+        // Frequent GC (every 50) causes overhead; too infrequent (300+) causes memory bloat
         static $testCount = 0;
         $testCount++;
 
-        if ($testCount % 50 === 0 && gc_enabled()) {
+        if ($testCount % 150 === 0 && gc_enabled()) {
             gc_collect_cycles();
         }
     }

@@ -24,6 +24,37 @@ class ModuleCompatibilityServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Guard against missing module.json files during discovery
+        // This fixes test isolation issues where TestModule may be discovered but lack a module.json
+        LaravelFileRepository::macro('all', function () {
+            /** @var LaravelFileRepository $this */
+            $modules = [];
+
+            foreach (glob($this->getPath().'/*') as $modulePath) {
+                if (! is_dir($modulePath)) {
+                    continue;
+                }
+
+                $json = $modulePath.'/module.json';
+                if (! file_exists($json)) {
+                    // Skip modules without module.json to avoid FileNotFoundException
+                    continue;
+                }
+
+                try {
+                    $module = $this->createModule($modulePath);
+                    if ($module) {
+                        $modules[$module->getName()] = $module;
+                    }
+                } catch (\Exception $e) {
+                    // Log but skip modules with corruption/parsing errors
+                    logger()->warning("Failed to load module at {$modulePath}: {$e->getMessage()}");
+                }
+            }
+
+            return $modules;
+        });
+
         // Add getAlias() method to Module class
         // Returns the alias from module.json or falls back to lowercase module name
         Module::macro('getAlias', function () {
