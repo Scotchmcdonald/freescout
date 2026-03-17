@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Jobs;
 
 use App\Jobs\SendEmailReplyErrorJob as SendEmailReplyError;
+use App\Mail\UserEmailReplyError;
 use App\Models\Mailbox;
 use App\Models\SendLog;
 use App\Models\User;
@@ -38,20 +39,9 @@ class SendEmailReplyErrorTest extends UnitTestCase
         $this->assertEquals(120, $job->timeout);
     }
 
-    public function test_handle_method_exists(): void
-    {
-        $from = 'test@example.com';
-        $user = User::factory()->make(['id' => 1]);
-        $mailbox = Mailbox::factory()->make(['id' => 2]);
-
-        $job = new SendEmailReplyError($from, $user, $mailbox);
-
-        $this->assertTrue(method_exists($job, 'handle'));
-    }
-
     public function test_job_uses_should_queue_interface(): void
     {
-        $job = new SendEmailReplyError('test@example.com', User::factory()->create(), Mailbox::factory()->create());
+        $job = new SendEmailReplyError('test@example.com', User::factory()->make(), Mailbox::factory()->make());
 
         $this->assertInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class, $job);
     }
@@ -85,6 +75,8 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
         $job = new SendEmailReplyError('test@example.com', $user, $mailbox);
         $job->handle();
+
+        Mail::assertSent(UserEmailReplyError::class);
     }
 
     public function test_job_creates_send_log_on_success(): void
@@ -104,6 +96,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
             'mail_type' => SendLog::MAIL_TYPE_WRONG_USER_EMAIL_MESSAGE,
             'status' => SendLog::STATUS_ACCEPTED,
         ]);
+        Mail::assertSent(UserEmailReplyError::class);
     }
 
     public function test_job_creates_send_log_with_null_thread_and_message(): void
@@ -121,6 +114,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
         $this->assertNull($sendLog->thread_id);
         $this->assertNull($sendLog->message_id);
+        Mail::assertSent(UserEmailReplyError::class);
     }
 
     public function test_job_logs_error_on_exception(): void
@@ -198,6 +192,7 @@ class SendEmailReplyErrorTest extends UnitTestCase
         $sendLog = SendLog::where('email', 'test@example.com')->first();
 
         $this->assertEquals(SendLog::MAIL_TYPE_WRONG_USER_EMAIL_MESSAGE, $sendLog->mail_type);
+        Mail::assertSent(UserEmailReplyError::class);
     }
 
     public function test_job_can_be_dispatched(): void
