@@ -82,3 +82,51 @@ it('surfaces Action1 contract violations on non-success responses', function () 
     expect(fn () => $service->listOrganizations())
         ->toThrow(RuntimeException::class, 'Action1 API rate limit exceeded');
 });
+
+it('maps malformed token payloads to typed runtime exceptions', function () {
+    Http::fake([
+        'https://app.action1.com/api/3.0/oauth2/token' => Http::response('not-json', 200),
+    ]);
+
+    $service = app(Action1SyncService::class);
+
+    expect(fn () => $service->listOrganizations())
+        ->toThrow(RuntimeException::class, 'No access_token in Action1 response');
+});
+
+it('handles partial endpoint payloads without crashing and keeps typed output', function () {
+    Http::fake([
+        'https://app.action1.com/api/3.0/oauth2/token' => Http::response([
+            'access_token' => 'token-sync-123',
+            'expires_in' => 3600,
+        ], 200),
+        'https://app.action1.com/api/3.0/endpoints/managed/org-partial*' => Http::response([
+            // Missing total_items and includes malformed items
+            'items' => ['bad-item', ['id' => 'ok-1', 'name' => 'Valid Endpoint']],
+        ], 200),
+    ]);
+
+    $service = app(Action1SyncService::class);
+
+    $endpoints = $service->listEndpoints('org-partial', 50);
+
+    expect($endpoints)->toHaveCount(1)
+        ->and($endpoints[0]['id'])->toBe('ok-1');
+});
+
+it('surfaces retry-after value in Action1 throttling exceptions', function () {
+    Http::fake([
+        'https://app.action1.com/api/3.0/oauth2/token' => Http::response([
+            'access_token' => 'token-sync-123',
+            'expires_in' => 3600,
+        ], 200),
+        'https://app.action1.com/api/3.0/organizations' => Http::response([
+            'message' => 'slow down',
+        ], 429, ['Retry-After' => '45']),
+    ]);
+
+    $service = app(Action1SyncService::class);
+
+    expect(fn () => $service->listOrganizations())
+        ->toThrow(RuntimeException::class, 'retry after 45 seconds');
+});

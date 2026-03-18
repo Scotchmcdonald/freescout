@@ -74,3 +74,89 @@ it('surfaces gateway failure status for adapter-level handling', function () {
     expect(fn () => $gateway->transactionStatusProbe())
         ->toThrow(\Illuminate\Http\Client\RequestException::class);
 });
+
+it('keeps partial success payloads in adapter response shape without coercion', function () {
+    config()->set('services.helcim.api_url', 'https://api.helcim.com/v2');
+    config()->set('services.helcim.api_token', 'helcim-test-token');
+
+    Http::fake([
+        'https://api.helcim.com/v2/card-transactions' => Http::response([
+            // Partial payload intentionally missing transactionId
+            'status' => 'approved',
+        ], 200),
+    ]);
+
+    $gateway = new class(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class)) extends HelcimService
+    {
+        public function transactionProbe(array $payload): array
+        {
+            $response = $this->makeApiCall('card-transactions', function () use ($payload) {
+                return $this->client()->post("{$this->apiUrl}/card-transactions", $payload);
+            });
+
+            return (array) $response->json();
+        }
+    };
+
+    $result = $gateway->transactionProbe(['amount' => 20.50]);
+
+    expect($result)->toHaveKey('status')
+        ->and($result)->not->toHaveKey('transactionId')
+        ->and($result['status'])->toBe('approved');
+});
+
+it('maps malformed gateway payloads to deterministic adapter exceptions', function () {
+    config()->set('services.helcim.api_url', 'https://api.helcim.com/v2');
+    config()->set('services.helcim.api_token', 'helcim-test-token');
+
+    Http::fake([
+        'https://api.helcim.com/v2/card-transactions' => Http::response('NOT_JSON_PAYLOAD', 200),
+    ]);
+
+    $gateway = new class(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class)) extends HelcimService
+    {
+        public function strictTransactionProbe(array $payload): void
+        {
+            $response = $this->makeApiCall('card-transactions', function () use ($payload) {
+                return $this->client()->post("{$this->apiUrl}/card-transactions", $payload);
+            });
+
+            $decoded = $response->json();
+            if (! is_array($decoded) || ! array_key_exists('transactionId', $decoded)) {
+                throw new RuntimeException('Malformed gateway response');
+            }
+        }
+    };
+
+    expect(fn () => $gateway->strictTransactionProbe(['amount' => 10]))
+        ->toThrow(RuntimeException::class, 'Malformed gateway response');
+});
+
+it('preserves retry-after contract details when gateway throttles', function () {
+    config()->set('services.helcim.api_url', 'https://api.helcim.com/v2');
+    config()->set('services.helcim.api_token', 'helcim-test-token');
+
+    Http::fake([
+        'https://api.helcim.com/v2/card-transactions' => Http::response([
+            'message' => 'too many requests',
+        ], 429, ['Retry-After' => '7']),
+    ]);
+
+    $gateway = new class(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class)) extends HelcimService
+    {
+        public function throttledProbe(): void
+        {
+            $this->makeApiCall('card-transactions', function () {
+                return $this->client()->post("{$this->apiUrl}/card-transactions", ['amount' => 12]);
+            });
+        }
+    };
+
+    try {
+        $gateway->throttledProbe();
+        $this->fail('Expected RequestException was not thrown');
+    } catch (\Illuminate\Http\Client\RequestException $exception) {
+        expect($exception->response->status())->toBe(429)
+            ->and($exception->response->header('Retry-After'))->toBe('7');
+    }
+});

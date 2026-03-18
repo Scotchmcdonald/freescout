@@ -103,3 +103,122 @@ it('propagates Google boundary failures to callers', function () {
     expect(fn () => $provider->getUsers())
         ->toThrow(RuntimeException::class, 'google boundary failure');
 });
+
+it('maps partial Google user payloads without requiring full fields', function () {
+    config()->set('google.domain', 'example.com');
+
+    $partialGoogleUser = new class
+    {
+        public function getName(): object
+        {
+            return new class
+            {
+                public function getFullName(): string
+                {
+                    return 'Partial User';
+                }
+            };
+        }
+
+        public function getPrimaryEmail(): string
+        {
+            return 'partial@example.com';
+        }
+
+        public function getSuspended(): bool
+        {
+            return true;
+        }
+
+        public function getIsEnrolledIn2Sv(): bool
+        {
+            return false;
+        }
+
+        public function getLastLoginTime(): ?string
+        {
+            return null;
+        }
+
+        public function getOrgUnitPath(): string
+        {
+            return '/';
+        }
+    };
+
+    $service = new class([$partialGoogleUser], null) extends GoogleWorkspaceService
+    {
+        public function __construct(private array $users, private ?\Throwable $error)
+        {
+            parent::__construct(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class));
+        }
+
+        public function listUsers(string $domain, ?string $orgUnitPath = null): array
+        {
+            if ($this->error !== null) {
+                throw $this->error;
+            }
+
+            return $this->users;
+        }
+    };
+
+    $provider = new GoogleUserProvider($service);
+    $users = $provider->getUsers();
+
+    expect($users)->toHaveCount(1)
+        ->and($users[0]['status'])->toBe('Suspended')
+        ->and($users[0]['is_2fa_enrolled'])->toBeFalse();
+});
+
+it('keeps typed exception mapping consistent for non-runtime service errors', function () {
+    config()->set('google.domain', 'example.com');
+
+    $service = new class([], new InvalidArgumentException('invalid google payload')) extends GoogleWorkspaceService
+    {
+        public function __construct(private array $users, private ?\Throwable $error)
+        {
+            parent::__construct(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class));
+        }
+
+        public function listUsers(string $domain, ?string $orgUnitPath = null): array
+        {
+            if ($this->error !== null) {
+                throw $this->error;
+            }
+
+            return $this->users;
+        }
+    };
+
+    $provider = new GoogleUserProvider($service);
+
+    expect(fn () => $provider->getUsers())
+        ->toThrow(InvalidArgumentException::class, 'invalid google payload');
+});
+
+it('fails fast on malformed Google user objects', function () {
+    config()->set('google.domain', 'example.com');
+
+    $service = new class([new stdClass], null) extends GoogleWorkspaceService
+    {
+        public function __construct(private array $users, private ?\Throwable $error)
+        {
+            parent::__construct(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class));
+        }
+
+        public function listUsers(string $domain, ?string $orgUnitPath = null): array
+        {
+            if ($this->error !== null) {
+                throw $this->error;
+            }
+
+            return $this->users;
+        }
+    };
+
+    $provider = new GoogleUserProvider($service);
+
+    expect(fn () => $provider->getUsers())
+        ->toThrow(Error::class);
+});
