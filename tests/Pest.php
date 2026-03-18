@@ -26,6 +26,9 @@ pest()->extend(Tests\TestCase::class)
     ->group('browser')
     ->in('Browser');
 
+pest()->group('browser')
+    ->in('../Modules/*/Tests/Browser');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations

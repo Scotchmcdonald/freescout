@@ -40,6 +40,8 @@
         <exclude>
             <group>integration</group>
             <group>slow</group>
+            <group>browser</group>
+            <group>performance</group>
         </exclude>
     </groups>
     <source>

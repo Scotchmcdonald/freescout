@@ -243,5 +243,4 @@ class RememberUserLocaleListenerTest extends UnitTestCase
 
         $this->assertEquals('void', $returnType->getName());
     }
-
 }

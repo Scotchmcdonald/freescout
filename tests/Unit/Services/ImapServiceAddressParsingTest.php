@@ -81,5 +81,4 @@ class ImapServiceAddressParsingTest extends UnitTestCase
         $this->assertSame(1, $result['created']);
         $this->assertSame(0, $result['errors']);
     }
-
 }

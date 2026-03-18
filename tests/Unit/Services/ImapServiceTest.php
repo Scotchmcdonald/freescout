@@ -40,15 +40,15 @@ class ImapServiceTest extends UnitTestCase
     private function mockMailbox(array $attrs = []): Mailbox
     {
         $m = Mockery::mock(Mailbox::class)->makePartial();
-        $m->id                = $attrs['id'] ?? 1;
-        $m->name              = $attrs['name'] ?? 'Test';
-        $m->in_server         = $attrs['in_server'] ?? 'imap.example.com';
-        $m->in_port           = $attrs['in_port'] ?? 993;
-        $m->in_username       = $attrs['in_username'] ?? 'user@example.com';
-        $m->in_password       = $attrs['in_password'] ?? encrypt('pass');
-        $m->in_encryption     = $attrs['in_encryption'] ?? 1;
-        $m->in_imap_folders   = $attrs['in_imap_folders'] ?? null;
-        $m->in_validate_cert  = $attrs['in_validate_cert'] ?? true;
+        $m->id = $attrs['id'] ?? 1;
+        $m->name = $attrs['name'] ?? 'Test';
+        $m->in_server = $attrs['in_server'] ?? 'imap.example.com';
+        $m->in_port = $attrs['in_port'] ?? 993;
+        $m->in_username = $attrs['in_username'] ?? 'user@example.com';
+        $m->in_password = $attrs['in_password'] ?? encrypt('pass');
+        $m->in_encryption = $attrs['in_encryption'] ?? 1;
+        $m->in_imap_folders = $attrs['in_imap_folders'] ?? null;
+        $m->in_validate_cert = $attrs['in_validate_cert'] ?? true;
 
         return $m;
     }
@@ -100,9 +100,9 @@ class ImapServiceTest extends UnitTestCase
 
     public function test_fetch_emails_fetches_from_inbox_by_default(): void
     {
-        $mailbox  = $this->mockMailbox(['in_imap_folders' => null]);
-        $client   = $this->mockConnectedClient(['INBOX']);
-        $service  = $this->mockService($client);
+        $mailbox = $this->mockMailbox(['in_imap_folders' => null]);
+        $client = $this->mockConnectedClient(['INBOX']);
+        $service = $this->mockService($client);
 
         $result = $service->fetchEmails($mailbox);
 
@@ -113,7 +113,7 @@ class ImapServiceTest extends UnitTestCase
     public function test_fetch_emails_handles_connection_failure(): void
     {
         $mailbox = $this->mockMailbox();
-        $client  = Mockery::mock(Client::class);
+        $client = Mockery::mock(Client::class);
         $client->shouldReceive('connect')->andThrow(new ConnectionFailedException('Timeout'));
 
         $result = $this->mockService($client)->fetchEmails($mailbox);
@@ -128,8 +128,10 @@ class ImapServiceTest extends UnitTestCase
     {
         $mailbox = $this->mockMailbox();
 
-        $f1 = Mockery::mock(Folder::class); $f1->full_name = 'INBOX';
-        $f2 = Mockery::mock(Folder::class); $f2->full_name = 'Sent';
+        $f1 = Mockery::mock(Folder::class);
+        $f1->full_name = 'INBOX';
+        $f2 = Mockery::mock(Folder::class);
+        $f2->full_name = 'Sent';
 
         $client = Mockery::mock(Client::class);
         $client->shouldReceive('connect');
@@ -146,7 +148,7 @@ class ImapServiceTest extends UnitTestCase
     public function test_get_folders_returns_failure_on_connection_error(): void
     {
         $mailbox = $this->mockMailbox();
-        $client  = Mockery::mock(Client::class);
+        $client = Mockery::mock(Client::class);
         $client->shouldReceive('connect')->andThrow(new ConnectionFailedException('No route'));
 
         $result = $this->mockService($client)->getFolders($mailbox);
@@ -190,7 +192,7 @@ class ImapServiceTest extends UnitTestCase
     public function test_test_connection_returns_failure_on_auth_error(): void
     {
         $mailbox = $this->mockMailbox();
-        $client  = Mockery::mock(Client::class);
+        $client = Mockery::mock(Client::class);
         $client->shouldReceive('connect')->andThrow(new ConnectionFailedException('Auth failed'));
 
         $result = $this->mockService($client)->testConnection($mailbox);
@@ -202,7 +204,7 @@ class ImapServiceTest extends UnitTestCase
     public function test_test_connection_returns_failure_when_inbox_not_found(): void
     {
         $mailbox = $this->mockMailbox();
-        $client  = Mockery::mock(Client::class);
+        $client = Mockery::mock(Client::class);
         $client->shouldReceive('connect');
         $client->shouldReceive('getFolder')->with('INBOX')->andReturn(null);
 
@@ -211,5 +213,4 @@ class ImapServiceTest extends UnitTestCase
         $this->assertFalse($result['success']);
         $this->assertStringContainsString('INBOX', $result['message']);
     }
-
 }

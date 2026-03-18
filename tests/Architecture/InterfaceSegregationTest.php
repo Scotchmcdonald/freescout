@@ -97,4 +97,3 @@ test('interface segregation: type system prevents accidental writes', function (
 
     expect($service)->toBeInstanceOf(CreditBalanceReportService::class);
 });
-
