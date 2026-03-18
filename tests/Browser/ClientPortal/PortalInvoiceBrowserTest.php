@@ -31,8 +31,6 @@ function createPortalTestData(): array
     return [$user, $client, $company];
 }
 
-
-
 it('displays invoice with tabs and PDF download link', function () {
     [$user, $client, $company] = createPortalTestData();
 

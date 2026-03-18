@@ -11,7 +11,12 @@ declare(strict_types=1);
 test('services are in Services directory')
     ->expect('App\Services')
     ->toBeClasses()
-    ->toHaveSuffix('Service');
+    ->toHaveSuffix('Service')
+    ->ignoring([
+        'App\Services\SentryBeforeSend', // Sentry callback class referenced by static callable
+        'App\Services\SentryBeforeBreadcrumb', // Sentry callback class referenced by static callable
+        'App\Services\EntitlementEngine', // Abstract contract-style service alias target
+    ]);
 
 test('contracts are interfaces')
     ->expect('App\Contracts')

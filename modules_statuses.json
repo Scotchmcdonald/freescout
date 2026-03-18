@@ -14,6 +14,5 @@
     "PIB": true,
     "Payment": true,
     "SoftwareSubscriptions": true,
-    "WidgetRegistry": true,
-    "TestModule": true
+    "WidgetRegistry": true
 }

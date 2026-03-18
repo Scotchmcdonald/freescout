@@ -64,6 +64,12 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->alias(\Modules\PIB\Services\EntitlementEngineService::class, \App\Services\EntitlementEngine::class);
 
+        // Fallback bindings keep credit interfaces resolvable even when module provider
+        // registration order differs across parallel workers.
+        $this->app->bind(\App\Contracts\Billing\CreditWriter::class, \Modules\PIB\Services\ClientCreditService::class);
+        $this->app->bind(\App\Contracts\Billing\CreditReader::class, \Modules\PIB\Services\ClientCreditService::class);
+        $this->app->bind(\App\Contracts\Billing\CreditLedgerInterface::class, \Modules\PIB\Services\ClientCreditService::class);
+
         $this->app->singleton(\App\Services\UserDirectoryRegistryService::class, function ($app) {
             return new \App\Services\UserDirectoryRegistryService;
         });

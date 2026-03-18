@@ -7,8 +7,6 @@ use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Company;
 use Modules\PIB\Models\Invoice;
 
-
-
 it('admin can generate invoice from template', function () {
     $admin = User::firstOrCreate(['email' => 'billing-cycle-admin@example.com'], [
         'password' => bcrypt('password'),

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Events\NewMessageReceived;
+use App\Jobs\SendNotificationToUsersJob;
 use App\Listeners\HandleNewMessage;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
-use App\Jobs\SendNotificationToUsersJob;
 use Illuminate\Support\Facades\Queue;
 use Tests\UnitTestCase;
 

@@ -16,7 +16,7 @@ return [
     'discovery' => [
         'enabled' => true,
         'paths' => [
-            base_path('Modules'),
+            env('MODULES_PATH', base_path('Modules')),
         ],
     ],
 
@@ -84,7 +84,7 @@ return [
         | This path will also be added automatically to the list of scanned folders.
         |
         */
-        'modules' => base_path('Modules'),
+        'modules' => env('MODULES_PATH', base_path('Modules')),
 
         /*
         |--------------------------------------------------------------------------
@@ -289,7 +289,7 @@ return [
     'activators' => [
         'file' => [
             'class' => FileActivator::class,
-            'statuses-file' => base_path('modules_statuses.json'),
+            'statuses-file' => env('MODULES_STATUSES_FILE', base_path('modules_statuses.json')),
         ],
     ],
 

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Nwidart\Modules\Laravel\LaravelFileRepository;
+use Nwidart\Modules\Laravel\Module as LaravelModule;
 use Nwidart\Modules\Module;
 
 /**
@@ -29,8 +31,12 @@ class ModuleCompatibilityServiceProvider extends ServiceProvider
         LaravelFileRepository::macro('all', function () {
             /** @var LaravelFileRepository $this */
             $modules = [];
+            $paths = glob($this->getPath().'/*');
+            if ($paths === false) {
+                return $modules;
+            }
 
-            foreach (glob($this->getPath().'/*') as $modulePath) {
+            foreach ($paths as $modulePath) {
                 if (! is_dir($modulePath)) {
                     continue;
                 }
@@ -42,10 +48,14 @@ class ModuleCompatibilityServiceProvider extends ServiceProvider
                 }
 
                 try {
-                    $module = $this->createModule($modulePath);
-                    if ($module) {
-                        $modules[$module->getName()] = $module;
+                    $moduleJson = File::json($json);
+                    $name = $moduleJson['name'] ?? basename($modulePath);
+                    if (! is_string($name) || $name === '') {
+                        $name = basename($modulePath);
                     }
+
+                    $module = new LaravelModule(app(), $name, $modulePath);
+                    $modules[$module->getName()] = $module;
                 } catch (\Exception $e) {
                     // Log but skip modules with corruption/parsing errors
                     logger()->warning("Failed to load module at {$modulePath}: {$e->getMessage()}");

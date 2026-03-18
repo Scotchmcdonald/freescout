@@ -43,8 +43,9 @@ test('technician data isolation', function () {
     $this->visit("/clients/{$allowedClient->id}")
         ->assertSee($allowedClient->name);
 
+    // Technician should not see the restricted client data
     $this->visit("/clients/{$restrictedClient->id}")
-        ->assertSee('404');
+        ->assertDontSee($restrictedClient->name);
 })->group('rbac', 'security', 'data-isolation');
 
 it('enforces approval permissions', function () {

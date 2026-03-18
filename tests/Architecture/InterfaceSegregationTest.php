@@ -8,6 +8,8 @@ declare(strict_types=1);
  * These tests enforce the Interface Segregation Principle (ISP) from SOLID.
  * They ensure interfaces remain focused and don't grow too large.
  */
+uses(Tests\TestCase::class);
+
 test('all interfaces have Interface suffix or descriptive focused names')
     ->expect('App\Contracts')
     ->toHaveSuffix('Interface')
@@ -16,6 +18,7 @@ test('all interfaces have Interface suffix or descriptive focused names')
         'App\Contracts\Billing\CreditReader',
         'App\Contracts\EntitlementResolver',   // Core contracts can use descriptive names
         'App\Contracts\UserProvider',          // Laravel convention
+        'App\Contracts\UserEntitlementCountProvider', // Domain-specific provider naming
     ]);
 
 test('services should not bypass interfaces and use implementations directly')

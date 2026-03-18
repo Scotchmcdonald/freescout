@@ -12,8 +12,8 @@ test('admin can view integrations settings page', function () {
         ->get(route('settings.integrations'))
         ->assertOk()
         ->assertViewIs('settings.integrations')
-    ->assertViewHas('currentSection', 'integrations')
-    ->assertViewHas('sections', fn (array $sections) => array_key_exists('integrations', $sections));
+        ->assertViewHas('currentSection', 'integrations')
+        ->assertViewHas('sections', fn (array $sections) => array_key_exists('integrations', $sections));
 });
 
 test('admin can view google workspace integration tab', function () {

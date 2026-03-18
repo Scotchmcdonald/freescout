@@ -22,8 +22,6 @@ function getMultiUserAdmin(): User
     return $admin;
 }
 
-
-
 it('quote lifecycle with client rejection and acceptance', function () {
     $admin = getMultiUserAdmin();
     $client = Client::factory()->create(['name' => 'Lifecycle Client']);

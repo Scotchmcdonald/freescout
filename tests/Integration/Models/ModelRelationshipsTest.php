@@ -5,12 +5,8 @@ declare(strict_types=1);
 namespace Tests\Integration\Models;
 
 use App\Models\Conversation;
-use App\Models\Customer;
-use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Tests\IntegrationTestCase;
 
 class ModelRelationshipsTest extends IntegrationTestCase
@@ -60,5 +56,4 @@ class ModelRelationshipsTest extends IntegrationTestCase
         $this->assertTrue($activeConversations->contains($activeConv));
         $this->assertFalse($activeConversations->contains($closedConv));
     }
-
 }

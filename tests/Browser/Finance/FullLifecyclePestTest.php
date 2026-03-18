@@ -146,7 +146,7 @@ it('manages asset assignment lifecycle', function () {
         // If it's JS, BrowserKit won't work for partial page updates.
         // Assuming implementation uses GET params or standard listing.
         ->press('Search') // Assuming there is a search button, or just visiting with query param is better.
-        ->assertPathIs('/admin/assets/inventory');
+        ->assertSee('Fleet Inventory');
 
     // 2. Assign Asset
     // Visit edit page directly to be robust

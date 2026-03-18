@@ -767,7 +767,7 @@ class ModulesController extends Controller
                 $sendEvent('cloning', 30, __('Cloning repository...'));
 
                 // Clone repository
-                $modulesPath = base_path('Modules');
+                $modulesPath = $this->modulesBasePath();
                 $targetPath = $modulesPath.'/'.$moduleName;
 
                 if (File::exists($targetPath)) {
@@ -1093,7 +1093,7 @@ class ModulesController extends Controller
             $moduleName = substr($moduleName, 0, -6);
         }
 
-        $targetPath = base_path("Modules/$moduleName");
+        $targetPath = $this->modulesBasePath()."/$moduleName";
 
         if (File::exists($targetPath)) {
             $message = __('Module directory already exists: :path', ['path' => $targetPath]);
@@ -1264,9 +1264,15 @@ class ModulesController extends Controller
 
             if (! $module) {
                 // Gather debug info
-                $allModules = collect(Module::all())->map(function ($m) {
-                    return $m->getName().' ['.$m->getLowerName().']';
-                })->implode(', ');
+                $loadedModuleNames = [];
+                foreach (Module::all() as $loadedModule) {
+                    if (is_object($loadedModule)
+                        && method_exists($loadedModule, 'getName')
+                        && method_exists($loadedModule, 'getLowerName')) {
+                        $loadedModuleNames[] = $loadedModule->getName().' ['.$loadedModule->getLowerName().']';
+                    }
+                }
+                $allModules = implode(', ', $loadedModuleNames);
 
                 $moduleJsonContent = File::exists($targetPath.'/module.json')
                     ? substr(File::get($targetPath.'/module.json'), 0, 100).'...'
@@ -1361,7 +1367,7 @@ class ModulesController extends Controller
             // Unzip
             $zip = new \ZipArchive;
             if ($zip->open($tempFile) === true) {
-                $extractPath = base_path('Modules');
+                $extractPath = $this->modulesBasePath();
 
                 if (! File::isDirectory($extractPath)) {
                     File::makeDirectory($extractPath, 0755, true);
@@ -1470,6 +1476,18 @@ class ModulesController extends Controller
             default:
                 return response()->json(['success' => false, 'message' => 'Invalid action'], 400);
         }
+    }
+
+    /**
+     * Resolve the modules base path from config with a safe fallback.
+     */
+    private function modulesBasePath(): string
+    {
+        $configured = config('modules.paths.modules');
+
+        return is_string($configured) && $configured !== ''
+            ? $configured
+            : base_path('Modules');
     }
 
     /**

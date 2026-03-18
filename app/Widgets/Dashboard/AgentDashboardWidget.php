@@ -126,33 +126,33 @@ class AgentDashboardWidget implements Widget
             ->get();
 
         if ($cases->isEmpty()) {
-            return '<div class="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-700 font-medium">✓ No open cases assigned to you.</div>';
+            return '<div class="bg-success-50 border border-success-200 rounded-xl p-4 text-sm text-success-700 font-medium">✓ No open cases assigned to you.</div>';
         }
 
         $stateLabels = [
-            'new' => ['bg-blue-100 text-blue-800', 'New'],
-            'awaiting_clarity' => ['bg-yellow-100 text-yellow-800', 'Awaiting Clarity'],
-            'ready_for_tech' => ['bg-indigo-100 text-indigo-800', 'Ready for Tech'],
-            'in_progress' => ['bg-purple-100 text-purple-800', 'In Progress'],
-            'pending_customer' => ['bg-orange-100 text-orange-800', 'Pending Customer'],
-            'resolved' => ['bg-green-100 text-green-800', 'Resolved'],
+            'new' => ['bg-info-100 text-info-800', 'New'],
+            'awaiting_clarity' => ['bg-warning-100 text-warning-800', 'Awaiting Clarity'],
+            'ready_for_tech' => ['bg-primary-100 text-primary-800', 'Ready for Tech'],
+            'in_progress' => ['bg-primary-100 text-primary-700', 'In Progress'],
+            'pending_customer' => ['bg-warning-100 text-warning-700', 'Pending Customer'],
+            'resolved' => ['bg-success-100 text-success-800', 'Resolved'],
         ];
 
-        $html = '<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">';
-        $html .= '<h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">My Case Queue</h3>';
+        $html = '<div class="bg-white rounded-xl shadow-sm border border-neutral-200 p-5">';
+        $html .= '<h3 class="text-sm font-semibold text-neutral-700 uppercase tracking-wider mb-4">My Case Queue</h3>';
         $html .= '<div class="space-y-2">';
 
         foreach ($cases as $case) {
-            [$stateBadge, $stateLabel] = $stateLabels[$case->state] ?? ['bg-gray-100 text-gray-700', ucfirst($case->state)];
+            [$stateBadge, $stateLabel] = $stateLabels[$case->state] ?? ['bg-neutral-100 text-neutral-700', ucfirst($case->state)];
             $subject = $case->conversation->subject ?? "Case #{$case->id}";
             $escalation = $case->needs_escalation
-                ? '<span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">⚡ Escalate</span>'
+                ? '<span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-danger-100 text-danger-700">⚡ Escalate</span>'
                 : '';
 
-            $html .= '<div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">';
+            $html .= '<div class="flex items-center justify-between py-2 border-b border-neutral-50 last:border-0">';
             $html .= '<div class="min-w-0 flex-1">';
-            $html .= '<p class="text-sm font-medium text-gray-800 truncate">'.e($subject).$escalation.'</p>';
-            $html .= '<p class="text-xs text-gray-400">'.($case->updated_at?->diffForHumans() ?? '—').'</p>';
+            $html .= '<p class="text-sm font-medium text-neutral-800 truncate">'.e($subject).$escalation.'</p>';
+            $html .= '<p class="text-xs text-neutral-400">'.($case->updated_at?->diffForHumans() ?? '—').'</p>';
             $html .= '</div>';
             $html .= '<span class="ml-3 flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium '.$stateBadge.'">'.$stateLabel.'</span>';
             $html .= '</div>';
@@ -169,18 +169,18 @@ class AgentDashboardWidget implements Widget
     private function renderKpiCard(array $card): string
     {
         $colorMap = [
-            'red' => ['bg-red-50 border-red-200', 'text-red-800', 'text-red-600'],
-            'yellow' => ['bg-yellow-50 border-yellow-200', 'text-yellow-800', 'text-yellow-600'],
-            'green' => ['bg-green-50 border-green-200', 'text-green-800', 'text-green-600'],
-            'blue' => ['bg-blue-50 border-blue-200', 'text-blue-800', 'text-blue-600'],
-            'indigo' => ['bg-indigo-50 border-indigo-200', 'text-indigo-800', 'text-indigo-600'],
-            'gray' => ['bg-gray-50 border-gray-200', 'text-gray-700', 'text-gray-500'],
+            'red' => ['bg-danger-50 border-danger-200', 'text-danger-800', 'text-danger-600'],
+            'yellow' => ['bg-warning-50 border-warning-200', 'text-warning-800', 'text-warning-600'],
+            'green' => ['bg-success-50 border-success-200', 'text-success-800', 'text-success-600'],
+            'blue' => ['bg-info-50 border-info-200', 'text-info-800', 'text-info-600'],
+            'indigo' => ['bg-primary-50 border-primary-200', 'text-primary-800', 'text-primary-600'],
+            'gray' => ['bg-neutral-50 border-neutral-200', 'text-neutral-700', 'text-neutral-500'],
         ];
 
         [$wrap, $text, $sub] = $colorMap[$card['color']] ?? $colorMap['gray'];
 
         $html = '<div class="rounded-xl border p-4 '.$wrap.'">';
-        $html .= '<p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">'.e($card['label']).'</p>';
+        $html .= '<p class="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-1">'.e($card['label']).'</p>';
         $html .= '<p class="text-3xl font-bold '.$text.'">'.e($card['value']).'</p>';
         $html .= '<p class="text-xs mt-1 '.$sub.'">'.e($card['sub']).'</p>';
         $html .= '</div>';

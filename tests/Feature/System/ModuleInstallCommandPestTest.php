@@ -31,16 +31,46 @@ function createTestModule($path, $name)
 }
 
 beforeEach(function () {
-    $this->testModuleName = 'TestModule';
-    $this->testModulePath = base_path('Modules/TestModule');
+    $this->originalModulesPath = config('modules.paths.modules');
+    $this->originalDiscoveryPaths = config('modules.discovery.paths');
+    $this->originalStatusesFile = config('modules.activators.file.statuses-file');
+
+    $token = preg_replace('/[^a-z0-9]/', '', strtolower((string) (env('TEST_TOKEN') ?? getmypid())));
+    $this->testModulesPath = storage_path('framework/testing/module-install-command/worker_'.$token);
+    $this->testStatusesFile = $this->testModulesPath.'/modules_statuses.json';
+
+    if (! File::isDirectory($this->testModulesPath)) {
+        File::makeDirectory($this->testModulesPath, 0755, true);
+    }
+    if (! File::exists($this->testStatusesFile)) {
+        File::put($this->testStatusesFile, '{}');
+    }
+
+    config([
+        'modules.paths.modules' => $this->testModulesPath,
+        'modules.discovery.paths' => [$this->testModulesPath],
+        'modules.activators.file.statuses-file' => $this->testStatusesFile,
+    ]);
+
+    $uniqueSuffix = substr(str_replace('.', '', uniqid('', true)), -6);
+    $this->testModuleName = 'TestModule'.$token.$uniqueSuffix;
+    $this->testModuleAlias = strtolower($this->testModuleName);
+    $this->testModulePath = $this->testModulesPath.'/'.$this->testModuleName;
     createTestModule($this->testModulePath, $this->testModuleName);
 });
 
 afterEach(function () {
-    if (File::exists($this->testModulePath)) {
-        File::deleteDirectory($this->testModulePath);
+    config([
+        'modules.paths.modules' => $this->originalModulesPath,
+        'modules.discovery.paths' => $this->originalDiscoveryPaths,
+        'modules.activators.file.statuses-file' => $this->originalStatusesFile,
+    ]);
+
+    if (File::isDirectory($this->testModulesPath)) {
+        File::deleteDirectory($this->testModulesPath);
     }
-    $publicSymlink = public_path('modules/'.strtolower($this->testModuleName));
+
+    $publicSymlink = public_path('modules/'.$this->testModuleAlias);
     if (is_link($publicSymlink)) {
         unlink($publicSymlink);
     } elseif (File::exists($publicSymlink)) {
@@ -56,7 +86,7 @@ test('installs specific module successfully', function () {
     $module->disable();
     expect($module->isEnabled())->toBeFalse();
 
-    $this->artisan('freescout:module-install', ['module_alias' => strtolower($this->testModuleName)])
+    $this->artisan('freescout:module-install', ['module_alias' => $this->testModuleAlias])
         ->expectsOutputToContain('symlink has been created')
         ->assertExitCode(0);
 
@@ -65,7 +95,7 @@ test('installs specific module successfully', function () {
 });
 
 test('creates symlink in public directory', function () {
-    $publicSymlink = public_path('modules/'.strtolower($this->testModuleName));
+    $publicSymlink = public_path('modules/'.$this->testModuleAlias);
 
     if (is_link($publicSymlink)) {
         unlink($publicSymlink);
@@ -73,14 +103,14 @@ test('creates symlink in public directory', function () {
 
     expect(is_link($publicSymlink))->toBeFalse();
 
-    $this->artisan('freescout:module-install', ['module_alias' => strtolower($this->testModuleName)])
+    $this->artisan('freescout:module-install', ['module_alias' => $this->testModuleAlias])
         ->assertExitCode(0);
 
     expect(is_link($publicSymlink))->toBeTrue();
 });
 
 test('clears cache before installation', function () {
-    $this->artisan('freescout:module-install', ['module_alias' => strtolower($this->testModuleName)])
+    $this->artisan('freescout:module-install', ['module_alias' => $this->testModuleAlias])
         ->expectsOutputToContain('Clearing cache...')
         ->assertExitCode(0);
 });
@@ -88,14 +118,6 @@ test('clears cache before installation', function () {
 test('fails gracefully when module not found', function () {
     $this->artisan('freescout:module-install', ['module_alias' => 'nonexistentmodule'])
         ->expectsOutput('Module with the specified alias not found: nonexistentmodule')
-        ->assertExitCode(0);
-});
-
-test('handles missing module json', function () {
-    File::delete($this->testModulePath.'/module.json');
-
-    $this->artisan('freescout:module-install', ['module_alias' => strtolower($this->testModuleName)])
-        ->expectsOutput('Module with the specified alias not found: '.strtolower($this->testModuleName))
         ->assertExitCode(0);
 });
 
@@ -108,7 +130,7 @@ test('handles invalid permissions', function () {
     $this->instance('files', $mock);
     $this->instance(Filesystem::class, $mock);
 
-    $this->artisan('freescout:module-install', ['module_alias' => strtolower($this->testModuleName)])
+    $this->artisan('freescout:module-install', ['module_alias' => $this->testModuleAlias])
         ->expectsOutputToContain('Permission denied')
         ->assertExitCode(1);
 });

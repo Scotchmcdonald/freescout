@@ -22,8 +22,6 @@ function createRPAdmin(): User
     ]);
 }
 
-
-
 it('loads the record-payment form and displays invoice summary', function () {
     $admin = createRPAdmin();
     $company = Company::factory()->create();

@@ -9,10 +9,37 @@ use Illuminate\Support\Facades\Artisan;
 trait CreatesApplication
 {
     /**
+     * Isolate module filesystem artifacts for each parallel worker.
+     */
+    protected function configureModuleTestEnvironment(): void
+    {
+        $token = preg_replace('/[^a-z0-9]/', '', strtolower((string) (env('TEST_TOKEN') ?? getmypid())));
+        $baseTestingPath = dirname(__DIR__).'/storage/framework/testing/modules';
+
+        if (! is_dir($baseTestingPath)) {
+            mkdir($baseTestingPath, 0755, true);
+        }
+
+        $workerStatusesFile = $baseTestingPath.'/modules_statuses_'.$token.'.json';
+        $baselineStatusesFile = dirname(__DIR__).'/modules_statuses.json';
+        if (file_exists($baselineStatusesFile)) {
+            copy($baselineStatusesFile, $workerStatusesFile);
+        } else {
+            file_put_contents($workerStatusesFile, '{}');
+        }
+
+        putenv('MODULES_STATUSES_FILE='.$workerStatusesFile);
+        $_ENV['MODULES_STATUSES_FILE'] = $workerStatusesFile;
+        $_SERVER['MODULES_STATUSES_FILE'] = $workerStatusesFile;
+    }
+
+    /**
      * Creates the application.
      */
     public function createApplication(): Application
     {
+        $this->configureModuleTestEnvironment();
+
         $app = require __DIR__.'/../bootstrap/app.php';
 
         $app->make(Kernel::class)->bootstrap();

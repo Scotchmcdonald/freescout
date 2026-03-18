@@ -95,14 +95,14 @@ class ReporterDashboardWidget implements Widget
             return '';
         }
 
-        $html = '<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">';
-        $html .= '<h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Business Snapshot</h3>';
+        $html = '<div class="bg-white rounded-xl shadow-sm border border-neutral-200 p-5">';
+        $html .= '<h3 class="text-sm font-semibold text-neutral-700 uppercase tracking-wider mb-4">Business Snapshot</h3>';
         $html .= '<div class="grid grid-cols-2 sm:grid-cols-3 gap-4">';
 
         foreach ($stats as $label => $value) {
-            $html .= '<div class="text-center p-3 bg-gray-50 rounded-lg">';
-            $html .= '<p class="text-2xl font-bold text-gray-800">'.number_format((int) $value).'</p>';
-            $html .= '<p class="text-xs text-gray-500 mt-1">'.e($label).'</p>';
+            $html .= '<div class="text-center p-3 bg-neutral-50 rounded-lg">';
+            $html .= '<p class="text-2xl font-bold text-neutral-800">'.number_format((int) $value).'</p>';
+            $html .= '<p class="text-xs text-neutral-500 mt-1">'.e($label).'</p>';
             $html .= '</div>';
         }
 
@@ -134,18 +134,18 @@ class ReporterDashboardWidget implements Widget
             ->sum('total_amount');
 
         $rows = [
-            ['label' => 'Billed this month', 'value' => '$'.number_format($billedMtd, 2), 'color' => 'text-gray-800'],
-            ['label' => 'Collected this month', 'value' => '$'.number_format($collectedMtd, 2), 'color' => 'text-green-700'],
-            ['label' => 'Total overdue AR', 'value' => '$'.number_format($overdueTotalAr, 2), 'color' => $overdueTotalAr > 0 ? 'text-red-700 font-semibold' : 'text-green-700'],
+            ['label' => 'Billed this month', 'value' => '$'.number_format($billedMtd, 2), 'color' => 'text-neutral-800'],
+            ['label' => 'Collected this month', 'value' => '$'.number_format($collectedMtd, 2), 'color' => 'text-success-700'],
+            ['label' => 'Total overdue AR', 'value' => '$'.number_format($overdueTotalAr, 2), 'color' => $overdueTotalAr > 0 ? 'text-danger-700 font-semibold' : 'text-success-700'],
         ];
 
-        $html = '<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">';
-        $html .= '<h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Monthly Financials</h3>';
-        $html .= '<dl class="divide-y divide-gray-100">';
+        $html = '<div class="bg-white rounded-xl shadow-sm border border-neutral-200 p-5">';
+        $html .= '<h3 class="text-sm font-semibold text-neutral-700 uppercase tracking-wider mb-4">Monthly Financials</h3>';
+        $html .= '<dl class="divide-y divide-neutral-100">';
 
         foreach ($rows as $row) {
             $html .= '<div class="flex justify-between py-2.5">';
-            $html .= '<dt class="text-sm text-gray-500">'.e($row['label']).'</dt>';
+            $html .= '<dt class="text-sm text-neutral-500">'.e($row['label']).'</dt>';
             $html .= '<dd class="text-sm '.$row['color'].'">'.e($row['value']).'</dd>';
             $html .= '</div>';
         }

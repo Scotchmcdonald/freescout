@@ -156,23 +156,23 @@ class AdminDashboardWidget implements Widget
                 ->get();
 
             if ($expiring->isNotEmpty()) {
-                $section = '<div class="bg-white rounded-xl shadow-sm border border-yellow-100 p-5">';
+                $section = '<div class="bg-white rounded-xl shadow-sm border border-warning-200 p-5">';
                 $section .= '<div class="flex items-center justify-between mb-4">';
-                $section .= '<h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">⚠ Contracts Expiring Soon</h3>';
+                $section .= '<h3 class="text-sm font-semibold text-neutral-700 uppercase tracking-wider">⚠ Contracts Expiring Soon</h3>';
                 $section .= '</div>';
                 $section .= '<div class="overflow-x-auto"><table class="min-w-full text-sm">';
-                $section .= '<thead><tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">';
+                $section .= '<thead><tr class="text-left text-xs font-medium text-neutral-500 uppercase tracking-wider border-b border-neutral-100">';
                 $section .= '<th class="pb-2 pr-4">Contract</th><th class="pb-2 pr-4">Client</th><th class="pb-2 pr-4">Expires</th><th class="pb-2">Days Left</th>';
-                $section .= '</tr></thead><tbody class="divide-y divide-gray-50">';
+                $section .= '</tr></thead><tbody class="divide-y divide-neutral-50">';
 
                 foreach ($expiring as $contract) {
                     $daysLeft = (int) now()->diffInDays($contract->end_date, false);
-                    $urgency = $daysLeft <= 7 ? 'text-red-600 font-semibold' : ($daysLeft <= 14 ? 'text-orange-600' : 'text-yellow-700');
+                    $urgency = $daysLeft <= 7 ? 'text-danger-600 font-semibold' : ($daysLeft <= 14 ? 'text-warning-600' : 'text-warning-700');
                     $clientName = $contract->client->name ?? '—';
-                    $section .= '<tr class="hover:bg-gray-50">';
-                    $section .= '<td class="py-2 pr-4 font-medium text-indigo-600">'.e($contract->contract_number ?? "#{$contract->id}").'</td>';
-                    $section .= '<td class="py-2 pr-4 text-gray-700">'.e($clientName).'</td>';
-                    $section .= '<td class="py-2 pr-4 text-gray-500">'.($contract->end_date?->format('M j, Y') ?? '—').'</td>';
+                    $section .= '<tr class="hover:bg-neutral-50">';
+                    $section .= '<td class="py-2 pr-4 font-medium text-primary-600">'.e($contract->contract_number ?? "#{$contract->id}").'</td>';
+                    $section .= '<td class="py-2 pr-4 text-neutral-700">'.e($clientName).'</td>';
+                    $section .= '<td class="py-2 pr-4 text-neutral-500">'.($contract->end_date?->format('M j, Y') ?? '—').'</td>';
                     $section .= '<td class="py-2 '.$urgency.'">'.$daysLeft.'d</td>';
                     $section .= '</tr>';
                 }
@@ -188,13 +188,13 @@ class AdminDashboardWidget implements Widget
                 ->count();
 
             if ($overDeployed > 0) {
-                $section = '<div class="bg-white rounded-xl shadow-sm border border-red-100 p-5">';
+                $section = '<div class="bg-white rounded-xl shadow-sm border border-danger-200 p-5">';
                 $section .= '<div class="flex items-center gap-2 mb-2">';
-                $section .= '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">! Compliance</span>';
-                $section .= '<p class="text-sm text-gray-700">';
-                $section .= '<span class="font-semibold text-red-700">'.$overDeployed.'</span> over-deployed software instance(s) detected across client endpoints.';
+                $section .= '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-100 text-danger-800">! Compliance</span>';
+                $section .= '<p class="text-sm text-neutral-700">';
+                $section .= '<span class="font-semibold text-danger-700">'.$overDeployed.'</span> over-deployed software instance(s) detected across client endpoints.';
                 $section .= '</p></div>';
-                $section .= '<a href="#" class="text-xs text-red-600 underline">Review in Software Manager →</a>';
+                $section .= '<a href="#" class="text-xs text-danger-600 underline">Review in Software Manager →</a>';
                 $section .= '</div>';
                 $sections[] = $section;
             }
@@ -209,24 +209,24 @@ class AdminDashboardWidget implements Widget
     private function renderCard(array $card): string
     {
         $colorMap = [
-            'red' => 'bg-red-50 border-red-200 text-red-700',
-            'yellow' => 'bg-yellow-50 border-yellow-200 text-yellow-700',
-            'green' => 'bg-green-50 border-green-200 text-green-700',
-            'blue' => 'bg-blue-50 border-blue-200 text-blue-700',
-            'indigo' => 'bg-indigo-50 border-indigo-200 text-indigo-700',
-            'gray' => 'bg-gray-50 border-gray-200 text-gray-600',
+            'red' => 'bg-danger-50 border-danger-200 text-danger-700',
+            'yellow' => 'bg-warning-50 border-warning-200 text-warning-700',
+            'green' => 'bg-success-50 border-success-200 text-success-700',
+            'blue' => 'bg-info-50 border-info-200 text-info-700',
+            'indigo' => 'bg-primary-50 border-primary-200 text-primary-700',
+            'gray' => 'bg-neutral-50 border-neutral-200 text-neutral-600',
         ];
         $valueColorMap = [
-            'red' => 'text-red-800',
-            'yellow' => 'text-yellow-800',
-            'green' => 'text-green-800',
-            'blue' => 'text-blue-800',
-            'indigo' => 'text-indigo-800',
-            'gray' => 'text-gray-700',
+            'red' => 'text-danger-800',
+            'yellow' => 'text-warning-800',
+            'green' => 'text-success-800',
+            'blue' => 'text-info-800',
+            'indigo' => 'text-primary-800',
+            'gray' => 'text-neutral-700',
         ];
 
         $wrapperClass = $colorMap[$card['color']] ?? $colorMap['gray'];
-        $valueClass = $valueColorMap[$card['color']] ?? 'text-gray-700';
+        $valueClass = $valueColorMap[$card['color']] ?? 'text-neutral-700';
 
         $html = '<div class="rounded-xl border p-4 '.$wrapperClass.'">';
         $html .= '<p class="text-xs font-medium uppercase tracking-wider mb-1">'.e($card['label']).'</p>';
