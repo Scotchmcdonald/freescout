@@ -113,3 +113,51 @@ test('ContractManager billing template implements billing template contract', fu
     expect(Modules\ContractManager\Models\BillingTemplate::class)
         ->toImplement(App\Contracts\BillingTemplateInterface::class);
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// B-1 EXPANSION: Interface compliance enforcement for module service contracts
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('Action1SyncService implements Action1SyncClient interface', function () {
+    expect(Modules\Action1\Services\Action1SyncService::class)
+        ->toImplement(Modules\Action1\Contracts\Action1SyncClient::class);
+});
+
+test('Action1RunService implements Action1RunClient interface', function () {
+    expect(Modules\Action1\Services\Action1RunService::class)
+        ->toImplement(Modules\Action1\Contracts\Action1RunClient::class);
+});
+
+test('Action1ManageService implements Action1ManageClient interface', function () {
+    expect(Modules\Action1\Services\Action1ManageService::class)
+        ->toImplement(Modules\Action1\Contracts\Action1ManageClient::class);
+});
+
+test('SoftwareSubscriptions AssetManagementAssetLookupProvider implements AssetLookupProvider', function () {
+    expect(Modules\SoftwareSubscriptions\Services\AssetManagementAssetLookupProvider::class)
+        ->toImplement(Modules\SoftwareSubscriptions\Contracts\AssetLookupProvider::class);
+});
+
+test('SoftwareSubscriptions CrmContactLookupProvider implements ContactLookupProvider', function () {
+    expect(Modules\SoftwareSubscriptions\Services\CrmContactLookupProvider::class)
+        ->toImplement(Modules\SoftwareSubscriptions\Contracts\ContactLookupProvider::class);
+});
+
+test('SoftwareSubscriptions CrmAssignableEmailLookupProvider implements AssignableEmailLookupProvider', function () {
+    expect(Modules\SoftwareSubscriptions\Services\CrmAssignableEmailLookupProvider::class)
+        ->toImplement(Modules\SoftwareSubscriptions\Contracts\AssignableEmailLookupProvider::class);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// B-1 EXPANSION: Extended cross-module service boundary enforcement
+// Verifies no module in scope directly imports concrete services from financial
+// or payment boundary modules via the forbidden-layers (controllers/listeners/jobs).
+// ─────────────────────────────────────────────────────────────────────────────
+
+test('ContractManager forbidden PIB and Payment concrete service imports in forbidden layers', function () {
+    assertNoForbiddenServiceImports('ContractManager', ['PIB', 'Payment']);
+});
+
+test('SoftwareSubscriptions forbidden PIB Payment and CaseManager concrete service imports in forbidden layers', function () {
+    assertNoForbiddenServiceImports('SoftwareSubscriptions', ['PIB', 'Payment', 'CaseManager']);
+});
