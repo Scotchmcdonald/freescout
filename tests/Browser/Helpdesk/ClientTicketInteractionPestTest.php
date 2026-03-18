@@ -20,17 +20,9 @@ function createTicketPortalUser(): array
     return [$company, $user];
 }
 
-function portalLogin($test, User $user): void
-{
-    $test->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
-}
-
 it('full ticket lifecycle', function () {
     [$client, $user] = createTicketPortalUser();
-    portalLogin($this, $user);
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/support')
         ->assertSee('Support');
@@ -39,7 +31,7 @@ it('full ticket lifecycle', function () {
 it('ticket file attachments', function () {
     // Verify the support form supports file uploads (enctype or file input)
     [$client, $user] = createTicketPortalUser();
-    portalLogin($this, $user);
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/support')
         ->assertSee('Support');
@@ -70,7 +62,7 @@ it('ticket email notifications', function () {
 it('client self closing tickets', function () {
     // Verify close route exists in portal support routes
     [$client, $clientUser] = createTicketPortalUser();
-    portalLogin($this, $clientUser);
+    browserLoginPortal($this, $clientUser);
 
     $this->visit('/portal/support')
         ->assertSee('Support');
@@ -92,7 +84,7 @@ it('client reopening resolved tickets', function () {
 
 it('ticket list filtering and search', function () {
     [$client, $clientUser] = createTicketPortalUser();
-    portalLogin($this, $clientUser);
+    browserLoginPortal($this, $clientUser);
 
     // Navigate to ticket listing page
     $this->visit('/portal/support/tickets')

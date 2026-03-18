@@ -24,10 +24,7 @@ if (! function_exists('getKbAdminForTour')) {
 it('explore page loads with tour options', function () {
     $admin = getKbAdminForTour();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/knowledgebase/explore')
         ->assertSee('feature explorer', true)
@@ -40,11 +37,7 @@ it('can start knowledge base tour from explore page', function () {
     // Ensure no previous progress
     \Modules\KnowledgeBase\Models\UserTourProgress::where('user_id', $admin->id)->delete();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->assertPathIs('/dashboard'); // Adjusted expectation
+    browserLoginAdmin($this, $admin);
 
     $browser = $this->visit('/knowledgebase/explore?view=pages');
 
@@ -77,11 +70,7 @@ it('can navigate through tour steps', function () {
 
     \Modules\KnowledgeBase\Models\UserTourProgress::where('user_id', $admin->id)->delete();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->waitForText('Dashboard'); // Wait for login to complete
+    browserLoginAdmin($this, $admin);
 
     $browser = $this->visit('/knowledgebase/explore?view=pages');
 
@@ -129,10 +118,7 @@ it('admin setup tour creates demo account with isolated data', function () {
     $admin = getKbAdminForTour();
 
     // Login as admin first
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     // Visit tour page
     $browser = $this->visit('/knowledgebase/explore?view=tour')

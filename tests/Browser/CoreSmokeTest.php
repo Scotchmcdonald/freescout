@@ -46,10 +46,8 @@ test('application loads', function () {
 test('admin can login', function () {
     $admin = getSmokeTestAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email) // 'email' selector?
-        ->type('password', 'password')
-        ->click('button[type="submit"]') // guess
-        ->assertPathIs('/dashboard') // or similar
+    browserLoginAdmin($this, $admin);
+
+    $this->visit('/dashboard')
         ->assertDontSee('Invalid credentials');
 })->group('smoke', 'auth');

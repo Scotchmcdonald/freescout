@@ -4,17 +4,6 @@ use App\Models\User;
 use Modules\ContractManager\Models\Contract;
 use Modules\Crm\Models\Client;
 
-// Helper to log in a user via the UI
-function loginContractAdmin(object $browser, User $user, string $password = 'password')
-{
-    $browser->visit('/login')
-        ->assertVisible('input[name="email"]')
-        ->type('email', $user->email)
-        ->type('password', $password)
-        ->click('button[type="submit"]')
-        ->waitForText('Dashboard');
-}
-
 test('can generate invoice for contract', function () {
     $admin = User::firstOrCreate(['email' => 'contract-admin-'.uniqid().'@example.com'], [
         'password' => bcrypt('password'),
@@ -37,7 +26,7 @@ test('can generate invoice for contract', function () {
     ]);
 
     // Login
-    loginContractAdmin($this, $admin);
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/agreements/{$contract->id}")
         ->waitForText('Test Service Contract')
@@ -74,7 +63,7 @@ test('rent to own stops at purchase cap', function () {
         'asset_description' => 'Test Equipment',
     ]);
 
-    loginContractAdmin($this, $admin);
+    browserLoginAdmin($this, $admin);
 
     $browser = $this->visit("/contracts/agreements/{$contract->id}")
         ->waitForText('RTO Equipment');
@@ -136,7 +125,7 @@ test('can generate buyout invoice', function () {
         'allow_early_buyout' => true,
     ]);
 
-    loginContractAdmin($this, $admin);
+    browserLoginAdmin($this, $admin);
 
     $browser = $this->visit("/contracts/agreements/{$contract->id}")
         ->waitForText('Buyout Equipment')
