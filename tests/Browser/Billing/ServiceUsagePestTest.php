@@ -18,10 +18,7 @@ it('usage logging and invoicing', function () {
 
     $client = Client::factory()->create(['name' => 'Usage Test Client']);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/billing/service-usage/create')
         ->assertSee('Service Entry');

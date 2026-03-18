@@ -24,10 +24,7 @@ function getKbAdmin(): User
 it('knowledge base index loads', function () {
     $admin = getKbAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/knowledgebase')
         ->assertSee('Knowledge Base');
@@ -43,10 +40,7 @@ it('admin can create article', function () {
         'order' => 1,
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/knowledgebase/articles/create')
         ->assertSee('Create');
@@ -73,10 +67,7 @@ it('article show page renders', function () {
         'allowed_roles' => ['user_role:2', 'user_role:1'],
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/knowledgebase/{$article->slug}")
         ->assertSee('How to Configure Email');
@@ -103,10 +94,7 @@ it('admin can edit article', function () {
         ]
     );
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/knowledgebase/articles/{$article->id}/edit")
         ->assertSee('Category');
@@ -115,10 +103,7 @@ it('admin can edit article', function () {
 it('feature explorer loads', function () {
     $admin = getKbAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/knowledgebase/explore')
         ->assertSee('Feature');

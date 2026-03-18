@@ -22,13 +22,7 @@ function createRPAdmin(): User
     ]);
 }
 
-function loginAsAdmin($test, User $admin): void
-{
-    $test->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
-}
+
 
 it('loads the record-payment form and displays invoice summary', function () {
     $admin = createRPAdmin();
@@ -49,7 +43,7 @@ it('loads the record-payment form and displays invoice summary', function () {
         'metadata' => [],
     ]);
 
-    loginAsAdmin($this, $admin);
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/billing/invoices/{$invoice->id}/record-payment")
         ->assertPathIs("/billing/invoices/{$invoice->id}/record-payment")
@@ -80,7 +74,7 @@ it('shows invoice PDF download button on the show page', function () {
         'metadata' => [],
     ]);
 
-    loginAsAdmin($this, $admin);
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/billing/invoices/{$invoice->id}")
         ->assertPathIs("/billing/invoices/{$invoice->id}")
@@ -124,7 +118,7 @@ it('shows payment history on invoice show page', function () {
         'invoice_number' => 'INV-BROWSER-HIST',
     ]);
 
-    loginAsAdmin($this, $admin);
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/billing/invoices/{$invoice->id}")
         ->assertPathIs("/billing/invoices/{$invoice->id}")

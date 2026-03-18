@@ -31,13 +31,7 @@ function createPortalTestData(): array
     return [$user, $client, $company];
 }
 
-function loginPortalUser($test, User $user): void
-{
-    $test->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
-}
+
 
 it('displays invoice with tabs and PDF download link', function () {
     [$user, $client, $company] = createPortalTestData();
@@ -56,7 +50,7 @@ it('displays invoice with tabs and PDF download link', function () {
         'metadata' => [],
     ]);
 
-    loginPortalUser($this, $user);
+    browserLoginPortal($this, $user);
 
     $this->visit("/portal/invoices/{$invoice->id}")
         ->assertPathIs("/portal/invoices/{$invoice->id}")
@@ -99,7 +93,7 @@ it('shows payments tab when payments exist', function () {
         'invoice_number' => 'INV-PPAY-001',
     ]);
 
-    loginPortalUser($this, $user);
+    browserLoginPortal($this, $user);
 
     $this->visit("/portal/invoices/{$invoice->id}")
         ->assertPathIs("/portal/invoices/{$invoice->id}")
@@ -128,7 +122,7 @@ it('shows paid status banner for paid invoices', function () {
         'metadata' => [],
     ]);
 
-    loginPortalUser($this, $user);
+    browserLoginPortal($this, $user);
 
     $this->visit("/portal/invoices/{$invoice->id}")
         ->assertPathIs("/portal/invoices/{$invoice->id}")
@@ -172,7 +166,7 @@ it('shows pay invoice page with payment methods and correct amount', function ()
         'verified_at' => now(),
     ]);
 
-    loginPortalUser($this, $user);
+    browserLoginPortal($this, $user);
 
     $this->visit("/portal/invoices/{$invoice->id}/pay")
         ->assertPathIs("/portal/invoices/{$invoice->id}/pay")

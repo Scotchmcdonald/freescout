@@ -45,13 +45,7 @@ test('client can approve quote', function () {
     ]);
 
     // Login
-    $browser = $this->visit('/portal/login')
-        ->assertVisible('input[name="email"]')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->waitForText('Client Portal');
-
+    browserLoginPortal($this, $user);
     $browser = $this->visit("/portal/approvals/{$approval->id}")
         ->waitForText('Approve Request')
         ->click('[dusk="approve-request-button"]');
@@ -86,13 +80,7 @@ test('client can reject quote', function () {
         'metadata' => ['amount' => $quote->total],
     ]);
 
-    $browser = $this->visit('/portal/login')
-        ->assertVisible('input[name="email"]')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->waitForText('Client Portal');
-
+    browserLoginPortal($this, $user);
     $browser = $this->visit("/portal/approvals/{$approval->id}")
         ->waitForText('Reject Request')
         ->click('[dusk="reject-request-button"]');

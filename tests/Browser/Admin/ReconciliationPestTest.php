@@ -24,10 +24,7 @@ function getReconciliationAdmin(): User
 it('reconciliation dashboard loads', function () {
     $admin = getReconciliationAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/admin/reconciliation')
         ->assertSee('Reconciliation');
@@ -36,10 +33,7 @@ it('reconciliation dashboard loads', function () {
 it('reconciliation shows empty state', function () {
     $admin = getReconciliationAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/admin/reconciliation')
         ->assertSee('No reconciliation runs yet');

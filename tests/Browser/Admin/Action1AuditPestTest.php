@@ -23,10 +23,7 @@ function getAction1AuditAdmin(): User
 it('action1 audit page loads', function () {
     $admin = getAction1AuditAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/action1/audit')
         ->assertSee('Activity Log');
@@ -35,10 +32,7 @@ it('action1 audit page loads', function () {
 it('audit shows empty state', function () {
     $admin = getAction1AuditAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/action1/audit')
         ->assertSee('No activity recorded');

@@ -15,10 +15,7 @@ it('flash message persists through redirect', function () {
         $admin->save();
     }
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     // Verify contract management pages are accessible
     $this->visit('/contracts/agreements')

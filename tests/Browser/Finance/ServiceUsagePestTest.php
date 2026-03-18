@@ -28,11 +28,7 @@ it('manages service usage collection', function () {
         'name' => 'Service Usage Client '.uniqid(),
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->assertPathIs('/dashboard');
+    browserLoginAdmin($this, $admin);
 
     // 1. Visit Service Usage Index
     $this->visit(route('admin.billing.service-usage.index'))
@@ -78,11 +74,7 @@ it('manages client credit ledger manually', function () {
         'currency' => 'USD',
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->assertPathIs('/dashboard');
+    browserLoginAdmin($this, $admin);
 
     // 1. Visit Credit Ledger for Client
     $this->visit(route('admin.billing.credit-ledger.show', $client))

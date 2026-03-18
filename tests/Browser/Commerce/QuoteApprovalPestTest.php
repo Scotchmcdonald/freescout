@@ -23,10 +23,7 @@ it('client can approve quote', function () {
         $admin->save();
     }
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/quotes/{$quote->id}")
         ->assertSee('Quote')
@@ -52,10 +49,7 @@ it('client can reject quote', function () {
         $admin->save();
     }
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/quotes/{$quote->id}")
         ->assertSee($quote->title);

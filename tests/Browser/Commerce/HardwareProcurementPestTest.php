@@ -24,10 +24,7 @@ it('approved quote auto generates invoice', function () {
         'billing_type' => 'one_time',
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/quotes/{$quote->id}")
         ->assertSee($quote->title);
@@ -67,10 +64,7 @@ it('hardware invoice separate from service invoices', function () {
     expect($svcQuote->billing_type)->toBe('monthly');
     expect($hwQuote->id)->not->toBe($svcQuote->id);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/contracts/quotes')
         ->assertSee('Quote');
@@ -100,10 +94,7 @@ it('rejected quote no invoice', function () {
     expect($rejectedQuote->status)->toBe('rejected');
     expect($rejectedQuote->canBeApproved())->toBeFalse();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/quotes/{$rejectedQuote->id}")
         ->assertSee('Rejected Hardware');

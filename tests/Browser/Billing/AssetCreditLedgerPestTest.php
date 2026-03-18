@@ -17,10 +17,7 @@ it('upfront payment creates credit ledger', function () {
         $admin->save();
     }
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/billing/credit-ledger')
         ->assertSee('Credit');
@@ -52,10 +49,7 @@ it('credit applied to monthly invoices', function () {
         'updated_at' => now(),
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/billing/credit-ledger/{$client->id}")
         ->assertSee('Credit');
@@ -139,10 +133,7 @@ it('client can view credit balance in portal', function () {
     ]);
     $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/dashboard')
         ->assertSee('Client Portal');

@@ -28,10 +28,7 @@ function createDebugPortalUser(string $emailPrefix): User
 it('ticket form submission debug flow', function () {
     $user = createDebugPortalUser('debug-ticket');
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/support')
         ->assertSee('Support');
@@ -40,10 +37,7 @@ it('ticket form submission debug flow', function () {
 it('ticket number display after creation', function () {
     $user = createDebugPortalUser('debug-number');
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     // Navigate to ticket listing which should show ticket numbers
     $this->visit('/portal/support/tickets')
@@ -53,10 +47,7 @@ it('ticket number display after creation', function () {
 it('session flash after ticket submit', function () {
     $user = createDebugPortalUser('debug-flash');
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     // Verify support page loads for form submission
     $this->visit('/portal/support')

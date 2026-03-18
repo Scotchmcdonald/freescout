@@ -22,10 +22,7 @@ function getMailboxMgmtAdmin(): User
 
 it('mailbox list page loads', function () {
     $admin = getMailboxMgmtAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/mailboxes')
         ->assertSee('Mailbox');
@@ -33,10 +30,7 @@ it('mailbox list page loads', function () {
 
 it('mailbox create page loads', function () {
     $admin = getMailboxMgmtAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/mailboxes/create')
         ->assertSee('Create a Mailbox');
@@ -45,10 +39,7 @@ it('mailbox create page loads', function () {
 it('mailbox settings page loads', function () {
     $admin = getMailboxMgmtAdmin();
     $mailbox = Mailbox::factory()->create();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/mailbox/'.$mailbox->id.'/settings')
         ->assertSee('Mailbox Settings');

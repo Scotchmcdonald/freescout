@@ -21,10 +21,7 @@ function getSettingsAdmin(): User
 
 it('settings index page loads', function () {
     $admin = getSettingsAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/settings')
         ->assertSee('General Settings');
@@ -32,10 +29,7 @@ it('settings index page loads', function () {
 
 it('general settings page loads', function () {
     $admin = getSettingsAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/settings/general')
         ->assertSee('General Settings');
@@ -43,10 +37,7 @@ it('general settings page loads', function () {
 
 it('email settings page loads', function () {
     $admin = getSettingsAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/settings/email')
         ->assertSee('Email Settings');
@@ -54,10 +45,7 @@ it('email settings page loads', function () {
 
 it('security settings page loads', function () {
     $admin = getSettingsAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/settings/security')
         ->assertSee('Settings');
@@ -65,10 +53,7 @@ it('security settings page loads', function () {
 
 it('alert settings page loads', function () {
     $admin = getSettingsAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/settings/alerts')
         ->assertSee('Alert Settings');

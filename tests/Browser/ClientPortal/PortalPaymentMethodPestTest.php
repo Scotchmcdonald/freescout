@@ -35,14 +35,7 @@ it('allows client to view and add payment methods', function () {
     $client->update(['status' => 'active']);
 
     // Use portal specific login route
-    $this->visit(route('portal.login'))
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->assertDontSee('credentials are incorrect')
-        ->assertDontSee('not active')
-        // ->assertPathIs('/portal/dashboard') // URL check failing
-        ->assertSee('Logout'); // Check for authenticated element
+    browserLoginPortal($this, $user); // Check for authenticated element
 
     // 2. Navigate to Payment Methods
     $this->visit(route('portal.billing.payment-methods'))

@@ -23,10 +23,7 @@ function getMilestoneAdmin(): User
 it('milestone index page loads', function () {
     $admin = getMilestoneAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/admin/milestones')
         ->assertSee('Project Milestones');
@@ -35,10 +32,7 @@ it('milestone index page loads', function () {
 it('milestone create page loads', function () {
     $admin = getMilestoneAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/admin/milestones/create')
         ->assertSee('Milestone');

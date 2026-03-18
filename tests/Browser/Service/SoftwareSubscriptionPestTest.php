@@ -15,10 +15,7 @@ test('admin can browse software catalog', function () {
         $admin->save();
     }
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/software-subscriptions/catalog')
         ->assertSee('Software');
@@ -39,10 +36,7 @@ it('admin can view client subscriptions', function () {
 
     $client = \Modules\Crm\Models\Client::factory()->create(['name' => 'SW Subscriptions Client']);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/modules/software-subscriptions/clients/{$client->id}")
         ->assertSee('Manage Assignments');

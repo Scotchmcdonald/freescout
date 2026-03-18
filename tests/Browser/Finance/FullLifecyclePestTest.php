@@ -55,11 +55,7 @@ it('completes the finance lifecycle: quote to invoice with credit', function () 
     ]);
 
     // Manual Login Flow
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->assertPathIs('/dashboard');
+    browserLoginAdmin($this, $admin);
 
     // 1. Create Quote
     $this->visit(route('contractmanager.quotes.create'))
@@ -141,11 +137,7 @@ it('manages asset assignment lifecycle', function () {
     ]);
 
     // Manual Login Flow
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->assertPathIs('/dashboard');
+    browserLoginAdmin($this, $admin);
 
     // 1. Find Asset
     $this->visit(route('admin.assets.inventory'))

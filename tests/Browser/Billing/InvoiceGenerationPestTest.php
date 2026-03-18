@@ -18,10 +18,7 @@ it('manual invoice creation', function () {
 
     $client = Client::factory()->create(['name' => 'Invoice Gen Client']);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/billing/invoices/create')
         ->assertSee('Invoice');
@@ -49,10 +46,7 @@ it('recurring invoice generation', function () {
         'status' => 'active',
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     // Navigate to billing templates to trigger generation
     $this->visit('/contracts/billing-templates')

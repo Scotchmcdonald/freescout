@@ -7,19 +7,7 @@ use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Company;
 use Modules\PIB\Models\Invoice;
 
-/**
- * Helper to log in a user via the UI.
- */
-function login($browser, $user, $password = 'password', $url = '/login')
-{
-    $browser->visit($url)
-        ->assertVisible('input[name="email"]')
-        ->type('email', $user->email)
-        ->type('password', $password)
-        ->click('button[type="submit"]') // Generic submit button
-        // Wait for redirect? Usually implicit by next assertion
-        ->wait();
-}
+
 
 it('admin can generate invoice from template', function () {
     $admin = User::firstOrCreate(['email' => 'billing-cycle-admin@example.com'], [
@@ -55,10 +43,7 @@ it('admin can generate invoice from template', function () {
         'product_type' => 'service_plan',
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/billing/invoices/create')
         ->assertSee('Invoice');
@@ -92,11 +77,7 @@ test('client can pay invoice', function () {
     ]);
 
     // Client Login at /portal/login
-    $this->visit('/portal/login')
-        ->assertVisible('input[name="email"]')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]'); // Assuming standard button
+    browserLoginPortal($this, $user); // Assuming standard button
 
     $this->visit('/portal/invoices')
         ->assertVisible($invoice->invoice_number)

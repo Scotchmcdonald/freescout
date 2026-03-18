@@ -15,10 +15,7 @@ it('displays multi-page tours and hides single-page tours in interactive feature
         $admin->save();
     }
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $browser = $this->visit('/knowledgebase/explore?view=tour');
 

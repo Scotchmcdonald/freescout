@@ -38,10 +38,7 @@ test('technician data isolation', function () {
         'role_id' => $role->id,
     ]);
 
-    $this->visit('/login')
-        ->type('email', $technician->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $technician);
 
     $this->visit("/clients/{$allowedClient->id}")
         ->assertSee($allowedClient->name);
@@ -53,10 +50,7 @@ test('technician data isolation', function () {
 it('enforces approval permissions', function () {
     $admin = getRbacAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     // Admin should be able to access contract management
     $this->visit('/contracts/agreements')
@@ -66,10 +60,7 @@ it('enforces approval permissions', function () {
 it('restricts financial data access', function () {
     $admin = getRbacAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     // Admin should be able to access billing
     $this->visit('/billing/invoices')
@@ -79,10 +70,7 @@ it('restricts financial data access', function () {
 test('super admin has full access', function () {
     $admin = getRbacAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/dashboard')
         ->assertPathIs('/dashboard')
@@ -114,10 +102,7 @@ test('client portal permissions', function () {
     $company->users()->attach($portalUser->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
 
     // Login as client via portal
-    $this->visit('/portal/login')
-        ->type('email', $portalUser->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $portalUser);
 
     // Admin dashboard should NOT be accessible
     $this->visit('/dashboard')
@@ -194,10 +179,7 @@ it('prevents mass assignment on sensitive fields', function () {
 test('permission system active', function () {
     $admin = getRbacAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/dashboard')
         ->assertSee('Dashboard');

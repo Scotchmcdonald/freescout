@@ -26,10 +26,7 @@ function createPaymentPortalUser(string $clientName, string $emailPrefix): array
 it('payment method ui management', function () {
     [$user] = createPaymentPortalUser('Payment UI Client', 'paymentui');
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/payments')
         ->assertSee('Payment Methods');
@@ -48,10 +45,7 @@ test('failed payment retry ui', function () {
         'invoice_number' => 'INV-FAIL-'.uniqid(),
     ]);
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/invoices')
         ->assertSee('Overdue')

@@ -21,10 +21,7 @@ function getResilienceAdmin(): User
 
 it('circuit breakers page loads', function () {
     $admin = getResilienceAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/resilience')
         ->assertSee('Resilience');
@@ -32,10 +29,7 @@ it('circuit breakers page loads', function () {
 
 it('resilience events page loads', function () {
     $admin = getResilienceAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/resilience/events')
         ->assertSee('Event');
@@ -43,10 +37,7 @@ it('resilience events page loads', function () {
 
 it('rate limits page loads', function () {
     $admin = getResilienceAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/resilience')
         ->assertSee('Rate');

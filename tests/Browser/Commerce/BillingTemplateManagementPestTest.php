@@ -24,10 +24,7 @@ function getBillingTemplateAdmin(): User
 it('billing template list loads', function () {
     $admin = getBillingTemplateAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/contracts/billing-templates')
         ->assertSee('Billing Templates');
@@ -36,10 +33,7 @@ it('billing template list loads', function () {
 it('billing template shows empty state', function () {
     $admin = getBillingTemplateAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/contracts/billing-templates')
         ->assertSee('No billing templates found');
@@ -55,10 +49,7 @@ it('billing template detail page loads', function () {
         'status' => 'active',
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/billing-templates/{$template->id}")
         ->assertSee('Monthly Service Plan');

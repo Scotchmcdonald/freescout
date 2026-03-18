@@ -23,11 +23,7 @@ function getReportingMilestoneAdmin(): User
 it('tracks project milestones', function () {
     $admin = getReportingMilestoneAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->assertPathIs('/dashboard');
+    browserLoginAdmin($this, $admin);
 
     // 1. Visit Milestones Index
     $this->visit(route('milestones.index'))

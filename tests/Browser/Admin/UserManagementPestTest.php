@@ -21,10 +21,7 @@ function getUserMgmtAdmin(): User
 
 it('user list page loads', function () {
     $admin = getUserMgmtAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/users')
         ->assertSee('Users');
@@ -32,10 +29,7 @@ it('user list page loads', function () {
 
 it('user create page loads', function () {
     $admin = getUserMgmtAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/users/create')
         ->assertSee('Create New User');
@@ -47,10 +41,7 @@ it('user detail page loads', function () {
         'first_name' => 'TestDetail',
         'last_name' => 'UserBrowser',
     ]);
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/user/'.$testUser->id)
         ->assertSee('TestDetail');
@@ -62,10 +53,7 @@ it('user edit page loads', function () {
         'first_name' => 'TestEdit',
         'last_name' => 'UserBrowser',
     ]);
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/user/'.$testUser->id.'/edit')
         ->assertSee('Edit User');
@@ -77,10 +65,7 @@ it('user permissions page loads', function () {
         'first_name' => 'TestPerms',
         'last_name' => 'UserBrowser',
     ]);
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/user/'.$testUser->id.'/permissions')
         ->assertSee('User Permissions');

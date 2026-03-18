@@ -22,10 +22,7 @@ function getCustMgmtAdmin(): User
 
 it('customer list page loads', function () {
     $admin = getCustMgmtAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/customers')
         ->assertSee('Customers');
@@ -33,10 +30,7 @@ it('customer list page loads', function () {
 
 it('customer create page loads', function () {
     $admin = getCustMgmtAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/customers/new')
         ->assertSee('Customer');
@@ -48,10 +42,7 @@ it('customer detail page loads', function () {
         'first_name' => 'BrowserTestCustomer',
         'last_name' => 'Detail',
     ]);
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/customers/'.$customer->id)
         ->assertSee('BrowserTestCustomer');
@@ -63,10 +54,7 @@ it('customer edit page loads', function () {
         'first_name' => 'EditTestCustomer',
         'last_name' => 'Browser',
     ]);
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/customers/'.$customer->id.'/edit')
         ->assertSee('Edit Client');

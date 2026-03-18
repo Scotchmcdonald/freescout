@@ -26,10 +26,7 @@ it('contract overrides gold plan price', function () {
         'status' => 'active',
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     // Verify contract create page is accessible for setting price overrides
     $this->visit('/contracts/agreements')
@@ -64,10 +61,7 @@ it('price override persists across billing cycles', function () {
     expect($fresh->product_config['override_price'])->toBe(7500);
     expect($fresh->status)->toBe('active');
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/billing-templates/{$template->id}")
         ->assertSee('Gold Override');

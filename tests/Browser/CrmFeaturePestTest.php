@@ -42,10 +42,7 @@ test('crm staging new user creation flow', function () {
     ]);
 
     // 2. Perform Browser Test
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]'); // Standard Login
+    browserLoginAdmin($this, $admin); // Standard Login
 
     $browser = $this->visit('/crm/staging')
         ->waitForText('CRM Staging & Conflicts')
@@ -108,11 +105,7 @@ test('crm staging map to existing customer flow', function () {
     ]);
 
     // 2. Perform Browser Test
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->waitForText('Dashboard'); // Ensure login completed
+    browserLoginAdmin($this, $admin); // Ensure login completed
 
     // Debug: Check if route exists on client side?
     // Visit dashboard first.

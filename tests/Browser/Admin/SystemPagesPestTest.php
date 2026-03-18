@@ -21,10 +21,7 @@ function getSystemPagesAdmin(): User
 
 it('system dashboard loads', function () {
     $admin = getSystemPagesAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/system')
         ->assertSee('System Dashboard');
@@ -32,10 +29,7 @@ it('system dashboard loads', function () {
 
 it('system tools page loads', function () {
     $admin = getSystemPagesAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/system/tools')
         ->assertSee('System Tools');
@@ -43,10 +37,7 @@ it('system tools page loads', function () {
 
 it('system logs page loads', function () {
     $admin = getSystemPagesAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/system/logs')
         ->assertSee('System Logs');
@@ -54,10 +45,7 @@ it('system logs page loads', function () {
 
 it('failed jobs page loads', function () {
     $admin = getSystemPagesAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/system/failed-jobs')
         ->assertSee('Failed Jobs');
@@ -65,10 +53,7 @@ it('failed jobs page loads', function () {
 
 it('system update page loads', function () {
     $admin = getSystemPagesAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/system/update')
         ->assertSee('System');

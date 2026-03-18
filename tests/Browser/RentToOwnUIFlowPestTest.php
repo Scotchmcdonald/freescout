@@ -43,11 +43,7 @@ test('rent to own early buyout flow', function () {
     ]);
 
     // 2. Login
-    $this->visit('/login')
-        ->type('email', $admin->email) // Assuming API is type('name', value)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->waitForText('Dashboard');
+    browserLoginAdmin($this, $admin);
 
     // 3. Visit Contract Page
     $browser = $this->visit("/contracts/agreements/{$contract->id}")
@@ -117,11 +113,7 @@ test('buyout button hidden if disabled', function () {
     ]);
 
     // Login
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->waitForText('Dashboard');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/agreements/{$contract->id}")
         ->waitForText('No Buyout Test')

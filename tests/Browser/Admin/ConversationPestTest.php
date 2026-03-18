@@ -24,10 +24,7 @@ function getConvPagesAdmin(): User
 it('conversation list via mailbox loads', function () {
     $admin = getConvPagesAdmin();
     $mailbox = Mailbox::factory()->create(['name' => 'ConvTestMailbox']);
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/mailbox/'.$mailbox->id)
         ->assertSee('ConvTestMailbox');
@@ -35,10 +32,7 @@ it('conversation list via mailbox loads', function () {
 
 it('conversation search page loads', function () {
     $admin = getConvPagesAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/conversations/search?q=test')
         ->assertSee('Search');
@@ -47,10 +41,7 @@ it('conversation search page loads', function () {
 it('conversation create page loads', function () {
     $admin = getConvPagesAdmin();
     $mailbox = Mailbox::factory()->create(['name' => 'CreateConvMailbox']);
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/mailbox/'.$mailbox->id.'/conversation/create')
         ->assertSee('New Conversation');

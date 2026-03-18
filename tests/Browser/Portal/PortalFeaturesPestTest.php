@@ -23,10 +23,7 @@ function createPortalFeatureUser(string $name, string $emailPrefix): User
 it('portal dashboard shows client info', function () {
     $user = createPortalFeatureUser('Portal Features Client', 'portal-dash');
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/dashboard')
         ->assertSee('Client Portal');
@@ -35,10 +32,7 @@ it('portal dashboard shows client info', function () {
 it('portal invoices page loads', function () {
     $user = createPortalFeatureUser('Portal Invoice Client', 'portal-inv');
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/invoices')
         ->assertSee('Invoice');
@@ -47,10 +41,7 @@ it('portal invoices page loads', function () {
 it('portal support page loads', function () {
     $user = createPortalFeatureUser('Portal Support Client', 'portal-support');
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/support')
         ->assertSee('Ticket');
@@ -59,10 +50,7 @@ it('portal support page loads', function () {
 it('portal approvals page loads', function () {
     $user = createPortalFeatureUser('Portal Approvals Client', 'portal-approvals');
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/approvals')
         ->assertSee('Approval');
@@ -71,10 +59,7 @@ it('portal approvals page loads', function () {
 it('portal billing account page loads', function () {
     $user = createPortalFeatureUser('Portal Billing Client', 'portal-billing');
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/billing/account')
         ->assertSee('Account');

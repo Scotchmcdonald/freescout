@@ -23,10 +23,7 @@ function getWebhookGatewayAdmin(): User
 it('webhook gateway page loads', function () {
     $admin = getWebhookGatewayAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/admin/webhooks')
         ->assertSee('Webhook Gateway');
@@ -35,10 +32,7 @@ it('webhook gateway page loads', function () {
 it('webhook gateway shows empty state', function () {
     $admin = getWebhookGatewayAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/admin/webhooks')
         ->assertSee('No webhook channels configured');

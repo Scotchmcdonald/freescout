@@ -23,10 +23,7 @@ function getBillAdjAdmin(): User
 
 it('billing adjustments list loads', function () {
     $admin = getBillAdjAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/billing/adjustments')
         ->assertSee('Adjustment');
@@ -34,10 +31,7 @@ it('billing adjustments list loads', function () {
 
 it('billing adjustment create page loads', function () {
     $admin = getBillAdjAdmin();
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/billing/adjustments/create')
         ->assertSee('Billing Adjustment');
@@ -57,10 +51,7 @@ it('billing adjustment detail loads', function () {
         'created_by' => $admin->id,
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/billing/adjustments/'.$adjustment->id)
         ->assertSee('Billing Adjustment');

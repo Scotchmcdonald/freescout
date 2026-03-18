@@ -101,10 +101,7 @@ it('event based data access pattern', function () {
 test('modules isolated', function () {
     $admin = getOwnershipAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/dashboard')
         ->assertSee('Dashboard');

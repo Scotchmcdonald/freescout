@@ -25,10 +25,7 @@ it('admin can create quote with line items', function () {
     $admin = getCommerceAdmin();
     $client = Client::factory()->create(['name' => 'Quote Test Client']);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/contracts/quotes/create')
         ->assertSee('Quote')
@@ -45,10 +42,7 @@ test('admin can send draft quote', function () {
         'title' => 'Ready To Send Quote',
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/quotes/{$quote->id}")
         ->waitForText('Quote')

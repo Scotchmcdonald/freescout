@@ -23,10 +23,7 @@ it('full quote lifecycle rejection and revision', function () {
         'title' => 'Lifecycle Test Quote',
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/quotes/{$quote->id}")
         ->assertSee($quote->title);

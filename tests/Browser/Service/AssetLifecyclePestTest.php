@@ -24,10 +24,7 @@ it('create windows asset', function () {
     $admin = getAssetAdmin();
     $client = Client::factory()->create(['name' => 'Windows Asset Client']);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/assets/inventory')
         ->assertSee('Fleet Inventory');
@@ -37,10 +34,7 @@ it('create chromebook asset', function () {
     $admin = getAssetAdmin();
     $client = Client::factory()->create(['name' => 'Chromebook Asset Client']);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/assets/inventory')
         ->assertSee('Fleet Inventory');

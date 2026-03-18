@@ -23,10 +23,7 @@ function getTicketBillingAdmin(): User
 it('billable ticket appears on invoice', function () {
     $admin = getTicketBillingAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/billing/invoices/create')
         ->assertSee('Invoice');
@@ -35,10 +32,7 @@ it('billable ticket appears on invoice', function () {
 it('non billable ticket excluded from invoice', function () {
     $admin = getTicketBillingAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     // Verify billable tickets endpoint exists for filtering
     $this->visit('/billing/invoices/billable-tickets')
@@ -59,10 +53,7 @@ it('ticket billing uses client custom rate', function () {
     $admin = getTicketBillingAdmin();
     $client = Client::factory()->create(['name' => 'Custom Rate Client']);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     // Verify client exists and billing can reference it
     $this->visit('/billing/invoices/create')

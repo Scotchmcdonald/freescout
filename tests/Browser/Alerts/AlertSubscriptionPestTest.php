@@ -23,10 +23,7 @@ function getAlertSubAdmin(): User
 it('alert subscription page loads', function () {
     $admin = getAlertSubAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/alerts/subscriptions')
         ->assertSee('Proactive Monitoring');
@@ -37,10 +34,7 @@ it('empty state shows no alerts defined', function () {
     // so the page always has definitions. Verify the page renders the alert matrix.
     $admin = getAlertSubAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/alerts/subscriptions')
         ->assertSee('Alert Subscription Center');

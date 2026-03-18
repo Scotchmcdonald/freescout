@@ -23,20 +23,13 @@ function createPortalAccessUser(string $name, string $emailPrefix): User
 test('client can login to portal', function () {
     $user = createPortalAccessUser('Portal Client', 'portal');
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->assertPathIs('/portal/dashboard');
+    browserLoginPortal($this, $user);
 })->group('portal', 'auth');
 
 test('client dashboard displays after login', function () {
     $user = createPortalAccessUser('Dashboard Client', 'dashboard');
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/dashboard')
         ->assertSee('Welcome');

@@ -22,14 +22,7 @@ function getMultiUserAdmin(): User
     return $admin;
 }
 
-function loginAsMultiAdmin($test): void
-{
-    $admin = getMultiUserAdmin();
-    $test->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
-}
+
 
 it('quote lifecycle with client rejection and acceptance', function () {
     $admin = getMultiUserAdmin();
@@ -52,7 +45,7 @@ it('quote lifecycle with client rejection and acceptance', function () {
     $revised = $quote->revise($admin->id);
     expect($revised)->not->toBeNull();
 
-    loginAsMultiAdmin($this);
+    browserLoginAdmin($this, getMultiUserAdmin());
     $this->visit('/contracts/quotes')
         ->assertSee('Quote');
 })->group('multi-user', 'quote-lifecycle');
@@ -78,10 +71,7 @@ test('client portal invoice viewing', function () {
         'invoice_number' => $invoiceNumber,
     ]);
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/invoices')
         ->assertSee($invoiceNumber);
@@ -90,21 +80,21 @@ test('client portal invoice viewing', function () {
 })->group('multi-user', 'client-portal');
 
 it('automatic invoice flow', function () {
-    loginAsMultiAdmin($this);
+    browserLoginAdmin($this, getMultiUserAdmin());
 
     $this->visit('/billing/invoices')
         ->assertSee('Invoice');
 })->group('multi-user', 'invoice-automation');
 
 it('payment processing flow', function () {
-    loginAsMultiAdmin($this);
+    browserLoginAdmin($this, getMultiUserAdmin());
 
     $this->visit('/billing/payments/create')
         ->assertSee('Payment');
 })->group('multi-user', 'payment-processing');
 
 it('recurring quote to billing template', function () {
-    loginAsMultiAdmin($this);
+    browserLoginAdmin($this, getMultiUserAdmin());
 
     $client = Client::factory()->create(['name' => 'Recurring Template Client']);
     $quote = \Modules\ContractManager\Models\Quote::factory()->approved()->create([
@@ -135,10 +125,7 @@ it('client portal assets and subscriptions', function () {
     ]);
     $company->users()->attach($user->id, ['role_id' => 1, 'status' => 'approved', 'is_primary' => true]);
 
-    $this->visit('/portal/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginPortal($this, $user);
 
     $this->visit('/portal/dashboard')
         ->assertSee('Client Portal');

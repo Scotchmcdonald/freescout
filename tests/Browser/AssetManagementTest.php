@@ -27,11 +27,7 @@ test('create windows asset', function () {
     $serialNumber = 'TEST-WIN-'.date('Ymd-His');
 
     // Login via UI
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->assertPathIs('/dashboard'); // Verify login success
+    browserLoginAdmin($this, $admin); // Verify login success
 
     $this->visit('/assets/inventory')
         ->assertPathIs('/assets/inventory')

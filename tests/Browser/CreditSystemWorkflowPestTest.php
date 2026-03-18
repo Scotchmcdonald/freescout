@@ -11,10 +11,5 @@ test('credit system accessible', function () {
         'email_verified_at' => now(),
     ]);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->waitForText('Dashboard')
-        ->assertSee('Dashboard');
+    browserLoginAdmin($this, $admin);
 })->group('credits', 'smoke');

@@ -37,10 +37,7 @@ function createLifecycleContract(Client $client, array $overrides = []): Contrac
 it('contract list page loads', function () {
     $admin = getContractLifecycleAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/contracts/agreements')
         ->assertSee('Contracts');
@@ -49,10 +46,7 @@ it('contract list page loads', function () {
 it('contract list shows empty state', function () {
     $admin = getContractLifecycleAdmin();
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/contracts/agreements')
         ->assertSee('No contracts found');
@@ -63,10 +57,7 @@ it('contract detail page loads', function () {
     $client = Client::factory()->create(['name' => 'Contract Detail Client']);
     $contract = createLifecycleContract($client, ['title' => 'Managed IT Services']);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/agreements/{$contract->id}")
         ->assertSee('Managed IT Services');
@@ -77,10 +68,7 @@ it('contract edit page loads', function () {
     $client = Client::factory()->create(['name' => 'Contract Edit Client']);
     $contract = createLifecycleContract($client, ['title' => 'Editable Contract']);
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit("/contracts/agreements/{$contract->id}/edit")
         ->assertSee('Edit Contract');

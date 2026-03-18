@@ -15,10 +15,7 @@ it('basic contact software assignment', function () {
         $admin->save();
     }
 
-    $this->visit('/login')
-        ->type('email', $admin->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]');
+    browserLoginAdmin($this, $admin);
 
     $this->visit('/software-subscriptions')
         ->assertSee('Software');

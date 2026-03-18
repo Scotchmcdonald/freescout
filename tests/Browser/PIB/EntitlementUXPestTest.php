@@ -11,11 +11,7 @@ test('entitlement ux lifecycle', function () {
     $client = Client::factory()->create(['name' => 'Browser Test Client']);
 
     // 2. Login
-    $this->visit('/login')
-        ->type('email', $user->email)
-        ->type('password', 'password')
-        ->click('button[type="submit"]')
-        ->assertPathIs('/dashboard');
+    browserLoginAdmin($this, $user);
 
     // 3. Create Product
     $this->visit('/billing/products/create')
