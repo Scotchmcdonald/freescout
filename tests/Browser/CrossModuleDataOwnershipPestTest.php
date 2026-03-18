@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Modules\Crm\Models\Client;
 
 function getOwnershipAdmin(): User
@@ -59,7 +60,7 @@ test('pib uses client api not direct query', function () {
         'updated_at' => now(),
     ]);
 
-    $service = new \Modules\PIB\Services\BillingService;
+    $service = new \Modules\PIB\Services\BillingService(DB::connection());
     $invoices = $service->getInvoicesForClient($client->id);
 
     expect($invoices)->toHaveCount(1);

@@ -45,15 +45,13 @@ test('entitlement ux lifecycle', function () {
     $browser = $this->visit("/billing/clients/{$client->id}/entitlements");
     $browser->assertPathIs("/billing/clients/{$client->id}/entitlements")
         ->assertDontSee('No active entitlements found.')
-         // Click edit button via JavaScript since Alpine.js modal needs JS
-        ->script('document.querySelector("button.btn-outline-primary").click()');
+        ->click("#edit-btn-{$entitlement->id}")
+        ->assertVisible("#edit-quantity-{$entitlement->id}");
 
-    // Wait for modal and interact with it
-    $browser->waitForText('Edit Entitlement');
-    $browser->script('const modalInput = document.querySelector("#editModal-'.$entitlement->id.' input[name=quantity]"); modalInput.value = ""; modalInput.dispatchEvent(new Event("input"));');
-    $browser->type("#editModal-{$entitlement->id} input[name='quantity']", '10')
+    $browser->script('const modalInput = document.querySelector("#edit-quantity-'.$entitlement->id.'"); modalInput.value = ""; modalInput.dispatchEvent(new Event("input"));');
+    $browser->type("#edit-quantity-{$entitlement->id}", '10')
         ->click("#editModal-{$entitlement->id} button[type='submit']")
-        ->waitForText('Entitlement updated')
+        ->waitForText('Entitlement updated.')
         ->assertPathIs("/billing/clients/{$client->id}/entitlements");
 
     // Refresh entitlement from database
@@ -62,14 +60,13 @@ test('entitlement ux lifecycle', function () {
 
     // 6. Cancel Entitlement
     $browser = $this->visit("/billing/clients/{$client->id}/entitlements");
-    $browser->assertPathIs("/billing/clients/{$client->id}/entitlements");
-    // Use class selector since there's only one cancel button
-    $browser->script('document.querySelector("button.btn-outline-danger").click()');
-    $browser->waitForText('Cancel Entitlement')
-        ->script('document.querySelector("#cancelModal-'.$entitlement->id.' textarea[name=cancellation_reason]").value = "Test cancellation";');
-    $browser->type("#cancelModal-{$entitlement->id} textarea[name='cancellation_reason']", 'Test cancellation')
+    $browser->assertPathIs("/billing/clients/{$client->id}/entitlements")
+        ->click("#cancel-btn-{$entitlement->id}")
+        ->assertVisible("#cancellation-reason-{$entitlement->id}")
+        ->script('document.querySelector("#cancellation-reason-'.$entitlement->id.'").value = "Test cancellation";');
+    $browser->type("#cancellation-reason-{$entitlement->id}", 'Test cancellation')
         ->click("#cancelModal-{$entitlement->id} button[type='submit']")
-        ->waitForText('Entitlement cancelled')
+        ->waitForText('Entitlement cancelled.')
         ->assertPathIs("/billing/clients/{$client->id}/entitlements");
 
     $entitlement->refresh();
@@ -80,7 +77,7 @@ test('entitlement ux lifecycle', function () {
     $browser->assertPathIs("/billing/clients/{$client->id}/entitlements/history")
         ->script('document.querySelector("#restore-btn-'.$entitlement->id.'").click()');
 
-    $browser->waitForText('Entitlement restored')
+    $browser->waitForText('Entitlement restored.')
         ->assertPathIs("/billing/clients/{$client->id}/entitlements")
         ->assertDontSee('No active entitlements found.');
 

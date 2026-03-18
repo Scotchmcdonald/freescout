@@ -26,8 +26,10 @@ pest()->extend(Tests\TestCase::class)
     ->group('browser')
     ->in('Browser');
 
-pest()->group('browser')
-    ->in('../Modules/*/Tests/Browser');
+pest()->extend(Tests\TestCase::class)
+    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->group('browser')
+    ->in('../Modules/DevFeedback/Tests/Browser', '../Modules/WidgetRegistry/Tests/Browser');
 
 /*
 |--------------------------------------------------------------------------

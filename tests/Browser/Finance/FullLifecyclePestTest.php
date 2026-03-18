@@ -151,7 +151,7 @@ it('manages asset assignment lifecycle', function () {
     // 2. Assign Asset
     // Visit edit page directly to be robust
     $this->visit(route('admin.assets.edit', $asset))
-        ->assertPathIs('/admin/assets/'.$asset->id.'/edit')
+        ->assertPathIs('/assets/'.$asset->id.'/edit')
         ->type('assigned_user_email', 'employee@example.com')
         // ->select('status', 'in_use') // Value is lowercase - Suspended due to timeouts
         ->press('Save Changes');
@@ -161,11 +161,11 @@ it('manages asset assignment lifecycle', function () {
 
     // 3. Verify Status Update
     $this->visit(route('admin.assets.inventory', ['search' => $asset->serial_number]))
-        ->assertPathIs('/admin/assets/inventory');
+        ->assertPathIs('/assets/inventory');
 
     // 4. Unassign (Return to Available)
     $this->visit(route('admin.assets.edit', $asset->id))
-        ->assertPathIs('/admin/assets/'.$asset->id.'/edit')
+        ->assertPathIs('/assets/'.$asset->id.'/edit')
         ->select('status', 'inactive')
         ->type('assigned_user_email', '') // Clear email
         ->press('Save Changes');
@@ -176,5 +176,5 @@ it('manages asset assignment lifecycle', function () {
 
     // 5. Verify Final Status
     $this->visit(route('admin.assets.inventory', ['search' => $asset->serial_number]))
-        ->assertPathIs('/admin/assets/inventory');
+        ->assertPathIs('/assets/inventory');
 })->group('assets', 'lifecycle');
