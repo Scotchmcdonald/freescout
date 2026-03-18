@@ -46,3 +46,19 @@ test('models are in Models directory')
 test('providers extend ServiceProvider')
     ->expect('App\Providers')
     ->toExtend('Illuminate\Support\ServiceProvider');
+
+// ---------------------------------------------------------------------------
+// Phase 6 Rule 4: Service classes should not call DB facade directly.
+// Services should use repository/Eloquent or injected ConnectionInterface.
+// ---------------------------------------------------------------------------
+
+arch('service classes do not call DB facade directly')
+    ->expect('App\Services')
+    ->not->toUse('Illuminate\Support\Facades\DB')
+    ->ignoring([
+        'App\Services\EntitlementEngine', // Abstract contract-style service alias
+        'App\Services\AtomicCounterService', // Infrastructure service — direct DB for atomic counters
+        'App\Services\CircuitBreakerService', // Infrastructure service — direct DB for circuit state
+        'App\Services\ImapService', // Infrastructure service — direct DB for IMAP sync
+        'App\Services\RateLimiterService', // Infrastructure service — direct DB for rate limits
+    ]);

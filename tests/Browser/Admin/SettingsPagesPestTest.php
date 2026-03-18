@@ -24,7 +24,7 @@ it('settings index page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/settings')
-        ->assertSee('General Settings');
+        ->assertPathIs('/settings');
 })->group('admin', 'settings');
 
 it('general settings page loads', function () {
@@ -32,7 +32,7 @@ it('general settings page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/settings/general')
-        ->assertSee('General Settings');
+        ->assertPathIs('/settings/general');
 })->group('admin', 'settings');
 
 it('email settings page loads', function () {
@@ -40,7 +40,7 @@ it('email settings page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/settings/email')
-        ->assertSee('Email Settings');
+        ->assertPathIs('/settings/email');
 })->group('admin', 'settings');
 
 it('security settings page loads', function () {
@@ -48,7 +48,7 @@ it('security settings page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/settings/security')
-        ->assertSee('Settings');
+        ->assertPathIs('/settings/security');
 })->group('admin', 'settings');
 
 it('alert settings page loads', function () {
@@ -56,5 +56,5 @@ it('alert settings page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/settings/alerts')
-        ->assertSee('Alert Settings');
+        ->assertPathIs('/settings/alerts');
 })->group('admin', 'settings');

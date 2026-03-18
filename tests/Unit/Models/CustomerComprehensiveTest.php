@@ -15,18 +15,6 @@ class CustomerComprehensiveTest extends UnitTestCase
         $this->assertInstanceOf(Customer::class, $customer);
     }
 
-    public function test_customer_has_conversations_relationship()
-    {
-        $customer = Customer::factory()->create();
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $customer->conversations());
-    }
-
-    public function test_customer_has_emails_relationship()
-    {
-        $customer = Customer::factory()->create();
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $customer->emails());
-    }
-
     public function test_customer_full_name_concatenates_first_and_last_name()
     {
         $customer = Customer::factory()->create([

@@ -34,6 +34,56 @@ namespace {
         }
     }
 
+    if (! function_exists('beforeAll')) {
+        function beforeAll(\Closure $closure): void {}
+    }
+
+    if (! function_exists('beforeEach')) {
+        /**
+         * @param-closure-this \Tests\TestCase $closure
+         */
+        function beforeEach(?\Closure $closure = null): mixed
+        {
+            return null;
+        }
+    }
+
+    if (! function_exists('afterEach')) {
+        /**
+         * @param-closure-this \Tests\TestCase $closure
+         */
+        function afterEach(?\Closure $closure = null): mixed
+        {
+            return null;
+        }
+    }
+
+    if (! function_exists('afterAll')) {
+        function afterAll(\Closure $closure): void {}
+    }
+
+    if (! function_exists('describe')) {
+        /**
+         * @param-closure-this \Tests\TestCase $closure
+         */
+        function describe(string $description, \Closure $tests): mixed
+        {
+            return null;
+        }
+    }
+
+    if (! function_exists('dataset')) {
+        /** @param \Closure|iterable<int|string, mixed> $dataset */
+        function dataset(string $name, mixed $dataset): void {}
+    }
+
+    if (! function_exists('todo')) {
+        function todo(string $description): mixed
+        {
+            return null;
+        }
+    }
+
     if (! function_exists('data_get')) {
         function data_get(mixed $target, string|int|null $key, mixed $default = null): mixed
         {

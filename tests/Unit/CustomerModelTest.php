@@ -215,30 +215,6 @@ class CustomerModelTest extends UnitTestCase
         $this->assertNull($mainEmail);
     }
 
-    public function test_customer_has_threads_relationship(): void
-    {
-        // Arrange
-        $customer = Customer::factory()->create();
-
-        // Act
-        $result = $customer->threads();
-
-        // Assert
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $result);
-    }
-
-    public function test_customer_has_channels_relationship(): void
-    {
-        // Arrange
-        $customer = Customer::factory()->create();
-
-        // Act
-        $result = $customer->channels();
-
-        // Assert
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $result);
-    }
-
     public function test_customer_get_first_name_returns_empty_string_when_null(): void
     {
         // Arrange

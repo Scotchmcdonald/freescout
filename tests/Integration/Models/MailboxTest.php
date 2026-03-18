@@ -104,7 +104,6 @@ class MailboxTest extends TestCase
         $user = User::factory()->create();
         $mailbox->users()->attach($user->id);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $mailbox->users());
         $this->assertCount(1, $mailbox->users);
         $this->assertEquals($user->id, $mailbox->users->first()->id);
     }
@@ -114,7 +113,6 @@ class MailboxTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         Folder::factory()->count(3)->create(['mailbox_id' => $mailbox->id]);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $mailbox->folders());
         $this->assertCount(8, $mailbox->folders); // 5 auto-created + 3 factory
     }
 
@@ -123,7 +121,6 @@ class MailboxTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         Conversation::factory()->count(5)->create(['mailbox_id' => $mailbox->id]);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $mailbox->conversations());
         $this->assertCount(5, $mailbox->conversations);
     }
 

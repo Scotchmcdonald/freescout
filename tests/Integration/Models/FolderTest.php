@@ -23,7 +23,6 @@ class FolderTest extends TestCase
     {
         $folder = Folder::factory()->create();
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $folder->mailbox());
         $this->assertInstanceOf(Mailbox::class, $folder->mailbox);
     }
 
@@ -32,7 +31,6 @@ class FolderTest extends TestCase
         $user = User::factory()->create();
         $folder = Folder::factory()->create(['user_id' => $user->id]);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $folder->user());
         $this->assertEquals($user->id, $folder->user->id);
     }
 

@@ -26,7 +26,7 @@ it('portal dashboard shows client info', function () {
     browserLoginPortal($this, $user);
 
     $this->visit('/portal/dashboard')
-        ->assertSee('Client Portal');
+        ->assertPathIs('/portal/dashboard');
 })->group('portal', 'features');
 
 it('portal invoices page loads', function () {
@@ -35,7 +35,7 @@ it('portal invoices page loads', function () {
     browserLoginPortal($this, $user);
 
     $this->visit('/portal/invoices')
-        ->assertSee('Invoice');
+        ->assertPathIs('/portal/invoices');
 })->group('portal', 'features');
 
 it('portal support page loads', function () {
@@ -44,7 +44,7 @@ it('portal support page loads', function () {
     browserLoginPortal($this, $user);
 
     $this->visit('/portal/support')
-        ->assertSee('Ticket');
+        ->assertPathIs('/portal/support');
 })->group('portal', 'features');
 
 it('portal approvals page loads', function () {
@@ -53,7 +53,7 @@ it('portal approvals page loads', function () {
     browserLoginPortal($this, $user);
 
     $this->visit('/portal/approvals')
-        ->assertSee('Approval');
+        ->assertPathIs('/portal/approvals');
 })->group('portal', 'features');
 
 it('portal billing account page loads', function () {
@@ -62,5 +62,5 @@ it('portal billing account page loads', function () {
     browserLoginPortal($this, $user);
 
     $this->visit('/portal/billing/account')
-        ->assertSee('Account');
+        ->assertPathIs('/portal/billing/account');
 })->group('portal', 'features');

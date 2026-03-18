@@ -18,28 +18,29 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      * @var array<int, string>
      */
     private array $allowlistedPathPrefixes = [
-        'Modules/PIB/Tests/Unit/',
-        'Modules/SoftwareSubscriptions/Tests/Unit/', // migration in progress — B0 allowlist
+        'Modules/PIB/Tests/Unit/', // @expires 2026-09-01
+        'Modules/SoftwareSubscriptions/Tests/Unit/', // @expires 2026-09-01 — migration in progress — B0 allowlist
     ];
 
     /**
      * Baseline of known legacy Unit tests still using RefreshDatabase under
      * allowlisted modules. Keep shrinking this list during migrations.
+     * Each entry must carry an @expires date; the guard fails if date has passed.
      *
-     * @var array<int, string>
+     * @var array<string, string>  path => expiry date (Y-m-d)
      */
     private array $allowlistedRefreshDatabaseBaseline = [
-        'Modules/SoftwareSubscriptions/Tests/Unit/ClientSoftwareSubscriptionPestTest.php',
-        'Modules/SoftwareSubscriptions/Tests/Unit/DiscoveryEventsPestTest.php',
-        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketListenerPestTest.php',
-        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketListenerTest.php',
-        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketSystemPestTest.php',
-        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketSystemTest.php',
-        'Modules/SoftwareSubscriptions/Tests/Unit/SoftwareDiscoveryPestTest.php',
-        'Modules/SoftwareSubscriptions/Tests/Unit/SoftwareProductPestTest.php',
-        'Modules/SoftwareSubscriptions/Tests/Unit/SubscriptionCounterServicePestTest.php',
-        'Modules/SoftwareSubscriptions/Tests/Unit/VendorCostReportPestTest.php',
-        'Modules/SoftwareSubscriptions/Tests/Unit/VendorCostReportTest.php',
+        'Modules/SoftwareSubscriptions/Tests/Unit/ClientSoftwareSubscriptionPestTest.php' => '2026-09-01',
+        'Modules/SoftwareSubscriptions/Tests/Unit/DiscoveryEventsPestTest.php' => '2026-09-01',
+        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketListenerPestTest.php' => '2026-09-01',
+        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketListenerTest.php' => '2026-09-01',
+        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketSystemPestTest.php' => '2026-09-01',
+        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketSystemTest.php' => '2026-09-01',
+        'Modules/SoftwareSubscriptions/Tests/Unit/SoftwareDiscoveryPestTest.php' => '2026-09-01',
+        'Modules/SoftwareSubscriptions/Tests/Unit/SoftwareProductPestTest.php' => '2026-09-01',
+        'Modules/SoftwareSubscriptions/Tests/Unit/SubscriptionCounterServicePestTest.php' => '2026-09-01',
+        'Modules/SoftwareSubscriptions/Tests/Unit/VendorCostReportPestTest.php' => '2026-09-01',
+        'Modules/SoftwareSubscriptions/Tests/Unit/VendorCostReportTest.php' => '2026-09-01',
     ];
 
     /**
@@ -73,6 +74,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
         $refreshDatabaseViolations = [];
         $newAllowlistedRefreshDatabaseViolations = [];
         $crossModulePersistenceViolations = [];
+        $crossModuleResolveViolations = [];
         $newExternalHttpMockViolations = [];
         $newGatewayOverMockViolations = [];
 
@@ -106,7 +108,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
             if ($this->isAllowlisted($normalizedPath)) {
                 if (
                     $usesRefreshDatabase
-                    && ! in_array($normalizedPath, $this->allowlistedRefreshDatabaseBaseline, true)
+                    && ! array_key_exists($normalizedPath, $this->allowlistedRefreshDatabaseBaseline)
                 ) {
                     $newAllowlistedRefreshDatabaseViolations[] = $normalizedPath;
                 }
@@ -126,6 +128,11 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
             if ($this->containsCrossModulePersistence($contents, $module)) {
                 $crossModulePersistenceViolations[] = $normalizedPath;
             }
+
+            // Phase 6 Rule 5: Unit tests must not use app()->make() or resolve()
+            // for cross-module services — this boots the container and creates
+            // implicit coupling equivalent to cross-module DB persistence.
+            $this->detectCrossModuleResolve($contents, $module, $normalizedPath, $crossModuleResolveViolations);
         }
 
         $this->assertSame(
@@ -148,6 +155,12 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
 
         $this->assertSame(
             [],
+            $crossModuleResolveViolations,
+            "Module unit tests must not use app()->make() or resolve() for cross-module services. Violations:\n".implode("\n", $crossModuleResolveViolations)
+        );
+
+        $this->assertSame(
+            [],
             $newExternalHttpMockViolations,
             "Module feature tests importing external API services must include Http::fake() or Http::preventStrayRequests(). New violations:\n".implode("\n", $newExternalHttpMockViolations)
         );
@@ -156,6 +169,30 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
             [],
             $newGatewayOverMockViolations,
             "Gateway hotspot tests must not mock external service internals directly. New violations:\n".implode("\n", $newGatewayOverMockViolations)
+        );
+    }
+
+    /**
+     * Phase 6C: Allowlist entries must carry expiry dates.
+     * If an entry's expiry date has passed, this guard fails — forcing resolution
+     * or explicit extension with updated justification.
+     */
+    public function test_allowlist_entries_have_not_expired(): void
+    {
+        $today = new \DateTimeImmutable('today');
+        $expired = [];
+
+        foreach ($this->allowlistedRefreshDatabaseBaseline as $path => $expiryDate) {
+            $expiry = new \DateTimeImmutable($expiryDate);
+            if ($today > $expiry) {
+                $expired[] = "{$path} expired on {$expiryDate}";
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $expired,
+            "The following allowlist entries have expired and must be resolved or extended:\n".implode("\n", $expired)
         );
     }
 
@@ -193,6 +230,25 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
         $pattern = '/Modules\\\\(?!'.$moduleQuoted.'\\\\)[A-Za-z0-9_]+\\\\(?:Models|Entities)\\\\[A-Za-z0-9_]+\s*::\s*(?:create|forceCreate|updateOrCreate|firstOrCreate|factory\s*\(\)\s*->\s*create)\s*\(/m';
 
         return preg_match($pattern, $contents) === 1;
+    }
+
+    /**
+     * Phase 6 Rule 5: Detect app()->make() or resolve() calls that resolve
+     * cross-module service classes inside unit tests.
+     *
+     * @param  array<int, string>  $violations
+     */
+    private function detectCrossModuleResolve(string $contents, string $module, string $path, array &$violations): void
+    {
+        $appMakePattern = '/(?:app\(\)\s*->make|app\s*\(|resolve)\s*\(\s*\\\\?Modules\\\\([A-Za-z0-9_]+)\\\\/';
+
+        if (preg_match_all($appMakePattern, $contents, $hits)) {
+            foreach ($hits[1] as $resolvedModule) {
+                if ($resolvedModule !== '' && $resolvedModule !== $module) {
+                    $violations[] = "{$path} resolves Modules\\{$resolvedModule} via app/resolve in unit scope";
+                }
+            }
+        }
     }
 
     private function isFeatureTestWithExternalApiServiceWithoutHttpMock(string $path, string $contents): bool

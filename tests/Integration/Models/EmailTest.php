@@ -22,7 +22,6 @@ class EmailTest extends TestCase
     {
         $email = Email::factory()->create();
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $email->customer());
         $this->assertInstanceOf(Customer::class, $email->customer);
     }
 

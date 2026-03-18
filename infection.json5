@@ -1,0 +1,30 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": [
+            "Modules/PIB/Services",
+            "Modules/ContractManager/Services",
+            "Modules/Payment/Services"
+        ]
+    },
+    "mutators": {
+        "@arithmetic": true,
+        "@relational": true,
+        "@logical": true,
+        "MethodCallRemoval": true,
+        "NullifyReturnValue": true,
+        "BooleanSubstitution": true,
+        "OneZeroInteger": true,
+        "TrueValue": true,
+        "FalseValue": true,
+        "UnwrapFunctionCall": true
+    },
+    "minMsi": 70,
+    "minCoveredMsi": 80,
+    "testFramework": "pest",
+    "tmpDir": "storage/infection",
+    "logs": {
+        "text": "reports/infection.log",
+        "summary": "reports/infection-summary.log"
+    }
+}

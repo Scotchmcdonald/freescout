@@ -39,6 +39,7 @@
         "brianium/paratest": "*",
         "fakerphp/faker": "^1.23",
         "icanhazstring/composer-unused": "*",
+        "infection/infection": "^0.32.6",
         "larastan/larastan": "^3.8",
         "laravel/breeze": "^2.3",
         "laravel/pint": "^1.13",
@@ -115,7 +116,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true,
-            "wikimedia/composer-merge-plugin": true
+            "wikimedia/composer-merge-plugin": true,
+            "infection/extension-installer": true
         }
     },
     "minimum-stability": "stable",

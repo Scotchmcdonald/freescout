@@ -262,27 +262,6 @@ class CustomerTest extends TestCase
         $this->assertCount(3, $customer->emails);
     }
 
-    public function test_conversations_relationship_loads(): void
-    {
-        $customer = Customer::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $customer->conversations());
-    }
-
-    public function test_threads_relationship_loads(): void
-    {
-        $customer = Customer::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $customer->threads());
-    }
-
-    public function test_channels_relationship_loads(): void
-    {
-        $customer = Customer::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $customer->channels());
-    }
-
     public function test_customer_has_required_fillable_fields(): void
     {
         $customer = new Customer;

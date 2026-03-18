@@ -1,6 +1,52 @@
 <?php
 
 namespace {
+    class IntellisensePestExpectation
+    {
+        public function __construct(public mixed $value = null) {}
+
+        public function __get(string $name): static
+        {
+            return $this;
+        }
+
+        /**
+         * @param-closure-this self $extend
+         */
+        public function extend(string $name, \Closure $extend): void {}
+
+        public function and(mixed $value): static
+        {
+            return new static($value);
+        }
+
+        public function toBeInstanceOf(string $class, string $message = ''): static
+        {
+            return $this;
+        }
+
+        public function toBeTrue(string $message = ''): static { return $this; }
+        public function toBeFalse(string $message = ''): static { return $this; }
+        public function toBeNull(string $message = ''): static { return $this; }
+        public function toBeEmpty(string $message = ''): static { return $this; }
+        public function toBe(mixed $expected, string $message = ''): static { return $this; }
+        public function toEqual(mixed $expected, string $message = ''): static { return $this; }
+        public function toContain(mixed ...$needles): static { return $this; }
+        public function toBeLessThan(mixed $expected, string $message = ''): static { return $this; }
+        public function toBeGreaterThan(mixed $expected, string $message = ''): static { return $this; }
+        public function toBeLessThanOrEqual(mixed $expected, string $message = ''): static { return $this; }
+        public function toBeGreaterThanOrEqual(mixed $expected, string $message = ''): static { return $this; }
+        public function toHaveCount(int $count, string $message = ''): static { return $this; }
+        public function toHaveKey(string|int $key, mixed $value = null): static { return $this; }
+        public function toHaveKeys(array $keys): static { return $this; }
+        public function toMatchArray(array $array): static { return $this; }
+
+        public function __call(string $name, array $arguments): static
+        {
+            return $this;
+        }
+    }
+
     class View
     {
         public static function make(string $view, array $data = [], array $mergeData = []): object
@@ -33,6 +79,29 @@ namespace {
     function bcrypt(string $value, array $options = []): string
     {
         return '';
+    }
+
+    if (! function_exists('rand')) {
+        function rand(int $min, int $max): int
+        {
+            return $min;
+        }
+    }
+
+    if (false) {
+        /**
+         * Creates a new expectation for any value type.
+         * IDE stub that overrides vendor Pest\expect() to fix template TValue constraint.
+         *
+         * @template TValue of mixed
+         *
+         * @param TValue|null $value The value to create an expectation for
+         * @return Pest\Expectation<TValue> The expectation object
+         */
+        function expect(mixed $value = null): \Pest\Expectation
+        {
+            return new \Pest\Expectation($value);
+        }
     }
 }
 
@@ -484,6 +553,88 @@ namespace Illuminate\Foundation\Http {
         public function validated(array|int|string|null $key = null, mixed $default = null): mixed
         {
             return $default ?? [];
+        }
+    }
+}
+
+namespace Pest\Browser\Api {
+    class PendingAwaitablePage
+    {
+        public function assertSee(string|int|float $text, bool $escape = true): static
+        {
+            return $this;
+        }
+
+        public function assertDontSee(string|int|float $text, bool $escape = true): static
+        {
+            return $this;
+        }
+
+        public function assertVisible(string $selector): static
+        {
+            return $this;
+        }
+
+        public function assertPresent(string $selector): static
+        {
+            return $this;
+        }
+
+        public function assertMissing(string $selector): static
+        {
+            return $this;
+        }
+
+        public function assertPathIs(string $path): static
+        {
+            return $this;
+        }
+
+        public function waitForText(string|int|float $text, int|float|null $timeout = null): static
+        {
+            return $this;
+        }
+
+        public function click(string $text): static
+        {
+            return $this;
+        }
+
+        public function type(string $field, string|int|float $value): static
+        {
+            return $this;
+        }
+
+        public function select(string $field, array|string|int $option): static
+        {
+            return $this;
+        }
+
+        public function attach(string $field, string $path): static
+        {
+            return $this;
+        }
+
+        public function press(string $button): static
+        {
+            return $this;
+        }
+
+        public function script(string $content): mixed
+        {
+            return null;
+        }
+    }
+
+    class ArrayablePendingAwaitablePage extends PendingAwaitablePage {}
+}
+
+namespace Illuminate\Foundation\Testing {
+    abstract class TestCase
+    {
+        public function visit(array|string $url, array $options = []): \Pest\Browser\Api\PendingAwaitablePage|\Pest\Browser\Api\ArrayablePendingAwaitablePage
+        {
+            throw new \BadMethodCallException('stub');
         }
     }
 }
@@ -1756,6 +1907,109 @@ namespace Illuminate\Http\Client {
         public function recorded(?callable $callback = null): array
         {
             return [];
+        }
+    }
+}
+
+namespace Pest {
+    /**
+     * IDE stub override for Pest\Expectation to fix Intelephense's object constraint on @template TValue.
+     * Intelephense treats unconstrained @template TValue as implicitly "TValue of object", which causes
+     * false "Expected type 'object'" errors when passing scalars to expect().
+     *
+     * This stub redefines Expectation with @template TValue of mixed and all common assertion methods.
+     *
+     * @template TValue of mixed
+     * @property OppositeExpectation<TValue> $not Creates the opposite expectation
+     * @property EachExpectation<TValue> $each Creates an expectation on each element
+     */
+    class Expectation
+    {
+        /**
+         * @param TValue|null $value
+         */
+        public function __construct(public mixed $value = null) {}
+
+        public function __get(string $name): static | OppositeExpectation | EachExpectation
+        {
+            if ($name === 'not') {
+                return new OppositeExpectation($this);
+            }
+            if ($name === 'each') {
+                return new EachExpectation($this);
+            }
+            return $this;
+        }
+
+        public function __call(string $name, array $arguments): static { return $this; }
+
+        /**
+         * @template TAndValue
+         * @param TAndValue $value
+         * @return self<TAndValue>
+         */
+        public function and(mixed $value): Expectation
+        {
+            return new Expectation($value);
+        }
+
+        public function toBeInstanceOf(string $class, string $message = ''): static { return $this; }
+        public function toBeTrue(string $message = ''): static { return $this; }
+        public function toBeFalse(string $message = ''): static { return $this; }
+        public function toBe(mixed $expected, string $message = ''): static { return $this; }
+        public function toBeNull(string $message = ''): static { return $this; }
+        public function toBeEmpty(string $message = ''): static { return $this; }
+        public function toContain(mixed ...$needles): static { return $this; }
+        public function toBeLessThan(mixed $expected, string $message = ''): static { return $this; }
+        public function toBeGreaterThan(mixed $expected, string $message = ''): static { return $this; }
+        public function toHaveCount(int $count, string $message = ''): static { return $this; }
+        public function toHaveKey(string|int $key, mixed $value = null): static { return $this; }
+        public function toMatchArray(array $array): static { return $this; }
+    }
+
+    /**
+     * IDE stub for Pest\Expectations\OppositeExpectation.
+     *
+     * @template TValue of mixed
+     */
+    final class OppositeExpectation
+    {
+        /**
+         * @param Expectation<TValue> $original
+         */
+        public function __construct(private Expectation $original) {}
+
+        public function __call(string $name, array $arguments): Expectation
+        {
+            return $this->original;
+        }
+
+        public function __get(string $name): Expectation
+        {
+            return $this->original;
+        }
+    }
+
+    /**
+     * IDE stub for Pest\Expectations\EachExpectation.
+     *
+     * @template TValue of mixed
+     */
+    final class EachExpectation
+    {
+        /**
+         * @param Expectation<TValue> $expectation
+         */
+        public function __construct(private Expectation $expectation) {}
+
+        public function __call(string $name, array $arguments): Expectation
+        {
+            return $this->expectation;
+        }
+
+        public function __get(string $name): Expectation
+        {
+            return $this->expectation;
         }
     }
 }

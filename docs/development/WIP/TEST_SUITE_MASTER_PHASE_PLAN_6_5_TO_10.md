@@ -52,49 +52,49 @@
 | WidgetRegistry | 0 | 0 | 0 | **no tests at all** |
 
 Core (non-module):
-- `tests/Unit`: 184 files  
-- `tests/Integration`: 144 files (including 3 boundary contracts, 1 cross-module workflow)  
-- `tests/Feature`: 178 files  
-- `tests/Browser`: 60 files  
+- `tests/Unit`: 184 files
+- `tests/Integration`: 144 files (including 3 boundary contracts, 1 cross-module workflow)
+- `tests/Feature`: 178 files
+- `tests/Browser`: 60 files
 
 ### Critical Gaps Identified By This Audit
 
-**Gap 1 — Zero unit-level service coverage for highest-risk financial services.**  
+**Gap 1 — Zero unit-level service coverage for highest-risk financial services.**
 `QuoteService`, `BillingTemplateService`, `InvoiceGenerator`, `ProrationService`,
 `BillingAnalysisService`, `VendorReconciliationService`, `LicenseDeploymentService`, and
 `HelcimService` have **zero direct test references** outside of `use` imports. These services
 contain the most complex branching, financial arithmetic, and transactional logic in the system.
 The 6.5→8.5 plan identified them as Phase 3 targets but did not write a single test spec.
 
-**Gap 2 — Reliability proof is missing: only 1 confirmed consecutive green run.**  
+**Gap 2 — Reliability proof is missing: only 1 confirmed consecutive green run.**
 347 log files exist; 113 contain FAILED. Only 1 file appears presently green. No repeat-run
 protocol is enforced by CI. The 8.5 plan targeted 3 consecutive green runs as an exit criterion
 but never specified the enforcement mechanism.
 
-**Gap 3 — Pyramid inversion in ContractManager and PIB.**  
+**Gap 3 — Pyramid inversion in ContractManager and PIB.**
 ContractManager has 1 unit test file and 12 feature files for `QuoteService`,
 `RentToOwn`, and proration logic — all of which are complex computational services
 ideally validatable without a database. PIB has 1 unit file for `InvoiceGenerator`
 and `BillingAnalysisService`. Both modules are pyramid-inverted (wide bottom, no top).
 
-**Gap 4 — Module isolation guardrail allowlist is growing, not shrinking.**  
+**Gap 4 — Module isolation guardrail allowlist is growing, not shrinking.**
 `ModuleUnitIsolationGuardTest` carries 2 full allowlisted path prefixes
 (`PIB/Tests/Unit/`, `SoftwareSubscriptions/Tests/Unit/`) and 11 specific file allowlist
 entries for `RefreshDatabase` in unit scope. No "shrink-by-date" protocol exists.
 The guard prevents new violations but does not compel resolution of existing ones.
 
-**Gap 5 — Architecture enforcement is symbolic, not semantic.**  
+**Gap 5 — Architecture enforcement is symbolic, not semantic.**
 `ModuleBoundaryContractsTest` uses string-pattern regex scans (grep-style import checks).
 It does not use Pest's `arch()` API, does not verify that contracts are used at injection
 points rather than concrete classes, and does not enforce event dispatch protocol
 across module seams. The `EnhancedArchitectureTest` is a good start but remains isolated
 to a handful of manually-listed interfaces and listeners.
 
-**Gap 6 — No mutation or property-based testing anywhere in the suite.**  
+**Gap 6 — No mutation or property-based testing anywhere in the suite.**
 The 10/10 roadmap calls for mutation testing on ContractManager and PIB but no tooling
 (`infection/infection` or equivalent) is installed and no mutation score baseline exists.
 
-**Gap 7 — 35 flaky-test annotations but no quarantine-exit protocol.**  
+**Gap 7 — 35 flaky-test annotations but no quarantine-exit protocol.**
 Tests annotated as `@flaky` or in quarantine groups are effectively permanently hidden.
 No triage cadence, exit condition, or ownership assignment is enforced.
 
@@ -232,7 +232,7 @@ Rules:
   `assertSessionHas` or response model assertions.
 - Modules with the most exposure: scan per-module counts before targeting.
 
-Command to find top offenders:  
+Command to find top offenders:
 `grep -RIn "assertSee\b" Modules/*/Tests --include='*.php' | cut -d: -f1 | sort | uniq -c | sort -rn | head -20`
 
 #### 1C — makePartial Hotspot Reduction
@@ -306,10 +306,10 @@ configuration in `docs/development/CI_LANES.md`.
 
 For the specific guarded hotspots:
 
-- `Modules/Action1/Tests/Feature/SyncAction1DevicesJobPestTest.php`:  
+- `Modules/Action1/Tests/Feature/SyncAction1DevicesJobPestTest.php`:
   Replace `Mockery::mock(Action1SyncService::class)` with
   `Http::fake([...])` + real `Action1SyncService` injected.
-- `Modules/GoogleAdmin/Tests/Feature/Sync*` and `UserProvisioningActionPestTest.php`:  
+- `Modules/GoogleAdmin/Tests/Feature/Sync*` and `UserProvisioningActionPestTest.php`:
   Same pattern — `Http::fake()` + real `GoogleWorkspaceService`.
 
 This is the highest-value makePartial change because these tests currently mock the
@@ -731,7 +731,7 @@ See Part 7 of this document for the complete contribution guide draft.
 1. **Publish test contribution guide** at `docs/development/TESTING_CONTRIBUTION_GUIDE.md`.
    Content: the full guide from Part 7 below.
 
-2. **Add CI check that the guide file exists.**  
+2. **Add CI check that the guide file exists.**
    Add to `ModuleUnitIsolationGuardTest` (or a new `docs/` guard test) an assertion
    that `docs/development/TESTING_CONTRIBUTION_GUIDE.md` exists and was last modified
    within the current calendar year. This makes "documentation is current" mechanically

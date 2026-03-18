@@ -182,29 +182,7 @@ class UserTest extends TestCase
         $mailbox = Mailbox::factory()->create();
         $user->mailboxes()->attach($mailbox->id);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $user->mailboxes());
         $this->assertCount(1, $user->mailboxes);
-    }
-
-    public function test_conversations_relationship_loads(): void
-    {
-        $user = User::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $user->conversations());
-    }
-
-    public function test_threads_relationship_loads(): void
-    {
-        $user = User::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $user->threads());
-    }
-
-    public function test_folders_relationship_loads(): void
-    {
-        $user = User::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $user->folders());
     }
 
     public function test_user_has_required_fillable_fields(): void

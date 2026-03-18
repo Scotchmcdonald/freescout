@@ -209,11 +209,11 @@ test('PIB controllers extend base Controller with authorization capabilities')
  */
 test('financial services use database transactions for atomic operations')
     ->expect('Modules\PIB\Services\ClientCreditService')
-    ->toUse('Illuminate\Support\Facades\DB');
+    ->toUse('Illuminate\Database\ConnectionInterface');
 
 test('billing services use database transactions')
     ->expect('Modules\PIB\Services\BillingService')
-    ->toUse('Illuminate\Support\Facades\DB');
+    ->toUse('Illuminate\Database\ConnectionInterface');
 
 /**
  * Guard 5: Event Handler Registration Guard
@@ -332,3 +332,153 @@ test('unit tests do not assert database has records')
 test('unit tests do not assert eloquent relationship types directly')
     ->expect('Tests\Unit\Models')
     ->not->toUse('assertInstanceOf');
+
+// ---------------------------------------------------------------------------
+// Phase 6 Rule 2: Listeners that make HTTP calls must have Http::fake coverage
+// ---------------------------------------------------------------------------
+
+test('listeners that make Http calls have Http::fake coverage in their tests', function () {
+    $projectRoot = dirname(__DIR__, 2);
+    $violations = [];
+
+    foreach (glob($projectRoot.'/Modules/*/Listeners', GLOB_ONLYDIR) as $listenerDir) {
+        preg_match('#Modules/([^/]+)/Listeners#', $listenerDir, $m);
+        $module = $m[1];
+
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($listenerDir)) as $file) {
+            if (! $file->isFile() || $file->getExtension() !== 'php') {
+                continue;
+            }
+            $contents = (string) file_get_contents($file->getPathname());
+
+            // Skip if listener doesn't make HTTP calls
+            if (! str_contains($contents, 'Http::') && ! str_contains($contents, 'Facades\Http')) {
+                continue;
+            }
+
+            $listenerName = basename($file->getPathname(), '.php');
+
+            // Search for test files covering this listener
+            $testDirs = glob($projectRoot."/Modules/{$module}/Tests/*");
+            $hasFake = false;
+
+            foreach ($testDirs ?: [] as $testDir) {
+                if (! is_dir($testDir)) {
+                    continue;
+                }
+                $testIterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($testDir));
+                foreach ($testIterator as $testFile) {
+                    if (! $testFile->isFile() || $testFile->getExtension() !== 'php') {
+                        continue;
+                    }
+                    if (! str_contains($testFile->getFilename(), $listenerName)) {
+                        continue;
+                    }
+                    $testContents = (string) file_get_contents($testFile->getPathname());
+                    if (str_contains($testContents, 'Http::fake') || str_contains($testContents, 'Http::preventStrayRequests')) {
+                        $hasFake = true;
+                        break 2;
+                    }
+                }
+            }
+
+            if (! $hasFake) {
+                $relativePath = str_replace($projectRoot.'/', '', $file->getPathname());
+                $violations[] = "{$relativePath} uses Http but has no Http::fake test coverage";
+            }
+        }
+    }
+
+    expect($violations)->toBe([]);
+});
+
+// ---------------------------------------------------------------------------
+// Phase 6 Rule 3: Financial service calculation methods must declare explicit
+// numeric return types (no mixed, no missing return type)
+// ---------------------------------------------------------------------------
+
+test('financial service calculation methods declare explicit numeric return types', function () {
+    $projectRoot = dirname(__DIR__, 2);
+    $financialServices = [
+        $projectRoot.'/Modules/PIB/Services/ProrationService.php',
+        $projectRoot.'/Modules/PIB/Services/InvoiceGenerator.php',
+        $projectRoot.'/Modules/PIB/Services/BillingAnalysisService.php',
+        $projectRoot.'/Modules/ContractManager/Services/BillingTemplateService.php',
+        $projectRoot.'/Modules/Payment/Services/CreditManagementService.php',
+        $projectRoot.'/Modules/Payment/Services/HelcimService.php',
+    ];
+
+    $calcPattern = '/^(calculate|get.*Amount|get.*Rate|get.*Total|get.*Balance)/i';
+    $violations = [];
+
+    foreach ($financialServices as $path) {
+        if (! file_exists($path)) {
+            continue;
+        }
+
+        $contents = (string) file_get_contents($path);
+
+        // Extract FQCN from file
+        $namespace = '';
+        $className = '';
+        if (preg_match('/namespace\s+([^;]+);/', $contents, $nsMatch)) {
+            $namespace = $nsMatch[1];
+        }
+        if (preg_match('/class\s+(\w+)/', $contents, $clsMatch)) {
+            $className = $clsMatch[1];
+        }
+
+        if ($namespace === '' || $className === '') {
+            continue;
+        }
+
+        $fqcn = $namespace.'\\'.$className;
+        if (! class_exists($fqcn)) {
+            continue;
+        }
+
+        $reflection = new ReflectionClass($fqcn);
+
+        foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            if ($method->getDeclaringClass()->getName() !== $fqcn) {
+                continue;
+            }
+
+            if (! preg_match($calcPattern, $method->getName())) {
+                continue;
+            }
+
+            $returnType = $method->getReturnType();
+
+            if ($returnType === null) {
+                $violations[] = "{$fqcn}::{$method->getName()} has no return type declaration";
+                continue;
+            }
+
+            $typeName = $returnType instanceof \ReflectionNamedType ? $returnType->getName() : (string) $returnType;
+            if ($typeName === 'mixed') {
+                $violations[] = "{$fqcn}::{$method->getName()} returns 'mixed' — must use explicit type";
+            }
+        }
+    }
+
+    expect($violations)->toBe([]);
+});
+
+// ---------------------------------------------------------------------------
+// Phase 9: Documentation currency guard
+// Ensures the testing contribution guide exists and was updated in the current year.
+// ---------------------------------------------------------------------------
+
+test('testing contribution guide exists and is current year', function () {
+    $projectRoot = dirname(__DIR__, 2);
+    $guidePath = $projectRoot.'/docs/development/TESTING_CONTRIBUTION_GUIDE.md';
+
+    expect(file_exists($guidePath))->toBeTrue('TESTING_CONTRIBUTION_GUIDE.md must exist');
+
+    $lastModified = filemtime($guidePath);
+    $currentYear = (int) date('Y');
+    $modifiedYear = (int) date('Y', $lastModified);
+
+    expect($modifiedYear)->toBe($currentYear, 'TESTING_CONTRIBUTION_GUIDE.md must be updated in the current calendar year');
+});

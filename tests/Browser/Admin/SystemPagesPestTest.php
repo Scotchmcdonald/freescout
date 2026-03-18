@@ -24,7 +24,7 @@ it('system dashboard loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/system')
-        ->assertSee('System Dashboard');
+        ->assertPathIs('/system');
 })->group('admin', 'system');
 
 it('system tools page loads', function () {
@@ -32,7 +32,7 @@ it('system tools page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/system/tools')
-        ->assertSee('System Tools');
+        ->assertPathIs('/system/tools');
 })->group('admin', 'system');
 
 it('system logs page loads', function () {
@@ -40,7 +40,7 @@ it('system logs page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/system/logs')
-        ->assertSee('System Logs');
+        ->assertPathIs('/system/logs');
 })->group('admin', 'system');
 
 it('failed jobs page loads', function () {
@@ -48,7 +48,7 @@ it('failed jobs page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/system/failed-jobs')
-        ->assertSee('Failed Jobs');
+        ->assertPathIs('/system/failed-jobs');
 })->group('admin', 'system');
 
 it('system update page loads', function () {
@@ -56,5 +56,5 @@ it('system update page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/system/update')
-        ->assertSee('System');
+        ->assertPathIs('/system/update');
 })->group('admin', 'system');

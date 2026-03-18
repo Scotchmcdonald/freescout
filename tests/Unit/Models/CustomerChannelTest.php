@@ -84,15 +84,6 @@ class CustomerChannelTest extends UnitTestCase
         $this->assertEquals('Doe', $channel->customer->last_name);
     }
 
-    public function test_customer_channel_relationship_is_belongs_to(): void
-    {
-        $channel = new CustomerChannel;
-
-        $relation = $channel->customer();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $relation);
-    }
-
     public function test_customer_channel_can_be_updated(): void
     {
         $customer = Customer::factory()->create();

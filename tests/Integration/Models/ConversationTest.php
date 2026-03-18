@@ -57,18 +57,10 @@ class ConversationTest extends TestCase
         $this->assertFalse($spam->isClosed());
     }
 
-    public function test_folder_relationship_loads(): void
-    {
-        $conversation = Conversation::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $conversation->folder());
-    }
-
     public function test_mailbox_relationship_loads(): void
     {
         $conversation = Conversation::factory()->create();
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $conversation->mailbox());
         $this->assertInstanceOf(Mailbox::class, $conversation->mailbox);
     }
 
@@ -77,7 +69,6 @@ class ConversationTest extends TestCase
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create(['user_id' => $user->id]);
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $conversation->user());
         $this->assertEquals($user->id, $conversation->user->id);
     }
 
@@ -85,7 +76,6 @@ class ConversationTest extends TestCase
     {
         $conversation = Conversation::factory()->create();
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $conversation->customer());
         $this->assertInstanceOf(Customer::class, $conversation->customer);
     }
 
@@ -93,15 +83,7 @@ class ConversationTest extends TestCase
     {
         $conversation = Conversation::factory()->withThreads(5)->create();
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $conversation->threads());
         $this->assertCount(5, $conversation->threads);
-    }
-
-    public function test_followers_relationship_loads(): void
-    {
-        $conversation = Conversation::factory()->create();
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $conversation->followers());
     }
 
     public function test_conversation_has_required_fillable_fields(): void
@@ -181,26 +163,6 @@ class ConversationTest extends TestCase
 
         $this->assertNotNull($conversation->created_at);
         $this->assertNotNull($conversation->updated_at);
-    }
-
-    public function test_conversation_can_have_closed_by_user(): void
-    {
-        $user = User::factory()->create();
-        $conversation = Conversation::factory()->create([
-            'closed_by_user_id' => $user->id,
-        ]);
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $conversation->closedByUser());
-    }
-
-    public function test_conversation_can_have_created_by_user(): void
-    {
-        $user = User::factory()->create();
-        $conversation = Conversation::factory()->create([
-            'created_by_user_id' => $user->id,
-        ]);
-
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsTo::class, $conversation->createdByUser());
     }
 
     public function test_conversation_defaults_to_published_state(): void

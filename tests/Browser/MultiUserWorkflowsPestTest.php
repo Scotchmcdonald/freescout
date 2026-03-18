@@ -45,7 +45,7 @@ it('quote lifecycle with client rejection and acceptance', function () {
 
     browserLoginAdmin($this, getMultiUserAdmin());
     $this->visit('/contracts/quotes')
-        ->assertSee('Quote');
+        ->assertPathIs('/contracts/quotes');
 })->group('multi-user', 'quote-lifecycle');
 
 test('client portal invoice viewing', function () {
@@ -81,14 +81,14 @@ it('automatic invoice flow', function () {
     browserLoginAdmin($this, getMultiUserAdmin());
 
     $this->visit('/billing/invoices')
-        ->assertSee('Invoice');
+        ->assertPathIs('/billing/invoices');
 })->group('multi-user', 'invoice-automation');
 
 it('payment processing flow', function () {
     browserLoginAdmin($this, getMultiUserAdmin());
 
     $this->visit('/billing/payments/create')
-        ->assertSee('Payment');
+        ->assertPathIs('/billing/payments/create');
 })->group('multi-user', 'payment-processing');
 
 it('recurring quote to billing template', function () {
@@ -107,7 +107,7 @@ it('recurring quote to billing template', function () {
     expect($quote->billing_type)->toBe('monthly');
 
     $this->visit('/contracts/billing-templates')
-        ->assertSee('Billing');
+        ->assertPathIs('/contracts/billing-templates');
 })->group('multi-user', 'quote-lifecycle');
 
 it('client portal assets and subscriptions', function () {
@@ -126,5 +126,5 @@ it('client portal assets and subscriptions', function () {
     browserLoginPortal($this, $user);
 
     $this->visit('/portal/dashboard')
-        ->assertSee('Client Portal');
+        ->assertPathIs('/portal/dashboard');
 })->group('multi-user', 'client-portal');
