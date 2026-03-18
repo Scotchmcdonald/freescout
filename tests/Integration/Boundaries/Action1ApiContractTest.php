@@ -130,3 +130,40 @@ it('surfaces retry-after value in Action1 throttling exceptions', function () {
     expect(fn () => $service->listOrganizations())
         ->toThrow(RuntimeException::class, 'retry after 45 seconds');
 });
+
+it('maps 500 server errors to typed runtime exceptions with operation context', function () {
+    Http::fake([
+        'https://app.action1.com/api/3.0/oauth2/token' => Http::response([
+            'access_token' => 'token-sync-999',
+            'expires_in' => 3600,
+        ], 200),
+        'https://app.action1.com/api/3.0/organizations' => Http::response([
+            'message' => 'Internal server error',
+        ], 500),
+    ]);
+
+    $service = app(Action1SyncService::class);
+
+    // Must map to a typed RuntimeException that includes HTTP status code and
+    // operation context — callers should never receive a raw HTTP response object
+    expect(fn () => $service->listOrganizations())
+        ->toThrow(RuntimeException::class, 'HTTP 500');
+});
+
+it('maps Action1 503 service unavailable to runtime exception not silent failure', function () {
+    Http::fake([
+        'https://app.action1.com/api/3.0/oauth2/token' => Http::response([
+            'access_token' => 'token-sync-999',
+            'expires_in' => 3600,
+        ], 200),
+        'https://app.action1.com/api/3.0/endpoints/managed/org-down*' => Http::response([
+            'message' => 'Service temporarily unavailable',
+        ], 503),
+    ]);
+
+    $service = app(Action1SyncService::class);
+
+    // 5xx errors must throw, not silently return empty results
+    expect(fn () => $service->listEndpoints('org-down', 50))
+        ->toThrow(RuntimeException::class, 'HTTP 503');
+});

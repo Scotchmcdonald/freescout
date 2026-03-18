@@ -160,3 +160,77 @@ it('preserves retry-after contract details when gateway throttles', function () 
             ->and($exception->response->header('Retry-After'))->toBe('7');
     }
 });
+
+it('enforces refund endpoint contract with correct transactionType payload and auth headers', function () {
+    config()->set('services.helcim.api_url', 'https://api.helcim.com/v2');
+    config()->set('services.helcim.api_token', 'helcim-refund-test-token');
+
+    Http::fake([
+        'https://api.helcim.com/v2/card-transactions' => Http::response([
+            'transactionId' => 'refund-txn-456',
+            'status' => 'approved',
+        ], 200),
+    ]);
+
+    $gateway = new class(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class)) extends HelcimService
+    {
+        public function refundProbe(string $transactionId, float $amount): array
+        {
+            $response = $this->makeApiCall('card-transactions', function () use ($transactionId, $amount) {
+                return $this->client()->post("{$this->apiUrl}/card-transactions", [
+                    'transactionId' => $transactionId,
+                    'amount' => $amount,
+                    'transactionType' => 'refund',
+                ]);
+            });
+
+            return (array) $response->json();
+        }
+    };
+
+    $result = $gateway->refundProbe('orig-txn-123', 49.99);
+
+    expect($result)->toMatchArray([
+        'transactionId' => 'refund-txn-456',
+        'status' => 'approved',
+    ]);
+
+    // Verify the refund request carries the correct auth header AND refund payload
+    Http::assertSent(function (\Illuminate\Http\Client\Request $request): bool {
+        return $request->url() === 'https://api.helcim.com/v2/card-transactions'
+            && $request->hasHeader('api-token', 'helcim-refund-test-token')
+            && $request['transactionId'] === 'orig-txn-123'
+            && (float) $request['amount'] === 49.99
+            && $request['transactionType'] === 'refund';
+    });
+});
+
+it('maps refund 422 rejection to request exception without silencing the failure', function () {
+    config()->set('services.helcim.api_url', 'https://api.helcim.com/v2');
+    config()->set('services.helcim.api_token', 'helcim-refund-fail-token');
+
+    Http::fake([
+        'https://api.helcim.com/v2/card-transactions' => Http::response([
+            'message' => 'Transaction already fully refunded',
+        ], 422),
+    ]);
+
+    $gateway = new class(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class)) extends HelcimService
+    {
+        public function refundProbe(string $transactionId, float $amount): void
+        {
+            $this->makeApiCall('card-transactions', function () use ($transactionId, $amount) {
+                return $this->client()->post("{$this->apiUrl}/card-transactions", [
+                    'transactionId' => $transactionId,
+                    'amount' => $amount,
+                    'transactionType' => 'refund',
+                ]);
+            });
+        }
+    };
+
+    // A 422 refund rejection must throw — adapters must never silently discard
+    // gateway rejections for financial operations
+    expect(fn () => $gateway->refundProbe('orig-txn-789', 25.00))
+        ->toThrow(\Illuminate\Http\Client\RequestException::class);
+});

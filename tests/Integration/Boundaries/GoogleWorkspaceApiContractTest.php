@@ -222,3 +222,61 @@ it('fails fast on malformed Google user objects', function () {
     expect(fn () => $provider->getUsers())
         ->toThrow(Error::class);
 });
+
+it('returns empty array without exception when Google domain config is absent', function () {
+    // Unset domain so the provider cannot determine which domain to list
+    config()->set('google.domain', null);
+
+    $service = new class([], null) extends GoogleWorkspaceService
+    {
+        public function __construct(private array $users, private ?\Throwable $error)
+        {
+            parent::__construct(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class));
+        }
+
+        public function listUsers(string $domain, ?string $orgUnitPath = null): array
+        {
+            if ($this->error !== null) {
+                throw $this->error;
+            }
+
+            return $this->users;
+        }
+    };
+
+    $provider = new GoogleUserProvider($service);
+
+    // Provider contract: must return empty array gracefully, not throw when domain
+    // config is absent — callers must not be forced to guard every call site
+    $result = $provider->getUsers();
+
+    expect($result)->toBe([]);
+});
+
+it('maps empty Google user list to empty array without exception', function () {
+    config()->set('google.domain', 'example.com');
+
+    $service = new class([], null) extends GoogleWorkspaceService
+    {
+        public function __construct(private array $users, private ?\Throwable $error)
+        {
+            parent::__construct(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class));
+        }
+
+        public function listUsers(string $domain, ?string $orgUnitPath = null): array
+        {
+            if ($this->error !== null) {
+                throw $this->error;
+            }
+
+            return $this->users;
+        }
+    };
+
+    $provider = new GoogleUserProvider($service);
+
+    // An empty workspace must map to [] not null — typed array return contract
+    $users = $provider->getUsers();
+
+    expect($users)->toBe([]);
+});
