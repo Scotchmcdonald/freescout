@@ -188,17 +188,20 @@ Acceptance:
 
 ### B-4 Domain Invariant Follow-Up (Only If B-1 to B-3 Finish Early)
 
-Status: in-progress (B-1 through B-3 complete, B-4 is next)
+Status: complete
 
-Candidates:
+Delivered:
 
-- additional ContractManager proration and amendment invariants
-- Payment dispute/reconciliation edge guards
-- SoftwareSubscriptions assignment/reconciliation invariants
-
-Acceptance:
-
-- new coverage materially strengthens business-rule confidence
+- Fixed `Payment::canBeRefunded()` — added `dispute_status` guard (disputed payments were incorrectly
+	eligible for refund; real production gap)
+- `Modules/Payment/Tests/Unit/PaymentDisputeGuardPestTest.php` — 4 unit tests / 6 assertions:
+	dispute blocks refund, no dispute permits refund, all non-null dispute_status values block,
+	dispute guard is independent of the 180-day window
+- `Modules/ContractManager/Tests/Integration/ContractFinancialInvariantsTest.php` — 4 integration
+	tests / 12 assertions: balance decrements as invoices accumulate, canGenerateInvoice()=false when
+	balance=0 (even with ownership_status='pending'), floor-at-zero guard, standard contracts always
+	return balance=0
+- Full B-lane suite: 59 tests / 138 assertions (2.43s, 0 failures)
 
 ## Coordination Rules
 
