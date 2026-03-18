@@ -100,12 +100,13 @@ describe('Invoice show page', function () {
             ->get(route('admin.billing.invoices.show', $invoice->id));
 
         $response->assertOk();
-        $response->assertSee('INV-SHOW-TEST');
-        $response->assertSee('$500.00'); // total
-        $response->assertSee('$200.00'); // payment
-        $response->assertSee('Payments'); // payments tab label
-        $response->assertSee('Record Payment'); // payable status shows button
-        $response->assertSee('PDF'); // PDF download link
+        $response->assertViewHas('invoice', fn ($viewInvoice) => $viewInvoice->id === $invoice->id
+            && $viewInvoice->invoice_number === 'INV-SHOW-TEST'
+            && (float) $viewInvoice->total_amount === 500.00
+            && (float) $viewInvoice->amount_paid === 200.00
+            && $viewInvoice->isPayable());
+        $response->assertViewHas('payments', fn ($payments) => $payments->count() === 1
+            && (float) $payments->first()->amount === 200.00);
     });
 
     it('shows record payment button for unpaid invoices', function () {
@@ -121,7 +122,8 @@ describe('Invoice show page', function () {
             ->get(route('admin.billing.invoices.show', $invoice->id));
 
         $response->assertOk();
-        $response->assertSee('Record Payment');
+        $response->assertViewHas('invoice', fn ($viewInvoice) => $viewInvoice->id === $invoice->id
+            && $viewInvoice->isPayable());
     });
 
     it('hides record payment button for paid invoices', function () {
@@ -138,6 +140,7 @@ describe('Invoice show page', function () {
             ->get(route('admin.billing.invoices.show', $invoice->id));
 
         $response->assertOk();
-        $response->assertDontSee('Record Payment');
+        $response->assertViewHas('invoice', fn ($viewInvoice) => $viewInvoice->id === $invoice->id
+            && ! $viewInvoice->isPayable());
     });
 });

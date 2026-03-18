@@ -13,9 +13,10 @@ test('profile page is displayed', function () {
         ->get('/profile')
         ->assertOk()
         ->assertViewIs('profile.edit')
-        ->assertSee('John')
-        ->assertSee('Doe')
-        ->assertSee('john@example.com');
+        ->assertViewHas('user', fn ($viewUser) => $viewUser->id === $user->id
+            && $viewUser->first_name === 'John'
+            && $viewUser->last_name === 'Doe'
+            && $viewUser->email === 'john@example.com');
 });
 
 test('profile information can be updated', function () {

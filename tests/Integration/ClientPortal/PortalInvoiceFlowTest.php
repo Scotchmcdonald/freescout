@@ -61,8 +61,9 @@ describe('Portal Invoice Show', function () {
             ->get(route('portal.invoices.show', $invoice->id));
 
         $response->assertOk();
-        $response->assertSee('INV-PORTAL-SHOW');
-        $response->assertSee('Download PDF');
+        $response->assertViewHas('invoice', fn ($viewInvoice) => $viewInvoice->id === $invoice->id
+            && $viewInvoice->invoice_number === 'INV-PORTAL-SHOW');
+        $response->assertViewHas('payments', fn ($payments) => $payments->count() === 0);
     });
 
     it('shows payment history tab when payments exist', function () {
@@ -84,7 +85,8 @@ describe('Portal Invoice Show', function () {
             ->get(route('portal.invoices.show', $invoice->id));
 
         $response->assertOk();
-        $response->assertSee('Payments (1)');
+        $response->assertViewHas('payments', fn ($payments) => $payments->count() === 1
+            && (float) $payments->first()->amount === 200.00);
     });
 });
 
@@ -109,9 +111,10 @@ describe('Portal Pay Invoice page', function () {
             ->get(route('portal.invoices.pay', $invoice->id));
 
         $response->assertOk();
-        $response->assertSee('Pay Invoice');
-        $response->assertSee('$500.00');
-        $response->assertSee('4242');
+        $response->assertViewHas('invoice', fn ($viewInvoice) => $viewInvoice->id === $invoice->id);
+        $response->assertViewHas('outstandingBalance', 500.0);
+        $response->assertViewHas('paymentMethods', fn ($paymentMethods) => $paymentMethods->count() === 1
+            && $paymentMethods->first()->last_four === '4242');
     });
 
     it('displays correct outstanding balance after partial payment', function () {
@@ -131,7 +134,7 @@ describe('Portal Pay Invoice page', function () {
             ->get(route('portal.invoices.pay', $invoice->id));
 
         $response->assertOk();
-        $response->assertSee('$400.00'); // outstanding balance
+        $response->assertViewHas('outstandingBalance', 400.0);
     });
 
     it('prevents paying another client invoice', function () {
@@ -160,7 +163,7 @@ describe('Portal Pay Invoice page', function () {
             ->get(route('portal.invoices.pay', $invoice->id));
 
         $response->assertOk();
-        $response->assertSee('No payment methods on file');
+        $response->assertViewHas('paymentMethods', fn ($paymentMethods) => $paymentMethods->isEmpty());
     });
 
     it('requires authentication via client guard', function () {

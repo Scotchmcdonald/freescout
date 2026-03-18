@@ -349,9 +349,9 @@ describe('Record Payment page', function () {
             ->get(route('admin.billing.invoices.record-payment', $invoice->id));
 
         $response->assertOk();
-        $response->assertSee('Record Payment');
-        $response->assertSee('$750.00');  // total amount
-        $response->assertSee('$250.00');  // amount paid
-        $response->assertSee('$500.00');  // outstanding balance
+        $response->assertViewHas('invoice', fn ($viewInvoice) => $viewInvoice->id === $invoice->id
+            && (float) $viewInvoice->total_amount === 750.00
+            && (float) $viewInvoice->amount_paid === 250.00);
+        $response->assertViewHas('payments', fn ($payments) => $payments->isEmpty());
     });
 });

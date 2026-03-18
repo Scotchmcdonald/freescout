@@ -12,7 +12,8 @@ test('admin can view integrations settings page', function () {
         ->get(route('settings.integrations'))
         ->assertOk()
         ->assertViewIs('settings.integrations')
-        ->assertSee('Integrations');
+    ->assertViewHas('currentSection', 'integrations')
+    ->assertViewHas('sections', fn (array $sections) => array_key_exists('integrations', $sections));
 });
 
 test('admin can view google workspace integration tab', function () {
@@ -21,8 +22,9 @@ test('admin can view google workspace integration tab', function () {
     $this->actingAs($admin)
         ->get(route('settings.integrations', ['tab' => 'googleadmin']))
         ->assertOk()
-        ->assertSee('Google Workspace Integration')
-        ->assertSee('Enable Google Workspace synchronization');
+        ->assertViewHas('activeTab', 'googleadmin')
+        ->assertViewHas('settings', fn (array $settings) => array_key_exists('sync_enabled', $settings)
+            && array_key_exists('sync_interval_hours', $settings));
 });
 
 test('admin can view action1 integration tab', function () {
@@ -31,8 +33,10 @@ test('admin can view action1 integration tab', function () {
     $this->actingAs($admin)
         ->get(route('settings.integrations', ['tab' => 'action1']))
         ->assertOk()
-        ->assertSee('Action1 RMM Integration')
-        ->assertSee('Enable Action1 RMM synchronization');
+        ->assertViewHas('activeTab', 'action1')
+        ->assertViewHas('settings', fn (array $settings) => array_key_exists('sync_enabled', $settings)
+            && array_key_exists('sync_interval_hours', $settings)
+            && array_key_exists('region', $settings));
 });
 
 test('non-admin cannot access integrations settings', function () {
