@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Misc;
 
 use App\Misc\Helper;
+use Illuminate\Support\Facades\Log;
 use Tests\UnitTestCase;
 
 /**
@@ -428,36 +429,35 @@ class HelperEdgeCasesTest extends UnitTestCase
 
     public function test_background_action_accepts_url(): void
     {
-        // This should not throw an exception
-        $this->expectNotToPerformAssertions();
-
-        // We can't actually test background execution, but we can ensure it doesn't error
-        try {
-            Helper::backgroundAction('test', []);
-        } catch (\Exception $e) {
-            // May fail in test environment, which is acceptable
-        }
+        // In test env, backgroundAction short-circuits and returns void (null).
+        $this->assertNull(Helper::backgroundAction('test', []));
     }
 
     // ===== logException tests =====
 
     public function test_log_exception_handles_exception(): void
     {
-        $this->expectNotToPerformAssertions();
-
+        Log::spy();
         $exception = new \Exception('Test exception');
-
-        // Should not throw
         Helper::logException($exception);
+
+        Log::shouldHaveReceived('error')
+            ->once();
     }
 
     public function test_log_exception_with_custom_message(): void
     {
-        $this->expectNotToPerformAssertions();
-
+        Log::spy();
         $exception = new \Exception('Test');
-
-        // Should not throw
         Helper::logException($exception, 'Custom context');
+
+        Log::shouldHaveReceived('error')
+            ->once()
+            ->with(
+                \Mockery::on(fn ($message) => is_string($message)
+                    && str_contains($message, '[Custom context]')
+                    && str_contains($message, 'Test')),
+                \Mockery::type('array')
+            );
     }
 }

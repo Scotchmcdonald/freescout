@@ -90,13 +90,13 @@ class LogPasswordResetTest extends UnitTestCase
 
         $this->app->instance('request', $request);
 
-        // Should not throw exception
-        try {
-            $listener->handle($event);
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->fail('Listener should not throw exception: '.$e->getMessage());
-        }
+        $listener->handle($event);
+
+        $this->assertDatabaseHas('activity_log', [
+            'description' => ActivityLog::DESCRIPTION_USER_PASSWORD_RESET,
+            'causer_id' => $user->id,
+            'causer_type' => get_class($user),
+        ]);
     }
 
     public function test_listener_can_be_instantiated(): void

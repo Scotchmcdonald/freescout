@@ -33,7 +33,7 @@ class ObserversComprehensiveTest extends UnitTestCase
     // {
     //     // Removed as ConversationObserver does not dispatch this event.
     //     // It is likely dispatched by the controller.
-    //     $this->expectNotToPerformAssertions();
+    //     Placeholder retained intentionally.
     // }
 
     public function test_conversation_observer_fires_status_changed_event(): void
@@ -295,7 +295,7 @@ class ObserversComprehensiveTest extends UnitTestCase
     // public function test_observers_preserve_original_attributes(): void
     // {
     //     // Skipped: Flaky due to model syncing behavior with Event::fake
-    //     $this->expectNotToPerformAssertions();
+    //     Placeholder retained intentionally.
     // }
 
     public function test_observers_do_not_interfere_with_mass_operations(): void
@@ -475,49 +475,51 @@ class ObserversComprehensiveTest extends UnitTestCase
 
     public function test_thread_observer_created_increments_thread_count_when_conversation_exists(): void
     {
-        $conversation = new Conversation(['threads_count' => 5]);
-        $thread = new Thread(['conversation_id' => 1]);
-        $thread->setRelation('conversation', $conversation);
+        $conversation = Conversation::factory()->create(['threads_count' => 5]);
+        $thread = new Thread(['conversation_id' => $conversation->id]);
+        $thread->setRelation('conversation', $conversation->fresh());
 
         $observer = new ThreadObserver;
         $observer->created($thread);
 
-        // Verify the method runs without error
-        $this->expectNotToPerformAssertions();
+        $this->assertEquals(6, $conversation->fresh()->threads_count);
     }
 
     public function test_thread_observer_created_handles_missing_conversation(): void
     {
+        $initialCount = Conversation::count();
         $thread = new Thread(['conversation_id' => null]);
 
         $observer = new ThreadObserver;
         $observer->created($thread);
 
-        // Should not throw an error
-        $this->expectNotToPerformAssertions();
+        $this->assertSame($initialCount, Conversation::count());
     }
 
     public function test_thread_observer_deleted_decrements_thread_count_when_conversation_exists(): void
     {
-        $conversation = new Conversation(['threads_count' => 5]);
-        $thread = new Thread(['conversation_id' => 1]);
-        $thread->setRelation('conversation', $conversation);
+        $conversation = Conversation::factory()->create(['threads_count' => 0]);
+        $thread = Thread::factory()->create([
+            'conversation_id' => $conversation->id,
+            'state' => Thread::STATE_PUBLISHED,
+        ]);
+
+        $this->assertEquals(1, $conversation->fresh()->threads_count);
 
         $observer = new ThreadObserver;
         $observer->deleted($thread);
 
-        // Verify the method runs without error
-        $this->expectNotToPerformAssertions();
+        $this->assertEquals(0, $conversation->fresh()->threads_count);
     }
 
     public function test_thread_observer_deleted_handles_missing_conversation(): void
     {
+        $initialCount = Conversation::count();
         $thread = new Thread(['conversation_id' => null]);
 
         $observer = new ThreadObserver;
         $observer->deleted($thread);
 
-        // Should not throw an error
-        $this->expectNotToPerformAssertions();
+        $this->assertSame($initialCount, Conversation::count());
     }
 }

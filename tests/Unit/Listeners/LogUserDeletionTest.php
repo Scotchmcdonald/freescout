@@ -84,13 +84,13 @@ class LogUserDeletionTest extends UnitTestCase
         $event = new UserDeleted($deletedUser, $byUser);
         $listener = new LogUserDeletion;
 
-        // Should not throw exception
-        try {
-            $listener->handle($event);
-            $this->expectNotToPerformAssertions();
-        } catch (\Exception $e) {
-            $this->fail('Listener should not throw exception: '.$e->getMessage());
-        }
+        $listener->handle($event);
+
+        $this->assertDatabaseHas('activity_log', [
+            'description' => ActivityLog::DESCRIPTION_USER_DELETED,
+            'causer_id' => $byUser->id,
+            'causer_type' => get_class($byUser),
+        ]);
     }
 
     public function test_listener_can_be_instantiated(): void

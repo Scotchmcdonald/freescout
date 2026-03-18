@@ -241,11 +241,10 @@ class AdvancedEdgeCasesTest extends IntegrationTestCase
         $conversation = Conversation::factory()->create();
         $conversation->update(['subject' => 'Updated Subject']);
 
-        // Event::assertDispatched(\App\Events\ConversationUpdated::class);
-        // If the event is not automatically dispatched by the model, we might need to dispatch it manually
-        // or check for standard Eloquent events if that was the intention.
-        // For now, let's assume we just want to ensure no exception was thrown during update.
-        $this->expectNotToPerformAssertions();
+        $this->assertDatabaseHas('conversations', [
+            'id' => $conversation->id,
+            'subject' => 'Updated Subject',
+        ]);
     }
 
     public function test_observer_events_fire_in_correct_order(): void

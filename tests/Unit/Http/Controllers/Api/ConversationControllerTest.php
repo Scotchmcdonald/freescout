@@ -113,12 +113,10 @@ class ConversationControllerTest extends UnitTestCase
     {
         $controller = new ConversationController;
 
-        try {
-            $response = $controller->index();
-            $this->expectNotToPerformAssertions(); // If we get here, no exception was thrown
-        } catch (\Exception $e) {
-            $this->fail('index() method should not throw exceptions: '.$e->getMessage());
-        }
+        $response = $controller->index();
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame([], $response->getData(true));
     }
 
     public function test_controller_has_index_method(): void

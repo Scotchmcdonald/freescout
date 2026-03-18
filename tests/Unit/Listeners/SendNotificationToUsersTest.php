@@ -233,6 +233,8 @@ class SendNotificationToUsersTest extends UnitTestCase
 
     public function test_listener_handles_events_without_causing_exceptions(): void
     {
+        Queue::fake();
+
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
         $conversation = Conversation::factory()->create(['status' => 1]);
@@ -252,8 +254,7 @@ class SendNotificationToUsersTest extends UnitTestCase
         $listener->handle(new ConversationUserChanged($conversation, null, null, $user));
         $listener->handle(new CustomerReplied($conversation, $thread, $customer));
 
-        // If we got here, no exceptions were thrown
-        $this->expectNotToPerformAssertions();
+        Queue::assertPushed(SendNotificationToUsersJob::class, 6);
     }
 
     public function test_listener_excludes_caused_by_user_from_notifications(): void

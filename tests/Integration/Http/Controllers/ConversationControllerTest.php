@@ -12,7 +12,9 @@ use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -211,13 +213,28 @@ class ConversationControllerTest extends TestCase
             'state' => 2,
         ]);
 
+        $notificationId = (string) Str::uuid();
+        DB::table('notifications')->insert([
+            'id' => $notificationId,
+            'type' => 'TestNotification',
+            'notifiable_type' => User::class,
+            'notifiable_id' => $this->user->id,
+            'data' => json_encode(['conversation_id' => $conversation->id], JSON_THROW_ON_ERROR),
+            'read_at' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         $request = Request::create('/conversations/'.$conversation->id);
         $request->setUserResolver(fn () => $this->user);
 
         $this->controller->show($request, $conversation);
 
-        // Verify notification handling works (simplified test)
-        $this->expectNotToPerformAssertions();
+        $readAt = DB::table('notifications')
+            ->where('id', $notificationId)
+            ->value('read_at');
+
+        $this->assertNotNull($readAt);
     }
 
     public function test_create_returns_view_for_authorized_user(): void

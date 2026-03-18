@@ -11,6 +11,7 @@ use App\Models\SendLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Tests\UnitTestCase;
 
 class SendEmailReplyErrorTest extends UnitTestCase
@@ -197,13 +198,17 @@ class SendEmailReplyErrorTest extends UnitTestCase
 
     public function test_job_can_be_dispatched(): void
     {
-        Mail::fake();
+        Queue::fake();
 
         $user = User::factory()->create();
         $mailbox = Mailbox::factory()->create();
 
         SendEmailReplyError::dispatch('dispatch@example.com', $user, $mailbox);
 
-        $this->expectNotToPerformAssertions();
+        Queue::assertPushed(SendEmailReplyError::class, function ($job) use ($user, $mailbox) {
+            return $job->from === 'dispatch@example.com'
+                && $job->user->id === $user->id
+                && $job->mailbox->id === $mailbox->id;
+        });
     }
 }
