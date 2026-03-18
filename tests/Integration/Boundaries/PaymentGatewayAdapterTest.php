@@ -234,3 +234,34 @@ it('maps refund 422 rejection to request exception without silencing the failure
     expect(fn () => $gateway->refundProbe('orig-txn-789', 25.00))
         ->toThrow(\Illuminate\Http\Client\RequestException::class);
 });
+
+it('treats non-scalar transactionId in successful payload as malformed adapter contract', function () {
+    config()->set('services.helcim.api_url', 'https://api.helcim.com/v2');
+    config()->set('services.helcim.api_token', 'helcim-test-token');
+
+    Http::fake([
+        'https://api.helcim.com/v2/card-transactions' => Http::response([
+            // Mutation: transactionId must be scalar, not nested object
+            'transactionId' => ['value' => 'txn-123'],
+            'status' => 'approved',
+        ], 200),
+    ]);
+
+    $gateway = new class(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class)) extends HelcimService
+    {
+        public function strictTransactionProbe(array $payload): void
+        {
+            $response = $this->makeApiCall('card-transactions', function () use ($payload) {
+                return $this->client()->post("{$this->apiUrl}/card-transactions", $payload);
+            });
+
+            $decoded = $response->json();
+            if (! is_array($decoded) || ! isset($decoded['transactionId']) || ! is_scalar($decoded['transactionId'])) {
+                throw new RuntimeException('Malformed gateway response');
+            }
+        }
+    };
+
+    expect(fn () => $gateway->strictTransactionProbe(['amount' => 10]))
+        ->toThrow(RuntimeException::class, 'Malformed gateway response');
+});

@@ -167,3 +167,18 @@ it('maps Action1 503 service unavailable to runtime exception not silent failure
     expect(fn () => $service->listEndpoints('org-down', 50))
         ->toThrow(RuntimeException::class, 'HTTP 503');
 });
+
+it('rejects non-string access_token values in token payload as malformed contract', function () {
+    Http::fake([
+        'https://app.action1.com/api/3.0/oauth2/token' => Http::response([
+            // Mutation: numeric token should be rejected by strict string contract
+            'access_token' => 12345,
+            'expires_in' => 3600,
+        ], 200),
+    ]);
+
+    $service = app(Action1SyncService::class);
+
+    expect(fn () => $service->listOrganizations())
+        ->toThrow(RuntimeException::class, 'No access_token in Action1 response');
+});

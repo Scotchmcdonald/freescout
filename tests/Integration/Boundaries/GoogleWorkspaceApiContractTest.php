@@ -280,3 +280,69 @@ it('maps empty Google user list to empty array without exception', function () {
 
     expect($users)->toBe([]);
 });
+
+it('fails fast when a mixed user list contains a malformed first element', function () {
+    config()->set('google.domain', 'example.com');
+
+    $validUser = new class
+    {
+        public function getName(): object
+        {
+            return new class
+            {
+                public function getFullName(): string
+                {
+                    return 'Valid User';
+                }
+            };
+        }
+
+        public function getPrimaryEmail(): string
+        {
+            return 'valid@example.com';
+        }
+
+        public function getSuspended(): bool
+        {
+            return false;
+        }
+
+        public function getIsEnrolledIn2Sv(): bool
+        {
+            return true;
+        }
+
+        public function getLastLoginTime(): string
+        {
+            return '2026-03-01T10:00:00Z';
+        }
+
+        public function getOrgUnitPath(): string
+        {
+            return '/Ops';
+        }
+    };
+
+    $service = new class([new stdClass, $validUser], null) extends GoogleWorkspaceService
+    {
+        public function __construct(private array $users, private ?\Throwable $error)
+        {
+            parent::__construct(app(\App\Services\RateLimiterService::class), app(\App\Services\CircuitBreakerService::class));
+        }
+
+        public function listUsers(string $domain, ?string $orgUnitPath = null): array
+        {
+            if ($this->error !== null) {
+                throw $this->error;
+            }
+
+            return $this->users;
+        }
+    };
+
+    $provider = new GoogleUserProvider($service);
+
+    // Mutation guard: malformed user object should fail fast, not silently skip and continue.
+    expect(fn () => $provider->getUsers())
+        ->toThrow(Error::class);
+});
