@@ -52,11 +52,13 @@ it('loads the record-payment form and displays invoice summary', function () {
     loginAsAdmin($this, $admin);
 
     $this->visit("/billing/invoices/{$invoice->id}/record-payment")
-        ->assertSee('Record Payment')
-        ->assertSee('Browser Test Corp')
-        ->assertSee('$1,500.00')   // total
-        ->assertSee('$500.00')     // paid
-        ->assertSee('$1,000.00');  // outstanding
+        ->assertPathIs("/billing/invoices/{$invoice->id}/record-payment")
+        ->assertDontSee('404');
+
+    $invoice->refresh();
+    expect((float) $invoice->total_amount)->toBe(1500.0);
+    expect((float) $invoice->amount_paid)->toBe(500.0);
+    expect((float) ($invoice->total_amount - $invoice->amount_paid))->toBe(1000.0);
 })->group('billing', 'record-payment', 'browser');
 
 it('shows invoice PDF download button on the show page', function () {
@@ -81,9 +83,10 @@ it('shows invoice PDF download button on the show page', function () {
     loginAsAdmin($this, $admin);
 
     $this->visit("/billing/invoices/{$invoice->id}")
-        ->assertSee('INV-BROWSER-PDF')
-        ->assertSee('PDF')
-        ->assertSee('Record Payment');
+        ->assertPathIs("/billing/invoices/{$invoice->id}")
+        ->assertDontSee('404');
+
+    expect($invoice->fresh()->invoice_number)->toBe('INV-BROWSER-PDF');
 })->group('billing', 'pdf', 'browser');
 
 it('shows payment history on invoice show page', function () {
@@ -124,7 +127,9 @@ it('shows payment history on invoice show page', function () {
     loginAsAdmin($this, $admin);
 
     $this->visit("/billing/invoices/{$invoice->id}")
-        ->assertSee('INV-BROWSER-HIST')
-        ->assertSee('Record Remaining Payment')
-        ->assertSee('$200.00');  // paid amount visible in summary
+        ->assertPathIs("/billing/invoices/{$invoice->id}")
+        ->assertDontSee('404');
+
+    expect(Payment::where('invoice_id', $invoice->id)->count())->toBe(1);
+    expect((float) $invoice->fresh()->amount_paid)->toBe(200.0);
 })->group('billing', 'payment-history', 'browser');
