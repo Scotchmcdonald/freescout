@@ -4,8 +4,11 @@
 LOG_FILE="/var/www/html/reports/ci_master.log"
 CI_DIR="/var/www/html/scripts/ci"
 
-# 2. The Master Wrapper: Redirect all output (stdout and stderr) to the log file
-exec > "$LOG_FILE" 2>&1
+mkdir -p "$(dirname "$LOG_FILE")"
+: > "$LOG_FILE"
+
+# 2. The Master Wrapper: mirror all output to terminal and log file
+exec > >(tee -a "$LOG_FILE") 2>&1
 
 echo "========================================"
 echo " Starting CI Pipeline Run"
