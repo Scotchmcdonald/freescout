@@ -29,8 +29,7 @@ test('search finds conversations by subject', function () {
     $conversations = $response->viewData('conversations');
 
     $response->assertOk()
-        ->assertViewIs('conversations.search')
-        ->assertViewHas('conversations');
+        ->assertViewIs('conversations.search');
     $this->assertTrue($conversations->contains($targetConv));
     $this->assertFalse($conversations->contains($otherConv));
 });
@@ -58,7 +57,7 @@ test('search finds conversations by customer name', function () {
 
     $conversations = $response->viewData('conversations');
 
-    $response->assertOk()->assertViewHas('conversations');
+    $response->assertOk();
     $this->assertTrue($conversations->contains($conversation));
 });
 
@@ -86,7 +85,7 @@ test('search only shows authorized mailboxes', function () {
 
     $conversations = $response->viewData('conversations');
 
-    $response->assertOk()->assertViewHas('conversations');
+    $response->assertOk();
     $this->assertTrue($conversations->contains($authorized));
     $this->assertFalse($conversations->contains($unauthorized));
 });
@@ -115,7 +114,7 @@ test('admin search shows all mailboxes', function () {
 
     $conversations = $response->viewData('conversations');
 
-    $response->assertOk()->assertViewHas('conversations');
+    $response->assertOk();
     $this->assertTrue($conversations->contains($mailbox1Conv));
     $this->assertTrue($conversations->contains($mailbox2Conv));
 });
@@ -138,8 +137,7 @@ test('search paginates results', function () {
 
     $response = $this->actingAs($admin)->get(route('conversations.search', ['q' => 'Pagination']));
 
-    $response->assertOk()
-        ->assertViewHas('conversations');
+    $response->assertOk();
 
     $conversations = $response->viewData('conversations');
     // We can just check count < 60 and it is a Paginator (hasPages)

@@ -622,10 +622,8 @@ class SendNotificationToUsersTest extends UnitTestCase
     {
         Log::spy();
 
-        $conversation = \Mockery::mock(Conversation::class)->makePartial();
-        $conversation->id = 1;
-        $conversation->shouldReceive('getAttribute')->with('mailbox')->andReturn(null);
-        $conversation->shouldReceive('getAttribute')->with('id')->andReturn(1);
+        $conversation = Conversation::factory()->create();
+        $conversation->setRelation('mailbox', null);
 
         $user = User::factory()->make();
         $thread = Thread::factory()->make();

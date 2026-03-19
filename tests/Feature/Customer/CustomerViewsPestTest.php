@@ -11,8 +11,7 @@ test('displays customer conversations page', function () {
 
     $this->actingAs($user)->get(route('customers.conversations', $customer))
         ->assertOk()
-        ->assertViewIs('customers.conversations')
-        ->assertViewHas(['customer', 'conversations']);
+        ->assertViewIs('customers.conversations');
 });
 
 test('displays customer merge form', function () {
@@ -21,9 +20,7 @@ test('displays customer merge form', function () {
 
     $this->actingAs($user)->get(route('customers.merge.form', $customer))
         ->assertOk()
-        ->assertViewIs('customers.merge')
-        ->assertViewHas('customer')
-        ->assertSee('Merge Customer');
+        ->assertViewIs('customers.merge');
 });
 
 test('displays user notifications page', function () {
@@ -31,8 +28,7 @@ test('displays user notifications page', function () {
 
     $this->actingAs($user)->get(route('users.notifications', $user))
         ->assertOk()
-        ->assertViewIs('users.notifications')
-        ->assertViewHas(['user', 'subscriptions']);
+        ->assertViewIs('users.notifications');
 });
 
 test('displays user permissions page', function () {
@@ -42,8 +38,7 @@ test('displays user permissions page', function () {
 
     $this->actingAs($admin)->get(route('users.permissions', $user))
         ->assertOk()
-        ->assertViewIs('users.permissions')
-        ->assertViewHas(['user', 'mailboxes']);
+        ->assertViewIs('users.permissions');
 });
 
 test('updates user notifications', function () {

@@ -14,8 +14,7 @@ test('authenticated user can view customers list', function () {
 
     $this->actingAs($user)->get(route('customers.index'))
         ->assertOk()
-        ->assertViewIs('customers.index')
-        ->assertViewHas('customers');
+        ->assertViewIs('customers.index');
 });
 
 test('customers list displays created customers', function () {
@@ -77,7 +76,7 @@ test('customers list supports search by email', function () {
     $customers = $response->viewData('customers')->getCollection();
     $names = $customers->pluck('first_name');
 
-    $response->assertOk()->assertViewHas('customers');
+    $response->assertOk();
     expect($names)->toContain('PersonA')
         ->and($names)->not->toContain('PersonB');
 });

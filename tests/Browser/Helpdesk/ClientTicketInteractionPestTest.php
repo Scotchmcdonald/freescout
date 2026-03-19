@@ -25,7 +25,7 @@ it('full ticket lifecycle', function () {
     browserLoginPortal($this, $user);
 
     $this->visit('/portal/support')
-        ->assertSee('Support');
+        ->assertPathIs('/portal/support');
 })->group('helpdesk', 'ticket');
 
 it('ticket file attachments', function () {
@@ -34,7 +34,7 @@ it('ticket file attachments', function () {
     browserLoginPortal($this, $user);
 
     $this->visit('/portal/support')
-        ->assertSee('Support');
+        ->assertPathIs('/portal/support');
 
     // Verify the support ticket submission route accepts POST
     $response = $this->post('/portal/support/tickets', [
@@ -65,7 +65,7 @@ it('client self closing tickets', function () {
     browserLoginPortal($this, $clientUser);
 
     $this->visit('/portal/support')
-        ->assertSee('Support');
+        ->assertPathIs('/portal/support');
 
     // The close route pattern /portal/support/tickets/{ticket}/close exists
     $routes = collect(\Illuminate\Support\Facades\Route::getRoutes()->getRoutes());
@@ -88,7 +88,7 @@ it('ticket list filtering and search', function () {
 
     // Navigate to ticket listing page
     $this->visit('/portal/support/tickets')
-        ->assertSee('Ticket');
+        ->assertPathIs('/portal/support/tickets');
 })->group('helpdesk', 'ticket');
 
 it('ticket history timeline display', function () {

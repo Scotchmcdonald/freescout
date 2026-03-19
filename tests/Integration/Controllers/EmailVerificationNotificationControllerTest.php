@@ -55,24 +55,18 @@ class EmailVerificationNotificationControllerTest extends IntegrationTestCase
 
     public function test_store_calls_send_email_verification_notification_method(): void
     {
-        $user = \Mockery::mock(User::class)->makePartial();
-        $user->email_verified_at = null;
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(false);
-        $user->shouldReceive('sendEmailVerificationNotification')->once();
+        Notification::fake();
 
-        $this->be($user);
+        $user = User::factory()->create(['email_verified_at' => null]);
 
-        $response = $this->post('/email/verification-notification');
+        $response = $this->actingAs($user)->post('/email/verification-notification');
 
         $response->assertSessionHas('status', 'verification-link-sent');
+        Notification::assertSentTo($user, \Illuminate\Auth\Notifications\VerifyEmail::class);
     }
 
     protected function tearDown(): void
     {
-        try {
-            \Mockery::close();
-        } finally {
-            parent::tearDown();
-        }
+        parent::tearDown();
     }
 }

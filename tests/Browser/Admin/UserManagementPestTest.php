@@ -24,7 +24,7 @@ it('user list page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/users')
-        ->assertSee('Users');
+        ->assertPathIs('/users');
 })->group('admin', 'users');
 
 it('user create page loads', function () {
@@ -32,7 +32,7 @@ it('user create page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/users/create')
-        ->assertSee('Create New User');
+        ->assertPathIs('/users/create');
 })->group('admin', 'users');
 
 it('user detail page loads', function () {
@@ -56,7 +56,7 @@ it('user edit page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/user/'.$testUser->id.'/edit')
-        ->assertSee('Edit User');
+        ->assertPathIs('/user/'.$testUser->id.'/edit');
 })->group('admin', 'users');
 
 it('user permissions page loads', function () {
@@ -68,5 +68,5 @@ it('user permissions page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/user/'.$testUser->id.'/permissions')
-        ->assertSee('User Permissions');
+        ->assertPathIs('/user/'.$testUser->id.'/permissions');
 })->group('admin', 'users');

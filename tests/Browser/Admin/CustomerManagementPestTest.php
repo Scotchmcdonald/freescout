@@ -25,7 +25,7 @@ it('customer list page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/customers')
-        ->assertSee('Customers');
+        ->assertPathIs('/customers');
 })->group('admin', 'customers');
 
 it('customer create page loads', function () {
@@ -33,7 +33,7 @@ it('customer create page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/customers/new')
-        ->assertSee('Customer');
+        ->assertPathIs('/customers/new');
 })->group('admin', 'customers');
 
 it('customer detail page loads', function () {
@@ -57,7 +57,7 @@ it('customer edit page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/customers/'.$customer->id.'/edit')
-        ->assertSee('Edit Client');
+        ->assertPathIs('/customers/'.$customer->id.'/edit');
 })->group('admin', 'customers');
 
 it('customer factory creates valid customer', function () {

@@ -32,8 +32,7 @@ test('can generate invoice for contract', function () {
         ->waitForText('Test Service Contract')
         ->assertSee('Active')
         ->click('[dusk="generate-invoice-button"]')
-        ->waitForText('Invoice generated')
-        ->assertSee('Invoice generated');
+        ->waitForText('Invoice generated');
 });
 
 test('rent to own stops at purchase cap', function () {
@@ -70,8 +69,7 @@ test('rent to own stops at purchase cap', function () {
 
     // Generate first invoice ($100)
     $browser->click('[dusk="generate-invoice-button"]')
-        ->waitForText('Invoice generated', 10)
-        ->assertSee('Invoice generated');
+        ->waitForText('Invoice generated', 10);
 
     // Reload to clear toast
     $browser = $this->visit("/contracts/agreements/{$contract->id}");
@@ -79,22 +77,19 @@ test('rent to own stops at purchase cap', function () {
     // Generate second invoice ($200 total)
     $browser->waitForText('RTO Equipment')
         ->click('[dusk="generate-invoice-button"]')
-        ->waitForText('Invoice generated', 10)
-        ->assertSee('Invoice generated');
+        ->waitForText('Invoice generated', 10);
     $browser = $this->visit("/contracts/agreements/{$contract->id}");
 
     // Generate third invoice - final payment ($300 total)
     $browser->waitForText('RTO Equipment')
         ->click('[dusk="generate-invoice-button"]')
-        ->waitForText('final payment', 10)
-        ->assertSee('final payment');
+        ->waitForText('final payment', 10);
     $browser = $this->visit("/contracts/agreements/{$contract->id}");
 
     // Generate fourth invoice - should fail (cap reached)
     $browser->waitForText('RTO Equipment')
         ->click('[dusk="generate-invoice-button"]')
-        ->waitForText('purchase price cap reached', 10)
-        ->assertSee('purchase price cap reached');
+        ->waitForText('purchase price cap reached', 10);
 });
 
 test('can generate buyout invoice', function () {
@@ -133,8 +128,7 @@ test('can generate buyout invoice', function () {
 
     // Generate one regular invoice first
     $browser->click('[dusk="generate-invoice-button"]')
-        ->waitForText('Invoice generated')
-        ->assertSee('Invoice generated');
+        ->waitForText('Invoice generated');
 
     $browser = $this->visit("/contracts/agreements/{$contract->id}");
 

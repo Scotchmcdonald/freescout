@@ -31,17 +31,18 @@ class ImapServiceEncryptionTest extends UnitTestCase
 
     private function mailbox(array $attrs = []): Mailbox
     {
-        $mailbox = Mockery::mock(Mailbox::class)->makePartial();
-        $mailbox->id = 1;
-        $mailbox->name = 'Test Mailbox';
-        $mailbox->in_server = $attrs['in_server'] ?? 'imap.example.com';
-        $mailbox->in_port = 993;
-        $mailbox->in_username = 'test@example.com';
-        $mailbox->in_password = encrypt('password');
-        $mailbox->in_encryption = $attrs['in_encryption'] ?? '2';
-        $mailbox->in_imap_folders = $attrs['in_imap_folders'] ?? null;
+        $m = new Mailbox([
+            'name' => 'Test Mailbox',
+            'in_server' => $attrs['in_server'] ?? 'imap.example.com',
+            'in_port' => 993,
+            'in_username' => 'test@example.com',
+            'in_password' => encrypt('password'),
+            'in_encryption' => $attrs['in_encryption'] ?? '2',
+            'in_imap_folders' => $attrs['in_imap_folders'] ?? null,
+        ]);
+        $m->id = 1;
 
-        return $mailbox;
+        return $m;
     }
 
     public function test_fetch_emails_handles_special_character_folder_paths(): void

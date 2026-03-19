@@ -156,10 +156,9 @@ class SendAutoReplyListenerTest extends TestCase
     {
         Queue::fake();
 
-        // Mock conversation to simulate missing mailbox
-        $conversation = \Mockery::mock(Conversation::class)->makePartial();
-        $conversation->shouldReceive('getAttribute')->with('mailbox')->andReturn(null);
-        $conversation->id = 1;
+        // Create conversation then force-null the mailbox relationship
+        $conversation = Conversation::factory()->create();
+        $conversation->setRelation('mailbox', null);
 
         $thread = Thread::factory()->make();
 

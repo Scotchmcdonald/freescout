@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
+
 test('admin can view dashboard with all mailboxes', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox1 = Mailbox::factory()->create();
@@ -19,9 +20,7 @@ test('admin can view dashboard with all mailboxes', function () {
     $response = $this->actingAs($admin)->get(route('dashboard'));
 
     $response->assertOk();
-    $response->assertViewHas('mailboxes', function ($mailboxes) {
-        return $mailboxes->count() === 2;
-    });
+    expect($response->viewData('mailboxes')->count())->toBe(2);
 });
 
 test('user can view dashboard with assigned mailboxes only', function () {
@@ -37,9 +36,7 @@ test('user can view dashboard with assigned mailboxes only', function () {
     $response = $this->actingAs($user)->get(route('dashboard'));
 
     $response->assertOk();
-    $response->assertViewHas('mailboxes', function ($mailboxes) {
-        return $mailboxes->count() === 1;
-    });
+    expect($response->viewData('mailboxes')->count())->toBe(1);
 });
 
 test('dashboard displays active conversations count correctly', function () {
@@ -65,7 +62,7 @@ test('dashboard displays active conversations count correctly', function () {
     $response = $this->actingAs($user)->get(route('dashboard'));
 
     $response->assertOk();
-    $response->assertViewHas('activeConversations', 3);
+    expect($response->viewData('activeConversations'))->toBe(3);
 });
 
 test('dashboard displays unassigned conversations count correctly', function () {
@@ -93,8 +90,8 @@ test('dashboard displays unassigned conversations count correctly', function () 
     $response = $this->actingAs($user)->get(route('dashboard'));
 
     $response->assertOk();
-    $response->assertViewHas('unassignedConversations', 2);
-    $response->assertViewHas('activeConversations', 3);
+    expect($response->viewData('unassignedConversations'))->toBe(2);
+    expect($response->viewData('activeConversations'))->toBe(3);
 });
 
 test('dashboard provides per mailbox statistics', function () {
@@ -130,14 +127,11 @@ test('dashboard provides per mailbox statistics', function () {
     $response = $this->actingAs($user)->get(route('dashboard'));
 
     $response->assertOk();
-    $response->assertViewHas('stats', function ($stats) use ($mailbox1, $mailbox2) {
-        return isset($stats[$mailbox1->id])
-            && $stats[$mailbox1->id]['active'] === 3
-            && $stats[$mailbox1->id]['unassigned'] === 1
-            && isset($stats[$mailbox2->id])
-            && $stats[$mailbox2->id]['active'] === 1
-            && $stats[$mailbox2->id]['unassigned'] === 1;
-    });
+    $stats = $response->viewData('stats');
+    expect($stats[$mailbox1->id]['active'])->toBe(3)
+        ->and($stats[$mailbox1->id]['unassigned'])->toBe(1)
+        ->and($stats[$mailbox2->id]['active'])->toBe(1)
+        ->and($stats[$mailbox2->id]['unassigned'])->toBe(1);
 });
 
 test('dashboard only counts published conversations', function () {
@@ -161,7 +155,7 @@ test('dashboard only counts published conversations', function () {
 
     $response = $this->actingAs($user)->get(route('dashboard'));
     $response->assertOk();
-    $response->assertViewHas('activeConversations', 1);
+    expect($response->viewData('activeConversations'))->toBe(1);
 });
 
 test('dashboard requires authentication', function () {
@@ -176,8 +170,8 @@ test('dashboard with no conversations shows zero counts', function () {
     $response = $this->actingAs($user)->get(route('dashboard'));
 
     $response->assertOk();
-    $response->assertViewHas('activeConversations', 0);
-    $response->assertViewHas('unassignedConversations', 0);
+    expect($response->viewData('activeConversations'))->toBe(0);
+    expect($response->viewData('unassignedConversations'))->toBe(0);
 });
 
 test('dashboard handles user with no mailboxes', function () {
@@ -186,11 +180,9 @@ test('dashboard handles user with no mailboxes', function () {
     $response = $this->actingAs($user)->get(route('dashboard'));
 
     $response->assertOk();
-    $response->assertViewHas('mailboxes', function ($mailboxes) {
-        return $mailboxes->count() === 0;
-    });
-    $response->assertViewHas('activeConversations', 0);
-    $response->assertViewHas('unassignedConversations', 0);
+    expect($response->viewData('mailboxes')->count())->toBe(0);
+    expect($response->viewData('activeConversations'))->toBe(0);
+    expect($response->viewData('unassignedConversations'))->toBe(0);
 });
 
 test('dashboard stats exclude closed conversations', function () {
@@ -215,5 +207,5 @@ test('dashboard stats exclude closed conversations', function () {
     $response = $this->actingAs($user)->get(route('dashboard'));
 
     $response->assertOk();
-    $response->assertViewHas('activeConversations', 1);
+    expect($response->viewData('activeConversations'))->toBe(1);
 });

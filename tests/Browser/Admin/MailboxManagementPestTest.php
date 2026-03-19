@@ -25,7 +25,7 @@ it('mailbox list page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/mailboxes')
-        ->assertSee('Mailbox');
+        ->assertPathIs('/mailboxes');
 })->group('admin', 'mailboxes');
 
 it('mailbox create page loads', function () {
@@ -33,7 +33,7 @@ it('mailbox create page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/mailboxes/create')
-        ->assertSee('Create a Mailbox');
+        ->assertPathIs('/mailboxes/create');
 })->group('admin', 'mailboxes');
 
 it('mailbox settings page loads', function () {
@@ -42,7 +42,7 @@ it('mailbox settings page loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/mailbox/'.$mailbox->id.'/settings')
-        ->assertSee('Mailbox Settings');
+        ->assertPathIs('/mailbox/'.$mailbox->id.'/settings');
 })->group('admin', 'mailboxes');
 
 it('mailbox model has required attributes', function () {

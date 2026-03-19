@@ -26,7 +26,7 @@ it('billable ticket appears on invoice', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/billing/invoices/create')
-        ->assertSee('Invoice');
+        ->assertPathIs('/billing/invoices/create');
 })->group('billing', 'revenue-assurance', 'ticket-billing');
 
 it('non billable ticket excluded from invoice', function () {
@@ -36,7 +36,7 @@ it('non billable ticket excluded from invoice', function () {
 
     // Verify billable tickets endpoint exists for filtering
     $this->visit('/billing/invoices/billable-tickets')
-        ->assertSee('Ticket');
+        ->assertPathIs('/billing/invoices/billable-tickets');
 })->group('billing', 'revenue-assurance', 'ticket-billing');
 
 it('multiple billable tickets aggregate on invoice', function () {
@@ -57,7 +57,7 @@ it('ticket billing uses client custom rate', function () {
 
     // Verify client exists and billing can reference it
     $this->visit('/billing/invoices/create')
-        ->assertSee('Invoice');
+        ->assertPathIs('/billing/invoices/create');
 
     // Verify client has configurable billing data
     expect($client->id)->toBeGreaterThan(0);

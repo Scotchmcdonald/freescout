@@ -31,17 +31,18 @@ class ImapServiceAddressParsingTest extends UnitTestCase
 
     private function mailbox(): Mailbox
     {
-        $mailbox = Mockery::mock(Mailbox::class)->makePartial();
-        $mailbox->id = 1;
-        $mailbox->name = 'Test Mailbox';
-        $mailbox->in_server = 'imap.example.com';
-        $mailbox->in_port = 993;
-        $mailbox->in_username = 'test@example.com';
-        $mailbox->in_password = encrypt('password');
-        $mailbox->in_encryption = 1;
-        $mailbox->in_imap_folders = null;
+        $m = new Mailbox([
+            'name' => 'Test Mailbox',
+            'in_server' => 'imap.example.com',
+            'in_port' => 993,
+            'in_username' => 'test@example.com',
+            'in_password' => encrypt('password'),
+            'in_encryption' => 1,
+            'in_imap_folders' => null,
+        ]);
+        $m->id = 1;
 
-        return $mailbox;
+        return $m;
     }
 
     public function test_fetch_emails_retries_on_charset_error_message(): void

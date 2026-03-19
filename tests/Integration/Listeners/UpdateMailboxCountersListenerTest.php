@@ -79,10 +79,10 @@ class UpdateMailboxCountersListenerTest extends TestCase
 
     public function test_handles_conversation_without_mailbox(): void
     {
-        $conversationNoMailbox = \Mockery::mock(Conversation::class)->makePartial();
-        $conversationNoMailbox->shouldReceive('getAttribute')->with('mailbox')->andReturn(null);
-        $conversationNoMailbox->shouldReceive('getAttribute')->with('mailbox_id')->andReturn(null);
-        $conversationNoMailbox->id = 1;
+        $conversationNoMailbox = Conversation::factory()->create();
+        // Force the relationship to return null without hitting DB
+        $conversationNoMailbox->setRelation('mailbox', null);
+        $conversationNoMailbox->mailbox_id = null;
 
         $listener = new UpdateMailboxCounters;
         $event = new ConversationStatusChanged(

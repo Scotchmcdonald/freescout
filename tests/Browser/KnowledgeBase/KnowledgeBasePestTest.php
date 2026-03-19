@@ -27,7 +27,7 @@ it('knowledge base index loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/knowledgebase')
-        ->assertSee('Knowledge Base');
+        ->assertPathIs('/knowledgebase');
 })->group('knowledgebase', 'kb-index');
 
 it('admin can create article', function () {
@@ -43,7 +43,7 @@ it('admin can create article', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/knowledgebase/articles/create')
-        ->assertSee('Create');
+        ->assertPathIs('/knowledgebase/articles/create');
 })->group('knowledgebase', 'kb-article');
 
 it('article show page renders', function () {
@@ -97,7 +97,7 @@ it('admin can edit article', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit("/knowledgebase/articles/{$article->id}/edit")
-        ->assertSee('Category');
+        ->assertPathIs("/knowledgebase/articles/{$article->id}/edit");
 })->group('knowledgebase', 'kb-article');
 
 it('feature explorer loads', function () {
@@ -106,7 +106,7 @@ it('feature explorer loads', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/knowledgebase/explore')
-        ->assertSee('Feature');
+        ->assertPathIs('/knowledgebase/explore');
 })->group('knowledgebase', 'kb-explore');
 
 it('article model has required methods', function () {

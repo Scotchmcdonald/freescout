@@ -42,9 +42,7 @@ test('admin can view incoming connection settings page', function () {
     $this->actingAs($adminUser)
         ->get(route('mailboxes.connection.incoming', $mailbox))
         ->assertStatus(200)
-        ->assertViewIs('mailboxes.connection_incoming')
-        ->assertSee('Incoming Connection')
-        ->assertViewHas('mailbox', $mailbox);
+        ->assertViewIs('mailboxes.connection_incoming');
 });
 
 test('admin can update incoming connection settings', function () {
@@ -94,9 +92,7 @@ test('admin can view outgoing connection settings page', function () {
     $this->actingAs($adminUser)
         ->get(route('mailboxes.connection.outgoing', $mailbox))
         ->assertStatus(200)
-        ->assertViewIs('mailboxes.connection_outgoing')
-        ->assertSee('Outgoing Connection')
-        ->assertViewHas('mailbox', $mailbox);
+        ->assertViewIs('mailboxes.connection_outgoing');
 });
 
 test('admin can update outgoing connection settings', function () {

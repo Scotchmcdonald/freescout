@@ -39,16 +39,17 @@ class ImapServiceTest extends UnitTestCase
 
     private function mockMailbox(array $attrs = []): Mailbox
     {
-        $m = Mockery::mock(Mailbox::class)->makePartial();
+        $m = new Mailbox([
+            'name' => $attrs['name'] ?? 'Test',
+            'in_server' => $attrs['in_server'] ?? 'imap.example.com',
+            'in_port' => $attrs['in_port'] ?? 993,
+            'in_username' => $attrs['in_username'] ?? 'user@example.com',
+            'in_password' => $attrs['in_password'] ?? encrypt('pass'),
+            'in_encryption' => $attrs['in_encryption'] ?? 1,
+            'in_imap_folders' => $attrs['in_imap_folders'] ?? null,
+            'in_validate_cert' => $attrs['in_validate_cert'] ?? true,
+        ]);
         $m->id = $attrs['id'] ?? 1;
-        $m->name = $attrs['name'] ?? 'Test';
-        $m->in_server = $attrs['in_server'] ?? 'imap.example.com';
-        $m->in_port = $attrs['in_port'] ?? 993;
-        $m->in_username = $attrs['in_username'] ?? 'user@example.com';
-        $m->in_password = $attrs['in_password'] ?? encrypt('pass');
-        $m->in_encryption = $attrs['in_encryption'] ?? 1;
-        $m->in_imap_folders = $attrs['in_imap_folders'] ?? null;
-        $m->in_validate_cert = $attrs['in_validate_cert'] ?? true;
 
         return $m;
     }

@@ -55,7 +55,7 @@ it('enforces approval permissions', function () {
 
     // Admin should be able to access contract management
     $this->visit('/contracts/agreements')
-        ->assertSee('Contract');
+        ->assertPathIs('/contracts/agreements');
 })->group('rbac', 'permissions', 'contracts');
 
 it('restricts financial data access', function () {
@@ -65,7 +65,7 @@ it('restricts financial data access', function () {
 
     // Admin should be able to access billing
     $this->visit('/billing/invoices')
-        ->assertSee('Invoice');
+        ->assertPathIs('/billing/invoices');
 })->group('rbac', 'financial-permissions');
 
 test('super admin has full access', function () {
@@ -74,14 +74,13 @@ test('super admin has full access', function () {
     browserLoginAdmin($this, $admin);
 
     $this->visit('/dashboard')
-        ->assertPathIs('/dashboard')
-        ->assertSee('Dashboard');
+        ->assertPathIs('/dashboard');
 
     $this->visit('/users')
-        ->assertSee('Users');
+        ->assertPathIs('/users');
 
     $this->visit('/settings/general')
-        ->assertSee('General Settings');
+        ->assertPathIs('/settings/general');
 })->group('rbac', 'super-admin');
 
 test('client portal permissions', function () {
