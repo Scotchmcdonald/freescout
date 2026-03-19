@@ -175,8 +175,7 @@ class ListenersComprehensiveTest extends UnitTestCase
             'imported' => false,
         ]);
 
-        $customer = Mockery::mock(Customer::class)->makePartial();
-        $customer->shouldReceive('getMainEmail')->andReturn(null);
+        $customer = Customer::factory()->withoutEmail()->create();
         $conversation->setRelation('customer', $customer);
 
         (new SendReplyToCustomer)->handle(new UserCreatedConversation($conversation, $thread));

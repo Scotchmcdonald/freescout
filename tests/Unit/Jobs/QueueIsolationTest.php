@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Queue;
+use Modules\PIB\Models\Product;
 use Modules\PIB\Jobs\GenerateInvoiceJob;
 use Modules\PIB\Jobs\GenerateRecurringInvoicesJob;
 use Modules\PIB\Jobs\MonthEndTimeAggregationJob;
@@ -9,7 +9,7 @@ use Modules\PIB\Jobs\MonthEndTimeAggregationJob;
 test('generate invoice job uses billing queue', function () {
     Queue::fake();
 
-    $template = Mockery::mock(Model::class)->makePartial();
+    $template = new Product;
 
     GenerateInvoiceJob::dispatch($template);
 
@@ -35,7 +35,7 @@ test('month end time aggregation job uses billing queue', function () {
 test('all pib jobs use billing queue', function () {
     Queue::fake();
 
-    $template = Mockery::mock(Model::class)->makePartial();
+    $template = new Product;
 
     GenerateInvoiceJob::dispatch($template);
     GenerateRecurringInvoicesJob::dispatch();
