@@ -134,7 +134,7 @@
                                             @endif
                                         </div>
 
-                                        <div class="prose max-w-none">
+                                        <div class="prose max-w-none thread-body">
                                             @php
                                                 $threadBody = (string) ($thread->body ?? '');
                                                 $containsHtml = $threadBody !== strip_tags($threadBody);
