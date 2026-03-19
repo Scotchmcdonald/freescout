@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
-
 beforeEach(function () {
     $this->admin = User::factory()->create([
         'role' => User::ROLE_ADMIN,

@@ -27,7 +27,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      * allowlisted modules. Keep shrinking this list during migrations.
      * Each entry must carry an @expires date; the guard fails if date has passed.
      *
-     * @var array<string, string>  path => expiry date (Y-m-d)
+     * @var array<string, string> path => expiry date (Y-m-d)
      */
     private array $allowlistedRefreshDatabaseBaseline = [
         'Modules/SoftwareSubscriptions/Tests/Unit/ClientSoftwareSubscriptionPestTest.php' => '2026-09-01',

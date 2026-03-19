@@ -8,7 +8,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-
 test('admin can view dashboard with all mailboxes', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
     $mailbox1 = Mailbox::factory()->create();

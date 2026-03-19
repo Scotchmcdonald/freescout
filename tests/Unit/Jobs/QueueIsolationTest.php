@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Queue;
-use Modules\PIB\Models\Product;
 use Modules\PIB\Jobs\GenerateInvoiceJob;
 use Modules\PIB\Jobs\GenerateRecurringInvoicesJob;
 use Modules\PIB\Jobs\MonthEndTimeAggregationJob;
+use Modules\PIB\Models\Product;
 
 test('generate invoice job uses billing queue', function () {
     Queue::fake();

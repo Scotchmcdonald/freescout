@@ -26,7 +26,6 @@ use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Queue;
-use Mockery;
 use Tests\UnitTestCase;
 
 class ListenersComprehensiveTest extends UnitTestCase

@@ -21,15 +21,50 @@ namespace {
                 return new static($value);
             }
 
-            public function toBe(mixed $expected, string $message = ''): static { return $this; }
-            public function toBeTrue(string $message = ''): static { return $this; }
-            public function toBeFalse(string $message = ''): static { return $this; }
-            public function toBeNull(string $message = ''): static { return $this; }
-            public function toBeEmpty(string $message = ''): static { return $this; }
-            public function toEqual(mixed $expected, string $message = ''): static { return $this; }
-            public function toHaveCount(int $count, string $message = ''): static { return $this; }
-            public function toBeInstanceOf(string $class, string $message = ''): static { return $this; }
-            public function toThrow(string $class, ?string $message = null): static { return $this; }
+            public function toBe(mixed $expected, string $message = ''): static
+            {
+                return $this;
+            }
+
+            public function toBeTrue(string $message = ''): static
+            {
+                return $this;
+            }
+
+            public function toBeFalse(string $message = ''): static
+            {
+                return $this;
+            }
+
+            public function toBeNull(string $message = ''): static
+            {
+                return $this;
+            }
+
+            public function toBeEmpty(string $message = ''): static
+            {
+                return $this;
+            }
+
+            public function toEqual(mixed $expected, string $message = ''): static
+            {
+                return $this;
+            }
+
+            public function toHaveCount(int $count, string $message = ''): static
+            {
+                return $this;
+            }
+
+            public function toBeInstanceOf(string $class, string $message = ''): static
+            {
+                return $this;
+            }
+
+            public function toThrow(string $class, ?string $message = null): static
+            {
+                return $this;
+            }
 
             public function __call(string $name, array $arguments): static
             {
@@ -128,7 +163,7 @@ namespace {
     /**
      * @template TValue of mixed
      *
-     * @param TValue|null $value
+     * @param  TValue|null  $value
      */
     function expect(mixed $value = null): IntellisensePestExpectation
     {
@@ -477,5 +512,43 @@ namespace Mockery {
         public function byDefault(): static;
 
         public function shouldAllowMockingProtectedMethods(): static;
+    }
+}
+
+namespace Modules\PIB\Services {
+    if (false) {
+        class BillingAnalysisService
+        {
+            public function exposeCalculatePercentChange(float $previousAmount, float $currentAmount): float
+            {
+                return 0.0;
+            }
+
+            public function exposeIsUnusualVariance(float $percentChange): bool
+            {
+                return false;
+            }
+
+            /**
+             * @param  array<int, array<string, mixed>>  $variances
+             * @return array<int, array<string, mixed>>
+             */
+            public function exposeSortVariancesByMagnitude(array $variances): array
+            {
+                return $variances;
+            }
+        }
+    }
+}
+
+namespace Modules\ContractManager\Services {
+    if (false) {
+        class QuoteService
+        {
+            public function exposeCalculateLineTotal(int $quantity, float $unitPrice, float $discountPercent): float
+            {
+                return 0.0;
+            }
+        }
     }
 }

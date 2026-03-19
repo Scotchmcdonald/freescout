@@ -8,13 +8,12 @@ use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
-
 
 beforeEach(function () {
     // Create admin and agent users

@@ -9,7 +9,7 @@ echo "--> Running PHPStan static analysis..."
 
 if [ -f "$ROOT_DIR/vendor/bin/phpstan" ]; then
     # Run analysis with sufficient memory for a large modular app
-    "$ROOT_DIR/vendor/bin/phpstan" analyse --memory-limit=2G
+    "$ROOT_DIR/vendor/bin/phpstan" analyse --memory-limit=2G --configuration="$ROOT_DIR/phpstan.neon"
 
     if [ $? -ne 0 ]; then
         echo "❌ AUDIT FAILED: Static analysis detected errors."
