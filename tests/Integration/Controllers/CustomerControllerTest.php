@@ -44,24 +44,24 @@ class CustomerControllerTest extends IntegrationTestCase
 
     public function test_index_searches_by_first_name(): void
     {
-        Customer::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
-        Customer::factory()->create(['first_name' => 'Jane', 'last_name' => 'Smith']);
+        Customer::factory()->create(['first_name' => 'UniqueFirstA', 'last_name' => 'Doe']);
+        Customer::factory()->create(['first_name' => 'UniqueFirstB', 'last_name' => 'Smith']);
 
         $controller = new CustomerController;
-        $request = Request::create('/customers?search=John', 'GET');
+        $request = Request::create('/customers?search=UniqueFirstA', 'GET');
 
         $view = $controller->index($request);
         $customers = $view->getData()['customers'];
 
         $this->assertCount(1, $customers);
-        $this->assertEquals('John', $customers->first()->first_name);
+        $this->assertEquals('UniqueFirstA', $customers->first()->first_name);
     }
 
     public function test_index_searches_by_last_name(): void
     {
         // Use unique names to prevent collisions
-        Customer::factory()->create(['first_name' => 'John', 'last_name' => 'UniqueLastA']);
-        Customer::factory()->create(['first_name' => 'Jane', 'last_name' => 'UniqueLastB']);
+        Customer::factory()->create(['first_name' => 'UniqueFirstC', 'last_name' => 'UniqueLastA']);
+        Customer::factory()->create(['first_name' => 'UniqueFirstD', 'last_name' => 'UniqueLastB']);
 
         $controller = new CustomerController;
         $request = Request::create('/customers?search=UniqueLastB', 'GET');
