@@ -1,194 +1,134 @@
 # Testing Contribution Guide
 
-*Last updated: 2026-03-18 — tracked by CI.*
+This guide defines how to add or modify tests in this repository with high signal, fast feedback, and strong module boundaries.
 
-## Decision Tree: Which Test Class to Use
+## Purpose
 
-```
-Is the behavior you are testing…
+Use this guide when writing or reviewing tests so contributions align with:
+- docs/development/WIP/Testing phase plans
+- tests/testing_standards.md
+- architecture and isolation guard tests
 
-── purely about logic/computation with no DB or HTTP?
-   └── UnitTestCase (tests/UnitTestCase.php)
-       Modules/*/Tests/Unit/
-       NO factories create(); NO RefreshDatabase; use make() or value objects.
+## Quick Start
 
-── about persistence, model events, or Eloquent relationships?
-   └── IntegrationTestCase (tests/IntegrationTestCase.php)
-       Modules/*/Tests/Integration/
-       RefreshDatabase is acceptable. Scope to one module.
-       Do NOT call other modules' real services directly; use fakes or contracts.
+1. Put the test in the right layer: Unit, Feature, Integration, or Browser.
+2. Prefer behavior assertions over framework internals.
+3. Use the smallest test scope needed to prove the behavior.
+4. Run focused tests first, then broader suites only when needed.
+5. Inspect reports/test-results-latest.log after each run.
 
-── about HTTP routes, middleware, or the full request/response cycle?
-   └── TestCase (tests/TestCase.php) with RefreshDatabase
-       tests/Feature/ or Modules/*/Tests/Feature/
-       Assert response codes + business outcomes, not view copy.
-       Keep assertSee() only for copy that is a product requirement.
+## Layer Placement Rules
 
-── about user-visible, multi-step browser workflows (a real risk)?
-   └── DuskTestCase in tests/Browser/
-       Use sparingly. One file per critical UX flow.
-       Must justify why this cannot be covered as a feature test.
-```
+### Unit
 
-## Required Patterns (Templates)
+Use Unit tests for pure logic and deterministic behavior.
 
-### Unit Test (Service with Pure Logic)
+Required:
+- no RefreshDatabase
+- no direct cross-module persistence
+- no cross-module service resolution via app()->make or resolve in unit scope
 
-```php
-<?php
+### Feature
 
-declare(strict_types=1);
+Use Feature tests for controller behavior, authorization, validation, middleware, and request flow.
 
-namespace Modules\YourModule\Tests\Unit;
+### Integration
 
-use Modules\YourModule\Services\YourService;
-use Tests\UnitTestCase;
+Use Integration tests when persistence, framework wiring, event chains, or external adapters are part of the contract.
 
-it('describes the specific invariant being tested', function () {
-    $service = new YourService();
+### Browser
 
-    $result = $service->calculate(/* inputs */);
+Use Browser tests only for high-value end-to-end UX journeys.
 
-    expect($result)->toBe(/* expected output */);
-});
+## High-Signal Assertion Patterns
 
-it('throws when given invalid input', function () {
-    $service = new YourService();
+Prefer:
+- state change assertions
+- domain event dispatch assertions
+- authorization and policy assertions
+- HTTP status and structured payload assertions
+- side-effect assertions with explicit fakes
 
-    expect(fn () => $service->calculate(-1))->toThrow(\InvalidArgumentException::class);
-});
-```
+Avoid:
+- relation-type assertions for framework internals
+- broad copy matching where behavior can be asserted directly
+- over-mocking the service under test
 
-### Integration Test (Service with DB side-effects)
+## External API and HTTP Rules
 
-```php
-<?php
+- Always isolate external HTTP calls with Http::fake or equivalent boundary fakes.
+- Never hit live services in test runs.
+- Verify request payloads and retry behavior where relevant.
 
-declare(strict_types=1);
+## Mocking Rules
 
-namespace Modules\YourModule\Tests\Integration;
+Use mocks only when needed for boundaries.
 
-use Modules\YourModule\Models\YourModel;
-use Modules\YourModule\Services\YourService;
-use Tests\IntegrationTestCase;
+Prefer:
+- contract-level mocks
+- fake adapters
+- deterministic test doubles
 
-it('persists the expected state after the operation', function () {
-    $model = YourModel::factory()->create(['status' => 'draft']);
+Avoid:
+- makePartial on the primary service under test unless there is no viable alternative
 
-    app(YourService::class)->process($model);
+## Unit Isolation Rules
 
-    expect($model->fresh()->status)->toBe('processed');
-});
-```
+These rules are enforced by tests/Unit/ModuleUnitIsolationGuardTest.php and architecture tests.
 
-### External API Call (Boundary Contract)
+Contributors must not introduce:
+- new RefreshDatabase usage in unit scope
+- cross-module persistence in unit tests
+- direct cross-module service resolution in unit tests
 
-```php
-<?php
+## Required Local Validation Flow
 
-declare(strict_types=1);
-
-it('handles gateway failure gracefully', function () {
-    Http::fake([
-        'api.external.com/*' => Http::response(['error' => 'rate_limit'], 429),
-    ]);
-    Http::preventStrayRequests();
-
-    expect(fn () => app(ExternalService::class)->call())
-        ->toThrow(\App\Exceptions\GatewayException::class);
-});
-```
-
-## Forbidden Patterns (Do Not Write These)
-
-### ❌ Framework Wiring Test — Verifies Laravel, Not Your Code
-
-```php
-// BAD: This tests that BelongsTo exists in Laravel, not your model.
-it('client belongs to company', function () {
-    expect(new Client())
-        ->client()
-        ->toBeInstanceOf(BelongsTo::class); // FORBIDDEN
-});
-```
-
-### ❌ makePartial on the Service Under Test
-
-```php
-// BAD: You are mocking the object you are testing.
-// The internal method can do anything — you get no real coverage.
-$service = Mockery::mock(QuoteService::class)->makePartial();
-$service->shouldReceive('createQuote')->andReturn($fakeQuote);
-// The real createQuote logic is never exercised.
-```
-
-**Correct pattern:** use a real service with a faked repository/Http.
-
-### ❌ Hollow Assertion
-
-```php
-// BAD: This test always passes regardless of what the service does.
-it('creates a quote', function () {
-    $service = app(QuoteService::class);
-    $quote = $service->createQuote($client, $data);
-    expect($quote)->not->toBeNull(); // Every object will pass this
-});
-```
-
-**Correct pattern:** assert the specific state produced: `$quote->status`, `$quote->line_items->count()`.
-
-### ❌ UI Copy as Business Rule Proxy
-
-```php
-// BAD: Brittle to any phrasing change, tests no behavior.
-$response->assertSee('Your invoice has been generated successfully.');
-```
-
-**Correct pattern:**
-```php
-$response->assertStatus(201);
-expect(Invoice::latest()->first()->status)->toBe('published');
-```
-
-### ❌ RefreshDatabase in a Unit Test Folder
-
-```php
-// BAD: This makes your "unit" test 10x slower and couples it to the DB.
-namespace Modules\YourModule\Tests\Unit;
-
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-class YourServiceTest extends UnitTestCase
-{
-    use RefreshDatabase; // FORBIDDEN in Tests/Unit/ — move to Tests/Integration/
-}
-```
-
-## Anti-Pattern Detection Commands
-
-Run before submitting a PR:
+Run the narrowest relevant checks first:
 
 ```bash
-# Count your assertSee additions (target: 0 new per PR)
-git diff --unified=0 | grep '^\+.*assertSee\b' | wc -l
-
-# Count new RefreshDatabase in unit folders (target: 0)
-git diff --unified=0 | grep -E '^\+.*RefreshDatabase' -- 'Modules/*/Tests/Unit/*.php' | wc -l
-
-# Check for makePartial on live services (target: 0)
-git diff --unified=0 | grep '^\+.*makePartial()' | wc -l
+php artisan test path/to/changed/test-file.php
 ```
 
-## Module Test Folder Structure (Required)
+Then run broader checks as needed:
 
-Every module MUST have:
-
-```
-Modules/YourModule/Tests/
-├── Unit/           ← service logic, pure computation, no DB
-├── Integration/    ← persistence, events, DB-backed behavior
-└── Feature/        ← HTTP routes, forms, middleware
+```bash
+php artisan test tests/Unit/ModuleUnitIsolationGuardTest.php
+php artisan test tests/Architecture/
+php artisan test
 ```
 
-Browser tests may be added only in `Modules/YourModule/Tests/Browser/` with written
-justification in the test file's docblock.
+Important:
+- The project already writes test logs to reports/test-results-<timestamp>.log and updates reports/test-results-latest.log.
+- Prefer inspecting reports/test-results-latest.log over rerunning expensive suites.
+
+## Pull Request Checklist
+
+- [ ] Tests are in the correct layer.
+- [ ] No new unit-scope RefreshDatabase usage.
+- [ ] No new cross-module unit coupling.
+- [ ] Assertions focus on behavior, not framework internals.
+- [ ] External HTTP interactions are faked.
+- [ ] Touched tests pass.
+- [ ] Architecture and isolation checks remain green when applicable.
+- [ ] Any temporary exception is documented with an owner and expiry date.
+
+## Autonomous Agent Contribution Mode
+
+When an LLM agent is working in this repository, autonomous execution is expected for:
+- read-only inspection
+- minimal focused edits
+- non-destructive test runs
+- report-log analysis
+
+The agent should pause only when:
+- requirements are ambiguous
+- a major architecture decision is required
+- a change would alter business behavior rather than test quality
+
+## Ownership
+
+- QA Lead: policy and cadence stewardship
+- Module Owners: test quality in their modules
+- Reviewers: enforce layer placement and isolation compliance
+
+Last updated: 2026-03-19

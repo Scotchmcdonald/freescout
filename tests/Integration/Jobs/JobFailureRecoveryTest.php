@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Jobs;
+namespace Tests\Integration\Jobs;
 
 use App\Jobs\SendAlertJob as SendAlert;
 use App\Jobs\SendAutoReplyJob;
@@ -19,9 +19,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class JobFailureRecoveryTest extends UnitTestCase
+class JobFailureRecoveryTest extends IntegrationTestCase
 {
     public function test_send_auto_reply_job_creates_send_log_on_success(): void
     {

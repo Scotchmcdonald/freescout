@@ -3,6 +3,12 @@
 > **Scope:** These are **target standards** we are progressively implementing through the phased test suite improvement roadmap (`TEST_SUITE_MASTER_PHASE_PLAN_6_5_TO_10.md`). The current codebase does not fully comply with all standards below. Use this document as the canonical specification to guide test improvements and the LLM-driven maintenance process via `PROMPT_TEST_SUITE_MAINTENANCE.md`.
 >
 > **Current Baseline (as of 2026-03-18):** Score 6.5/10. See Part 1 of the master plan for detailed compliance gaps.
+>
+> **Execution Pack:** Use `docs/development/WIP/Testing/README.md` for phase-by-phase implementation guides and start prompts.
+>
+> **Operational References:**
+> - `docs/development/TESTING_CONTRIBUTION_GUIDE.md`
+> - `docs/development/TEST_MAINTENANCE_CADENCE.md`
 
 ## 1. The Core Philosophy
 We test to ensure **business logic remains intact** during refactoring and to provide **living documentation** of the application's features. We do not waste resources testing the Laravel framework itself. We pursue **deep branch coverage** on critical financial and domain services, and we measure code coverage through both traditional metrics and **mutation testing**.
@@ -248,6 +254,9 @@ The following patterns indicate non-compliance with this document's target stand
 This document works in concert with the test suite improvement initiative:
 
 - **Master Phase Plan:** `docs/development/WIP/TEST_SUITE_MASTER_PHASE_PLAN_6_5_TO_10.md` — Strategic roadmap for reaching 10/10.
+- **Phase Execution Pack:** `docs/development/WIP/Testing/README.md` — Ready-to-run implementation guides and phase prompts.
+- **Contribution Guide:** `docs/development/TESTING_CONTRIBUTION_GUIDE.md` — Required test authoring and validation rules.
+- **Maintenance Cadence:** `docs/development/TEST_MAINTENANCE_CADENCE.md` — Weekly to quarterly operating rhythm.
 - **Maintenance Prompt:** `docs/development/Prompts/PROMPT_TEST_SUITE_MAINTENANCE.md` — LLM-driven audits and actionable phase tasks.
 - **Infection/Mutation Testing:** https://infection.github.io — Verify tests catch real bugs.
 - **Pest Testing Framework:** https://pestphp.com — Modern PHP testing with architecture rules.
