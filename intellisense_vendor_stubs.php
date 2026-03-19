@@ -1,52 +1,6 @@
 <?php
 
 namespace {
-    class IntellisensePestExpectation
-    {
-        public function __construct(public mixed $value = null) {}
-
-        public function __get(string $name): static
-        {
-            return $this;
-        }
-
-        /**
-         * @param-closure-this self $extend
-         */
-        public function extend(string $name, \Closure $extend): void {}
-
-        public function and(mixed $value): static
-        {
-            return new static($value);
-        }
-
-        public function toBeInstanceOf(string $class, string $message = ''): static
-        {
-            return $this;
-        }
-
-        public function toBeTrue(string $message = ''): static { return $this; }
-        public function toBeFalse(string $message = ''): static { return $this; }
-        public function toBeNull(string $message = ''): static { return $this; }
-        public function toBeEmpty(string $message = ''): static { return $this; }
-        public function toBe(mixed $expected, string $message = ''): static { return $this; }
-        public function toEqual(mixed $expected, string $message = ''): static { return $this; }
-        public function toContain(mixed ...$needles): static { return $this; }
-        public function toBeLessThan(mixed $expected, string $message = ''): static { return $this; }
-        public function toBeGreaterThan(mixed $expected, string $message = ''): static { return $this; }
-        public function toBeLessThanOrEqual(mixed $expected, string $message = ''): static { return $this; }
-        public function toBeGreaterThanOrEqual(mixed $expected, string $message = ''): static { return $this; }
-        public function toHaveCount(int $count, string $message = ''): static { return $this; }
-        public function toHaveKey(string|int $key, mixed $value = null): static { return $this; }
-        public function toHaveKeys(array $keys): static { return $this; }
-        public function toMatchArray(array $array): static { return $this; }
-
-        public function __call(string $name, array $arguments): static
-        {
-            return $this;
-        }
-    }
-
     class View
     {
         public static function make(string $view, array $data = [], array $mergeData = []): object
@@ -88,21 +42,6 @@ namespace {
         }
     }
 
-    if (false) {
-        /**
-         * Creates a new expectation for any value type.
-         * IDE stub that overrides vendor Pest\expect() to fix template TValue constraint.
-         *
-         * @template TValue of mixed
-         *
-         * @param TValue|null $value The value to create an expectation for
-         * @return Pest\Expectation<TValue> The expectation object
-         */
-        function expect(mixed $value = null): \Pest\Expectation
-        {
-            return new \Pest\Expectation($value);
-        }
-    }
 }
 
 namespace Modules\EmailMigration\Services {

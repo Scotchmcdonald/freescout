@@ -249,7 +249,8 @@
                                 <!-- Resolution Notes -->
                                 <div>
                                     <label for="resolution_notes"
-                                        class="block text-sm font-medium text-neutral-700 mb-1">Resolution Notes</label>
+                                        class="block text-sm font-medium text-neutral-700 mb-1">Resolution
+                                        Notes</label>
                                     <textarea name="resolution_notes" id="resolution_notes" rows="3" dusk="resolution-notes"
                                         class="w-full border-neutral-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
                                         placeholder="Notes about the resolution...">{{ $meta['resolution_notes'] ?? '' }}</textarea>
@@ -278,7 +279,8 @@
                                         </div>
 
                                         <div>
-                                            <label for="billable_rate" class="block text-sm text-neutral-700 mb-1">Rate
+                                            <label for="billable_rate"
+                                                class="block text-sm text-neutral-700 mb-1">Rate
                                                 ($/hr)</label>
                                             <input type="number" name="billable_rate" id="billable_rate"
                                                 dusk="billable-rate" step="0.01" min="0"

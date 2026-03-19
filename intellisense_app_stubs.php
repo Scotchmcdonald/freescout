@@ -6,6 +6,47 @@
  */
 
 namespace {
+    if (! class_exists('IntellisensePestExpectation')) {
+        class IntellisensePestExpectation
+        {
+            public function __construct(public mixed $value = null) {}
+
+            public function __get(string $name): static
+            {
+                return $this;
+            }
+
+            public function and(mixed $value): static
+            {
+                return new static($value);
+            }
+
+            public function toBe(mixed $expected, string $message = ''): static { return $this; }
+            public function toBeTrue(string $message = ''): static { return $this; }
+            public function toBeFalse(string $message = ''): static { return $this; }
+            public function toBeNull(string $message = ''): static { return $this; }
+            public function toBeEmpty(string $message = ''): static { return $this; }
+            public function toEqual(mixed $expected, string $message = ''): static { return $this; }
+            public function toHaveCount(int $count, string $message = ''): static { return $this; }
+            public function toBeInstanceOf(string $class, string $message = ''): static { return $this; }
+            public function toThrow(string $class, ?string $message = null): static { return $this; }
+
+            public function __call(string $name, array $arguments): static
+            {
+                return $this;
+            }
+        }
+    }
+
+    if (! interface_exists('PestDynamicTestContext')) {
+        interface PestDynamicTestContext
+        {
+            public function __get(string $name): mixed;
+
+            public function __set(string $name, mixed $value): void;
+        }
+    }
+
     if (! function_exists('uses')) {
         /** @param class-string ...$classAndTraits */
         function uses(string ...$classAndTraits): mixed
@@ -16,7 +57,7 @@ namespace {
 
     if (! function_exists('it')) {
         /**
-         * @param-closure-this \Tests\TestCase $closure
+         * @param-closure-this \Tests\TestCase&\PestDynamicTestContext $closure
          */
         function it(string $description, ?\Closure $closure = null): mixed
         {
@@ -26,7 +67,7 @@ namespace {
 
     if (! function_exists('test')) {
         /**
-         * @param-closure-this \Tests\TestCase $closure
+         * @param-closure-this \Tests\TestCase&\PestDynamicTestContext $closure
          */
         function test(?string $description = null, ?\Closure $closure = null): mixed
         {
@@ -40,7 +81,7 @@ namespace {
 
     if (! function_exists('beforeEach')) {
         /**
-         * @param-closure-this \Tests\TestCase $closure
+         * @param-closure-this \Tests\TestCase&\PestDynamicTestContext $closure
          */
         function beforeEach(?\Closure $closure = null): mixed
         {
@@ -50,7 +91,7 @@ namespace {
 
     if (! function_exists('afterEach')) {
         /**
-         * @param-closure-this \Tests\TestCase $closure
+         * @param-closure-this \Tests\TestCase&\PestDynamicTestContext $closure
          */
         function afterEach(?\Closure $closure = null): mixed
         {
@@ -64,7 +105,7 @@ namespace {
 
     if (! function_exists('describe')) {
         /**
-         * @param-closure-this \Tests\TestCase $closure
+         * @param-closure-this \Tests\TestCase&\PestDynamicTestContext $closure
          */
         function describe(string $description, \Closure $tests): mixed
         {
@@ -82,6 +123,16 @@ namespace {
         {
             return null;
         }
+    }
+
+    /**
+     * @template TValue of mixed
+     *
+     * @param TValue|null $value
+     */
+    function expect(mixed $value = null): IntellisensePestExpectation
+    {
+        return new IntellisensePestExpectation($value);
     }
 
     if (! function_exists('data_get')) {
@@ -122,6 +173,21 @@ namespace {
 
     if (! class_exists('Config')) {
         class Config extends \Illuminate\Support\Facades\Config {}
+    }
+}
+
+namespace Tests {
+    if (false) {
+        #[\AllowDynamicProperties]
+        abstract class TestCase extends \Illuminate\Foundation\Testing\TestCase
+        {
+            public function __get(string $name): mixed
+            {
+                return null;
+            }
+
+            public function __set(string $name, mixed $value): void {}
+        }
     }
 }
 

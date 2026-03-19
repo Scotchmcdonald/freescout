@@ -92,15 +92,15 @@
     @apply list-none p-0 m-0;
 }
 
-.sidebar-menu > li {
+.sidebar-menu>li {
     @apply relative;
 }
 
-.sidebar-menu > li > a {
+.sidebar-menu>li>a {
     @apply block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-r-full transition-colors;
 }
 
-.sidebar-menu > li.active > a {
+.sidebar-menu>li.active>a {
     @apply bg-blue-100 text-blue-700 font-semibold;
 }
 
@@ -131,67 +131,6 @@
 
 .thread-body {
     @apply prose max-w-none;
-}
-
-/* Dark mode readability for rendered HTML/prose content */
-.dark .prose,
-.dark .prose :where(h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    p,
-    li,
-    ul,
-    ol,
-    blockquote,
-    strong,
-    em,
-    figcaption,
-    td,
-    th,
-    code,
-    pre) {
-    color: var(--theme-text-main) !important;
-}
-
-.dark .prose :where(a, a *) {
-    color: var(--theme-primary-500) !important;
-}
-
-.dark .prose :where(hr, table, td, th, blockquote) {
-    border-color: var(--theme-border) !important;
-}
-
-.dark .prose :where(code) {
-    background-color: var(--theme-bg-input) !important;
-}
-
-.dark .prose :where(pre) {
-    background-color: var(--theme-bg-card) !important;
-}
-
-/* Email thread content often carries inline light-theme colors. Normalize in dark mode. */
-.dark .thread-body,
-.dark .thread-body * {
-    color: var(--theme-text-main) !important;
-}
-
-.dark .thread-body a,
-.dark .thread-body a * {
-    color: var(--theme-primary-500) !important;
-}
-
-.dark .thread-body [style*="background"],
-.dark .thread-body [bgcolor] {
-    background-color: transparent !important;
-}
-
-.dark .thread-body table,
-.dark .thread-body td,
-.dark .thread-body th {
-    border-color: var(--theme-border) !important;
 }
 
 /* Dark mode readability for rendered HTML/prose content */
@@ -336,11 +275,11 @@
     .sidebar-2col {
         @apply hidden;
     }
-    
+
     .layout-2col {
         @apply flex-col;
     }
-    
+
     .editor-toolbar {
         @apply flex-wrap;
     }
@@ -348,13 +287,14 @@
 
 /* Print Styles */
 @media print {
+
     .sidebar-2col,
     .navbar,
     .editor-toolbar,
     button {
         @apply hidden;
     }
-    
+
     .content-2col {
         @apply shadow-none;
     }
@@ -366,6 +306,7 @@
         transform: translateX(100%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -381,12 +322,15 @@
     .dark-mode {
         @apply bg-gray-900 text-gray-100;
     }
-    
+
     .dark-mode .editor-content {
         @apply bg-gray-800 text-gray-100;
     }
 }
-[x-cloak] { display: none !important; }
+
+[x-cloak] {
+    display: none !important;
+}
 
 /* ===========================================================================
    Guided Tour (Driver.js) Custom Styles
@@ -413,14 +357,12 @@
     }
 
     .driver-popover-prev-btn {
-        @apply px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg
-               hover:bg-gray-200 transition-colors;
+        @apply px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors;
     }
 
     .driver-popover-next-btn,
     .driver-popover-done-btn {
-        @apply px-4 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg
-               hover:bg-primary-700 transition-colors shadow-sm;
+        @apply px-4 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors shadow-sm;
     }
 
     .driver-popover-close-btn {
@@ -429,11 +371,11 @@
 
     /* Checkpoint buttons specifically */
     .checkpoint-btn-primary {
-         @apply bg-primary-600 text-white hover:bg-primary-700;
+        @apply bg-primary-600 text-white hover:bg-primary-700;
     }
-    
+
     .checkpoint-btn-secondary {
-         @apply bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300;
+        @apply bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300;
     }
 }
 
