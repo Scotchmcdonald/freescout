@@ -194,6 +194,67 @@
     border-color: var(--theme-border) !important;
 }
 
+/* Dark mode readability for rendered HTML/prose content */
+.dark .prose,
+.dark .prose :where(h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    li,
+    ul,
+    ol,
+    blockquote,
+    strong,
+    em,
+    figcaption,
+    td,
+    th,
+    code,
+    pre) {
+    color: var(--theme-text-main) !important;
+}
+
+.dark .prose :where(a, a *) {
+    color: var(--theme-primary-500) !important;
+}
+
+.dark .prose :where(hr, table, td, th, blockquote) {
+    border-color: var(--theme-border) !important;
+}
+
+.dark .prose :where(code) {
+    background-color: var(--theme-bg-input) !important;
+}
+
+.dark .prose :where(pre) {
+    background-color: var(--theme-bg-card) !important;
+}
+
+/* Email thread content often carries inline light-theme colors. Normalize in dark mode. */
+.dark .thread-body,
+.dark .thread-body * {
+    color: var(--theme-text-main) !important;
+}
+
+.dark .thread-body a,
+.dark .thread-body a * {
+    color: var(--theme-primary-500) !important;
+}
+
+.dark .thread-body [style*="background"],
+.dark .thread-body [bgcolor] {
+    background-color: transparent !important;
+}
+
+.dark .thread-body table,
+.dark .thread-body td,
+.dark .thread-body th {
+    border-color: var(--theme-border) !important;
+}
+
 /* Notification Badge */
 .notification-badge {
     @apply inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full;
