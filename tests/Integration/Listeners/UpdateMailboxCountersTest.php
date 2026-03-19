@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Listeners;
+namespace Tests\Integration\Listeners;
 
 use App\Events\ConversationStatusChanged;
 use App\Events\ConversationUserChanged;
@@ -10,12 +10,12 @@ use App\Listeners\UpdateMailboxCounters;
 use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\User;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
 /**
  * Test UpdateMailboxCounters Listener
  */
-class UpdateMailboxCountersTest extends UnitTestCase
+class UpdateMailboxCountersTest extends IntegrationTestCase
 {
     public function test_listener_can_be_instantiated(): void
     {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Observers;
+namespace Tests\Integration\Observers;
 
 use App\Events\ConversationStatusChanged;
 use App\Events\ConversationUserChanged;
@@ -17,15 +17,17 @@ use App\Models\Thread;
 use App\Models\User;
 use App\Observers\ConversationObserver;
 use App\Observers\ThreadObserver;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
 /**
  * Comprehensive tests for Observer classes
- * Following TESTING_GUIDE.md - using test_ prefix, UnitTestCase base class
+ * Following TESTING_GUIDE.md - using test_ prefix, IntegrationTestCase base class
  */
-class ObserversComprehensiveTest extends UnitTestCase
+class ObserversComprehensiveTest extends IntegrationTestCase
 {
     // ===== CONVERSATION OBSERVER TESTS =====
 
@@ -245,12 +247,12 @@ class ObserversComprehensiveTest extends UnitTestCase
         ]);
 
         $this->assertNotEquals('plain-text-password', $user->password);
-        $this->assertTrue(\Hash::check('plain-text-password', $user->password));
+        $this->assertTrue(Hash::check('plain-text-password', $user->password));
     }
 
     public function test_user_observer_does_not_rehash_hashed_password(): void
     {
-        $hashedPassword = \Hash::make('password');
+        $hashedPassword = Hash::make('password');
 
         $user = User::factory()->create([
             'password' => $hashedPassword,
@@ -276,7 +278,7 @@ class ObserversComprehensiveTest extends UnitTestCase
     {
         Event::fake([ConversationStatusChanged::class]);
 
-        \DB::transaction(function () {
+        DB::transaction(function () {
             $conversation = Conversation::factory()->create([
                 'status' => Conversation::STATUS_ACTIVE,
             ]);

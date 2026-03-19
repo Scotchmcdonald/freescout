@@ -51,6 +51,28 @@ Shift the suite toward a healthier mix of unit, feature, integration, and browse
 - Removed redundant browser smoke assertion with no unique behavior:
 	- `tests/Browser/SessionFlashPestTest.php`
 - Refactored `Modules/CaseManager/Services/AudienceTargetingService.php` to expose pure audience policy seams while preserving integration behavior
+- Reclassified root DB-heavy observer suites from Unit to Integration:
+	- `tests/Unit/Observers/ObserverCascadeTest.php` -> `tests/Integration/Observers/ObserverCascadeTest.php`
+	- `tests/Unit/Observers/ObserversComprehensiveTest.php` -> `tests/Integration/Observers/ObserversComprehensiveTest.php`
+- Split mixed-scope event coverage to keep Unit pure while preserving DB behavior checks:
+	- kept listener-registration assertions in `tests/Unit/Events/EventDrivenIntegrationPestTest.php`
+	- added persistence assertion in `tests/Integration/Events/ClientArchivedBillingPausePestTest.php`
+- Shrank `ModuleUnitIsolationGuardTest` RefreshDatabase baseline allowlist to empty after module-unit migrations removed legacy entries
+- Reclassified additional root DB-heavy listener suites from Unit to Integration:
+	- `tests/Unit/Listeners/SendReplyToCustomerTest.php` -> `tests/Integration/Listeners/SendReplyToCustomerTest.php`
+	- `tests/Unit/Listeners/UpdateMailboxCountersTest.php` -> `tests/Integration/Listeners/UpdateMailboxCountersTest.php`
+	- `tests/Unit/Listeners/SendAutoReplyTest.php` -> `tests/Integration/Listeners/SendAutoReplyTest.php`
+- Reclassified root DB-heavy logging listener suites from Unit to Integration:
+	- `tests/Unit/Listeners/LogLockoutTest.php` -> `tests/Integration/Listeners/LogLockoutTest.php`
+	- `tests/Unit/Listeners/LogPasswordResetTest.php` -> `tests/Integration/Listeners/LogPasswordResetTest.php`
+	- `tests/Unit/Listeners/LogRegisteredUserTest.php` -> `tests/Integration/Listeners/LogRegisteredUserTest.php`
+	- `tests/Unit/Listeners/LogUserDeletionTest.php` -> `tests/Integration/Listeners/LogUserDeletionTest.php`
+	- `tests/Unit/Listeners/LogListenersTest.php` -> `tests/Integration/Listeners/LogListenersTest.php`
+- Reclassified final root listener suites from Unit to Integration:
+	- `tests/Unit/Listeners/AdditionalListenersTest.php` -> `tests/Integration/Listeners/AdditionalListenersTest.php`
+	- `tests/Unit/Listeners/ListenersComprehensiveTest.php` -> `tests/Integration/Listeners/ListenersComprehensiveTest.php`
+	- `tests/Unit/Listeners/SendAutoReplyInternalEmailTest.php` -> `tests/Integration/Listeners/SendAutoReplyInternalEmailTest.php`
+	- `tests/Unit/Listeners/SendNotificationToUsersTest.php` -> `tests/Integration/Listeners/SendNotificationToUsersTest.php`
 
 ### Remaining Gap To Exit Criteria
 

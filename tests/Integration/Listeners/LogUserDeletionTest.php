@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Listeners;
+namespace Tests\Integration\Listeners;
 
 use App\Events\UserDeleted;
 use App\Listeners\LogUserDeletion;
 use App\Models\ActivityLog;
 use App\Models\User;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class LogUserDeletionTest extends UnitTestCase
+class LogUserDeletionTest extends IntegrationTestCase
 {
     public function test_handle_creates_activity_log_entry(): void
     {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Listeners;
+namespace Tests\Integration\Listeners;
 
 use App\Events\ConversationStatusChanged;
 use App\Events\ConversationUserChanged;
@@ -23,9 +23,9 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class AdditionalListenersTest extends UnitTestCase
+class AdditionalListenersTest extends IntegrationTestCase
 {
     // RememberUserLocale Listener Tests (5 tests)
 

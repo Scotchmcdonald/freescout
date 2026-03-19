@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Listeners;
+namespace Tests\Integration\Listeners;
 
 use App\Events\ConversationUserChanged;
 use App\Events\CustomerCreatedConversation;
@@ -18,9 +18,9 @@ use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class SendNotificationToUsersTest extends UnitTestCase
+class SendNotificationToUsersTest extends IntegrationTestCase
 {
     public function test_listener_handles_user_replied_event(): void
     {

@@ -29,19 +29,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      *
      * @var array<string, string> path => expiry date (Y-m-d)
      */
-    private array $allowlistedRefreshDatabaseBaseline = [
-        'Modules/SoftwareSubscriptions/Tests/Unit/ClientSoftwareSubscriptionPestTest.php' => '2026-09-01',
-        'Modules/SoftwareSubscriptions/Tests/Unit/DiscoveryEventsPestTest.php' => '2026-09-01',
-        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketListenerPestTest.php' => '2026-09-01',
-        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketListenerTest.php' => '2026-09-01',
-        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketSystemPestTest.php' => '2026-09-01',
-        'Modules/SoftwareSubscriptions/Tests/Unit/OffboardingTicketSystemTest.php' => '2026-09-01',
-        'Modules/SoftwareSubscriptions/Tests/Unit/SoftwareDiscoveryPestTest.php' => '2026-09-01',
-        'Modules/SoftwareSubscriptions/Tests/Unit/SoftwareProductPestTest.php' => '2026-09-01',
-        'Modules/SoftwareSubscriptions/Tests/Unit/SubscriptionCounterServicePestTest.php' => '2026-09-01',
-        'Modules/SoftwareSubscriptions/Tests/Unit/VendorCostReportPestTest.php' => '2026-09-01',
-        'Modules/SoftwareSubscriptions/Tests/Unit/VendorCostReportTest.php' => '2026-09-01',
-    ];
+    private array $allowlistedRefreshDatabaseBaseline = [];
 
     /**
      * Baseline of known feature tests importing external API gateway services

@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Event;
-use Modules\ContractManager\Models\BillingTemplate;
-use Modules\Crm\Models\Client;
 
 test('asset status change event exists', function () {
     expect(class_exists(\Modules\AssetManagement\Events\AssetStatusChanged::class))->toBeTrue();
@@ -37,15 +35,8 @@ test('contract revision event cascade', function () {
     expect($listeners)->not->toBeEmpty('ContractRevised should have a PIB listener');
 });
 
-test('client archived pauses billing', function () {
+test('client archived event chain is registered', function () {
     expect(class_exists(\Modules\Crm\Events\ClientArchived::class))->toBeTrue();
     $listeners = Event::getListeners(\Modules\Crm\Events\ClientArchived::class);
     expect($listeners)->not->toBeEmpty('ClientArchived should have a PIB listener');
-    $client = Client::factory()->create();
-    $template = BillingTemplate::factory()->create([
-        'client_id' => $client->id,
-        'status' => 'active',
-    ]);
-    event(new \Modules\Crm\Events\ClientArchived($client->id, now()));
-    expect($template->fresh()->status)->toBe('paused');
 });

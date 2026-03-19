@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Listeners;
+namespace Tests\Integration\Listeners;
 
 use App\Events\UserDeleted;
 use App\Listeners\LogFailedLogin;
@@ -17,9 +17,9 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Http\Request;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class LogListenersTest extends UnitTestCase
+class LogListenersTest extends IntegrationTestCase
 {
     // ===== LogLockout Tests =====
 

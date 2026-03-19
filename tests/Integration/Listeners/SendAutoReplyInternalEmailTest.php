@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Listeners;
+namespace Tests\Integration\Listeners;
 
 use App\Listeners\SendAutoReply;
 use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class SendAutoReplyInternalEmailTest extends UnitTestCase
+class SendAutoReplyInternalEmailTest extends IntegrationTestCase
 {
     /**
      * CRITICAL TEST: This tests lines 119-130 in SendAutoReply.php

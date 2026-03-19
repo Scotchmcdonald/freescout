@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Listeners;
+namespace Tests\Integration\Listeners;
 
 use App\Events\CustomerCreatedConversation;
 use App\Jobs\SendAutoReplyJob;
@@ -14,9 +14,9 @@ use App\Models\SendLog;
 use App\Models\Thread;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class SendAutoReplyTest extends UnitTestCase
+class SendAutoReplyTest extends IntegrationTestCase
 {
     public function test_listener_dispatches_job_for_valid_conversation(): void
     {

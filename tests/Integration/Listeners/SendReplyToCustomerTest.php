@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Listeners;
+namespace Tests\Integration\Listeners;
 
 use App\Events\UserCreatedConversation;
 use App\Events\UserReplied;
@@ -14,9 +14,9 @@ use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Support\Facades\Queue;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class SendReplyToCustomerTest extends UnitTestCase
+class SendReplyToCustomerTest extends IntegrationTestCase
 {
     public function test_listener_handles_user_replied_event(): void
     {
@@ -209,7 +209,7 @@ class SendReplyToCustomerTest extends UnitTestCase
 
     public function test_listener_skips_phone_conversation_without_customer_email(): void
     {
-        \Queue::fake();
+        Queue::fake();
 
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -232,12 +232,12 @@ class SendReplyToCustomerTest extends UnitTestCase
         // Should handle without exception and skip sending
         $listener->handle($event);
 
-        \Queue::assertNotPushed(\App\Jobs\SendConversationReplyJob::class);
+        Queue::assertNotPushed(\App\Jobs\SendConversationReplyJob::class);
     }
 
     public function test_listener_dispatches_job_with_correct_delay(): void
     {
-        \Queue::fake();
+        Queue::fake();
 
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -254,14 +254,14 @@ class SendReplyToCustomerTest extends UnitTestCase
 
         $listener->handle($event);
 
-        \Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, function ($job) {
+        Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, function ($job) {
             return ! is_null($job->delay);
         });
     }
 
     public function test_listener_dispatches_job_to_emails_queue(): void
     {
-        \Queue::fake();
+        Queue::fake();
 
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -278,12 +278,12 @@ class SendReplyToCustomerTest extends UnitTestCase
 
         $listener->handle($event);
 
-        \Queue::assertPushedOn('emails', \App\Jobs\SendConversationReplyJob::class);
+        Queue::assertPushedOn('emails', \App\Jobs\SendConversationReplyJob::class);
     }
 
     public function test_listener_passes_correct_parameters_to_job(): void
     {
-        \Queue::fake();
+        Queue::fake();
 
         $user = User::factory()->create();
         $customer = Customer::factory()->create();
@@ -301,7 +301,7 @@ class SendReplyToCustomerTest extends UnitTestCase
 
         $listener->handle($event);
 
-        \Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, function ($job) use ($conversation, $thread) {
+        Queue::assertPushed(\App\Jobs\SendConversationReplyJob::class, function ($job) use ($conversation, $thread) {
             return $job->conversation->id === $conversation->id &&
                    $job->thread->id === $thread->id;
         });

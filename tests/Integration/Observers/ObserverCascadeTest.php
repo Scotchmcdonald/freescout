@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Observers;
+namespace Tests\Integration\Observers;
 
 use App\Models\Attachment;
 use App\Models\Conversation;
@@ -12,9 +12,9 @@ use App\Models\Mailbox;
 use App\Models\Thread;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class ObserverCascadeTest extends UnitTestCase
+class ObserverCascadeTest extends IntegrationTestCase
 {
     public function test_conversation_deletion_cascades_to_threads(): void
     {

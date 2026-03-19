@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Listeners;
+namespace Tests\Integration\Listeners;
 
 use App\Listeners\LogLockout;
 use App\Models\ActivityLog;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\Request;
-use Tests\UnitTestCase;
+use Tests\IntegrationTestCase;
 
-class LogLockoutTest extends UnitTestCase
+class LogLockoutTest extends IntegrationTestCase
 {
     public function test_handle_creates_activity_log_entry(): void
     {
