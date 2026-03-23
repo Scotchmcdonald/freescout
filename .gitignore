@@ -56,6 +56,9 @@ composer.phar
 /coverage-report/*
 /reports/*
 /tests/Browser/screenshots/
+/storage/infection/
+/infection.phase*.json5
+/infection.local*.json5
 
 # Logs
 npm-debug.log

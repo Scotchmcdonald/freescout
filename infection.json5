@@ -8,20 +8,15 @@
         ]
     },
     "mutators": {
-        "@arithmetic": true,
-        "@relational": true,
-        "@logical": true,
-        "MethodCallRemoval": true,
-        "NullifyReturnValue": true,
-        "BooleanSubstitution": true,
-        "OneZeroInteger": true,
-        "TrueValue": true,
-        "FalseValue": true,
-        "UnwrapFunctionCall": true
+        "@default": true,
+        "@arithmetic": true
     },
     "minMsi": 70,
     "minCoveredMsi": 80,
-    "testFramework": "pest",
+    "testFramework": "phpunit",
+    "phpUnit": {
+        "customPath": "vendor/bin/pest"
+    },
     "tmpDir": "storage/infection",
     "logs": {
         "text": "reports/infection.log",
