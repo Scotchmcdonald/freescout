@@ -17,10 +17,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      *
      * @var array<int, string>
      */
-    private array $allowlistedPathPrefixes = [
-        'Modules/PIB/Tests/Unit/', // @expires 2026-09-01
-        'Modules/SoftwareSubscriptions/Tests/Unit/', // @expires 2026-09-01 — migration in progress — B0 allowlist
-    ];
+    private array $allowlistedPathPrefixes = [];
 
     /**
      * Baseline of known legacy Unit tests still using RefreshDatabase under
@@ -48,12 +45,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      *
      * @var array<string, string>
      */
-    private array $guardedGatewayHotspotPatterns = [
-        'Modules/Action1/Tests/Feature/SyncAction1DevicesJobPestTest.php' => '/Mockery::mock\(\s*(?:\\\\)?Modules\\\\Action1\\\\Services\\\\(?:Action1Service|Action1SyncService)::class/',
-        'Modules/GoogleAdmin/Tests/Feature/SyncGoogleUsersJobPestTest.php' => '/Mockery::mock\(\s*(?:\\\\)?Modules\\\\GoogleAdmin\\\\Services\\\\GoogleWorkspaceService::class/',
-        'Modules/GoogleAdmin/Tests/Feature/SyncGoogleChromebooksJobPestTest.php' => '/Mockery::mock\(\s*(?:\\\\)?Modules\\\\GoogleAdmin\\\\Services\\\\GoogleWorkspaceService::class/',
-        'Modules/GoogleAdmin/Tests/Feature/UserProvisioningActionPestTest.php' => '/Mockery::mock\(\s*(?:\\\\)?Modules\\\\GoogleAdmin\\\\Services\\\\GoogleWorkspaceService::class/',
-    ];
+    private array $guardedGatewayHotspotPatterns = [];
 
     public function test_module_unit_tests_do_not_use_refresh_database_or_cross_module_persistence(): void
     {

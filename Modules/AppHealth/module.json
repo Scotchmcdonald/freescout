@@ -1,0 +1,21 @@
+{
+    "name": "AppHealth",
+    "alias": "apphealth",
+    "description": "Canonical health, metrics, scaling trigger, and operator scorecard module.",
+    "keywords": [
+        "health",
+        "metrics",
+        "observability",
+        "scaling",
+        "scorecard"
+    ],
+    "priority": 0,
+    "version": "1.0.0",
+    "providers": [
+        "Modules\\AppHealth\\Providers\\AppHealthServiceProvider"
+    ],
+    "aliases": {},
+    "permissions": {},
+    "files": [],
+    "requires": []
+}

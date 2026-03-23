@@ -40,8 +40,10 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <!-- Memory limit: 1024M is sufficient for tests; excessive memory wastes startup time -->
-        <ini name="memory_limit" value="1024M"/>
+        <!-- Coverage: ensure Xdebug coverage mode is active in every parallel worker subprocess -->
+        <env name="XDEBUG_MODE" value="coverage"/>
+        <!-- Memory limit: 512M per parallel worker is sufficient; sequential run needs more -->
+        <ini name="memory_limit" value="512M"/>
         <!-- Enable garbage collection: set higher (1 = immediate, 0 = disabled) -->
         <ini name="zend.enable_gc" value="1"/>
         <ini name="report_memleaks" value="0"/>

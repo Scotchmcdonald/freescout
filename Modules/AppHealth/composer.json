@@ -1,0 +1,25 @@
+{
+    "name": "freescout-modules/app-health",
+    "type": "laravel-module",
+    "description": "App health and scaling observability module",
+    "authors": [
+        {
+            "name": "Freescout Modern",
+            "email": "dev@freescout-modern.local"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Modules\\AppHealth\\": ""
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\AppHealth\\Providers\\AppHealthServiceProvider"
+            ],
+            "aliases": {}
+        }
+    }
+}

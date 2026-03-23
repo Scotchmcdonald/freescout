@@ -1,0 +1,36 @@
+{
+    "title": "AppHealth Stage A Scorecard",
+    "description": "Trigger-centric dashboard for Stage A scaling decisions",
+    "panels": [
+        {
+            "title": "API p95 Latency",
+            "metric": "api_p95_seconds",
+            "threshold": 2.0,
+            "unit": "seconds"
+        },
+        {
+            "title": "Queue Wait p95",
+            "metric": "queue_wait_p95_seconds",
+            "threshold": 30.0,
+            "unit": "seconds"
+        },
+        {
+            "title": "Failed Job Ratio",
+            "metric": "failed_job_ratio",
+            "threshold": 0.001,
+            "unit": "ratio"
+        },
+        {
+            "title": "Worker CPU Cumulative Breach",
+            "metric": "worker_cpu_breach_minutes_24h",
+            "threshold": 240,
+            "unit": "minutes"
+        },
+        {
+            "title": "DB CPU Cumulative Breach",
+            "metric": "db_cpu_breach_minutes_24h",
+            "threshold": 240,
+            "unit": "minutes"
+        }
+    ]
+}

@@ -1,0 +1,42 @@
+groups:
+  - name: apphealth-stage-a
+    rules:
+      - alert: AppHealthApiP95High
+        expr: api_p95_seconds > 2
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API p95 latency exceeded Stage A threshold"
+
+      - alert: AppHealthQueueWaitP95High
+        expr: queue_wait_p95_seconds > 30
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue wait p95 exceeded Stage A threshold"
+
+      - alert: AppHealthFailedJobRatioHigh
+        expr: failed_job_ratio > 0.001
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Failed job ratio exceeded Stage A threshold"
+
+      - alert: AppHealthWorkerCpuCumulativeBreach
+        expr: worker_cpu_breach_minutes_24h > 240
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Worker CPU cumulative breach exceeded 4h/day"
+
+      - alert: AppHealthDbCpuCumulativeBreach
+        expr: db_cpu_breach_minutes_24h > 240
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DB CPU cumulative breach exceeded 4h/day"
