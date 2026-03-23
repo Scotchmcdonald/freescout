@@ -12,7 +12,16 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DB_CONNECTION: testing_pgsql
+      APP_ENV: testing
+      APP_DEBUG: 'true'
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_DATABASE: freescout-test
+      DB_USERNAME: freescout-test
+      DB_PASSWORD: freescout-test
 
     services:
       postgres:
@@ -46,10 +55,23 @@ jobs:
       - name: Install composer dependencies
         run: composer install --ignore-platform-reqs --no-interaction
 
+      - name: Safety Check (Must Use Non-Production DB)
+        run: |
+          test "$APP_ENV" = "testing"
+          test "$DB_CONNECTION" = "pgsql"
+          if [[ "$DB_HOST" != "127.0.0.1" && "$DB_HOST" != "localhost" && "$DB_HOST" != "postgres" ]]; then
+            echo "DB_HOST must be local postgres service; refusing to run migrations."
+            exit 1
+          fi
+          if [[ "$DB_DATABASE" != *test* ]]; then
+            echo "DB_DATABASE must include 'test'; refusing to run migrations."
+            exit 1
+          fi
+
       - name: Migrate and seed the database
         run: |
-          php${{ matrix.php }} artisan migrate --force -n --database=testing_pgsql
-          php${{ matrix.php }} artisan db:seed --force -n --database=testing_pgsql
+          php${{ matrix.php }} artisan migrate --force -n --database=pgsql
+          php${{ matrix.php }} artisan db:seed --force -n --database=pgsql
         env:
           DB_PORT: ${{ job.services.postgres.ports[5432] }}
 
