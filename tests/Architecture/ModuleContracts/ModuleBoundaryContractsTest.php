@@ -168,7 +168,8 @@ test('SoftwareSubscriptions forbidden PIB Payment and CaseManager concrete servi
 
 test('module services do not directly instantiate foreign module repositories', function () {
     $violations = [];
-    $moduleServiceDirs = glob(base_path('Modules/*/Services'), GLOB_ONLYDIR);
+    $projectRoot = dirname(__DIR__, 3);
+    $moduleServiceDirs = glob($projectRoot.'/Modules/*/Services', GLOB_ONLYDIR);
 
     foreach ($moduleServiceDirs as $serviceDir) {
         preg_match('#Modules/([^/]+)/Services#', $serviceDir, $m);
@@ -182,7 +183,7 @@ test('module services do not directly instantiate foreign module repositories', 
             if (preg_match_all('/new\s+\\\\?Modules\\\\([A-Za-z]+)\\\\Repositories\\\\/', $contents, $hits)) {
                 foreach ($hits[1] as $foreignModule) {
                     if ($foreignModule !== $ownerModule) {
-                        $relativePath = str_replace(base_path().'/', '', $file->getPathname());
+                        $relativePath = str_replace($projectRoot.'/', '', $file->getPathname());
                         $violations[] = "{$relativePath} instantiates Modules\\{$foreignModule}\\Repositories directly";
                     }
                 }

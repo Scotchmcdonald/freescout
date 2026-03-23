@@ -6,9 +6,9 @@ Reach a state where architecture and isolation guards pass without legacy except
 
 ## Current Baseline
 
-- `allowlistedRefreshDatabaseBaseline`: 11
-- `allowlistedPathPrefixes`: 2
-- `guardedGatewayHotspotPatterns`: 4
+- `allowlistedRefreshDatabaseBaseline`: 0
+- `allowlistedPathPrefixes`: 0
+- `guardedGatewayHotspotPatterns`: 0
 - module boundary contract tests currently pass
 
 ## Exit Criteria
@@ -40,7 +40,8 @@ The agent should pause when:
 ## Safe Command Patterns
 
 ```bash
-php artisan test tests/Unit/ModuleUnitIsolationGuardTest.php tests/Architecture/
+php artisan test tests/Unit/ModuleUnitIsolationGuardTest.php --parallel --processes=10
+php artisan test tests/Architecture --parallel --processes=10
 grep -n "allowlistedRefreshDatabaseBaseline\|allowlistedPathPrefixes" tests/Unit/ModuleUnitIsolationGuardTest.php
 git diff -- tests/Unit/ModuleUnitIsolationGuardTest.php
 ```
