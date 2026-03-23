@@ -99,7 +99,7 @@ test('service calculates discount correctly', function () {
 
 // ✅ Value Objects
 test('email validates domain', function () {
-    expect(Email::make('user@example.com').isValid())->toBeTrue();
+    expect(Email::make('user@example.com')->isValid())->toBeTrue();
 });
 
 // ✅ DTOs
@@ -548,7 +548,7 @@ jobs:
 ---
 
 **Phase Completion:** Phase 9 - Developer Experience (CI Lanes)
-**Status:** ✅ Complete - 5 lanes designed, documented, and operational
-**Test Result:** All lanes green (Guards ✅, Unit ✅, Feature ✅, Architecture ✅, Integration ✅)
+**Status:** ✅ Complete - 5 lanes designed and documented
+**Test Result:** Validate on next CI run (Guards, Unit, Feature, Architecture, Integration)
 
 For developer-focused quick start, see [TESTING_QUICK_START.md](TESTING_QUICK_START.md).

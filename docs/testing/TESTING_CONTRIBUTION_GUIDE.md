@@ -5,7 +5,7 @@ This guide defines how to add or modify tests in this repository with high signa
 ## Purpose
 
 Use this guide when writing or reviewing tests so contributions align with:
-- docs/development/WIP/Testing phase plans
+- docs/testing/TESTING_ROADMAP_OUTCOMES.md
 - tests/testing_standards.md
 - architecture and isolation guard tests
 

@@ -329,4 +329,4 @@ open reports/coverage/index.html
 - `CI_GUARD_STAGES.md` — Automated guardrails that run in CI
 - `FLAKY_TEST_TRIAGE.md` — How to handle flaky tests
 - `TEST_MAINTENANCE_CADENCE.md` — When to audit (the "when")
-- `docs/development/WIP/Testing/` — Phase roadmap (the "why")
+- `docs/testing/TESTING_ROADMAP_OUTCOMES.md` — Outcomes and sustainment focus (the "why")

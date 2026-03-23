@@ -537,4 +537,4 @@ grep "cross-module" reports/test-results-latest.log
 - `tests/testing_standards.md` — Target standards we're achieving
 - `TESTING_CONTRIBUTION_GUIDE.md` — How to write new tests
 - `TEST_MAINTENANCE_CADENCE.md` — How often to run audits
-- `docs/development/WIP/Testing/` — Phase roadmap and current work
+- `docs/testing/TESTING_ROADMAP_OUTCOMES.md` — Roadmap outcomes and sustainment focus

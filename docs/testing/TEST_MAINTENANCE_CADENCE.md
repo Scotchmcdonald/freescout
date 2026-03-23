@@ -67,14 +67,14 @@ This document defines the ongoing operating cadence for maintaining test-suite q
 - remove legacy exceptions and shrink guard allowlists
 
 3. Roadmap update
-- refresh priorities in docs/development/WIP/Testing
+- refresh priorities in docs/testing/TESTING_ROADMAP_OUTCOMES.md
 
 ## Standard Runbook
 
 For maintenance cycles, use this sequence:
 
 1. Inspect current reports and metrics.
-2. Select the highest-leverage phase from docs/development/WIP/Testing.
+2. Select the highest-leverage maintenance action from docs/testing/TESTING_ROADMAP_OUTCOMES.md.
 3. Execute a focused remediation batch.
 4. Validate with targeted test runs.
 5. Record outcomes and residual risk.

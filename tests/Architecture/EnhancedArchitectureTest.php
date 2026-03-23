@@ -471,7 +471,7 @@ test('financial service calculation methods declare explicit numeric return type
 
 test('testing contribution guide exists and is current year', function () {
     $projectRoot = dirname(__DIR__, 2);
-    $guidePath = $projectRoot.'/docs/development/TESTING_CONTRIBUTION_GUIDE.md';
+    $guidePath = $projectRoot.'/docs/testing/TESTING_CONTRIBUTION_GUIDE.md';
 
     expect(file_exists($guidePath))->toBeTrue('TESTING_CONTRIBUTION_GUIDE.md must exist');
 

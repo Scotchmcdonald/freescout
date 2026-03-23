@@ -184,7 +184,7 @@ app(AtomicCounterService::class)->increment(
 
 **Read these in order:**
 
-1. [tests/testing_standards.md](../tests/testing_standards.md) — The target
+1. [tests/testing_standards.md](../../tests/testing_standards.md) — The target
 2. [TESTING_CONTRIBUTION_GUIDE.md](TESTING_CONTRIBUTION_GUIDE.md) — How to write tests
 3. [TEST_MAINTENANCE_CADENCE.md](TEST_MAINTENANCE_CADENCE.md) — When to audit
 
@@ -303,15 +303,12 @@ git commit -m "test: add coverage for critical service XYZ
 
 ## Links & References
 
-**Phase Roadmap:**
-- `docs/development/WIP/Testing/README.md` — Phase overview
-- `docs/development/WIP/Testing/PHASE_5_ISOLATION_TIGHTENING.md` — Completed
-- `docs/development/WIP/Testing/PHASE_6_ZERO_ALLOWLIST_ARCHITECTURE.md` — In progress
-- `docs/development/WIP/Testing/PHASE_7_REGRESSION_GUARDRAILS.md` — This phase
-- `docs/development/WIP/Testing/PHASE_8_MUTATION_CI_INTEGRATION.md` — Next
+**Roadmap & Sustainment:**
+- `docs/testing/TESTING_ROADMAP_OUTCOMES.md` — Outcomes, operating model, and escalation triggers
+- `docs/testing/TEST_MAINTENANCE_CADENCE.md` — Recurring audit rhythm
 
 **Documentation:**
-- [tests/testing_standards.md](../tests/testing_standards.md)
+- [tests/testing_standards.md](../../tests/testing_standards.md)
 - [TESTING_CONTRIBUTION_GUIDE.md](TESTING_CONTRIBUTION_GUIDE.md)
 - [TEST_MAINTENANCE_CADENCE.md](TEST_MAINTENANCE_CADENCE.md)
 - [CI_GUARD_STAGES.md](CI_GUARD_STAGES.md)
@@ -336,5 +333,5 @@ git commit -m "test: add coverage for critical service XYZ
 ---
 
 **Last Updated:** 2026-03-23
-**Phase:** 7 - Regression Guardrails
-**Status:** ✅ Documentation complete, guardrails active
+**Phase:** 10 - Sustainment
+**Status:** ✅ Active maintenance mode

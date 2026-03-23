@@ -32,6 +32,8 @@
 
 **� Reference:**
 - **[→ Complete Documentation Index](DOCUMENTATION_INDEX.md)** - Navigate all project documentation
+- **[Testing Quick Start](docs/testing/TESTING_QUICK_START.md)** - Fast local commands mapped to CI lanes
+- **[CI Lanes Architecture](docs/testing/CI_LANES_ARCHITECTURE.md)** - Guard-first workflow design and artifacts
 - **[System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md)** - Complete design specification
 - **[Module Development Guide](docs/development/MODULE_DEVELOPMENT_GUIDE.md)** - Architecture and best practices
 - **[UX Style Guide](docs/development/UX_STYLE_GUIDE.md)** - Design patterns and interface standards

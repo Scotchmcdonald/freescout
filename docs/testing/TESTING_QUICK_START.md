@@ -1,4 +1,4 @@
-# Testing Quick Start für Developers
+# Testing Quick Start for Developers
 
 **TL;DR before pushing:**
 ```bash
@@ -273,7 +273,7 @@ prepush      # Validate before push
 1. **First time writing a test:** [TESTING_CONTRIBUTION_GUIDE.md](TESTING_CONTRIBUTION_GUIDE.md)
 2. **Debugging a failure:** [TEST_REGRESSION_PREVENTION.md](TEST_REGRESSION_PREVENTION.md)
 3. **Test is flaky:** [FLAKY_TEST_TRIAGE.md](FLAKY_TEST_TRIAGE.md)
-4. **Want to understand standards:** [tests/testing_standards.md](tests/testing_standards.md)
+4. **Want to understand standards:** [tests/testing_standards.md](../../tests/testing_standards.md)
 5. **Complete reference:** [TEST_SUITE_COMPLETE_GUIDE.md](TEST_SUITE_COMPLETE_GUIDE.md)
 
 **Or ask for help:**

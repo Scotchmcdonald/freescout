@@ -555,6 +555,6 @@ This prompt is **subordinate to** the master test suite strategy:
 - **Master Plan:** `docs/development/WIP/TEST_SUITE_MASTER_PHASE_PLAN_6_5_TO_10.md`
 - **Phase 6.5–8.5 Baseline:** `docs/development/WIP/TEST_SUITE_6_5_TO_8_5_PHASE_PLAN.md`
 - **Testing Standards (Developer-facing):** `tests/testing_standards.md`
-- **Maintenance Cadence:** `docs/development/TEST_MAINTENANCE_CADENCE.md`
+- **Maintenance Cadence:** `docs/testing/TEST_MAINTENANCE_CADENCE.md`
 
 Use this prompt to **operationalize** the master plan: turning strategic phases into actionable sprints.
