@@ -239,7 +239,6 @@ test('all module listeners are registered in module providers')
     ->expect(function () {
         $projectRoot = dirname(__DIR__, 2);
         $legacyUnregisteredAllowlist = [
-            'Modules\\ClientPortal\\Listeners\\CreateQuoteApprovalRequest',
             'Modules\\PIB\\Listeners\\AdjustBillingOnSoftwareCountChange',
             'Modules\\PIB\\Listeners\\RecalculateProrationOnContractChange',
             'Modules\\PIB\\Listeners\\UpdateEntitlementSnapshots',
