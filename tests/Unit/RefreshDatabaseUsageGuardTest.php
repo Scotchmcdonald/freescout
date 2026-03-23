@@ -17,15 +17,7 @@ class RefreshDatabaseUsageGuardTest extends UnitTestCase
      *
      * @var array<int, string>
      */
-    /**
-     * Allow the isolation guard itself: its source contains the string "RefreshDatabase::class"
-     * as part of its own scanning regex, not as actual RefreshDatabase usage.
-     *
-     * @var array<int, string>
-     */
-    private array $allowlistedRelativePaths = [
-        'tests/Unit/ModuleUnitIsolationGuardTest.php',
-    ];
+    private array $allowlistedRelativePaths = [];
 
     public function test_unit_suite_disallows_explicit_refresh_database_usage_without_allowlist(): void
     {

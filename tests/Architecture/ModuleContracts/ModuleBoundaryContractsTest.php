@@ -204,12 +204,7 @@ test('module services implementing core contracts are bound in their service pro
     $projectRoot = dirname(__DIR__, 3);
     $contractDir = $projectRoot.'/app/Contracts';
 
-    // Pre-existing gaps: services that implement a core contract but the provider
-    // registers them inline (e.g., via a registry) instead of a container binding.
-    // Shrink this list as providers are refactored to use proper $app->bind().
-    $allowlist = [
-        'Modules/GoogleAdmin/Services/GoogleUserProvider.php' => 'App\Contracts\UserProvider',
-    ];
+    $allowlist = [];
 
     // Collect all interface FQCNs from app/Contracts (recursive)
     $contractInterfaces = [];

@@ -200,7 +200,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
     {
         return preg_match('/^\s*use\s+\\\\?Illuminate\\\\Foundation\\\\Testing\\\\RefreshDatabase\s*;/m', $contents) === 1
             || preg_match('/^\s*use\s+RefreshDatabase\s*;/m', $contents) === 1
-            || preg_match('/RefreshDatabase::class/', $contents) === 1;
+            || preg_match('/RefreshDatabase\s*::\s*class/', $contents) === 1;
     }
 
     private function containsCrossModulePersistence(string $contents, string $module): bool
