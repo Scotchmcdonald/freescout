@@ -5,6 +5,8 @@
 **I want to...**
 
 - 🚀 [Run all CI guardrails locally](#run-guardrails)
+- ⚡ [Quick start with practical commands](TESTING_QUICK_START.md) — **START HERE**
+- 📐 [Understand the 5 CI lanes architecture](CI_LANES_ARCHITECTURE.md)
 - 📖 [Write a new test](#writing-tests)
 - 🐛 [Handle a flaky test](#flaky-tests)
 - 👀 [Review a test PR](#code-review)
@@ -333,6 +335,6 @@ git commit -m "test: add coverage for critical service XYZ
 
 ---
 
-**Last Updated:** 2026-03-23  
-**Phase:** 7 - Regression Guardrails  
+**Last Updated:** 2026-03-23
+**Phase:** 7 - Regression Guardrails
 **Status:** ✅ Documentation complete, guardrails active
