@@ -213,6 +213,18 @@ Important:
 - [ ] Architecture and isolation checks remain green when applicable.
 - [ ] Any temporary exception is documented with an owner and expiry date.
 
+## Pyramid Rebalancing Follow-Up Checklist
+
+Use this checklist when reducing integration-heavy debt while preserving signal:
+
+- [ ] Identify deterministic integration assertions that can be moved to pure unit scope.
+- [ ] Migrate policy/service/value-object logic to `tests/Unit` with `PureUnitTestCase` where possible.
+- [ ] Remove duplicate integration scenarios that differ only by static fixture values.
+- [ ] Keep one canonical end-to-end contract test per external boundary.
+- [ ] Re-run `php artisan test --parallel --processes=10` after each migration wave.
+- [ ] Confirm `tests/Unit/UnitFrameworkBootingGuardTest.php` and `tests/Unit/FeatureWriteAssertionDepthGuardTest.php` remain green.
+- [ ] Recalculate layer distribution and compare against target pyramid bands.
+
 ## Autonomous Agent Contribution Mode
 
 When an LLM agent is working in this repository, autonomous execution is expected for:

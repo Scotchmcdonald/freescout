@@ -2,7 +2,7 @@
 
 Date: 2026-03-23
 Owner: QA + Platform + Module Maintainers
-Status: In Progress (Phases 1-4 complete; Phase 5 kickoff in progress)
+Status: In Progress (Phases 1-5 complete; Phase 6 closed and archived)
 
 ## Objective
 
@@ -20,7 +20,9 @@ Completely eliminate the weaknesses identified in the suite audit:
 3. [phase-3-feature-meaningfulness.md](phase-3-feature-meaningfulness.md)
 4. [phase-4-architecture-and-type-coverage.md](phase-4-architecture-and-type-coverage.md)
 5. [phase-5-ci-speed-and-reliability.md](phase-5-ci-speed-and-reliability.md)
-6. [phase-6-hardening-and-closeout.md](phase-6-hardening-and-closeout.md)
+
+Phase 6 durable closeout artifact:
+- `reports/phase-6-closeout-report.md`
 
 ## Success Definition
 
