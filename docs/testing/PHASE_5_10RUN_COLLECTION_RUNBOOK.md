@@ -1,8 +1,8 @@
 # Phase 5: 10-Run Collection Runbook
 
-**Purpose:** Guide teams through the 2-3 week exit gate data collection phase  
-**Audience:** DevOps, QA, Engineering Leads, Developers  
-**Start Date:** 2026-03-24 (post-Wave 4 validation)  
+**Purpose:** Guide teams through the 2-3 week exit gate data collection phase
+**Audience:** DevOps, QA, Engineering Leads, Developers
+**Start Date:** 2026-03-24 (post-Wave 4 validation)
 **Expected Duration:** 2-3 weeks
 
 ---
@@ -66,7 +66,7 @@ Use this template to track progress toward the 10-run gate:
 ```markdown
 ## Week 1 (2026-03-24 - 2026-03-30)
 
-**Starting Count:** 0/10  
+**Starting Count:** 0/10
 **Target:** 4-5 green runs
 
 | Date | Run | Lane Status | Gate Status | Notes |
@@ -146,10 +146,10 @@ git push origin {branch}
 ```markdown
 ## Blocker: SLO Breach
 
-**Lane:** {RED-LANE}  
-**Duration:** XXs (budget: XXs, exceeded by XXs)  
-**Cause:** [Describe root cause]  
-**Fix:** [Describe what was changed]  
+**Lane:** {RED-LANE}
+**Duration:** XXs (budget: XXs, exceeded by XXs)
+**Cause:** [Describe root cause]
+**Fix:** [Describe what was changed]
 **Status:** ✅ Fixed / 🔄 In Progress / ❌ Escalated
 
 **Lessons Learned:**
@@ -231,10 +231,10 @@ public function testSomething() { ... }
 ```markdown
 ## Flake Triage
 
-**Test:** Tests\Unit\YourTestFile::testName  
-**Pattern:** XYZ happens occasionally  
-**Decision:** Fixed / Quarantined  
-**Action:** [Describe what was done]  
+**Test:** Tests\Unit\YourTestFile::testName
+**Pattern:** XYZ happens occasionally
+**Decision:** Fixed / Quarantined
+**Action:** [Describe what was done]
 **Status:** ✅ Resolved / 🔄 Pending / ⌛ Quarantined until 2026-04-21
 
 **Lessons Learned:**
@@ -375,7 +375,7 @@ Use this script to report exit gate progress in team syncs:
 ```markdown
 ## Phase 5 Exit Gate Status - Week of {DATE}
 
-**Progress:** {N}/10 consecutive green runs  
+**Progress:** {N}/10 consecutive green runs
 **Trend:** On track / At risk / Blocked
 
 ### Metrics This Week

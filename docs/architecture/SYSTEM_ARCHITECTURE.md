@@ -29,9 +29,9 @@
 
 ## 📚 Documentation Navigation
 
-**You are here:** System Architecture v4.8 (Design Specification) — for the document index, see **[README.md](README.md)**.
+**You are here:** System Architecture v4.9 (Design Specification) — for the document index, see **[README.md](README.md)**.
 
-**Recent Updates (v4.8 - March 2, 2026):**
+**Recent Updates (v4.9 - March 3, 2026):**
 - ✅ **Architecture compliance**: All Core Blindness violations resolved — 9 components moved to their owning modules
 - ✅ **Queue isolation**: Confirmed all PIB jobs dispatch to the `billing` queue
 
@@ -75,7 +75,7 @@
 This document defines the comprehensive architecture for an event-driven, modular MSP management platform. The system orchestrates customer relationship management, asset tracking, billing automation, contract management, and client portal interactions through loosely coupled modules communicating via Laravel Events and Reverb WebSockets.
 
 **Architectural Compliance Status (March 2, 2026):**
-- ✅ **Core blindness** - No `app/` code imports feature module classes (violation resolved March 2, 2026 — see [ARCHITECTURAL_AUDIT_REPORT.md](ARCHITECTURAL_AUDIT_REPORT.md))
+- ✅ **Core blindness** - No `app/` code imports feature module classes (violation resolved March 2, 2026 — see [MODULAR_SYSTEM_QA.md](MODULAR_SYSTEM_QA.md))
 - ✅ **Proper data ownership** - Financial data isolated in billing modules (PIB)
 - ✅ **Ticket billing separation** - CRM owns ticket↔client links, PIB owns billing metadata
 - ✅ **Controller organization** - Module controllers live in their respective modules
@@ -272,7 +272,7 @@ resources/css/design-tokens.css
 
 **Governance:** Platform Team owns library, RFC process for new components, monthly design reviews.
 
-✅ **Benefits:** Consistent UX, faster development, single source of truth  
+✅ **Benefits:** Consistent UX, faster development, single source of truth
 ❌ **Trade-offs:** Modules cannot customize UI, requires governance overhead
 
 ### 1.7 UI Widget Registry Pattern (Replaced Aggregator Pattern)
@@ -391,7 +391,7 @@ resources/css/design-tokens.css
 - **Dependencies**: None
 - **Status**: ✅ **Foundation Module** - Always enabled, other modules depend on it
 - **Special Note**: CRM models may be imported by core aggregator controllers in `app/Http/Controllers/Admin/` (e.g., `Client360Controller`). This is the **only** allowed exception to core blindness for CRM, because CRM functions as a foundation layer.
-- **Responsibilities**: 
+- **Responsibilities**:
   - User authentication (Google OAuth)
   - Company/client records
   - Contact management
@@ -622,11 +622,11 @@ resources/css/design-tokens.css
   Event::listen(SoftwareCountChanged::class, function ($event) {
       $subscription = $event->subscription;
       $billingTemplate = $subscription->billingTemplate;
-      
+
       // Recalculate using SoftwareProductEntitlementResolver
       $result = app(SoftwareProductEntitlementResolver::class)
           ->calculate($billingTemplate);
-      
+
       // Update snapshot for next invoice
       $billingTemplate->updateProductConfig([
           'software_count' => $event->newCount,
@@ -643,7 +643,7 @@ resources/css/design-tokens.css
           ->where('assignable_id', $event->contact->id)
           ->whereNull('revoked_at')
           ->get();
-      
+
       foreach ($assignments as $assignment) {
           $assignment->update(['revoked_at' => now()]);
           event(new SoftwareAssignmentRevoked($assignment));
@@ -688,7 +688,7 @@ resources/css/design-tokens.css
       client_id BIGINT UNSIGNED NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      
+
       FOREIGN KEY (software_product_id) REFERENCES software_products(id) ON DELETE SET NULL,
       FOREIGN KEY (assignment_id) REFERENCES software_assignments(id) ON DELETE SET NULL,
       FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
@@ -787,7 +787,7 @@ resources/css/design-tokens.css
 - **Permissions**:
   - `view_email_migration`: View migration projects
   - `manage_email_migration`: Create/edit/execute migrations
-- **Architecture Notes**: 
+- **Architecture Notes**:
   - Uses Circuit Breaker pattern for IMAP connection resilience
   - WebSocket broadcasts for real-time progress updates
   - See `Modules/EmailMigration/ARCHITECTURE.md` for detailed V2.1 specification
@@ -828,7 +828,7 @@ resources/css/design-tokens.css
   ```php
   use Modules\Alerts\DataTransferObjects\AlertPayload;
   use Modules\Alerts\Services\AlertService;
-  
+
   $alertService = app(AlertService::class);
   $alertService->dispatch(new AlertPayload(
       alertTypeCode: 'payment.failed',
@@ -844,7 +844,7 @@ resources/css/design-tokens.css
   ```
 - **Listeners**:
   - `PaymentFailedListener` → Dispatches `payment.failed` alert
-  - `InvoiceUnusualListener` → Dispatches `invoice.unusual` alert  
+  - `InvoiceUnusualListener` → Dispatches `invoice.unusual` alert
   - `GoogleSyncFailedListener` → Dispatches `sync.google.failed` alert
   - `Action1SyncFailedListener` → Dispatches `sync.action1.failed` alert
   - `SoftwareDeploymentFailedListener` → Dispatches `software.deployment.failed` alert
@@ -885,7 +885,7 @@ resources/css/design-tokens.css
 - **Purpose**: Internal help articles and documentation system
 - **Dependencies**: None (standalone utility)
 - **Status**: ✅ **Operational**
-- **Features**: 
+- **Features**:
   - Article management with categories
   - Full-text search
   - Permission-based access control
@@ -964,7 +964,7 @@ event(new GoogleChromebookDiscovered([
 class GoogleChromebookDiscoveredListener {
     public function handle(GoogleChromebookDiscovered $event) {
         $asset = Asset::where('serial_number', $event->data['serial_number'])->first();
-        
+
         if ($asset && $asset->status !== $event->data['status']) {
             // Conflict detected - stage for review
             AssetStagingRecord::create([
@@ -981,7 +981,7 @@ class GoogleChromebookDiscoveredListener {
                 ['serial_number' => $event->data['serial_number']],
                 $event->data
             );
-            
+
             event(new AssetStatusChanged($asset, $asset->getOriginal('status'), $asset->status));
         }
     }
@@ -1015,7 +1015,7 @@ event(new QuoteApproved($quote));
 class CreateContractListener {
     public function handle(QuoteApproved $event) {
         $quote = $event->quote;
-        
+
         // Create the contract
         $contract = Contract::create([
             'quote_id' => $quote->id,
@@ -1025,7 +1025,7 @@ class CreateContractListener {
             'end_date' => now()->addYear(),
             'status' => 'active',
         ]);
-        
+
         // Create billing template (owned by ContractManager)
         $billingTemplate = BillingTemplate::create([
             'client_id' => $quote->client_id,
@@ -1069,11 +1069,11 @@ graph TD
 class GenerateRecurringInvoicesJob {
     public function handle() {
         $templates = BillingTemplate::where('next_invoice_date', '<=', today())->get();
-        
+
         foreach ($templates as $template) {
             // Request current counts
             $snapshot = event(new RequestEntitlementSnapshot($template->client_id));
-            
+
             $invoice = Invoice::create([
                 'client_id' => $template->client_id,
                 'billing_template_id' => $template->id,
@@ -1081,11 +1081,11 @@ class GenerateRecurringInvoicesJob {
                 'invoice_date' => today(),
                 'due_date' => today()->addDays(30),
             ]);
-            
+
             foreach ($template->line_items as $item) {
                 $quantity = $this->calculateQuantity($item, $snapshot);
                 $amount = $quantity * $item['unit_price'];
-                
+
                 InvoiceLineItem::create([
                     'invoice_id' => $invoice->id,
                     'description' => $item['description'],
@@ -1094,7 +1094,7 @@ class GenerateRecurringInvoicesJob {
                     'amount' => $amount,
                 ]);
             }
-            
+
             // Check if invoice is unusual (large variance)
             if ($this->isUnusual($invoice, $template)) {
                 event(new InvoiceUnusual($invoice, 'Amount variance > 20%'));
@@ -1102,7 +1102,7 @@ class GenerateRecurringInvoicesJob {
             } else {
                 $invoice->update(['status' => 'pending']);
             }
-            
+
             event(new InvoiceGenerated($invoice));
         }
     }
@@ -1158,9 +1158,9 @@ Route::post('/invoices/{invoice}/publish', function(Invoice $invoice) {
         'status' => 'published',
         'published_at' => now(),
     ]);
-    
+
     event(new InvoicePublished($invoice));
-    
+
     return redirect()->back()->with('success', 'Invoice published to client portal');
 });
 
@@ -1168,17 +1168,17 @@ Route::post('/invoices/{invoice}/publish', function(Invoice $invoice) {
 class InvoicePublishedListener {
     public function handle(InvoicePublished $event) {
         $invoice = $event->invoice;
-        
+
         // Notify subscribed client contacts
         $contacts = $invoice->client->contacts()
             ->whereHas('alertSubscriptions', function($q) {
                 $q->where('alert_types', 'like', '%invoice.new%');
             })->get();
-        
+
         foreach ($contacts as $contact) {
             Mail::to($contact->email)->send(new NewInvoiceNotification($invoice));
         }
-        
+
         // Broadcast to WebSocket for real-time UI update
         broadcast(new InvoicePublishedEvent($invoice))->toOthers();
     }
@@ -1187,11 +1187,11 @@ class InvoicePublishedListener {
 // ClientPortal: Dispute invoice
 Route::post('/portal/invoices/{invoice}/dispute', function(Invoice $invoice) {
     $this->authorize('viewPortal', $invoice->client);
-    
+
     $invoice->update(['status' => 'disputed']);
-    
+
     event(new InvoiceDisputed($invoice, request('reason')));
-    
+
     return redirect()->back()->with('success', 'Dispute submitted');
 });
 
@@ -1200,7 +1200,7 @@ class InvoiceDisputedListener {
     public function handle(InvoiceDisputed $event) {
         // Alert Finance roles
         $financeUsers = User::role('Finance')->get();
-        
+
         foreach ($financeUsers as $user) {
             if ($user->isSubscribedToAlert('invoice.disputed', $event->invoice->client_id)) {
                 Mail::to($user->email)->send(new InvoiceDisputedAlert($event->invoice, $event->reason));
@@ -1235,39 +1235,39 @@ class InvoiceDisputedListener {
 CREATE TABLE sync_operations (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     operation_id VARCHAR(36) UNIQUE NOT NULL, -- UUID for idempotency
-    
+
     -- Sync metadata
     sync_type ENUM('google_users', 'google_chromebooks', 'action1_devices') NOT NULL,
     client_id BIGINT UNSIGNED NOT NULL,
     sync_mode ENUM('full', 'incremental') NOT NULL,
-    
+
     -- Progress tracking
     status ENUM('pending', 'in_progress', 'paused', 'completed', 'failed') NOT NULL DEFAULT 'pending',
     total_items INT UNSIGNED,
     processed_items INT UNSIGNED DEFAULT 0,
     failed_items INT UNSIGNED DEFAULT 0,
     last_processed_id VARCHAR(255), -- Cursor for resuming (e.g., Google pageToken)
-    
+
     -- Timing
     started_at TIMESTAMP NULL,
     completed_at TIMESTAMP NULL,
     last_activity_at TIMESTAMP NULL,
     estimated_completion_at TIMESTAMP NULL,
-    
+
     -- Rate limiting
     api_calls_made INT UNSIGNED DEFAULT 0,
     rate_limit_hits INT UNSIGNED DEFAULT 0,
-    
+
     -- Error tracking
     error_count INT UNSIGNED DEFAULT 0,
     last_error TEXT,
-    
+
     -- Configuration snapshot (for resume)
     config JSON,
-    
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     INDEX idx_status (status),
     INDEX idx_client_type (client_id, sync_type),
     INDEX idx_started (started_at),
@@ -1279,23 +1279,23 @@ CREATE TABLE api_rate_limit_tracking (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     service VARCHAR(50) NOT NULL, -- 'google_workspace', 'action1'
     client_id BIGINT UNSIGNED NOT NULL,
-    
+
     -- Rate limit window
     window_start TIMESTAMP NOT NULL,
     window_duration_seconds INT NOT NULL, -- 60 for per-minute limits
-    
+
     -- Consumption tracking
     requests_made INT UNSIGNED DEFAULT 0,
     requests_limit INT UNSIGNED NOT NULL,
     requests_remaining INT UNSIGNED NOT NULL,
-    
+
     -- Status
     is_throttled BOOLEAN DEFAULT FALSE,
     throttled_until TIMESTAMP NULL,
-    
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     UNIQUE KEY unique_window (service, client_id, window_start),
     INDEX idx_throttled (service, is_throttled, throttled_until)
 ) ENGINE=InnoDB;
@@ -1325,11 +1325,11 @@ class RateLimiter
             'backoff_seconds' => 60,
         ],
     ];
-    
+
     public function canMakeRequest(string $service, int $clientId): bool
     {
         $cacheKey = "rate_limit:{$service}:{$clientId}";
-        
+
         // Check cache first (faster than DB)
         if (Cache::has($cacheKey)) {
             $cached = Cache::get($cacheKey);
@@ -1337,9 +1337,9 @@ class RateLimiter
                 return false;
             }
         }
-        
+
         $config = $this->config[$service] ?? throw new \InvalidArgumentException("Unknown service: {$service}");
-        
+
         // Get or create current window
         $window = DB::table('api_rate_limit_tracking')
             ->where('service', $service)
@@ -1347,7 +1347,7 @@ class RateLimiter
             ->where('window_start', '>=', now()->subSeconds($config['window_seconds']))
             ->lockForUpdate()
             ->first();
-        
+
         if (!$window) {
             // Start new window
             DB::table('api_rate_limit_tracking')->insert([
@@ -1360,27 +1360,27 @@ class RateLimiter
                 'requests_remaining' => $config['limit'],
                 'is_throttled' => false,
             ]);
-            
+
             return true;
         }
-        
+
         // Check if throttled
         if ($window->is_throttled && $window->throttled_until && now()->lt($window->throttled_until)) {
             Cache::put($cacheKey, [
                 'throttled_until' => Carbon::parse($window->throttled_until),
             ], now()->diffInSeconds($window->throttled_until));
-            
+
             return false;
         }
-        
+
         // Check remaining quota
         return $window->requests_remaining > 0;
     }
-    
+
     public function recordRequest(string $service, int $clientId, bool $success = true): void
     {
         $config = $this->config[$service];
-        
+
         DB::table('api_rate_limit_tracking')
             ->where('service', $service)
             ->where('client_id', $clientId)
@@ -1390,13 +1390,13 @@ class RateLimiter
                 'requests_remaining' => DB::raw('GREATEST(requests_remaining - 1, 0)'),
             ]);
     }
-    
+
     public function recordRateLimitHit(string $service, int $clientId, ?int $retryAfterSeconds = null): void
     {
         $config = $this->config[$service];
         $backoffSeconds = $retryAfterSeconds ?? $config['backoff_seconds'];
         $throttledUntil = now()->addSeconds($backoffSeconds);
-        
+
         DB::table('api_rate_limit_tracking')
             ->where('service', $service)
             ->where('client_id', $clientId)
@@ -1405,14 +1405,14 @@ class RateLimiter
                 'is_throttled' => true,
                 'throttled_until' => $throttledUntil,
             ]);
-        
+
         // Cache the throttle status
         Cache::put(
             "rate_limit:{$service}:{$clientId}",
             ['throttled_until' => $throttledUntil],
             $backoffSeconds
         );
-        
+
         Log::warning('API rate limit hit', [
             'service' => $service,
             'client_id' => $clientId,
@@ -1420,7 +1420,7 @@ class RateLimiter
             'backoff_seconds' => $backoffSeconds,
         ]);
     }
-    
+
     public function waitIfNeeded(string $service, int $clientId): void
     {
         while (!$this->canMakeRequest($service, $clientId)) {
@@ -1430,11 +1430,11 @@ class RateLimiter
                 'client_id' => $clientId,
                 'waiting_seconds' => $waitSeconds,
             ]);
-            
+
             sleep($waitSeconds);
         }
     }
-    
+
     public function getStatus(string $service, int $clientId): array
     {
         $window = DB::table('api_rate_limit_tracking')
@@ -1442,7 +1442,7 @@ class RateLimiter
             ->where('client_id', $clientId)
             ->where('window_start', '>=', now()->subSeconds(60))
             ->first();
-        
+
         if (!$window) {
             return [
                 'requests_made' => 0,
@@ -1450,7 +1450,7 @@ class RateLimiter
                 'is_throttled' => false,
             ];
         }
-        
+
         return [
             'requests_made' => $window->requests_made,
             'requests_remaining' => $window->requests_remaining,
@@ -1482,16 +1482,16 @@ use Modules\GoogleAdmin\Events\GoogleSyncFailed;
 class SyncGoogleUsersJob implements ShouldQueue
 {
     use InteractsWithQueue, Queueable, SerializesModels;
-    
+
     public int $timeout = 3600; // 1 hour for large syncs
     public int $tries = 3;
     public int $maxExceptions = 3;
-    
+
     protected int $clientId;
     protected string $operationId;
     protected string $syncMode;
     protected ?string $pageToken;
-    
+
     public function __construct(
         int $clientId,
         string $syncMode = 'full',
@@ -1502,38 +1502,38 @@ class SyncGoogleUsersJob implements ShouldQueue
         $this->syncMode = $syncMode;
         $this->operationId = $operationId ?? (string) Str::uuid();
         $this->pageToken = $pageToken;
-        
+
         $this->onQueue('sync'); // Dedicated queue for sync operations
     }
-    
+
     public function handle(GoogleWorkspaceService $googleService, RateLimiter $rateLimiter): void
     {
         $operation = $this->getOrCreateOperation();
-        
+
         try {
             $this->updateOperationStatus('in_progress');
-            
+
             $batchSize = 100; // Process 100 users per batch
             $processedInBatch = 0;
             $currentPageToken = $this->pageToken;
-            
+
             do {
                 // Wait if rate limited
                 $rateLimiter->waitIfNeeded('google_workspace', $this->clientId);
-                
+
                 // Fetch users from Google API
                 $response = $googleService->listUsers($this->clientId, [
                     'maxResults' => $batchSize,
                     'pageToken' => $currentPageToken,
                 ]);
-                
+
                 $rateLimiter->recordRequest('google_workspace', $this->clientId);
-                
+
                 $this->updateOperationMetrics(
                     apiCallsMade: 1,
                     totalItems: $response['total'] ?? null
                 );
-                
+
                 // Process each user
                 foreach ($response['users'] as $googleUser) {
                     try {
@@ -1543,17 +1543,17 @@ class SyncGoogleUsersJob implements ShouldQueue
                             'google_user' => $googleUser,
                             'sync_operation_id' => $this->operationId,
                         ]));
-                        
+
                         $processedInBatch++;
-                        
+
                     } catch (\Exception $e) {
                         $this->recordItemFailure($googleUser['primaryEmail'], $e);
                     }
                 }
-                
+
                 // Update progress
                 $this->updateOperationProgress($processedInBatch);
-                
+
                 // Emit progress event (for real-time UI updates)
                 event(new GoogleSyncProgressUpdated([
                     'operation_id' => $this->operationId,
@@ -1562,14 +1562,14 @@ class SyncGoogleUsersJob implements ShouldQueue
                     'total' => $operation->total_items,
                     'sync_type' => 'google_users',
                 ]));
-                
+
                 $currentPageToken = $response['nextPageToken'] ?? null;
-                
+
                 // If we have more pages, dispatch next batch job
                 if ($currentPageToken) {
                     // Save cursor for resume capability
                     $this->updateOperationCursor($currentPageToken);
-                    
+
                     // Dispatch next batch (chain jobs)
                     dispatch(new self(
                         $this->clientId,
@@ -1577,16 +1577,16 @@ class SyncGoogleUsersJob implements ShouldQueue
                         $this->operationId,
                         $currentPageToken
                     ))->delay(now()->addSeconds(2)); // Small delay between batches
-                    
+
                     break; // Exit this job, next job will continue
                 }
-                
+
             } while ($currentPageToken);
-            
+
             // If no more pages, mark as completed
             if (!$currentPageToken) {
                 $this->updateOperationStatus('completed');
-                
+
                 event(new GoogleSyncCompleted([
                     'operation_id' => $this->operationId,
                     'client_id' => $this->clientId,
@@ -1596,14 +1596,14 @@ class SyncGoogleUsersJob implements ShouldQueue
                     'duration_seconds' => now()->diffInSeconds($operation->started_at),
                 ]));
             }
-            
+
         } catch (\Google\Service\Exception $e) {
             // Handle Google API specific errors
             if ($e->getCode() === 429) {
                 // Rate limit hit
                 $retryAfter = $e->getErrors()[0]['retryAfter'] ?? 60;
                 $rateLimiter->recordRateLimitHit('google_workspace', $this->clientId, $retryAfter);
-                
+
                 // Don't spam alerts - throttle sync failures
                 if ($this->shouldAlertOnRateLimit($operation)) {
                     event(new GoogleSyncFailed([
@@ -1614,35 +1614,35 @@ class SyncGoogleUsersJob implements ShouldQueue
                         'operation_id' => $this->operationId,
                     ]));
                 }
-                
+
                 // Re-dispatch job with delay
                 $this->release($retryAfter);
-                
+
             } else {
                 throw $e;
             }
-            
+
         } catch (\Exception $e) {
             $this->updateOperationStatus('failed', $e->getMessage());
-            
+
             event(new GoogleSyncFailed([
                 'client_id' => $this->clientId,
                 'sync_type' => 'google_users',
                 'error' => $e->getMessage(),
                 'operation_id' => $this->operationId,
             ]));
-            
+
             throw $e;
         }
     }
-    
+
     protected function getOrCreateOperation()
     {
         return DB::table('sync_operations')
             ->where('operation_id', $this->operationId)
             ->first() ?? $this->createOperation();
     }
-    
+
     protected function createOperation()
     {
         DB::table('sync_operations')->insert([
@@ -1654,33 +1654,33 @@ class SyncGoogleUsersJob implements ShouldQueue
             'started_at' => now(),
             'last_activity_at' => now(),
         ]);
-        
+
         return DB::table('sync_operations')
             ->where('operation_id', $this->operationId)
             ->first();
     }
-    
+
     protected function updateOperationStatus(string $status, ?string $error = null): void
     {
         $updates = [
             'status' => $status,
             'last_activity_at' => now(),
         ];
-        
+
         if ($status === 'completed') {
             $updates['completed_at'] = now();
         }
-        
+
         if ($error) {
             $updates['last_error'] = $error;
             $updates['error_count'] = DB::raw('error_count + 1');
         }
-        
+
         DB::table('sync_operations')
             ->where('operation_id', $this->operationId)
             ->update($updates);
     }
-    
+
     protected function updateOperationProgress(int $processedCount): void
     {
         DB::table('sync_operations')
@@ -1690,23 +1690,23 @@ class SyncGoogleUsersJob implements ShouldQueue
                 'last_activity_at' => now(),
             ]);
     }
-    
+
     protected function updateOperationMetrics(int $apiCallsMade = 0, ?int $totalItems = null): void
     {
         $updates = [
             'api_calls_made' => DB::raw("api_calls_made + {$apiCallsMade}"),
             'last_activity_at' => now(),
         ];
-        
+
         if ($totalItems !== null) {
             $updates['total_items'] = $totalItems;
         }
-        
+
         DB::table('sync_operations')
             ->where('operation_id', $this->operationId)
             ->update($updates);
     }
-    
+
     protected function updateOperationCursor(string $pageToken): void
     {
         DB::table('sync_operations')
@@ -1716,7 +1716,7 @@ class SyncGoogleUsersJob implements ShouldQueue
                 'last_activity_at' => now(),
             ]);
     }
-    
+
     protected function recordItemFailure(string $itemId, \Exception $e): void
     {
         DB::table('sync_operations')
@@ -1725,25 +1725,25 @@ class SyncGoogleUsersJob implements ShouldQueue
                 'failed_items' => DB::raw('failed_items + 1'),
                 'last_error' => "Failed to process {$itemId}: " . $e->getMessage(),
             ]);
-        
+
         Log::error('Sync item failure', [
             'operation_id' => $this->operationId,
             'item_id' => $itemId,
             'error' => $e->getMessage(),
         ]);
     }
-    
+
     protected function shouldAlertOnRateLimit($operation): bool
     {
         // Only alert on first rate limit hit per operation
         // Prevents spam when hitting limits multiple times
         return $operation->rate_limit_hits === 0;
     }
-    
+
     public function failed(\Throwable $exception): void
     {
         $this->updateOperationStatus('failed', $exception->getMessage());
-        
+
         event(new GoogleSyncFailed([
             'client_id' => $this->clientId,
             'sync_type' => 'google_users',
@@ -1771,7 +1771,7 @@ class GoogleSyncFailedListener extends IdempotentListener
     {
         // Throttle alerts: Don't send more than 1 alert per client per hour
         $throttleKey = "sync_alert_throttle:{$event->data['client_id']}:google_users";
-        
+
         if (Cache::has($throttleKey)) {
             Log::debug('Sync failure alert throttled', [
                 'client_id' => $event->data['client_id'],
@@ -1779,7 +1779,7 @@ class GoogleSyncFailedListener extends IdempotentListener
             ]);
             return;
         }
-        
+
         // Create alert
         Alert::create([
             'client_id' => $event->data['client_id'],
@@ -1794,36 +1794,36 @@ class GoogleSyncFailedListener extends IdempotentListener
                 'retry_after' => $event->data['retry_after'] ?? null,
             ],
         ]);
-        
+
         // Set throttle (1 hour)
         Cache::put($throttleKey, true, now()->addHour());
     }
-    
+
     protected function determineSeverity($event): string
     {
         // Rate limit errors are "warning" not "critical"
         if (str_contains(strtolower($event->data['error']), 'rate limit')) {
             return 'warning';
         }
-        
+
         // Authentication errors are critical
         if (str_contains(strtolower($event->data['error']), 'auth')) {
             return 'critical';
         }
-        
+
         return 'error';
     }
-    
+
     protected function buildMessage($event): string
     {
         $message = "Google Workspace sync failed for " . $event->data['sync_type'];
-        
+
         if (isset($event->data['retry_after'])) {
             $message .= ". Rate limit exceeded. Retrying in {$event->data['retry_after']} seconds.";
         } else {
             $message .= ". Error: " . $event->data['error'];
         }
-        
+
         return $message;
     }
 }
@@ -1845,37 +1845,37 @@ class ResumeSyncOperations extends Command
 {
     protected $signature = 'sync:resume {--operation-id=}';
     protected $description = 'Resume interrupted sync operations';
-    
+
     public function handle(): int
     {
         $query = DB::table('sync_operations')
             ->whereIn('status', ['in_progress', 'paused'])
             ->where('last_activity_at', '<', now()->subMinutes(10)); // Stalled for 10+ min
-        
+
         if ($this->option('operation-id')) {
             $query->where('operation_id', $this->option('operation-id'));
         }
-        
+
         $stalled = $query->get();
-        
+
         if ($stalled->isEmpty()) {
             $this->info('No stalled sync operations found.');
             return 0;
         }
-        
+
         $this->info("Found {$stalled->count()} stalled sync operation(s). Resuming...");
-        
+
         foreach ($stalled as $operation) {
             $this->resumeOperation($operation);
         }
-        
+
         return 0;
     }
-    
+
     protected function resumeOperation($operation): void
     {
         $this->info("Resuming {$operation->sync_type} for client {$operation->client_id}...");
-        
+
         // Dispatch appropriate job based on sync type
         $job = match($operation->sync_type) {
             'google_users' => new SyncGoogleUsersJob(
@@ -1898,7 +1898,7 @@ class ResumeSyncOperations extends Command
             ),
             default => null,
         };
-        
+
         if ($job) {
             dispatch($job);
             $this->info("✓ Resumed operation {$operation->operation_id}");
@@ -1921,7 +1921,7 @@ return [
             'backoff_seconds' => env('GOOGLE_BACKOFF_SECONDS', 30),
         ],
     ],
-    
+
     'action1' => [
         // ... existing config
         'rate_limit' => [
@@ -1936,7 +1936,7 @@ return [
 class MonitorSyncOperations extends Command
 {
     protected $signature = 'sync:monitor';
-    
+
     public function handle(): int
     {
         // Check for stalled operations
@@ -1944,17 +1944,17 @@ class MonitorSyncOperations extends Command
             ->where('status', 'in_progress')
             ->where('last_activity_at', '<', now()->subMinutes(15))
             ->count();
-        
+
         if ($stalled > 0) {
             Log::warning("Stalled sync operations detected", ['count' => $stalled]);
         }
-        
+
         // Check for rate limit issues
         $rateLimited = DB::table('api_rate_limit_tracking')
             ->where('is_throttled', true)
             ->where('throttled_until', '>', now())
             ->get();
-        
+
         foreach ($rateLimited as $limit) {
             Log::info("API throttled", [
                 'service' => $limit->service,
@@ -1962,7 +1962,7 @@ class MonitorSyncOperations extends Command
                 'throttled_until' => $limit->throttled_until,
             ]);
         }
-        
+
         return 0;
     }
 }
@@ -1994,79 +1994,79 @@ class GoogleWebhookController extends Controller
             Log::warning('Invalid Google webhook signature');
             return response()->json(['error' => 'Invalid signature'], 401);
         }
-        
+
         $channelId = $request->header('X-Goog-Channel-ID');
         $resourceState = $request->header('X-Goog-Resource-State'); // 'sync', 'add', 'remove', 'update'
         $resourceId = $request->header('X-Goog-Resource-ID');
-        
+
         // Sync notification = initial channel setup, ignore
         if ($resourceState === 'sync') {
             return response()->json(['status' => 'ok']);
         }
-        
+
         // Find client from channel ID
         $config = DB::table('google_push_channels')
             ->where('channel_id', $channelId)
             ->where('expires_at', '>', now())
             ->first();
-        
+
         if (!$config) {
             Log::warning('Unknown or expired Google push channel', ['channel_id' => $channelId]);
             return response()->json(['error' => 'Unknown channel'], 404);
         }
-        
+
         // Fetch the changed resource from Google API
         try {
             $googleService = app(\Modules\GoogleAdmin\Services\GoogleWorkspaceService::class);
-            
+
             if ($config->resource_type === 'users') {
                 $user = $googleService->getUser($config->client_id, $resourceId);
-                
+
                 event(new GoogleUserSynced([
                     'client_id' => $config->client_id,
                     'google_user' => $user,
                     'sync_operation_id' => null,
                     'source' => 'webhook',
                 ]));
-                
+
             } elseif ($config->resource_type === 'chromebooks') {
                 $device = $googleService->getChromebook($config->client_id, $resourceId);
-                
+
                 event(new GoogleChromebookDiscovered([
                     'client_id' => $config->client_id,
                     'google_device' => $device,
                     'source' => 'webhook',
                 ]));
             }
-            
+
             Log::info('Google webhook processed', [
                 'client_id' => $config->client_id,
                 'resource_type' => $config->resource_type,
                 'resource_state' => $resourceState,
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Google webhook processing failed', [
                 'error' => $e->getMessage(),
                 'channel_id' => $channelId,
             ]);
-            
+
             return response()->json(['error' => 'Processing failed'], 500);
         }
-        
+
         return response()->json(['status' => 'processed']);
     }
-    
+
     protected function verifyGoogleSignature(Request $request): bool
     {
         // Verify X-Goog-Channel-Token matches our stored token
         $channelId = $request->header('X-Goog-Channel-ID');
         $token = $request->header('X-Goog-Channel-Token');
-        
+
         $stored = DB::table('google_push_channels')
             ->where('channel_id', $channelId)
             ->value('channel_token');
-        
+
         return hash_equals($stored ?? '', $token ?? '');
     }
 }
@@ -2091,32 +2091,32 @@ CREATE TABLE google_push_channels (
 class RenewGooglePushChannels extends Command
 {
     protected $signature = 'google:renew-webhooks';
-    
+
     public function handle(): int
     {
         // Google push notifications expire after 7 days, renew at 6 days
         $expiringSoon = DB::table('google_push_channels')
             ->where('expires_at', '<', now()->addDay())
             ->get();
-        
+
         foreach ($expiringSoon as $channel) {
             $this->renewChannel($channel);
         }
-        
+
         return 0;
     }
-    
+
     protected function renewChannel($oldChannel): void
     {
         $googleService = app(\Modules\GoogleAdmin\Services\GoogleWorkspaceService::class);
-        
+
         // Stop old channel
         $googleService->stopPushChannel($oldChannel->channel_id, $oldChannel->resource_id);
-        
+
         // Start new channel
         $newChannelId = (string) Str::uuid();
         $newToken = Str::random(32);
-        
+
         $response = $googleService->watchResource(
             clientId: $oldChannel->client_id,
             resourceType: $oldChannel->resource_type,
@@ -2124,7 +2124,7 @@ class RenewGooglePushChannels extends Command
             webhookUrl: route('google.webhook.directory'),
             token: $newToken
         );
-        
+
         // Update database
         DB::table('google_push_channels')
             ->where('id', $oldChannel->id)
@@ -2134,7 +2134,7 @@ class RenewGooglePushChannels extends Command
                 'resource_id' => $response['resourceId'],
                 'expires_at' => now()->addDays(7),
             ]);
-        
+
         Log::info('Renewed Google push channel', [
             'client_id' => $oldChannel->client_id,
             'resource_type' => $oldChannel->resource_type,
@@ -2161,18 +2161,18 @@ class Action1WebhookController extends Controller
         if (!$this->verifySignature($request)) {
             return response()->json(['error' => 'Invalid signature'], 401);
         }
-        
+
         $eventType = $request->input('event_type'); // 'device.created', 'device.updated', 'device.deleted'
         $device = $request->input('device');
-        
+
         // Find client from Action1 organization ID
         $clientId = $this->getClientIdFromOrgId($device['organization_id']);
-        
+
         if (!$clientId) {
             Log::warning('Unknown Action1 organization', ['org_id' => $device['organization_id']]);
             return response()->json(['error' => 'Unknown organization'], 404);
         }
-        
+
         switch ($eventType) {
             case 'device.created':
             case 'device.updated':
@@ -2182,7 +2182,7 @@ class Action1WebhookController extends Controller
                     'source' => 'webhook',
                 ]));
                 break;
-                
+
             case 'device.deleted':
                 event(new Action1DeviceUpdated([
                     'client_id' => $clientId,
@@ -2191,21 +2191,21 @@ class Action1WebhookController extends Controller
                 ]));
                 break;
         }
-        
+
         return response()->json(['status' => 'processed']);
     }
-    
+
     protected function verifySignature(Request $request): bool
     {
         $signature = $request->header('X-Action1-Signature');
         $payload = $request->getContent();
-        
+
         $secret = config('services.action1.webhook_secret');
         $expectedSignature = hash_hmac('sha256', $payload, $secret);
-        
+
         return hash_equals($expectedSignature, $signature ?? '');
     }
-    
+
     protected function getClientIdFromOrgId(string $orgId): ?int
     {
         return DB::table('action1_configs')
@@ -2323,7 +2323,7 @@ CREATE TABLE asset_count_changes (
     change_reason VARCHAR(255), -- 'asset_added', 'asset_removed', 'asset_retired'
     source_event_id VARCHAR(36), -- Link to originating event
     created_at TIMESTAMP NOT NULL,
-    
+
     INDEX idx_client_billing (client_id, asset_type, change_date),
     INDEX idx_change_date (change_date),
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
@@ -2343,7 +2343,7 @@ CREATE TABLE billing_periods (
     unit_price DECIMAL(10,2) NOT NULL,
     prorated_amount DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    
+
     INDEX idx_invoice (invoice_id),
     FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE,
     FOREIGN KEY (line_item_id) REFERENCES invoice_line_items(id) ON DELETE CASCADE
@@ -2368,26 +2368,26 @@ class TrackAssetCountChangeListener extends IdempotentListener
     {
         /** @var AssetStatusChanged $event */
         $asset = $event->asset;
-        
+
         // Only track changes that affect billing (active <-> other statuses)
         $affectsBilling = $this->affectsBillingCount($event->oldStatus, $event->newStatus);
-        
+
         if (!$affectsBilling) {
             return;
         }
-        
+
         // Calculate old and new quantities for this client/asset type
         $oldQuantity = DB::table('assets')
             ->where('client_id', $asset->client_id)
             ->where('asset_type', $asset->asset_type)
             ->where('status', 'active')
             ->count();
-        
+
         // Adjust for the asset that just changed
         $quantityDelta = $event->newStatus === 'active' ? 1 : -1;
         $newQuantity = $oldQuantity;
         $oldQuantity = $oldQuantity - $quantityDelta;
-        
+
         // Record the change
         DB::table('asset_count_changes')->insert([
             'client_id' => $asset->client_id,
@@ -2400,7 +2400,7 @@ class TrackAssetCountChangeListener extends IdempotentListener
             'source_event_id' => $event->eventId,
             'created_at' => now(),
         ]);
-        
+
         Log::info('Asset count change tracked for billing', [
             'client_id' => $asset->client_id,
             'asset_type' => $asset->asset_type,
@@ -2408,23 +2408,23 @@ class TrackAssetCountChangeListener extends IdempotentListener
             'new_quantity' => $newQuantity,
         ]);
     }
-    
+
     protected function affectsBillingCount(string $oldStatus, string $newStatus): bool
     {
         $billingStatuses = ['active'];
-        
+
         $oldAffects = in_array($oldStatus, $billingStatuses);
         $newAffects = in_array($newStatus, $billingStatuses);
-        
+
         return $oldAffects !== $newAffects; // Only track if billing status changes
     }
-    
+
     protected function determineReason(string $oldStatus, string $newStatus): string
     {
         if ($newStatus === 'active') {
             return 'asset_activated';
         }
-        
+
         return match($newStatus) {
             'retired' => 'asset_retired',
             'repair' => 'asset_in_repair',
@@ -2468,25 +2468,25 @@ class ProrationService
     ): array {
         // Get all quantity changes during the billing period
         $changes = $this->getQuantityChanges($clientId, $assetType, $startDate, $endDate);
-        
+
         // Get starting quantity (as of billing period start)
         $startingQuantity = $this->getQuantityAtDate($clientId, $assetType, $startDate);
-        
+
         // Build periods
         $periods = $this->buildBillingPeriods($changes, $startingQuantity, $startDate, $endDate);
-        
+
         // Calculate charges for each period
         $totalDaysInMonth = $endDate->diffInDays($startDate) + 1;
         $totalCharge = 0;
         $periodDetails = [];
-        
+
         foreach ($periods as $period) {
-            $periodCharge = $period['quantity'] 
-                * $unitPrice 
+            $periodCharge = $period['quantity']
+                * $unitPrice
                 * ($period['days'] / $totalDaysInMonth);
-            
+
             $totalCharge += $periodCharge;
-            
+
             $periodDetails[] = [
                 'quantity' => $period['quantity'],
                 'start_date' => $period['start_date']->toDateString(),
@@ -2497,14 +2497,14 @@ class ProrationService
                 'prorated_amount' => round($periodCharge, 2),
             ];
         }
-        
+
         return [
             'total' => round($totalCharge, 2),
             'periods' => $periodDetails,
             'formula' => $this->generateFormulaString($periodDetails, $totalDaysInMonth),
         ];
     }
-    
+
     /**
      * Get all quantity changes during the billing period.
      */
@@ -2521,7 +2521,7 @@ class ProrationService
             ->orderBy('change_timestamp')
             ->get();
     }
-    
+
     /**
      * Get quantity at a specific date (for starting point).
      */
@@ -2534,11 +2534,11 @@ class ProrationService
             ->where('change_date', '<=', $date->toDateString())
             ->orderByDesc('change_timestamp')
             ->first();
-        
+
         if ($lastChange) {
             return $lastChange->new_quantity;
         }
-        
+
         // No changes recorded - query current state
         return DB::table('assets')
             ->where('client_id', $clientId)
@@ -2546,7 +2546,7 @@ class ProrationService
             ->where('status', 'active')
             ->count();
     }
-    
+
     /**
      * Build billing periods from quantity changes.
      */
@@ -2559,13 +2559,13 @@ class ProrationService
         $periods = [];
         $currentQuantity = $startingQuantity;
         $periodStart = $startDate->copy();
-        
+
         foreach ($changes as $change) {
             $changeDate = Carbon::parse($change->change_date);
-            
+
             // Close current period (day before change)
             $periodEnd = $changeDate->copy()->subDay();
-            
+
             if ($periodEnd->gte($periodStart)) {
                 $periods[] = [
                     'quantity' => $currentQuantity,
@@ -2574,12 +2574,12 @@ class ProrationService
                     'days' => $periodEnd->diffInDays($periodStart) + 1,
                 ];
             }
-            
+
             // Start new period with new quantity
             $currentQuantity = $change->new_quantity;
             $periodStart = $changeDate->copy();
         }
-        
+
         // Final period (from last change to end date)
         if ($periodStart->lte($endDate)) {
             $periods[] = [
@@ -2589,17 +2589,17 @@ class ProrationService
                 'days' => $endDate->diffInDays($periodStart) + 1,
             ];
         }
-        
+
         return $periods;
     }
-    
+
     /**
      * Generate human-readable formula string for invoice documentation.
      */
     protected function generateFormulaString(array $periods, int $totalDays): string
     {
         $parts = [];
-        
+
         foreach ($periods as $period) {
             $parts[] = sprintf(
                 '(%d × $%.2f × %d/%d)',
@@ -2609,7 +2609,7 @@ class ProrationService
                 $totalDays
             );
         }
-        
+
         return 'C = ' . implode(' + ', $parts);
     }
 }
@@ -2633,29 +2633,29 @@ use Modules\PIB\Services\ProrationService;
 class GenerateRecurringInvoicesJob
 {
     protected ProrationService $prorationService;
-    
+
     public function __construct()
     {
         $this->prorationService = app(ProrationService::class);
     }
-    
+
     public function handle(): void
     {
         $templates = BillingTemplate::where('next_invoice_date', '<=', today())
             ->where('active', true)
             ->get();
-        
+
         foreach ($templates as $template) {
             $this->generateInvoice($template);
         }
     }
-    
+
     protected function generateInvoice(BillingTemplate $template): void
     {
         DB::transaction(function () use ($template) {
             // Determine billing period
             $billingPeriod = $this->calculateBillingPeriod($template);
-            
+
             $invoice = Invoice::create([
                 'client_id' => $template->client_id,
                 'billing_template_id' => $template->id,
@@ -2666,9 +2666,9 @@ class GenerateRecurringInvoicesJob
                 'billing_period_start' => $billingPeriod['start'],
                 'billing_period_end' => $billingPeriod['end'],
             ]);
-            
+
             $subtotal = 0;
-            
+
             foreach ($template->line_items as $item) {
                 $lineTotal = $this->calculateLineItemAmount(
                     $invoice,
@@ -2676,20 +2676,20 @@ class GenerateRecurringInvoicesJob
                     $billingPeriod,
                     $template->proration_enabled
                 );
-                
+
                 $subtotal += $lineTotal;
             }
-            
+
             // Calculate tax and total
             $tax = $subtotal * ($template->tax_rate ?? 0);
             $total = $subtotal + $tax;
-            
+
             $invoice->update([
                 'subtotal' => $subtotal,
                 'tax' => $tax,
                 'total' => $total,
             ]);
-            
+
             // Check if invoice is unusual
             if ($this->isUnusual($invoice, $template)) {
                 event(new InvoiceUnusual($invoice, 'Amount variance > 20%'));
@@ -2697,11 +2697,11 @@ class GenerateRecurringInvoicesJob
             } else {
                 $invoice->update(['status' => 'pending']);
             }
-            
+
             event(new InvoiceGenerated($invoice));
         });
     }
-    
+
     protected function calculateLineItemAmount(
         Invoice $invoice,
         array $item,
@@ -2711,13 +2711,13 @@ class GenerateRecurringInvoicesJob
         $quantity = $item['quantity'];
         $unitPrice = $item['unit_price'];
         $description = $item['description'];
-        
+
         // Handle usage-based line items (per_asset, per_user)
         if (in_array($item['quantity_type'], ['per_asset', 'per_user'])) {
             if ($prorationEnabled) {
                 // Use proration service
                 $assetType = $this->parseAssetType($description); // e.g., "Chromebook Management" -> "chromebook"
-                
+
                 $proration = $this->prorationService->calculateProration(
                     clientId: $invoice->client_id,
                     assetType: $assetType,
@@ -2725,7 +2725,7 @@ class GenerateRecurringInvoicesJob
                     endDate: $billingPeriod['end'],
                     unitPrice: $unitPrice
                 );
-                
+
                 // Create detailed line item
                 $lineItem = InvoiceLineItem::create([
                     'invoice_id' => $invoice->id,
@@ -2736,7 +2736,7 @@ class GenerateRecurringInvoicesJob
                     'proration_formula' => $proration['formula'],
                     'proration_details' => json_encode($proration['periods']),
                 ]);
-                
+
                 // Create billing_periods records for audit trail
                 foreach ($proration['periods'] as $period) {
                     DB::table('billing_periods')->insert([
@@ -2753,7 +2753,7 @@ class GenerateRecurringInvoicesJob
                         'created_at' => now(),
                     ]);
                 }
-                
+
                 return $proration['total'];
             } else {
                 // Simple snapshot-based (end-of-month quantity)
@@ -2762,9 +2762,9 @@ class GenerateRecurringInvoicesJob
                     $assetType,
                     $billingPeriod['end']
                 );
-                
+
                 $amount = $quantity * $unitPrice;
-                
+
                 InvoiceLineItem::create([
                     'invoice_id' => $invoice->id,
                     'description' => $description,
@@ -2773,14 +2773,14 @@ class GenerateRecurringInvoicesJob
                     'unit_price' => $unitPrice,
                     'amount' => $amount,
                 ]);
-                
+
                 return $amount;
             }
         }
-        
+
         // Fixed quantity items (monthly fee, etc.)
         $amount = $quantity * $unitPrice;
-        
+
         InvoiceLineItem::create([
             'invoice_id' => $invoice->id,
             'description' => $description,
@@ -2789,38 +2789,38 @@ class GenerateRecurringInvoicesJob
             'unit_price' => $unitPrice,
             'amount' => $amount,
         ]);
-        
+
         return $amount;
     }
-    
+
     protected function parseAssetType(string $description): string
     {
         // Extract asset type from description
         // E.g., "Chromebook Management" -> "chromebook"
         $description = strtolower($description);
-        
+
         if (str_contains($description, 'chromebook')) return 'chromebook';
         if (str_contains($description, 'windows')) return 'windows';
         if (str_contains($description, 'macos') || str_contains($description, 'mac')) return 'macos';
         if (str_contains($description, 'linux')) return 'linux';
-        
+
         return 'unknown';
     }
-    
+
     protected function calculateBillingPeriod(BillingTemplate $template): array
     {
         $start = Carbon::parse($template->next_invoice_date)
             ->subMonth()
             ->startOfMonth();
-        
+
         $end = $start->copy()->endOfMonth();
-        
+
         return [
             'start' => $start,
             'end' => $end,
         ];
     }
-    
+
     protected function isUnusual(Invoice $invoice, BillingTemplate $template): bool
     {
         // Get previous invoice for this template
@@ -2828,22 +2828,22 @@ class GenerateRecurringInvoicesJob
             ->where('id', '!=', $invoice->id)
             ->orderByDesc('created_at')
             ->first();
-        
+
         if (!$previousInvoice) {
             return false; // First invoice, can't compare
         }
-        
+
         // Check for >20% variance
         $variance = abs($invoice->total - $previousInvoice->total) / $previousInvoice->total;
-        
+
         return $variance > 0.20;
     }
-    
+
     protected function generateInvoiceNumber(): string
     {
         $year = date('Y');
         $sequence = Invoice::whereYear('created_at', $year)->count() + 1;
-        
+
         return sprintf('INV-%s-%05d', $year, $sequence);
     }
 }
@@ -2859,14 +2859,14 @@ Show proration details to clients:
     @foreach($invoice->lineItems as $lineItem)
         <div class="line-item">
             <div class="description">{{ $lineItem->description }}</div>
-            
+
             @if($lineItem->proration_details)
                 {{-- Show detailed proration breakdown --}}
                 <div class="proration-details">
                     <button type="button" class="btn-link" @click="showDetails = !showDetails">
                         View Usage Details
                     </button>
-                    
+
                     <div x-show="showDetails" class="mt-2">
                         <table class="table-sm">
                             <thead>
@@ -2888,7 +2888,7 @@ Show proration details to clients:
                                 @endforeach
                             </tbody>
                         </table>
-                        
+
                         <div class="formula mt-2 text-sm text-gray-600">
                             <strong>Formula:</strong> {{ $lineItem->proration_formula }}
                         </div>
@@ -2900,7 +2900,7 @@ Show proration details to clients:
                     {{ $lineItem->quantity }} × ${{ number_format($lineItem->unit_price, 2) }}
                 </div>
             @endif
-            
+
             <div class="amount">
                 ${{ number_format($lineItem->amount, 2) }}
             </div>
@@ -2923,15 +2923,15 @@ use Tests\TestCase;
 class ProrationServiceTest extends TestCase
 {
     use RefreshDatabase;
-    
+
     protected ProrationService $service;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->service = new ProrationService();
     }
-    
+
     public function test_proration_with_mid_month_changes()
     {
         $clientId = 1;
@@ -2939,39 +2939,39 @@ class ProrationServiceTest extends TestCase
         $startDate = Carbon::parse('2026-03-01');
         $endDate = Carbon::parse('2026-03-31');
         $unitPrice = 50.00;
-        
+
         // Setup: Insert quantity changes
         DB::table('asset_count_changes')->insert([
             ['client_id' => $clientId, 'asset_type' => $assetType, 'old_quantity' => 10, 'new_quantity' => 10, 'change_date' => '2026-03-01', 'change_timestamp' => '2026-03-01 00:00:00', 'created_at' => now()],
             ['client_id' => $clientId, 'asset_type' => $assetType, 'old_quantity' => 10, 'new_quantity' => 15, 'change_date' => '2026-03-15', 'change_timestamp' => '2026-03-15 10:00:00', 'created_at' => now()],
             ['client_id' => $clientId, 'asset_type' => $assetType, 'old_quantity' => 15, 'new_quantity' => 12, 'change_date' => '2026-03-21', 'change_timestamp' => '2026-03-21 14:00:00', 'created_at' => now()],
         ]);
-        
+
         // Execute
         $result = $this->service->calculateProration($clientId, $assetType, $startDate, $endDate, $unitPrice);
-        
+
         // Assert
         $this->assertCount(3, $result['periods']);
-        
+
         // Period 1: March 1-14 (14 days, 10 assets)
         $this->assertEquals(10, $result['periods'][0]['quantity']);
         $this->assertEquals(14, $result['periods'][0]['days_active']);
         $this->assertEquals(225.81, $result['periods'][0]['prorated_amount']);
-        
+
         // Period 2: March 15-20 (6 days, 15 assets)
         $this->assertEquals(15, $result['periods'][1]['quantity']);
         $this->assertEquals(6, $result['periods'][1]['days_active']);
         $this->assertEquals(145.16, $result['periods'][1]['prorated_amount']);
-        
+
         // Period 3: March 21-31 (11 days, 12 assets)
         $this->assertEquals(12, $result['periods'][2]['quantity']);
         $this->assertEquals(11, $result['periods'][2]['days_active']);
         $this->assertEquals(212.90, $result['periods'][2]['prorated_amount']);
-        
+
         // Total
         $this->assertEquals(583.87, $result['total']);
     }
-    
+
     public function test_proration_with_asset_added_and_removed_same_billing_period()
     {
         // The "asset exists for 6 days" edge case
@@ -2980,24 +2980,24 @@ class ProrationServiceTest extends TestCase
         $startDate = Carbon::parse('2026-03-01');
         $endDate = Carbon::parse('2026-03-31');
         $unitPrice = 50.00;
-        
+
         // Asset added on 15th, removed on 20th
         DB::table('asset_count_changes')->insert([
             ['client_id' => $clientId, 'asset_type' => $assetType, 'old_quantity' => 10, 'new_quantity' => 10, 'change_date' => '2026-03-01', 'change_timestamp' => '2026-03-01 00:00:00', 'created_at' => now()],
             ['client_id' => $clientId, 'asset_type' => $assetType, 'old_quantity' => 10, 'new_quantity' => 11, 'change_date' => '2026-03-15', 'change_timestamp' => '2026-03-15 10:00:00', 'created_at' => now()],
             ['client_id' => $clientId, 'asset_type' => $assetType, 'old_quantity' => 11, 'new_quantity' => 10, 'change_date' => '2026-03-21', 'change_timestamp' => '2026-03-21 14:00:00', 'created_at' => now()],
         ]);
-        
+
         $result = $this->service->calculateProration($clientId, $assetType, $startDate, $endDate, $unitPrice);
-        
+
         // Should have 3 periods
         $this->assertCount(3, $result['periods']);
-        
+
         // The asset active for 6 days (15th-20th) should be properly charged
         $period2 = $result['periods'][1];
         $this->assertEquals(11, $period2['quantity']);
         $this->assertEquals(6, $period2['days_active']);
-        
+
         // Calculate expected: 11 assets × $50 × (6/31) = $106.45
         $this->assertEquals(106.45, $period2['prorated_amount']);
     }
@@ -3043,31 +3043,31 @@ class DryRunBillingPreviewJob
 {
     protected ProrationService $prorationService;
     protected int $daysBeforeInvoice = 5; // Run 5 days before invoice date
-    
+
     public function handle(): void
     {
         // Find templates with invoice date in 5 days
         $upcomingTemplates = BillingTemplate::where('next_invoice_date', today()->addDays($this->daysBeforeInvoice))
             ->where('active', true)
             ->get();
-        
+
         Log::info('Dry-run billing preview started', [
             'templates_count' => $upcomingTemplates->count(),
             'preview_date' => today()->addDays($this->daysBeforeInvoice),
         ]);
-        
+
         foreach ($upcomingTemplates as $template) {
             $this->previewInvoice($template);
         }
     }
-    
+
     protected function previewInvoice(BillingTemplate $template): void
     {
         // Simulate invoice generation (don't save to database)
         $billingPeriod = $this->calculateBillingPeriod($template);
         $projectedLineItems = [];
         $projectedTotal = 0;
-        
+
         foreach ($template->line_items as $item) {
             $amount = $this->calculateLineItemAmount(
                 $template,
@@ -3075,28 +3075,28 @@ class DryRunBillingPreviewJob
                 $billingPeriod,
                 $template->proration_enabled
             );
-            
+
             $projectedLineItems[] = [
                 'description' => $item->description,
                 'quantity_type' => $item->quantity_type,
                 'current_quantity' => $item->quantity,
                 'projected_amount' => $amount,
             ];
-            
+
             $projectedTotal += $amount;
         }
-        
+
         // Add tax
         $projectedTax = $projectedTotal * ($template->tax_rate ?? 0);
         $projectedTotal += $projectedTax;
-        
+
         // Compare to last invoice
         $lastInvoice = $template->invoices()->latest('invoice_date')->first();
-        
+
         if ($lastInvoice) {
             $variance = abs($projectedTotal - $lastInvoice->total);
             $variancePercent = ($variance / $lastInvoice->total) * 100;
-            
+
             // Alert if variance > 20%
             if ($variancePercent > 20) {
                 event(new InvoiceUnusual([
@@ -3118,7 +3118,7 @@ class DryRunBillingPreviewJob
                     'invoice_date' => $template->next_invoice_date->toDateString(),
                     'days_until_invoice' => $this->daysBeforeInvoice,
                 ]));
-                
+
                 Log::warning('Dry-run detected unusual invoice variance', [
                     'client_id' => $template->client_id,
                     'projected_total' => $projectedTotal,
@@ -3139,7 +3139,7 @@ class DryRunBillingPreviewJob
                 'projected_total' => $projectedTotal,
             ]);
         }
-        
+
         // Store preview for Finance dashboard
         DB::table('invoice_previews')->updateOrInsert(
             [
@@ -3155,12 +3155,12 @@ class DryRunBillingPreviewJob
             ]
         );
     }
-    
+
     protected function calculateBillingPeriod(BillingTemplate $template): array
     {
         // Project forward 5 days
         $invoiceDate = today()->addDays($this->daysBeforeInvoice);
-        
+
         return match($template->billing_frequency) {
             'monthly' => [
                 'start' => $invoiceDate->copy()->startOfMonth(),
@@ -3176,7 +3176,7 @@ class DryRunBillingPreviewJob
             ],
         };
     }
-    
+
     protected function calculateLineItemAmount(
         BillingTemplate $template,
         $item,
@@ -3186,7 +3186,7 @@ class DryRunBillingPreviewJob
         // Same logic as GenerateRecurringInvoicesJob
         if (in_array($item->quantity_type, ['per_asset', 'per_user']) && $prorationEnabled) {
             $assetType = $this->parseAssetType($item->description);
-            
+
             $proration = $this->prorationService->calculateProration(
                 clientId: $template->client_id,
                 assetType: $assetType,
@@ -3194,22 +3194,22 @@ class DryRunBillingPreviewJob
                 endDate: Carbon::parse($billingPeriod['end']),
                 unitPrice: $item->unit_price
             );
-            
+
             return $proration['total'];
         } else {
             return $item->quantity * $item->unit_price;
         }
     }
-    
+
     protected function parseAssetType(string $description): string
     {
         $description = strtolower($description);
-        
+
         if (str_contains($description, 'chromebook')) return 'chromebook';
         if (str_contains($description, 'windows')) return 'windows';
         if (str_contains($description, 'macos') || str_contains($description, 'mac')) return 'macos';
         if (str_contains($description, 'linux')) return 'linux';
-        
+
         return 'unknown';
     }
 }
@@ -3269,10 +3269,10 @@ protected function schedule(Schedule $schedule)
                 </x-badge>
             @endif
         </x-slot>
-        
+
         <x-slot:cell-actions="{ row }">
-            <x-button 
-                variant="ghost" 
+            <x-button
+                variant="ghost"
                 size="sm"
                 @click="viewPreview({{ $row->id }})"
             >
@@ -3323,28 +3323,28 @@ CREATE TABLE asset_count_change_corrections (
     original_change_id BIGINT UNSIGNED, -- Link to asset_count_changes record (null if creating new)
     client_id BIGINT UNSIGNED NOT NULL,
     asset_type VARCHAR(50) NOT NULL,
-    
+
     -- What was corrected
     correction_type ENUM('date', 'quantity', 'deletion', 'insertion') NOT NULL,
-    
+
     -- Old values (for audit trail)
     old_change_date DATE,
     old_quantity INT,
-    
+
     -- New values
     new_change_date DATE,
     new_quantity INT,
-    
+
     -- Audit information
     corrected_by BIGINT UNSIGNED NOT NULL, -- User ID
     correction_reason TEXT NOT NULL,
     correction_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    
+
     -- Billing impact
     affected_invoice_ids JSON, -- Array of invoice IDs that may need regeneration
     recalculation_required BOOLEAN DEFAULT TRUE,
     recalculated_at TIMESTAMP NULL,
-    
+
     INDEX idx_original_change (original_change_id),
     INDEX idx_client (client_id),
     INDEX idx_corrected_by (corrected_by),
@@ -3369,51 +3369,51 @@ class BillingCorrectionController extends Controller
     public function index(Request $request)
     {
         $this->authorize('manage_billing_corrections'); // Finance role only
-        
+
         $clientId = $request->get('client_id');
         $startDate = $request->get('start_date', now()->subMonths(3));
         $endDate = $request->get('end_date', now());
-        
+
         // Get all asset count changes for review
         $changes = DB::table('asset_count_changes')
             ->when($clientId, fn($q) => $q->where('client_id', $clientId))
             ->whereBetween('change_date', [$startDate, $endDate])
             ->orderBy('change_timestamp', 'desc')
             ->paginate(50);
-        
+
         // Get any existing corrections
         $corrections = DB::table('asset_count_change_corrections')
             ->when($clientId, fn($q) => $q->where('client_id', $clientId))
             ->orderBy('correction_timestamp', 'desc')
             ->limit(20)
             ->get();
-        
+
         return view('pib::billing.corrections.index', [
             'changes' => $changes,
             'corrections' => $corrections,
         ]);
     }
-    
+
     public function create(Request $request)
     {
         $this->authorize('manage_billing_corrections');
-        
+
         $changeId = $request->get('change_id');
         $change = null;
-        
+
         if ($changeId) {
             $change = DB::table('asset_count_changes')->find($changeId);
         }
-        
+
         return view('pib::billing.corrections.create', [
             'change' => $change,
         ]);
     }
-    
+
     public function store(Request $request)
     {
         $this->authorize('manage_billing_corrections');
-        
+
         $validated = $request->validate([
             'original_change_id' => 'nullable|exists:asset_count_changes,id',
             'client_id' => 'required|exists:clients,id',
@@ -3425,12 +3425,12 @@ class BillingCorrectionController extends Controller
             'new_quantity' => 'required_if:correction_type,quantity,insertion|nullable|integer',
             'correction_reason' => 'required|string|min:10',
         ]);
-        
+
         DB::beginTransaction();
         try {
             // Apply the correction
             $affectedInvoices = $this->applyCorrection($validated);
-            
+
             // Record the correction in audit table
             $correctionId = DB::table('asset_count_change_corrections')->insertGetId([
                 'original_change_id' => $validated['original_change_id'],
@@ -3447,7 +3447,7 @@ class BillingCorrectionController extends Controller
                 'affected_invoice_ids' => json_encode($affectedInvoices),
                 'recalculation_required' => !empty($affectedInvoices),
             ]);
-            
+
             // Log activity
             activity()
                 ->performedOn(Invoice::find($affectedInvoices[0] ?? null))
@@ -3458,30 +3458,30 @@ class BillingCorrectionController extends Controller
                     'affected_invoices' => $affectedInvoices,
                 ])
                 ->log('billing_correction_applied');
-            
+
             DB::commit();
-            
+
             return redirect()
                 ->route('pib.corrections.show', $correctionId)
                 ->with('success', 'Correction applied successfully. ' . count($affectedInvoices) . ' invoice(s) may require regeneration.');
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Billing correction failed', [
                 'error' => $e->getMessage(),
                 'validated' => $validated,
             ]);
-            
+
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Correction failed: ' . $e->getMessage()]);
         }
     }
-    
+
     protected function applyCorrection(array $correction): array
     {
         $affectedInvoices = [];
-        
+
         switch ($correction['correction_type']) {
             case 'date':
                 // Update the effective date of an existing change
@@ -3491,14 +3491,14 @@ class BillingCorrectionController extends Controller
                         'change_date' => $correction['new_change_date'],
                         'updated_at' => now(),
                     ]);
-                
+
                 $affectedInvoices = $this->findAffectedInvoices(
                     $correction['client_id'],
                     $correction['old_change_date'],
                     $correction['new_change_date']
                 );
                 break;
-                
+
             case 'quantity':
                 // Update the quantity of an existing change
                 DB::table('asset_count_changes')
@@ -3507,13 +3507,13 @@ class BillingCorrectionController extends Controller
                         'new_quantity' => $correction['new_quantity'],
                         'updated_at' => now(),
                     ]);
-                
+
                 $affectedInvoices = $this->findAffectedInvoices(
                     $correction['client_id'],
                     $correction['old_change_date']
                 );
                 break;
-                
+
             case 'deletion':
                 // Soft delete (mark as invalid) rather than hard delete
                 DB::table('asset_count_changes')
@@ -3522,13 +3522,13 @@ class BillingCorrectionController extends Controller
                         'deleted_at' => now(),
                         'deleted_by' => auth()->id(),
                     ]);
-                
+
                 $affectedInvoices = $this->findAffectedInvoices(
                     $correction['client_id'],
                     $correction['old_change_date']
                 );
                 break;
-                
+
             case 'insertion':
                 // Insert a new change event that was missed
                 DB::table('asset_count_changes')->insert([
@@ -3544,25 +3544,25 @@ class BillingCorrectionController extends Controller
                     'manually_created' => true,
                     'created_by' => auth()->id(),
                 ]);
-                
+
                 $affectedInvoices = $this->findAffectedInvoices(
                     $correction['client_id'],
                     $correction['new_change_date']
                 );
                 break;
         }
-        
+
         return $affectedInvoices;
     }
-    
+
     protected function findAffectedInvoices(int $clientId, ?string ...$dates): array
     {
         $dates = array_filter($dates);
-        
+
         if (empty($dates)) {
             return [];
         }
-        
+
         // Find invoices whose billing period includes any of these dates
         return Invoice::where('client_id', $clientId)
             ->where(function($q) use ($dates) {
@@ -3576,55 +3576,55 @@ class BillingCorrectionController extends Controller
             ->pluck('id')
             ->toArray();
     }
-    
+
     public function show($correctionId)
     {
         $this->authorize('manage_billing_corrections');
-        
+
         $correction = DB::table('asset_count_change_corrections')
             ->where('id', $correctionId)
             ->first();
-        
+
         if (!$correction) {
             abort(404);
         }
-        
+
         $affectedInvoices = Invoice::whereIn('id', json_decode($correction->affected_invoice_ids, true))
             ->with('lineItems')
             ->get();
-        
+
         return view('pib::billing.corrections.show', [
             'correction' => $correction,
             'affected_invoices' => $affectedInvoices,
         ]);
     }
-    
+
     public function recalculate(Request $request, $correctionId)
     {
         $this->authorize('manage_billing_corrections');
-        
+
         $correction = DB::table('asset_count_change_corrections')->find($correctionId);
-        
+
         if (!$correction || !$correction->recalculation_required) {
             return back()->with('error', 'No recalculation needed.');
         }
-        
+
         $invoiceIds = json_decode($correction->affected_invoice_ids, true);
         $recalculated = [];
-        
+
         foreach ($invoiceIds as $invoiceId) {
             $invoice = Invoice::find($invoiceId);
-            
+
             // Only recalculate invoices that haven't been paid
             if (!in_array($invoice->status, ['draft', 'pending', 'published'])) {
                 continue;
             }
-            
+
             // Regenerate the invoice with corrected data
             $this->regenerateInvoice($invoice);
             $recalculated[] = $invoiceId;
         }
-        
+
         // Mark correction as recalculated
         DB::table('asset_count_change_corrections')
             ->where('id', $correctionId)
@@ -3632,23 +3632,23 @@ class BillingCorrectionController extends Controller
                 'recalculation_required' => false,
                 'recalculated_at' => now(),
             ]);
-        
+
         return redirect()
             ->route('pib.corrections.show', $correctionId)
             ->with('success', 'Recalculated ' . count($recalculated) . ' invoice(s).');
     }
-    
+
     protected function regenerateInvoice(Invoice $invoice): void
     {
         $prorationService = app(ProrationService::class);
-        
+
         // Store old values for comparison
         $oldTotal = $invoice->total;
-        
+
         // Recalculate all usage-based line items
         foreach ($invoice->lineItems()->where('quantity_type', '!=', 'fixed')->get() as $lineItem) {
             $assetType = $this->parseAssetType($lineItem->description);
-            
+
             $proration = $prorationService->calculateProration(
                 clientId: $invoice->client_id,
                 assetType: $assetType,
@@ -3656,16 +3656,16 @@ class BillingCorrectionController extends Controller
                 endDate: $invoice->billing_period_end,
                 unitPrice: $lineItem->unit_price
             );
-            
+
             $lineItem->update([
                 'amount' => $proration['total'],
                 'proration_formula' => $proration['formula'],
                 'proration_details' => json_encode($proration['periods']),
             ]);
-            
+
             // Delete old billing_periods and recreate
             DB::table('billing_periods')->where('line_item_id', $lineItem->id)->delete();
-            
+
             foreach ($proration['periods'] as $period) {
                 DB::table('billing_periods')->insert([
                     'invoice_id' => $invoice->id,
@@ -3682,18 +3682,18 @@ class BillingCorrectionController extends Controller
                 ]);
             }
         }
-        
+
         // Recalculate totals
         $subtotal = $invoice->lineItems()->sum('amount');
         $tax = $subtotal * ($invoice->tax_rate ?? 0);
         $total = $subtotal + $tax;
-        
+
         $invoice->update([
             'subtotal' => $subtotal,
             'tax' => $tax,
             'total' => $total,
         ]);
-        
+
         // Audit log
         DB::table('invoice_audit_log')->insert([
             'invoice_id' => $invoice->id,
@@ -3706,7 +3706,7 @@ class BillingCorrectionController extends Controller
             ),
             'created_at' => now(),
         ]);
-        
+
         Log::info('Invoice recalculated after correction', [
             'invoice_id' => $invoice->id,
             'old_total' => $oldTotal,
@@ -3714,16 +3714,16 @@ class BillingCorrectionController extends Controller
             'difference' => $total - $oldTotal,
         ]);
     }
-    
+
     protected function parseAssetType(string $description): string
     {
         $description = strtolower($description);
-        
+
         if (str_contains($description, 'chromebook')) return 'chromebook';
         if (str_contains($description, 'windows')) return 'windows';
         if (str_contains($description, 'macos') || str_contains($description, 'mac')) return 'macos';
         if (str_contains($description, 'linux')) return 'linux';
-        
+
         return 'unknown';
     }
 }
@@ -3840,7 +3840,7 @@ class BillingCorrectionController extends Controller
                         @endforeach
                     </tbody>
                 </table>
-                
+
                 {{ $changes->links() }}
             </div>
         </div>
@@ -3860,7 +3860,7 @@ class BillingCorrectionController extends Controller
 
 // Gate definition
 Gate::define('manage_billing_corrections', function (User $user) {
-    return $user->hasRole(UserRole::Admin) 
+    return $user->hasRole(UserRole::Admin)
         || $user->hasRole(UserRole::Finance);
 });
 ```
@@ -3891,11 +3891,11 @@ graph TD
     B -->|Draft/Pending| C[Apply Correction]
     B -->|Published| D[Apply Correction + Flag for Client Notification]
     B -->|Paid| E[Requires Credit Memo Workflow]
-    
+
     C --> F[Auto-Recalculate Invoice]
     D --> G[Manual Review Required]
     E --> H[Create Credit Memo or Adjustment Invoice]
-    
+
     F --> I[Updated Invoice]
     G --> J[Notify Client of Correction]
     H --> K[Issue Refund or Future Credit]
@@ -3962,31 +3962,31 @@ class SilverPlanEntitlementResolver implements EntitlementResolver {
     public function resolve(BillingTemplate $template, Carbon $date): EntitlementResult
     {
         $clientId = $template->client_id;
-        
+
         // Get counts from atomic counters (race condition safe)
         $userCount = DB::table('client_user_counters')
             ->where('client_id', $clientId)
             ->value('active_count') ?? 0;
-        
+
         $assetsByUser = DB::table('client_asset_counters')
             ->where('client_id', $clientId)
             ->where('allocation_type', 'user_assigned')
             ->value('count') ?? 0;
-        
+
         $nonAllocatedAssets = DB::table('client_asset_counters')
             ->where('client_id', $clientId)
             ->where('allocation_type', 'unassigned')
             ->value('count') ?? 0;
-        
+
         $serverCount = DB::table('client_asset_counters')
             ->where('client_id', $clientId)
             ->where('asset_type', 'server')
             ->value('count') ?? 0;
-        
+
         // Calculate additional assets (beyond 1-per-user allowance)
         $includedAssets = $userCount; // 1 asset per user included
         $additionalAssets = max(0, $assetsByUser - $includedAssets);
-        
+
         return new EntitlementResult([
             'base_users' => $userCount,
             'additional_user_assets' => $additionalAssets,
@@ -4009,10 +4009,10 @@ class GenerateRecurringInvoicesJob {
     public function handle(EntitlementEngine $engine) {
         foreach ($templates as $template) {
             $entitlements = $engine->resolve($template, today());
-            
+
             foreach ($template->line_items as $item) {
                 $quantity = $entitlements->get($item['entitlement_key']) ?? $item['default_quantity'];
-                
+
                 InvoiceLineItem::create([
                     'invoice_id' => $invoice->id,
                     'description' => $item['description'],
@@ -4036,7 +4036,7 @@ CREATE TABLE client_user_counters (
     active_count INT NOT NULL DEFAULT 0,
     inactive_count INT NOT NULL DEFAULT 0,
     last_updated_at TIMESTAMP NOT NULL,
-    
+
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
@@ -4048,7 +4048,7 @@ CREATE TABLE client_asset_counters (
     allocation_type VARCHAR(50) NOT NULL, -- 'user_assigned', 'unassigned'
     count INT NOT NULL DEFAULT 0,
     last_updated_at TIMESTAMP NOT NULL,
-    
+
     UNIQUE KEY unique_counter (client_id, asset_type, allocation_type),
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
@@ -4076,7 +4076,7 @@ class RentToOwnEntitlementResolver implements EntitlementResolver {
     public function resolve(BillingTemplate $template, Carbon $date): EntitlementResult
     {
         $config = $template->product_config; // JSON: {goal_amount, monthly_fee}
-        
+
         // Calculate cumulative amount paid
         $paidToDate = DB::table('invoice_line_items')
             ->join('invoices', 'invoices.id', '=', 'invoice_line_items.invoice_id')
@@ -4084,18 +4084,18 @@ class RentToOwnEntitlementResolver implements EntitlementResolver {
             ->where('invoice_line_items.billing_template_id', $template->id)
             ->whereIn('invoices.status', ['paid', 'published']) // Include published (outstanding invoices)
             ->sum('invoice_line_items.amount');
-        
+
         $remainingAmount = max(0, $config['goal_amount'] - $paidToDate);
-        
+
         // If goal reached, quantity = 0 (stop billing)
         if ($remainingAmount <= 0) {
             event(new RentToOwnGoalReached($template));
             return new EntitlementResult(['monthly_fee' => 0]);
         }
-        
+
         // Otherwise, charge monthly fee (or remaining amount if less)
         $chargeAmount = min($config['monthly_fee'], $remainingAmount);
-        
+
         return new EntitlementResult([
             'monthly_fee' => 1, // Quantity = 1
             'unit_price_override' => $chargeAmount, // May be less than monthly_fee on final payment
@@ -4127,7 +4127,7 @@ CREATE TABLE rent_to_own_progress (
     progress_percent DECIMAL(5,2) NOT NULL,
     is_completed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     INDEX idx_template (billing_template_id),
     FOREIGN KEY (billing_template_id) REFERENCES billing_templates(id) ON DELETE CASCADE,
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
@@ -4148,31 +4148,31 @@ CREATE TABLE rent_to_own_progress (
 CREATE TABLE service_usage (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     usage_id VARCHAR(36) UNIQUE NOT NULL, -- UUID for idempotency
-    
+
     -- Association
     client_id BIGINT UNSIGNED NOT NULL,
     billing_template_id BIGINT UNSIGNED NULL, -- Optional: link to template
-    
+
     -- Usage details
     usage_type VARCHAR(50) NOT NULL, -- 'ad_hoc_ticket', 'technician_hourly', 'consultant_hourly', 'developer_hourly'
     usage_date DATE NOT NULL,
     quantity DECIMAL(10,2) NOT NULL, -- Hours or ticket count
     unit_price DECIMAL(10,2) NOT NULL,
     total_amount DECIMAL(10,2) NOT NULL,
-    
+
     -- Metadata
     description TEXT,
     metadata JSON, -- {ticket_id, technician_id, project_id, etc.}
-    
+
     -- Invoicing
     invoice_id BIGINT UNSIGNED NULL,
     invoiced_at TIMESTAMP NULL,
-    
+
     -- Auditing
     recorded_by_user_id BIGINT UNSIGNED NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     INDEX idx_client_month (client_id, usage_date),
     INDEX idx_uninvoiced (client_id, invoice_id) WHERE invoice_id IS NULL,
     INDEX idx_usage_type (usage_type),
@@ -4226,14 +4226,14 @@ class GenerateAdHocInvoicesJob {
             ->whereMonth('usage_date', now()->subMonth()->month)
             ->groupBy('client_id')
             ->pluck('client_id');
-        
+
         foreach ($clients as $clientId) {
             $usage = DB::table('service_usage')
                 ->where('client_id', $clientId)
                 ->whereNull('invoice_id')
                 ->whereMonth('usage_date', now()->subMonth()->month)
                 ->get();
-            
+
             $invoice = Invoice::create([
                 'client_id' => $clientId,
                 'status' => 'draft',
@@ -4241,10 +4241,10 @@ class GenerateAdHocInvoicesJob {
                 'invoice_date' => now()->startOfMonth(),
                 'due_date' => now()->addDays(30),
             ]);
-            
+
             // Group by usage type
             $grouped = $usage->groupBy('usage_type');
-            
+
             foreach ($grouped as $usageType => $items) {
                 InvoiceLineItem::create([
                     'invoice_id' => $invoice->id,
@@ -4254,7 +4254,7 @@ class GenerateAdHocInvoicesJob {
                     'amount' => $items->sum('total_amount'),
                 ]);
             }
-            
+
             // Mark usage as invoiced
             DB::table('service_usage')
                 ->whereIn('id', $usage->pluck('id'))
@@ -4262,7 +4262,7 @@ class GenerateAdHocInvoicesJob {
                     'invoice_id' => $invoice->id,
                     'invoiced_at' => now(),
                 ]);
-            
+
             event(new InvoiceGenerated($invoice));
         }
     }
@@ -4284,27 +4284,27 @@ class GenerateAdHocInvoicesJob {
 CREATE TABLE credit_ledger (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     ledger_entry_id VARCHAR(36) UNIQUE NOT NULL, -- UUID for idempotency
-    
+
     -- Association
     client_id BIGINT UNSIGNED NOT NULL,
-    
+
     -- Transaction details
     transaction_type VARCHAR(50) NOT NULL, -- 'credit_purchase', 'credit_deduction', 'credit_refund'
     amount DECIMAL(10,2) NOT NULL, -- Positive for credits, negative for deductions
     balance_after DECIMAL(10,2) NOT NULL, -- Running balance
-    
+
     -- References
     invoice_id BIGINT UNSIGNED NULL, -- Link to invoice that created credit
     asset_id BIGINT UNSIGNED NULL, -- Link to asset purchased with credit
-    
+
     -- Metadata
     description TEXT,
     metadata JSON,
-    
+
     -- Auditing
     created_by_user_id BIGINT UNSIGNED NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     INDEX idx_client_balance (client_id, created_at),
     INDEX idx_invoice (invoice_id),
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
@@ -4326,12 +4326,12 @@ event(new InvoicePaymentReceived($invoice, $payment));
 class InvoicePaymentReceivedListener extends IdempotentListener {
     protected function handleIdempotent($event): void {
         $invoice = $event->invoice;
-        
+
         // Check if invoice contains credit products
         $creditItems = $invoice->lineItems()
             ->where('product_type', 'up_front_asset_credit')
             ->get();
-        
+
         foreach ($creditItems as $item) {
             event(new CreditPurchased([
                 'ledger_entry_id' => (string) Str::uuid(),
@@ -4352,14 +4352,14 @@ class CreditPurchasedListener extends IdempotentListener {
                 ->where('id', $event->data['client_id'])
                 ->lockForUpdate()
                 ->first();
-            
+
             $newBalance = $client->credit_balance + $event->data['amount'];
-            
+
             // Update client balance
             DB::table('clients')
                 ->where('id', $event->data['client_id'])
                 ->update(['credit_balance' => $newBalance]);
-            
+
             // Record ledger entry
             DB::table('credit_ledger')->insert([
                 'ledger_entry_id' => $event->data['ledger_entry_id'],
@@ -4433,9 +4433,9 @@ class AssetProcuredListener extends IdempotentListener {
             'invoice_type' => 'asset_procurement',
             'invoice_date' => today(),
         ]);
-        
+
         $metadata = $event->data['procurement_metadata'];
-        
+
         InvoiceLineItem::create([
             'invoice_id' => $invoice->id,
             'description' => $this->buildProcurementDescription($metadata),
@@ -4445,10 +4445,10 @@ class AssetProcuredListener extends IdempotentListener {
             'product_type' => 'generic_laptop_procurement',
             'metadata' => json_encode($metadata),
         ]);
-        
+
         event(new InvoiceGenerated($invoice));
     }
-    
+
     protected function buildProcurementDescription(array $metadata): string {
         return sprintf(
             'Laptop Procurement - %s CPU, %dGB RAM, %dGB %s',
@@ -4470,34 +4470,34 @@ class AssetProcuredListener extends IdempotentListener {
 CREATE TABLE milestones (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     milestone_id VARCHAR(36) UNIQUE NOT NULL,
-    
+
     -- Project association
     client_id BIGINT UNSIGNED NOT NULL,
     project_name VARCHAR(255) NOT NULL,
     billing_template_id BIGINT UNSIGNED NULL,
-    
+
     -- Milestone details
     milestone_type VARCHAR(50) NOT NULL, -- 'up_front', 'milestone', 'delivery', 'maintenance', 'change_request'
     milestone_name VARCHAR(255) NOT NULL,
     milestone_description TEXT,
     sequence_order INT NOT NULL,
-    
+
     -- Financial
     amount DECIMAL(10,2) NOT NULL,
-    
+
     -- Status tracking
     status VARCHAR(50) NOT NULL DEFAULT 'pending', -- 'pending', 'in_progress', 'achieved', 'invoiced'
     achieved_at TIMESTAMP NULL,
     achieved_by_user_id BIGINT UNSIGNED NULL,
-    
+
     -- Invoicing
     invoice_id BIGINT UNSIGNED NULL,
     invoiced_at TIMESTAMP NULL,
-    
+
     -- Auditing
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     INDEX idx_client_project (client_id, project_name),
     INDEX idx_status (status),
     INDEX idx_uninvoiced (client_id, status) WHERE status = 'achieved' AND invoice_id IS NULL,
@@ -4529,13 +4529,13 @@ class MilestoneAchievedListener extends IdempotentListener {
                 'achieved_at' => now(),
                 'achieved_by_user_id' => $event->data['achieved_by_user_id'],
             ]);
-        
+
         // Auto-invoice or mark for manual review
         if (config('billing.auto_invoice_milestones')) {
             $this->createMilestoneInvoice($event->data);
         }
     }
-    
+
     protected function createMilestoneInvoice(array $data): void {
         $invoice = Invoice::create([
             'client_id' => $data['client_id'],
@@ -4543,7 +4543,7 @@ class MilestoneAchievedListener extends IdempotentListener {
             'invoice_type' => 'milestone',
             'invoice_date' => today(),
         ]);
-        
+
         InvoiceLineItem::create([
             'invoice_id' => $invoice->id,
             'description' => "Development Milestone: {$data['milestone_name']}",
@@ -4552,7 +4552,7 @@ class MilestoneAchievedListener extends IdempotentListener {
             'amount' => $data['amount'],
             'product_type' => 'development_flat_fee',
         ]);
-        
+
         DB::table('milestones')
             ->where('milestone_id', $data['milestone_id'])
             ->update([
@@ -4560,7 +4560,7 @@ class MilestoneAchievedListener extends IdempotentListener {
                 'invoice_id' => $invoice->id,
                 'invoiced_at' => now(),
             ]);
-        
+
         event(new InvoiceGenerated($invoice));
     }
 }
@@ -4587,22 +4587,22 @@ CREATE TABLE client_conversations (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     client_id BIGINT UNSIGNED NOT NULL,
     conversation_id BIGINT UNSIGNED NOT NULL, -- FreeScout conversations.id
-    
+
     -- Time tracking summary (total time, not billing-specific)
     total_time_minutes INT DEFAULT 0,
-    
+
     -- Ticket open/close timestamps
     opened_at TIMESTAMP NULL,
     closed_at TIMESTAMP NULL,
-    
+
     -- Linking metadata
     linked_by_user_id BIGINT UNSIGNED NULL, -- Manual link by user
     linked_via VARCHAR(50) DEFAULT 'email_match', -- 'email_match', 'manual', 'api', 'contact_lookup'
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     UNIQUE KEY uk_client_conversation (client_id, conversation_id),
     INDEX idx_conversation (conversation_id),
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
@@ -4615,24 +4615,24 @@ CREATE TABLE client_conversations (
 CREATE TABLE conversation_billing_metadata (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     client_conversation_id BIGINT UNSIGNED NOT NULL,
-    
+
     -- Billing classification (PIB determines based on client's contract)
     billing_category ENUM('included', 'ad_hoc', 'warranty', 'project', 'emergency') DEFAULT 'included',
     is_billable BOOLEAN DEFAULT FALSE,
-    
+
     -- Billable time (separate from CRM's total_time_minutes)
     billable_time_minutes INT DEFAULT 0,
-    
+
     -- Invoice reference when billed
     invoice_id BIGINT UNSIGNED NULL,
     invoiced_at TIMESTAMP NULL,
-    
+
     -- Override notes
     billing_notes TEXT NULL,
-    
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     UNIQUE KEY uk_conversation_billing (client_conversation_id),
     INDEX idx_billable_category (billing_category, is_billable),
     INDEX idx_invoice (invoice_id),
@@ -4645,33 +4645,33 @@ CREATE TABLE conversation_billing_metadata (
 CREATE TABLE time_entries (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     entry_id VARCHAR(36) UNIQUE NOT NULL, -- UUID for idempotency
-    
+
     -- Associations
     conversation_id BIGINT UNSIGNED NOT NULL, -- FreeScout conversations.id
     client_id BIGINT UNSIGNED NOT NULL, -- Denormalized for query performance
     user_id BIGINT UNSIGNED NOT NULL, -- Technician who logged time
-    
+
     -- Time details
     started_at TIMESTAMP NULL,
     ended_at TIMESTAMP NULL,
     duration_minutes INT NOT NULL,
-    
+
     -- Classification
     work_type ENUM('troubleshooting', 'implementation', 'documentation', 'travel', 'meeting', 'research') DEFAULT 'troubleshooting',
     is_billable BOOLEAN DEFAULT FALSE,
     billing_rate DECIMAL(10,2) NULL, -- Rate at time of entry (may differ from current rate)
-    
+
     -- Billing integration
     service_usage_id BIGINT UNSIGNED NULL, -- Link to service_usage when invoiced
-    
+
     -- Metadata
     description TEXT,
     internal_notes TEXT,
-    
+
     -- Timestamps
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     INDEX idx_conversation (conversation_id),
     INDEX idx_client_date (client_id, started_at),
     INDEX idx_user_date (user_id, started_at),
@@ -4688,7 +4688,7 @@ CREATE TABLE client_service_metrics (
     client_id BIGINT UNSIGNED NOT NULL,
     period_year SMALLINT NOT NULL,
     period_month TINYINT NOT NULL,
-    
+
     -- Ticket counts
     tickets_opened INT DEFAULT 0,
     tickets_closed INT DEFAULT 0,
@@ -4696,21 +4696,21 @@ CREATE TABLE client_service_metrics (
     included_ticket_count INT DEFAULT 0,
     ad_hoc_ticket_count INT DEFAULT 0,
     emergency_ticket_count INT DEFAULT 0,
-    
+
     -- Response/Wait time metrics (in minutes)
     avg_first_response_minutes INT NULL,
     avg_time_to_resolution_minutes INT NULL,
     avg_wait_time_unassigned_minutes INT NULL,
     max_wait_time_unassigned_minutes INT NULL,
-    
+
     -- Technician activity (counts)
     unique_technicians_assigned INT DEFAULT 0,
     total_assignments INT DEFAULT 0,
     total_status_changes INT DEFAULT 0,
-    
+
     -- Snapshot metadata
     calculated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     UNIQUE KEY uk_client_period (client_id, period_year, period_month),
     INDEX idx_period (period_year, period_month),
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
@@ -4722,26 +4722,26 @@ CREATE TABLE ticket_lifecycle_events (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     conversation_id BIGINT UNSIGNED NOT NULL,
     client_id BIGINT UNSIGNED NULL, -- Denormalized for query performance
-    
+
     -- Event details
     event_type ENUM('opened', 'assigned', 'unassigned', 'status_changed', 'replied', 'closed', 'reopened') NOT NULL,
     user_id BIGINT UNSIGNED NULL, -- Technician who performed action
-    
+
     -- State tracking
     old_status VARCHAR(50) NULL,
     new_status VARCHAR(50) NULL,
     old_assignee_id BIGINT UNSIGNED NULL,
     new_assignee_id BIGINT UNSIGNED NULL,
-    
+
     -- Timing
     event_at TIMESTAMP NOT NULL,
     time_since_open_minutes INT NULL, -- Minutes since ticket opened
     time_since_last_event_minutes INT NULL, -- Minutes since previous event
-    
+
     -- Metadata
     metadata JSON NULL, -- Additional context
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     INDEX idx_conversation (conversation_id),
     INDEX idx_client_period (client_id, event_at),
     INDEX idx_event_type (event_type, event_at),
@@ -4760,17 +4760,17 @@ class ConversationCreatedListener {
     {
         $conversation = $event->conversation;
         $customerEmail = $conversation->customer_email;
-        
+
         // Look up client by contact email
         $contact = Contact::where('email', $customerEmail)->first();
-        
+
         if ($contact) {
             $clientConversation = ClientConversation::create([
                 'client_id' => $contact->client_id,
                 'conversation_id' => $conversation->id,
                 'linked_via' => 'email_match',
             ]);
-            
+
             // CRM fires event with clientConversationId - NO billing logic here
             // PIB listener will create conversation_billing_metadata and determine billing category
             event(new ConversationLinkedToClient(
@@ -4788,17 +4788,17 @@ class ConversationLinkedToClientListener {
     {
         // Determine billing category based on client's contract
         $category = $this->determineBillingCategory($event->clientId);
-        
+
         ConversationBillingMetadata::create([
             'client_conversation_id' => $event->clientConversationId,
             'billing_category' => $category,
             'is_billable' => $this->isCategoryBillable($category),
         ]);
-        
+
         // Check ad-hoc bucket limits if applicable
         $this->checkAdHocBucketLimit($event->clientId);
     }
-    
+
     private function determineBillingCategory(int $clientId): string
     {
         // If client has active service plan, tickets are 'included'
@@ -4807,7 +4807,7 @@ class ConversationLinkedToClientListener {
             ->whereIn('product_type', ['silver_plan', 'gold_plan', 'service_plan'])
             ->where('status', 'active')
             ->exists();
-            
+
         return $hasServicePlan ? 'included' : 'ad_hoc';
     }
 }
@@ -4821,7 +4821,7 @@ class MonthEndTimeAggregationJob {
     public function handle(): void
     {
         $lastMonth = now()->subMonth();
-        
+
         $timeEntries = DB::table('time_entries')
             ->whereNull('service_usage_id')
             ->where('is_billable', true)
@@ -4829,16 +4829,16 @@ class MonthEndTimeAggregationJob {
             ->whereYear('started_at', $lastMonth->year)
             ->get()
             ->groupBy('client_id');
-        
+
         foreach ($timeEntries as $clientId => $entries) {
             // Group by work type for line item breakdown
             $byWorkType = $entries->groupBy('work_type');
-            
+
             foreach ($byWorkType as $workType => $typeEntries) {
                 $totalMinutes = $typeEntries->sum('duration_minutes');
                 $avgRate = $typeEntries->avg('billing_rate');
                 $hours = round($totalMinutes / 60, 2);
-                
+
                 // Create service_usage record
                 $usageId = (string) Str::uuid();
                 $serviceUsageId = DB::table('service_usage')->insertGetId([
@@ -4856,7 +4856,7 @@ class MonthEndTimeAggregationJob {
                         'entry_ids' => $typeEntries->pluck('id')->toArray(),
                     ]),
                 ]);
-                
+
                 // Link time entries back to service_usage
                 DB::table('time_entries')
                     ->whereIn('id', $typeEntries->pluck('id'))
@@ -4882,17 +4882,17 @@ class TicketLifecycleService {
         $clientId = DB::table('client_conversations')
             ->where('conversation_id', $conversationId)
             ->value('client_id');
-        
+
         $openedAt = DB::table('ticket_lifecycle_events')
             ->where('conversation_id', $conversationId)
             ->where('event_type', 'opened')
             ->value('event_at');
-        
+
         $lastEvent = DB::table('ticket_lifecycle_events')
             ->where('conversation_id', $conversationId)
             ->orderBy('event_at', 'desc')
             ->first();
-        
+
         DB::table('ticket_lifecycle_events')->insert([
             'conversation_id' => $conversationId,
             'client_id' => $clientId,
@@ -4903,11 +4903,11 @@ class TicketLifecycleService {
             'old_assignee_id' => $stateChanges['old_assignee_id'] ?? null,
             'new_assignee_id' => $stateChanges['new_assignee_id'] ?? null,
             'event_at' => now(),
-            'time_since_open_minutes' => $openedAt 
-                ? Carbon::parse($openedAt)->diffInMinutes(now()) 
+            'time_since_open_minutes' => $openedAt
+                ? Carbon::parse($openedAt)->diffInMinutes(now())
                 : 0,
-            'time_since_last_event_minutes' => $lastEvent 
-                ? Carbon::parse($lastEvent->event_at)->diffInMinutes(now()) 
+            'time_since_last_event_minutes' => $lastEvent
+                ? Carbon::parse($lastEvent->event_at)->diffInMinutes(now())
                 : null,
             'metadata' => json_encode($metadata),
         ]);
@@ -4927,9 +4927,9 @@ class CalculateClientServiceMetricsJob {
         $month = $lastMonth->month;
         $periodStart = $lastMonth->startOfMonth();
         $periodEnd = $lastMonth->endOfMonth();
-        
+
         $clients = Client::where('status', 'active')->get();
-        
+
         foreach ($clients as $client) {
             // Tickets opened/closed this period
             $ticketsOpened = DB::table('ticket_lifecycle_events')
@@ -4937,23 +4937,23 @@ class CalculateClientServiceMetricsJob {
                 ->where('event_type', 'opened')
                 ->whereBetween('event_at', [$periodStart, $periodEnd])
                 ->count();
-            
+
             $ticketsClosed = DB::table('ticket_lifecycle_events')
                 ->where('client_id', $client->id)
                 ->where('event_type', 'closed')
                 ->whereBetween('event_at', [$periodStart, $periodEnd])
                 ->count();
-            
+
             // Wait time: time from open to first assignment
             $waitTimeStats = DB::selectOne("
-                SELECT 
+                SELECT
                     AVG(TIMESTAMPDIFF(MINUTE, opened.event_at, first_assign.event_at)) as avg_wait,
                     MAX(TIMESTAMPDIFF(MINUTE, opened.event_at, first_assign.event_at)) as max_wait
                 FROM ticket_lifecycle_events opened
                 LEFT JOIN LATERAL (
-                    SELECT event_at 
-                    FROM ticket_lifecycle_events 
-                    WHERE conversation_id = opened.conversation_id 
+                    SELECT event_at
+                    FROM ticket_lifecycle_events
+                    WHERE conversation_id = opened.conversation_id
                       AND event_type = 'assigned'
                     ORDER BY event_at ASC LIMIT 1
                 ) first_assign ON TRUE
@@ -4961,7 +4961,7 @@ class CalculateClientServiceMetricsJob {
                   AND opened.event_type = 'opened'
                   AND opened.event_at BETWEEN ? AND ?
             ", [$client->id, $periodStart, $periodEnd]);
-            
+
             // Resolution time: time from open to close
             $resolutionStats = DB::table('ticket_lifecycle_events as closed')
                 ->where('closed.client_id', $client->id)
@@ -4969,7 +4969,7 @@ class CalculateClientServiceMetricsJob {
                 ->whereBetween('closed.event_at', [$periodStart, $periodEnd])
                 ->selectRaw('AVG(closed.time_since_open_minutes) as avg_resolution')
                 ->first();
-            
+
             // Technician activity
             $technicianStats = DB::table('ticket_lifecycle_events')
                 ->where('client_id', $client->id)
@@ -4981,7 +4981,7 @@ class CalculateClientServiceMetricsJob {
                     COUNT(*) as total_status_changes
                 ")
                 ->first();
-            
+
             // Ticket category counts
             $categoryStats = DB::table('client_conversations')
                 ->join('conversations', 'conversations.id', '=', 'client_conversations.conversation_id')
@@ -4994,7 +4994,7 @@ class CalculateClientServiceMetricsJob {
                     SUM(CASE WHEN service_category = 'emergency' THEN 1 ELSE 0 END) as emergency
                 ")
                 ->first();
-            
+
             DB::table('client_service_metrics')->updateOrInsert(
                 ['client_id' => $client->id, 'period_year' => $year, 'period_month' => $month],
                 [
@@ -5013,7 +5013,7 @@ class CalculateClientServiceMetricsJob {
                     'calculated_at' => now(),
                 ]
             );
-            
+
             event(new ServiceMetricsCalculated(
                 clientId: $client->id,
                 year: $year,
@@ -5035,13 +5035,13 @@ class CalculateClientServiceMetricsJob {
 
 ### 6.9 Benefits of This Architecture
 
-✅ **Separation of Concerns:** Complex product logic isolated in EntitlementResolvers  
-✅ **Core Blindness Maintained:** CRM doesn't know about Silver Plans or Rent-To-Own  
-✅ **Extensibility:** Add new product types without modifying billing job  
-✅ **Atomic Operations:** Race-condition-safe counters for concurrent updates  
-✅ **Audit Trail:** Every credit, usage, and milestone change tracked  
-✅ **Idempotency:** All events use UUID-based deduplication  
-✅ **Flexibility:** JSON metadata columns support variable product configurations  
+✅ **Separation of Concerns:** Complex product logic isolated in EntitlementResolvers
+✅ **Core Blindness Maintained:** CRM doesn't know about Silver Plans or Rent-To-Own
+✅ **Extensibility:** Add new product types without modifying billing job
+✅ **Atomic Operations:** Race-condition-safe counters for concurrent updates
+✅ **Audit Trail:** Every credit, usage, and milestone change tracked
+✅ **Idempotency:** All events use UUID-based deduplication
+✅ **Flexibility:** JSON metadata columns support variable product configurations
 
 ---
 
@@ -5069,7 +5069,7 @@ class CalculateClientServiceMetricsJob {
 // Base event trait
 trait HasEventId {
     public string $eventId;
-    
+
     public function __construct() {
         $this->eventId = (string) Str::uuid();
         // Call child constructor
@@ -5080,9 +5080,9 @@ trait HasEventId {
 // Usage in events
 class GoogleUserSynced {
     use Dispatchable, HasEventId;
-    
+
     public array $data;
-    
+
     public function __construct(array $data) {
         $this->eventId = (string) Str::uuid();
         $this->data = $data;
@@ -5102,13 +5102,13 @@ CREATE TABLE processed_events (
     payload JSON,
     processed_at TIMESTAMP NOT NULL,
     processing_time_ms INT UNSIGNED,
-    
+
     INDEX idx_event_class_processed (event_class, processed_at),
     INDEX idx_listener_processed (listener_class, processed_at)
 ) ENGINE=InnoDB;
 
 -- Partition by month for performance
-ALTER TABLE processed_events 
+ALTER TABLE processed_events
 PARTITION BY RANGE (YEAR(processed_at) * 100 + MONTH(processed_at)) (
     PARTITION p202601 VALUES LESS THAN (202602),
     PARTITION p202602 VALUES LESS THAN (202603),
@@ -5149,17 +5149,17 @@ abstract class IdempotentListener
 
         // Process with timing
         $startTime = microtime(true);
-        
+
         DB::transaction(function () use ($event, $eventId, $eventClass, $listenerClass) {
             // Mark as processing (with row lock)
             $this->markAsProcessing($eventId, $eventClass, $listenerClass, $event);
-            
+
             // Execute actual business logic
             $this->handleIdempotent($event);
         });
 
         $processingTimeMs = (int) ((microtime(true) - $startTime) * 1000);
-        
+
         // Update processing time
         DB::table('processed_events')
             ->where('event_id', $eventId)
@@ -5212,10 +5212,10 @@ abstract class IdempotentListener
     protected function getEventPayload($event): array
     {
         $payload = [];
-        
+
         foreach (get_object_vars($event) as $key => $value) {
             if ($key === 'eventId') continue;
-            
+
             if (is_scalar($value) || is_array($value)) {
                 $payload[$key] = $value;
             } elseif ($value instanceof \Illuminate\Database\Eloquent\Model) {
@@ -5225,7 +5225,7 @@ abstract class IdempotentListener
                 ];
             }
         }
-        
+
         return $payload;
     }
 
@@ -5251,10 +5251,10 @@ use Illuminate\Support\Str;
 class GoogleUserSynced
 {
     use Dispatchable;
-    
+
     public string $eventId;
     public array $data;
-    
+
     public function __construct(array $data, ?string $eventId = null)
     {
         // Allow passing event ID for testing or external event reconstruction
@@ -5275,7 +5275,7 @@ class GoogleUserSyncedListener extends IdempotentListener
     protected function handleIdempotent($event): void
     {
         /** @var GoogleUserSynced $event */
-        
+
         // This logic runs exactly once, even if job retries
         User::updateOrCreate(
             ['email' => $event->data['email']],
@@ -5287,7 +5287,7 @@ class GoogleUserSyncedListener extends IdempotentListener
                 'status' => $event->data['suspended'] ? User::STATUS_INACTIVE : User::STATUS_ACTIVE,
             ]
         );
-        
+
         Log::info('Google user synced to CRM', [
             'email' => $event->data['email'],
             'google_id' => $event->data['google_id'],
@@ -5309,11 +5309,11 @@ use Modules\ContractManager\Models\Quote;
 class QuoteApproved
 {
     use Dispatchable;
-    
+
     public string $eventId;
     public Quote $quote;
     public int $approvedBy;
-    
+
     public function __construct(Quote $quote, int $approvedBy, ?string $eventId = null)
     {
         $this->eventId = $eventId ?? (string) Str::uuid();
@@ -5335,7 +5335,7 @@ class CreateBillingTemplateListener extends IdempotentListener
     {
         /** @var QuoteApproved $event */
         $quote = $event->quote;
-        
+
         // Check if template already exists (additional safety)
         if (BillingTemplate::where('quote_id', $quote->id)->exists()) {
             Log::warning('BillingTemplate already exists for quote', [
@@ -5344,7 +5344,7 @@ class CreateBillingTemplateListener extends IdempotentListener
             ]);
             return;
         }
-        
+
         // Safe to create - will only happen once
         $template = BillingTemplate::create([
             'client_id' => $quote->client_id,
@@ -5363,14 +5363,14 @@ class CreateBillingTemplateListener extends IdempotentListener
                 ];
             })->toArray(),
         ]);
-        
+
         Log::info('BillingTemplate created from approved quote', [
             'quote_id' => $quote->id,
             'template_id' => $template->id,
             'event_id' => $event->eventId,
         ]);
     }
-    
+
     private function calculateNextInvoiceDate($quote): \Carbon\Carbon
     {
         return match($quote->billing_cycle) {
@@ -5395,10 +5395,10 @@ use Modules\Payment\Models\Transaction;
 class PaymentSucceeded
 {
     use Dispatchable;
-    
+
     public string $eventId;
     public Transaction $transaction;
-    
+
     public function __construct(Transaction $transaction, ?string $eventId = null)
     {
         // For payments, use transaction ID as event ID for determinism
@@ -5420,16 +5420,16 @@ class MarkInvoicePaidListener extends IdempotentListener
     {
         /** @var PaymentSucceeded $event */
         $transaction = $event->transaction;
-        
+
         if (!$transaction->invoice_id) {
             Log::warning('Transaction has no invoice_id', [
                 'transaction_id' => $transaction->id,
             ]);
             return;
         }
-        
+
         $invoice = Invoice::findOrFail($transaction->invoice_id);
-        
+
         // Idempotent state check
         if ($invoice->status === 'paid') {
             Log::info('Invoice already marked as paid', [
@@ -5438,12 +5438,12 @@ class MarkInvoicePaidListener extends IdempotentListener
             ]);
             return;
         }
-        
+
         $invoice->update([
             'status' => 'paid',
             'paid_at' => now(),
         ]);
-        
+
         // Audit log
         DB::table('invoice_audit_log')->insert([
             'invoice_id' => $invoice->id,
@@ -5452,7 +5452,7 @@ class MarkInvoicePaidListener extends IdempotentListener
             'notes' => "Payment transaction ID: {$transaction->id}",
             'created_at' => now(),
         ]);
-        
+
         Log::info('Invoice marked as paid', [
             'invoice_id' => $invoice->id,
             'transaction_id' => $transaction->id,
@@ -5465,18 +5465,18 @@ class MarkInvoicePaidListener extends IdempotentListener
 ### 5.6 Event ID Strategies
 
 #### Strategy 1: UUID (Default)
-**Use For:** Most events  
-**Pros:** Guaranteed unique, no coordination needed  
-**Cons:** No semantic meaning  
+**Use For:** Most events
+**Pros:** Guaranteed unique, no coordination needed
+**Cons:** No semantic meaning
 
 ```php
 $this->eventId = (string) Str::uuid();
 ```
 
 #### Strategy 2: Deterministic (Source-Based)
-**Use For:** External webhook events, payment transactions  
-**Pros:** Replay protection, can reconstruct event ID  
-**Cons:** Requires unique external identifier  
+**Use For:** External webhook events, payment transactions
+**Pros:** Replay protection, can reconstruct event ID
+**Cons:** Requires unique external identifier
 
 ```php
 // For Helcim webhook
@@ -5487,9 +5487,9 @@ $this->eventId = 'google-user-' . $googleUser->id . '-' . $syncTimestamp;
 ```
 
 #### Strategy 3: Content Hash
-**Use For:** Events where duplicate detection requires payload inspection  
-**Pros:** Prevents duplicate processing of identical events  
-**Cons:** Hash collisions (use SHA-256)  
+**Use For:** Events where duplicate detection requires payload inspection
+**Pros:** Prevents duplicate processing of identical events
+**Cons:** Hash collisions (use SHA-256)
 
 ```php
 $this->eventId = hash('sha256', json_encode([
@@ -5512,26 +5512,26 @@ class ArchiveProcessedEvents extends Command
 {
     protected $signature = 'events:archive {--days=90}';
     protected $description = 'Archive processed events older than specified days';
-    
+
     public function handle(): int
     {
         $days = (int) $this->option('days');
         $cutoffDate = now()->subDays($days);
-        
+
         // Move to archive table
         DB::statement("
-            INSERT INTO processed_events_archive 
-            SELECT * FROM processed_events 
+            INSERT INTO processed_events_archive
+            SELECT * FROM processed_events
             WHERE processed_at < ?
         ", [$cutoffDate]);
-        
+
         // Delete from main table
         $deleted = DB::table('processed_events')
             ->where('processed_at', '<', $cutoffDate)
             ->delete();
-        
+
         $this->info("Archived {$deleted} events older than {$days} days");
-        
+
         return 0;
     }
 }
@@ -5547,7 +5547,7 @@ Schedule::command('events:archive --days=90')->daily();
 class GoogleUserSyncedListenerTest extends TestCase
 {
     use RefreshDatabase;
-    
+
     public function test_listener_is_idempotent()
     {
         $event = new GoogleUserSynced([
@@ -5558,19 +5558,19 @@ class GoogleUserSyncedListenerTest extends TestCase
             'suspended' => false,
             'org_unit_path' => '/Engineering',
         ], 'test-event-id-123'); // Fixed event ID
-        
+
         $listener = new GoogleUserSyncedListener();
-        
+
         // Process first time
         $listener->handle($event);
         $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
-        
+
         // Process again (simulating queue retry)
         $listener->handle($event);
-        
+
         // Should still have only one user
         $this->assertEquals(1, User::where('email', 'test@example.com')->count());
-        
+
         // Should have processed event recorded
         $this->assertDatabaseHas('processed_events', [
             'event_id' => 'test-event-id-123',
@@ -5578,7 +5578,7 @@ class GoogleUserSyncedListenerTest extends TestCase
             'listener_class' => GoogleUserSyncedListener::class,
         ]);
     }
-    
+
     public function test_concurrent_processing_prevented()
     {
         $event = new GoogleUserSynced([
@@ -5589,19 +5589,19 @@ class GoogleUserSyncedListenerTest extends TestCase
             'suspended' => false,
             'org_unit_path' => '/Engineering',
         ], 'test-event-id-456');
-        
+
         $listener = new GoogleUserSyncedListener();
-        
+
         // Simulate two workers processing simultaneously
         DB::beginTransaction();
         $listener->handle($event);
-        
+
         // Second worker should see it's already being processed
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('already being processed');
-        
+
         $listener->handle($event);
-        
+
         DB::rollBack();
     }
 }
@@ -5615,7 +5615,7 @@ class MonitorEventProcessing extends Command
 {
     protected $signature = 'events:monitor';
     protected $description = 'Monitor event processing for anomalies';
-    
+
     public function handle(): int
     {
         // Check for slow-processing events
@@ -5623,17 +5623,17 @@ class MonitorEventProcessing extends Command
             ->where('processing_time_ms', '>', 5000) // > 5 seconds
             ->where('processed_at', '>', now()->subHour())
             ->get();
-        
+
         if ($slowEvents->count() > 0) {
             Log::warning('Slow event processing detected', [
                 'count' => $slowEvents->count(),
                 'events' => $slowEvents->pluck('event_class')->unique()->toArray(),
             ]);
         }
-        
+
         // Check for failed listeners (events processed but downstream effects missing)
         // This requires custom logic per event type
-        
+
         // Check for duplicate processing attempts (shouldn't happen with idempotency)
         $duplicateAttempts = DB::select("
             SELECT event_id, COUNT(*) as attempt_count
@@ -5642,14 +5642,14 @@ class MonitorEventProcessing extends Command
             GROUP BY event_id
             HAVING attempt_count > 1
         ", [now()->subHour()]);
-        
+
         if (count($duplicateAttempts) > 0) {
             Log::error('Duplicate event processing detected', [
                 'count' => count($duplicateAttempts),
                 'event_ids' => array_column($duplicateAttempts, 'event_id'),
             ]);
         }
-        
+
         return 0;
     }
 }
@@ -5686,7 +5686,7 @@ CREATE INDEX idx_event_listener_lookup ON processed_events(event_id, listener_cl
 CREATE INDEX idx_processed_at ON processed_events(processed_at);
 
 -- Monitoring queries
-CREATE INDEX idx_processing_time ON processed_events(processing_time_ms) 
+CREATE INDEX idx_processing_time ON processed_events(processing_time_ms)
     WHERE processing_time_ms > 1000;
 ```
 
@@ -5703,23 +5703,23 @@ CREATE INDEX idx_processing_time ON processed_events(processing_time_ms)
 protected function wasProcessed(string $eventId, string $listenerClass): bool
 {
     $cacheKey = "processed_event:{$eventId}:{$listenerClass}";
-    
+
     // Check cache first
     if (Cache::has($cacheKey)) {
         return true;
     }
-    
+
     // Check database
     $processed = DB::table('processed_events')
         ->where('event_id', $eventId)
         ->where('listener_class', $listenerClass)
         ->exists();
-    
+
     if ($processed) {
         // Cache for 1 hour
         Cache::put($cacheKey, true, 3600);
     }
-    
+
     return $processed;
 }
 ```
@@ -5763,7 +5763,7 @@ Schema::create('role_user', function (Blueprint $table) {
     $table->integer('role');
     $table->foreignId('client_id')->nullable()->constrained()->onDelete('cascade'); // For client-scoped roles
     $table->timestamps();
-    
+
     $table->unique(['user_id', 'role', 'client_id']);
 });
 
@@ -5772,7 +5772,7 @@ class User extends Authenticatable {
     public function roles() {
         return $this->belongsToMany(Role::class)->withPivot('client_id');
     }
-    
+
     public function hasRole(UserRole $role, ?int $clientId = null): bool {
         return $this->roles()
             ->where('role', $role->value)
@@ -5787,18 +5787,18 @@ class User extends Authenticatable {
 ```php
 // app/Providers/AuthServiceProvider.php
 Gate::define('approve-quotes', function (User $user) {
-    return $user->hasRole(UserRole::Admin) 
+    return $user->hasRole(UserRole::Admin)
         || $user->hasRole(UserRole::Finance)
         || $user->hasRole(UserRole::ClientApprover);
 });
 
 Gate::define('publish-invoices', function (User $user) {
-    return $user->hasRole(UserRole::Admin) 
+    return $user->hasRole(UserRole::Admin)
         || $user->hasRole(UserRole::Finance);
 });
 
 Gate::define('resolve-asset-conflicts', function (User $user) {
-    return $user->hasRole(UserRole::Admin) 
+    return $user->hasRole(UserRole::Admin)
         || $user->hasRole(UserRole::AssetManager);
 });
 
@@ -5825,7 +5825,7 @@ CREATE TABLE processed_events (
     payload JSON,
     processed_at TIMESTAMP NOT NULL,
     processing_time_ms INT UNSIGNED,
-    
+
     INDEX idx_event_listener_lookup (event_id, listener_class),
     6.3EX idx_event_class_processed (event_class, processed_at),
     INDEX idx_listener_processed (listener_class, processed_at),
@@ -5855,11 +5855,11 @@ Schema::table('users', function (Blueprint $table) {
 
 ```sql
 -- g6.5le_configs
-id, client_id, domain, admin_email, credentials_encrypted, sync_enabled, 
+id, client_id, domain, admin_email, credentials_encrypted, sync_enabled,
 org_unit_path, last_sync_at, created_at, updated_at
 
 -- google_sync_logs
-id, client_id, sync_type (users|chromebooks), status (success|failed), 
+id, client_id, sync_type (users|chromebooks), status (success|failed),
 items_synced, errors, started_at, completed_at
 ```
 
@@ -5867,11 +5867,11 @@ items_synced, errors, started_at, completed_at
 
 ```sql
 -- action1_configs
-id, client_id, api_key_encrypted, organization_id, sync_enabled, 
+id, client_id, api_key_encrypted, organization_id, sync_enabled,
 endpoint_url, last_sync_at, created_at, updated_at
 
 -- action1_sync_logs
-id, client_id, sync_type (devices|scripts), status, items_synced, 
+id, client_id, sync_type (devices|scripts), status, items_synced,
 errors, started_at, completed_at
 
 -- action1_scripts
@@ -5882,21 +5882,21 @@ id, name, description, script_content, client_id, created_at, updated_at
 6.6
 ```sql
 -- assets
-id, client_id, serial_number, asset_type (chromebook|windows|macos|linux), 
-model, manufacturer, status (active|retired|repair|lost), 
-assigned_user_id, source (GoogleAdmin|Action1|Manual), 
+id, client_id, serial_number, asset_type (chromebook|windows|macos|linux),
+model, manufacturer, status (active|retired|repair|lost),
+assigned_user_id, source (GoogleAdmin|Action1|Manual),
 last_sync_at, notes, created_at, updated_at
 
 UNIQUE(serial_number)
 INDEX(client_id, asset_type, status)
 
 -- asset_staging_records
-id, asset_id, source (GoogleAdmin|Action1), proposed_changes (JSON), 
-status (pending_review|approved|rejected), reviewed_by, reviewed_at, 
+id, asset_id, source (GoogleAdmin|Action1), proposed_changes (JSON),
+status (pending_review|approved|rejected), reviewed_by, reviewed_at,
 created_at, updated_at
 
 -- entitlement_snapshots (for billing reconciliation)
-id, client_id, snapshot_date, user_count, chromebook_count, 
+id, client_id, snapshot_date, user_count, chromebook_count,
 windows_count, macos_count, linux_count, created_at
 
 UNIQUE(client_id, snapshot_date)
@@ -5907,8 +5907,8 @@ INDEX(snapshot_date)
 
 ```sql
 -- cm_quotes (proposals before signing)
-id, client_id, quote_number, status (draft|sent|approved|rejected|expired), 
-total_amount, billing_type (monthly|annual|usage_based), billing_cycle, 
+id, client_id, quote_number, status (draft|sent|approved|rejected|expired),
+total_amount, billing_type (monthly|annual|usage_based), billing_cycle,
 valid_until, created_by, approved_by, approved_at, created_at, updated_at
 
 INDEX(client_id, status)
@@ -5917,26 +5917,26 @@ INDEX(client_id, status)
 id, quote_id, revision_number, changes (JSON), revised_by, revised_at
 
 -- cm_quote_line_items
-id, quote_id, description, quantity_type (fixed|per_user|per_asset), 
+id, quote_id, description, quantity_type (fixed|per_user|per_asset),
 quantity, unit_price, amount, created_at, updated_at
 
 -- cm_contracts (signed agreements)
-id, quote_id, client_id, contract_number, signed_at, start_date, 
-end_date, terms_text, signature_data (JSON), 
+id, quote_id, client_id, contract_number, signed_at, start_date,
+end_date, terms_text, signature_data (JSON),
 status (active|expired|terminated|renewed), created_at, updated_at
 
 INDEX(client_id, status)
 
 -- cm_contract_schedules (renewal and billing schedule)
-id, contract_id, schedule_type (billing|renewal|review), 
-next_date, frequency (monthly|quarterly|annual), 
+id, contract_id, schedule_type (billing|renewal|review),
+next_date, frequency (monthly|quarterly|annual),
 auto_renew, created_at, updated_at
 
 INDEX(next_date, schedule_type)
 
 -- cm_billing_templates (billing configuration - owned by ContractManager)
-id, client_id, contract_id, name, product_type (service_plan|rent_to_own|ad_hoc), 
-product_config (JSON), billing_cycle (monthly|quarterly|annual), 
+id, client_id, contract_id, name, product_type (service_plan|rent_to_own|ad_hoc),
+product_config (JSON), billing_cycle (monthly|quarterly|annual),
 next_invoice_date, proration_enabled, status (active|paused|terminated),
 created_at, updated_at
 
@@ -5963,20 +5963,20 @@ INDEX(status)
 
 ```sql
 -- pib_invoices (generated from ContractManager's BillingTemplates)
-id, client_id, billing_template_id, invoice_number, status 
-(draft|pending|published|paid|disputed|overdue|cancelled), 
-invoice_date, due_date, subtotal, tax, total, 
+id, client_id, billing_template_id, invoice_number, status
+(draft|pending|published|paid|disputed|overdue|cancelled),
+invoice_date, due_date, subtotal, tax, total,
 requires_review, published_at, paid_at, created_at, updated_at
 
 INDEX(client_id, status, due_date)
 INDEX(billing_template_id)
 
 -- pib_invoice_line_items
-id, invoice_id, description, quantity, unit_price, amount, 
+id, invoice_id, description, quantity, unit_price, amount,
 source_type (entitlement|manual|proration), created_at, updated_at
 
 -- pib_entitlement_snapshots (point-in-time billing snapshots)
-id, client_id, billing_template_id, snapshot_date, 
+id, client_id, billing_template_id, snapshot_date,
 user_count, asset_counts (JSON), calculated_amount,
 created_at
 
@@ -5984,11 +5984,11 @@ UNIQUE(client_id, billing_template_id, snapshot_date)
 INDEX(snapshot_date)
 
 -- pib_invoice_audit_log
-id, invoice_id, action (created|published|recalled|paid|disputed), 
+id, invoice_id, action (created|published|recalled|paid|disputed),
 performed_by, notes, created_at
 
 -- client_credits (credit balances - atomic operations)
-id, client_id, balance_cents (BIGINT), last_transaction_at, 
+id, client_id, balance_cents (BIGINT), last_transaction_at,
 created_at, updated_at
 
 UNIQUE(client_id)
@@ -6034,7 +6034,7 @@ PIB reads templates but does not own them - ContractManager is the source of tru
 
 ```sql
 -- portal_tabs (for tab registration)
-id, module_name, tab_label, route_name, permission_required, 
+id, module_name, tab_label, route_name, permission_required,
 sort_order, active, created_at, updated_at
 
 INDEX(module_name, tab_label)
@@ -6047,13 +6047,13 @@ id, user_id, client_id, action, ip_address, created_at
 
 ```sql
 -- alert_subscriptions
-id, user_id, alert_types (JSON array), client_ids (JSON array), 
+id, user_id, alert_types (JSON array), client_ids (JSON array),
 channels (JSON: email|slack|sms), active, created_at, updated_at
 
 INDEX(user_id, active)
 
 -- alert_delivery_log
-id, alert_subscription_id, alert_type, client_id, recipient, 
+id, alert_subscription_id, alert_type, client_id, recipient,
 channel, status (sent|failed), error_message, sent_at
 
 -- notification_subscriptions (user-level notification preferences - owned by Alerts)
@@ -6083,7 +6083,7 @@ CREATE TABLE software_products (
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     INDEX idx_vendor (vendor),
     INDEX idx_category (category),
     INDEX idx_active (is_active)
@@ -6105,7 +6105,7 @@ CREATE TABLE client_software_subscriptions (
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
     FOREIGN KEY (software_product_id) REFERENCES software_products(id) ON DELETE RESTRICT,
     INDEX idx_client_product (client_id, software_product_id),
@@ -6127,7 +6127,7 @@ CREATE TABLE software_assignments (
     deployment_notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (subscription_id) REFERENCES client_software_subscriptions(id) ON DELETE CASCADE,
     INDEX idx_subscription (subscription_id),
     INDEX idx_assignable (assignable_type, assignable_id),
@@ -6142,7 +6142,7 @@ CREATE TABLE software_subscription_counters (
     assigned_count INT UNSIGNED NOT NULL DEFAULT 0,
     -- Atomic counter: updated via AtomicCounterService
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (subscription_id) REFERENCES client_software_subscriptions(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
@@ -6159,7 +6159,7 @@ CREATE TABLE software_subscription_snapshots (
     margin DECIMAL(10,2) NOT NULL,
     -- calculated_cost - vendor_cost
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (subscription_id) REFERENCES client_software_subscriptions(id) ON DELETE CASCADE,
     UNIQUE KEY unique_snapshot (subscription_id, snapshot_date),
     INDEX idx_snapshot_date (snapshot_date)
@@ -6175,7 +6175,7 @@ CREATE TABLE software_deployment_logs (
     error_message TEXT,
     executed_by BIGINT UNSIGNED DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (assignment_id) REFERENCES software_assignments(id) ON DELETE CASCADE,
     INDEX idx_assignment (assignment_id),
     INDEX idx_status (status, created_at)
@@ -6185,7 +6185,7 @@ CREATE TABLE software_deployment_logs (
 **Sample Data - Software Products:**
 ```sql
 INSERT INTO software_products (name, vendor, category, licensing_model, pricing_tiers, default_billing_behavior) VALUES
-('Avast Business Antivirus', 'Avast', 'security', 'per_device', 
+('Avast Business Antivirus', 'Avast', 'security', 'per_device',
  '[{"name":"Starter","min":1,"max":10,"per_unit_cost":3.00},{"name":"Business","min":11,"max":50,"per_unit_cost":2.50},{"name":"Enterprise","min":51,"max":999999,"per_unit_cost":2.00}]',
  'included'),
 ('Microsoft 365 Business Basic', 'Microsoft', 'productivity', 'per_user',
@@ -6268,7 +6268,7 @@ class ServiceMetricsCalculated {
 ```php
 namespace Modules\GoogleAdmin\Events;
 
-class GoogleUserSynced { 
+class GoogleUserSynced {
     public array $data; // email, first_name, last_name, google_id, suspended, org_unit_path
 }
 
@@ -6544,14 +6544,14 @@ public function boot()
             \Modules\SoftwareSubscriptions\Listeners\SuggestSoftwareForNewContact::class
         );
     }
-    
+
     if (class_exists(\Modules\Crm\Events\ContactDeactivated::class)) {
         Event::listen(
             \Modules\Crm\Events\ContactDeactivated::class,
             \Modules\SoftwareSubscriptions\Listeners\RevokeContactSoftwareAssignments::class
         );
     }
-    
+
     // Listen for AssetManagement events
     if (class_exists(\Modules\AssetManagement\Events\AssetCreated::class)) {
         Event::listen(
@@ -6559,14 +6559,14 @@ public function boot()
             \Modules\SoftwareSubscriptions\Listeners\SuggestSoftwareForNewAsset::class
         );
     }
-    
+
     if (class_exists(\Modules\AssetManagement\Events\AssetRetired::class)) {
         Event::listen(
             \Modules\AssetManagement\Events\AssetRetired::class,
             \Modules\SoftwareSubscriptions\Listeners\RevokeAssetSoftwareAssignments::class
         );
     }
-    
+
     // Listen for Action1 software discovery
     if (class_exists(\Modules\Action1\Events\Action1SoftwareDiscovered::class)) {
         Event::listen(
@@ -6574,7 +6574,7 @@ public function boot()
             \Modules\SoftwareSubscriptions\Listeners\ReconcileAction1SoftwareDiscovery::class
         );
     }
-    
+
     // Listen for GoogleAdmin license discovery
     if (class_exists(\Modules\GoogleAdmin\Events\GoogleLicenseDiscovered::class)) {
         Event::listen(
@@ -6582,7 +6582,7 @@ public function boot()
             \Modules\SoftwareSubscriptions\Listeners\ReconcileGoogleLicenseDiscovery::class
         );
     }
-    
+
     // Listen for ContractManager events (create subscriptions from approved quotes)
     if (class_exists(\Modules\ContractManager\Events\QuoteApproved::class)) {
         Event::listen(
@@ -6607,19 +6607,19 @@ class UpdateBillingOnSoftwareCountChange
     public function __construct(
         private SoftwareProductEntitlementResolver $resolver
     ) {}
-    
+
     public function handle(SoftwareCountChanged $event): void
     {
         $subscription = $event->subscription;
-        
+
         // Skip if subscription has no billing template (included in service plan)
         if (!$subscription->billingTemplate) {
             return;
         }
-        
+
         // Recalculate cost using resolver
         $result = $this->resolver->calculateForSubscription($subscription);
-        
+
         // Update billing template snapshot
         $subscription->billingTemplate->updateProductConfig([
             'software_product_id' => $subscription->software_product_id,
@@ -6628,7 +6628,7 @@ class UpdateBillingOnSoftwareCountChange
             'per_unit_cost' => $result->breakdown['per_unit_cost'],
             'calculated_cost' => $result->amount,
         ]);
-        
+
         Log::info('Billing updated for software subscription', [
             'subscription_id' => $subscription->id,
             'old_count' => $event->oldCount,
@@ -6659,7 +6659,7 @@ class PIBServiceProvider extends ServiceProvider {
     public function boot() {
         if (class_exists(\Modules\ClientPortal\Services\PortalService::class)) {
             $portal = app(\Modules\ClientPortal\Services\PortalService::class);
-            
+
             $portal->registerTab(
                 label: 'Invoices',
                 route: 'pib.portal.invoices',
@@ -6687,7 +6687,7 @@ class EntitlementService implements EntitlementProvider {
             ->whereDate('snapshot_date', $date)
             ->firstOrFail();
     }
-    
+
     public function getCurrentCounts(int $clientId): array {
         $client = Client::findOrFail($clientId);
         return [
@@ -6819,11 +6819,11 @@ class CrmServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'crm');
-        
+
         // Register event listeners
         $this->registerEventListeners();
     }
-    
+
     protected function registerEventListeners(): void
     {
         // Only register if GoogleAdmin module is installed
@@ -6833,7 +6833,7 @@ class CrmServiceProvider extends ServiceProvider
                 \Modules\Crm\Listeners\SyncGoogleUserListener::class
             );
         }
-        
+
         // CRM doesn't publish any events that others listen to (it's the core)
         // Other modules listen to CRM events by checking if CRM classes exist
     }
@@ -6855,11 +6855,11 @@ class AssetManagementServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'assetmanagement');
-        
+
         $this->registerEventListeners();
         $this->registerDynamicRelationships();
     }
-    
+
     protected function registerEventListeners(): void
     {
         // Listen to GoogleAdmin events
@@ -6869,7 +6869,7 @@ class AssetManagementServiceProvider extends ServiceProvider
                 \Modules\AssetManagement\Listeners\SyncGoogleChromebookListener::class
             );
         }
-        
+
         // Listen to Action1 events
         if (class_exists(\Modules\Action1\Events\Action1DeviceDiscovered::class)) {
             Event::listen(
@@ -6877,7 +6877,7 @@ class AssetManagementServiceProvider extends ServiceProvider
                 \Modules\AssetManagement\Listeners\SyncAction1DeviceListener::class
             );
         }
-        
+
         if (class_exists(\Modules\Action1\Events\Action1DeviceUpdated::class)) {
             Event::listen(
                 \Modules\Action1\Events\Action1DeviceUpdated::class,
@@ -6885,7 +6885,7 @@ class AssetManagementServiceProvider extends ServiceProvider
             );
         }
     }
-    
+
     protected function registerDynamicRelationships(): void
     {
         // Extend Client model with assets relationship if CRM is loaded
@@ -6913,12 +6913,12 @@ class PIBServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'pib');
-        
+
         $this->registerEventListeners();
         $this->registerDynamicRelationships();
         $this->registerScheduledJobs();
     }
-    
+
     protected function registerEventListeners(): void
     {
         // Listen to ContractManager billing template due events
@@ -6929,7 +6929,7 @@ class PIBServiceProvider extends ServiceProvider
                 \Modules\PIB\Listeners\GenerateInvoiceFromTemplateListener::class
             );
         }
-        
+
         // Listen to contract revisions for proration calculations
         if (class_exists(\Modules\ContractManager\Events\ContractRevised::class)) {
             Event::listen(
@@ -6937,7 +6937,7 @@ class PIBServiceProvider extends ServiceProvider
                 \Modules\PIB\Listeners\CalculateProrationListener::class
             );
         }
-        
+
         // Listen to Asset count changes for billing reconciliation
         if (class_exists(\Modules\AssetManagement\Events\AssetCountChanged::class)) {
             Event::listen(
@@ -6945,7 +6945,7 @@ class PIBServiceProvider extends ServiceProvider
                 \Modules\PIB\Listeners\UpdateEntitlementSnapshotListener::class
             );
         }
-        
+
         // Listen to Payment events
         if (class_exists(\Modules\Payment\Events\PaymentSucceeded::class)) {
             Event::listen(
@@ -6954,19 +6954,19 @@ class PIBServiceProvider extends ServiceProvider
             );
         }
     }
-    
+
     protected function registerDynamicRelationships(): void
     {
         if (class_exists(\Modules\Crm\Models\Client::class)) {
             \Modules\Crm\Models\Client::resolveRelationUsing('invoices', function ($client) {
                 return $client->hasMany(\Modules\PIB\Models\Invoice::class);
             });
-            
+
             // Note: billingTemplates relationship now points to ContractManager
             // PIB reads templates but doesn't own them
         }
     }
-    
+
     protected function registerScheduledJobs(): void
     {
         // Register scheduled jobs via the console routes file
@@ -6991,10 +6991,10 @@ class ClientPortalServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'clientportal');
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
-        
+
         $this->registerEventListeners();
     }
-    
+
     protected function registerEventListeners(): void
     {
         // Listen to PIB invoice events
@@ -7004,14 +7004,14 @@ class ClientPortalServiceProvider extends ServiceProvider
                 \Modules\ClientPortal\Listeners\NotifyClientOfNewInvoiceListener::class
             );
         }
-        
+
         if (class_exists(\Modules\PIB\Events\InvoiceOverdue::class)) {
             Event::listen(
                 \Modules\PIB\Events\InvoiceOverdue::class,
                 \Modules\ClientPortal\Listeners\NotifyClientOfOverdueInvoiceListener::class
             );
         }
-        
+
         // Listen to ContractManager events
         if (class_exists(\Modules\ContractManager\Events\QuoteSentToClient::class)) {
             Event::listen(
@@ -7038,10 +7038,10 @@ class AlertsServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'alerts');
-        
+
         $this->registerEventListeners();
     }
-    
+
     protected function registerEventListeners(): void
     {
         // PIB alerts
@@ -7051,14 +7051,14 @@ class AlertsServiceProvider extends ServiceProvider
                 \Modules\Alerts\Listeners\AlertFinanceRolesListener::class
             );
         }
-        
+
         if (class_exists(\Modules\PIB\Events\InvoiceDisputed::class)) {
             Event::listen(
                 \Modules\PIB\Events\InvoiceDisputed::class,
                 \Modules\Alerts\Listeners\AlertFinanceRolesListener::class
             );
         }
-        
+
         // Payment alerts
         if (class_exists(\Modules\Payment\Events\PaymentFailed::class)) {
             Event::listen(
@@ -7066,7 +7066,7 @@ class AlertsServiceProvider extends ServiceProvider
                 \Modules\Alerts\Listeners\AlertPaymentFailureListener::class
             );
         }
-        
+
         // Sync failure alerts
         if (class_exists(\Modules\GoogleAdmin\Events\GoogleSyncFailed::class)) {
             Event::listen(
@@ -7074,7 +7074,7 @@ class AlertsServiceProvider extends ServiceProvider
                 \Modules\Alerts\Listeners\AlertSyncFailureListener::class
             );
         }
-        
+
         if (class_exists(\Modules\Action1\Events\Action1SyncFailed::class)) {
             Event::listen(
                 \Modules\Action1\Events\Action1SyncFailed::class,
@@ -7102,7 +7102,7 @@ class SyncGoogleUserListener extends IdempotentListener implements ShouldQueue
     public $queue = 'sync'; // Use dedicated queue
     public $tries = 3;
     public $backoff = [60, 300, 900]; // 1min, 5min, 15min
-    
+
     protected function handleIdempotent($event): void
     {
         // This will be processed asynchronously
@@ -7129,22 +7129,22 @@ class DebugEventListeners extends Command
 {
     protected $signature = 'events:list {--event= : Filter by event class}';
     protected $description = 'List all registered event listeners';
-    
+
     public function handle(): int
     {
         $dispatcher = Event::getFacadeRoot();
         $listeners = $dispatcher->getListeners($this->option('event') ?: '');
-        
+
         $this->table(
             ['Event', 'Listener', 'Queued'],
             collect($listeners)->map(function ($listener, $event) {
                 $listenerClass = is_string($listener) ? $listener : get_class($listener);
                 $queued = is_subclass_of($listenerClass, \Illuminate\Contracts\Queue\ShouldQueue::class);
-                
+
                 return [$event, $listenerClass, $queued ? 'Yes' : 'No'];
             })->toArray()
         );
-        
+
         return 0;
     }
 }
@@ -7203,18 +7203,18 @@ Echo.private(`client.${clientId}`)
 // tests/Feature/Workflows/QuoteToBillingWorkflowTest.php
 public function test_approved_quote_creates_billing_template() {
     Event::fake([QuoteApproved::class]);
-    
+
     $quote = Quote::factory()->create(['status' => 'sent']);
-    
+
     $this->actingAs($financeUser)
         ->post(route('quotes.approve', $quote))
         ->assertRedirect();
-    
+
     Event::assertDispatched(QuoteApproved::class);
-    
+
     // Manually trigger listener for synchronous test
     (new CreateBillingTemplateListener)->handle(new QuoteApproved($quote->fresh()));
-    
+
     $this->assertDatabaseHas('billing_templates', [
         'client_id' => $quote->client_id,
         'quote_id' => $quote->id,
@@ -7310,11 +7310,11 @@ This architecture provides:
 
 ### Anti-Patterns to Avoid
 
-❌ **Centralized Event Registration**: No EventServiceProvider with cross-module listeners  
-❌ **Direct Module Dependencies**: No `use Modules\Other\...` in core modules  
-❌ **Skipping Idempotency**: All critical listeners must be idempotent  
-❌ **Synchronous Processing**: Use queued jobs for cross-module operations  
-❌ **Tight Coupling**: Check for class existence before using cross-module features  
+❌ **Centralized Event Registration**: No EventServiceProvider with cross-module listeners
+❌ **Direct Module Dependencies**: No `use Modules\Other\...` in core modules
+❌ **Skipping Idempotency**: All critical listeners must be idempotent
+❌ **Synchronous Processing**: Use queued jobs for cross-module operations
+❌ **Tight Coupling**: Check for class existence before using cross-module features
 
 ### Monitoring Checklist
 
@@ -7363,16 +7363,16 @@ protected function handleIdempotent($event): void
             ->where('asset_type', $event->asset->asset_type)
             ->lockForUpdate() // ← Blocks other transactions
             ->first();
-        
+
         $oldQuantity = $counter->quantity ?? 0;
-        
+
         // Atomic database operation (not read-then-write)
         DB::table('client_asset_counters')
             ->where('id', $counter->id)
             ->update(['quantity' => DB::raw('quantity + 1')]);
-        
+
         $newQuantity = $oldQuantity + 1;
-        
+
         // Record change in audit table
         DB::table('asset_count_changes')->insert([...]);
     });
@@ -7389,12 +7389,12 @@ protected function handleIdempotent($event): void
 public function test_concurrent_asset_activations_maintain_accurate_count()
 {
     $assets = Asset::factory()->count(10)->create(['status' => 'inactive']);
-    
+
     // Fire 10 events concurrently
     foreach ($assets as $asset) {
         dispatch(fn() => event(new AssetStatusChanged($asset, 'inactive', 'active')));
     }
-    
+
     // Should be exactly 10 (not 1, 2, or 9)
     $this->assertEquals(10, DB::table('client_asset_counters')->value('quantity'));
 }
@@ -7440,7 +7440,7 @@ protected function markAsProcessing(string $eventId, string $listenerClass, stri
 {
     // ✅ Store only lightweight signature
     $eventSignature = hash('sha256', $eventId . '|' . $eventClass . '|' . now()->toIso8601String());
-    
+
     DB::table('processed_events')->insert([
         'event_id' => $eventId,
         'event_class' => $eventClass,
@@ -7522,25 +7522,25 @@ public function test_module_portal_tabs_use_approved_components()
         'Modules/PIB/Resources/views/portal',
         'Modules/AssetManagement/Resources/views/portal',
     ];
-    
+
     $approvedComponents = ['x-data-table', 'x-button', 'x-card', 'x-badge', 'x-modal'];
-    
+
     foreach ($modulePaths as $path) {
         $bladeFiles = File::glob(base_path("{$path}/**/*.blade.php"));
-        
+
         foreach ($bladeFiles as $file) {
             $content = File::get($file);
-            
+
             // Check for unapproved component usage
             preg_match_all('/<x-([a-z-]+)/', $content, $matches);
             $usedComponents = array_unique($matches[1]);
-            
+
             $unapproved = array_diff($usedComponents, $approvedComponents);
-            
-            $this->assertEmpty($unapproved, 
+
+            $this->assertEmpty($unapproved,
                 "File {$file} uses unapproved components: " . implode(', ', $unapproved)
             );
-            
+
             // Check for raw Tailwind class usage (red flag)
             $this->assertFalse(
                 preg_match('/class=".*\b(btn|button-primary|table-striped)\b/', $content),
@@ -7558,10 +7558,10 @@ public function test_module_portal_tabs_use_approved_components()
   run: |
     # ESLint check
     npm run lint
-    
+
     # PHPUnit architecture tests
     php artisan test --testsuite=Architecture
-    
+
     # Fail build if violations found
 ```
 
@@ -7591,21 +7591,21 @@ echo "✓ Component audit passed"
 public function validatePortalTab(string $moduleName, string $viewPath): void
 {
     $viewContent = File::get(resource_path("views/{$viewPath}.blade.php"));
-    
+
     // Extract component usage
     preg_match_all('/<x-([a-z-]+)/', $viewContent, $matches);
     $usedComponents = array_unique($matches[1]);
-    
+
     $unapproved = array_diff($usedComponents, $this->approvedComponents);
-    
+
     if (!empty($unapproved)) {
         throw new \RuntimeException(
-            "Module '{$moduleName}' portal tab uses unapproved components: " . 
-            implode(', ', $unapproved) . 
+            "Module '{$moduleName}' portal tab uses unapproved components: " .
+            implode(', ', $unapproved) .
             ". Update resources/js/components/ui/ or request approval via RFC."
         );
     }
-    
+
     // Check for raw Tailwind classes
     if (preg_match('/class="[^"]*\b(btn-primary|table-hover|card-body)\b/', $viewContent)) {
         throw new \RuntimeException(
@@ -7662,22 +7662,22 @@ CREATE TABLE reconciliation_runs (
     run_id VARCHAR(36) UNIQUE NOT NULL,
     source VARCHAR(50) NOT NULL, -- 'google_workspace', 'action1'
     client_id BIGINT UNSIGNED NOT NULL,
-    
+
     -- Metrics
     status ENUM('in_progress', 'completed', 'failed') NOT NULL DEFAULT 'in_progress',
     items_checked INT UNSIGNED DEFAULT 0,
     discrepancies_found INT UNSIGNED DEFAULT 0,
     corrections_applied INT UNSIGNED DEFAULT 0,
-    
+
     -- Timing
     started_at TIMESTAMP NOT NULL,
     completed_at TIMESTAMP NULL,
-    
+
     -- Results summary
     summary JSON, -- { "missing_in_db": 5, "extra_in_db": 2, "status_mismatch": 3 }
-    
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
     INDEX idx_client_source (client_id, source),
     INDEX idx_status (status)
@@ -7687,22 +7687,22 @@ CREATE TABLE reconciliation_discrepancies (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     run_id VARCHAR(36) NOT NULL,
     client_id BIGINT UNSIGNED NOT NULL,
-    
+
     -- What was found
     discrepancy_type ENUM('missing_in_db', 'extra_in_db', 'status_mismatch', 'attribute_mismatch') NOT NULL,
     source_identifier VARCHAR(255) NOT NULL, -- Serial number, Google ID, etc.
     asset_type VARCHAR(50) NOT NULL,
-    
+
     -- Values
     source_value JSON, -- What the API says
     local_value JSON,  -- What our DB says
-    
+
     -- Action taken
     correction_applied BOOLEAN DEFAULT FALSE,
     correction_event_id VARCHAR(36),
-    
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
     INDEX idx_run (run_id),
     INDEX idx_type (discrepancy_type)
@@ -7728,14 +7728,14 @@ class ReconcileExternalStateJob
     protected string $runId;
     protected string $source; // 'google_workspace' or 'action1'
     protected int $clientId;
-    
+
     public function __construct(string $source, int $clientId)
     {
         $this->source = $source;
         $this->clientId = $clientId;
         $this->runId = (string) Str::uuid();
     }
-    
+
     public function handle(): void
     {
         Log::info('Starting reconciliation', [
@@ -7743,7 +7743,7 @@ class ReconcileExternalStateJob
             'source' => $this->source,
             'client_id' => $this->clientId,
         ]);
-        
+
         DB::table('reconciliation_runs')->insert([
             'run_id' => $this->runId,
             'source' => $this->source,
@@ -7751,13 +7751,13 @@ class ReconcileExternalStateJob
             'status' => 'in_progress',
             'started_at' => now(),
         ]);
-        
+
         try {
             $summary = match($this->source) {
                 'google_workspace' => $this->reconcileGoogleWorkspace(),
                 'action1' => $this->reconcileAction1(),
             };
-            
+
             DB::table('reconciliation_runs')
                 ->where('run_id', $this->runId)
                 ->update([
@@ -7765,9 +7765,9 @@ class ReconcileExternalStateJob
                     'completed_at' => now(),
                     'summary' => json_encode($summary),
                 ]);
-            
+
             Log::info('Reconciliation completed', array_merge(['run_id' => $this->runId], $summary));
-            
+
             // Alert if significant discrepancies
             if ($summary['discrepancies_found'] > 10) {
                 event(new ReconciliationAnomalyDetected([
@@ -7777,7 +7777,7 @@ class ReconcileExternalStateJob
                     'discrepancies' => $summary['discrepancies_found'],
                 ]));
             }
-            
+
         } catch (\Exception $e) {
             DB::table('reconciliation_runs')
                 ->where('run_id', $this->runId)
@@ -7785,48 +7785,48 @@ class ReconcileExternalStateJob
                     'status' => 'failed',
                     'completed_at' => now(),
                 ]);
-            
+
             Log::error('Reconciliation failed', [
                 'run_id' => $this->runId,
                 'error' => $e->getMessage(),
             ]);
-            
+
             throw $e;
         }
     }
-    
+
     protected function reconcileGoogleWorkspace(): array
     {
         $googleService = app(GoogleWorkspaceService::class);
-        
+
         // Fetch ALL Chromebooks from Google API (ignore pagination limits for deep sync)
         $googleDevices = $googleService->listAllChromebooks($this->clientId);
-        
+
         // Fetch all Chromebooks from local DB
         $localAssets = Asset::where('client_id', $this->clientId)
             ->where('asset_type', 'chromebook')
             ->get()
             ->keyBy('serial_number');
-        
+
         $discrepancies = [
             'missing_in_db' => 0,
             'extra_in_db' => 0,
             'status_mismatch' => 0,
         ];
-        
+
         $itemsChecked = 0;
         $correctionsApplied = 0;
-        
+
         // Check: Devices in Google but missing from DB
         foreach ($googleDevices as $googleDevice) {
             $itemsChecked++;
-            
+
             if (!isset($localAssets[$googleDevice['serialNumber']])) {
                 // Missing in DB → emit correction event
                 $discrepancies['missing_in_db']++;
-                
+
                 $correctionEventId = (string) Str::uuid();
-                
+
                 $this->recordDiscrepancy(
                     type: 'missing_in_db',
                     sourceIdentifier: $googleDevice['serialNumber'],
@@ -7835,7 +7835,7 @@ class ReconcileExternalStateJob
                     localValue: null,
                     correctionEventId: $correctionEventId
                 );
-                
+
                 // Emit correction event (will be processed idempotently)
                 event(new GoogleChromebookDiscovered([
                     'client_id' => $this->clientId,
@@ -7843,9 +7843,9 @@ class ReconcileExternalStateJob
                     'source' => 'reconciliation',
                     'reconciliation_run_id' => $this->runId,
                 ], $correctionEventId));
-                
+
                 $correctionsApplied++;
-                
+
                 Log::warning('Reconciliation: Missing Chromebook added', [
                     'serial_number' => $googleDevice['serialNumber'],
                     'run_id' => $this->runId,
@@ -7854,10 +7854,10 @@ class ReconcileExternalStateJob
                 // Check status match
                 $localAsset = $localAssets[$googleDevice['serialNumber']];
                 $googleStatus = $this->normalizeGoogleStatus($googleDevice['status']);
-                
+
                 if ($localAsset->status !== $googleStatus) {
                     $discrepancies['status_mismatch']++;
-                    
+
                     $this->recordDiscrepancy(
                         type: 'status_mismatch',
                         sourceIdentifier: $googleDevice['serialNumber'],
@@ -7866,27 +7866,27 @@ class ReconcileExternalStateJob
                         localValue: ['status' => $localAsset->status],
                         correctionEventId: null
                     );
-                    
+
                     // Update status directly (don't emit event to avoid loop)
                     $localAsset->update(['status' => $googleStatus]);
                     $correctionsApplied++;
-                    
+
                     Log::warning('Reconciliation: Status corrected', [
                         'serial_number' => $googleDevice['serialNumber'],
                         'old_status' => $localAsset->status,
                         'new_status' => $googleStatus,
                     ]);
                 }
-                
+
                 // Remove from local collection (for "extra" detection)
                 unset($localAssets[$googleDevice['serialNumber']]);
             }
         }
-        
+
         // Check: Devices in DB but not in Google (deleted externally)
         foreach ($localAssets as $extraAsset) {
             $discrepancies['extra_in_db']++;
-            
+
             $this->recordDiscrepancy(
                 type: 'extra_in_db',
                 sourceIdentifier: $extraAsset->serial_number,
@@ -7895,18 +7895,18 @@ class ReconcileExternalStateJob
                 localValue: $extraAsset->toArray(),
                 correctionEventId: null
             );
-            
+
             // Mark as decommissioned (don't hard delete)
             $extraAsset->update(['status' => 'decommissioned']);
             $correctionsApplied++;
-            
+
             Log::warning('Reconciliation: Extra asset decommissioned', [
                 'serial_number' => $extraAsset->serial_number,
             ]);
         }
-        
+
         $discrepanciesFound = array_sum($discrepancies);
-        
+
         DB::table('reconciliation_runs')
             ->where('run_id', $this->runId)
             ->update([
@@ -7914,20 +7914,20 @@ class ReconcileExternalStateJob
                 'discrepancies_found' => $discrepanciesFound,
                 'corrections_applied' => $correctionsApplied,
             ]);
-        
+
         return array_merge($discrepancies, [
             'items_checked' => $itemsChecked,
             'discrepancies_found' => $discrepanciesFound,
             'corrections_applied' => $correctionsApplied,
         ]);
     }
-    
+
     protected function reconcileAction1(): array
     {
         // Similar implementation for Action1 devices
         // ... (parallel logic to reconcileGoogleWorkspace)
     }
-    
+
     protected function recordDiscrepancy(
         string $type,
         string $sourceIdentifier,
@@ -7948,7 +7948,7 @@ class ReconcileExternalStateJob
             'correction_event_id' => $correctionEventId,
         ]);
     }
-    
+
     protected function normalizeGoogleStatus(string $googleStatus): string
     {
         return match($googleStatus) {
@@ -7968,13 +7968,13 @@ protected function schedule(Schedule $schedule)
     // Run every Sunday at 2am (low-traffic period)
     $schedule->call(function () {
         $clients = Client::where('sync_enabled', true)->get();
-        
+
         foreach ($clients as $client) {
             // Google Workspace reconciliation
             if ($client->google_workspace_enabled) {
                 dispatch(new ReconcileExternalStateJob('google_workspace', $client->id));
             }
-            
+
             // Action1 reconciliation
             if ($client->action1_enabled) {
                 dispatch(new ReconcileExternalStateJob('action1', $client->id));
@@ -8079,14 +8079,14 @@ abstract class VersionedEvent
     public string $eventId;
     public int $version; // Event schema version
     public array $data;  // Serializable data only (no Models)
-    
+
     public function __construct(array $data, ?string $eventId = null, ?int $version = null)
     {
         $this->eventId = $eventId ?? (string) Str::uuid();
         $this->version = $version ?? static::CURRENT_VERSION;
         $this->data = $data;
     }
-    
+
     /**
      * Deserialize from queue with version migration.
      */
@@ -8097,16 +8097,16 @@ abstract class VersionedEvent
             eventId: $serialized['eventId'],
             version: $serialized['version']
         );
-        
+
         // Migrate old versions to current schema
         if ($instance->version < static::CURRENT_VERSION) {
             $instance->data = static::migrateUp($instance->data, $instance->version);
             $instance->version = static::CURRENT_VERSION;
         }
-        
+
         return $instance;
     }
-    
+
     /**
      * Override in subclasses to handle version migrations.
      */
@@ -8125,10 +8125,10 @@ use Carbon\Carbon;
 class AssetStatusChanged extends VersionedEvent
 {
     const CURRENT_VERSION = 2; // Increment when schema changes
-    
+
     // Version 1: assetId, oldStatus, newStatus
     // Version 2: Added metadata, effectiveDate
-    
+
     protected static function migrateUp(array $data, int $fromVersion): array
     {
         if ($fromVersion === 1) {
@@ -8136,16 +8136,16 @@ class AssetStatusChanged extends VersionedEvent
             $data['metadata'] = $data['metadata'] ?? [];
             $data['effectiveDate'] = $data['effectiveDate'] ?? now()->toDateTimeString();
         }
-        
+
         return $data;
     }
-    
+
     // Helper methods for type-safe access
     public function getAsset(): Asset
     {
         return Asset::findOrFail($this->data['assetId']);
     }
-    
+
     public function getEffectiveDate(): Carbon
     {
         return Carbon::parse($this->data['effectiveDate']);
@@ -8160,7 +8160,7 @@ class TrackAssetCountChangeListener extends IdempotentListener
         // Event automatically migrated to v2 schema
         $asset = $event->getAsset();
         $effectiveDate = $event->getEffectiveDate();
-        
+
         // ... rest of logic
     }
 }
@@ -8195,13 +8195,13 @@ public function test_event_v1_migrates_to_v2()
         'newStatus' => 'inactive',
         // v1 didn't have metadata or effectiveDate
     ];
-    
+
     $event = AssetStatusChanged::fromQueue([
         'eventId' => 'test-123',
         'version' => 1, // Old version
         'data' => $v1Data,
     ]);
-    
+
     // Should auto-migrate to v2
     $this->assertEquals(2, $event->version);
     $this->assertArrayHasKey('metadata', $event->data);
@@ -8249,26 +8249,26 @@ $data['metadata'] = $data['metadata'] ?? [];
 CREATE TABLE circuit_breaker_states (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     service_name VARCHAR(100) NOT NULL UNIQUE, -- 'google_workspace', 'action1', 'helcim'
-    
+
     -- State
     state ENUM('closed', 'open', 'half_open') NOT NULL DEFAULT 'closed',
     -- closed: Normal operation
     -- open: Circuit tripped, rejecting all requests
     -- half_open: Testing if service recovered
-    
+
     -- Failure tracking
     failure_count INT UNSIGNED DEFAULT 0,
     last_failure_at TIMESTAMP NULL,
-    
+
     -- Circuit trip details
     tripped_at TIMESTAMP NULL,
     trip_reason TEXT,
-    
+
     -- Auto-recovery
     next_retry_at TIMESTAMP NULL,
-    
+
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     INDEX idx_state (state),
     INDEX idx_next_retry (next_retry_at)
 ) ENGINE=InnoDB;
@@ -8305,15 +8305,15 @@ class CircuitBreaker
             'half_open_max_calls' => 1,
         ],
     ];
-    
+
     public function canExecute(string $serviceName): bool
     {
         $state = $this->getState($serviceName);
-        
+
         switch ($state['state']) {
             case 'closed':
                 return true; // Normal operation
-                
+
             case 'open':
                 // Check if timeout expired
                 if (now()->gte($state['next_retry_at'])) {
@@ -8321,24 +8321,24 @@ class CircuitBreaker
                     return true; // Allow test call
                 }
                 return false; // Still open
-                
+
             case 'half_open':
                 // Allow limited test calls
                 return $this->canMakeHalfOpenCall($serviceName);
-                
+
             default:
                 return true;
         }
     }
-    
+
     public function recordSuccess(string $serviceName): void
     {
         $state = $this->getState($serviceName);
-        
+
         if ($state['state'] === 'half_open') {
             // Success in half-open → close circuit
             $this->close($serviceName);
-            
+
             Log::info('Circuit breaker closed (service recovered)', [
                 'service' => $serviceName,
             ]);
@@ -8349,18 +8349,18 @@ class CircuitBreaker
                 ->update(['failure_count' => 0]);
         }
     }
-    
+
     public function recordFailure(string $serviceName, \Exception $exception): void
     {
         $config = $this->config[$serviceName];
         $state = $this->getState($serviceName);
-        
+
         if ($state['state'] === 'half_open') {
             // Failure in half-open → reopen circuit
             $this->open($serviceName, "Half-open test failed: {$exception->getMessage()}");
             return;
         }
-        
+
         // Increment failure count
         DB::table('circuit_breaker_states')
             ->where('service_name', $serviceName)
@@ -8368,17 +8368,17 @@ class CircuitBreaker
                 'failure_count' => DB::raw('failure_count + 1'),
                 'last_failure_at' => now(),
             ]);
-        
+
         $state = $this->getState($serviceName); // Refresh
-        
+
         // Check if we should trip the circuit
         if ($state['failure_count'] >= $config['failure_threshold']) {
             $windowStart = now()->subSeconds($config['window_seconds']);
-            
+
             if ($state['last_failure_at'] >= $windowStart) {
                 // Trip the circuit
                 $this->open($serviceName, "Threshold exceeded: {$state['failure_count']} failures in {$config['window_seconds']}s");
-                
+
                 event(new CircuitBreakerTripped([
                     'service' => $serviceName,
                     'failure_count' => $state['failure_count'],
@@ -8386,7 +8386,7 @@ class CircuitBreaker
                 ]));
             }
         }
-        
+
         Log::warning('Circuit breaker recorded failure', [
             'service' => $serviceName,
             'failure_count' => $state['failure_count'],
@@ -8394,7 +8394,7 @@ class CircuitBreaker
             'error' => $exception->getMessage(),
         ]);
     }
-    
+
     protected function getState(string $serviceName): array
     {
         // Cache for 10 seconds to reduce DB load
@@ -8402,7 +8402,7 @@ class CircuitBreaker
             $state = DB::table('circuit_breaker_states')
                 ->where('service_name', $serviceName)
                 ->first();
-            
+
             if (!$state) {
                 // Initialize
                 DB::table('circuit_breaker_states')->insert([
@@ -8410,23 +8410,23 @@ class CircuitBreaker
                     'state' => 'closed',
                     'failure_count' => 0,
                 ]);
-                
+
                 return [
                     'service_name' => $serviceName,
                     'state' => 'closed',
                     'failure_count' => 0,
                 ];
             }
-            
+
             return (array) $state;
         });
     }
-    
+
     protected function open(string $serviceName, string $reason): void
     {
         $config = $this->config[$serviceName];
         $nextRetry = now()->addSeconds($config['timeout_seconds']);
-        
+
         DB::table('circuit_breaker_states')
             ->where('service_name', $serviceName)
             ->update([
@@ -8435,29 +8435,29 @@ class CircuitBreaker
                 'trip_reason' => $reason,
                 'next_retry_at' => $nextRetry,
             ]);
-        
+
         Cache::forget("circuit_breaker:{$serviceName}");
-        
+
         Log::critical('Circuit breaker opened', [
             'service' => $serviceName,
             'reason' => $reason,
             'next_retry_at' => $nextRetry,
         ]);
     }
-    
+
     protected function transitionToHalfOpen(string $serviceName): void
     {
         DB::table('circuit_breaker_states')
             ->where('service_name', $serviceName)
             ->update(['state' => 'half_open']);
-        
+
         Cache::forget("circuit_breaker:{$serviceName}");
-        
+
         Log::info('Circuit breaker half-open (testing recovery)', [
             'service' => $serviceName,
         ]);
     }
-    
+
     protected function close(string $serviceName): void
     {
         DB::table('circuit_breaker_states')
@@ -8468,24 +8468,24 @@ class CircuitBreaker
                 'tripped_at' => null,
                 'next_retry_at' => null,
             ]);
-        
+
         Cache::forget("circuit_breaker:{$serviceName}");
     }
-    
+
     protected function canMakeHalfOpenCall(string $serviceName): bool
     {
         $config = $this->config[$serviceName];
         $cacheKey = "circuit_breaker_half_open_calls:{$serviceName}";
-        
+
         $callCount = Cache::get($cacheKey, 0);
-        
+
         if ($callCount >= $config['half_open_max_calls']) {
             return false; // Max test calls reached
         }
-        
+
         Cache::increment($cacheKey);
         Cache::expire($cacheKey, 60); // Reset after 1 minute
-        
+
         return true;
     }
 }
@@ -8502,25 +8502,25 @@ public function handle(Action1Service $action1Service, CircuitBreaker $circuitBr
         Log::warning('Action1 sync skipped: circuit breaker open', [
             'client_id' => $this->clientId,
         ]);
-        
+
         // Release job back to queue for later retry
         $this->release(300); // Try again in 5 minutes
         return;
     }
-    
+
     try {
         // Attempt sync
         $response = $action1Service->listDevices($this->clientId);
-        
+
         // Record success
         $circuitBreaker->recordSuccess('action1');
-        
+
         // ... process devices
-        
+
     } catch (\GuzzleHttp\Exception\ServerException $e) {
         // 500-level error → record failure
         $circuitBreaker->recordFailure('action1', $e);
-        
+
         throw $e; // Re-throw for job retry
     }
 }
@@ -8748,19 +8748,19 @@ $results = DB::table($table->value)->get();
 // tests/Feature/SqlInjectionPreventionTest.php
 test('user search prevents SQL injection via email field', function () {
     $maliciousEmail = "test@example.com' OR '1'='1";
-    
+
     // Should return 0 results, not all users
     $users = User::where('email', $maliciousEmail)->get();
-    
+
     expect($users)->toHaveCount(0);
 });
 
 test('invoice filtering prevents SQL injection via status', function () {
     $maliciousStatus = "paid' OR '1'='1' --";
-    
+
     // Should return 0 results, not all invoices
     $invoices = Invoice::where('status', $maliciousStatus)->get();
-    
+
     expect($invoices)->toHaveCount(0);
 });
 ```
@@ -8784,11 +8784,11 @@ test('invoice filtering prevents SQL injection via status', function () {
 
 #### Consequences
 
-✅ **Protects against SQL injection attacks**  
-✅ **Laravel's Query Builder provides automatic escaping**  
-✅ **Eloquent ORM enforces safe patterns by default**  
-✅ **Type safety reduces risk of injection**  
-⚠️ **Raw queries require extra scrutiny in code reviews**  
+✅ **Protects against SQL injection attacks**
+✅ **Laravel's Query Builder provides automatic escaping**
+✅ **Eloquent ORM enforces safe patterns by default**
+✅ **Type safety reduces risk of injection**
+⚠️ **Raw queries require extra scrutiny in code reviews**
 
 **Status:** ✅ Policy documented, enforcement via code review process
 
@@ -8896,7 +8896,7 @@ public function report(Request $request): Response
         'source_file' => $request->input('source-file'),
         'line_number' => $request->input('line-number'),
     ]);
-    
+
     return response('', 204);
 }
 ```
@@ -8914,7 +8914,7 @@ public function report(Request $request): Response
 // tests/Feature/SecurityHeadersTest.php
 test('CSP headers prevent inline scripts without nonce', function () {
     $response = $this->get('/');
-    
+
     expect($response->headers->get('Content-Security-Policy'))
         ->toContain("script-src 'self'")
         ->toContain("frame-ancestors 'none'");
@@ -8922,7 +8922,7 @@ test('CSP headers prevent inline scripts without nonce', function () {
 
 test('CSP headers include WebSocket support for Reverb', function () {
     $response = $this->get('/');
-    
+
     expect($response->headers->get('Content-Security-Policy'))
         ->toContain("connect-src 'self' ws: wss:");
 });
@@ -8970,12 +8970,12 @@ This prevents the application from being embedded in iframes on malicious sites.
 
 #### Consequences
 
-✅ **Prevents XSS attacks via inline script injection**  
-✅ **Blocks clickjacking attacks**  
-✅ **Mitigates data exfiltration attempts**  
-✅ **Controls resource loading from untrusted sources**  
-⚠️ **Requires nonce-based approach for stricter production CSP**  
-⚠️ **May break third-party widgets without proper whitelisting**  
+✅ **Prevents XSS attacks via inline script injection**
+✅ **Blocks clickjacking attacks**
+✅ **Mitigates data exfiltration attempts**
+✅ **Controls resource loading from untrusted sources**
+⚠️ **Requires nonce-based approach for stricter production CSP**
+⚠️ **May break third-party widgets without proper whitelisting**
 
 **Status:** ✅ Implemented in `ResponseHeaders.php`, ⏳ Nonce-based CSP planned for production hardening
 
@@ -9235,7 +9235,7 @@ class ApiClientController extends BaseApiController
     public function index(Request $request)
     {
         $clients = Client::paginate(50);
-        
+
         return $this->successResponse($clients, 'Clients retrieved successfully');
     }
 
@@ -9349,12 +9349,12 @@ public function index(Request $request) { ... }
 
 #### Consequences
 
-✅ **Simple implementation** - Sanctum is lightweight vs OAuth2  
-✅ **Flexible permissions** - Token abilities provide fine-grained control  
-✅ **Works with existing auth** - Seamless integration with Laravel's auth system  
-✅ **SPA-friendly** - Built-in CSRF protection for first-party apps  
-⚠️ **Requires careful token management** - Tokens must be stored securely  
-⚠️ **No built-in token expiration** - Requires custom implementation if needed  
+✅ **Simple implementation** - Sanctum is lightweight vs OAuth2
+✅ **Flexible permissions** - Token abilities provide fine-grained control
+✅ **Works with existing auth** - Seamless integration with Laravel's auth system
+✅ **SPA-friendly** - Built-in CSRF protection for first-party apps
+⚠️ **Requires careful token management** - Tokens must be stored securely
+⚠️ **No built-in token expiration** - Requires custom implementation if needed
 
 **Status:** ⏳ Planned for Phase 2, documentation complete
 
@@ -9454,7 +9454,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         // Sentry integration
         Integration::handles($exceptions);
-        
+
         // Custom error reporting
         $exceptions->reportable(function (Throwable $e) {
             if (app()->bound('sentry')) {
@@ -9487,12 +9487,12 @@ public function report(Throwable $exception)
             // Add request context
             $scope->setTag('route', request()->route()?->getName());
             $scope->setTag('method', request()->method());
-            
+
             // Add business context
             if ($clientId = request()->input('client_id')) {
                 $scope->setTag('client_id', $clientId);
             }
-            
+
             // Add module context
             if ($module = $this->detectModule()) {
                 $scope->setTag('module', $module);
@@ -9530,7 +9530,7 @@ class SentryPerformanceTracking
         $transactionContext = new \Sentry\Tracing\TransactionContext();
         $transactionContext->setName($request->route()?->getName() ?? $request->path());
         $transactionContext->setOp('http.server');
-        
+
         $transaction = \Sentry\startTransaction($transactionContext);
         \Sentry\SentrySdk::getCurrentHub()->setSpan($transaction);
 
@@ -9549,7 +9549,7 @@ class SentryPerformanceTracking
 class InvoiceService
 {
     use AuditsSensitiveOperations;
-    
+
     public function generateInvoices(int $clientId): void
     {
         $span = \Sentry\SentrySdk::getCurrentHub()
@@ -9616,7 +9616,7 @@ public function boot(): void
     DB::listen(function ($query) {
         if ($query->time > 1000) { // > 1 second
             \Sentry\captureMessage("Slow query detected: {$query->sql}", \Sentry\Severity::warning());
-            
+
             \Sentry\withScope(function (\Sentry\State\Scope $scope) use ($query): void {
                 $scope->setContext('query', [
                     'sql' => $query->sql,
@@ -9671,7 +9671,7 @@ sentry-cli releases finalize "$(git describe --tags --always)"
             $exception->getClientId(),
         ]);
     }
-    
+
     // Group by error message pattern
     if ($exception instanceof ApiException) {
         $scope->setFingerprint([
@@ -9734,9 +9734,9 @@ Metrics::increment('orders.failed', ['reason' => $exception->getCode()]);
 // tests/Feature/ErrorTrackingTest.php
 test('sentry captures exceptions in production', function () {
     Config::set('app.env', 'production');
-    
+
     $this->expectException(\Exception::class);
-    
+
     try {
         throw new \Exception('Test Sentry exception');
     } catch (\Exception $e) {
@@ -9752,7 +9752,7 @@ Route::get('/debug-sentry', function () {
     if (app()->environment('production')) {
         abort(403, 'Only available in non-production');
     }
-    
+
     throw new \Exception('Sentry test exception');
 })->middleware('auth');
 ```
@@ -9777,13 +9777,13 @@ Route::get('/debug-sentry', function () {
 
 #### Consequences
 
-✅ **Real-time error visibility** - Know about issues before users report them  
-✅ **Context-rich debugging** - Stack traces, breadcrumbs, user actions  
-✅ **Performance insights** - Identify slow transactions and queries  
-✅ **Release correlation** - Link errors to specific deployments  
-✅ **Alert fatigue reduction** - Smart grouping and noise filtering  
-⚠️ **Requires Sentry subscription** - Free tier limited to 5K events/month  
-⚠️ **PII concerns** - Must scrub sensitive data from error reports  
+✅ **Real-time error visibility** - Know about issues before users report them
+✅ **Context-rich debugging** - Stack traces, breadcrumbs, user actions
+✅ **Performance insights** - Identify slow transactions and queries
+✅ **Release correlation** - Link errors to specific deployments
+✅ **Alert fatigue reduction** - Smart grouping and noise filtering
+⚠️ **Requires Sentry subscription** - Free tier limited to 5K events/month
+⚠️ **PII concerns** - Must scrub sensitive data from error reports
 
 **Status:** ⏳ Documented (Feb 9, 2026), Sentry installation planned for Phase 2
 
@@ -9809,14 +9809,14 @@ public function addCredit(Client $client, float $amount, ...): ClientCreditLedge
     return DB::transaction(function () use ($client, $amount, ...) {
         // ✅ EXCELLENT: Uses lockForUpdate to prevent race conditions
         Client::where('id', $client->id)->lockForUpdate()->first();
-        
+
         // Calculate new balance
         $currentBalance = $this->getBalance($client);
         $newBalance = $currentBalance + $amount;
-        
+
         // Create ledger entry with balance snapshot
         $ledger = ClientCreditLedger::create([...]);
-        
+
         return $ledger;
     });
 }
@@ -9837,13 +9837,13 @@ public function execute(Customer $source, Customer $target): bool
         $this->mergeEmails($source, $target);
         $this->mergePhones($source, $target);
         $this->mergeNotes($source, $target);
-        
+
         // Allow modules to extend
         \Eventy::action('customer.merge', $source, $target);
-        
+
         // Delete source (rollback-safe)
         $source->delete();
-        
+
         return true;
     });
 }
@@ -9859,15 +9859,15 @@ public function createQuote(Client $client, array $data, ...): Quote
     return DB::transaction(function () use ($client, $data, ...) {
         // Create quote
         $quote = Quote::create([...]);
-        
+
         // Create line items
         foreach ($data['line_items'] as $item) {
             $quote->lineItems()->create($item);
         }
-        
+
         // Calculate totals
         $quote->recalculateTotals();
-        
+
         return $quote;
     });
 }
@@ -9887,18 +9887,18 @@ public function incrementAssignedCount(...): LicenseAssignment
         $subscription = SoftwareSubscription::where('id', $subscription->id)
             ->lockForUpdate()
             ->first();
-        
+
         // Check capacity
         if ($subscription->assigned_count >= $subscription->license_count) {
             throw new Exception('No available licenses');
         }
-        
+
         // Atomic increment
         $subscription->increment('assigned_count');
-        
+
         // Create assignment record
         $assignment = LicenseAssignment::create([...]);
-        
+
         return $assignment;
     });
 }
@@ -9917,14 +9917,14 @@ public function handle($event): void
         $processed = ProcessedEvent::where('event_id', $eventId)
             ->where('listener_class', static::class)
             ->exists();
-        
+
         if ($processed) {
             return; // Already handled
         }
-        
+
         // Process the event
         $this->process($event);
-        
+
         // Mark as processed
         ProcessedEvent::create([
             'event_id' => $eventId,
@@ -10032,11 +10032,11 @@ public function processPayment(Invoice $invoice, float $amount): void
         $invoice = Invoice::where('id', $invoice->id)
             ->lockForUpdate()
             ->first();
-        
+
         if ($invoice->status === 'paid') {
             throw new Exception('Invoice already paid');
         }
-        
+
         $invoice->update([
             'status' => 'paid',
             'paid_at' => now(),
@@ -10053,11 +10053,11 @@ public function assignLicense(SoftwareSubscription $subscription, User $user): v
         $subscription = SoftwareSubscription::where('id', $subscription->id)
             ->lockForUpdate()
             ->first();
-        
+
         if ($subscription->assigned_count >= $subscription->license_count) {
             throw new Exception('No licenses available');
         }
-        
+
         $subscription->increment('assigned_count');
         LicenseAssignment::create([...]);
     });
@@ -10071,14 +10071,14 @@ public function assignLicense(SoftwareSubscription $subscription, User $user): v
 // Laravel automatically uses savepoints for nested transactions
 DB::transaction(function () {
     $order = Order::create([...]);
-    
+
     // Nested transaction (creates savepoint)
     DB::transaction(function () use ($order) {
         foreach ($order->items as $item) {
             // Process items
         }
     }); // Savepoint committed
-    
+
     $order->recalculateTotal();
 }); // Main transaction committed
 ```
@@ -10093,7 +10093,7 @@ trait RetriesOnDeadlock
     protected function transactionWithRetry(callable $callback, int $maxAttempts = 3)
     {
         $attempts = 0;
-        
+
         while ($attempts < $maxAttempts) {
             try {
                 return DB::transaction($callback);
@@ -10118,7 +10118,7 @@ trait RetriesOnDeadlock
 class InvoiceService
 {
     use RetriesOnDeadlock;
-    
+
     public function generateInvoices(int $clientId): void
     {
         $this->transactionWithRetry(function () use ($clientId) {
@@ -10135,18 +10135,18 @@ class InvoiceService
 // tests/Feature/TransactionTest.php
 test('credit addition is atomic and prevents race conditions', function () {
     $client = Client::factory()->create();
-    
+
     // Simulate concurrent credit additions
     $promises = [];
     for ($i = 0; $i < 10; $i++) {
         $promises[] = async(fn() => app(ClientCreditService::class)->addCredit($client, 100, 'Test'));
     }
-    
+
     await($promises);
-    
+
     $client->refresh();
     $balance = app(ClientCreditService::class)->getBalance($client);
-    
+
     // Should be exactly 1000 (10 * 100), not less due to lost updates
     expect($balance)->toBe(1000.0);
 });
@@ -10154,7 +10154,7 @@ test('credit addition is atomic and prevents race conditions', function () {
 test('transaction rollback on exception', function () {
     $client = Client::factory()->create();
     $initialBalance = app(ClientCreditService::class)->getBalance($client);
-    
+
     try {
         DB::transaction(function () use ($client) {
             app(ClientCreditService::class)->addCredit($client, 100, 'Test');
@@ -10163,10 +10163,10 @@ test('transaction rollback on exception', function () {
     } catch (Exception $e) {
         // Exception expected
     }
-    
+
     $client->refresh();
     $finalBalance = app(ClientCreditService::class)->getBalance($client);
-    
+
     // Balance should be unchanged (transaction rolled back)
     expect($finalBalance)->toBe($initialBalance);
 });
@@ -10176,13 +10176,13 @@ test('transaction rollback on exception', function () {
 
 **Codebase Audit Results (Feb 9, 2026):**
 
-✅ **Financial Operations:** All use transactions with lockForUpdate()  
-✅ **Multi-Table Operations:** Proper transaction boundaries  
-✅ **Counter Increments:** Row-level locking prevents race conditions  
-✅ **Idempotency:** Transactions ensure duplicate prevention  
-✅ **Error Handling:** Transactions auto-rollback on exceptions  
-⚠️ **External APIs:** Some controllers mix API calls with transactions (needs refactoring)  
-⚠️ **Long Operations:** Module batch jobs should use per-item transactions  
+✅ **Financial Operations:** All use transactions with lockForUpdate()
+✅ **Multi-Table Operations:** Proper transaction boundaries
+✅ **Counter Increments:** Row-level locking prevents race conditions
+✅ **Idempotency:** Transactions ensure duplicate prevention
+✅ **Error Handling:** Transactions auto-rollback on exceptions
+⚠️ **External APIs:** Some controllers mix API calls with transactions (needs refactoring)
+⚠️ **Long Operations:** Module batch jobs should use per-item transactions
 
 **Files Verified:**
 - ✅ `Modules/Payment/Services/ClientCreditService.php`
@@ -10303,7 +10303,7 @@ REDIS_PORT=6379
         'region' => env('AWS_DEFAULT_REGION'),
         'bucket' => env('AWS_BUCKET'),
     ],
-    
+
     // For self-hosted: MinIO (S3-compatible)
     'minio' => [
         'driver' => 's3',
@@ -10336,7 +10336,7 @@ class CacheService
      * Cache key naming convention:
      * {domain}:{entity_type}:{entity_id}:{attribute?}
      */
-    
+
     // Layer 1: Application State (Long TTL)
     public function cacheUserPermissions(int $userId, array $permissions): void
     {
@@ -10346,7 +10346,7 @@ class CacheService
             now()->addHours(24)
         );
     }
-    
+
     // Layer 2: Query Results (Medium TTL)
     public function getClientEntitlement(int $clientId): ?array
     {
@@ -10356,7 +10356,7 @@ class CacheService
             fn() => $this->calculateEntitlement($clientId)
         );
     }
-    
+
     // Layer 3: Hot Data (Short TTL)
     public function getClientCreditBalance(int $clientId): int
     {
@@ -10385,12 +10385,12 @@ class ClearCreditCacheOnPayment
     public function handle(PaymentSucceeded $event): void
     {
         $clientId = $event->invoice->client_id;
-        
+
         // Clear specific keys
         Cache::forget("billing:client:{$clientId}:balance");
         Cache::forget("billing:client:{$clientId}:invoices");
         Cache::forget("billing:entitlement:{$clientId}:current");
-        
+
         // Or use cache tags (Redis/Memcached only)
         Cache::tags(["client:{$clientId}", 'billing'])->flush();
     }
@@ -10409,11 +10409,11 @@ class WarmCache extends Command
 {
     protected $signature = 'cache:warm';
     protected $description = 'Pre-populate cache with frequently accessed data';
-    
+
     public function handle(): void
     {
         $this->info('Warming cache...');
-        
+
         // Warm active clients' entitlements
         Client::where('status', 'active')
             ->chunk(100, function ($clients) {
@@ -10425,7 +10425,7 @@ class WarmCache extends Command
                     );
                 }
             });
-        
+
         $this->info('Cache warmed successfully!');
     }
 }
@@ -10473,7 +10473,7 @@ class WarmCache extends Command
 API Requests: 1000 req/sec sustained (10,000 clients)
 Invoice Generation: 50 invoices/sec (3,000/minute)
 Event Processing: 500 events/sec
-Queue Processing: 
+Queue Processing:
   - billing: 100 jobs/sec
   - default: 200 jobs/sec
   - notifications: 500 jobs/sec
@@ -10484,7 +10484,7 @@ Queue Processing:
 ```yaml
 Memory per Request: < 128MB
 Database Connections: < 100 concurrent (per web server)
-Queue Workers: 
+Queue Workers:
   - billing: 10 workers minimum
   - default: 20 workers minimum
   - long-running: 5 workers minimum
@@ -10517,7 +10517,7 @@ class MonitorQueryPerformance
                 }
             });
         }
-        
+
         return $next($request);
     }
 }
@@ -10531,23 +10531,23 @@ class MonitorQueryPerformance
 
 ```sql
 -- Composite indexes for common queries
-CREATE INDEX idx_conversations_mailbox_status 
+CREATE INDEX idx_conversations_mailbox_status
     ON conversations(mailbox_id, status, updated_at);
 
-CREATE INDEX idx_invoices_client_date 
+CREATE INDEX idx_invoices_client_date
     ON invoices(client_id, invoice_date DESC);
 
-CREATE INDEX idx_assets_client_status 
+CREATE INDEX idx_assets_client_status
     ON assets(client_id, status, created_at);
 
 -- Covering indexes for read-heavy queries
-CREATE INDEX idx_client_credits_balance 
-    ON client_credits(client_id) 
+CREATE INDEX idx_client_credits_balance
+    ON client_credits(client_id)
     INCLUDE (balance_cents, last_updated_at);
 
 -- Partial indexes for filtered queries
-CREATE INDEX idx_active_conversations 
-    ON conversations(mailbox_id, updated_at) 
+CREATE INDEX idx_active_conversations
+    ON conversations(mailbox_id, updated_at)
     WHERE status IN ('active', 'pending');
 ```
 
@@ -10612,9 +10612,9 @@ class CreateCustomLogger
             $config['path'],
             $config['level'] ?? 'debug'
         );
-        
+
         $handler->setFormatter(new JsonFormatter());
-        
+
         return new \Monolog\Logger(
             $config['name'] ?? 'custom',
             [$handler]
@@ -10657,7 +10657,7 @@ use Prometheus\Storage\Redis;
 class MetricsService
 {
     private CollectorRegistry $registry;
-    
+
     public function __construct()
     {
         $this->registry = new CollectorRegistry(new Redis([
@@ -10665,7 +10665,7 @@ class MetricsService
             'port' => config('database.redis.default.port'),
         ]));
     }
-    
+
     public function incrementCounter(string $name, array $labels = []): void
     {
         $counter = $this->registry->getOrRegisterCounter(
@@ -10676,7 +10676,7 @@ class MetricsService
         );
         $counter->inc(array_values($labels));
     }
-    
+
     public function observeHistogram(string $name, float $value, array $labels = []): void
     {
         $histogram = $this->registry->getOrRegisterHistogram(
@@ -10688,7 +10688,7 @@ class MetricsService
         );
         $histogram->observe($value, array_values($labels));
     }
-    
+
     public function setGauge(string $name, float $value, array $labels = []): void
     {
         $gauge = $this->registry->getOrRegisterGauge(
@@ -10707,29 +10707,29 @@ class InvoiceController
     public function store(Request $request, MetricsService $metrics)
     {
         $startTime = microtime(true);
-        
+
         try {
             $invoice = $this->billingService->generate($request->client_id);
-            
+
             $metrics->incrementCounter('invoices_created_total', [
                 'status' => 'success',
                 'client_id' => $request->client_id,
             ]);
-            
+
             $metrics->observeHistogram(
                 'invoice_generation_duration_seconds',
                 microtime(true) - $startTime,
                 ['client_id' => $request->client_id]
             );
-            
+
             return response()->json($invoice, 201);
-            
+
         } catch (\Exception $e) {
             $metrics->incrementCounter('invoices_created_total', [
                 'status' => 'error',
                 'error_type' => class_basename($e),
             ]);
-            
+
             throw $e;
         }
     }
@@ -10797,7 +10797,7 @@ class InvoiceGenerator
             new TransactionContext('invoice.generation', 'task')
         );
         $transaction->setTag('client_id', $clientId);
-        
+
         try {
             // Span 1: Load entitlements
             $span1 = $transaction->startChild([
@@ -10806,7 +10806,7 @@ class InvoiceGenerator
             ]);
             $entitlements = $this->loadEntitlements($clientId);
             $span1->finish();
-            
+
             // Span 2: Calculate line items
             $span2 = $transaction->startChild([
                 'op' => 'calculation',
@@ -10814,7 +10814,7 @@ class InvoiceGenerator
             ]);
             $lineItems = $this->calculateLineItems($entitlements);
             $span2->finish();
-            
+
             // Span 3: Create invoice
             $span3 = $transaction->startChild([
                 'op' => 'db.transaction',
@@ -10822,10 +10822,10 @@ class InvoiceGenerator
             ]);
             $invoice = $this->createInvoice($clientId, $lineItems);
             $span3->finish();
-            
+
             $transaction->finish();
             return $invoice;
-            
+
         } catch (\Exception $e) {
             $transaction->setStatus('internal_error');
             $transaction->finish();
@@ -10852,7 +10852,7 @@ return [
     'dsn' => env('SENTRY_LARAVEL_DSN'),
     'environment' => env('APP_ENV', 'production'),
     'release' => env('APP_VERSION', '1.0.0'),
-    
+
     'breadcrumbs' => [
         'logs' => true,
         'cache' => true,
@@ -10860,13 +10860,13 @@ return [
         'sql_queries' => true,
         'sql_bindings' => true,
     ],
-    
+
     'send_default_pii' => false, // Don't send PII by default
-    
+
     'traces_sample_rate' => env('SENTRY_TRACES_SAMPLE_RATE', 0.2),
-    
+
     'profiles_sample_rate' => env('SENTRY_PROFILES_SAMPLE_RATE', 0.2),
-    
+
     'before_send' => function (\Sentry\Event $event): ?\Sentry\Event {
         // Scrub sensitive data
         if ($user = $event->getUser()) {
@@ -10892,7 +10892,7 @@ try {
             'invoice_total_cents' => $e->requiredAmount,
         ]);
     });
-    
+
     captureException($e);
     throw $e;
 }
@@ -11009,7 +11009,7 @@ class HealthCheckController extends Controller
             return response()->json(['status' => 'error'], 503);
         }
     }
-    
+
     public function detailed()
     {
         $checks = [
@@ -11019,24 +11019,24 @@ class HealthCheckController extends Controller
             'storage' => $this->checkStorage(),
             'external_apis' => $this->checkExternalApis(),
         ];
-        
+
         $overallStatus = collect($checks)
             ->every(fn($check) => $check['status'] === 'ok') ? 'healthy' : 'degraded';
-        
+
         return response()->json([
             'status' => $overallStatus,
             'timestamp' => now()->toIso8601String(),
             'checks' => $checks,
         ], $overallStatus === 'healthy' ? 200 : 503);
     }
-    
+
     private function checkDatabase(): array
     {
         try {
             $start = microtime(true);
             DB::select('SELECT 1');
             $duration = (microtime(true) - $start) * 1000;
-            
+
             return [
                 'status' => 'ok',
                 'response_time_ms' => round($duration, 2),
@@ -11048,14 +11048,14 @@ class HealthCheckController extends Controller
             ];
         }
     }
-    
+
     private function checkRedis(): array
     {
         try {
             $start = microtime(true);
             Redis::ping();
             $duration = (microtime(true) - $start) * 1000;
-            
+
             return [
                 'status' => 'ok',
                 'response_time_ms' => round($duration, 2),
@@ -11067,7 +11067,7 @@ class HealthCheckController extends Controller
             ];
         }
     }
-    
+
     private function checkQueue(): array
     {
         try {
@@ -11075,7 +11075,7 @@ class HealthCheckController extends Controller
             $failed = DB::table('failed_jobs')
                 ->where('failed_at', '>', now()->subHour())
                 ->count();
-            
+
             return [
                 'status' => $pending < 10000 ? 'ok' : 'warning',
                 'pending_jobs' => $pending,
@@ -11088,7 +11088,7 @@ class HealthCheckController extends Controller
             ];
         }
     }
-    
+
     private function checkStorage(): array
     {
         try {
@@ -11096,7 +11096,7 @@ class HealthCheckController extends Controller
             $total = disk_total_space(storage_path());
             $used = $total - $disk;
             $percentage = round(($used / $total) * 100, 2);
-            
+
             return [
                 'status' => $percentage < 90 ? 'ok' : 'warning',
                 'used_percentage' => $percentage,
@@ -11109,15 +11109,15 @@ class HealthCheckController extends Controller
             ];
         }
     }
-    
+
     private function checkExternalApis(): array
     {
         $apis = [];
-        
+
         // Check circuit breakers
         if (class_exists('\App\Services\CircuitBreaker')) {
             $breaker = app('\App\Services\CircuitBreaker');
-            
+
             foreach (['google_workspace', 'action1', 'helcim'] as $service) {
                 $state = Cache::get("circuit_breaker:{$service}:state", 'closed');
                 $apis[$service] = [
@@ -11126,7 +11126,7 @@ class HealthCheckController extends Controller
                 ];
             }
         }
-        
+
         return [
             'status' => collect($apis)->every(fn($api) => $api['status'] === 'ok') ? 'ok' : 'degraded',
             'services' => $apis,
@@ -11181,7 +11181,7 @@ class InvoiceService
                 'paid_at' => now(),
                 'payment_transaction_id' => $payment->id,
             ]);
-            
+
             // 2. Update client credit (if applicable)
             if ($payment->amount_cents > $invoice->total_cents) {
                 $creditAmount = $payment->amount_cents - $invoice->total_cents;
@@ -11191,7 +11191,7 @@ class InvoiceService
                     "Overpayment on Invoice #{$invoice->number}"
                 );
             }
-            
+
             // 3. Create audit log
             DB::table('invoice_audit_log')->insert([
                 'invoice_id' => $invoice->id,
@@ -11200,7 +11200,7 @@ class InvoiceService
                 'metadata' => json_encode(['payment_id' => $payment->id]),
                 'created_at' => now(),
             ]);
-            
+
             // 4. Dispatch event (will commit after transaction)
             event(new InvoicePaid($invoice, $payment));
         });
@@ -11224,10 +11224,10 @@ abstract class IdempotentListener
                 ->exists()) {
                 return; // Skip duplicate
             }
-            
+
             // Process the event
             $this->handleIdempotent($event);
-            
+
             // Mark as processed (same transaction)
             DB::table('processed_events')->insert([
                 'event_id' => $event->eventId,
@@ -11236,7 +11236,7 @@ abstract class IdempotentListener
             ]);
         });
     }
-    
+
     abstract protected function handleIdempotent($event): void;
 }
 ```
@@ -11264,22 +11264,22 @@ class AtomicCounterService
                 ->where($where)
                 ->lockForUpdate()
                 ->first();
-            
+
             $currentValue = $row->$column ?? 0;
             $newValue = $currentValue + $amount;
-            
+
             // 2. Optional validation (e.g., cannot go negative)
             if ($validator && !$validator($currentValue, $newValue)) {
                 throw new \InvalidArgumentException(
                     "Counter validation failed: {$currentValue} + {$amount} = {$newValue}"
                 );
             }
-            
+
             // 3. Update the counter
             DB::table($table)
                 ->where($where)
                 ->update([$column => $newValue]);
-            
+
             return $newValue;
         });
     }
@@ -11295,38 +11295,38 @@ class OrderFulfillmentSaga
     public function fulfill(Order $order): void
     {
         $state = [];
-        
+
         try {
             // Step 1: Reserve inventory (transactional)
             DB::transaction(function () use ($order, &$state) {
                 $state['inventory_reserved'] = $this->inventoryService->reserve($order);
             });
-            
+
             // Step 2: Charge payment (external API - not in transaction)
             $state['payment_charged'] = $this->paymentGateway->charge($order);
-            
+
             // Step 3: Create shipment (transactional)
             DB::transaction(function () use ($order, &$state) {
                 $state['shipment_created'] = $this->shippingService->createShipment($order);
             });
-            
+
         } catch (\Exception $e) {
             // Compensate: Undo completed steps
             $this->compensate($state);
             throw $e;
         }
     }
-    
+
     private function compensate(array $state): void
     {
         if ($state['shipment_created'] ?? false) {
             DB::transaction(fn() => $this->shippingService->cancelShipment($state['shipment_created']));
         }
-        
+
         if ($state['payment_charged'] ?? false) {
             $this->paymentGateway->refund($state['payment_charged']);
         }
-        
+
         if ($state['inventory_reserved'] ?? false) {
             DB::transaction(fn() => $this->inventoryService->release($state['inventory_reserved']));
         }
@@ -11344,11 +11344,11 @@ class OrderFulfillmentSaga
 // ❌ WRONG: API call inside transaction (long lock)
 DB::transaction(function () use ($invoice) {
     $invoice = Invoice::create([...]);
-    
+
     // External API call - could take 5+ seconds
     $helcimResponse = Http::timeout(30)
         ->post('https://api.helcim.com/charge', [...]);
-    
+
     $invoice->update(['status' => 'paid']);
 });
 
@@ -11372,7 +11372,7 @@ if ($helcimResponse->successful()) {
 // ❌ WRONG: Nested transactions (Laravel doesn't support true nested transactions)
 DB::transaction(function () {
     Client::create([...]);
-    
+
     DB::transaction(function () { // This is NOT a true nested transaction!
         Contact::create([...]);
         throw new \Exception(); // This rolls back EVERYTHING
@@ -11406,14 +11406,14 @@ while ($attempt < $maxRetries) {
         DB::transaction(function () use ($ids) {
             // Sort IDs to ensure deterministic lock order
             sort($ids);
-            
+
             foreach ($ids as $id) {
                 DB::table('counters')->where('id', $id)->increment('count');
             }
         });
-        
+
         break; // Success
-        
+
     } catch (\Illuminate\Database\QueryException $e) {
         if ($e->getCode() === '40001' && $attempt < $maxRetries - 1) {
             $attempt++;
@@ -11431,7 +11431,7 @@ while ($attempt < $maxRetries) {
 
 ### 17.1 Recovery Objectives
 
-**Recovery Time Objective (RTO):** 4 hours  
+**Recovery Time Objective (RTO):** 4 hours
 **Recovery Point Objective (RPO):** 15 minutes
 
 **SLA Breakdown:**
@@ -11509,7 +11509,7 @@ for binlog in $(mysql -h ${DB_HOST} -u ${DB_USER} -p${DB_PASSWORD} -N -e "SHOW B
       -u ${DB_USER} \
       -p${DB_PASSWORD} \
       ${binlog} > ${BINLOG_DIR}/${binlog}
-    
+
     aws s3 cp ${BINLOG_DIR}/${binlog} \
       s3://company-backups/freescout/binlogs/${DATE}/
   fi
@@ -11732,7 +11732,7 @@ Route::prefix('api/v1')->middleware(['auth:sanctum', 'throttle:60,1'])->group(fu
     Route::get('/clients', [\App\Http\Controllers\Api\V1\ClientController::class, 'index']);
     Route::get('/clients/{id}', [\App\Http\Controllers\Api\V1\ClientController::class, 'show']);
     Route::post('/clients', [\App\Http\Controllers\Api\V1\ClientController::class, 'store']);
-    
+
     Route::get('/invoices', [\App\Http\Controllers\Api\V1\InvoiceController::class, 'index']);
     Route::get('/invoices/{id}', [\App\Http\Controllers\Api\V1\InvoiceController::class, 'show']);
 });
@@ -11741,7 +11741,7 @@ Route::prefix('api/v1')->middleware(['auth:sanctum', 'throttle:60,1'])->group(fu
 Route::prefix('api/v2')->middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/clients', [\App\Http\Controllers\Api\V2\ClientController::class, 'index']);
     Route::get('/clients/{id}', [\App\Http\Controllers\Api\V2\ClientController::class, 'show']);
-    
+
     // New endpoints in v2
     Route::get('/clients/{id}/billing-summary', [\App\Http\Controllers\Api\V2\ClientController::class, 'billingSummary']);
 });
@@ -11789,14 +11789,14 @@ abstract class BaseController extends Controller
         // Add deprecation warning to all v1 responses
         $this->middleware(function ($request, $next) {
             $response = $next($request);
-            
+
             $response->headers->add([
                 'X-API-Deprecated' => 'true',
                 'X-API-Deprecation-Date' => '2026-12-31',
                 'X-API-Deprecation-Info' => 'https://docs.company.com/api/v1-sunset',
                 'X-API-Current-Version' => 'v2',
             ]);
-            
+
             return $response;
         });
     }
@@ -12064,10 +12064,10 @@ namespace Modules\\PIB\\Services;
 
 class ClientCreditService {
     public function __construct(private AtomicCounterService $counter) {}
-    
+
     public function addCredit(int $clientId, float $amount, string $description): void {
         $amountCents = (int) round($amount * 100);
-        
+
         DB::transaction(function () use ($clientId, $amount, $amountCents, $description) {
             // Atomic increment (prevents race conditions)
             $newBalanceCents = $this->counter->increment(
@@ -12076,7 +12076,7 @@ class ClientCreditService {
                 column: 'balance_cents',
                 amount: $amountCents
             );
-            
+
             // Audit trail
             DB::table('client_credit_ledger')->insert([
                 'client_id' => $clientId,
@@ -12088,7 +12088,7 @@ class ClientCreditService {
             ]);
         });
     }
-    
+
     public function getBalance(int $clientId): float {
         $balanceCents = $this->counter->get(
             table: 'client_credits',
@@ -12125,7 +12125,7 @@ protected function getClientSummary(Client $client): array {
             $creditBalance = 0.0;  // Graceful degradation
         }
     }
-    
+
     return [
         'name' => $client->name,
         'credit_balance' => $creditBalance,
@@ -12275,12 +12275,12 @@ ALTER TABLE processed_events ADD COLUMN event_signature CHAR(64); -- Event dedup
 
 ---
 
-**Document Maintainers:** Development Team  
-**Review Cycle:** Quarterly or upon major feature additions  
-**Last Updated:** February 13, 2026  
+**Document Maintainers:** Development Team
+**Review Cycle:** Quarterly or upon major feature additions
+**Last Updated:** February 13, 2026
 **Version:** 4.7 (Infrastructure Standardization, Deployment Reliability, Module Deployment Standardization)
 
-**Related Documents:** 
-- [MODULE_DEVELOPMENT_GUIDE.md](MODULE_DEVELOPMENT_GUIDE.md)
-- [UX_STYLE_GUIDE.md](../UX_STYLE_GUIDE.md)
-- [MODULE_INSTALLER_README.md](../MODULE_INSTALLER_README.md)
+**Related Documents:**
+- [MODULE_DEVELOPMENT_GUIDE.md](../development/MODULE_DEVELOPMENT_GUIDE.md)
+- [UX_STYLE_GUIDE.md](../development/UX_STYLE_GUIDE.md)
+- [MODULE_INSTALLER_SYSTEM.md](../development/MODULE_INSTALLER_SYSTEM.md)

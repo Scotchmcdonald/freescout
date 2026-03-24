@@ -232,9 +232,9 @@ class ActivityLog extends SpatieActivity
      */
     public static function getAvailableLogs(bool $checkExisting = true): array
     {
-        $availableLogs = self::$available_logs;
+        $availableLogs = static::$available_logs;
         if ($checkExisting) {
-            $availableLogs = array_merge($availableLogs, self::getLogNames());
+            $availableLogs = array_merge($availableLogs, static::getLogNames());
         }
 
         return array_values(array_unique($availableLogs));

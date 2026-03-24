@@ -1,6 +1,6 @@
 # Architecture Documentation Index
 
-**Last Updated:** March 2, 2026
+**Last Updated:** March 24, 2026
 
 This directory contains the comprehensive architecture documentation for the MSP Management Platform. Documents have been recently reviewed and consolidated to remove redundancy and outdated content.
 
@@ -9,10 +9,10 @@ This directory contains the comprehensive architecture documentation for the MSP
 ## 📚 Core Documentation (Start Here)
 
 ### 1. [APP_OVERVIEW.md](APP_OVERVIEW.md)
-**Purpose:** Canonical component inventory — what lives where and why  
-**Audience:** All developers (first stop when asking "where does X live?")  
-**When to Read:** Before touching any module boundary or looking for a class  
-**Last Updated:** March 2, 2026  
+**Purpose:** Canonical component inventory — what lives where and why
+**Audience:** All developers (first stop when asking "where does X live?")
+**When to Read:** Before touching any module boundary or looking for a class
+**Last Updated:** March 2, 2026
 **Length:** ~400 lines
 
 Covers:
@@ -21,10 +21,10 @@ Covers:
 - Architectural conventions: Core Blindness, `resolveRelationUsing`, cross-module patterns
 
 ### 2. [ARCHITECTURE_OVERVIEW.md](ARCHITECTURE_OVERVIEW.md)
-**Purpose:** Concise overview of current implemented architecture  
-**Audience:** New developers, technical leadership  
-**When to Read:** Second document for onboarding (after APP_OVERVIEW.md)  
-**Last Updated:** March 2, 2026  
+**Purpose:** Concise overview of current implemented architecture
+**Audience:** New developers, technical leadership
+**When to Read:** Second document for onboarding (after APP_OVERVIEW.md)
+**Last Updated:** March 2, 2026
 **Length:** ~1000 lines
 
 Quick introduction to:
@@ -34,17 +34,17 @@ Quick introduction to:
 - Controller organization
 
 ### 3. [SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md)
-**Purpose:** Authoritative design specification and reference  
-**Audience:** All developers, architects  
-**When to Read:** Deep dives, planning new features  
-**Last Updated:** March 3, 2026 (v4.9)  
+**Purpose:** Authoritative design specification and reference
+**Audience:** All developers, architects
+**When to Read:** Deep dives, planning new features
+**Last Updated:** March 3, 2026 (v4.9)
 **Length:** ~12,000 lines
 
 ### 4. [MODULAR_SYSTEM_QA.md](MODULAR_SYSTEM_QA.md)
-**Purpose:** Q&A reference for onboarding architects  
-**Audience:** Incoming architects, senior engineers  
-**When to Read:** Alongside ARCHITECTURE_OVERVIEW.md for onboarding  
-**Last Updated:** March 2, 2026  
+**Purpose:** Q&A reference for onboarding architects
+**Audience:** Incoming architects, senior engineers
+**When to Read:** Alongside ARCHITECTURE_OVERVIEW.md for onboarding
+**Last Updated:** March 2, 2026
 **Length:** ~350 lines
 
 Answers:
@@ -56,35 +56,25 @@ Answers:
 
 ## 🎯 Technical Specifications
 
-### 5. [API_VERSIONING.md](API_VERSIONING.md)
-**Purpose:** API versioning strategy and implementation guide  
-**Status:** Documented - Ready for Implementation  
-**Last Updated:** February 8, 2026  
-**Length:** ~600 lines
-
-Comprehensive guide to:
-- Header-based vs URL-based versioning
-- Breaking change policies
-- Support windows and deprecation
-- Implementation examples
-- Testing strategies
+### 5. [IDENTITY_AND_ACCESS_MODEL.md](IDENTITY_AND_ACCESS_MODEL.md)
+**Purpose:** Identity terminology, RBAC model, and access-boundary conventions
+**Status:** Active reference
 
 ---
 
 ## 📐 Compliance & Operations
 
-### 6. [ARCHITECTURAL_AUDIT_REPORT.md](ARCHITECTURAL_AUDIT_REPORT.md)
-**Purpose:** Point-in-time compliance audit against Core Blindness and Modular Boundary rules  
-**Status:** ✅ 100% Compliant (all violations resolved March 2, 2026)  
-**Last Updated:** March 2, 2026
+### 6. [EVENT_LISTENER_RESILIENCE.md](EVENT_LISTENER_RESILIENCE.md)
+**Purpose:** App-wide queued listener resilience and failure-handling strategy
+**Status:** ✅ Implemented
 
 ### 7. [DEVELOPER_GETTING_STARTED.md](DEVELOPER_GETTING_STARTED.md)
-**Purpose:** Practical day-one setup guide for new contributors  
-**Audience:** New developers  
+**Purpose:** Practical day-one setup guide for new contributors
+**Audience:** New developers
 **When to Read:** Before writing your first line of code
 
 ### 8. [MODULE_REPO_MANAGEMENT.md](MODULE_REPO_MANAGEMENT.md)
-**Purpose:** Git workflow for managing module repos independently  
+**Purpose:** Git workflow for managing module repos independently
 **Audience:** Engineers who own or maintain module packages
 
 ---
@@ -103,7 +93,7 @@ Completed assessments and action plans have been moved to `docs/ARCHIVE/`:
 **I'm new to the project:**
 1. Start with [APP_OVERVIEW.md](APP_OVERVIEW.md) (10 min — what lives where)
 2. Read [ARCHITECTURE_OVERVIEW.md](ARCHITECTURE_OVERVIEW.md) (15-20 min read)
-3. Review [ARCHITECTURAL_AUDIT_REPORT.md](ARCHITECTURAL_AUDIT_REPORT.md) for current compliance status
+3. Review [MODULAR_SYSTEM_QA.md](MODULAR_SYSTEM_QA.md) for compliance and boundary Q&A
 4. Refer to [SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md) for specific details
 
 **I'm implementing a new feature:**
@@ -111,7 +101,7 @@ Completed assessments and action plans have been moved to `docs/ARCHIVE/`:
 2. Follow [MODULE_DEVELOPMENT_GUIDE.md](../development/MODULE_DEVELOPMENT_GUIDE.md) for implementation patterns
 
 **I'm building an API:**
-1. Review [API_VERSIONING.md](API_VERSIONING.md) for versioning strategy
+1. Review [APP_OVERVIEW.md](APP_OVERVIEW.md) for API surface inventory and module boundaries
 2. Check [SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md) Section 18 for authentication
 
 **I'm debugging production issues:**
@@ -144,9 +134,9 @@ Completed assessments and action plans have been moved to `docs/ARCHIVE/`:
 
 ## 🔗 Related Documentation
 
-**Product Documentation:** `docs/product/`  
-**Development Guides:** `docs/development/`  
-**Testing Documentation:** `docs/testing/`  
+**Product Documentation:** `docs/product/`
+**Development Guides:** `docs/development/`
+**Testing Documentation:** `docs/testing/`
 **Deployment Guides:** `deployment/`
 
 ---

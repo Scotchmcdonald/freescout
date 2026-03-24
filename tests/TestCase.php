@@ -14,6 +14,12 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication, WithFaker;
 
+    /**
+     * Register parallel DB setup callback once per PHP process to avoid
+     * accumulating serializable closures across long test runs.
+     */
+    protected static bool $parallelDatabaseHookRegistered = false;
+
     // RefreshDatabase is NOT here. It is applied explicitly in:
     // - IntegrationTestCase (for integration tests)
     // - UnitTestCase (temporary, pending WS-C migration of DB-heavy unit tests)
@@ -21,8 +27,15 @@ abstract class TestCase extends BaseTestCase
 
     protected function setUp(): void
     {
-        // Align memory limit with phpunit.xml (1024M sufficient for tests)
-        ini_set('memory_limit', '1024M');
+        // Keep a safe memory floor for heavy coverage/mutation runs.
+        $configuredLimit = env('TEST_MEMORY_LIMIT');
+        $minimumLimit = env('TEST_MIN_MEMORY_LIMIT', '1536M');
+
+        if (is_string($configuredLimit) && $configuredLimit !== '') {
+            ini_set('memory_limit', $configuredLimit);
+        } elseif ($this->memoryToBytes((string) ini_get('memory_limit')) < $this->memoryToBytes((string) $minimumLimit)) {
+            ini_set('memory_limit', $minimumLimit);
+        }
 
         parent::setUp();
 
@@ -104,8 +117,9 @@ abstract class TestCase extends BaseTestCase
         $uses = parent::setUpTraits();
 
         // Configure parallel testing to use separate databases
-        if (ParallelTesting::token()) {
+        if (ParallelTesting::token() && ! self::$parallelDatabaseHookRegistered) {
             $this->setupParallelDatabase();
+            self::$parallelDatabaseHookRegistered = true;
         }
 
         return $uses;
@@ -160,5 +174,27 @@ abstract class TestCase extends BaseTestCase
         RateLimiter::for('action1_script_callbacks', function ($request) {
             return Limit::perMinute(30)->by($request->ip());
         });
+    }
+
+    /**
+     * Convert shorthand php.ini memory notation (e.g., 512M, 2G) to bytes.
+     */
+    protected function memoryToBytes(string $value): int
+    {
+        $trimmed = trim($value);
+
+        if ($trimmed === '' || $trimmed === '-1') {
+            return PHP_INT_MAX;
+        }
+
+        $unit = strtolower(substr($trimmed, -1));
+        $number = (int) $trimmed;
+
+        return match ($unit) {
+            'g' => $number * 1024 * 1024 * 1024,
+            'm' => $number * 1024 * 1024,
+            'k' => $number * 1024,
+            default => (int) $trimmed,
+        };
     }
 }

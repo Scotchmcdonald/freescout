@@ -5,7 +5,6 @@ The Case Manager module is an AI-powered IT Support orchestration engine. It tra
 > **See also:**
 > - [Executive Technical Overview](CASE_MANAGER_EXECUTIVE.md) — Safety, cost controls, decision flows, benefits to Clients and Technicians
 > - [Architecture Reference](CASE_MANAGER_ARCHITECTURE.md) — Service architecture, strategy pattern, DTOs, event flow, resilience layer, state machine, database schema
-> - [Implementation Critique](CASE_MANAGER_CRITIQUE_2026_03.md) — Implementation analysis and verification record
 
 ## Architecture: Decision Engine
 

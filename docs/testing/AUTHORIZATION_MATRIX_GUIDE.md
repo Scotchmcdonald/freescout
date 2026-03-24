@@ -4,7 +4,7 @@ This project now has a shared pattern for authorization coverage across modules 
 
 ## Shared Test Actors
 
-Use [tests/Traits/MakesRoleActors.php](tests/Traits/MakesRoleActors.php) for repeatable user setup.
+Use [tests/Traits/MakesRoleActors.php](../../tests/Traits/MakesRoleActors.php) for repeatable user setup.
 
 - `makeAdminUser()` creates a legacy/RBAC admin-equivalent user.
 - `makeFinanceUser($company)` creates an internal finance user attached to a company.
@@ -38,7 +38,7 @@ Examples:
 
 ## Scope vs Policy
 
-Several models use [app/Scopes/TechnicianScope.php](app/Scopes/TechnicianScope.php).
+Several models use [app/Scopes/TechnicianScope.php](../../app/Scopes/TechnicianScope.php).
 
 - Scope filtering runs before controller code for route model binding.
 - Policy checks run after the model is resolved.
@@ -49,7 +49,7 @@ ContractManager contracts currently use route-model binding with `TechnicianScop
 
 ## Billing-specific Notes
 
-PIB admin billing routes are guarded by `can:manage_billing`, but invoice ownership rules live in [Modules/PIB/Policies/InvoicePolicy.php](Modules/PIB/Policies/InvoicePolicy.php). Keep invoice matrix coverage at the policy layer unless the route itself starts calling `authorize()`.
+PIB admin billing routes are guarded by `can:manage_billing`, but invoice ownership rules live in [Modules/PIB/Policies/InvoicePolicy.php](../../Modules/PIB/Policies/InvoicePolicy.php). Keep invoice matrix coverage at the policy layer unless the route itself starts calling `authorize()`.
 
 ## Test Isolation Notes
 

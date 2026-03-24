@@ -18,9 +18,9 @@ class SendAutoReplyJobTest extends PureUnitTestCase
         $conversation = new Conversation(['id' => 1]);
         $thread = new Thread(['id' => 2]);
         $mailbox = new Mailbox(['id' => 3]);
-        $customer = new Customer(['id' => 4]);
+        $senderInfo = ['email' => 'customer@example.com', 'name' => 'Test Customer'];
 
-        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $senderInfo);
 
         $this->assertSame($conversation, $job->conversation);
         $this->assertSame($thread, $job->thread);
@@ -35,9 +35,9 @@ class SendAutoReplyJobTest extends PureUnitTestCase
         $conversation = new Conversation(['id' => 1]);
         $thread = new Thread(['id' => 2]);
         $mailbox = new Mailbox(['id' => 3]);
-        $customer = new Customer(['id' => 4]);
+        $senderInfo = ['email' => 'customer@example.com', 'name' => 'Test Customer'];
 
-        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $senderInfo);
 
         $this->assertEquals(120, $job->timeout);
     }
@@ -50,9 +50,9 @@ class SendAutoReplyJobTest extends PureUnitTestCase
         ]);
         $thread = new Thread(['id' => 2]);
         $mailbox = new Mailbox(['id' => 3]);
-        $customer = new Customer(['id' => 4]);
+        $senderInfo = ['email' => 'customer@example.com', 'name' => 'Test Customer'];
 
-        $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $senderInfo);
 
         $this->assertTrue(method_exists($job, 'handle'));
     }
@@ -62,10 +62,29 @@ class SendAutoReplyJobTest extends PureUnitTestCase
         $conversation = new Conversation(['id' => 1]);
         $thread = new Thread(['id' => 2]);
         $mailbox = new Mailbox(['id' => 3]);
-        $customer = new Customer(['id' => 4]);
+        $senderInfo = ['email' => 'customer@example.com', 'name' => 'Test Customer'];
+
+        $job = new SendAutoReply($conversation, $thread, $mailbox, $senderInfo);
+
+        $this->assertTrue(method_exists($job, 'failed'));
+    }
+
+    public function test_constructor_maps_customer_model_without_db(): void
+    {
+        $conversation = new Conversation(['id' => 1]);
+        $thread = new Thread(['id' => 2]);
+        $mailbox = new Mailbox(['id' => 3]);
+
+        $customer = \Mockery::mock(Customer::class);
+        $customer->shouldReceive('getMainEmail')->once()->andReturn('customer.main@example.com');
+        $customer->shouldReceive('getFullName')->once()->andReturn('Mapped Customer');
 
         $job = new SendAutoReply($conversation, $thread, $mailbox, $customer);
 
-        $this->assertTrue(method_exists($job, 'failed'));
+        $this->assertSame($customer, $job->customer);
+        $this->assertSame([
+            'email' => 'customer.main@example.com',
+            'name' => 'Mapped Customer',
+        ], $job->senderInfo);
     }
 }

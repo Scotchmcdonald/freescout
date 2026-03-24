@@ -68,8 +68,8 @@ php scripts/code_stats.php
 
 ## Additional Documentation
 
-- **[Modernization Guide](MODERNIZATION_GUIDE.md)** - Steps for updating legacy modules to Laravel 11
-- **[Test Runner Requirements](TEST_RUNNER_REQUIREMENTS.md)** - Configuration details for the test environment
+- **[Module Development Guide](../docs/development/MODULE_DEVELOPMENT_GUIDE.md)** - Steps and standards for updating legacy modules
+- **[Testing Contribution Guide](../docs/testing/TESTING_CONTRIBUTION_GUIDE.md)** - Test execution and contribution requirements
 
 ## Notes
 

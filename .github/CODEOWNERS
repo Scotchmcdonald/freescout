@@ -1,0 +1,21 @@
+# Global fallback
+* @platform-team
+
+# Documentation ownership
+*.md @tech-writers @platform-team
+
+/docs/architecture/ @architects @backend-team
+/docs/development/ @platform-team
+/docs/testing/ @qa-team @platform-team
+/docs/product/ @product-team @support-team
+/docs/modules/ @backend-team @module-maintainers
+
+# Colocated module/deployment/test docs
+/Modules/*/*.md @module-maintainers @backend-team
+/deployment/**/*.md @devops-team @platform-team
+/tests/**/*.md @qa-team
+/scripts/**/*.md @platform-team
+
+# Workflow templates and contribution docs
+/.github/*.md @platform-team
+/.github/ISSUE_TEMPLATE/ @platform-team

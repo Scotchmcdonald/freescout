@@ -1,7 +1,7 @@
 # Module Development Guide
 
-**Version:** 2.2
-**Last Updated:** February 13, 2026
+**Version:** 2.3
+**Last Updated:** March 24, 2026
 
 This guide defines the architecture, patterns, and best practices for developing and maintaining modular components in the application (Laravel 12 / PHP 8.2+).
 
@@ -167,23 +167,23 @@ use Modules\Crm\Models\Client;  // ✅ CRM is core module
 class Client360Controller extends Controller {
     public function show($id) {
         $client = Client::findOrFail($id);
-        
+
         // Initialize empty collections
         $invoices = collect();
         $assets = collect();
-        
+
         // Dynamic loading: PIB module (if installed)
         if (class_exists('\\Modules\\PIB\\Models\\Invoice')) {
             $invoiceClass = '\\Modules\\PIB\\Models\\Invoice';
             $invoices = $invoiceClass::where('client_id', $id)->get();
         }
-        
+
         // Dynamic loading: AssetManagement module (if installed)
         if (class_exists('\\Modules\\AssetManagement\\Entities\\Asset')) {
             $assetClass = '\\Modules\\AssetManagement\\Entities\\Asset';
             $assets = $assetClass::where('client_id', $id)->get();
         }
-        
+
         return view('admin.clients.show', compact('client', 'invoices', 'assets'));
     }
 }
@@ -216,7 +216,7 @@ class PortalController extends Controller {
                 $creditBalance = 0.0;
             }
         }
-        
+
         return [
             'name' => $client->name,
             'credit_balance' => $creditBalance,
@@ -256,7 +256,7 @@ We use the `App\Traits\ExtensibleModel` trait to dynamically register fields fro
 ```php
 class Company extends Model {
     use ExtensibleModel;
-    
+
     protected $fillable = ['name', 'email']; // Core fields only
 }
 ```
@@ -271,7 +271,7 @@ public function boot()
             'billing_mode',
             'account_balance'
         ]);
-        
+
         \Modules\Crm\Models\Company::addGlobalCasts([
             'account_balance' => 'decimal:2'
         ]);
@@ -378,7 +378,7 @@ Schema::create('client_user_counters', ...); // Billing calculation input
 
 **Guideline:** If another module might reasonably query this table, consider leaving it unprefixed.
 
-> 📖 See [ADR-002: PIB Table Naming Convention](adr/ADR-002-pib-table-naming-convention.md) for detailed rationale.
+> 📖 ADR-002: PIB Table Naming Convention is tracked in internal architecture decision records.
 
 ### 6.2 Monetary Storage
 
@@ -406,7 +406,7 @@ Use decimal when:
 - Primary use is display or reporting
 - Records are immutable after creation (audit trails)
 
-> 📖 See [ADR-001: Monetary Storage Strategy](adr/ADR-001-monetary-storage-strategy.md) for detailed rationale.
+> 📖 ADR-001: Monetary Storage Strategy is tracked in internal architecture decision records.
 
 ### 6.3 Column Checks
 ```php
@@ -450,7 +450,7 @@ public function test_can_create_company_with_payment_data()
     if (!class_exists(\Modules\Payment\Models\Invoice::class)) {
         $this->markTestSkipped('Payment module not available');
     }
-    
+
     // Test logic
 }
 ```
@@ -524,35 +524,35 @@ Every enabled module MUST have at least one UI view (Minimum UI Standard), even 
 - Use `layouts.app`
 - Implement standard "Pilot's Cockpit" headers
 - Use `x-card` components for data display
-- Follow [UX_STYLE_GUIDE.md](../UX_STYLE_GUIDE.md)
+- Follow [UX_STYLE_GUIDE.md](UX_STYLE_GUIDE.md)
 
 ---
 
 ## 10. Troubleshooting
 
-**Problem:** "Class not found" errors  
+**Problem:** "Class not found" errors
 **Solution:** Add dependency checks in ServiceProvider boot()
 
-**Problem:** Fillable attributes silently ignored  
+**Problem:** Fillable attributes silently ignored
 **Solution:** Ensure ExtensibleModel trait is used and fields are registered
 
-**Problem:** Relationships not working  
+**Problem:** Relationships not working
 **Solution:** Verify resolveRelationUsing is called in boot(), not register()
 
-**Problem:** Migration failures in production  
+**Problem:** Migration failures in production
 **Solution:** Add Schema::hasColumn/hasTable checks
 
-**Problem:** Module won't load after dependency disabled  
+**Problem:** Module won't load after dependency disabled
 **Solution:** Add module existence checks using Module::find()
 
 ---
 
 ## Additional Resources
 
-- **[ARCHITECTURE_OVERVIEW.md](ARCHITECTURE_OVERVIEW.md)** - Current system architecture (recommended starting point)
-- **[SYSTEM_ARCHITECTURE.md](SYSTEM_ARCHITECTURE.md)** - Complete design specification
-- [Module Installer Documentation](../MODULE_INSTALLER_README.md)
-- [UX Style Guide](../UX_STYLE_GUIDE.md)
+- **[ARCHITECTURE_OVERVIEW.md](../architecture/ARCHITECTURE_OVERVIEW.md)** - Current system architecture (recommended starting point)
+- **[SYSTEM_ARCHITECTURE.md](../architecture/SYSTEM_ARCHITECTURE.md)** - Complete design specification
+- [Module Installer Documentation](MODULE_INSTALLER_SYSTEM.md)
+- [UX Style Guide](UX_STYLE_GUIDE.md)
 - [Laravel Module Package Documentation](https://nwidart.com/laravel-modules)
 
 ---

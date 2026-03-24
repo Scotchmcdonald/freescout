@@ -38,26 +38,64 @@ class EventsTest extends PureUnitTestCase
     {
         $conversation = new Conversation(['id' => 1]);
         $thread = new Thread(['id' => 2]);
-        $customer = new Customer(['id' => 3]);
+        $senderInfo = ['email' => 'customer@example.com', 'name' => 'Test Customer'];
 
-        $event = new CustomerCreatedConversation($conversation, $thread, $customer);
+        $event = new CustomerCreatedConversation($conversation, $thread, $senderInfo);
 
         $this->assertSame($conversation, $event->conversation);
         $this->assertSame($thread, $event->thread);
+        $this->assertNull($event->customer);
+        $this->assertSame($senderInfo, $event->senderInfo);
+    }
+
+    public function test_customer_created_conversation_event_maps_customer_model_without_db(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'customer_email' => 'fallback@example.com']);
+        $thread = new Thread(['id' => 2]);
+
+        $customer = \Mockery::mock(Customer::class);
+        $customer->shouldReceive('getMainEmail')->once()->andReturn('main@example.com');
+        $customer->shouldReceive('getFullName')->once()->andReturn('Jane Customer');
+
+        $event = new CustomerCreatedConversation($conversation, $thread, $customer);
+
         $this->assertSame($customer, $event->customer);
+        $this->assertSame([
+            'email' => 'main@example.com',
+            'name' => 'Jane Customer',
+        ], $event->senderInfo);
     }
 
     public function test_customer_replied_event_has_thread(): void
     {
         $conversation = new Conversation(['id' => 1]);
         $thread = new Thread(['id' => 2]);
-        $customer = new Customer(['id' => 3]);
+        $senderInfo = ['email' => 'customer@example.com', 'name' => 'Test Customer'];
 
-        $event = new CustomerReplied($conversation, $thread, $customer);
+        $event = new CustomerReplied($conversation, $thread, $senderInfo);
 
         $this->assertSame($conversation, $event->conversation);
         $this->assertSame($thread, $event->thread);
+        $this->assertNull($event->customer);
+        $this->assertSame($senderInfo, $event->senderInfo);
+    }
+
+    public function test_customer_replied_event_maps_customer_model_without_db(): void
+    {
+        $conversation = new Conversation(['id' => 1, 'customer_email' => 'fallback@example.com']);
+        $thread = new Thread(['id' => 2]);
+
+        $customer = \Mockery::mock(Customer::class);
+        $customer->shouldReceive('getMainEmail')->once()->andReturn('reply@example.com');
+        $customer->shouldReceive('getFullName')->once()->andReturn('John Reply');
+
+        $event = new CustomerReplied($conversation, $thread, $customer);
+
         $this->assertSame($customer, $event->customer);
+        $this->assertSame([
+            'email' => 'reply@example.com',
+            'name' => 'John Reply',
+        ], $event->senderInfo);
     }
 
     public function test_new_message_received_event_has_properties(): void

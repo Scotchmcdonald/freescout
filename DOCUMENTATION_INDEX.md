@@ -1,6 +1,20 @@
+---
+doc_type: reference
+owner: "@tech-writers"
+reviewers:
+    - "@platform-team"
+last_reviewed: 2026-03-23
+review_cycle_days: 30
+source_paths:
+    - docs/
+    - Modules/
+    - deployment/
+stability: active
+---
+
 # Documentation Index
 
-**Last Updated:** February 13, 2026  
+**Last Updated:** March 23, 2026
 **Documentation Status:** ✅ Synchronized with implementation (v4.7)
 
 Welcome to the FreeScout Modernized documentation. This index helps you find the right documentation for your needs.
@@ -104,36 +118,17 @@ Comprehensive design specification (12,000+ lines):
 - Case studies with implementation examples
 - **Complete technical reference with executable patterns**
 
-### [Architectural Audit Report](docs/architecture/ARCHITECTURAL_AUDIT_REPORT.md)
-**Date:** February 13, 2026 | **Status:** ⚠️ Non-Compliant (1 Critical Violation)
+### [Modular System QA](docs/architecture/MODULAR_SYSTEM_QA.md)
+Current modular architecture Q&A and compatibility notes:
+- Framework and package compatibility references
+- Module repository behaviors and compatibility shims
+- Verification commands and practical implementation notes
 
-Current architectural compliance audit:
-- Cross-module dependency violations with specific file locations
-- `GlobalSearchController` pattern recommendations
-- Remediation steps with verification commands
-- **See also (archived):** `docs/ARCHIVE/ARCHITECTURAL_BEST_PRACTICES_REVIEW_2026-02-08.md`
-
-### [API Versioning Strategy](docs/architecture/API_VERSIONING.md) 📋 **NEW**
-**Created:** February 8, 2026 | **Status:** Documented
-
-Comprehensive API versioning approach:
-- **Header-Based Versioning:** Recommended approach with Accept headers
-- **URL-Based Alternative:** For public APIs with many integrators
-- **Version Compatibility Policy:** 12-month support window
-- **Breaking Change Guidelines:** Clear definitions and examples
-- **Implementation Strategy:** 5-week phased rollout plan
-- **Resource Transformers:** Version-specific response formatting
-- **Testing Strategy:** Full test coverage for all versions
-- **OpenAPI Documentation:** Separate specs per version
-- **Monitoring:** Version usage tracking and migration reports
-- **Complete with:**
-  - Step-by-step implementation procedures
-  - Testing and verification protocols
-  - Deployment procedures and rollback plans
-  - Troubleshooting guides
-  - Success metrics and monitoring
-  - 4-week timeline with task assignments
-- **Executable implementation guide - copy-paste ready**
+### [Identity And Access Model](docs/architecture/IDENTITY_AND_ACCESS_MODEL.md)
+Identity naming and RBAC consistency guidance:
+- Terminology standards for User/Company naming
+- Role and permission model boundaries
+- Cross-module identity conventions
 
 ### [MSP Product Definitions](docs/product/MSP_PRODUCT_DEFINITIONS.md)
 Domain definitions for Managed Service Plans:
@@ -165,7 +160,6 @@ Utility scripts for development:
 - **[Module Overview](docs/modules/CASE_MANAGER.md)** — Feature summary, pipeline stages, strategy descriptions, configuration reference
 - **[Executive Technical Overview](docs/modules/CASE_MANAGER_EXECUTIVE.md)** — Safety design, cost controls, decision flows, benefits to Clients and Technicians
 - **[Architecture Reference](docs/modules/CASE_MANAGER_ARCHITECTURE.md)** — Service architecture, strategy pattern, DTOs, event flow, resilience layer, state machine, database schema
-- **[Implementation Critique](docs/modules/CASE_MANAGER_CRITIQUE.md)** — Honest assessment of gaps, incomplete features, and prioritized recommendations
 
 ### Knowledge Base
 
@@ -198,52 +192,23 @@ Manual entry pathway test plan (GoogleAdmin/Action1 integrations disabled):
 
 ## 🚧 Work in Progress
 
-### [CRM User Import / Google Sync](docs/development/WIP/CRM%20user%20import.md)
-**Status:** ✅ Implemented & Verified | **Date:** February 15, 2026
+### [Google Multi-Tenant Resilience Plan](docs/development/WIP/GOOGLE_MULTI_TENANT_RESILIENCE_IMPLEMENTATION_PLAN_2026-03-16.md)
+**Status:** In Progress | **Date:** March 2026
 
-Google Admin user sync with conflict resolution:
-- Bi-directional sync between Google Workspace and CRM contacts
-- Staging record workflow for conflict resolution
-- All tests passing
+### [Guided Tour](docs/development/WIP/GUIDED_TOUR.md)
+**Status:** In Progress
 
-### [Asset Lifecycle](docs/development/WIP/asset_lifecycle.md)
-**Status:** 🚧 In Progress
+### [Identity Refactor](docs/development/WIP/IDENTITY_REFACTOR.md)
+**Status:** In Progress
 
-Unified workflow for Asset Management lifecycle events:
-- All asset changes flow through `AssetStagingRecord`
-- Duplicate prevention and billing accuracy goals
-- Integration with GoogleAdmin and Action1 sync
+### [Staging And Ingestion](docs/development/WIP/STAGING_AND_INGESTION.md)
+**Status:** In Progress
 
-### [Guided Tour Feature v2.0](docs/development/WIP/guided_tour_feature.md)
-**Status:** Finalized Draft | **Date:** February 14, 2026
+### [TSDM Pipeline](docs/development/WIP/TSDM_PIPELINE.md)
+**Status:** In Progress
 
-Onboarding guided tour using Driver.js + Alpine.js:
-- Step-by-step user onboarding flow
-- Framework: Laravel 12.x + Alpine.js + Driver.js
-
-### [Staging Resolution Plan](docs/development/WIP/staging_resolution_plan.md)
-**Status:** Planning
-
-Consolidation of conflict resolution UIs for Assets and Users:
-- Dedicated "Staging Inbox" operational views
-- Replaces embedded conflict lists in integration settings pages
-
-### [Event & Listener Robustness](docs/development/WIP/event_robustness.md)
-**Status:** ✅ Implemented | **Date:** March 4, 2026
-
-App-wide strategy for making queued event listeners resilient:
-- `ResilientListener` trait: retry config + `failed()` + alert dispatch for all queued listeners
-- `AiPipelineFailureHandler`: CaseManager-specific error recovery (state transitions, internal notes, delayed checks)
-- Full listener inventory with resilience coverage matrix
-- Bugs fixed: Fern exception swallowing, missing state guards, silent listener failures
-
-### [User & Company Lifecycle](docs/development/WIP/user_company_lifecycle.md)
-**Status:** 🚧 In Progress
-
-Workflow standards for managing Users and Companies:
-- Internal vs. external client user paths
-- Domain deduplication on company ingestion
-- ClientUser creation lifecycle
+### [Scaling Trigger Monitoring - Phase 1](docs/development/WIP/scaling-trigger-monitoring/phase-1-planning.md)
+**Status:** Active Phase Plan
 
 ## 🤖 AI Development Prompts
 
@@ -269,6 +234,7 @@ Standard template for code contributions.
 2. Review [README.md](README.md) for setup instructions
 3. Check [Developer Getting Started](docs/architecture/DEVELOPER_GETTING_STARTED.md) for environment setup
 4. Check [Module Development Guide](docs/development/MODULE_DEVELOPMENT_GUIDE.md) for patterns
+5. Use the [Doc Frontmatter Template](docs/development/DOC_FRONTMATTER_TEMPLATE.md) for ownership and review metadata
 
 ### "I want to understand the architecture"
 1. **Read [Architecture Overview](docs/architecture/ARCHITECTURE_OVERVIEW.md)** for current state
@@ -291,9 +257,9 @@ Standard template for code contributions.
 3. Review [Development Scripts](scripts/README.md)
 
 ### "I need to extend a core model"
-1. Review [ExtensibleModel Pattern](docs/development/MODULE_DEVELOPMENT_GUIDE.md#3-the-extensiblemodel-pattern)
-2. Check [Dynamic Relationships](docs/development/MODULE_DEVELOPMENT_GUIDE.md#4-dynamic-relationships)
-3. Follow [Migration Best Practices](docs/development/MODULE_DEVELOPMENT_GUIDE.md#5-migration-best-practices)
+1. Review [ExtensibleModel Pattern](docs/development/MODULE_DEVELOPMENT_GUIDE.md#4-the-extensiblemodel-pattern)
+2. Check [Dynamic Relationships](docs/development/MODULE_DEVELOPMENT_GUIDE.md#5-dynamic-relationships)
+3. Follow [Migration Best Practices](docs/development/MODULE_DEVELOPMENT_GUIDE.md#6-migration-best-practices)
 
 ### "I'm designing a new interface"
 1. Read [UX Style Guide](docs/development/UX_STYLE_GUIDE.md) for design patterns
@@ -312,18 +278,17 @@ Standard template for code contributions.
     │   ├── README.md                      # Architecture doc navigation
     │   ├── ARCHITECTURE_OVERVIEW.md       # ⭐ Start here for new devs
     │   ├── SYSTEM_ARCHITECTURE.md         # Complete design reference (v4.7)
-    │   ├── ARCHITECTURAL_AUDIT_REPORT.md  # Compliance audit (Feb 2026)
-    │   ├── API_VERSIONING.md              # API versioning strategy
     │   ├── APP_OVERVIEW.md                # Application overview for architects
     │   ├── DEVELOPER_GETTING_STARTED.md   # Onboarding guide for new engineers
+    │   ├── IDENTITY_AND_ACCESS_MODEL.md   # Identity naming and access model
     │   ├── MODULAR_SYSTEM_QA.md           # Modular architecture Q&A
     │   └── MODULE_REPO_MANAGEMENT.md      # Repository management guide
     ├── development/
     │   ├── MODULE_DEVELOPMENT_GUIDE.md    # Module patterns & best practices
     │   ├── MODULE_INSTALLER_SYSTEM.md     # Module installation system
+    │   ├── DOC_FRONTMATTER_TEMPLATE.md    # Last-reviewed/frontmatter schema
     │   ├── UX_STYLE_GUIDE.md              # Design standards
     │   ├── WEBHOOK_SETUP.md               # Webhook configuration
-    │   ├── integrations-settings-feature.md # Integration settings pattern
     │   ├── Prompts/                       # AI development prompts (7 files)
     │   └── WIP/                           # In-progress design documents
     ├── product/
@@ -336,8 +301,7 @@ Standard template for code contributions.
     │   └── manual/MANUAL_TESTING_PLAN_v1.md  # Manual test plan
     ├── modules/
     │   └── KNOWLEDGE_BASE.md              # Knowledge base spec (⚠️ pre-alpha)
-    ├── reports/                           # Point-in-time implementation reports
-    └── ARCHIVE/                           # Completed assessments & old plans
+    └── reports/                           # Point-in-time implementation reports
 ├── scripts/
 │   └── README.md                          # Development scripts
 └── Modules/*/README.md                    # Per-module documentation
@@ -360,5 +324,5 @@ When contributing to this project:
 
 ---
 
-**Last Updated:** March 4, 2026  
-**Documentation Version:** 2.6
+**Last Updated:** March 23, 2026
+**Documentation Version:** 2.7

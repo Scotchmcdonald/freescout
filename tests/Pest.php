@@ -11,6 +11,37 @@
 |
 */
 
+/**
+ * Ensure a safe memory floor before Pest mutation/coverage orchestration starts.
+ * This runs earlier than per-test setUp() and protects long-running mutation sessions.
+ */
+$memoryToBytes = static function (string $value): int {
+    $trimmed = trim($value);
+
+    if ($trimmed === '' || $trimmed === '-1') {
+        return PHP_INT_MAX;
+    }
+
+    $unit = strtolower(substr($trimmed, -1));
+    $number = (int) $trimmed;
+
+    return match ($unit) {
+        'g' => $number * 1024 * 1024 * 1024,
+        'm' => $number * 1024 * 1024,
+        'k' => $number * 1024,
+        default => (int) $trimmed,
+    };
+};
+
+$configuredMemoryLimit = env('TEST_MEMORY_LIMIT');
+$minimumMemoryLimit = env('TEST_MIN_MEMORY_LIMIT', '1536M');
+
+if (is_string($configuredMemoryLimit) && $configuredMemoryLimit !== '') {
+    ini_set('memory_limit', $configuredMemoryLimit);
+} elseif ($memoryToBytes((string) ini_get('memory_limit')) < $memoryToBytes((string) $minimumMemoryLimit)) {
+    ini_set('memory_limit', $minimumMemoryLimit);
+}
+
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');

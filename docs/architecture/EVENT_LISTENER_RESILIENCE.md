@@ -1,8 +1,8 @@
 # Event & Listener Robustness — App-Wide Strategy
 
-> **Status:** ✅ Implemented (March 2026)  
-> **Scope:** All queued event listeners across the entire application  
-> **Related:** [CaseManager Architecture](../modules/CASE_MANAGER_ARCHITECTURE.md) · [CaseManager Critique](../modules/CASE_MANAGER_CRITIQUE.md)
+> **Status:** ✅ Implemented (March 2026)
+> **Scope:** All queued event listeners across the entire application
+> **Related:** [CaseManager Architecture](../modules/CASE_MANAGER_ARCHITECTURE.md) · [CaseManager Module Overview](../modules/CASE_MANAGER.md)
 
 ---
 
@@ -169,7 +169,7 @@ They define their own `$tries`, `$backoff`, and `failed()` methods with domain-s
 - `HandleCustomerReplied::failed()`
 - `AiPipelineFailureHandler::handleApiFailure()`
 - `CheckCaseApiErrorJob::handle()`
-- The Architecture doc's [Transition Guards](../../modules/CASE_MANAGER_ARCHITECTURE.md) section
+- The Architecture doc's [Transition Guards](../modules/CASE_MANAGER_ARCHITECTURE.md) section
 
 ### 3. Seven Queued Listeners With Zero Failure Handling
 
