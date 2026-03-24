@@ -16,6 +16,10 @@ bash "$SCRIPT_DIR/check-ui-ux-standards.sh" || EXIT_CODE=1
 bash "$SCRIPT_DIR/check-event-inheritance.sh" || EXIT_CODE=1
 bash "$SCRIPT_DIR/check-listener-inheritance.sh" || EXIT_CODE=1
 
+# Phase 4 architecture guard subset (fast, deterministic)
+php artisan test tests/Architecture/CriticalNamespaceBoundaryGuardTest.php --parallel --processes=10 || EXIT_CODE=1
+php artisan test tests/Architecture/BillingPaymentTypeCoverageGuardTest.php --parallel --processes=10 || EXIT_CODE=1
+
 echo ""
 if [ $EXIT_CODE -eq 0 ]; then
     echo "✅ All architecture compliance checks passed!"
