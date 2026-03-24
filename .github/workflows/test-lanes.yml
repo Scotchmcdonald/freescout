@@ -60,6 +60,10 @@ jobs:
         run: php scripts/ci/check-skip-governance.php
         continue-on-error: false
 
+      - name: 🧪 Quarantine Registry Governance
+        run: php scripts/ci/check-quarantine-registry.php
+        continue-on-error: false
+
       - name: 📦 Module Isolation Guard
         run: |
           php artisan test tests/Unit/ModuleUnitIsolationGuardTest.php --parallel --processes=10 -q
@@ -95,6 +99,7 @@ jobs:
             reports/markdown-link-check-latest.log
             reports/test-results-latest.log
             reports/skip-governance-latest.md
+            reports/quarantine-registry-latest.md
             reports/lane-runtime-budget-guards-latest.md
             reports/lane-runtime-history-guards.jsonl
             reports/flake-report-guards-latest.md

@@ -1,6 +1,6 @@
 # Phase 5: CI Speed And Reliability
 
-Status: In Progress (2026-03-24 wave 1 implemented)
+Status: In Progress (2026-03-24 waves 1-2 implemented)
 Duration: 4 to 7 days
 Goal: Keep confidence high while maintaining fast feedback in parallel lanes.
 
@@ -96,5 +96,19 @@ Goal: Keep confidence high while maintaining fast feedback in parallel lanes.
 ## Remaining Work (Phase 5)
 
 - Collect CI lane runtime samples over multiple consecutive runs to activate sustained-regression decisions using full rolling windows.
-- Add quarantine registry workflow that auto-fails expired quarantines with owner/issue/expires metadata.
 - Tune flake signature normalization and classification to reduce noisy grouping in mixed PHPUnit/Pest output formats.
+
+## Wave 2 Implementation Snapshot
+
+- Added quarantine registry governance guard:
+  - `scripts/ci/check-quarantine-registry.php`
+- Added quarantine registry baseline file:
+  - `tests/quarantine/flaky-quarantine-registry.json`
+- Wired quarantine governance into guards lane in CI:
+  - `.github/workflows/test-lanes.yml`
+
+## Wave 2 Validation Evidence
+
+- Quarantine registry guard run passed with baseline registry:
+  - `reports/quarantine-registry-latest.md`
+- No flaky-triage tagged tests currently require active registry entries.

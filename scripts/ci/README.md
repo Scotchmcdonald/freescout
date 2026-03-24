@@ -230,6 +230,27 @@ php scripts/ci/check-skip-governance.php
 php scripts/ci/generate-flake-report.php --lane=unit --output=reports/flake-report-unit-latest.md
 ```
 
+### 11. Quarantine Registry Governance (`check-quarantine-registry.php`)
+
+**Enforces:** Wave 2 flaky quarantine ownership and expiry controls
+
+**Registry file:**
+- `tests/quarantine/flaky-quarantine-registry.json`
+
+**Rules:**
+- each registry entry must include `owner`, `issue`, `reason`, `expires`, `test_file`, `status`
+- active quarantines auto-fail once `expires` is in the past
+- tests tagged with quarantine markers must have a matching active registry entry
+- active registry entries must point to tests carrying quarantine markers
+
+**Report artifact:**
+- `reports/quarantine-registry-latest.md`
+
+**Run:**
+```bash
+php scripts/ci/check-quarantine-registry.php
+```
+
 ## CI/CD Integration
 
 ### GitHub Actions

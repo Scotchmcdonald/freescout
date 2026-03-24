@@ -30,6 +30,9 @@ Phase 5 guardrails (CI-aligned) after a lane run:
 # Skip governance baseline + metadata policy
 php scripts/ci/check-skip-governance.php
 
+# Quarantine registry governance + expiry policy
+php scripts/ci/check-quarantine-registry.php
+
 # Runtime budget check example (replace lane and duration)
 php scripts/ci/check-test-lane-runtime-budgets.php --lane=unit --duration=28
 
@@ -82,6 +85,7 @@ echo "✅ Ready to push!"
 | **Master compliance** | `reports/ci_master.log` | `cat reports/ci_master.log` |
 | **Test failures** | `reports/test-results-latest.log` | `grep -A 5 "FAILED" reports/test-results-latest.log` |
 | **Skip governance** | `reports/skip-governance-latest.md` | `cat reports/skip-governance-latest.md` |
+| **Quarantine governance** | `reports/quarantine-registry-latest.md` | `cat reports/quarantine-registry-latest.md` |
 | **Runtime budget report** | `reports/lane-runtime-budget-<lane>-latest.md` | `cat reports/lane-runtime-budget-unit-latest.md` |
 | **Flake trend report** | `reports/flake-report-<lane>-latest.md` | `cat reports/flake-report-local-latest.md` |
 | **Coverage (local)** | `reports/coverage/index.html` | Open in browser |

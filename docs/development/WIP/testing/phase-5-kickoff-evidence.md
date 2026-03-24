@@ -51,3 +51,14 @@ Issue: phase-5-ci-speed-and-reliability-kickoff
   - `reports/lane-runtime-budget-unit-latest.md`
 - Flake trend snapshot generated:
   - `reports/flake-report-phase5-local-latest.md`
+
+## Wave 2 Outcomes
+
+- Quarantine governance guard implemented:
+  - `scripts/ci/check-quarantine-registry.php`
+- Quarantine registry baseline established:
+  - `tests/quarantine/flaky-quarantine-registry.json`
+- Guards lane integration added:
+  - `.github/workflows/test-lanes.yml`
+- Validation report generated:
+  - `reports/quarantine-registry-latest.md`
