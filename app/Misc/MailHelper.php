@@ -9,6 +9,49 @@ use Illuminate\Support\Str;
 class MailHelper
 {
     /**
+     * Attempt to apply an Eventy filter only when helper/object/callback are usable.
+     *
+     * @param  array<string, string>  $vars
+     * @param  array<string, mixed>  $data
+     * @return array<string, string>
+     */
+    private static function applyEventyFilter(string $hook, array $vars, array $data): array
+    {
+        if (! function_exists('eventy')) {
+            return $vars;
+        }
+
+        try {
+            $eventy = eventy();
+        } catch (\Throwable $e) {
+            return $vars;
+        }
+
+        if (! is_object($eventy) || ! is_callable([$eventy, 'filter'])) {
+            return $vars;
+        }
+
+        try {
+            $filteredVars = $eventy->filter($hook, $vars, $data);
+        } catch (\Throwable $e) {
+            return $vars;
+        }
+
+        if (! is_array($filteredVars)) {
+            return $vars;
+        }
+
+        $normalizedVars = [];
+        foreach ($filteredVars as $key => $value) {
+            if (is_string($key)) {
+                $normalizedVars[$key] = is_scalar($value) ? (string) $value : '';
+            }
+        }
+
+        return $normalizedVars;
+    }
+
+    /**
      * Generate artificial Message-ID.
      * Matches original FreeScout implementation.
      */
@@ -129,19 +172,8 @@ class MailHelper
             $vars['{%user.photoUrl%}'] = $data['user']->getPhotoUrl();
         }
 
-        // Allow modules to add custom variables via Eventy filters
-        if (function_exists('eventy')) {
-            $filteredVars = eventy()->filter('mail_vars.replace', $vars, $data);
-            if (is_array($filteredVars)) {
-                $normalizedVars = [];
-                foreach ($filteredVars as $key => $value) {
-                    if (is_string($key)) {
-                        $normalizedVars[$key] = is_scalar($value) ? (string) $value : '';
-                    }
-                }
-                $vars = $normalizedVars;
-            }
-        }
+        // Allow modules to add custom variables via Eventy filters.
+        $vars = self::applyEventyFilter('mail_vars.replace', $vars, $data);
 
         /**
          * Retrieves all mail var codes from the text, including fallback values.
@@ -173,19 +205,8 @@ class MailHelper
             }
         }
 
-        // Allow modules to modify variables after fallback processing
-        if (function_exists('eventy')) {
-            $filteredVars = eventy()->filter('mail_vars.replace_after_fallback', $vars, $data);
-            if (is_array($filteredVars)) {
-                $normalizedVars = [];
-                foreach ($filteredVars as $key => $value) {
-                    if (is_string($key)) {
-                        $normalizedVars[$key] = is_scalar($value) ? (string) $value : '';
-                    }
-                }
-                $vars = $normalizedVars;
-            }
-        }
+        // Allow modules to modify variables after fallback processing.
+        $vars = self::applyEventyFilter('mail_vars.replace_after_fallback', $vars, $data);
 
         if ($escape) {
             foreach ($vars as $i => $var) {
@@ -293,7 +314,10 @@ class MailHelper
         foreach ($separators as $separator) {
             if (preg_match($separator, $body, $matches, PREG_OFFSET_CAPTURE)) {
                 // Get content before the separator
-                $body = substr($body, 0, $matches[0][1]);
+                $offset = $matches[0][1] ?? null;
+                if (is_int($offset)) {
+                    $body = substr($body, 0, $offset);
+                }
                 break;
             }
         }

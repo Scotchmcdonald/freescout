@@ -6,12 +6,46 @@ namespace Tests\Unit;
 
 use App\Misc\MailHelper;
 use Generator;
+use Illuminate\Container\Container;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\PureUnitTestCase;
 
 class MailVarsTest extends PureUnitTestCase
 {
+    private ?Container $previousContainer = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->previousContainer = Container::getInstance();
+
+        $container = new Container;
+        $container->instance('eventy', new class
+        {
+            /**
+             * @param  array<string, mixed>  $vars
+             * @param  array<string, mixed>  $data
+             * @return array<string, mixed>
+             */
+            public function filter(string $hook, array $vars, array $data = []): array
+            {
+                return $vars;
+            }
+        });
+
+        Container::setInstance($container);
+    }
+
+    protected function tearDown(): void
+    {
+        Container::setInstance($this->previousContainer);
+        $this->previousContainer = null;
+
+        parent::tearDown();
+    }
+
     /**
      * Retrieves an array of mocked data that can be passed to the {@see MailHelper::replaceMailVars()} method's $data parameter.
      */
