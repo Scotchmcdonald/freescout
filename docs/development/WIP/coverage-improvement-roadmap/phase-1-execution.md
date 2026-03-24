@@ -594,3 +594,30 @@ Artifacts:
 - Continue high-yield batching with remaining pure-safe helper pockets and carefully selected transition methods in untouched modules.
 - Reassess practical pivot threshold once wave yield drops below ~10 tests per batch or method deltas become sparse.
 
+## Wave 18 Started
+
+Focused lifecycle transition batch on remaining PIB transition methods (Invoice + ServiceUsage).
+
+## Wave 18 Results
+
+- New test files:
+	- tests/Unit/PIB/InvoiceServiceUsageLifecycleTest.php (4 tests: invoice transitionTo valid/invalid paths, service usage approve and billed transitions)
+- Targeted run: 4 passed (11 assertions).
+- Full unit lane: 1012 -> 1016 passed (+4).
+
+Coverage deltas (method-level, focused impact):
+- Invoice::transitionTo: uncovered path -> covered (valid transition + exception branch)
+- ServiceUsage::approve/markAsBilled: 0% -> covered
+
+Validation notes:
+- Model ID fixtures required raw-attribute setup for stub Invoice/User instances to avoid guarded attribute null IDs.
+- Full unit lane passed cleanly after targeted fixes.
+
+Artifacts:
+- Unit lane passing run: reports/test-results-2026-03-24_16-32-38.log
+
+## Next
+
+- Continue with broader multi-file batches where remaining uncovered helpers cluster.
+- Prefer higher-yield untouched modules over low-delta single-method tails.
+
