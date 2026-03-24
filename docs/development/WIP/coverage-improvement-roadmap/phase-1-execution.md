@@ -561,3 +561,36 @@ Artifacts:
 - Continue large-batch pure waves with remaining safe model/helper pockets before mixed persistence strategy.
 - Candidate next batch: Payment state-transition methods with save/update overrides, plus remaining module helper pockets with deterministic stubbing.
 
+## Wave 17 Started
+
+Large-batch lifecycle wave focused on transition methods that normally call update/save (Payment, ApprovalRequest, BillingAdjustment, SyncOperation).
+
+## Wave 17 Results
+
+- New test files:
+	- tests/Unit/Payment/PaymentLifecycleTransitionTest.php (4 tests: payment transition helpers + payment method mark-used helper)
+	- tests/Unit/ClientPortal/ApprovalRequestLifecycleTest.php (3 tests: approve/reject/sign lifecycle methods)
+	- tests/Unit/PIB/BillingAdjustmentLifecycleTest.php (3 tests: approve/reject/markApplied lifecycle methods)
+	- tests/Unit/Models/SyncOperationMutatorTest.php (3 tests: progress/failure/checkpoint/terminal state mutators)
+- Targeted run: 13 passed (61 assertions).
+- Full unit lane: 999 -> 1012 passed (+13).
+
+Coverage deltas (method-level, focused impact):
+- Payment::markAsSuccessful/markAsFailed/markAsDeclined/markAsReconciled: 0% -> covered
+- PaymentMethod::markAsUsed: 0% -> covered
+- ApprovalRequest::approve/reject/sign: 0% -> covered
+- BillingAdjustment::approve/reject/markApplied: 0% -> covered
+- SyncOperation::updateProgress/recordFailure/saveCheckpoint/markCompleted/markFailed/markStalled/resume: 0% -> covered
+
+Validation notes:
+- Lifecycle methods were isolated with pure test doubles overriding update/save to avoid DB writes.
+- Several cast-related fixture issues (JSON/datetime) were corrected in test setup while preserving production behavior.
+
+Artifacts:
+- Unit lane passing run: reports/test-results-2026-03-24_16-29-26.log
+
+## Next
+
+- Continue high-yield batching with remaining pure-safe helper pockets and carefully selected transition methods in untouched modules.
+- Reassess practical pivot threshold once wave yield drops below ~10 tests per batch or method deltas become sparse.
+
