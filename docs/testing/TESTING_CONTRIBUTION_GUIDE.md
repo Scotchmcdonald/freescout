@@ -230,8 +230,11 @@ Current progress snapshot (2026-03-24):
 - Wave 4 completed by migrating deterministic policy tests to unit scope:
 	- `tests/Integration/ThreadPolicyTest.php` -> `tests/Unit/Policies/ThreadPolicyTest.php`
 	- `tests/Integration/Policies/AdvancedPolicyTest.php` -> `tests/Unit/Policies/AdvancedPolicyTest.php`
-- Validation: full suite green via `php artisan test --parallel --processes=10` (2 skipped, 5717 passed)
-- Updated baseline snapshot: Unit=34, Integration=217 (`reports/testing-baseline-2026-03-24.md`)
+- Wave 5 completed by migrating deterministic IMAP fetch tests to unit scope:
+	- `tests/Integration/Services/ImapServiceAddressParsingTest.php` coverage merged into `tests/Unit/Misc/ImapServicePureLogicTest.php`
+	- `tests/Integration/Services/ImapServiceEncryptionTest.php` coverage merged into `tests/Unit/Misc/ImapServicePureLogicTest.php`
+- Validation: full suite green via `php artisan test --parallel --processes=10` (2 skipped, 5730 passed)
+- Updated baseline snapshot: Unit=34, Integration=215 (`reports/testing-baseline-2026-03-24.md`)
 
 - [ ] Identify deterministic integration assertions that can be moved to pure unit scope.
 - [ ] Migrate policy/service/value-object logic to `tests/Unit` with `PureUnitTestCase` where possible.
