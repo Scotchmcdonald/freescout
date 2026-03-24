@@ -248,6 +248,16 @@ Current progress snapshot (2026-03-24):
 	- Pattern: anonymous Container subclass with `runningInConsole()`, `runningUnitTests()`, `basePath()` covers all app() calls in Helper methods
 - Validation: full suite green via `php artisan test --parallel --processes=10` (2 skipped, 5741 passed; 1 pre-existing Mockery alias flake)
 - Updated baseline snapshot: Unit=46, Integration=210 (`reports/testing-baseline-2026-03-24.md`)
+- Wave 8 completed by migrating Misc API utility tests to unit scope with collision-safe targeting:
+	- Collision-safe scope (avoided active agent paths): skipped `tests/Unit/Models/**`, `tests/Unit/Services/**`, `tests/Unit/Policies/**`, `tests/Unit/EventsTest.php`, `tests/Unit/SendAutoReplyJobTest.php`
+	- Impacted: `tests/Integration/Misc/WpApiServiceTest.php` (28 tests) -> `tests/Unit/Misc/WpApiServiceTest.php`
+	- Impacted: `tests/Integration/Misc/OAuthTest.php` (14 tests) -> `tests/Unit/Misc/OAuthTest.php`
+	- PureUnit conversion to satisfy `UnitFrameworkBootingGuardTest`: both migrated files use explicit container stubs (`config`, `http`, `log`, `url`, `redirect`) with `Facade::clearResolvedInstances()` isolation
+	- Deferred intentionally: `tests/Integration/Misc/MailHelperReplaceMailVarsTest.php` and `tests/Integration/Misc/DraftTest.php`
+- Validation: migrated scope green via `php artisan test --filter="WpApiServiceTest|OAuthTest" --parallel --processes=4` (42 passed)
+- Validation: guard green via `php artisan test --filter="TestSuiteGuard|UnitTestGuard" --parallel --processes=4`
+- Full suite status: `php artisan test --parallel --processes=10` returned 1 pre-existing unrelated Mockery alias flake in `tests/Unit/Models/UserPermissionLogicTest.php`
+- Updated baseline snapshot: Unit=49, Integration=208 (`reports/testing-baseline-2026-03-24.md`)
 
 - [ ] Identify deterministic integration assertions that can be moved to pure unit scope.
 - [ ] Migrate policy/service/value-object logic to `tests/Unit` with `PureUnitTestCase` where possible.
