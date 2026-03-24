@@ -49,7 +49,20 @@ pest()->extend(Tests\TestCase::class)
 pest()->extend(Tests\IntegrationTestCase::class)
     ->in('Integration');
 
+// Legacy Unit files that still require framework boot (UnitTestCase + RefreshDatabase)
+// These are guard files that need access to the full Laravel container for validation.
+// TODO: Consider removing this exception once these guards are refactored.
+// Ratchet guard: tests/Unit/UnitFrameworkBootingGuardTest.php — expires 2026-04-30
 pest()->extend(Tests\UnitTestCase::class)
+    ->in(
+        'Unit/UnitFrameworkBootingGuardTest.php',
+        'Unit/FeatureWriteAssertionDepthGuardTest.php',
+        'Unit/ModuleUnitIsolationGuardTest.php',
+        'Unit/RefreshDatabaseUsageGuardTest.php'
+    );
+
+// Global Unit binding to PureUnitTestCase (framework-free)
+pest()->extend(Tests\PureUnitTestCase::class)
     ->in('Unit');
 
 pest()->extend(Tests\TestCase::class)
