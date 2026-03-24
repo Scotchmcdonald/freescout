@@ -6,9 +6,9 @@ namespace Tests\Unit;
 
 use App\Models\User;
 use App\Policies\UserPolicy;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
-class UserPolicyTest extends UnitTestCase
+class UserPolicyTest extends PureUnitTestCase
 {
     protected UserPolicy $policy;
 

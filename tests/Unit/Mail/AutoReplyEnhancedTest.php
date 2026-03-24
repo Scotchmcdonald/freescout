@@ -7,9 +7,9 @@ namespace Tests\Unit\Mail;
 use App\Mail\AutoReply;
 use App\Models\Conversation;
 use App\Models\Mailbox;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
-class AutoReplyEnhancedTest extends UnitTestCase
+class AutoReplyEnhancedTest extends PureUnitTestCase
 {
     public function test_auto_reply_content_returns_text_view(): void
     {

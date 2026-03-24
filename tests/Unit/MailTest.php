@@ -9,9 +9,9 @@ use App\Mail\ConversationReplyNotification;
 use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\Thread;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
-class MailTest extends UnitTestCase
+class MailTest extends PureUnitTestCase
 {
     public function test_auto_reply_has_properties(): void
     {

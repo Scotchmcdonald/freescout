@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Misc;
 
 use App\Misc\MailHelper;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
 /**
  * Test MailHelper utility methods
@@ -13,7 +13,7 @@ use Tests\UnitTestCase;
  * Methods: hasVars, parseEmail, sanitizeEmail, formatEmail
  * Target Coverage: 90%+
  */
-class MailHelperUtilityMethodsTest extends UnitTestCase
+class MailHelperUtilityMethodsTest extends PureUnitTestCase
 {
     // ==================== hasVars() tests ====================
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\ConversationController;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
 /**
  * Test API ConversationController
@@ -13,7 +13,7 @@ use Tests\UnitTestCase;
  * Target: 90-95% coverage for App\Http\Controllers\Api\ConversationController
  * Current coverage: 0%
  */
-class ConversationControllerTest extends UnitTestCase
+class ConversationControllerTest extends PureUnitTestCase
 {
     public function test_controller_can_be_instantiated(): void
     {

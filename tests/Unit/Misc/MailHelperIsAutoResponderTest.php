@@ -6,7 +6,7 @@ namespace Tests\Unit\Misc;
 
 use App\Misc\MailHelper;
 use Tests\Support\EmailFixtures;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
 /**
  * Test MailHelper::isAutoResponder() method
@@ -14,7 +14,7 @@ use Tests\UnitTestCase;
  * CRAP Score: 110 (High Priority)
  * Target Coverage: 90%+
  */
-class MailHelperIsAutoResponderTest extends UnitTestCase
+class MailHelperIsAutoResponderTest extends PureUnitTestCase
 {
     public function test_is_auto_responder_with_null_returns_false(): void
     {

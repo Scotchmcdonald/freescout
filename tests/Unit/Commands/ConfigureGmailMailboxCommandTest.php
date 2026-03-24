@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Commands;
 
 use App\Console\Commands\ConfigureGmailMailbox;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
-class ConfigureGmailMailboxCommandTest extends UnitTestCase
+class ConfigureGmailMailboxCommandTest extends PureUnitTestCase
 {
     public function test_command_can_be_instantiated(): void
     {

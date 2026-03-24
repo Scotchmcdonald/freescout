@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Http\Controllers\CustomerController;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
-class CustomerControllerTest extends UnitTestCase
+class CustomerControllerTest extends PureUnitTestCase
 {
     public function test_controller_can_be_instantiated(): void
     {

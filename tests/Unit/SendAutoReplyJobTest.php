@@ -9,9 +9,9 @@ use App\Models\Conversation;
 use App\Models\Customer;
 use App\Models\Mailbox;
 use App\Models\Thread;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
-class SendAutoReplyJobTest extends UnitTestCase
+class SendAutoReplyJobTest extends PureUnitTestCase
 {
     public function test_job_has_required_properties(): void
     {

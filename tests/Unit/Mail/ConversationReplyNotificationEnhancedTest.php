@@ -8,9 +8,9 @@ use App\Mail\ConversationReplyNotification;
 use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\Thread;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
-class ConversationReplyNotificationEnhancedTest extends UnitTestCase
+class ConversationReplyNotificationEnhancedTest extends PureUnitTestCase
 {
     public function test_conversation_reply_notification_envelope_has_subject(): void
     {
