@@ -84,14 +84,20 @@ class LogoutUsersCommandTest extends TestCase
         }
 
         // Create multiple test session files
+        $createdFiles = [];
         for ($i = 0; $i < 3; $i++) {
             $testFile = $sessionPath.'/test_session_'.uniqid().'_'.$i;
             File::put($testFile, 'test session data '.$i);
+            $createdFiles[] = $testFile;
         }
 
         $this->artisan('freescout:logout-users')
-            ->expectsOutputToContain('Deleted sessions:')
             ->assertSuccessful();
+
+        // Assert the session files were actually removed instead of asserting on brittle output string
+        foreach ($createdFiles as $file) {
+            $this->assertFalse(File::exists($file), "Expected session file to be deleted: {$file}");
+        }
     }
 
     public function test_logout_users_command_has_expected_contract(): void

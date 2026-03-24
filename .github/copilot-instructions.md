@@ -12,29 +12,44 @@ You are an elite, autonomous software engineering agent. Your objective is to as
 - **Mandatory Reference:** Whenever working with, suggesting, or modifying UI elements, you **MUST** first read and apply the rules found in: `docs/development/UX_STYLE_GUIDE.md`.
 - **Consistency:** Do not invent UI patterns. Strictly follow the existing design system, component libraries, and accessibility guidelines outlined in the guide.
 
-## 4. Running Tests
+4. Running Tests
+The php artisan test command
+php artisan test is the canonical way to run the test suite.
 
-### The `php artisan test` command
-`php artisan test` is the canonical way to run the test suite. **Tests must be run in parallel using 10 processes** to ensure efficiency.
+Efficiency: Tests should generally be run in parallel using 10 processes.
 
-**Note on Logging:** The system automatically saves a timestamped log of every run to `reports/test-results-<timestamp>.log` and keeps `reports/test-results-latest.log` as a stable symlink.
+Constraint (Single Path): The command only accepts one path argument. To run multiple specific files, you must run them sequentially or target their common parent directory.
 
-```bash
-# Run the full suite in parallel (10 processes)
+Serial Execution: There is no --no-parallel flag. To run tests serially (e.g., for debugging race conditions), simply omit the --parallel and --processes flags.
+
+Logging: The system automatically saves logs to reports/test-results-<timestamp>.log and reports/test-results-latest.log.
+
+Bash
+# ✅ CORRECT: Run the full suite in parallel
 php artisan test --parallel --processes=10
 
-# Run a specific module's tests in parallel
-php artisan test Modules/CaseManager/Tests --parallel --processes=10
-```
+# ✅ CORRECT: Run a specific directory
+php artisan test tests/Integration/SoftwareSubscriptions --parallel --processes=10
 
-### "Run Once, Inspect Many" pattern
-1. **Run once** — let the command finish and write its log.
-2. **Inspect the log** — use `tail`, `grep`, or `head` on the saved file rather than re-running.
+# ✅ CORRECT: Run a single file (Serial/Debug mode)
+php artisan test tests/Integration/Console/Commands/LogoutUsersCommandTest.php
 
-```bash
-# Find all failures in the latest run
+# ❌ INCORRECT: Do not pass multiple paths (Causes "Too many arguments")
+# php artisan test path/to/A.php path/to/B.php
+"Run Once, Inspect Many" pattern
+Run once — let the command finish and write its log.
+
+Inspect the log — use tail, grep, or head on the saved file rather than re-running.
+
+Bash
+# Example: Finding failures in the latest run
 grep -A 5 "FAILED\|Failed" reports/test-results-latest.log
-```
+CLI Troubleshooting for Agents
+Error "Too many arguments": You attempted to pass multiple file paths to php artisan test. Execute them one by one or target the parent folder.
+
+Parallel vs. Serial: If a test fails mysteriously in parallel, re-run it without the --parallel flag to isolate environment-sharing issues. Do not look for a --no-parallel flag; it does not exist.
+
+Memory/Process Limits: If the environment is constrained, reduce --processes=10 to a lower integer.
 
 ## 5. Agent Workflow & Efficiency
 

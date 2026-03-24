@@ -27,9 +27,10 @@ class VendorReconciliationServiceTest extends IntegrationTestCase
         $client = Client::factory()->create();
         $subscription = $this->createSubscription($client->id, 'SKU-RECON-1', 'Recon Product', 5);
 
-        SoftwareAssignment::factory()->forSubscription($subscription)->create(['revoked_at' => null]);
-        SoftwareAssignment::factory()->forSubscription($subscription)->create(['revoked_at' => null]);
-        SoftwareAssignment::factory()->forSubscription($subscription)->create(['revoked_at' => now()]);
+        // Use explicit assignable_id values to avoid unique constraint collision on (subscription_id, assignable_type, assignable_id)
+        SoftwareAssignment::factory()->forSubscription($subscription)->create(['revoked_at' => null, 'assignable_id' => 1]);
+        SoftwareAssignment::factory()->forSubscription($subscription)->create(['revoked_at' => null, 'assignable_id' => 2]);
+        SoftwareAssignment::factory()->forSubscription($subscription)->create(['revoked_at' => now(), 'assignable_id' => 3]);
 
         $result = $this->service->reconcileSubscription($subscription->fresh());
 
@@ -44,10 +45,16 @@ class VendorReconciliationServiceTest extends IntegrationTestCase
         $client = Client::factory()->create();
 
         $matched = $this->createSubscription($client->id, 'SKU-MATCHED', 'Matched', 2);
-        SoftwareAssignment::factory()->forSubscription($matched)->count(2)->create();
+        // Use sequence() for count() to generate explicit unique assignable_id values
+        SoftwareAssignment::factory()->forSubscription($matched)->count(2)->sequence(
+            ['assignable_id' => 101],
+            ['assignable_id' => 102],
+        )->create();
 
         $mismatch = $this->createSubscription($client->id, 'SKU-MISMATCH', 'Mismatch', 4);
-        SoftwareAssignment::factory()->forSubscription($mismatch)->count(1)->create();
+        SoftwareAssignment::factory()->forSubscription($mismatch)->count(1)->sequence(
+            ['assignable_id' => 201],
+        )->create();
 
         $results = $this->service->reconcileAll();
 
@@ -59,7 +66,10 @@ class VendorReconciliationServiceTest extends IntegrationTestCase
     {
         $client = Client::factory()->create();
         $subscription = $this->createSubscription($client->id, 'SKU-DRY', 'Dry Run', 6);
-        SoftwareAssignment::factory()->forSubscription($subscription)->count(2)->create();
+        SoftwareAssignment::factory()->forSubscription($subscription)->count(2)->sequence(
+            ['assignable_id' => 301],
+            ['assignable_id' => 302],
+        )->create();
 
         $result = $this->service->autoFixDiscrepancies(true);
         $subscription->refresh();
@@ -75,7 +85,11 @@ class VendorReconciliationServiceTest extends IntegrationTestCase
     {
         $client = Client::factory()->create();
         $subscription = $this->createSubscription($client->id, 'SKU-FIX', 'Fix Run', 7);
-        SoftwareAssignment::factory()->forSubscription($subscription)->count(3)->create();
+        SoftwareAssignment::factory()->forSubscription($subscription)->count(3)->sequence(
+            ['assignable_id' => 401],
+            ['assignable_id' => 402],
+            ['assignable_id' => 403],
+        )->create();
 
         $result = $this->service->autoFixDiscrepancies(false);
         $subscription->refresh();
