@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Attachment;
 use App\Models\Conversation;
 use App\Models\Customer;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('action1 script callback endpoint is rate limited to 30 requests per minute per ip', function () {
 	$ip = '10.250.1.10';
 	$token = str_repeat('a', 40);

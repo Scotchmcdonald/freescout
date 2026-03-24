@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
 use Modules\Crm\Models\Client;
 use Modules\PIB\Models\ClientCredit;

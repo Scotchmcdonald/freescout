@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('tsdm activation endpoint is rate limited to 10 requests per minute per ip', function () {
     $ip = '10.250.1.30';
 

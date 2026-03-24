@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Modules\Crm\Models\Client;
 use Modules\Crm\Models\Company;
 use Modules\Payment\Models\Payment;

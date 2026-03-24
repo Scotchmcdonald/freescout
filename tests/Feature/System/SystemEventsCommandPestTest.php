@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Events\CustomerCreatedConversation;
 use App\Events\CustomerReplied;
 use App\Models\Conversation;

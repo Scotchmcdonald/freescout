@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Modules\Crm\Models\Client;
 use Modules\SoftwareSubscriptions\Exceptions\LicenseLimitExceededException;
 use Modules\SoftwareSubscriptions\Models\ClientSoftwareSubscription;

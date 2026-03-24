@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Folder;
 use App\Models\Mailbox;
 use App\Models\User;

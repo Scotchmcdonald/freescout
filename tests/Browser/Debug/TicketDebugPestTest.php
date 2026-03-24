@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Debug tests for ticket submission flow.
  * Consolidated from legacy Dusk debug tests.

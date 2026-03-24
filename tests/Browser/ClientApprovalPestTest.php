@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
 use Modules\ClientPortal\Models\ApprovalRequest;
 use Modules\ContractManager\Models\Quote;

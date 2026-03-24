@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Modules\ContractManager\Models\BillingTemplate;
 use Modules\Crm\Models\Client;
 

@@ -89,6 +89,10 @@ arch('strict types')
     ->expect('App')
     ->toUseStrictTypes();
 
+arch('tests strict types')
+    ->expect('Tests')
+    ->toUseStrictTypes();
+
 // 10. Enums
 arch('enums')
     ->expect('App\Enums')

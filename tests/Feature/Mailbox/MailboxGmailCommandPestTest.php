@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Mailbox;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

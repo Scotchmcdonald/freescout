@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Modules\ContractManager\Models\Contract;
 use Modules\Crm\Models\Client;
 

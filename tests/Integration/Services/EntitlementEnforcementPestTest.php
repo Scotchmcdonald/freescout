@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Modules\PIB\Services\EntitlementEngineService;
 
 it('EntitlementEngineService is resolvable from container', function () {

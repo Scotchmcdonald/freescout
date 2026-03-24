@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
 use Modules\EmailMigration\Events\MigrationProgressUpdated;
 use Modules\EmailMigration\Jobs\CancelMigrationJob;
