@@ -227,8 +227,11 @@ Current progress snapshot (2026-03-24):
 - Wave 3 completed by migrating deterministic request/helper tests to unit scope:
 	- `tests/Integration/Requests/LoginRequestTest.php` -> `tests/Unit/Requests/LoginRequestTest.php`
 	- `tests/Integration/Misc/MailHelperGetMessageIdHashTest.php` -> `tests/Unit/Misc/MailHelperGetMessageIdHashTest.php`
+- Wave 4 completed by migrating deterministic policy tests to unit scope:
+	- `tests/Integration/ThreadPolicyTest.php` -> `tests/Unit/Policies/ThreadPolicyTest.php`
+	- `tests/Integration/Policies/AdvancedPolicyTest.php` -> `tests/Unit/Policies/AdvancedPolicyTest.php`
 - Validation: full suite green via `php artisan test --parallel --processes=10` (2 skipped, 5717 passed)
-- Updated baseline snapshot: Unit=30, Integration=219 (`reports/testing-baseline-2026-03-24.md`)
+- Updated baseline snapshot: Unit=34, Integration=217 (`reports/testing-baseline-2026-03-24.md`)
 
 - [ ] Identify deterministic integration assertions that can be moved to pure unit scope.
 - [ ] Migrate policy/service/value-object logic to `tests/Unit` with `PureUnitTestCase` where possible.
