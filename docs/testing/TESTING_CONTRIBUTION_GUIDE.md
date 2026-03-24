@@ -258,6 +258,14 @@ Current progress snapshot (2026-03-24):
 - Validation: guard green via `php artisan test --filter="TestSuiteGuard|UnitTestGuard" --parallel --processes=4`
 - Full suite status: `php artisan test --parallel --processes=10` returned 1 pre-existing unrelated Mockery alias flake in `tests/Unit/Models/UserPermissionLogicTest.php`
 - Updated baseline snapshot: Unit=49, Integration=208 (`reports/testing-baseline-2026-03-24.md`)
+- Wave 9 completed by migrating Http/RequestsAndNotificationsTest to unit scope:
+	- Collision-safe scope: avoided Unit/Models, Unit/Services, Unit/Policies, and 4 actively-modified unit files
+	- Impacted: `tests/Integration/Http/RequestsAndNotificationsTest.php` (60 tests) → `tests/Unit/Http/RequestsAndNotificationsTest.php`
+	- Pattern: `Translator(ArrayLoader) + ValidationFactory` bound to PureUnit container satisfies `Validator::make()` facade with zero framework boot
+	- Pattern: anonymous `PresenceVerifierInterface` stub (count=1/0) replaces single `User::factory()->create()` for `unique:users,email` tests
+	- All 60 tests pass in 0.26s; guard threshold (4 framework-booting files) unchanged
+- Validation: full suite 5780 passed (1 pre-existing Mockery alias flake unrelated to this wave)
+- Updated baseline snapshot: Unit=52, Integration=207 (`reports/testing-baseline-2026-03-24.md`)
 
 - [ ] Identify deterministic integration assertions that can be moved to pure unit scope.
 - [ ] Migrate policy/service/value-object logic to `tests/Unit` with `PureUnitTestCase` where possible.
