@@ -1,6 +1,6 @@
 # Phase 4: Architecture And Type Coverage
 
-Status: In Progress (2026-03-24)
+Status: In Progress (2026-03-24; wave 1 boundary baseline guard implemented)
 Duration: 4 to 7 days
 Goal: Strengthen architectural safety nets and type-boundary verification to 2026 standards.
 
@@ -70,3 +70,13 @@ Goal: Strengthen architectural safety nets and type-boundary verification to 202
 	- initial baseline metrics and target threshold.
 - Implement first architecture boundary rule batch.
 - Run focused architecture checks and capture pass/fail snapshots in reports.
+
+## Wave 1 Progress Snapshot
+
+- Added tests/Architecture/CriticalNamespaceBoundaryGuardTest.php to freeze critical namespace coupling while remediation continues.
+- Baselines captured:
+	- app controllers importing module models: max 5
+	- app controllers importing module services: max 4
+	- app services importing module models: max 0
+	- module services importing app controllers: max 0
+- Baseline metadata includes owner, issue, and expiry date for governance.
