@@ -57,4 +57,6 @@ test('mailbox store validates email required', function () {
             'name' => 'Test Mailbox',
         ])
         ->assertSessionHasErrors('email');
+
+    $this->assertDatabaseMissing('mailboxes', ['name' => 'Test Mailbox']);
 });

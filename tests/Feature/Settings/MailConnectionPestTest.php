@@ -29,6 +29,8 @@ test('admin can test smtp connection', function () {
         ])
         ->assertOk()
         ->assertJson(['success' => true]);
+
+    $mailbox->refresh();
 });
 
 test('non-admin cannot test smtp', function () {

@@ -18,6 +18,7 @@ test('users can authenticate using the login screen', function () {
         ->assertRedirect(route('dashboard', absolute: false));
 
     $this->assertAuthenticated();
+    $this->assertDatabaseHas('users', ['id' => $user->id]);
 });
 
 test('users can not authenticate with invalid password', function () {

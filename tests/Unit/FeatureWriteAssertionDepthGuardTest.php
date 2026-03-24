@@ -21,7 +21,7 @@ class FeatureWriteAssertionDepthGuardTest extends UnitTestCase
         'owner' => 'QA/Platform',
         'issue' => 'phase-3-feature-meaningfulness',
         'expires' => '2026-04-30',
-        'max_count' => 19,
+        'max_count' => 0,
     ];
 
     public function test_shallow_write_feature_baseline_metadata_is_valid(): void

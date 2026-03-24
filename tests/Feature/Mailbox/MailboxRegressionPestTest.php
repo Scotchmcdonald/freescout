@@ -110,6 +110,7 @@ test('mailbox passwords are encrypted', function () {
             'out_password' => $plainPassword,
         ])
         ->assertRedirect();
+    $this->assertDatabaseHas('mailboxes', ['email' => 'test@example.com']);
 
     $mailbox = Mailbox::where('email', 'test@example.com')->first();
 

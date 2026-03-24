@@ -76,6 +76,7 @@ test('ajax endpoints return json', function () {
     ]);
 
     $response->assertHeader('Content-Type', 'application/json');
+    $this->conversation->refresh();
 });
 
 test('multiple rapid requests handled', function () {

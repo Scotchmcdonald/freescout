@@ -49,6 +49,7 @@ test('modules can activate module', function () {
     $this->actingAs($admin)
         ->post(route('modules.enable', $module->alias))
         ->assertOk();
+    $module->refresh();
 });
 
 test('modules can deactivate module', function () {

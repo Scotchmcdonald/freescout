@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
@@ -72,6 +73,7 @@ test('install downloads and installs module', function () {
 
     // Verify module directory exists (zip extraction worked)
     expect(File::isDirectory($this->modulePath))->toBeTrue();
+    expect(Cache::get('modules_install_lock'))->toBeNull();
 });
 
 test('install module requires alias', function () {

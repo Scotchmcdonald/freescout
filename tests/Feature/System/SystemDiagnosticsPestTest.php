@@ -54,4 +54,6 @@ test('admin can get system info with correct structure', function () {
             'locale',
         ],
     ]);
+
+    $this->admin->refresh();
 });

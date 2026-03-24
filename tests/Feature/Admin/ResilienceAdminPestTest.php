@@ -40,6 +40,8 @@ test('admin can reset a circuit breaker', function () {
         ->post(route('admin.resilience.reset-circuit', ['service' => $serviceName]))
         ->assertRedirect()
         ->assertSessionHas('success');
+
+    $this->admin->refresh();
 });
 
 test('resilience dashboard displays semantic health colors', function () {

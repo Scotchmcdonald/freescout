@@ -20,6 +20,7 @@ test('conversation list with page 2 navigation', function () {
         'customer_id' => $customer->id,
         'status' => Conversation::STATUS_ACTIVE,
     ]);
+    $this->assertDatabaseCount('conversations', 50);
 
     $response = $this->actingAs($user)->get(route('conversations.index', ['mailbox' => $mailbox->id, 'page' => 2]));
 

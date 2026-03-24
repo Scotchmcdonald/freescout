@@ -37,4 +37,6 @@ test('permissions save allows admin', function () {
             'permissions' => [],
         ])
         ->assertRedirect();
+
+    $admin->refresh();
 });

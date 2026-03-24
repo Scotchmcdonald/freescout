@@ -13,6 +13,7 @@ test('system can clear cache', function () {
 
     $response->assertRedirect();
     $response->assertSessionHas('success');
+    $admin->refresh();
 });
 
 test('system can run migrations', function () {

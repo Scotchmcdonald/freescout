@@ -19,6 +19,8 @@ test('password can be confirmed', function () {
     ])
         ->assertRedirect()
         ->assertSessionHasNoErrors();
+
+    $user->refresh();
 });
 
 test('password is not confirmed with invalid password', function () {

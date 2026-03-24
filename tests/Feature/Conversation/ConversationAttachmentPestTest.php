@@ -43,6 +43,7 @@ test('user can download attachment', function () {
         $attachment->file_dir.'/'.$attachment->file_name,
         'Test file content'
     );
+    Storage::disk('attachments')->assertExists($attachment->file_dir.'/'.$attachment->file_name);
 
     $response = $this->get(route('attachments.download', $attachment));
 

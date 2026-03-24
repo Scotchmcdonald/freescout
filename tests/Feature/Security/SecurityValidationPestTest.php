@@ -45,6 +45,7 @@ test('bulk operations validate conversation ids', function () {
     // Should reject invalid input
     $isRejected = $response->status() >= 400 || $response->json('success') === false;
     expect($isRejected)->toBeTrue();
+    $this->conversation->refresh();
 });
 
 test('bulk operations validate status type', function () {

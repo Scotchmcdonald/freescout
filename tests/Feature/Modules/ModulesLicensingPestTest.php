@@ -29,6 +29,7 @@ test('admin can activate license', function () {
 
     $response->assertOk();
     expect($response->json('success'))->toBeTrue();
+    $this->admin->refresh();
 });
 
 test('non admin cannot activate license', function () {

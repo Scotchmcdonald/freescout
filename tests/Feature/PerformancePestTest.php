@@ -39,6 +39,7 @@ test('large conversation list loads efficiently', function () {
             'status' => Conversation::STATUS_ACTIVE,
             'state' => Conversation::STATE_PUBLISHED,
         ]);
+    $this->assertDatabaseCount('conversations', 50);
 
     DB::enableQueryLog();
     $response = $this->actingAs($this->admin)

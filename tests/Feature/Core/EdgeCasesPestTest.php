@@ -27,6 +27,7 @@ test('controllers validate csrf tokens', function () {
         ->actingAs($admin)
         ->post(route('settings.cache.clear'))
         ->assertRedirect(); // Should succeed if CSRF middleware is disabled for this test?
+    $admin->refresh();
 
     // Wait, the legacy test:
     // $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)...

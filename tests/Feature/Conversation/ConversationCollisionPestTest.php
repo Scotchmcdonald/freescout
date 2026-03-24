@@ -39,6 +39,7 @@ test('viewing updates cache and returns viewers', function () {
 
     // User 1 should see User 2
     $response3->assertJsonFragment(['id' => $user2->id]);
+    $conversation->refresh();
 });
 
 test('viewing respects permissions', function () {
