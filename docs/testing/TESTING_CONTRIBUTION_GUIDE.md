@@ -81,20 +81,118 @@ Contributors must not introduce:
 - cross-module persistence in unit tests
 - direct cross-module service resolution in unit tests
 
+Additionally:
+- new tests in tests/Unit must default to Tests\PureUnitTestCase
+- adding framework-booting Unit tests requires temporary exception metadata (owner, issue, rationale, expiry)
+- all skip exceptions must be explicitly tracked in the skip-governance allowlist
+
+## Feature Assertion Depth Policy
+
+For write-endpoint Feature tests (POST/PUT/PATCH/DELETE), at least one side-effect assertion is required.
+
+Accepted side-effect assertions include:
+- assertDatabaseHas/assertDatabaseMissing/assertDatabaseCount
+- Event::assertDispatched / Bus::assertDispatched / Queue::assertPushed
+- Mail::assertSent / Notification::assertSentTo
+- explicit persisted-state checks via model refresh/fresh assertions
+
+Status-only assertions for write endpoints are not acceptable except approved temporary exceptions with owner, issue, and expiry.
+
+## Migration Examples
+
+### Unit migration: framework-booting to pure unit
+
+Before (avoid):
+
+```php
+<?php
+
+namespace Tests\Unit\Billing;
+
+use Tests\UnitTestCase;
+
+class QuoteCalculatorTest extends UnitTestCase
+{
+	public function test_applies_discount(): void
+	{
+		$service = app()->make(\App\Services\QuoteService::class);
+
+		$result = $service->applyDiscount(100, 10);
+
+		$this->assertSame(90, $result);
+	}
+}
+```
+
+After (required):
+
+```php
+<?php
+
+namespace Tests\Unit\Billing;
+
+use App\Services\QuoteService;
+use Tests\PureUnitTestCase;
+
+class QuoteCalculatorTest extends PureUnitTestCase
+{
+	public function test_applies_discount(): void
+	{
+		$service = new QuoteService;
+
+		$result = $service->applyDiscount(100, 10);
+
+		$this->assertSame(90, $result);
+	}
+}
+```
+
+### Feature migration: status-only write assertion to side-effect assertion
+
+Before (avoid):
+
+```php
+test('stores ticket', function () {
+	$response = $this->postJson('/tickets', ['subject' => 'Test']);
+
+	$response->assertStatus(201);
+});
+```
+
+After (required):
+
+```php
+test('stores ticket and persists side effects', function () {
+	Event::fake();
+
+	$response = $this->postJson('/tickets', ['subject' => 'Test']);
+
+	$response->assertCreated();
+	$this->assertDatabaseHas('tickets', ['subject' => 'Test']);
+	Event::assertDispatched(TicketCreated::class);
+});
+```
+
+## Skip Usage Policy
+
+- New markTestSkipped usage must be added to skip governance allowlist with owner, issue, rationale, and expiry metadata.
+- Long-lived skip usage is treated as test debt and must be triaged during maintenance cadence.
+- Unowned or expired skips are grounds for PR rejection.
+
 ## Required Local Validation Flow
 
 Run the narrowest relevant checks first:
 
 ```bash
-php artisan test path/to/changed/test-file.php
+php artisan test path/to/changed/test-file.php --parallel --processes=10
 ```
 
 Then run broader checks as needed:
 
 ```bash
-php artisan test tests/Unit/ModuleUnitIsolationGuardTest.php
-php artisan test tests/Architecture/
-php artisan test
+php artisan test tests/Unit/ModuleUnitIsolationGuardTest.php --parallel --processes=10
+php artisan test tests/Architecture --parallel --processes=10
+php artisan test --parallel --processes=10
 ```
 
 Important:
@@ -105,9 +203,12 @@ Important:
 
 - [ ] Tests are in the correct layer.
 - [ ] No new unit-scope RefreshDatabase usage.
+- [ ] No new framework-booting Unit tests without approved exception metadata.
 - [ ] No new cross-module unit coupling.
+- [ ] Write-endpoint Feature tests include side-effect assertions (not status-only).
 - [ ] Assertions focus on behavior, not framework internals.
 - [ ] External HTTP interactions are faked.
+- [ ] New skip/quarantine entries include owner, issue, rationale, and expiry.
 - [ ] Touched tests pass.
 - [ ] Architecture and isolation checks remain green when applicable.
 - [ ] Any temporary exception is documented with an owner and expiry date.
@@ -131,4 +232,4 @@ The agent should pause only when:
 - Module Owners: test quality in their modules
 - Reviewers: enforce layer placement and isolation compliance
 
-Last updated: 2026-03-19
+Last updated: 2026-03-23

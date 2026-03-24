@@ -6,6 +6,7 @@ Use this page as the entry point for testing documentation.
 - `docs/testing/TESTING_QUICK_START.md` — fastest local and CI-aligned commands
 - `docs/testing/TESTING_ROADMAP_OUTCOMES.md` — durable outcomes and sustainment model
 - `tests/testing_standards.md` — canonical standards and enforcement targets
+- `docs/testing/TESTING_CONTRIBUTION_GUIDE.md` — contribution policy, migration examples, and local validation flow
 
 ## Strategy and execution
 - `docs/testing/TEST_SUITE_STRATEGY.md` — pyramid and signal strategy
@@ -16,9 +17,10 @@ Use this page as the entry point for testing documentation.
 - `docs/testing/TEST_MAINTENANCE_CADENCE.md` — weekly to quarterly operating rhythm
 - `docs/testing/FLAKY_TEST_TRIAGE.md` — flaky-test handling process
 - `docs/testing/TEST_REGRESSION_PREVENTION.md` — PR review and regression checklist
+- `reports/testing-baseline-2026-03-23.md` — Phase 1 baseline metrics snapshot
 
 ## Browser and tooling
 - `docs/testing/BROWSER_TESTING_GUIDE.md`
 - `docs/testing/MIGRATION_TO_NATIVE_PLAYWRIGHT.md`
 
-Last updated: 2026-03-23
+Last updated: 2026-03-24

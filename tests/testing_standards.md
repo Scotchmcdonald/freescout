@@ -1,3 +1,16 @@
+---
+doc_type: reference
+owner: "@qa-team"
+reviewers:
+    - "@platform-team"
+last_reviewed: 2026-03-23
+review_cycle_days: 30
+source_paths:
+    - tests/
+    - docs/testing/
+stability: active
+---
+
 # Laravel Testing Standards & Best Practices
 
 > **Scope:** These are **target standards** we are progressively implementing through the phased test suite improvement roadmap (`TEST_SUITE_MASTER_PHASE_PLAN_6_5_TO_10.md`). The current codebase does not fully comply with all standards below. Use this document as the canonical specification to guide test improvements and the LLM-driven maintenance process via `PROMPT_TEST_SUITE_MAINTENANCE.md`.
@@ -68,6 +81,7 @@ In our modular architecture, tests must respect strict boundaries:
 * **Contract Testing:** Use Interfaces/Service Providers to interact with other modules; mock these in Unit tests.
 * **Scoped Factories:** Keep factories localized to the module they represent.
 * **Allowlist Discipline:** The `ModuleUnitIsolationGuardTest` allowlist shrinks over time. No new exceptions without explicit tracking.
+* **Exception Metadata:** Any temporary skip/allowlist/quarantine exception must include `owner`, `issue`, `rationale`, and `expires`.
 
 **Current Targets:**
 - `RefreshDatabase` in unit scopes: **0** (currently allowlisted: 11 files, target: ≤5)
@@ -188,7 +202,7 @@ The entire CI/CD testing pipeline must complete in under **5 minutes** for the d
 | Full Mutation | Critical financial services only | ≤15 minutes |
 
 ### 8.2 Parallel Execution
-- Run tests in parallel: `php artisan test --parallel --workers=8`.
+- Run tests in parallel: `php artisan test --parallel --processes=10`.
 - Browser tests run sequentially (Dusk/Playwright limitation).
 - Use separate CI jobs for different lanes (A, B, C) to avoid resource contention.
 
@@ -201,6 +215,59 @@ The entire CI/CD testing pipeline must complete in under **5 minutes** for the d
 
 ## 9. Test Contribution Checklist
 
+### 8.4 Migration Examples (Required Patterns)
+
+#### Unit rewrite (framework-booting to pure unit)
+
+Before:
+
+```php
+class BillingMathTest extends UnitTestCase
+{
+    public function test_discount_is_applied(): void
+    {
+        $service = app()->make(QuoteService::class);
+        $this->assertSame(90, $service->applyDiscount(100, 10));
+    }
+}
+```
+
+After:
+
+```php
+class BillingMathTest extends PureUnitTestCase
+{
+    public function test_discount_is_applied(): void
+    {
+        $service = new QuoteService;
+        $this->assertSame(90, $service->applyDiscount(100, 10));
+    }
+}
+```
+
+#### Feature rewrite (status-only to side-effect assertions)
+
+Before:
+
+```php
+test('creates conversation', function () {
+    $this->postJson('/conversations', ['subject' => 'Outage'])->assertCreated();
+});
+```
+
+After:
+
+```php
+test('creates conversation and records side effects', function () {
+    Event::fake();
+
+    $this->postJson('/conversations', ['subject' => 'Outage'])->assertCreated();
+
+    $this->assertDatabaseHas('conversations', ['subject' => 'Outage']);
+    Event::assertDispatched(ConversationCreated::class);
+});
+```
+
 Before committing tests, ensure:
 - [ ] Test file is in the correct layer (`Unit`, `Feature`, `Integration`, `Browser`).
 - [ ] Test name is descriptive and human-readable.
@@ -210,8 +277,8 @@ Before committing tests, ensure:
 - [ ] State is scoped to the test (no global fixtures).
 - [ ] Mutation-sensitive paths are documented with `@mutation-sensitive` comment.
 - [ ] For critical financial logic: mutation kill rate verified ≥ target threshold.
-- [ ] Full test suite passes locally before commit: `php artisan test`.
-- [ ] No skip/pending tests without a linked tracking issue.
+- [ ] Full test suite passes locally before commit: `php artisan test --parallel --processes=10`.
+- [ ] No skip/pending tests without tracked metadata (`owner`, `issue`, `rationale`, `expires`).
 
 ---
 
