@@ -205,8 +205,10 @@ php scripts/ci/check-test-lane-runtime-budgets.php --lane=unit --duration=29
 **Rules:**
 - Tracks current `markTestSkipped(...)` baseline and lane budgets
 - Blocks count increases beyond baseline
-- Blocks new skips without metadata (`owner`, `issue`, `expires`)
+- Blocks any untracked skip entry not explicitly listed in the governance allowlist
+- Requires allowlist metadata (`owner`, `issue`, `rationale`, `expires`)
 - Fails expired skip metadata
+- Fails stale allowlist entries that no longer exist in test code
 
 **Report artifact:**
 - `reports/skip-governance-latest.md`
@@ -248,6 +250,21 @@ php scripts/ci/generate-flake-report.php \
 - active quarantines auto-fail once `expires` is in the past
 - tests tagged with quarantine markers must have a matching active registry entry
 - active registry entries must point to tests carrying quarantine markers
+
+### 12. Phase 6 Anti-Relapse Guard Tests (GitHub Actions guards lane)
+
+**Enforces:** pre-merge test hardening controls
+
+**Guard tests run in `.github/workflows/test-lanes.yml`:**
+- `tests/Unit/ModuleUnitIsolationGuardTest.php`
+- `tests/Unit/RefreshDatabaseUsageGuardTest.php`
+- `tests/Unit/UnitFrameworkBootingGuardTest.php`
+- `tests/Unit/FeatureWriteAssertionDepthGuardTest.php`
+
+**Policy intent:**
+- no new Unit framework-booting debt
+- no status-only write Feature test debt
+- no untracked skip/quarantine exceptions
 
 **Report artifact:**
 - `reports/quarantine-registry-latest.md`

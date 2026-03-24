@@ -6,15 +6,15 @@ declare(strict_types=1);
  * Phase 5 skip-governance guard.
  *
  * Policy:
- * - Existing baseline skips are tracked with owner/issue/expires metadata.
- * - New markTestSkipped usages require nearby metadata: owner, issue, expires.
+ * - Existing baseline skips are tracked with owner/issue/rationale/expires metadata.
+ * - Untracked markTestSkipped usages fail and must be explicitly allowlisted.
  * - Expired skips fail.
  */
 
 final class SkipGovernanceGuard
 {
     /**
-     * @var array{max_count:int, lane_budgets:array<string,int>, allowlist:array<string,array{owner:string,issue:string,expires:string}>}
+    * @var array{max_count:int, lane_budgets:array<string,int>, allowlist:array<string,array{owner:string,issue:string,rationale:string,expires:string}>}
      */
     private const BASELINE = [
         'max_count' => 12,
@@ -29,61 +29,73 @@ final class SkipGovernanceGuard
             'tests/Integration/CrossModule/WorkflowContractTest.php:41' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'Cross-module workflow test is gated by optional module availability.',
                 'expires' => '2026-06-30',
             ],
             'tests/Integration/Workflows/PaymentToPibFinancialPipelineTest.php:50' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'PIB workflow integration remains optional in non-PIB environments.',
                 'expires' => '2026-06-30',
             ],
             'tests/Feature/SmokeTest.php:23' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'Smoke test depends on runtime class presence across install modes.',
                 'expires' => '2026-06-30',
             ],
             'tests/Feature/Security/SecurityAuthorizationPestTest.php:150' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'Authorization scenario is environment-sensitive when SavedSearch model is absent.',
                 'expires' => '2026-06-30',
             ],
             'tests/Feature/System/SystemHealthPestTest.php:47' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'Queue listener trigger is unstable in test runtime and tracked for remediation.',
                 'expires' => '2026-06-30',
             ],
             'tests/Feature/InterfaceSegregation/CreditLedgerInterfacesTest.php:241' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'Contract test path depends on optional credit report service binding.',
                 'expires' => '2026-06-30',
             ],
             'tests/Feature/Modules/SoftwareSubscriptions/AtomicCounterPestTest.php:51' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'Scenario requires both SoftwareSubscriptions and CRM modules enabled.',
                 'expires' => '2026-06-30',
             ],
             'tests/Feature/Modules/ModulesManagementPestTest.php:32' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'Module management test requires nwidart package in runtime container.',
                 'expires' => '2026-06-30',
             ],
             'tests/Feature/Modules/ModulesManagementPestTest.php:57' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'Module management test requires nwidart package in runtime container.',
                 'expires' => '2026-06-30',
             ],
             'tests/Feature/Modules/ModulesManagementPestTest.php:83' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'Module management test requires nwidart package in runtime container.',
                 'expires' => '2026-06-30',
             ],
             'tests/Feature/Modules/ModulesManagementPestTest.php:115' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'Module management test requires nwidart package in runtime container.',
                 'expires' => '2026-06-30',
             ],
             'tests/Feature/Modules/ModulesManagementPestTest.php:147' => [
                 'owner' => 'QA/Platform',
                 'issue' => 'phase-5-skip-governance-baseline',
+                'rationale' => 'Module management test requires nwidart package in runtime container.',
                 'expires' => '2026-06-30',
             ],
         ],
@@ -117,10 +129,21 @@ final class SkipGovernanceGuard
             );
         }
 
+        $knownLocations = array_column($occurrences, 'location');
+
         foreach (self::BASELINE['allowlist'] as $location => $metadata) {
+            if (trim($metadata['owner']) === '' || trim($metadata['issue']) === '' || trim($metadata['rationale']) === '' || trim($metadata['expires']) === '') {
+                $violations[] = 'Baseline allowlist entry has incomplete metadata (owner/issue/rationale/expires): '.$location;
+                continue;
+            }
+
             $expiryState = $this->validateExpiryDate($metadata['expires']);
             if ($expiryState !== null) {
                 $violations[] = 'Baseline allowlist entry expired or invalid: '.$location.' ('.$expiryState.')';
+            }
+
+            if (! in_array($location, $knownLocations, true)) {
+                $violations[] = 'Stale allowlist entry no longer present in test code: '.$location;
             }
         }
 
@@ -128,19 +151,8 @@ final class SkipGovernanceGuard
             $lane = $this->laneFromPath($occurrence['path']);
             $laneCounts[$lane]++;
 
-            if (isset(self::BASELINE['allowlist'][$occurrence['location']])) {
-                continue;
-            }
-
-            $metadata = $this->extractMetadataFromContext($occurrence['context']);
-            if (! $metadata['has_owner'] || ! $metadata['has_issue'] || ! $metadata['has_expires']) {
-                $violations[] = 'New skip missing metadata at '.$occurrence['location'].' (requires owner, issue, expires).';
-                continue;
-            }
-
-            $expiryState = $this->validateExpiryDate($metadata['expires_value']);
-            if ($expiryState !== null) {
-                $violations[] = 'New skip has invalid/expired expires date at '.$occurrence['location'].' ('.$expiryState.')';
+            if (! isset(self::BASELINE['allowlist'][$occurrence['location']])) {
+                $violations[] = 'Untracked skip entry: '.$occurrence['location'].' (add explicit allowlist metadata with owner/issue/rationale/expires).';
             }
         }
 
@@ -217,23 +229,6 @@ final class SkipGovernanceGuard
         return $results;
     }
 
-    /**
-     * @return array{has_owner:bool,has_issue:bool,has_expires:bool,expires_value:string}
-     */
-    private function extractMetadataFromContext(string $context): array
-    {
-        $hasOwner = preg_match('/owner\s*[:=]\s*[A-Za-z0-9._\/-]+/i', $context) === 1;
-        $hasIssue = preg_match('/issue\s*[:=]\s*[A-Za-z0-9._#\/-]+/i', $context) === 1;
-        $hasExpires = preg_match('/expires\s*[:=]\s*(\d{4}-\d{2}-\d{2})/i', $context, $expiresMatch) === 1;
-
-        return [
-            'has_owner' => $hasOwner,
-            'has_issue' => $hasIssue,
-            'has_expires' => $hasExpires,
-            'expires_value' => $hasExpires ? $expiresMatch[1] : '',
-        ];
-    }
-
     private function validateExpiryDate(string $value): ?string
     {
         $date = DateTimeImmutable::createFromFormat('Y-m-d', $value);
@@ -281,7 +276,7 @@ final class SkipGovernanceGuard
     }
 
     /**
-     * @param list<array{path:string,line:int,location:string,reason:string,context:string}> $occurrences
+    * @param list<array{path:string,line:int,location:string,reason:string,context:string}> $occurrences
      * @param array<string,int> $laneCounts
      * @param list<string> $violations
      */

@@ -15,11 +15,12 @@ class FeatureWriteAssertionDepthGuardTest extends UnitTestCase
      * Transitional baseline for write-endpoint Feature files that do not include
      * side-effect assertions.
      *
-     * @var array{owner:string, issue:string, expires:string, max_count:int}
+     * @var array{owner:string, issue:string, rationale:string, expires:string, max_count:int}
      */
     private array $shallowWriteFeatureBaseline = [
         'owner' => 'QA/Platform',
         'issue' => 'phase-3-feature-meaningfulness',
+        'rationale' => 'Temporary governance metadata for shallow-write baseline control during phase closeout.',
         'expires' => '2026-04-30',
         'max_count' => 0,
     ];
@@ -29,8 +30,8 @@ class FeatureWriteAssertionDepthGuardTest extends UnitTestCase
         $meta = $this->shallowWriteFeatureBaseline;
         $errors = [];
 
-        if (trim($meta['owner']) === '' || trim($meta['issue']) === '' || trim($meta['expires']) === '') {
-            $errors[] = 'shallowWriteFeatureBaseline requires owner, issue, and expires.';
+        if (trim($meta['owner']) === '' || trim($meta['issue']) === '' || trim($meta['rationale']) === '' || trim($meta['expires']) === '') {
+            $errors[] = 'shallowWriteFeatureBaseline requires owner, issue, rationale, and expires.';
         }
 
         if ($meta['max_count'] < 0) {

@@ -15,16 +15,16 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      * Temporary allowlist while legacy module unit suites are migrated.
      * Keep this list explicit and shrink it over time.
      *
-     * @var array<int, string>
+    * @var array<string, array{owner:string, issue:string, rationale:string, expires:string}>
      */
     private array $allowlistedPathPrefixes = [];
 
     /**
      * Baseline of known legacy Unit tests still using RefreshDatabase under
      * allowlisted modules. Keep shrinking this list during migrations.
-     * Each entry must carry an @expires date; the guard fails if date has passed.
+    * Metadata is mandatory for each entry.
      *
-     * @var array<string, string> path => expiry date (Y-m-d)
+    * @var array<string, array{owner:string, issue:string, rationale:string, expires:string}>
      */
     private array $allowlistedRefreshDatabaseBaseline = [];
 
@@ -35,7 +35,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      * Guard behavior: block new violations while allowing existing legacy files
      * to be remediated incrementally.
      *
-     * @var array<int, string>
+    * @var array<string, array{owner:string, issue:string, rationale:string, expires:string}>
      */
     private array $allowlistedExternalHttpMockBaseline = [];
 
@@ -43,7 +43,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      * Guarded hotspot tests where mocking the gateway/service-under-test internals
      * causes false confidence. Keep this list explicit and narrow.
      *
-     * @var array<string, string>
+    * @var array<string, array{pattern:string, owner:string, issue:string, rationale:string, expires:string}>
      */
     private array $guardedGatewayHotspotPatterns = [];
 
@@ -70,7 +70,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
             $normalizedPath = str_replace('\\', '/', $relativePath);
 
             if ($this->isFeatureTestWithExternalApiServiceWithoutHttpMock($normalizedPath, $contents = file_get_contents($file->getPathname()) ?: '')) {
-                if (! in_array($normalizedPath, $this->allowlistedExternalHttpMockBaseline, true)) {
+                if (! array_key_exists($normalizedPath, $this->allowlistedExternalHttpMockBaseline)) {
                     $newExternalHttpMockViolations[] = $normalizedPath;
                 }
             }
@@ -152,33 +152,65 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
         );
     }
 
-    /**
-     * Phase 6C: Allowlist entries must carry expiry dates.
-     * If an entry's expiry date has passed, this guard fails — forcing resolution
-     * or explicit extension with updated justification.
-     */
-    public function test_allowlist_entries_have_not_expired(): void
+    public function test_allowlist_entries_have_metadata_and_are_not_expired(): void
     {
         $today = new \DateTimeImmutable('today');
-        $expired = [];
+        $errors = [];
 
-        foreach ($this->allowlistedRefreshDatabaseBaseline as $path => $expiryDate) {
-            $expiry = new \DateTimeImmutable($expiryDate);
+        $metadataGroups = [
+            'allowlistedPathPrefixes' => $this->allowlistedPathPrefixes,
+            'allowlistedRefreshDatabaseBaseline' => $this->allowlistedRefreshDatabaseBaseline,
+            'allowlistedExternalHttpMockBaseline' => $this->allowlistedExternalHttpMockBaseline,
+        ];
+
+        foreach ($metadataGroups as $groupName => $entries) {
+            foreach ($entries as $path => $meta) {
+                if (trim($meta['owner']) === '' || trim($meta['issue']) === '' || trim($meta['rationale']) === '' || trim($meta['expires']) === '') {
+                    $errors[] = "{$groupName}: {$path} has incomplete metadata (owner/issue/rationale/expires).";
+                    continue;
+                }
+
+                try {
+                    $expiry = new \DateTimeImmutable($meta['expires']);
+                } catch (\Exception $e) {
+                    $errors[] = "{$groupName}: {$path} has invalid expires date {$meta['expires']}";
+                    continue;
+                }
+
+                if ($today > $expiry) {
+                    $errors[] = "{$groupName}: {$path} expired on {$meta['expires']}";
+                }
+            }
+        }
+
+        foreach ($this->guardedGatewayHotspotPatterns as $path => $meta) {
+            if (trim($meta['pattern']) === '' || trim($meta['owner']) === '' || trim($meta['issue']) === '' || trim($meta['rationale']) === '' || trim($meta['expires']) === '') {
+                $errors[] = "guardedGatewayHotspotPatterns: {$path} has incomplete metadata (pattern/owner/issue/rationale/expires).";
+                continue;
+            }
+
+            try {
+                $expiry = new \DateTimeImmutable($meta['expires']);
+            } catch (\Exception $e) {
+                $errors[] = "guardedGatewayHotspotPatterns: {$path} has invalid expires date {$meta['expires']}";
+                continue;
+            }
+
             if ($today > $expiry) {
-                $expired[] = "{$path} expired on {$expiryDate}";
+                $errors[] = "guardedGatewayHotspotPatterns: {$path} expired on {$meta['expires']}";
             }
         }
 
         $this->assertSame(
             [],
-            $expired,
-            "The following allowlist entries have expired and must be resolved or extended:\n".implode("\n", $expired)
+            $errors,
+            "Allowlist metadata errors:\n".implode("\n", $errors)
         );
     }
 
     private function isAllowlisted(string $path): bool
     {
-        foreach ($this->allowlistedPathPrefixes as $prefix) {
+        foreach (array_keys($this->allowlistedPathPrefixes) as $prefix) {
             if (str_starts_with($path, $prefix)) {
                 return true;
             }
@@ -270,6 +302,6 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
             return false;
         }
 
-        return preg_match($this->guardedGatewayHotspotPatterns[$path], $contents) === 1;
+        return preg_match($this->guardedGatewayHotspotPatterns[$path]['pattern'], $contents) === 1;
     }
 }

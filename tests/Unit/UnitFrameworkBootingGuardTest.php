@@ -16,11 +16,12 @@ class UnitFrameworkBootingGuardTest extends UnitTestCase
      *
      * This guard freezes the baseline and fails if the count increases.
      *
-     * @var array{owner:string, issue:string, expires:string, max_count:int}
+     * @var array{owner:string, issue:string, rationale:string, expires:string, max_count:int}
      */
     private array $frameworkBootingBaseline = [
         'owner' => 'QA/Platform',
         'issue' => 'phase-2-unit-purification',
+        'rationale' => 'Legacy Unit framework-booting files remain while PureUnit migrations continue.',
         'expires' => '2026-04-30',
         'max_count' => 4,
     ];
@@ -30,8 +31,8 @@ class UnitFrameworkBootingGuardTest extends UnitTestCase
         $meta = $this->frameworkBootingBaseline;
         $errors = [];
 
-        if (trim($meta['owner']) === '' || trim($meta['issue']) === '' || trim($meta['expires']) === '') {
-            $errors[] = 'frameworkBootingBaseline requires owner, issue, and expires.';
+        if (trim($meta['owner']) === '' || trim($meta['issue']) === '' || trim($meta['rationale']) === '' || trim($meta['expires']) === '') {
+            $errors[] = 'frameworkBootingBaseline requires owner, issue, rationale, and expires.';
         }
 
         if ($meta['max_count'] < 0) {
@@ -70,7 +71,7 @@ class UnitFrameworkBootingGuardTest extends UnitTestCase
 
             $contents = file_get_contents($file->getPathname()) ?: '';
             $isFrameworkBooting = preg_match(
-                '/extends\s+(?:UnitTestCase|TestCase|FeatureTestCase|IntegrationTestCase)\b|uses\s*\(\s*Tests\\UnitTestCase::class\s*\)/',
+                '/extends\s+(?:UnitTestCase|TestCase|FeatureTestCase|IntegrationTestCase)\b|uses\s*\(\s*Tests\\\\UnitTestCase::class\s*\)/',
                 $contents
             ) === 1;
 

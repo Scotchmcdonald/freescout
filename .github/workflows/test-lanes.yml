@@ -64,10 +64,12 @@ jobs:
         run: php scripts/ci/check-quarantine-registry.php
         continue-on-error: false
 
-      - name: 📦 Module Isolation Guard
+      - name: 📦 Test Isolation & Meaningfulness Guards
         run: |
           php artisan test tests/Unit/ModuleUnitIsolationGuardTest.php --parallel --processes=10 -q
           php artisan test tests/Unit/RefreshDatabaseUsageGuardTest.php --parallel --processes=10 -q
+          php artisan test tests/Unit/UnitFrameworkBootingGuardTest.php --parallel --processes=10 -q
+          php artisan test tests/Unit/FeatureWriteAssertionDepthGuardTest.php --parallel --processes=10 -q
         continue-on-error: false
 
       - name: Runtime Budget (guards lane)
