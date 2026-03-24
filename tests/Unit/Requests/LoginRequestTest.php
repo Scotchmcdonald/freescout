@@ -2,14 +2,26 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration\Requests;
+namespace Tests\Unit\Requests;
 
 use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Support\Facades\Validator;
-use Tests\IntegrationTestCase;
+use Illuminate\Translation\ArrayLoader;
+use Illuminate\Translation\Translator;
+use Illuminate\Validation\Factory;
+use Tests\PureUnitTestCase;
 
-class LoginRequestTest extends IntegrationTestCase
+class LoginRequestTest extends PureUnitTestCase
 {
+    private Factory $validatorFactory;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $translator = new Translator(new ArrayLoader, 'en');
+        $this->validatorFactory = new Factory($translator);
+    }
+
     public function test_login_request_authorization_returns_true(): void
     {
         $request = new LoginRequest;
@@ -34,7 +46,7 @@ class LoginRequestTest extends IntegrationTestCase
     public function test_login_request_validates_email_format(): void
     {
         $request = new LoginRequest;
-        $validator = Validator::make(
+        $validator = $this->validatorFactory->make(
             ['email' => 'invalid-email', 'password' => 'password123'],
             $request->rules()
         );
@@ -46,7 +58,7 @@ class LoginRequestTest extends IntegrationTestCase
     public function test_login_request_requires_email(): void
     {
         $request = new LoginRequest;
-        $validator = Validator::make(
+        $validator = $this->validatorFactory->make(
             ['password' => 'password123'],
             $request->rules()
         );
@@ -58,7 +70,7 @@ class LoginRequestTest extends IntegrationTestCase
     public function test_login_request_requires_password(): void
     {
         $request = new LoginRequest;
-        $validator = Validator::make(
+        $validator = $this->validatorFactory->make(
             ['email' => 'test@example.com'],
             $request->rules()
         );
@@ -70,7 +82,7 @@ class LoginRequestTest extends IntegrationTestCase
     public function test_login_request_accepts_valid_credentials(): void
     {
         $request = new LoginRequest;
-        $validator = Validator::make(
+        $validator = $this->validatorFactory->make(
             ['email' => 'test@example.com', 'password' => 'password123'],
             $request->rules()
         );

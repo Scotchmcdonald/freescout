@@ -2,24 +2,50 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration\Misc;
+namespace Tests\Unit\Misc;
 
 use App\Misc\MailHelper;
-use Tests\IntegrationTestCase;
+use Illuminate\Config\Repository;
+use Illuminate\Container\Container;
+use Illuminate\Foundation\Application;
+use Tests\PureUnitTestCase;
 
 /**
- * Test MailHelper::getMessageIdHash() method
- *
- * Simple method but important for email threading
+ * Test MailHelper::getMessageIdHash() method.
  */
-class MailHelperGetMessageIdHashTest extends IntegrationTestCase
+class MailHelperGetMessageIdHashTest extends PureUnitTestCase
 {
+    private ?Container $previousContainer = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->previousContainer = Container::getInstance();
+
+        $app = new Application(getcwd());
+        $app->instance('config', new Repository([
+            'app' => [
+                'key' => 'base64:test-app-key-for-mail-helper-hash',
+            ],
+        ]));
+
+        Container::setInstance($app);
+    }
+
+    protected function tearDown(): void
+    {
+        Container::setInstance($this->previousContainer);
+
+        parent::tearDown();
+    }
+
     public function test_get_message_id_hash_returns_md5_hash(): void
     {
         $result = MailHelper::getMessageIdHash(123);
 
         $this->assertIsString($result);
-        $this->assertEquals(32, strlen($result)); // MD5 is 32 chars
+        $this->assertEquals(32, strlen($result));
         $this->assertMatchesRegularExpression('/^[a-f0-9]{32}$/', $result);
     }
 
@@ -57,16 +83,10 @@ class MailHelperGetMessageIdHashTest extends IntegrationTestCase
 
     public function test_get_message_id_hash_uses_app_key_in_hash(): void
     {
-        // If app key changes, hash should change for same ID
-        // This test documents that behavior exists
-        $originalKey = config('app.key');
+        $hash = MailHelper::getMessageIdHash(123);
 
-        $hash1 = MailHelper::getMessageIdHash(123);
-
-        // Simulate different app key (though we can't actually change it in test)
-        // Just verify hash is computed
-        $this->assertIsString($hash1);
-        $this->assertNotEmpty($hash1);
+        $this->assertIsString($hash);
+        $this->assertNotEmpty($hash);
     }
 
     public function test_get_message_id_hash_sequential_ids_have_different_hashes(): void
@@ -76,7 +96,6 @@ class MailHelperGetMessageIdHashTest extends IntegrationTestCase
             $hashes[] = MailHelper::getMessageIdHash($i);
         }
 
-        // All hashes should be unique
         $this->assertCount(10, array_unique($hashes));
     }
 }
