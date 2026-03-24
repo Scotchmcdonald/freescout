@@ -498,3 +498,33 @@ Artifacts:
 - Continue harvesting remaining pure helper pockets in ContractManager/PIB models with low DB coupling.
 - Re-run impact ranking after each large wave to focus on the highest statement-weight methods still uncovered.
 
+## Wave 15 Started
+
+Pure helper wave focused on Payment module helpers plus lightweight core model predicates (Role/Channel).
+
+## Wave 15 Results
+
+- New test files:
+	- tests/Unit/Payment/PaymentModelHelpersTest.php (7 tests: payment status/refund/amount formatting helpers + payment method validity/expiry/display helpers)
+	- tests/Unit/Models/RoleChannelHelperTest.php (2 tests: role scope/super-admin predicates + channel active predicate)
+- Targeted run: 9 passed (44 assertions).
+- Full unit lane: 976 -> 985 passed (+9).
+
+Coverage deltas (method-level, focused impact):
+- Payment::isSuccessful/isFailed/isPending/isRefunded/canBeRefunded/getRemainingRefundableAmount/getFormattedAmount/getFormattedTotalAmount: 0% -> covered
+- PaymentMethod::isExpired/isValid/isNearExpiration/getMaskedCardNumber/getDisplayName: 0% -> covered
+- Role::isSuperAdmin/isInternal/isClient: 0% -> covered
+- Channel::isActive: 0% -> covered
+
+Validation notes:
+- First explicit unit-lane run hit an intermittent guard failure in RefreshDatabaseUsageGuardTest related to CaseManager permission registration bootstrap.
+- Immediate rerun of the same command passed cleanly; lane recorded as 985 passing.
+
+Artifacts:
+- Unit lane passing run: reports/test-results-2026-03-24_16-06-51.log
+
+## Next
+
+- Continue pure-safe wave harvesting in ClientPortal/SoftwareSubscriptions/SyncOperation helper pockets.
+- Defer persistence/relation-heavy methods to mixed strategy waves.
+
