@@ -52,6 +52,31 @@ test('users can not authenticate with non-existent email', function () {
     $this->assertGuest();
 });
 
+test('user authentication journey supports login, logout, and re-login', function () {
+    $user = User::factory()->create([
+        'email' => 'journey-auth@example.com',
+        'password' => bcrypt('journey-password'),
+    ]);
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'journey-password',
+    ])->assertRedirect(route('dashboard', absolute: false));
+
+    $this->assertAuthenticatedAs($user);
+    $this->assertDatabaseHas('users', ['id' => $user->id, 'email' => $user->email]);
+
+    $this->post('/logout')->assertRedirect('/');
+    $this->assertGuest();
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'journey-password',
+    ])->assertRedirect(route('dashboard', absolute: false));
+
+    $this->assertAuthenticatedAs($user);
+});
+
 test('login requires email', function () {
     $this->post('/login', [
         'password' => 'password123',

@@ -121,3 +121,74 @@ test('admin can send test alert', function () {
         return $mail->hasTo('admin@example.com');
     });
 });
+
+test('settings journey updates general, email, and alerts with persisted options', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+
+    $this->actingAs($admin)
+        ->post(route('settings.update'), [
+            'company_name' => 'Journey Company',
+            'app_timezone' => 'UTC',
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('success');
+
+    $this->assertDatabaseHas('options', [
+        'name' => 'company_name',
+        'value' => 'Journey Company',
+    ]);
+
+    $this->actingAs($admin)
+        ->post(route('settings.email.update'), [
+            'mail_driver' => 'smtp',
+            'mail_host' => 'journey.smtp.example.com',
+            'mail_port' => 587,
+            'mail_username' => 'journey-user',
+            'mail_password' => 'journey-pass',
+            'mail_encryption' => 'tls',
+            'mail_from_address' => 'journey@example.com',
+            'mail_from_name' => 'Journey Support',
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('success');
+
+    $this->assertDatabaseHas('options', [
+        'name' => 'mail_host',
+        'value' => 'journey.smtp.example.com',
+    ]);
+
+    $this->actingAs($admin)
+        ->put(route('settings.alerts.update'), [
+            'alert_recipients' => 'journey-alerts@example.com',
+            'alerts' => [
+                'failed_jobs' => true,
+            ],
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('success');
+
+    $this->assertDatabaseHas('options', [
+        'name' => 'alert_recipients',
+        'value' => 'journey-alerts@example.com',
+    ]);
+});
+
+test('invalid email settings are rejected and previous host value is preserved', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    Option::create(['name' => 'mail_host', 'value' => 'stable.smtp.example.com']);
+
+    $this->actingAs($admin)
+        ->post(route('settings.email.update'), [
+            'mail_driver' => 'smtp',
+            'mail_host' => 'invalid host with spaces',
+            'mail_port' => 587,
+            'mail_from_address' => 'not-an-email',
+            'mail_from_name' => 'Broken Config',
+        ])
+        ->assertSessionHasErrors();
+
+    $this->assertDatabaseHas('options', [
+        'name' => 'mail_host',
+        'value' => 'stable.smtp.example.com',
+    ]);
+});

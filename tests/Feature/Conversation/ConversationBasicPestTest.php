@@ -160,3 +160,72 @@ test('closed conversation shows correct badge', function () {
     $response->assertOk()->assertViewHas('conversation');
     expect($response->viewData('conversation')->status)->toBe(Conversation::STATUS_CLOSED);
 });
+
+test('conversation lifecycle journey creates, replies, and closes conversation', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    $mailbox = Mailbox::factory()->create();
+    $mailbox->users()->attach($admin);
+
+    $customer = Customer::factory()->create();
+    $email = Email::factory()->create([
+        'customer_id' => $customer->id,
+        'type' => 1,
+    ]);
+
+    $this->actingAs($admin)->post(route('conversations.store', $mailbox), [
+        'customer_id' => $customer->id,
+        'subject' => 'Lifecycle Journey Conversation',
+        'body' => 'Initial lifecycle body',
+        'to' => [$email->email],
+    ])->assertRedirect();
+
+    $conversation = Conversation::query()
+        ->where('mailbox_id', $mailbox->id)
+        ->where('subject', 'Lifecycle Journey Conversation')
+        ->latest('id')
+        ->firstOrFail();
+
+    $this->assertDatabaseHas('conversations', [
+        'id' => $conversation->id,
+        'mailbox_id' => $mailbox->id,
+        'customer_id' => $customer->id,
+    ]);
+
+    $this->actingAs($admin)->post(route('conversations.reply', $conversation), [
+        'body' => 'Lifecycle reply body',
+        'to' => [$email->email],
+    ])->assertRedirect();
+
+    $this->assertDatabaseHas('threads', [
+        'conversation_id' => $conversation->id,
+        'body' => '<p>Lifecycle reply body</p>',
+        'created_by_user_id' => $admin->id,
+    ]);
+
+    $this->actingAs($admin)->patch(route('conversations.update', $conversation), [
+        'status' => Conversation::STATUS_CLOSED,
+    ])->assertRedirect();
+
+    $this->assertDatabaseHas('conversations', [
+        'id' => $conversation->id,
+        'status' => Conversation::STATUS_CLOSED,
+    ]);
+});
+
+test('guest cannot create conversation and no conversation is persisted', function () {
+    $mailbox = Mailbox::factory()->create();
+    $customer = Customer::factory()->create();
+    $email = Email::factory()->create(['customer_id' => $customer->id, 'type' => 1]);
+
+    $this->post(route('conversations.store', $mailbox), [
+        'customer_id' => $customer->id,
+        'subject' => 'Guest Attempt',
+        'body' => 'Guest should not create this',
+        'to' => [$email->email],
+    ])->assertRedirect(route('login'));
+
+    $this->assertDatabaseMissing('conversations', [
+        'mailbox_id' => $mailbox->id,
+        'subject' => 'Guest Attempt',
+    ]);
+});
