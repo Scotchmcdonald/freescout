@@ -472,3 +472,61 @@ jobs:
         run: |
           echo "❌ One or more test lanes failed. Check the logs above."
           exit 1
+
+  # ====================================================================
+  # PHASE 5 EXIT GATE: Validate SLO compliance, skip budget, flake rate
+  # ====================================================================
+  phase-5-exit-gate:
+    name: 🎯 Phase 5 Exit Gate
+    runs-on: ubuntu-latest
+    needs: [test-results]
+    if: always()
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring
+          coverage: none
+
+      - name: Download all test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: reports
+          merge-multiple: true
+
+      - name: Run Phase 5 Exit Gate Verification
+        run: |
+          mkdir -p reports
+          php scripts/ci/check-phase-5-exit-gate.php \
+            --reports-dir=reports \
+            --output=reports/phase-5-exit-gate-latest.md
+
+      - name: Check Exit Gate Status
+        run: |
+          if grep -q "EXIT GATE: PASSED" reports/phase-5-exit-gate-latest.md; then
+            echo "✅ Phase 5 exit gate criteria met!"
+            exit 0
+          else
+            echo "⏳ Phase 5 exit gate not yet complete. Continuing collection phase."
+            exit 0  # Don't block CI, just track progress
+          fi
+
+      - name: Generate Compliance Dashboard
+        run: |
+          mkdir -p public/dashboards
+          php scripts/ci/build-phase-5-dashboard.php \
+            --reports-dir=reports \
+            --output=public/dashboards/phase-5-compliance.html
+
+      - name: Upload Exit Gate & Dashboard
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase-5-gate-and-dashboard
+          path: |
+            reports/phase-5-exit-gate-latest.md
+            public/dashboards/phase-5-compliance.html
+          if-no-files-found: ignore
