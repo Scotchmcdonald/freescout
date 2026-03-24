@@ -102,12 +102,12 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_test_connection_returns_result_array_with_required_keys(): void
     {
         $mailbox = (new Mailbox)->forceFill([
-            'out_server'   => 'smtp.example.com',
-            'out_port'     => 587,
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
             'out_username' => 'test@example.com',
             'out_password' => 'password',
-            'email'        => 'test@example.com',
-            'name'         => 'Test Mailbox',
+            'email' => 'test@example.com',
+            'name' => 'Test Mailbox',
         ]);
 
         $result = (new SmtpService)->testConnection($mailbox, 'recipient@example.com');
@@ -121,7 +121,7 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $mailbox = (new Mailbox)->forceFill([
             'out_server' => null,
-            'email'      => 'test@example.com',
+            'email' => 'test@example.com',
         ]);
 
         $result = (new SmtpService)->testConnection($mailbox, 'recipient@example.com');
@@ -136,14 +136,14 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_test_connection_logs_start_with_correct_parameters(): void
     {
         $mailbox = (new Mailbox)->forceFill([
-            'id'           => 42,
-            'out_server'   => 'smtp.example.com',
-            'out_port'     => 587,
+            'id' => 42,
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
             'out_username' => 'test@example.com',
             'out_password' => 'password',
             'out_encryption' => 'tls',
-            'email'        => 'test@example.com',
-            'name'         => 'Test Mailbox',
+            'email' => 'test@example.com',
+            'name' => 'Test Mailbox',
         ]);
 
         (new SmtpService)->testConnection($mailbox, 'recipient@example.com');
@@ -162,9 +162,9 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_test_connection_requires_valid_email_address(): void
     {
         $mailbox = (new Mailbox)->forceFill([
-            'out_server'   => 'smtp.example.com',
-            'out_port'     => 587,
-            'email'        => 'test@example.com',
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'test@example.com',
         ]);
 
         $result = (new SmtpService)->testConnection($mailbox, 'recipient@example.com');
@@ -176,11 +176,11 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_test_connection_fails_with_invalid_server(): void
     {
         $mailbox = (new Mailbox)->forceFill([
-            'out_server'   => 'invalid.smtp.server',
-            'out_port'     => 587,
+            'out_server' => 'invalid.smtp.server',
+            'out_port' => 587,
             'out_username' => 'test@example.com',
             'out_password' => 'wrongpass',
-            'email'        => 'test@example.com',
+            'email' => 'test@example.com',
         ]);
 
         $result = (new SmtpService)->testConnection($mailbox, 'recipient@example.com');
@@ -194,11 +194,11 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_test_connection_handles_authentication_errors(): void
     {
         $mailbox = (new Mailbox)->forceFill([
-            'out_server'   => 'smtp.gmail.com',
-            'out_port'     => 587,
+            'out_server' => 'smtp.gmail.com',
+            'out_port' => 587,
             'out_username' => 'test@gmail.com',
             'out_password' => 'invalid_app_password',
-            'email'        => 'test@gmail.com',
+            'email' => 'test@gmail.com',
         ]);
 
         $result = (new SmtpService)->testConnection($mailbox, 'recipient@example.com');
@@ -213,11 +213,11 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_test_connection_validates_port_number(): void
     {
         $mailbox = (new Mailbox)->forceFill([
-            'out_server'   => 'smtp.example.com',
-            'out_port'     => 99999,
+            'out_server' => 'smtp.example.com',
+            'out_port' => 99999,
             'out_username' => 'test@example.com',
             'out_password' => 'password',
-            'email'        => 'test@example.com',
+            'email' => 'test@example.com',
         ]);
 
         $result = (new SmtpService)->testConnection($mailbox, 'recipient@example.com');
@@ -230,11 +230,11 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_test_connection_handles_timeout(): void
     {
         $mailbox = (new Mailbox)->forceFill([
-            'out_server'   => 'non-responsive-server.com',
-            'out_port'     => 587,
+            'out_server' => 'non-responsive-server.com',
+            'out_port' => 587,
             'out_username' => 'test@example.com',
             'out_password' => 'password',
-            'email'        => 'test@example.com',
+            'email' => 'test@example.com',
         ]);
 
         $result = (new SmtpService)->testConnection($mailbox, 'recipient@example.com');
@@ -250,9 +250,9 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_validate_settings_with_valid_settings(): void
     {
         $errors = (new SmtpService)->validateSettings([
-            'out_server'    => 'smtp.example.com',
-            'out_port'      => 587,
-            'email'         => 'test@example.com',
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'test@example.com',
             'out_encryption' => 2,
         ]);
 
@@ -264,7 +264,7 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_port' => 587,
-            'email'    => 'test@example.com',
+            'email' => 'test@example.com',
         ]);
 
         $this->assertArrayHasKey('out_server', $errors);
@@ -275,7 +275,7 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => 'smtp.example.com',
-            'email'      => 'test@example.com',
+            'email' => 'test@example.com',
         ]);
 
         $this->assertArrayHasKey('out_port', $errors);
@@ -286,8 +286,8 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 0,
-            'email'      => 'test@example.com',
+            'out_port' => 0,
+            'email' => 'test@example.com',
         ]);
 
         $this->assertArrayHasKey('out_port', $errors);
@@ -298,8 +298,8 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 65536,
-            'email'      => 'test@example.com',
+            'out_port' => 65536,
+            'email' => 'test@example.com',
         ]);
 
         $this->assertArrayHasKey('out_port', $errors);
@@ -310,8 +310,8 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 'not-a-number',
-            'email'      => 'test@example.com',
+            'out_port' => 'not-a-number',
+            'email' => 'test@example.com',
         ]);
 
         $this->assertArrayHasKey('out_port', $errors);
@@ -322,7 +322,7 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 587,
+            'out_port' => 587,
         ]);
 
         $this->assertArrayHasKey('email', $errors);
@@ -333,8 +333,8 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 587,
-            'email'      => 'invalid-email-format',
+            'out_port' => 587,
+            'email' => 'invalid-email-format',
         ]);
 
         $this->assertArrayHasKey('email', $errors);
@@ -354,9 +354,9 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_validate_settings_warns_about_port_465_without_ssl(): void
     {
         $errors = (new SmtpService)->validateSettings([
-            'out_server'     => 'smtp.example.com',
-            'out_port'       => 465,
-            'email'          => 'test@example.com',
+            'out_server' => 'smtp.example.com',
+            'out_port' => 465,
+            'email' => 'test@example.com',
             'out_encryption' => 0,
         ]);
 
@@ -367,9 +367,9 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_validate_settings_warns_about_port_587_without_tls(): void
     {
         $errors = (new SmtpService)->validateSettings([
-            'out_server'     => 'smtp.example.com',
-            'out_port'       => 587,
-            'email'          => 'test@example.com',
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'test@example.com',
             'out_encryption' => 0,
         ]);
 
@@ -380,9 +380,9 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_validate_settings_accepts_port_465_with_ssl(): void
     {
         $errors = (new SmtpService)->validateSettings([
-            'out_server'     => 'smtp.example.com',
-            'out_port'       => 465,
-            'email'          => 'test@example.com',
+            'out_server' => 'smtp.example.com',
+            'out_port' => 465,
+            'email' => 'test@example.com',
             'out_encryption' => 1,
         ]);
 
@@ -392,9 +392,9 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_validate_settings_accepts_port_587_with_tls(): void
     {
         $errors = (new SmtpService)->validateSettings([
-            'out_server'     => 'smtp.example.com',
-            'out_port'       => 587,
-            'email'          => 'test@example.com',
+            'out_server' => 'smtp.example.com',
+            'out_port' => 587,
+            'email' => 'test@example.com',
             'out_encryption' => 2,
         ]);
 
@@ -405,8 +405,8 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => '587',
-            'email'      => 'test@example.com',
+            'out_port' => '587',
+            'email' => 'test@example.com',
         ]);
 
         $this->assertArrayNotHasKey('out_port', $errors);
@@ -416,8 +416,8 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => -1,
-            'email'      => 'test@example.com',
+            'out_port' => -1,
+            'email' => 'test@example.com',
         ]);
 
         $this->assertArrayHasKey('out_port', $errors);
@@ -427,8 +427,8 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 587,
-            'email'      => 'user+tag@example.com',
+            'out_port' => 587,
+            'email' => 'user+tag@example.com',
         ]);
 
         $this->assertArrayNotHasKey('email', $errors);
@@ -438,8 +438,8 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 587,
-            'email'      => 'userwithnodomain',
+            'out_port' => 587,
+            'email' => 'userwithnodomain',
         ]);
 
         $this->assertArrayHasKey('email', $errors);
@@ -449,8 +449,8 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 587,
-            'email'      => 'user @example.com',
+            'out_port' => 587,
+            'email' => 'user @example.com',
         ]);
 
         $this->assertArrayHasKey('email', $errors);
@@ -462,15 +462,15 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
 
         $errors25 = $service->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 25,
-            'email'      => 'test@example.com',
+            'out_port' => 25,
+            'email' => 'test@example.com',
         ]);
         $this->assertArrayNotHasKey('out_port', $errors25);
 
         $errors2525 = $service->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 2525,
-            'email'      => 'test@example.com',
+            'out_port' => 2525,
+            'email' => 'test@example.com',
         ]);
         $this->assertArrayNotHasKey('out_port', $errors2525);
     }
@@ -479,8 +479,8 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     {
         $errors = (new SmtpService)->validateSettings([
             'out_server' => '  smtp.example.com  ',
-            'out_port'   => 587,
-            'email'      => 'test@example.com',
+            'out_port' => 587,
+            'email' => 'test@example.com',
         ]);
 
         $this->assertArrayNotHasKey('out_server', $errors);
@@ -492,15 +492,15 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
 
         $errorsMin = $service->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 1,
-            'email'      => 'test@example.com',
+            'out_port' => 1,
+            'email' => 'test@example.com',
         ]);
         $this->assertArrayNotHasKey('out_port', $errorsMin);
 
         $errorsMax = $service->validateSettings([
             'out_server' => 'smtp.example.com',
-            'out_port'   => 65535,
-            'email'      => 'test@example.com',
+            'out_port' => 65535,
+            'email' => 'test@example.com',
         ]);
         $this->assertArrayNotHasKey('out_port', $errorsMax);
     }
@@ -512,9 +512,9 @@ class SmtpServiceComprehensiveTest extends PureUnitTestCase
     public function test_smtp_service_test_connection_returns_array(): void
     {
         $mailbox = new Mailbox([
-            'name'         => 'Test Mailbox',
-            'out_server'   => null,
-            'out_port'     => null,
+            'name' => 'Test Mailbox',
+            'out_server' => null,
+            'out_port' => null,
             'out_username' => null,
             'out_password' => null,
         ]);

@@ -15,16 +15,16 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      * Temporary allowlist while legacy module unit suites are migrated.
      * Keep this list explicit and shrink it over time.
      *
-    * @var array<string, array{owner:string, issue:string, rationale:string, expires:string}>
+     * @var array<string, array{owner:string, issue:string, rationale:string, expires:string}>
      */
     private array $allowlistedPathPrefixes = [];
 
     /**
      * Baseline of known legacy Unit tests still using RefreshDatabase under
      * allowlisted modules. Keep shrinking this list during migrations.
-    * Metadata is mandatory for each entry.
+     * Metadata is mandatory for each entry.
      *
-    * @var array<string, array{owner:string, issue:string, rationale:string, expires:string}>
+     * @var array<string, array{owner:string, issue:string, rationale:string, expires:string}>
      */
     private array $allowlistedRefreshDatabaseBaseline = [];
 
@@ -35,7 +35,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      * Guard behavior: block new violations while allowing existing legacy files
      * to be remediated incrementally.
      *
-    * @var array<string, array{owner:string, issue:string, rationale:string, expires:string}>
+     * @var array<string, array{owner:string, issue:string, rationale:string, expires:string}>
      */
     private array $allowlistedExternalHttpMockBaseline = [];
 
@@ -43,7 +43,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
      * Guarded hotspot tests where mocking the gateway/service-under-test internals
      * causes false confidence. Keep this list explicit and narrow.
      *
-    * @var array<string, array{pattern:string, owner:string, issue:string, rationale:string, expires:string}>
+     * @var array<string, array{pattern:string, owner:string, issue:string, rationale:string, expires:string}>
      */
     private array $guardedGatewayHotspotPatterns = [];
 

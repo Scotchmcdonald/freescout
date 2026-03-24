@@ -47,44 +47,44 @@ class MailHelperTest extends PureUnitTestCase
 
     public function test_is_auto_responder_returns_true_for_delivered_to_autoresponder(): void
     {
-        $this->assertTrue(MailHelper::isAutoResponder("Delivered-To: autoresponder"));
+        $this->assertTrue(MailHelper::isAutoResponder('Delivered-To: autoresponder'));
     }
 
     public function test_is_auto_responder_returns_true_for_x_autorespond_header(): void
     {
-        $this->assertTrue(MailHelper::isAutoResponder("X-Autorespond: yes"));
+        $this->assertTrue(MailHelper::isAutoResponder('X-Autorespond: yes'));
     }
 
     public function test_is_auto_responder_returns_true_for_x_autoresponder_header(): void
     {
-        $this->assertTrue(MailHelper::isAutoResponder("X-Autoresponder: yes"));
+        $this->assertTrue(MailHelper::isAutoResponder('X-Autoresponder: yes'));
     }
 
     public function test_is_auto_responder_returns_true_for_precedence_junk(): void
     {
-        $this->assertTrue(MailHelper::isAutoResponder("Precedence: junk"));
+        $this->assertTrue(MailHelper::isAutoResponder('Precedence: junk'));
     }
 
     public function test_is_auto_responder_returns_true_for_precedence_list(): void
     {
-        $this->assertTrue(MailHelper::isAutoResponder("Precedence: list"));
+        $this->assertTrue(MailHelper::isAutoResponder('Precedence: list'));
     }
 
     public function test_is_auto_responder_returns_true_for_x_precedence_bulk(): void
     {
-        $this->assertTrue(MailHelper::isAutoResponder("X-Precedence: bulk"));
+        $this->assertTrue(MailHelper::isAutoResponder('X-Precedence: bulk'));
     }
 
     public function test_is_auto_responder_skips_malformed_header_without_colon(): void
     {
         // No colon means explode(':') gives only 1 part → count($parts) !== 2 → skipped
-        $this->assertFalse(MailHelper::isAutoResponder("AutoSubmitted yes"));
+        $this->assertFalse(MailHelper::isAutoResponder('AutoSubmitted yes'));
     }
 
     public function test_is_auto_responder_returns_false_for_unmatched_delivered_to_value(): void
     {
         // delivered-to header exists but value is not 'autoresponder'
-        $this->assertFalse(MailHelper::isAutoResponder("Delivered-To: user@example.com"));
+        $this->assertFalse(MailHelper::isAutoResponder('Delivered-To: user@example.com'));
     }
 
     // -------------------------------------------------------------------------
@@ -230,7 +230,7 @@ class MailHelperTest extends PureUnitTestCase
 
     public function test_extract_reply_returns_full_text_when_no_separator(): void
     {
-        $body = "Hello, thank you for your message.";
+        $body = 'Hello, thank you for your message.';
         $this->assertSame($body, MailHelper::extractReply($body));
     }
 

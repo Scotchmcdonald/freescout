@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Modules\AppHealth\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Builder as SchemaBuilder;
+use Illuminate\Routing\Router;
 use Illuminate\View\View;
 use Modules\AppHealth\Contracts\TriggerEvaluatorContract;
 use Modules\AppHealth\Models\ScalingScorecardSnapshot;
@@ -16,7 +16,9 @@ class OperatorScorecardPageController extends Controller
 {
     public function __construct(
         private readonly TriggerEvaluatorContract $evaluator,
-        private readonly TrendDeltaService $trendService
+        private readonly TrendDeltaService $trendService,
+        private readonly Router $router,
+        private readonly SchemaBuilder $schema
     ) {}
 
     public function __invoke(): View
@@ -29,7 +31,8 @@ class OperatorScorecardPageController extends Controller
         }
 
         $checks = is_array($scorecard['checks'] ?? null) ? $scorecard['checks'] : [];
-        $trend = $this->trendService->weeklyDelta((int) ($scorecard['breach_count'] ?? 0));
+        $breachCount = is_numeric($scorecard['breach_count'] ?? null) ? (int) $scorecard['breach_count'] : 0;
+        $trend = $this->trendService->weeklyDelta($breachCount);
 
         return view('apphealth::scorecard.index', [
             'scorecard' => $scorecard,
@@ -47,7 +50,7 @@ class OperatorScorecardPageController extends Controller
     {
         $links = [];
 
-        if (Route::has('admin.resilience.index')) {
+        if ($this->router->has('admin.resilience.index')) {
             $links[] = [
                 'label' => 'Resilience Dashboard',
                 'href' => route('admin.resilience.index'),
@@ -55,7 +58,8 @@ class OperatorScorecardPageController extends Controller
             ];
         }
 
-        $grafanaUrl = trim((string) config('apphealth.observability.grafana_url', ''));
+        $configuredGrafanaUrl = config('apphealth.observability.grafana_url', '');
+        $grafanaUrl = trim(is_string($configuredGrafanaUrl) ? $configuredGrafanaUrl : '');
 
         if ($grafanaUrl !== '') {
             $links[] = [
@@ -65,7 +69,8 @@ class OperatorScorecardPageController extends Controller
             ];
         }
 
-        $prometheusUrl = trim((string) config('apphealth.observability.prometheus_url', ''));
+        $configuredPrometheusUrl = config('apphealth.observability.prometheus_url', '');
+        $prometheusUrl = trim(is_string($configuredPrometheusUrl) ? $configuredPrometheusUrl : '');
 
         if ($prometheusUrl !== '') {
             $links[] = [
@@ -81,7 +86,7 @@ class OperatorScorecardPageController extends Controller
     private function latestSnapshot(): ?ScalingScorecardSnapshot
     {
         try {
-            if (! Schema::hasTable('app_health_scaling_scorecard_snapshots')) {
+            if (! $this->schema->hasTable('app_health_scaling_scorecard_snapshots')) {
                 return null;
             }
 

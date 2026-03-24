@@ -36,11 +36,12 @@ class HelperLogicTest extends PureUnitTestCase
         $this->originalContainer = Container::getInstance();
         $this->originalFacadeApp = Facade::getFacadeApplication();
 
-    // Flush any facade instances cached by prior tests in this process.
-    Facade::clearResolvedInstances();
+        // Flush any facade instances cached by prior tests in this process.
+        Facade::clearResolvedInstances();
 
-    // Anonymous container: adds app-level methods used by Helper statics.
-        $container = new class extends Container {
+        // Anonymous container: adds app-level methods used by Helper statics.
+        $container = new class extends Container
+        {
             public function runningInConsole(): bool
             {
                 return PHP_SAPI === 'cli';
@@ -53,20 +54,21 @@ class HelperLogicTest extends PureUnitTestCase
 
             public function basePath(string $path = ''): string
             {
-                return '/var/www/html' . ($path !== '' ? '/' . ltrim($path, '/') : '');
+                return '/var/www/html'.($path !== '' ? '/'.ltrim($path, '/') : '');
             }
         };
 
         // Config stub – used by isInstalled(), getWebCronHash()
         $container->instance('config', new ConfigRepository([
             'app' => [
-                'key' => 'base64:' . base64_encode(str_repeat('a', 32)),
+                'key' => 'base64:'.base64_encode(str_repeat('a', 32)),
                 'url' => 'https://example.com',
             ],
         ]));
 
         // Log stub – used by logException(), downloadRemoteFile() on failure
-        $this->logStub = new class {
+        $this->logStub = new class
+        {
             /** @var list<array{string,array<mixed>}> */
             public array $errors = [];
 
@@ -91,7 +93,8 @@ class HelperLogicTest extends PureUnitTestCase
         $container->bind('request', static fn () => Request::create('https://test.example.com/'));
 
         // Files stub – used by unzip() when destination directory is missing
-        $container->bind('files', static fn () => new class {
+        $container->bind('files', static fn () => new class
+        {
             public function isDirectory(string $path): bool
             {
                 return is_dir($path);
@@ -99,7 +102,7 @@ class HelperLogicTest extends PureUnitTestCase
 
             public function makeDirectory(string $path, int $mode = 0755, bool $recursive = false, bool $force = false): bool
             {
-                throw new \RuntimeException('Unit test blocked dir creation: ' . $path);
+                throw new \RuntimeException('Unit test blocked dir creation: '.$path);
             }
         });
 
@@ -209,7 +212,7 @@ class HelperLogicTest extends PureUnitTestCase
 
     public function test_is_folder_writable_returns_true_for_writable_folder(): void
     {
-        $dir = sys_get_temp_dir() . '/helper_test_' . uniqid();
+        $dir = sys_get_temp_dir().'/helper_test_'.uniqid();
         mkdir($dir, 0755, true);
 
         $this->assertTrue(Helper::isFolderWritable($dir));
@@ -438,26 +441,26 @@ class HelperLogicTest extends PureUnitTestCase
 
     public function test_create_zip_archive_creates_file(): void
     {
-        $tmpDir = sys_get_temp_dir() . '/zip_test_' . uniqid();
+        $tmpDir = sys_get_temp_dir().'/zip_test_'.uniqid();
         mkdir($tmpDir, 0755, true);
-        file_put_contents($tmpDir . '/test.txt', 'Test content');
-        $zipPath = $tmpDir . '/archive.zip';
+        file_put_contents($tmpDir.'/test.txt', 'Test content');
+        $zipPath = $tmpDir.'/archive.zip';
 
-        $result = Helper::createZipArchive($zipPath, [$tmpDir . '/test.txt']);
+        $result = Helper::createZipArchive($zipPath, [$tmpDir.'/test.txt']);
 
         $this->assertTrue($result);
         $this->assertFileExists($zipPath);
 
         @unlink($zipPath);
-        @unlink($tmpDir . '/test.txt');
+        @unlink($tmpDir.'/test.txt');
         @rmdir($tmpDir);
     }
 
     public function test_create_zip_archive_with_empty_file_list(): void
     {
-        $tmpDir = sys_get_temp_dir() . '/zip_empty_' . uniqid();
+        $tmpDir = sys_get_temp_dir().'/zip_empty_'.uniqid();
         mkdir($tmpDir, 0755, true);
-        $zipPath = $tmpDir . '/empty.zip';
+        $zipPath = $tmpDir.'/empty.zip';
 
         $result = Helper::createZipArchive($zipPath, []);
 
@@ -469,7 +472,7 @@ class HelperLogicTest extends PureUnitTestCase
 
     public function test_create_zip_archive_skips_nonexistent_files(): void
     {
-        $zipPath = sys_get_temp_dir() . '/skip_test_' . uniqid() . '.zip';
+        $zipPath = sys_get_temp_dir().'/skip_test_'.uniqid().'.zip';
 
         $result = Helper::createZipArchive($zipPath, ['/nonexistent/file']);
 
@@ -488,7 +491,7 @@ class HelperLogicTest extends PureUnitTestCase
 
     public function test_unzip_returns_false_for_invalid_zip_content(): void
     {
-        $tempFile = sys_get_temp_dir() . '/invalid_' . uniqid() . '.zip';
+        $tempFile = sys_get_temp_dir().'/invalid_'.uniqid().'.zip';
         file_put_contents($tempFile, 'Not a zip file');
 
         $result = Helper::unzip($tempFile, sys_get_temp_dir());
@@ -503,12 +506,12 @@ class HelperLogicTest extends PureUnitTestCase
         // The safety guard in Helper::unzip() rejects absolute paths outside base_path().
         // Our basePath stub returns '/var/www/html', so '/nonexistent/dest' is rejected.
         $tmpDir = sys_get_temp_dir();
-        $zipPath = $tmpDir . '/guard_' . uniqid() . '.zip';
-        $srcDir  = $tmpDir . '/src_' . uniqid();
+        $zipPath = $tmpDir.'/guard_'.uniqid().'.zip';
+        $srcDir = $tmpDir.'/src_'.uniqid();
 
         mkdir($srcDir, 0755, true);
-        file_put_contents($srcDir . '/f.txt', 'x');
-        Helper::createZipArchive($zipPath, [$srcDir . '/f.txt']);
+        file_put_contents($srcDir.'/f.txt', 'x');
+        Helper::createZipArchive($zipPath, [$srcDir.'/f.txt']);
 
         if (file_exists($zipPath)) {
             $result = Helper::unzip($zipPath, '/nonexistent/destination');
@@ -516,7 +519,7 @@ class HelperLogicTest extends PureUnitTestCase
         }
 
         @unlink($zipPath);
-        @unlink($srcDir . '/f.txt');
+        @unlink($srcDir.'/f.txt');
         @rmdir($srcDir);
     }
 
@@ -524,7 +527,7 @@ class HelperLogicTest extends PureUnitTestCase
 
     public function test_set_env_file_var_adds_new_key(): void
     {
-        $envFile = sys_get_temp_dir() . '/.env_test_' . uniqid();
+        $envFile = sys_get_temp_dir().'/.env_test_'.uniqid();
         file_put_contents($envFile, "APP_NAME=Test\n");
 
         $result = Helper::setEnvFileVar('NEW_VAR', 'new_value', $envFile);
@@ -537,7 +540,7 @@ class HelperLogicTest extends PureUnitTestCase
 
     public function test_set_env_file_var_updates_existing_key(): void
     {
-        $envFile = sys_get_temp_dir() . '/.env_test_' . uniqid();
+        $envFile = sys_get_temp_dir().'/.env_test_'.uniqid();
         file_put_contents($envFile, "APP_NAME=OldName\nAPP_ENV=local\n");
 
         Helper::setEnvFileVar('APP_NAME', 'NewName', $envFile);
@@ -556,7 +559,7 @@ class HelperLogicTest extends PureUnitTestCase
 
     public function test_set_env_file_var_appends_when_key_missing(): void
     {
-        $envFile = sys_get_temp_dir() . '/.env_test_' . uniqid();
+        $envFile = sys_get_temp_dir().'/.env_test_'.uniqid();
         file_put_contents($envFile, "APP_KEY=existing\n");
 
         Helper::setEnvFileVar('APP_DEBUG', 'true', $envFile);

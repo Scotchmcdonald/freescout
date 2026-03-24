@@ -374,8 +374,8 @@ Once Phase 5 exit gate is passed, monitor these metrics:
 
 ## Resources
 
-- **Full Exit Gate Docs:** [docs/testing/PHASE_5_EXIT_GATE.md](../../testing/PHASE_5_EXIT_GATE.md)
-- **Quick Start:** [docs/testing/TESTING_QUICK_START.md](../../TESTING_QUICK_START.md)
-- **Skip Policy:** [docs/testing/TESTING_CONTRIBUTION_GUIDE.md#skip-governance](../../TESTING_CONTRIBUTION_GUIDE.md)
-- **Flake Triage:** [docs/testing/FLAKY_TEST_TRIAGE.md](../../FLAKY_TEST_TRIAGE.md)
-- **CI Scripts:** [scripts/ci/README.md](../../../scripts/ci/README.md)
+- **Exit Gate Policy:** [docs/testing/PHASE_5_EXIT_GATE.md](./PHASE_5_EXIT_GATE.md)
+- **Quick Start:** [docs/testing/TESTING_QUICK_START.md](./TESTING_QUICK_START.md)
+- **Skip Policy:** [docs/testing/TESTING_CONTRIBUTION_GUIDE.md#skip-governance](./TESTING_CONTRIBUTION_GUIDE.md#skip-governance)
+- **Flake Triage:** [docs/testing/FLAKY_TEST_TRIAGE.md](./FLAKY_TEST_TRIAGE.md)
+- **CI Scripts:** [scripts/ci/README.md](../../scripts/ci/README.md)

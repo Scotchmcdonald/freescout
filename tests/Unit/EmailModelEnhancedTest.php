@@ -150,7 +150,7 @@ class EmailModelEnhancedTest extends PureUnitTestCase
     {
         $email = new Email;
         $email->setRawAttributes([
-            'type'        => '1',
+            'type' => '1',
             'customer_id' => '42',
         ]);
 
@@ -192,7 +192,7 @@ class EmailModelEnhancedTest extends PureUnitTestCase
     public function test_email_model_can_set_all_attributes(): void
     {
         $email = new Email([
-            'email'       => 'work@example.com',
+            'email' => 'work@example.com',
             'customer_id' => 456,
         ]);
 

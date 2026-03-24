@@ -4,25 +4,31 @@ declare(strict_types=1);
 
 namespace Modules\AppHealth\Services;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Modules\AppHealth\Contracts\MetricIngestionContract;
 use Modules\AppHealth\Contracts\TriggerEvaluatorContract;
 use Modules\AppHealth\Models\ScalingScorecardSnapshot;
 
 class TriggerEvaluationService implements TriggerEvaluatorContract
 {
-    public function __construct(private readonly MetricIngestionContract $ingestion) {}
+    public function __construct(
+        private readonly MetricIngestionContract $ingestion,
+        private readonly ConnectionInterface $db,
+        private readonly SchemaBuilder $schema
+    ) {}
+
     public function evaluate(?array $input = null): array
     {
         $resolvedInput = $input ?? $this->resolveInputsFromConfigAndRuntime();
-        $thresholds = config('apphealth.thresholds', []);
+        $configuredThresholds = config('apphealth.thresholds', []);
+        $thresholds = is_array($configuredThresholds) ? $configuredThresholds : [];
 
         $checks = [
             $this->makeCheck(
                 'api_p95_latency',
                 (float) ($resolvedInput['api_p95_seconds'] ?? 0.0),
-                (float) ($thresholds['api_p95_seconds'] ?? 2.0),
+                $this->floatInput($thresholds['api_p95_seconds'] ?? 2.0),
                 '>'
             ),
             $this->makeCheck(
@@ -70,12 +76,17 @@ class TriggerEvaluationService implements TriggerEvaluatorContract
     {
         $scorecard = $this->evaluate($input);
 
+        $snapshotDate = is_string($scorecard['snapshot_date'] ?? null) ? $scorecard['snapshot_date'] : now()->toDateString();
+        $overallStatus = is_string($scorecard['overall_status'] ?? null) ? $scorecard['overall_status'] : 'ok';
+        $recommendation = is_string($scorecard['recommendation'] ?? null) ? $scorecard['recommendation'] : 'continue_observation';
+        $breachCount = is_numeric($scorecard['breach_count'] ?? null) ? (int) $scorecard['breach_count'] : 0;
+
         return ScalingScorecardSnapshot::query()->updateOrCreate(
-            ['snapshot_date' => $scorecard['snapshot_date']],
+            ['snapshot_date' => $snapshotDate],
             [
-                'overall_status' => (string) $scorecard['overall_status'],
-                'recommendation' => (string) $scorecard['recommendation'],
-                'breach_count' => (int) $scorecard['breach_count'],
+                'overall_status' => $overallStatus,
+                'recommendation' => $recommendation,
+                'breach_count' => $breachCount,
                 'payload' => $scorecard,
                 'evaluated_at' => now(),
             ]
@@ -87,7 +98,8 @@ class TriggerEvaluationService implements TriggerEvaluatorContract
      */
     private function resolveInputsFromConfigAndRuntime(): array
     {
-        $configured = config('apphealth.inputs', []);
+        $configuredInputs = config('apphealth.inputs', []);
+        $configured = is_array($configuredInputs) ? $configuredInputs : [];
 
         // Fetch live runtime signals when ingestion is enabled
         $ingested = config('apphealth.ingestion.enabled', true)
@@ -149,19 +161,19 @@ class TriggerEvaluationService implements TriggerEvaluatorContract
     private function failedJobRatioFallback(): float
     {
         try {
-            if (! Schema::hasTable('failed_jobs')) {
+            if (! $this->schema->hasTable('failed_jobs')) {
                 return 0.0;
             }
 
-            $failedLastDay = (int) DB::table('failed_jobs')
+            $failedLastDay = (int) $this->db->table('failed_jobs')
                 ->where('failed_at', '>=', now()->subDay())
                 ->count();
 
-            if (! Schema::hasTable('jobs')) {
+            if (! $this->schema->hasTable('jobs')) {
                 return $failedLastDay > 0 ? 1.0 : 0.0;
             }
 
-            $queuedNow = (int) DB::table('jobs')->count();
+            $queuedNow = (int) $this->db->table('jobs')->count();
             $denominator = max($failedLastDay + $queuedNow, 1);
 
             return $failedLastDay / $denominator;

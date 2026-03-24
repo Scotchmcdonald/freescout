@@ -41,7 +41,10 @@ class RecordHttpRouteMetrics
 
     private function resolveRouteGroup(Request $request): string
     {
-        $routeName = (string) optional($request->route())->getName();
+        $route = $request->route();
+        $routeName = is_object($route) && method_exists($route, 'getName')
+            ? (string) ($route->getName() ?? '')
+            : '';
 
         if ($routeName !== '') {
             if (str_starts_with($routeName, 'apphealth.')) {

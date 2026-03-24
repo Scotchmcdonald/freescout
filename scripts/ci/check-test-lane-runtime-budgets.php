@@ -8,7 +8,6 @@ declare(strict_types=1);
  * Usage:
  * php scripts/ci/check-test-lane-runtime-budgets.php --lane=unit --duration=31
  */
-
 final class TestLaneRuntimeBudgetGuard
 {
     /** @var array<string, int> */
@@ -35,13 +34,13 @@ final class TestLaneRuntimeBudgetGuard
         $duration = isset($options['duration']) ? (float) $options['duration'] : -1.0;
 
         if ($lane === '' || ! array_key_exists($lane, self::BUDGET_SECONDS)) {
-            fwrite(STDERR, "Invalid or missing --lane. Allowed: ".implode(', ', array_keys(self::BUDGET_SECONDS)).PHP_EOL);
+            fwrite(STDERR, 'Invalid or missing --lane. Allowed: '.implode(', ', array_keys(self::BUDGET_SECONDS)).PHP_EOL);
 
             return 2;
         }
 
         if ($duration < 0) {
-            fwrite(STDERR, "Invalid or missing --duration (seconds).".PHP_EOL);
+            fwrite(STDERR, 'Invalid or missing --duration (seconds).'.PHP_EOL);
 
             return 2;
         }
@@ -90,31 +89,31 @@ final class TestLaneRuntimeBudgetGuard
         ));
 
         echo "Lane: {$lane}".PHP_EOL;
-        echo "Duration: ".number_format($duration, 2)."s (budget ".number_format($budget, 2)."s)".PHP_EOL;
-        echo "Window median: ".number_format($median, 2)."s, p95: ".number_format($p95, 2)."s (window ".count($recent).")".PHP_EOL;
+        echo 'Duration: '.number_format($duration, 2).'s (budget '.number_format($budget, 2).'s)'.PHP_EOL;
+        echo 'Window median: '.number_format($median, 2).'s, p95: '.number_format($p95, 2).'s (window '.count($recent).')'.PHP_EOL;
         echo "Report: {$reportPath}".PHP_EOL;
 
         if ($severeSpike) {
-            fwrite(STDERR, "FAIL: severe lane runtime spike detected.".PHP_EOL);
+            fwrite(STDERR, 'FAIL: severe lane runtime spike detected.'.PHP_EOL);
 
             return 1;
         }
 
         if ($sustainedRegression) {
-            fwrite(STDERR, "FAIL: sustained runtime regression detected from rolling median.".PHP_EOL);
+            fwrite(STDERR, 'FAIL: sustained runtime regression detected from rolling median.'.PHP_EOL);
 
             return 1;
         }
 
         if ($softBreach) {
-            echo "WARN: current run exceeded budget but did not hit fail thresholds.".PHP_EOL;
+            echo 'WARN: current run exceeded budget but did not hit fail thresholds.'.PHP_EOL;
         }
 
         return 0;
     }
 
     /**
-     * @param array{timestamp:string, lane:string, duration_seconds:float, budget_seconds:int} $record
+     * @param  array{timestamp:string, lane:string, duration_seconds:float, budget_seconds:int}  $record
      */
     private function appendHistoryRecord(string $historyPath, array $record): void
     {
@@ -165,7 +164,7 @@ final class TestLaneRuntimeBudgetGuard
     }
 
     /**
-     * @param list<float> $values
+     * @param  list<float>  $values
      */
     private function quantile(array $values, float $quantile): float
     {

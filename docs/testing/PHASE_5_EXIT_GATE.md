@@ -392,8 +392,8 @@ A: QA/Testing team (with developer support for root-cause investigation). Review
 
 ## Related Documentation
 
-- [Phase 5 Planning](./phase-5-ci-speed-and-reliability.md)
-- [Skip Governance Policy](../TESTING_CONTRIBUTION_GUIDE.md#skip-governance)
+- [Phase 5 Planning](./PHASE_5_SUMMARY.md)
+- [Skip Governance Policy](./TESTING_CONTRIBUTION_GUIDE.md#skip-governance)
 - [Flaky Test Triage Runbook](./FLAKY_TEST_TRIAGE.md)
 - [CI Scripts Reference](../../scripts/ci/README.md)
 - [Testing Quick Start](./TESTING_QUICK_START.md)

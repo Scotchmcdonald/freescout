@@ -11,38 +11,48 @@ class MailHelper
     /**
      * Attempt to apply an Eventy filter only when helper/object/callback are usable.
      *
-     * @param  array<string, string>  $vars
+     * @param  array<string, mixed>  $vars
      * @param  array<string, mixed>  $data
      * @return array<string, string>
      */
     private static function applyEventyFilter(string $hook, array $vars, array $data): array
     {
         if (! function_exists('eventy')) {
-            return $vars;
+            return self::normalizeVars($vars);
         }
 
         try {
             $eventy = eventy();
         } catch (\Throwable $e) {
-            return $vars;
+            return self::normalizeVars($vars);
         }
 
         if (! is_object($eventy) || ! is_callable([$eventy, 'filter'])) {
-            return $vars;
+            return self::normalizeVars($vars);
         }
 
         try {
             $filteredVars = $eventy->filter($hook, $vars, $data);
         } catch (\Throwable $e) {
-            return $vars;
+            return self::normalizeVars($vars);
         }
 
         if (! is_array($filteredVars)) {
-            return $vars;
+            return self::normalizeVars($vars);
         }
 
+        return self::normalizeVars($filteredVars);
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $vars
+     * @return array<string, string>
+     */
+    private static function normalizeVars(array $vars): array
+    {
         $normalizedVars = [];
-        foreach ($filteredVars as $key => $value) {
+
+        foreach ($vars as $key => $value) {
             if (is_string($key)) {
                 $normalizedVars[$key] = is_scalar($value) ? (string) $value : '';
             }
@@ -314,10 +324,8 @@ class MailHelper
         foreach ($separators as $separator) {
             if (preg_match($separator, $body, $matches, PREG_OFFSET_CAPTURE)) {
                 // Get content before the separator
-                $offset = $matches[0][1] ?? null;
-                if (is_int($offset)) {
-                    $body = substr($body, 0, $offset);
-                }
+                $offset = (int) $matches[0][1];
+                $body = substr($body, 0, $offset);
                 break;
             }
         }

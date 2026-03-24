@@ -12,7 +12,6 @@ declare(strict_types=1);
  * - Median/p95 runtime from local test run logs
  * - CI lane runtime parsing when reports/ci_master.log is available
  */
-
 final class TestingPhase1Baseline
 {
     private string $root;

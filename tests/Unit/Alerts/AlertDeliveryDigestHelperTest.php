@@ -55,7 +55,7 @@ final class TestAlertDigestQueue extends AlertDigestQueue
     {
         self::$lastCreated = $attributes;
 
-        $instance = new static;
+        $instance = new self;
         foreach ($attributes as $key => $value) {
             $instance->attributes[$key] = $value;
         }

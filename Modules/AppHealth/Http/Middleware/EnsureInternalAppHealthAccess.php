@@ -12,7 +12,8 @@ class EnsureInternalAppHealthAccess
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $expected = (string) config('apphealth.security.internal_token', '');
+        $configuredToken = config('apphealth.security.internal_token', '');
+        $expected = is_string($configuredToken) ? $configuredToken : '';
 
         if ($expected === '') {
             $allowedInTesting = app()->runningUnitTests() && (bool) config('apphealth.security.allow_without_token_in_testing', false);
@@ -24,7 +25,8 @@ class EnsureInternalAppHealthAccess
             return $next($request);
         }
 
-        $headerName = (string) config('apphealth.security.header', 'X-AppHealth-Token');
+        $configuredHeader = config('apphealth.security.header', 'X-AppHealth-Token');
+        $headerName = is_string($configuredHeader) ? $configuredHeader : 'X-AppHealth-Token';
         $provided = (string) ($request->header($headerName) ?? '');
 
         if ($provided === '') {

@@ -17,7 +17,7 @@ class RefreshDatabaseUsageGuardTest extends UnitTestCase
      *
      * Metadata is mandatory for every entry.
      *
-    * @var array<string, array{owner:string, issue:string, rationale:string, expires:string}>
+     * @var array<string, array{owner:string, issue:string, rationale:string, expires:string}>
      */
     private array $allowlistedRelativePaths = [];
 

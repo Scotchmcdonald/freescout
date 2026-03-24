@@ -94,9 +94,7 @@ class ModuleSourceServiceHelperTest extends PureUnitTestCase
 
                 return new class($status, $payload)
                 {
-                    public function __construct(private int $status, private mixed $payload)
-                    {
-                    }
+                    public function __construct(private int $status, private mixed $payload) {}
 
                     public function successful(): bool
                     {
@@ -108,7 +106,7 @@ class ModuleSourceServiceHelperTest extends PureUnitTestCase
                         return $this->status;
                     }
 
-                    public function json(string $key = null): mixed
+                    public function json(?string $key = null): mixed
                     {
                         if ($key === 'modules' && is_array($this->payload) && array_key_exists('modules', $this->payload)) {
                             return $this->payload['modules'];
@@ -236,4 +234,3 @@ class ModuleSourceServiceHelperTest extends PureUnitTestCase
         $this->assertStringContainsString('Exception fetching modules: upstream unreachable', $this->logger->errors[0]);
     }
 }
-

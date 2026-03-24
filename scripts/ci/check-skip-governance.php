@@ -10,11 +10,10 @@ declare(strict_types=1);
  * - Untracked markTestSkipped usages fail and must be explicitly allowlisted.
  * - Expired skips fail.
  */
-
 final class SkipGovernanceGuard
 {
     /**
-    * @var array{max_count:int, lane_budgets:array<string,int>, allowlist:array<string,array{owner:string,issue:string,rationale:string,expires:string}>}
+     * @var array{max_count:int, lane_budgets:array<string,int>, allowlist:array<string,array{owner:string,issue:string,rationale:string,expires:string}>}
      */
     private const BASELINE = [
         'max_count' => 12,
@@ -170,12 +169,12 @@ final class SkipGovernanceGuard
         echo 'Report: '.$reportPath.PHP_EOL;
 
         if ($violations !== []) {
-            fwrite(STDERR, "FAIL: skip governance violations detected.".PHP_EOL);
+            fwrite(STDERR, 'FAIL: skip governance violations detected.'.PHP_EOL);
 
             return 1;
         }
 
-        echo "PASS: skip governance policy satisfied.".PHP_EOL;
+        echo 'PASS: skip governance policy satisfied.'.PHP_EOL;
 
         return 0;
     }
@@ -276,9 +275,9 @@ final class SkipGovernanceGuard
     }
 
     /**
-    * @param list<array{path:string,line:int,location:string,reason:string,context:string}> $occurrences
-     * @param array<string,int> $laneCounts
-     * @param list<string> $violations
+     * @param  list<array{path:string,line:int,location:string,reason:string,context:string}>  $occurrences
+     * @param  array<string,int>  $laneCounts
+     * @param  list<string>  $violations
      */
     private function buildReport(array $occurrences, array $laneCounts, array $violations): string
     {

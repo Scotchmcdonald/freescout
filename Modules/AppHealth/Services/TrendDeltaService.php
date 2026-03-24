@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\AppHealth\Services;
 
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Modules\AppHealth\Models\ScalingScorecardSnapshot;
 
 /**
@@ -15,6 +15,8 @@ use Modules\AppHealth\Models\ScalingScorecardSnapshot;
  */
 class TrendDeltaService
 {
+    public function __construct(private readonly SchemaBuilder $schema) {}
+
     /**
      * Compute weekly trend relative to the current breach count.
      *
@@ -29,7 +31,8 @@ class TrendDeltaService
      */
     public function weeklyDelta(int $currentBreachCount): array
     {
-        $required = (int) config('apphealth.playbook.consecutive_breach_weeks_required', 2);
+        $configuredRequired = config('apphealth.playbook.consecutive_breach_weeks_required', 2);
+        $required = is_numeric($configuredRequired) ? (int) $configuredRequired : 2;
 
         if (! $this->snapshotsTableExists()) {
             return [
@@ -125,7 +128,7 @@ class TrendDeltaService
     private function snapshotsTableExists(): bool
     {
         try {
-            return Schema::hasTable('app_health_scaling_scorecard_snapshots');
+            return $this->schema->hasTable('app_health_scaling_scorecard_snapshots');
         } catch (\Throwable) {
             return false;
         }

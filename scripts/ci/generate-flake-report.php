@@ -9,7 +9,6 @@ declare(strict_types=1);
  * and normalizes mixed Pest/PHPUnit output for more reliable grouping.
  * It is intentionally non-blocking and always exits 0.
  */
-
 final class FlakeReportGenerator
 {
     public function run(): int
@@ -124,7 +123,7 @@ final class FlakeReportGenerator
     }
 
     /**
-     * @param array<string, array{count:int, classes:array<string,bool>, logs:array<string,bool>}> $aggregates
+     * @param  array<string, array{count:int, classes:array<string,bool>, logs:array<string,bool>}>  $aggregates
      * @return list<array{signature:string,count:int,log_count:int,classes:list<string>}>
      */
     private function flattenAggregates(array $aggregates): array
@@ -294,8 +293,8 @@ final class FlakeReportGenerator
     }
 
     /**
-     * @param list<string> $likelyFiles
-     * @param list<string> $quarantineFiles
+     * @param  list<string>  $likelyFiles
+     * @param  list<string>  $quarantineFiles
      */
     private function hasAnyQuarantine(array $likelyFiles, array $quarantineFiles): bool
     {
@@ -322,8 +321,8 @@ final class FlakeReportGenerator
     }
 
     /**
-     * @param list<array{signature:string,count:int,log_count:int,classes:list<string>,likely_files:list<string>,has_active_quarantine:bool}> $topFailures
-     * @param list<string> $logFiles
+     * @param  list<array{signature:string,count:int,log_count:int,classes:list<string>,likely_files:list<string>,has_active_quarantine:bool}>  $topFailures
+     * @param  list<string>  $logFiles
      */
     private function buildReport(
         string $lane,

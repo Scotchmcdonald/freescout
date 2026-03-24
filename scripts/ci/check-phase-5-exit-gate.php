@@ -15,7 +15,6 @@
  *     --lane-history-dir=reports/lane-history \
  *     --output=reports/phase-5-exit-gate-latest.md
  */
-
 class Phase5ExitGateChecker
 {
     private string $reportsDir;
@@ -37,8 +36,8 @@ class Phase5ExitGateChecker
     public function __construct(array $options = [])
     {
         $this->reportsDir = $options['reports-dir'] ?? 'reports';
-        $this->laneHistoryDir = $options['lane-history-dir'] ?? $this->reportsDir . '/lane-history';
-        $this->outputFile = $options['output'] ?? $this->reportsDir . '/phase-5-exit-gate-latest.md';
+        $this->laneHistoryDir = $options['lane-history-dir'] ?? $this->reportsDir.'/lane-history';
+        $this->outputFile = $options['output'] ?? $this->reportsDir.'/phase-5-exit-gate-latest.md';
     }
 
     public function run(): int
@@ -47,9 +46,11 @@ class Phase5ExitGateChecker
             $report = $this->generateExitGateReport();
             $this->writeReport($report);
             echo "Exit gate report written to: {$this->outputFile}\n";
+
             return 0;
         } catch (\Exception $e) {
-            echo "ERROR: " . $e->getMessage() . "\n";
+            echo 'ERROR: '.$e->getMessage()."\n";
+
             return 1;
         }
     }
@@ -70,7 +71,7 @@ class Phase5ExitGateChecker
         if ($gateStatus['passed']) {
             $html .= "> ✅ **EXIT GATE: PASSED** — Phase 5 acceptance criteria met.\n\n";
         } else {
-            $html .= "> ❌ **EXIT GATE: NOT YET PASSED** — " . $gateStatus['reason'] . "\n\n";
+            $html .= '> ❌ **EXIT GATE: NOT YET PASSED** — '.$gateStatus['reason']."\n\n";
         }
 
         $html .= "## Criteria Summary\n\n";
@@ -78,21 +79,21 @@ class Phase5ExitGateChecker
         $html .= "|-----------|--------|----------|\n";
 
         // Criterion 1: 10 green runs
-        $greenCount = count(array_filter($recentRuns, fn($r) => !$r['has_slo_breach']));
+        $greenCount = count(array_filter($recentRuns, fn ($r) => ! $r['has_slo_breach']));
         $criterion1 = ($greenCount >= self::REQUIRED_GREEN_RUNS) ? '✅' : '❌';
-        $details1 = "$greenCount of " . self::REQUIRED_GREEN_RUNS . " required consecutive green runs";
+        $details1 = "$greenCount of ".self::REQUIRED_GREEN_RUNS.' required consecutive green runs';
         $html .= "| 10 Consecutive Green Runs (SLO Compliance) | $criterion1 | $details1 |\n";
 
         // Criterion 2: Skip budget trending down
         $criterion2Status = $skipTrendReport['trending_down'] ? '✅' : '❌';
         $criterion2Details = "Current: {$skipTrendReport['current_count']} skips (budget: {$skipTrendReport['budget']}). ";
-        $criterion2Details .= "14-day trend: " . ($skipTrendReport['trending_down'] ? "↓ DOWN" : "→ FLAT/UP");
+        $criterion2Details .= '14-day trend: '.($skipTrendReport['trending_down'] ? '↓ DOWN' : '→ FLAT/UP');
         $html .= "| Skip Budget (Trending Down) | $criterion2Status | $criterion2Details |\n";
 
         // Criterion 3: Flake rate < 1%
         $criterion3 = ($flakeAnalysis['rate'] < self::FLAKE_RATE_THRESHOLD) ? '✅' : '❌';
         $criterion3Details = sprintf(
-            "Flake rate: %.2f%% (%d flaky tests in %d runs over %d days)",
+            'Flake rate: %.2f%% (%d flaky tests in %d runs over %d days)',
             $flakeAnalysis['rate'],
             $flakeAnalysis['flaky_tests'],
             $flakeAnalysis['total_runs'],
@@ -101,7 +102,7 @@ class Phase5ExitGateChecker
         $html .= "| Flake Rate < 1% (Trailing 14 Days) | $criterion3 | $criterion3Details |\n";
 
         $html .= "\n## SLO Compliance Matrix\n\n";
-        $html .= "Showing last " . min(self::REQUIRED_GREEN_RUNS, count($recentRuns)) . " runs (most recent first):\n\n";
+        $html .= 'Showing last '.min(self::REQUIRED_GREEN_RUNS, count($recentRuns))." runs (most recent first):\n\n";
         $html .= "| Run # | Timestamp | Guards | Unit | Feature | Integration | Architecture | Status |\n";
         $html .= "|-------|-----------|--------|------|---------|-------------|--------------|--------|\n";
 
@@ -113,7 +114,7 @@ class Phase5ExitGateChecker
             $featurePass = $run['feature'] !== null ? ($run['feature'] <= self::BUDGETS['feature'] ? '✅' : '⚠️') : '—';
             $integrationPass = $run['integration'] !== null ? ($run['integration'] <= self::BUDGETS['integration'] ? '✅' : '⚠️') : '—';
             $architecturePass = $run['architecture'] !== null ? ($run['architecture'] <= self::BUDGETS['architecture'] ? '✅' : '⚠️') : '—';
-            $status = !$run['has_slo_breach'] ? '🟢' : '🔴';
+            $status = ! $run['has_slo_breach'] ? '🟢' : '🔴';
 
             $html .= "| $runNum | $ts | $guardsPass ({$run['guards']}s) | $unitPass ({$run['unit']}s) | $featurePass ({$run['feature']}s) | $integrationPass ({$run['integration']}s) | $architecturePass ({$run['architecture']}s) | $status |\n";
         }
@@ -121,23 +122,23 @@ class Phase5ExitGateChecker
         $html .= "\n## Skip Governance Trend\n\n";
         $html .= "| Metric | Value | Status |\n";
         $html .= "|--------|-------|--------|\n";
-        $html .= "| Current Skip Count | {$skipTrendReport['current_count']} | " . ($skipTrendReport['current_count'] <= $skipTrendReport['budget'] ? '✅' : '❌') . " |\n";
+        $html .= "| Current Skip Count | {$skipTrendReport['current_count']} | ".($skipTrendReport['current_count'] <= $skipTrendReport['budget'] ? '✅' : '❌')." |\n";
         $html .= "| Skip Budget | {$skipTrendReport['budget']} | — |\n";
-        $html .= "| 14-Day Trend | " . ($skipTrendReport['trending_down'] ? "Decreasing ↓" : "Flat/Increasing →") . " | " . ($skipTrendReport['trending_down'] ? '✅' : '⚠️') . " |\n";
+        $html .= '| 14-Day Trend | '.($skipTrendReport['trending_down'] ? 'Decreasing ↓' : 'Flat/Increasing →').' | '.($skipTrendReport['trending_down'] ? '✅' : '⚠️')." |\n";
 
-        if (!empty($skipTrendReport['trend_data'])) {
-            $html .= "| Historical Counts | " . implode(', ', $skipTrendReport['trend_data']) . " | — |\n";
+        if (! empty($skipTrendReport['trend_data'])) {
+            $html .= '| Historical Counts | '.implode(', ', $skipTrendReport['trend_data'])." | — |\n";
         }
 
         $html .= "\n## Flake Analysis\n\n";
         $html .= "| Metric | Value | Status |\n";
         $html .= "|--------|-------|--------|\n";
-        $flakeRateStr = sprintf("%.2f", $flakeAnalysis['rate']);
+        $flakeRateStr = sprintf('%.2f', $flakeAnalysis['rate']);
         $flakeRateStatus = $flakeAnalysis['rate'] < self::FLAKE_RATE_THRESHOLD ? '✅' : '⚠️';
-        $html .= "| Flake Rate (Trailing 14 Days) | " . $flakeRateStr . "% | " . $flakeRateStatus . " |\n";
-        $html .= "| Flaky Tests Found | " . $flakeAnalysis['flaky_tests'] . " | — |\n";
-        $html .= "| Total Runs Analyzed | " . $flakeAnalysis['total_runs'] . " | — |\n";
-        $html .= "| Analysis Period | " . self::TRAILING_DAYS . " days | — |\n";
+        $html .= '| Flake Rate (Trailing 14 Days) | '.$flakeRateStr.'% | '.$flakeRateStatus." |\n";
+        $html .= '| Flaky Tests Found | '.$flakeAnalysis['flaky_tests']." | — |\n";
+        $html .= '| Total Runs Analyzed | '.$flakeAnalysis['total_runs']." | — |\n";
+        $html .= '| Analysis Period | '.self::TRAILING_DAYS." days | — |\n";
 
         $html .= "\n## Next Steps\n\n";
 
@@ -148,7 +149,7 @@ class Phase5ExitGateChecker
             $html .= "- Schedule Phase 5 retrospective.\n";
             $html .= "- Begin Phase 6 planning (optional enhancements: dashboards, alerts).\n";
         } else {
-            $html .= $gateStatus['recommendation'] . "\n\n";
+            $html .= $gateStatus['recommendation']."\n\n";
         }
 
         $html .= "\n## Gate Criteria Reference\n\n";
@@ -176,17 +177,17 @@ class Phase5ExitGateChecker
         $runs = [];
 
         // Glob for all lane-runtime-budget-*.md files sorted by modification time (newest first)
-        $pattern = $this->reportsDir . '/lane-runtime-budget-*.md';
+        $pattern = $this->reportsDir.'/lane-runtime-budget-*.md';
         $files = glob($pattern);
 
         // Sort by modification time, newest first
-        usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
+        usort($files, fn ($a, $b) => filemtime($b) <=> filemtime($a));
 
         // Extract unique run timestamps and collect dual-lane data
         $runsByTimestamp = [];
 
         foreach ($files as $file) {
-            if (!file_exists($file)) {
+            if (! file_exists($file)) {
                 continue;
             }
 
@@ -209,7 +210,7 @@ class Phase5ExitGateChecker
 
             // Extract duration
             if (preg_match('/\*\*Duration:\*\*\s(\d+\.\d+)s/', $content, $durationMatch)) {
-                $duration = (float)$durationMatch[1];
+                $duration = (float) $durationMatch[1];
             } else {
                 continue; // Skip if duration not found
             }
@@ -221,7 +222,7 @@ class Phase5ExitGateChecker
                 continue;
             }
 
-            if (!isset($runsByTimestamp[$timestamp])) {
+            if (! isset($runsByTimestamp[$timestamp])) {
                 $runsByTimestamp[$timestamp] = [
                     'timestamp' => $timestamp,
                     'lanes' => [],
@@ -236,7 +237,7 @@ class Phase5ExitGateChecker
 
         // Convert to array and sort by timestamp (newest first)
         $sortedRuns = array_values($runsByTimestamp);
-        usort($sortedRuns, fn($a, $b) => strtotime($b['timestamp']) <=> strtotime($a['timestamp']));
+        usort($sortedRuns, fn ($a, $b) => strtotime($b['timestamp']) <=> strtotime($a['timestamp']));
 
         // Build run history with SLO compliance check
         foreach ($sortedRuns as $run) {
@@ -274,6 +275,7 @@ class Phase5ExitGateChecker
                 return true; // At least one breach found
             }
         }
+
         return false; // All runs passed
     }
 
@@ -282,15 +284,15 @@ class Phase5ExitGateChecker
      */
     private function analyzeSkipTrend(array $recentRuns): array
     {
-        $pattern = $this->reportsDir . '/skip-governance-*.md';
+        $pattern = $this->reportsDir.'/skip-governance-*.md';
         $files = glob($pattern);
 
-        usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
+        usort($files, fn ($a, $b) => filemtime($b) <=> filemtime($a));
 
         $skipCounts = [];
 
         foreach (array_slice($files, 0, 15) as $file) {
-            if (!file_exists($file)) {
+            if (! file_exists($file)) {
                 continue;
             }
 
@@ -310,7 +312,7 @@ class Phase5ExitGateChecker
 
             // Extract total occurrence count from the table
             if ($timestamp !== null && preg_match('/\|\s+(\d+)\s+\|\s+\d+\s+\|\s+/', $content, $countMatches)) {
-                $skipCounts[substr($timestamp, 0, 10)] = (int)$countMatches[1];
+                $skipCounts[substr($timestamp, 0, 10)] = (int) $countMatches[1];
             }
         }
 
@@ -366,16 +368,16 @@ class Phase5ExitGateChecker
      */
     private function analyzeFlakeRate(): array
     {
-        $pattern = $this->reportsDir . '/flake-report-*.md';
+        $pattern = $this->reportsDir.'/flake-report-*.md';
         $files = glob($pattern);
 
-        usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
+        usort($files, fn ($a, $b) => filemtime($b) <=> filemtime($a));
 
         $flakyCounts = [];
         $runCounts = [];
 
         foreach ($files as $file) {
-            if (!file_exists($file)) {
+            if (! file_exists($file)) {
                 continue;
             }
 
@@ -397,7 +399,7 @@ class Phase5ExitGateChecker
             $dateKey = substr($timestamp, 0, 10);
 
             if (preg_match('/\*\*Flake Pressure:\*\*\s+([\d.]+)%/', $content, $flakeMatch)) {
-                $flakyCounts[$dateKey] = (float)$flakeMatch[1];
+                $flakyCounts[$dateKey] = (float) $flakeMatch[1];
             }
 
             if (preg_match('/[\d+]\s+logs\s+scanned/', $content, $logsMatch)) {
@@ -405,7 +407,7 @@ class Phase5ExitGateChecker
             }
         }
 
-        $totalFlakeRate = !empty($flakyCounts) ? array_sum($flakyCounts) / count($flakyCounts) : 0;
+        $totalFlakeRate = ! empty($flakyCounts) ? array_sum($flakyCounts) / count($flakyCounts) : 0;
         $flakyCounts = count($flakyCounts);
 
         return [
@@ -421,7 +423,7 @@ class Phase5ExitGateChecker
     private function determineGateStatus(bool $sloBreach, array $skipReport, array $flakeAnalysis): array
     {
         $greenRunCount = self::REQUIRED_GREEN_RUNS; // Placeholder; should come from history
-        $allCriteriaMet = !$sloBreach && $skipReport['trending_down'] && $flakeAnalysis['rate'] < self::FLAKE_RATE_THRESHOLD;
+        $allCriteriaMet = ! $sloBreach && $skipReport['trending_down'] && $flakeAnalysis['rate'] < self::FLAKE_RATE_THRESHOLD;
 
         if ($allCriteriaMet) {
             return [
@@ -434,16 +436,16 @@ class Phase5ExitGateChecker
         $failures = [];
 
         if ($sloBreach) {
-            $failures[] = "Recent runs have SLO breaches. Review runtime budget reports and investigate performance regressions.";
+            $failures[] = 'Recent runs have SLO breaches. Review runtime budget reports and investigate performance regressions.';
         }
 
-        if (!$skipReport['trending_down']) {
-            $failures[] = "Skip budget is not trending down. Review new skips and ensure they have issue links and expiry dates.";
+        if (! $skipReport['trending_down']) {
+            $failures[] = 'Skip budget is not trending down. Review new skips and ensure they have issue links and expiry dates.';
         }
 
         if ($flakeAnalysis['rate'] >= self::FLAKE_RATE_THRESHOLD) {
-            $flakeRateForMsg = sprintf("%.2f", $flakeAnalysis['rate']);
-            $failures[] = "Flake rate (" . $flakeRateForMsg . "%) exceeds threshold. Quarantine flaky tests and investigate root causes.";
+            $flakeRateForMsg = sprintf('%.2f', $flakeAnalysis['rate']);
+            $failures[] = 'Flake rate ('.$flakeRateForMsg.'%) exceeds threshold. Quarantine flaky tests and investigate root causes.';
         }
 
         return [
@@ -456,7 +458,7 @@ class Phase5ExitGateChecker
     private function writeReport(string $content): void
     {
         $dir = dirname($this->outputFile);
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
 

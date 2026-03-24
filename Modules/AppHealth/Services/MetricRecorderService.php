@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Modules\AppHealth\Services;
 
 use Illuminate\Cache\Repository as CacheRepository;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Modules\AppHealth\Contracts\MetricRecorderContract;
 use Modules\AppHealth\Models\ScalingScorecardSnapshot;
 
@@ -21,13 +21,15 @@ class MetricRecorderService implements MetricRecorderContract
 
     public function __construct(
         private readonly CacheRepository $cache,
-        private readonly LegacyMetricsCompatibilityAdapter $legacyAdapter
+        private readonly LegacyMetricsCompatibilityAdapter $legacyAdapter,
+        private readonly SchemaBuilder $schema
     ) {}
 
     public function increment(string $name, int|float $value = 1, array $labels = []): void
     {
         $key = self::COUNTER_PREFIX.$this->normalizedMetricKey($name, $labels);
-        $current = (float) $this->cache->get($key, 0.0);
+        $rawCurrent = $this->cache->get($key, 0.0);
+        $current = is_numeric($rawCurrent) ? (float) $rawCurrent : 0.0;
 
         $this->cache->forever($key, $current + (float) $value);
         $this->rememberMetricKey(self::COUNTER_PREFIX, $key);
@@ -47,8 +49,8 @@ class MetricRecorderService implements MetricRecorderContract
             $summary = ['count' => 0, 'sum' => 0.0, 'last' => 0.0];
         }
 
-        $summary['count'] = (int) ($summary['count'] ?? 0) + 1;
-        $summary['sum'] = (float) ($summary['sum'] ?? 0.0) + $value;
+        $summary['count'] = (is_numeric($summary['count'] ?? null) ? (int) $summary['count'] : 0) + 1;
+        $summary['sum'] = (is_numeric($summary['sum'] ?? null) ? (float) $summary['sum'] : 0.0) + $value;
         $summary['last'] = $value;
 
         $this->cache->forever($key, $summary);
@@ -77,18 +79,23 @@ class MetricRecorderService implements MetricRecorderContract
             $summary = ['count' => 0, 'sum' => 0.0, 'last' => 0.0];
         }
 
-        $summary['count'] = (int) ($summary['count'] ?? 0) + 1;
-        $summary['sum'] = (float) ($summary['sum'] ?? 0.0) + $value;
+        $summary['count'] = (is_numeric($summary['count'] ?? null) ? (int) $summary['count'] : 0) + 1;
+        $summary['sum'] = (is_numeric($summary['sum'] ?? null) ? (float) $summary['sum'] : 0.0) + $value;
         $summary['last'] = $value;
         $this->cache->forever($summaryKey, $summary);
         $this->rememberMetricKey(self::SUMMARY_PREFIX, $summaryKey);
 
         // Increment each bucket where value <= bound
         foreach ($bounds as $bound) {
+            if (! is_numeric($bound)) {
+                continue;
+            }
+
             $boundFloat = (float) $bound;
             if ($value <= $boundFloat) {
                 $bucketKey = self::HISTOGRAM_PREFIX.$this->normalizedMetricKey($name, array_merge($labels, ['le' => (string) $boundFloat]));
-                $current = (int) $this->cache->get($bucketKey, 0);
+                $rawBucket = $this->cache->get($bucketKey, 0);
+                $current = is_numeric($rawBucket) ? (int) $rawBucket : 0;
                 $this->cache->forever($bucketKey, $current + 1);
                 $this->rememberMetricKey(self::HISTOGRAM_PREFIX, $bucketKey);
             }
@@ -96,7 +103,8 @@ class MetricRecorderService implements MetricRecorderContract
 
         // +Inf bucket always equals count
         $infKey = self::HISTOGRAM_PREFIX.$this->normalizedMetricKey($name, array_merge($labels, ['le' => '+Inf']));
-        $infCount = (int) $this->cache->get($infKey, 0);
+        $rawInf = $this->cache->get($infKey, 0);
+        $infCount = is_numeric($rawInf) ? (int) $rawInf : 0;
         $this->cache->forever($infKey, $infCount + 1);
         $this->rememberMetricKey(self::HISTOGRAM_PREFIX, $infKey);
 
@@ -125,7 +133,7 @@ class MetricRecorderService implements MetricRecorderContract
 
         foreach ($this->allCacheValuesByPrefix(self::COUNTER_PREFIX) as $key => $value) {
             $metric = str_replace(self::COUNTER_PREFIX, '', $key);
-            $lines[] = sprintf('apphealth_counter_total{metric="%s"} %s', $metric, (float) $value);
+            $lines[] = sprintf('apphealth_counter_total{metric="%s"} %s', $metric, is_numeric($value) ? (float) $value : 0.0);
         }
 
         return $lines;
@@ -144,9 +152,9 @@ class MetricRecorderService implements MetricRecorderContract
             }
 
             $metric = str_replace(self::SUMMARY_PREFIX, '', $key);
-            $count = (int) ($value['count'] ?? 0);
-            $sum = (float) ($value['sum'] ?? 0.0);
-            $last = (float) ($value['last'] ?? 0.0);
+            $count = is_numeric($value['count'] ?? null) ? (int) $value['count'] : 0;
+            $sum = is_numeric($value['sum'] ?? null) ? (float) $value['sum'] : 0.0;
+            $last = is_numeric($value['last'] ?? null) ? (float) $value['last'] : 0.0;
 
             $lines[] = sprintf('apphealth_summary_count{metric="%s"} %d', $metric, $count);
             $lines[] = sprintf('apphealth_summary_sum{metric="%s"} %s', $metric, $sum);
@@ -194,7 +202,7 @@ class MetricRecorderService implements MetricRecorderContract
                 $emittedHeaders[$baseName] = true;
             }
 
-            $lines[] = sprintf('%s_bucket%s %d', $baseName, $labelStr, (int) $bucketCount);
+            $lines[] = sprintf('%s_bucket%s %d', $baseName, $labelStr, is_numeric($bucketCount) ? (int) $bucketCount : 0);
         }
 
         return $lines;
@@ -206,7 +214,7 @@ class MetricRecorderService implements MetricRecorderContract
     private function renderScorecardMetrics(): array
     {
         try {
-            if (! Schema::hasTable('app_health_scaling_scorecard_snapshots')) {
+            if (! $this->schema->hasTable('app_health_scaling_scorecard_snapshots')) {
                 return [];
             }
 
@@ -273,7 +281,28 @@ class MetricRecorderService implements MetricRecorderContract
     {
         $index = $this->cache->get(self::INDEX_KEY, []);
 
-        return is_array($index) ? $index : [];
+        if (! is_array($index)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($index as $prefix => $keys) {
+            if (! is_string($prefix) || ! is_array($keys)) {
+                continue;
+            }
+
+            $normalizedKeys = [];
+            foreach ($keys as $key) {
+                if (is_string($key)) {
+                    $normalizedKeys[] = $key;
+                }
+            }
+
+            $normalized[$prefix] = $normalizedKeys;
+        }
+
+        return $normalized;
     }
 
     /**

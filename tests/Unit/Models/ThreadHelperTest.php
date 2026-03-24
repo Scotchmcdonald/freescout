@@ -138,17 +138,17 @@ class ThreadHelperTest extends PureUnitTestCase
 
     public function test_is_auto_responder_returns_true_for_x_autoreply_header(): void
     {
-        $this->assertTrue($this->thread(['headers' => "X-Autoreply: yes"])->isAutoResponder());
+        $this->assertTrue($this->thread(['headers' => 'X-Autoreply: yes'])->isAutoResponder());
     }
 
     public function test_is_auto_responder_returns_true_for_auto_submitted_header(): void
     {
-        $this->assertTrue($this->thread(['headers' => "Auto-Submitted: auto-replied"])->isAutoResponder());
+        $this->assertTrue($this->thread(['headers' => 'Auto-Submitted: auto-replied'])->isAutoResponder());
     }
 
     public function test_is_auto_responder_returns_true_for_precedence_bulk(): void
     {
-        $this->assertTrue($this->thread(['headers' => "Precedence: bulk"])->isAutoResponder());
+        $this->assertTrue($this->thread(['headers' => 'Precedence: bulk'])->isAutoResponder());
     }
 
     public function test_is_auto_responder_returns_false_for_regular_headers(): void

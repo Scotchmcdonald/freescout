@@ -122,7 +122,7 @@ class HelpersTest extends PureUnitTestCase
     {
         $options = Helper::setGuzzleDefaultOptions([
             'connect_timeout' => 20,
-            'custom_option'   => 'value',
+            'custom_option' => 'value',
         ]);
 
         $this->assertEquals(20, $options['connect_timeout']);
@@ -134,7 +134,7 @@ class HelpersTest extends PureUnitTestCase
     {
         $options = Helper::setGuzzleDefaultOptions([
             'headers' => ['Authorization' => 'Bearer token'],
-            'proxy'   => 'http://proxy.example.com',
+            'proxy' => 'http://proxy.example.com',
         ]);
 
         $this->assertArrayHasKey('headers', $options);

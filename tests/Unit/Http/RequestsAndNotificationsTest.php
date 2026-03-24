@@ -15,7 +15,8 @@ use Illuminate\Validation\PresenceVerifierInterface;
 use Tests\PureUnitTestCase;
 
 class RequestsAndNotificationsTest extends PureUnitTestCase
-{    protected function setUp(): void
+{
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -454,9 +455,15 @@ class RequestsAndNotificationsTest extends PureUnitTestCase
         // Stub presence verifier so unique:users,email sees a conflict without DB.
         $existingVerifier = new class implements PresenceVerifierInterface
         {
-            public function getCount($collection, $column, $value, $excludeId = null, $idColumn = null, array $extra = []): int { return 1; }
+            public function getCount($collection, $column, $value, $excludeId = null, $idColumn = null, array $extra = []): int
+            {
+                return 1;
+            }
 
-            public function getMultiCount($collection, $column, array $values, array $extra = []): int { return 1; }
+            public function getMultiCount($collection, $column, array $values, array $extra = []): int
+            {
+                return 1;
+            }
         };
 
         $validator = Validator::make(['email' => 'unique@example.com'], ['email' => 'unique:users,email']);
@@ -470,9 +477,15 @@ class RequestsAndNotificationsTest extends PureUnitTestCase
         // Stub presence verifier returning 0 hits — no conflict, unique passes.
         $emptyVerifier = new class implements PresenceVerifierInterface
         {
-            public function getCount($collection, $column, $value, $excludeId = null, $idColumn = null, array $extra = []): int { return 0; }
+            public function getCount($collection, $column, $value, $excludeId = null, $idColumn = null, array $extra = []): int
+            {
+                return 0;
+            }
 
-            public function getMultiCount($collection, $column, array $values, array $extra = []): int { return 0; }
+            public function getMultiCount($collection, $column, array $values, array $extra = []): int
+            {
+                return 0;
+            }
         };
 
         $validator = Validator::make(['email' => 'new@example.com'], ['email' => 'unique:users,email']);

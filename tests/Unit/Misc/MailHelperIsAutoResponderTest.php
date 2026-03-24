@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Misc;
 
 use App\Misc\MailHelper;
-use Tests\Support\EmailFixtures;
 use Tests\PureUnitTestCase;
+use Tests\Support\EmailFixtures;
 
 /**
  * Test MailHelper::isAutoResponder() method

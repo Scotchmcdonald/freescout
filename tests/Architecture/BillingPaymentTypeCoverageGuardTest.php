@@ -111,7 +111,7 @@ test('critical billing payment services maintain strict types coverage threshold
     expect($strictPercent)->toBeGreaterThanOrEqual(
         (float) $baseline['min_strict_types_percent'],
         "Strict-types coverage dropped below threshold.\n".
-        "Strict files: ".count($strictFiles)." / ".count($files)." ({$strictPercent}%).\n".
+        'Strict files: '.count($strictFiles).' / '.count($files)." ({$strictPercent}%).\n".
         "Missing strict_types:\n".implode("\n", $nonStrictFiles)
     );
 });

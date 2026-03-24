@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Modules\AppHealth\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Modules\AppHealth\Contracts\HealthCheckContract;
 use Modules\AppHealth\Contracts\MetricIngestionContract;
@@ -56,10 +56,13 @@ class AppHealthServiceProvider extends ServiceProvider
             return;
         }
 
-        Route::middleware(['api', 'apphealth.http.metrics'])->group(__DIR__.'/../Routes/api.php');
+        /** @var Router $router */
+        $router = $this->app->make(Router::class);
+
+        $router->middleware(['api', 'apphealth.http.metrics'])->group(__DIR__.'/../Routes/api.php');
 
         if (config('apphealth.operator_ui_enabled', true)) {
-            Route::group([], __DIR__.'/../Routes/web.php');
+            $router->group([], __DIR__.'/../Routes/web.php');
         }
     }
 
@@ -81,7 +84,8 @@ class AppHealthServiceProvider extends ServiceProvider
         $this->app->booted(function (): void {
             /** @var Schedule $schedule */
             $schedule = $this->app->make(Schedule::class);
-            $cron = (string) config('apphealth.scheduler.cron', '*/15 * * * *');
+            $configuredCron = config('apphealth.scheduler.cron', '*/15 * * * *');
+            $cron = is_string($configuredCron) ? $configuredCron : '*/15 * * * *';
 
             $schedule->job(new EvaluateScalingTriggersJob)
                 ->cron($cron)

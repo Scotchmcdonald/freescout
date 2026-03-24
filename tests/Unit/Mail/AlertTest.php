@@ -26,7 +26,7 @@ class AlertTest extends PureUnitTestCase
         $container->instance('config', new ConfigRepository([
             'app' => [
                 'name' => 'FreeScout',
-                'url'  => 'https://example.com',
+                'url' => 'https://example.com',
             ],
         ]));
 

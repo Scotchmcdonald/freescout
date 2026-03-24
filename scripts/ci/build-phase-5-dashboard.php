@@ -13,7 +13,6 @@
  *     --output=public/dashboards/phase-5-compliance.html \
  *     --refresh-interval=300
  */
-
 class Phase5ComplianceDashboard
 {
     private string $reportsDir;
@@ -33,7 +32,7 @@ class Phase5ComplianceDashboard
     {
         $this->reportsDir = $options['reports-dir'] ?? 'reports';
         $this->outputFile = $options['output'] ?? 'public/dashboards/phase-5-compliance.html';
-        $this->refreshInterval = (int)($options['refresh-interval'] ?? 300);
+        $this->refreshInterval = (int) ($options['refresh-interval'] ?? 300);
     }
 
     public function run(): int
@@ -42,9 +41,11 @@ class Phase5ComplianceDashboard
             $html = $this->generateDashboard();
             $this->writeDashboard($html);
             echo "Dashboard written to: {$this->outputFile}\n";
+
             return 0;
         } catch (\Exception $e) {
-            echo "ERROR: " . $e->getMessage() . "\n";
+            echo 'ERROR: '.$e->getMessage()."\n";
+
             return 1;
         }
     }
@@ -52,7 +53,7 @@ class Phase5ComplianceDashboard
     private function generateDashboard(): string
     {
         $runHistory = $this->collectRunHistory();
-        $greenRuns = count(array_filter($runHistory, fn($r) => !$r['has_slo_breach']));
+        $greenRuns = count(array_filter($runHistory, fn ($r) => ! $r['has_slo_breach']));
         $gateProgress = min(100, ($greenRuns / self::REQUIRED_GREEN_RUNS) * 100);
         $gateStatus = $greenRuns >= self::REQUIRED_GREEN_RUNS ? 'PASSED' : 'IN_PROGRESS';
         $gateColor = $gateStatus === 'PASSED' ? '#10b981' : '#f59e0b';
@@ -425,7 +426,7 @@ HTML;
 
     private function renderCriteria($runHistory, $skipTrend, $flakeTrend): string
     {
-        $greenRuns = count(array_filter($runHistory, fn($r) => !$r['has_slo_breach']));
+        $greenRuns = count(array_filter($runHistory, fn ($r) => ! $r['has_slo_breach']));
         $criterion1Status = $greenRuns >= self::REQUIRED_GREEN_RUNS ? 'PASSED' : 'PENDING';
         $criterion2Status = $skipTrend['trending_down'] && $skipTrend['current_count'] <= $skipTrend['budget'] ? 'PASSED' : 'PENDING';
         $criterion3Status = $flakeTrend['rate'] < 1.0 ? 'PASSED' : 'PENDING';
@@ -504,7 +505,7 @@ HTML;
             $integEval = $run['integration'] !== null ? ($run['integration'] <= self::BUDGETS['integration'] ? '✅' : '❌') : '—';
             $archEval = $run['architecture'] !== null ? ($run['architecture'] <= self::BUDGETS['architecture'] ? '✅' : '❌') : '—';
 
-            $html .= "<tr>";
+            $html .= '<tr>';
             $html .= "<td>{$ts}</td>";
             $html .= "<td>{$guardsEval} ({$run['guards']}s)</td>";
             $html .= "<td>{$unitEval} ({$run['unit']}s)</td>";
@@ -512,10 +513,11 @@ HTML;
             $html .= "<td>{$integEval} ({$run['integration']}s)</td>";
             $html .= "<td>{$archEval} ({$run['architecture']}s)</td>";
             $html .= "<td class='{$statusClass}'>{$status}</td>";
-            $html .= "</tr>";
+            $html .= '</tr>';
         }
 
         $html .= '</tbody></table>';
+
         return $html;
     }
 
@@ -523,6 +525,7 @@ HTML;
     {
         $trendArrow = $this->trendArrow($skipTrend['trending_down']);
         $trendDir = $skipTrend['trending_down'] ? '↓ DOWN' : '→ FLAT';
+
         return <<<HTML
         <div class="comparison-row">
             <span class="metric-label">Current Skip Count:</span>
@@ -543,6 +546,7 @@ HTML;
     {
         $rateColor = $flakeTrend['rate'] < 1.0 ? '#10b981' : '#ef4444';
         $rateFormatted = sprintf('%.2f', $flakeTrend['rate']);
+
         return <<<HTML
         <div class="comparison-row">
             <span class="metric-label">Current Flake Rate:</span>
@@ -704,7 +708,7 @@ SCRIPT;
     private function writeDashboard(string $content): void
     {
         $dir = dirname($this->outputFile);
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
         file_put_contents($this->outputFile, $content);

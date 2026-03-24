@@ -131,9 +131,9 @@ class CaseRecordHelperTest extends PureUnitTestCase
     public function test_checklist_progress_increments_per_true_field(): void
     {
         $record = $this->makeRecord([
-            'greeted'                  => true,
-            'clear_problem_statement'  => true,
-            'clear_ownership'          => true,
+            'greeted' => true,
+            'clear_problem_statement' => true,
+            'clear_ownership' => true,
         ]);
         $this->assertSame(3, $record->checklistProgress());
     }
@@ -183,12 +183,12 @@ class CaseRecordHelperTest extends PureUnitTestCase
     public function test_decision_path_label_known_paths(): void
     {
         $cases = [
-            'provide_kb_article'        => 'KB Article Match',
-            'reopen_and_link'           => 'Recurring Issue — Link to Prior Ticket',
-            'triage_and_clarify'        => 'Needs Clarification',
-            'immediate_remediation'     => 'Immediate Remediation',
-            'propose_ticket_split'      => 'Multi-Issue — Ticket Split Proposed',
-            'route_to_technician'       => 'Routed to Technician',
+            'provide_kb_article' => 'KB Article Match',
+            'reopen_and_link' => 'Recurring Issue — Link to Prior Ticket',
+            'triage_and_clarify' => 'Needs Clarification',
+            'immediate_remediation' => 'Immediate Remediation',
+            'propose_ticket_split' => 'Multi-Issue — Ticket Split Proposed',
+            'route_to_technician' => 'Routed to Technician',
         ];
 
         foreach ($cases as $path => $expectedLabel) {

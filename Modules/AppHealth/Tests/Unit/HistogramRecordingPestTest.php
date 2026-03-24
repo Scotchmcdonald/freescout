@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Cache;
 use Modules\AppHealth\Services\MetricRecorderService;
-use Modules\AppHealth\Services\LegacyMetricsCompatibilityAdapter;
 
 uses(Tests\TestCase::class);
 

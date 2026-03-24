@@ -26,7 +26,7 @@ class ScalingScorecardController extends Controller
 
         return response()->json([
             'source' => 'snapshot',
-            'snapshot_date' => $latest->snapshot_date?->toDateString(),
+            'snapshot_date' => $latest->snapshot_date->toDateString(),
             'scorecard' => $latest->payload,
         ]);
     }

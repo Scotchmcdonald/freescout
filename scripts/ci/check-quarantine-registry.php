@@ -8,7 +8,6 @@ declare(strict_types=1);
  * Registry path default: tests/quarantine/flaky-quarantine-registry.json
  * Report path default: reports/quarantine-registry-latest.md
  */
-
 final class QuarantineRegistryGuard
 {
     public function run(): int
@@ -215,8 +214,8 @@ final class QuarantineRegistryGuard
     }
 
     /**
-     * @param list<string> $taggedFiles
-     * @param list<string> $violations
+     * @param  list<string>  $taggedFiles
+     * @param  list<string>  $violations
      */
     private function buildReport(
         string $registryPath,

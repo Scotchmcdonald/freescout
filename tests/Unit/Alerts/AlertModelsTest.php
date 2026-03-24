@@ -52,7 +52,7 @@ class AlertThrottleGenerateKeyTest extends PureUnitTestCase
 
     public function test_generate_key_differs_when_context_changes(): void
     {
-        $base    = AlertThrottle::generateKey('billing.overdue', 1, []);
+        $base = AlertThrottle::generateKey('billing.overdue', 1, []);
         $withCtx = AlertThrottle::generateKey('billing.overdue', 1, ['severity' => 'critical']);
         $this->assertNotSame($base, $withCtx);
     }
@@ -66,7 +66,7 @@ class AlertThrottleGenerateKeyTest extends PureUnitTestCase
 
     public function test_generate_key_no_context_matches_empty_array(): void
     {
-        $noCtx    = AlertThrottle::generateKey('billing.overdue', 1);
+        $noCtx = AlertThrottle::generateKey('billing.overdue', 1);
         $emptyCtx = AlertThrottle::generateKey('billing.overdue', 1, []);
         $this->assertSame($noCtx, $emptyCtx);
     }

@@ -182,6 +182,6 @@ test_cover:
 
 ## See Also
 
-- [Testing Architecture Guide](./testing-audit-remediation/README.md) — Full test infrastructure audit
+- [Testing Architecture Guide](./WIP/testing-audit-remediation/README.md) — Full test infrastructure audit
 - [Pest Documentation](https://pestphp.com) — Official Pest documentation
 - [ParaTest Parallel Testing](https://github.com/paratestphp/paratest) — Parallel test runner

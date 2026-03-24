@@ -28,7 +28,8 @@ class ConversationReplyNotificationEnhancedTest extends PureUnitTestCase
         // Build a minimal container that stubs the URL generator used by route().
         $container = new Container;
         $container->bind('url', static function () {
-            return new class {
+            return new class
+            {
                 public function route(string $name, mixed $parameters = [], bool $absolute = true): string
                 {
                     $id = is_object($parameters) ? ($parameters->id ?? 0) : (is_array($parameters) ? ($parameters['id'] ?? 0) : $parameters);

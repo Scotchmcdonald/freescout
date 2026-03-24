@@ -22,7 +22,8 @@ class MailHelperReplaceVarsTest extends PureUnitTestCase
         int $number = 42,
         string $customerEmail = 'customer@example.com'
     ): object {
-        return new class($subject, $number, $customerEmail) {
+        return new class($subject, $number, $customerEmail)
+        {
             public string $subject;
             public int $number;
             public string $customer_email;
@@ -41,7 +42,8 @@ class MailHelperReplaceVarsTest extends PureUnitTestCase
         string $name = 'Support Box',
         string $fromName = 'Support'
     ): object {
-        return new class($email, $name, $fromName) {
+        return new class($email, $name, $fromName)
+        {
             public string $email;
             public string $name;
             private string $fromName;
@@ -67,7 +69,8 @@ class MailHelperReplaceVarsTest extends PureUnitTestCase
         string $lastName = 'Doe',
         string $company = 'ACME Corp'
     ): object {
-        return new class($fullName, $firstName, $lastName, $company) {
+        return new class($fullName, $firstName, $lastName, $company)
+        {
             public string $last_name;
             public string $company;
             private string $fn;
@@ -102,7 +105,8 @@ class MailHelperReplaceVarsTest extends PureUnitTestCase
         string $jobTitle = 'Support Engineer',
         string $photoUrl = 'https://example.com/photo.jpg'
     ): object {
-        return new class($fullName, $firstName, $lastName, $email, $phone, $jobTitle, $photoUrl) {
+        return new class($fullName, $firstName, $lastName, $email, $phone, $jobTitle, $photoUrl)
+        {
             public string $last_name;
             public string $email;
             public string $phone;
@@ -206,7 +210,7 @@ class MailHelperReplaceVarsTest extends PureUnitTestCase
     public function test_mailbox_from_name_uses_explicit_override(): void
     {
         $result = MailHelper::replaceMailVars('{%mailbox.fromName%}', [
-            'mailbox'           => $this->makeMailbox(),
+            'mailbox' => $this->makeMailbox(),
             'mailbox_from_name' => 'Support Team',
         ]);
         $this->assertSame('Support Team', $result);
@@ -380,7 +384,7 @@ class MailHelperReplaceVarsTest extends PureUnitTestCase
         $result = MailHelper::replaceMailVars(
             'Dear {%customer.fullName%}, your case #{%conversation.number%} is open.',
             [
-                'customer'     => $this->makeCustomer('Alice Cooper'),
+                'customer' => $this->makeCustomer('Alice Cooper'),
                 'conversation' => $this->makeConversation('Issue', 77),
             ]
         );
@@ -392,8 +396,8 @@ class MailHelperReplaceVarsTest extends PureUnitTestCase
         $result = MailHelper::replaceMailVars(
             '{%mailbox.name%} - {%user.email%} - {%customer.firstName%}',
             [
-                'mailbox'  => $this->makeMailbox('m@x.com', 'HelpDesk'),
-                'user'     => $this->makeUser(email: 'tech@co.com'),
+                'mailbox' => $this->makeMailbox('m@x.com', 'HelpDesk'),
+                'user' => $this->makeUser(email: 'tech@co.com'),
                 'customer' => $this->makeCustomer(firstName: 'Carol'),
             ]
         );

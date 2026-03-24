@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Modules\AppHealth\Services;
 
 use Illuminate\Cache\Repository as CacheRepository;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Modules\AppHealth\Contracts\MetricIngestionContract;
 
 /**
@@ -27,7 +27,11 @@ class RuntimeMetricIngestionService implements MetricIngestionContract
 
     private const HISTOGRAM_INDEX_KEY = 'apphealth:metric:index';
 
-    public function __construct(private readonly CacheRepository $cache) {}
+    public function __construct(
+        private readonly CacheRepository $cache,
+        private readonly ConnectionInterface $db,
+        private readonly SchemaBuilder $schema
+    ) {}
 
     /**
      * @return array<string, float>
@@ -52,11 +56,8 @@ class RuntimeMetricIngestionService implements MetricIngestionContract
     private function estimateApiP95(): float
     {
         try {
-            $bounds = config('apphealth.histogram_buckets', [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]);
-
-            if (! is_array($bounds)) {
-                return 0.0;
-            }
+            $configuredBounds = config('apphealth.histogram_buckets', [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]);
+            $bounds = is_array($configuredBounds) ? $configuredBounds : [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0];
 
             $index = $this->cache->get(self::HISTOGRAM_INDEX_KEY, []);
 
@@ -84,7 +85,8 @@ class RuntimeMetricIngestionService implements MetricIngestionContract
                 }
 
                 $le = $m[1];
-                $count = (int) $this->cache->get($key, 0);
+                $rawCount = $this->cache->get($key, 0);
+                $count = is_numeric($rawCount) ? (int) $rawCount : 0;
                 $bucketCounts[$le] = ($bucketCounts[$le] ?? 0) + $count;
             }
 
@@ -106,11 +108,11 @@ class RuntimeMetricIngestionService implements MetricIngestionContract
             $cumulative = 0;
 
             foreach ($sortedBounds as $bound) {
-                $leKey = $bound === '+Inf' ? '+Inf' : (string) (float) $bound;
+                $leKey = $bound === '+Inf' ? '+Inf' : (string) (is_numeric($bound) ? (float) $bound : 0.0);
                 $cumulative += $bucketCounts[$leKey] ?? 0;
 
                 if ($cumulative >= $target) {
-                    return $bound === '+Inf' ? 10.0 : (float) $bound;
+                    return $bound === '+Inf' ? 10.0 : (is_numeric($bound) ? (float) $bound : 0.0);
                 }
             }
 
@@ -127,19 +129,19 @@ class RuntimeMetricIngestionService implements MetricIngestionContract
     private function estimateQueueWaitP95(): float
     {
         try {
-            if (! Schema::hasTable('jobs')) {
+            if (! $this->schema->hasTable('jobs')) {
                 return 0.0;
             }
 
-            $oldest = DB::table('jobs')
+            $oldest = $this->db->table('jobs')
                 ->orderBy('available_at')
                 ->value('available_at');
 
-            if ($oldest === null) {
+            if (! is_numeric($oldest)) {
                 return 0.0;
             }
 
-            $ageSeconds = max(0, now()->timestamp - (int) $oldest);
+            $ageSeconds = max(0, now()->getTimestamp() - (int) $oldest);
 
             // Apply conservative p95 estimate: assume oldest job captures ~5th percentile of wait time
             // by returning the age directly as a worst-case approximation.
@@ -152,19 +154,19 @@ class RuntimeMetricIngestionService implements MetricIngestionContract
     private function computeFailedJobRatio(): float
     {
         try {
-            if (! Schema::hasTable('failed_jobs')) {
+            if (! $this->schema->hasTable('failed_jobs')) {
                 return 0.0;
             }
 
-            $failedLastDay = (int) DB::table('failed_jobs')
+            $failedLastDay = (int) $this->db->table('failed_jobs')
                 ->where('failed_at', '>=', now()->subDay()->toDateTimeString())
                 ->count();
 
-            if (! Schema::hasTable('jobs')) {
+            if (! $this->schema->hasTable('jobs')) {
                 return $failedLastDay > 0 ? 1.0 : 0.0;
             }
 
-            $pending = (int) DB::table('jobs')->count();
+            $pending = (int) $this->db->table('jobs')->count();
             $denominator = max($failedLastDay + $pending, 1);
 
             return $failedLastDay / $denominator;

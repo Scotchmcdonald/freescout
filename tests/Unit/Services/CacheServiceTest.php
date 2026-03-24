@@ -16,9 +16,7 @@ use Tests\PureUnitTestCase;
 final class FakeTaggedCacheBucket
 {
     /** @param list<string> $tags */
-    public function __construct(private FakeCacheManager $manager, private array $tags)
-    {
-    }
+    public function __construct(private FakeCacheManager $manager, private array $tags) {}
 
     private function tagKey(string $key): string
     {
@@ -94,9 +92,7 @@ final class FakeCacheManager
     /** @var list<string> */
     public array $foreverKeys = [];
 
-    public function __construct(private bool $supportsTags)
-    {
-    }
+    public function __construct(private bool $supportsTags) {}
 
     public function getStore(): object
     {
@@ -107,9 +103,7 @@ final class FakeCacheManager
             };
         }
 
-        return new class
-        {
-        };
+        return new class {};
     }
 
     /** @param list<string> $tags */
