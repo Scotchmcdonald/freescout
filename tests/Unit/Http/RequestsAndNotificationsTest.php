@@ -2,15 +2,41 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration\Http;
+namespace Tests\Unit\Http;
 
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\User;
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Validator;
-use Tests\IntegrationTestCase;
+use Illuminate\Translation\ArrayLoader;
+use Illuminate\Translation\Translator;
+use Illuminate\Validation\Factory as ValidationFactory;
+use Illuminate\Validation\PresenceVerifierInterface;
+use Tests\PureUnitTestCase;
 
-class RequestsAndNotificationsTest extends IntegrationTestCase
-{
+class RequestsAndNotificationsTest extends PureUnitTestCase
+{    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Facade::clearResolvedInstances();
+
+        $container = new Container;
+        $translator = new Translator(new ArrayLoader, 'en');
+        $container->instance('translator', $translator);
+        $validationFactory = new ValidationFactory($translator, $container);
+        $container->instance('validator', $validationFactory);
+
+        Container::setInstance($container);
+        Facade::setFacadeApplication($container);
+    }
+
+    protected function tearDown(): void
+    {
+        Facade::clearResolvedInstances();
+        Container::setInstance(null);
+        parent::tearDown();
+    }
     // ========================================
     // LoginRequest Tests (30+ tests)
     // ========================================
@@ -425,22 +451,32 @@ class RequestsAndNotificationsTest extends IntegrationTestCase
 
     public function test_validator_handles_unique_validation(): void
     {
-        User::factory()->create(['email' => 'unique@example.com']);
+        // Stub presence verifier so unique:users,email sees a conflict without DB.
+        $existingVerifier = new class implements PresenceVerifierInterface
+        {
+            public function getCount($collection, $column, $value, $excludeId = null, $idColumn = null, array $extra = []): int { return 1; }
 
-        $rules = ['email' => 'unique:users,email'];
-        $data = ['email' => 'unique@example.com'];
+            public function getMultiCount($collection, $column, array $values, array $extra = []): int { return 1; }
+        };
 
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make(['email' => 'unique@example.com'], ['email' => 'unique:users,email']);
+        $validator->setPresenceVerifier($existingVerifier);
 
         $this->assertTrue($validator->fails());
     }
 
     public function test_validator_passes_unique_validation(): void
     {
-        $rules = ['email' => 'unique:users,email'];
-        $data = ['email' => 'new@example.com'];
+        // Stub presence verifier returning 0 hits — no conflict, unique passes.
+        $emptyVerifier = new class implements PresenceVerifierInterface
+        {
+            public function getCount($collection, $column, $value, $excludeId = null, $idColumn = null, array $extra = []): int { return 0; }
 
-        $validator = Validator::make($data, $rules);
+            public function getMultiCount($collection, $column, array $values, array $extra = []): int { return 0; }
+        };
+
+        $validator = Validator::make(['email' => 'new@example.com'], ['email' => 'unique:users,email']);
+        $validator->setPresenceVerifier($emptyVerifier);
 
         $this->assertFalse($validator->fails());
     }
