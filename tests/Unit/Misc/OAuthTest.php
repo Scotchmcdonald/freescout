@@ -2,16 +2,64 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration\Misc;
+namespace Tests\Unit\Misc;
 
 use App\Misc\OAuth;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Container\Container;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
+use Illuminate\Routing\RouteCollection;
+use Illuminate\Routing\UrlGenerator;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Http;
-use Tests\TestCase;
+use Tests\PureUnitTestCase;
 
-class OAuthTest extends TestCase
+class OAuthTest extends PureUnitTestCase
 {
-    use RefreshDatabase;
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Facade::clearResolvedInstances();
+
+        $container = new Container;
+        $request = Request::create('https://test.example.com/');
+        $url = new class(new RouteCollection, $request) extends UrlGenerator
+        {
+            /**
+             * @param  mixed  $parameters
+             */
+            public function route($name, $parameters = [], $absolute = true): string
+            {
+                if ($name === 'mailboxes.oauth_callback') {
+                    return 'https://test.example.com/mailboxes/oauth/callback';
+                }
+
+                return 'https://test.example.com';
+            }
+        };
+
+        $container->instance('config', new ConfigRepository([
+            'app' => [
+                'url' => 'https://test.example.com',
+            ],
+        ]));
+        $container->instance('request', $request);
+        $container->instance('http', new \Illuminate\Http\Client\Factory);
+        $container->instance('url', $url);
+        $container->instance('redirect', new Redirector($url));
+
+        Container::setInstance($container);
+        Facade::setFacadeApplication($container);
+    }
+
+    protected function tearDown(): void
+    {
+        Facade::clearResolvedInstances();
+        Container::setInstance(null);
+        parent::tearDown();
+    }
 
     public function test_get_authorization_url_for_microsoft(): void
     {

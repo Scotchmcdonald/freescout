@@ -2,23 +2,61 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration\Misc;
+namespace Tests\Unit\Misc;
 
 use App\Misc\WpApi;
+use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Http;
-use Tests\IntegrationTestCase;
+use Tests\PureUnitTestCase;
 
 /**
  * Unit tests for WpApi service.
  *
  * Uses mocked HTTP responses to test the marketplace API integration.
  */
-class WpApiServiceTest extends IntegrationTestCase
+class WpApiServiceTest extends PureUnitTestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
+
+        Facade::clearResolvedInstances();
+
+        $container = new Container;
+        $container->instance('config', new ConfigRepository([
+            'app' => [
+                'version' => '1.0.0',
+                'freescout_api' => 'https://freescout.net/wp-json/',
+                'freescout_alt_api' => 'https://api.freescout.net/',
+            ],
+        ]));
+        $container->instance('http', new \Illuminate\Http\Client\Factory);
+        $container->instance('log', new class
+        {
+            /**
+             * @var array<int, string>
+             */
+            public array $messages = [];
+
+            public function error(string $message): void
+            {
+                $this->messages[] = $message;
+            }
+        });
+
+        Container::setInstance($container);
+        Facade::setFacadeApplication($container);
+
         Http::preventStrayRequests();
+    }
+
+    protected function tearDown(): void
+    {
+        Facade::clearResolvedInstances();
+        Container::setInstance(null);
+        parent::tearDown();
     }
 
     // ===== activateLicense tests =====
