@@ -43,14 +43,46 @@ jobs:
       - name: Install composer dependencies
         run: composer install --ignore-platform-reqs --no-interaction
 
+      - name: Start Guards Lane Timer
+        run: |
+          mkdir -p reports
+          date +%s > reports/guards-lane-start.ts
+
       - name: 🔒 Architecture Compliance
         run: bash scripts/ci/check-architecture-compliance.sh
+        continue-on-error: false
+
+      - name: 🔗 Markdown Internal Link Check
+        run: bash scripts/ci/check-markdown-links.sh .
+        continue-on-error: false
+
+      - name: 🧾 Skip Governance
+        run: php scripts/ci/check-skip-governance.php
         continue-on-error: false
 
       - name: 📦 Module Isolation Guard
         run: |
           php artisan test tests/Unit/ModuleUnitIsolationGuardTest.php --parallel --processes=10 -q
           php artisan test tests/Unit/RefreshDatabaseUsageGuardTest.php --parallel --processes=10 -q
+        continue-on-error: false
+
+      - name: Runtime Budget (guards lane)
+        run: |
+          START_TS=$(cat reports/guards-lane-start.ts)
+          END_TS=$(date +%s)
+          DURATION=$((END_TS-START_TS))
+
+          php scripts/ci/check-test-lane-runtime-budgets.php \
+            --lane=guards \
+            --duration="$DURATION" \
+            --history=reports/lane-runtime-history-guards.jsonl
+        continue-on-error: false
+
+      - name: Flake Trend Snapshot (guards lane)
+        run: |
+          php scripts/ci/generate-flake-report.php \
+            --lane=guards \
+            --output=reports/flake-report-guards-latest.md
         continue-on-error: false
 
       - name: Upload Guard Artifacts
@@ -60,7 +92,12 @@ jobs:
           name: guard-reports
           path: |
             reports/ci_master.log
+            reports/markdown-link-check-latest.log
             reports/test-results-latest.log
+            reports/skip-governance-latest.md
+            reports/lane-runtime-budget-guards-latest.md
+            reports/lane-runtime-history-guards.jsonl
+            reports/flake-report-guards-latest.md
           if-no-files-found: ignore
 
   # ====================================================================
@@ -89,9 +126,30 @@ jobs:
 
       - name: Run Unit Tests
         run: |
+          set +e
+          START_TS=$(date +%s)
+
           php artisan test tests/Unit \
                    --parallel --processes=10 \
                    --coverage-clover=reports/unit-coverage.xml
+          TEST_EXIT=$?
+
+          END_TS=$(date +%s)
+          DURATION=$((END_TS-START_TS))
+
+          php scripts/ci/check-test-lane-runtime-budgets.php \
+            --lane=unit \
+            --duration="$DURATION" \
+            --history=reports/lane-runtime-history-unit.jsonl
+          BUDGET_EXIT=$?
+
+          php scripts/ci/generate-flake-report.php \
+            --lane=unit \
+            --output=reports/flake-report-unit-latest.md
+
+          if [ $TEST_EXIT -ne 0 ] || [ $BUDGET_EXIT -ne 0 ]; then
+            exit 1
+          fi
         continue-on-error: false
 
       - name: 📊 Upload Unit Coverage
@@ -110,6 +168,9 @@ jobs:
           path: |
             reports/unit-coverage.xml
             reports/test-results-latest.log
+            reports/lane-runtime-budget-unit-latest.md
+            reports/lane-runtime-history-unit.jsonl
+            reports/flake-report-unit-latest.md
           if-no-files-found: ignore
 
   # ====================================================================
@@ -174,9 +235,30 @@ jobs:
 
       - name: Run Feature Tests
         run: |
+          set +e
+          START_TS=$(date +%s)
+
           php artisan test tests/Feature \
                    --parallel --processes=10 \
                    --coverage-clover=reports/feature-coverage.xml
+          TEST_EXIT=$?
+
+          END_TS=$(date +%s)
+          DURATION=$((END_TS-START_TS))
+
+          php scripts/ci/check-test-lane-runtime-budgets.php \
+            --lane=feature \
+            --duration="$DURATION" \
+            --history=reports/lane-runtime-history-feature.jsonl
+          BUDGET_EXIT=$?
+
+          php scripts/ci/generate-flake-report.php \
+            --lane=feature \
+            --output=reports/flake-report-feature-latest.md
+
+          if [ $TEST_EXIT -ne 0 ] || [ $BUDGET_EXIT -ne 0 ]; then
+            exit 1
+          fi
         continue-on-error: false
 
       - name: 📊 Upload Feature Coverage
@@ -195,6 +277,9 @@ jobs:
           path: |
             reports/feature-coverage.xml
             reports/test-results-latest.log
+            reports/lane-runtime-budget-feature-latest.md
+            reports/lane-runtime-history-feature.jsonl
+            reports/flake-report-feature-latest.md
           if-no-files-found: ignore
 
   # ====================================================================
@@ -223,8 +308,29 @@ jobs:
 
       - name: Run Architecture Tests
         run: |
+          set +e
+          START_TS=$(date +%s)
+
           php artisan test tests/Architecture \
                    --parallel --processes=10 -q
+          TEST_EXIT=$?
+
+          END_TS=$(date +%s)
+          DURATION=$((END_TS-START_TS))
+
+          php scripts/ci/check-test-lane-runtime-budgets.php \
+            --lane=architecture \
+            --duration="$DURATION" \
+            --history=reports/lane-runtime-history-architecture.jsonl
+          BUDGET_EXIT=$?
+
+          php scripts/ci/generate-flake-report.php \
+            --lane=architecture \
+            --output=reports/flake-report-architecture-latest.md
+
+          if [ $TEST_EXIT -ne 0 ] || [ $BUDGET_EXIT -ne 0 ]; then
+            exit 1
+          fi
         continue-on-error: false
 
       - name: Upload Architecture Artifacts
@@ -232,7 +338,11 @@ jobs:
         if: always()
         with:
           name: architecture-reports
-          path: reports/test-results-latest.log
+          path: |
+            reports/test-results-latest.log
+            reports/lane-runtime-budget-architecture-latest.md
+            reports/lane-runtime-history-architecture.jsonl
+            reports/flake-report-architecture-latest.md
           if-no-files-found: ignore
 
   # ====================================================================
@@ -297,8 +407,29 @@ jobs:
 
       - name: Run Integration Tests
         run: |
+          set +e
+          START_TS=$(date +%s)
+
           php artisan test tests/Integration \
                    --parallel --processes=10
+          TEST_EXIT=$?
+
+          END_TS=$(date +%s)
+          DURATION=$((END_TS-START_TS))
+
+          php scripts/ci/check-test-lane-runtime-budgets.php \
+            --lane=integration \
+            --duration="$DURATION" \
+            --history=reports/lane-runtime-history-integration.jsonl
+          BUDGET_EXIT=$?
+
+          php scripts/ci/generate-flake-report.php \
+            --lane=integration \
+            --output=reports/flake-report-integration-latest.md
+
+          if [ $TEST_EXIT -ne 0 ] || [ $BUDGET_EXIT -ne 0 ]; then
+            exit 1
+          fi
         continue-on-error: false
 
       - name: Upload Integration Artifacts
@@ -306,7 +437,11 @@ jobs:
         if: always()
         with:
           name: integration-reports
-          path: reports/test-results-latest.log
+          path: |
+            reports/test-results-latest.log
+            reports/lane-runtime-budget-integration-latest.md
+            reports/lane-runtime-history-integration.jsonl
+            reports/flake-report-integration-latest.md
           if-no-files-found: ignore
 
   # ====================================================================

@@ -1,6 +1,6 @@
 # CI/CD Architecture Compliance Scripts
 
-This directory contains automated compliance checks that enforce architecture principles from [SYSTEM_ARCHITECTURE.md](../../docs/SYSTEM_ARCHITECTURE.md).
+This directory contains automated compliance checks that enforce architecture principles from [SYSTEM_ARCHITECTURE.md](../../docs/architecture/SYSTEM_ARCHITECTURE.md).
 
 ## Quick Start
 
@@ -162,6 +162,74 @@ class ProcessPayment extends IdempotentListener {
 }
 ```
 
+### 7. Markdown Internal Links (`check-markdown-links.sh`)
+
+**Enforces:** Documentation integrity and internal-link hygiene
+
+**Rules:**
+- ❌ Broken local Markdown links fail the check
+- ✅ External links (`http`, `https`) are ignored by this script
+- ✅ Report artifacts are written to `reports/markdown-link-check-<timestamp>.log`
+
+**Run:**
+```bash
+bash scripts/ci/check-markdown-links.sh
+```
+
+### 8. Test Lane Runtime Budgets (`check-test-lane-runtime-budgets.php`)
+
+**Enforces:** Phase 5 lane runtime SLO guardrails
+
+**Lane budgets:**
+- `guards` <= 30s
+- `unit` <= 30s
+- `feature` <= 90s
+- `integration` <= 90s
+- `architecture` <= 30s
+
+**Behavior:**
+- Appends lane durations to a JSONL history file
+- Fails on severe spikes (default: > 1.5x budget)
+- Fails on sustained regressions (rolling median over full window)
+- Writes report artifact: `reports/lane-runtime-budget-<lane>-latest.md`
+
+**Run:**
+```bash
+php scripts/ci/check-test-lane-runtime-budgets.php --lane=unit --duration=29
+```
+
+### 9. Skip Governance (`check-skip-governance.php`)
+
+**Enforces:** skip debt governance in test files
+
+**Rules:**
+- Tracks current `markTestSkipped(...)` baseline and lane budgets
+- Blocks count increases beyond baseline
+- Blocks new skips without metadata (`owner`, `issue`, `expires`)
+- Fails expired skip metadata
+
+**Report artifact:**
+- `reports/skip-governance-latest.md`
+
+**Run:**
+```bash
+php scripts/ci/check-skip-governance.php
+```
+
+### 10. Flaky Trend Report (`generate-flake-report.php`)
+
+**Enforces:** non-blocking flake visibility from recent logs
+
+**Behavior:**
+- Scans recent `reports/test-results-*.log` files
+- Aggregates recurring failure signatures
+- Writes report artifact (default): `reports/flake-report-latest.md`
+
+**Run:**
+```bash
+php scripts/ci/generate-flake-report.php --lane=unit --output=reports/flake-report-unit-latest.md
+```
+
 ## CI/CD Integration
 
 ### GitHub Actions
@@ -213,6 +281,10 @@ architecture_compliance:
 - **Errors (Exit 1):** Critical violations that break architecture principles
 - **Warnings (Exit 0):** Recommendations for improvement, non-blocking
 
+For Phase 5 runtime checks specifically:
+- `check-test-lane-runtime-budgets.php` exits 1 for severe or sustained regressions.
+- Budget overages below fail thresholds are reported as warnings.
+
 ## Troubleshooting
 
 ### False Positives
@@ -232,7 +304,7 @@ If checks flag valid code:
 
 ## Architecture Principles Reference
 
-See [SYSTEM_ARCHITECTURE.md](../../docs/SYSTEM_ARCHITECTURE.md) for complete architecture documentation:
+See [SYSTEM_ARCHITECTURE.md](../../docs/architecture/SYSTEM_ARCHITECTURE.md) for complete architecture documentation:
 
 - Section 1.1: Core Blindness Pattern
 - Section 1.2: Event-Driven Communication
@@ -242,6 +314,6 @@ See [SYSTEM_ARCHITECTURE.md](../../docs/SYSTEM_ARCHITECTURE.md) for complete arc
 ## Support
 
 For questions or issues:
-1. Check [SYSTEM_ARCHITECTURE.md](../../docs/SYSTEM_ARCHITECTURE.md)
-2. Review [MODULE_DEVELOPMENT_GUIDE.md](../../docs/MODULE_DEVELOPMENT_GUIDE.md)
+1. Check [SYSTEM_ARCHITECTURE.md](../../docs/architecture/SYSTEM_ARCHITECTURE.md)
+2. Review [MODULE_DEVELOPMENT_GUIDE.md](../../docs/development/MODULE_DEVELOPMENT_GUIDE.md)
 3. See examples in existing modules (CRM, PIB, Payment)

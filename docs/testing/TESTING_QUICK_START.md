@@ -24,6 +24,19 @@ CI runs these **in parallel** to give you fast feedback on different aspects of 
 | **🏗️ Architecture** | Module boundaries, contracts, service providers | `php artisan test tests/Architecture --parallel --processes=10` | After config changes | 5-10s |
 | **🔗 Integration** | APIs, external services, module integration | `php artisan test tests/Integration --parallel --processes=10` | For external APIs | 30-60s |
 
+Phase 5 guardrails (CI-aligned) after a lane run:
+
+```bash
+# Skip governance baseline + metadata policy
+php scripts/ci/check-skip-governance.php
+
+# Runtime budget check example (replace lane and duration)
+php scripts/ci/check-test-lane-runtime-budgets.php --lane=unit --duration=28
+
+# Flake trend snapshot from recent logs
+php scripts/ci/generate-flake-report.php --lane=local --output=reports/flake-report-local-latest.md
+```
+
 ---
 
 ## Before You Push (2-3 Minutes)
@@ -68,6 +81,9 @@ echo "✅ Ready to push!"
 | **Latest CI run** | `reports/test-results-latest.log` | `tail -f reports/test-results-latest.log` |
 | **Master compliance** | `reports/ci_master.log` | `cat reports/ci_master.log` |
 | **Test failures** | `reports/test-results-latest.log` | `grep -A 5 "FAILED" reports/test-results-latest.log` |
+| **Skip governance** | `reports/skip-governance-latest.md` | `cat reports/skip-governance-latest.md` |
+| **Runtime budget report** | `reports/lane-runtime-budget-<lane>-latest.md` | `cat reports/lane-runtime-budget-unit-latest.md` |
+| **Flake trend report** | `reports/flake-report-<lane>-latest.md` | `cat reports/flake-report-local-latest.md` |
 | **Coverage (local)** | `reports/coverage/index.html` | Open in browser |
 
 ---

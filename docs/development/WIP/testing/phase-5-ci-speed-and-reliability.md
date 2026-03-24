@@ -1,6 +1,6 @@
 # Phase 5: CI Speed And Reliability
 
-Status: In Progress (2026-03-24 kickoff)
+Status: In Progress (2026-03-24 wave 1 implemented)
 Duration: 4 to 7 days
 Goal: Keep confidence high while maintaining fast feedback in parallel lanes.
 
@@ -70,3 +70,31 @@ Goal: Keep confidence high while maintaining fast feedback in parallel lanes.
 3. Add skip-governance report and threshold guard:
 - enumerate `markTestSkipped` usage and metadata quality.
 - enforce issue+owner+expiry policy.
+
+## Wave 1 Implementation Snapshot
+
+- Added runtime budget checker:
+  - `scripts/ci/check-test-lane-runtime-budgets.php`
+- Added skip governance guard:
+  - `scripts/ci/check-skip-governance.php`
+- Added flaky trend report generator:
+  - `scripts/ci/generate-flake-report.php`
+- Wired new scripts into CI lane workflow:
+  - `.github/workflows/test-lanes.yml`
+
+## Wave 1 Validation Evidence
+
+- Syntax validation passed for all new scripts.
+- Skip governance run passed with current baseline:
+  - `reports/skip-governance-latest.md`
+- Runtime budget checker exercised for pass and warn scenarios:
+  - `reports/lane-runtime-budget-guards-latest.md`
+  - `reports/lane-runtime-budget-unit-latest.md`
+- Flake trend report generated from recent local logs:
+  - `reports/flake-report-phase5-local-latest.md`
+
+## Remaining Work (Phase 5)
+
+- Collect CI lane runtime samples over multiple consecutive runs to activate sustained-regression decisions using full rolling windows.
+- Add quarantine registry workflow that auto-fails expired quarantines with owner/issue/expires metadata.
+- Tune flake signature normalization and classification to reduce noisy grouping in mixed PHPUnit/Pest output formats.
