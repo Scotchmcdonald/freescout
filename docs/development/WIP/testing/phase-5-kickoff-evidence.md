@@ -62,3 +62,11 @@ Issue: phase-5-ci-speed-and-reliability-kickoff
   - `.github/workflows/test-lanes.yml`
 - Validation report generated:
   - `reports/quarantine-registry-latest.md`
+
+## Wave 3 Outcomes
+
+- Flake trend parser hardened for mixed Pest/PHPUnit logs:
+  - `scripts/ci/generate-flake-report.php`
+- Added recurring-signature and likely-test-file analysis in report output.
+- Added quarantine-aware hints by matching likely files against active registry entries.
+- CI lane flake-report calls now pass quarantine registry path.

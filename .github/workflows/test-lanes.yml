@@ -86,6 +86,7 @@ jobs:
         run: |
           php scripts/ci/generate-flake-report.php \
             --lane=guards \
+            --registry=tests/quarantine/flaky-quarantine-registry.json \
             --output=reports/flake-report-guards-latest.md
         continue-on-error: false
 
@@ -150,6 +151,7 @@ jobs:
 
           php scripts/ci/generate-flake-report.php \
             --lane=unit \
+            --registry=tests/quarantine/flaky-quarantine-registry.json \
             --output=reports/flake-report-unit-latest.md
 
           if [ $TEST_EXIT -ne 0 ] || [ $BUDGET_EXIT -ne 0 ]; then
@@ -259,6 +261,7 @@ jobs:
 
           php scripts/ci/generate-flake-report.php \
             --lane=feature \
+            --registry=tests/quarantine/flaky-quarantine-registry.json \
             --output=reports/flake-report-feature-latest.md
 
           if [ $TEST_EXIT -ne 0 ] || [ $BUDGET_EXIT -ne 0 ]; then
@@ -331,6 +334,7 @@ jobs:
 
           php scripts/ci/generate-flake-report.php \
             --lane=architecture \
+            --registry=tests/quarantine/flaky-quarantine-registry.json \
             --output=reports/flake-report-architecture-latest.md
 
           if [ $TEST_EXIT -ne 0 ] || [ $BUDGET_EXIT -ne 0 ]; then
@@ -430,6 +434,7 @@ jobs:
 
           php scripts/ci/generate-flake-report.php \
             --lane=integration \
+            --registry=tests/quarantine/flaky-quarantine-registry.json \
             --output=reports/flake-report-integration-latest.md
 
           if [ $TEST_EXIT -ne 0 ] || [ $BUDGET_EXIT -ne 0 ]; then

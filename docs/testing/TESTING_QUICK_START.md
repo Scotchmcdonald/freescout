@@ -37,7 +37,7 @@ php scripts/ci/check-quarantine-registry.php
 php scripts/ci/check-test-lane-runtime-budgets.php --lane=unit --duration=28
 
 # Flake trend snapshot from recent logs
-php scripts/ci/generate-flake-report.php --lane=local --output=reports/flake-report-local-latest.md
+php scripts/ci/generate-flake-report.php --lane=local --registry=tests/quarantine/flaky-quarantine-registry.json --output=reports/flake-report-local-latest.md
 ```
 
 ---

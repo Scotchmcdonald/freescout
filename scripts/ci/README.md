@@ -222,12 +222,18 @@ php scripts/ci/check-skip-governance.php
 
 **Behavior:**
 - Scans recent `reports/test-results-*.log` files
-- Aggregates recurring failure signatures
+- Normalizes mixed Pest/PHPUnit failure lines into stable signatures
+- Aggregates recurring failures by event count and distinct log count
+- Resolves likely test files from `Tests\\...` class names when possible
+- Adds quarantine-aware suggestions using `tests/quarantine/flaky-quarantine-registry.json`
 - Writes report artifact (default): `reports/flake-report-latest.md`
 
 **Run:**
 ```bash
-php scripts/ci/generate-flake-report.php --lane=unit --output=reports/flake-report-unit-latest.md
+php scripts/ci/generate-flake-report.php \
+    --lane=unit \
+    --registry=tests/quarantine/flaky-quarantine-registry.json \
+    --output=reports/flake-report-unit-latest.md
 ```
 
 ### 11. Quarantine Registry Governance (`check-quarantine-registry.php`)

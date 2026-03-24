@@ -1,6 +1,6 @@
 # Phase 5: CI Speed And Reliability
 
-Status: In Progress (2026-03-24 waves 1-2 implemented)
+Status: In Progress (2026-03-24 waves 1-3 implemented)
 Duration: 4 to 7 days
 Goal: Keep confidence high while maintaining fast feedback in parallel lanes.
 
@@ -96,7 +96,20 @@ Goal: Keep confidence high while maintaining fast feedback in parallel lanes.
 ## Remaining Work (Phase 5)
 
 - Collect CI lane runtime samples over multiple consecutive runs to activate sustained-regression decisions using full rolling windows.
-- Tune flake signature normalization and classification to reduce noisy grouping in mixed PHPUnit/Pest output formats.
+
+## Wave 3 Implementation Snapshot
+
+- Enhanced flaky trend parser and normalization:
+  - `scripts/ci/generate-flake-report.php`
+- Added recurring signature detection based on distinct log count.
+- Added likely test-file mapping from parsed `Tests\\...` class names.
+- Added quarantine-aware action hints by cross-checking active quarantine registry entries.
+- Updated CI lane invocations to pass quarantine registry path.
+
+## Wave 3 Validation Evidence
+
+- Enhanced flake report generated successfully with quarantine-aware output:
+  - `reports/flake-report-phase5-wave3-local-latest.md`
 
 ## Wave 2 Implementation Snapshot
 
