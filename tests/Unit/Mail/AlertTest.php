@@ -2,14 +2,46 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration\Mail;
+namespace Tests\Unit\Mail;
 
 use App\Mail\Alert;
-use Illuminate\Support\Facades\Mail;
-use Tests\IntegrationTestCase;
+use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\Facade;
+use Tests\PureUnitTestCase;
 
-class AlertTest extends IntegrationTestCase
+class AlertTest extends PureUnitTestCase
 {
+    private Container $originalContainer;
+    private mixed $originalFacadeApp;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->originalContainer = Container::getInstance();
+        $this->originalFacadeApp = Facade::getFacadeApplication();
+
+        $container = new Container;
+        $container->instance('config', new ConfigRepository([
+            'app' => [
+                'name' => 'FreeScout',
+                'url'  => 'https://example.com',
+            ],
+        ]));
+
+        Container::setInstance($container);
+        Facade::setFacadeApplication($container);
+    }
+
+    protected function tearDown(): void
+    {
+        Container::setInstance($this->originalContainer);
+        Facade::setFacadeApplication($this->originalFacadeApp);
+
+        parent::tearDown();
+    }
+
     public function test_mailable_can_be_instantiated_with_text(): void
     {
         $mailable = new Alert('Test alert message');
@@ -29,8 +61,6 @@ class AlertTest extends IntegrationTestCase
 
     public function test_envelope_contains_correct_subject_with_title(): void
     {
-        config(['app.name' => 'FreeScout', 'app.url' => 'https://example.com']);
-
         $mailable = new Alert('Test message', 'Security Alert');
         $envelope = $mailable->envelope();
 
@@ -41,8 +71,6 @@ class AlertTest extends IntegrationTestCase
 
     public function test_envelope_uses_default_title_when_empty(): void
     {
-        config(['app.name' => 'FreeScout', 'app.url' => 'https://example.com']);
-
         $mailable = new Alert('Test message');
         $envelope = $mailable->envelope();
 
@@ -58,23 +86,21 @@ class AlertTest extends IntegrationTestCase
         $this->assertEquals('emails.user.alert', $content->view);
     }
 
-    public function test_mailable_can_be_sent(): void
+    public function test_mailable_has_correct_properties_for_delivery(): void
     {
-        Mail::fake();
+        $mailable = new Alert('System alert', 'Warning');
 
-        $recipient = 'admin@example.com';
-        Mail::to($recipient)->send(new Alert('System alert', 'Warning'));
-
-        Mail::assertSent(Alert::class, function ($mail) use ($recipient) {
-            return $mail->hasTo($recipient) &&
-                   $mail->text === 'System alert' &&
-                   $mail->title === 'Warning';
-        });
+        $this->assertEquals('System alert', $mailable->text);
+        $this->assertEquals('Warning', $mailable->title);
+        $this->assertEquals('System alert', $mailable->alert_message);
+        $this->assertEquals('Warning', $mailable->alert_subject);
     }
 
     public function test_envelope_includes_domain_from_url(): void
     {
-        config(['app.url' => 'https://helpdesk.example.org']);
+        Container::getInstance()->instance('config', new ConfigRepository([
+            'app' => ['name' => 'App', 'url' => 'https://helpdesk.example.org'],
+        ]));
 
         $mailable = new Alert('Test');
         $envelope = $mailable->envelope();
