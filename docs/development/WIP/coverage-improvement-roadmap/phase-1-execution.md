@@ -528,3 +528,36 @@ Artifacts:
 - Continue pure-safe wave harvesting in ClientPortal/SoftwareSubscriptions/SyncOperation helper pockets.
 - Defer persistence/relation-heavy methods to mixed strategy waves.
 
+## Wave 16 Started
+
+Large-batch pure helper wave spanning ClientPortal + SoftwareSubscriptions + core SyncOperation + PIB discrepancy/adjustment helpers.
+
+## Wave 16 Results
+
+- New test files:
+	- tests/Unit/ClientPortal/ApprovalRequestHelperTest.php (5 tests: actionability/status/type/aging helper coverage)
+	- tests/Unit/SoftwareSubscriptions/SoftwareProductHelperTest.php (3 tests: tiered pricing and tier lookup helpers)
+	- tests/Unit/Models/SyncOperationHelperTest.php (3 tests: progress/stall/ETA helper coverage)
+	- tests/Unit/PIB/DiscrepancyAndAdjustmentHelperTest.php (3 tests: discrepancy status/info and billing-adjustment helper coverage)
+- Targeted run: 14 passed (63 assertions).
+- Full unit lane: 985 -> 999 passed (+14).
+
+Coverage deltas (method-level, focused impact):
+- ApprovalRequest::canBeActioned/getStatusBadgeAttribute/getStatusLabelAttribute/getTypeLabelAttribute/getAgingDaysAttribute: 0% -> covered
+- SoftwareProduct::calculatePrice/getTierForQuantity: 0% -> covered
+- SyncOperation::getProgressPercentageAttribute/isStalled/getEstimatedTimeRemainingAttribute: 0% -> covered
+- ReconciliationDiscrepancy::isResolved/requiresManualReview/isCritical/getSeverityInfo/getResolutionInfo: 0% -> covered
+- BillingAdjustment::getValueChangeAttribute/getTypeLabel/canBeApproved/canBeApplied: 0% -> covered
+
+Validation notes:
+- Targeted tests used single-path parallel command pattern due harness path-argument limitation.
+- Full unit lane passed cleanly on first post-fix run.
+
+Artifacts:
+- Unit lane passing run: reports/test-results-2026-03-24_16-20-36.log
+
+## Next
+
+- Continue large-batch pure waves with remaining safe model/helper pockets before mixed persistence strategy.
+- Candidate next batch: Payment state-transition methods with save/update overrides, plus remaining module helper pockets with deterministic stubbing.
+
