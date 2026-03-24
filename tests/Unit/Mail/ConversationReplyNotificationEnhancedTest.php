@@ -8,10 +8,48 @@ use App\Mail\ConversationReplyNotification;
 use App\Models\Conversation;
 use App\Models\Mailbox;
 use App\Models\Thread;
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\Facade;
 use Tests\PureUnitTestCase;
 
 class ConversationReplyNotificationEnhancedTest extends PureUnitTestCase
 {
+    private Container $originalContainer;
+    private mixed $originalFacadeApp;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Snapshot original container and facade application.
+        $this->originalContainer = Container::getInstance();
+        $this->originalFacadeApp = Facade::getFacadeApplication();
+
+        // Build a minimal container that stubs the URL generator used by route().
+        $container = new Container;
+        $container->bind('url', static function () {
+            return new class {
+                public function route(string $name, mixed $parameters = [], bool $absolute = true): string
+                {
+                    $id = is_object($parameters) ? ($parameters->id ?? 0) : (is_array($parameters) ? ($parameters['id'] ?? 0) : $parameters);
+
+                    return 'https://example.com/conversations/'.$id;
+                }
+            };
+        });
+
+        Container::setInstance($container);
+        Facade::setFacadeApplication($container);
+    }
+
+    protected function tearDown(): void
+    {
+        Container::setInstance($this->originalContainer);
+        Facade::setFacadeApplication($this->originalFacadeApp);
+
+        parent::tearDown();
+    }
+
     public function test_conversation_reply_notification_envelope_has_subject(): void
     {
         $mailbox = new Mailbox(['id' => 1, 'email' => 'support@example.com']);
