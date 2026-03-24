@@ -266,6 +266,15 @@ Current progress snapshot (2026-03-24):
 	- All 60 tests pass in 0.26s; guard threshold (4 framework-booting files) unchanged
 - Validation: full suite 5780 passed (1 pre-existing Mockery alias flake unrelated to this wave)
 - Updated baseline snapshot: Unit=52, Integration=207 (`reports/testing-baseline-2026-03-24.md`)
+- Wave 10 completed by migrating SmtpService + EmailModel tests to unit scope:
+        - Collision-safe scope: `Unit/Services/SmtpServiceComprehensiveTest.php` targets public `validateSettings()` (different from the other agent's `SmtpServicePureLogicTest.php` which covers protected methods); `Unit/EmailModelEnhancedTest.php` in `Tests\Unit` namespace avoids all agent collision zones
+        - Impacted: `tests/Integration/Services/SmtpServiceComprehensiveTest.php` (38 tests) → `tests/Unit/Services/SmtpServiceComprehensiveTest.php`
+        - Impacted: `tests/Integration/EmailModelEnhancedTest.php` (31 tests) → `tests/Unit/EmailModelEnhancedTest.php` (26 tests; 5 DB/factory tests omitted)
+        - Pattern: Mockery spy on `Psr\Log\LoggerInterface` bound to container; `shouldHaveReceived()` asserts post-invocation — avoids `Log::shouldReceive()` facade-mock ceremony
+        - Pattern: `forceFill(['id' => 42, ...])` replaces `Mailbox::factory()->create()` for testConnection tests; Mail facade intentionally unbound so `BindingResolutionException` exercises `catch(\Exception)` handler giving deterministic failure path
+        - Pattern: Eloquent datetime casts require `getConnection()` for date format → narrowed to integer-cast assertions only in PureUnit; full datetime cast test remains in Integration suite
+        - All 64 tests pass in 0.12s; guard threshold (4 framework-booting files) unchanged
+- Updated baseline snapshot: Unit=54, Integration=207 (`reports/testing-baseline-2026-03-24.md`)
 
 - [ ] Identify deterministic integration assertions that can be moved to pure unit scope.
 - [ ] Migrate policy/service/value-object logic to `tests/Unit` with `PureUnitTestCase` where possible.
