@@ -238,6 +238,16 @@ Current progress snapshot (2026-03-24):
 	- `tests/Integration/Mail/AlertTest.php` -> `tests/Unit/Mail/AlertTest.php` (ConfigRepository stub replaces app config)
 - Validation: full suite green via `php artisan test --parallel --processes=10` (2 skipped, 5749 passed)
 - Updated baseline snapshot: Unit=36, Integration=213 (`reports/testing-baseline-2026-03-24.md`)
+- Wave 7 completed by migrating Helper/MailHelper utility tests to unit scope (large batch):
+	- `tests/Integration/Misc/HelperMethodsTest.php` (49 tests) → deleted; coverage in `tests/Unit/Misc/HelperLogicTest.php`
+	- `tests/Integration/Misc/HelperEdgeCasesTest.php` (43 tests) → deleted; coverage in `tests/Unit/Misc/HelperLogicTest.php`
+	- `tests/Integration/Misc/HelpersTest.php` (26 tests) → deleted; coverage in `tests/Unit/Misc/HelpersTest.php`
+	- New: `tests/Unit/Misc/HelperLogicTest.php` (57 tests, 104 assertions, 0.22s)
+	- New: `tests/Unit/Misc/HelpersTest.php` (19 tests covering MailHelper, guzzle values, reflection, instantiation)
+	- Pattern: `Facade::clearResolvedInstances()` MUST be called in setUp before `Container::setInstance()` when tests use Facade stubs; without it, stale `$resolvedInstance` cache from parallel worker causes test-order flakiness
+	- Pattern: anonymous Container subclass with `runningInConsole()`, `runningUnitTests()`, `basePath()` covers all app() calls in Helper methods
+- Validation: full suite green via `php artisan test --parallel --processes=10` (2 skipped, 5741 passed; 1 pre-existing Mockery alias flake)
+- Updated baseline snapshot: Unit=46, Integration=210 (`reports/testing-baseline-2026-03-24.md`)
 
 - [ ] Identify deterministic integration assertions that can be moved to pure unit scope.
 - [ ] Migrate policy/service/value-object logic to `tests/Unit` with `PureUnitTestCase` where possible.
