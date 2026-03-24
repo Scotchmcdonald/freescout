@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Integration\Middleware;
+namespace Tests\Unit\Middleware;
 
 use App\Http\Middleware\FrameGuard;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Tests\IntegrationTestCase;
+use Tests\PureUnitTestCase;
 
-class FrameGuardTest extends IntegrationTestCase
+class FrameGuardTest extends PureUnitTestCase
 {
     private FrameGuard $middleware;
 
@@ -108,7 +109,7 @@ class FrameGuardTest extends IntegrationTestCase
         $jsonData = ['status' => 'success', 'data' => ['id' => 1]];
 
         $response = $this->middleware->handle($request, function ($req) use ($jsonData) {
-            return response()->json($jsonData);
+            return new JsonResponse($jsonData);
         });
 
         $this->assertEquals('SAMEORIGIN', $response->headers->get('X-Frame-Options'));

@@ -1,15 +1,17 @@
 <?php
 
-namespace Tests\Integration\Middleware;
+declare(strict_types=1);
+
+namespace Tests\Unit\Middleware;
 
 use App\Http\Middleware\ResponseHeaders;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Tests\IntegrationTestCase;
+use Tests\PureUnitTestCase;
 
-class ResponseHeadersTest extends IntegrationTestCase
+class ResponseHeadersTest extends PureUnitTestCase
 {
-    public function test_csp_headers_contain_cloudflare_insights()
+    public function test_csp_headers_contain_cloudflare_insights(): void
     {
         $request = Request::create('/', 'GET');
         $middleware = new ResponseHeaders;
