@@ -224,7 +224,11 @@ Current progress snapshot (2026-03-24):
 - Wave 2 completed by migrating EnsureUserIsAdmin middleware coverage to unit scope:
 	- `tests/Integration/Middleware/EnsureUserIsAdminTest.php` -> `tests/Unit/Middleware/EnsureUserIsAdminTest.php`
 	- removed redundant aggregate suite: `tests/Integration/Middleware/MiddlewareTest.php`
+- Wave 3 completed by migrating deterministic request/helper tests to unit scope:
+	- `tests/Integration/Requests/LoginRequestTest.php` -> `tests/Unit/Requests/LoginRequestTest.php`
+	- `tests/Integration/Misc/MailHelperGetMessageIdHashTest.php` -> `tests/Unit/Misc/MailHelperGetMessageIdHashTest.php`
 - Validation: full suite green via `php artisan test --parallel --processes=10` (2 skipped, 5717 passed)
+- Updated baseline snapshot: Unit=30, Integration=219 (`reports/testing-baseline-2026-03-24.md`)
 
 - [ ] Identify deterministic integration assertions that can be moved to pure unit scope.
 - [ ] Migrate policy/service/value-object logic to `tests/Unit` with `PureUnitTestCase` where possible.
