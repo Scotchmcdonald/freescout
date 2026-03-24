@@ -233,8 +233,11 @@ Current progress snapshot (2026-03-24):
 - Wave 5 completed by migrating deterministic IMAP fetch tests to unit scope:
 	- `tests/Integration/Services/ImapServiceAddressParsingTest.php` coverage merged into `tests/Unit/Misc/ImapServicePureLogicTest.php`
 	- `tests/Integration/Services/ImapServiceEncryptionTest.php` coverage merged into `tests/Unit/Misc/ImapServicePureLogicTest.php`
-- Validation: full suite green via `php artisan test --parallel --processes=10` (2 skipped, 5730 passed)
-- Updated baseline snapshot: Unit=34, Integration=215 (`reports/testing-baseline-2026-03-24.md`)
+- Wave 6 completed by migrating ProrationService math and Alert mailable tests to unit scope:
+	- `tests/Integration/Services/ProrationServiceTest.php` -> `tests/Unit/Services/ProrationServiceTest.php` (new ProrationService() replaces app())
+	- `tests/Integration/Mail/AlertTest.php` -> `tests/Unit/Mail/AlertTest.php` (ConfigRepository stub replaces app config)
+- Validation: full suite green via `php artisan test --parallel --processes=10` (2 skipped, 5749 passed)
+- Updated baseline snapshot: Unit=36, Integration=213 (`reports/testing-baseline-2026-03-24.md`)
 
 - [ ] Identify deterministic integration assertions that can be moved to pure unit scope.
 - [ ] Migrate policy/service/value-object logic to `tests/Unit` with `PureUnitTestCase` where possible.
