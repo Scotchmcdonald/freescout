@@ -221,7 +221,10 @@ Current progress snapshot (2026-03-24):
 - Wave 1 completed by migrating middleware deterministic tests to unit scope:
 	- `tests/Integration/Middleware/FrameGuardTest.php` -> `tests/Unit/Middleware/FrameGuardTest.php`
 	- `tests/Integration/Middleware/ResponseHeadersTest.php` -> `tests/Unit/Middleware/ResponseHeadersTest.php`
-- Validation: full suite green via `php artisan test --parallel --processes=10` (2 skipped, 5730 passed)
+- Wave 2 completed by migrating EnsureUserIsAdmin middleware coverage to unit scope:
+	- `tests/Integration/Middleware/EnsureUserIsAdminTest.php` -> `tests/Unit/Middleware/EnsureUserIsAdminTest.php`
+	- removed redundant aggregate suite: `tests/Integration/Middleware/MiddlewareTest.php`
+- Validation: full suite green via `php artisan test --parallel --processes=10` (2 skipped, 5717 passed)
 
 - [ ] Identify deterministic integration assertions that can be moved to pure unit scope.
 - [ ] Migrate policy/service/value-object logic to `tests/Unit` with `PureUnitTestCase` where possible.
