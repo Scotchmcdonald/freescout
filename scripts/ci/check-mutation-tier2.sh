@@ -41,10 +41,9 @@ timeout $((TIMEOUT_MINUTES * 60)) \
     --threads="$THREADS" \
     --min-msi="$MIN_MSI" \
     --min-covered-msi="$MIN_COVERED_MSI" \
-    --log-junit="$ROOT_DIR/reports/infection-extended-junit.xml" \
-    --ansi \
-    --no-interaction \
-    2>&1 | tee "$ROOT_DIR/reports/infection-extended.log"
+    --logger-text="$ROOT_DIR/reports/infection-extended.log" \
+    --logger-summary-json="$ROOT_DIR/reports/infection-extended-summary.json" \
+    2>&1 | tee "$ROOT_DIR/reports/infection-run.log"
 
 EXIT_CODE=${PIPESTATUS[0]}
 
