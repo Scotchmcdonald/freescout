@@ -22,6 +22,6 @@
     "tmpDir": "storage/infection",
     "logs": {
         "text": "reports/infection-extended.log",
-        "summary": "reports/infection-extended-summary.log"
+        "summaryJson": "reports/infection-extended-summary.json"
     }
 }
