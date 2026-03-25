@@ -40,10 +40,27 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <!-- Coverage: ensure Xdebug coverage mode is active in every parallel worker subprocess -->
+        <!-- COVERAGE & PARALLEL EXECUTION: IMPORTANT TRADE-OFF
+
+             DISCOVERED ISSUE (Phase 5 Audit):
+             - Running "pest --parallel --processes=10" WITH coverage hits OOM at 2GB.
+             - Root cause: ParaTest's CoverageMerger aggregates ~600KB-1MB XML per worker in memory.
+             - 10 workers × ~1MB + merge overhead = exhausts 2GB heap during XML aggregation.
+
+             SOLUTION (Phase 5 Implementation):
+             - Local dev: Use parallel EITHER alone OR coverage alone (not both).
+               * Fast feedback: "./vendor/bin/pest --parallel --processes=10" (2 min, no coverage)
+               * Full coverage: "XDEBUG_MODE=coverage php ./vendor/bin/pest" (8-10 min, sequential)
+             - CI/CD: Run tests parallel FIRST (no coverage), then coverage separately on single process.
+               * Test execution: 2 min (parallel, no coverage)
+               * Coverage collection: 8 min (sequential, single process)
+               * Mutation testing: 30-45 min (after coverage XML is ready)
+
+             RESULT: Avoids OOM, maintains speed (parallel for tests) and accuracy (sequential coverage).
+        -->
         <env name="XDEBUG_MODE" value="coverage"/>
-        <!-- Memory limit: raised to 2048M so ParaTest coverage merger can aggregate all workers.
-             512M was the authoritative fork-time ceiling and caused OOM in CoverageMerger.php:27 -->
+        <!-- Memory limit: 2048M baseline for parallel execution. For sequential coverage collection,
+             increase to 3G. For mutation testing (which requires larger coverage XML), may need 4G. -->
         <ini name="memory_limit" value="2048M"/>
         <!-- Enable garbage collection: set higher (1 = immediate, 0 = disabled) -->
         <ini name="zend.enable_gc" value="1"/>

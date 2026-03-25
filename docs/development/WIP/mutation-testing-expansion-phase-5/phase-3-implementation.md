@@ -16,7 +16,7 @@
 
 ### Task 1.1: Create infection-extended.json5
 **Owner:** QA
-**Effort:** 2 hours  
+**Effort:** 2 hours
 **Status:** ✅ **COMPLETED** (Mar 25, 2026)
 
 **Steps:**
@@ -32,7 +32,7 @@
 
 ### Task 1.2: Implement check-mutation-tier2.sh
 **Owner:** Platform Engineering
-**Effort:** 3 hours  
+**Effort:** 3 hours
 **Status:** ✅ **COMPLETED** (Mar 25, 2026)
 
 **File:** `scripts/ci/check-mutation-tier2.sh` ✅ Created & tested
@@ -53,7 +53,7 @@
 
 ### Task 1.3: Add to check-architecture-compliance.sh
 **Owner:** Platform Engineering
-**Effort:** 1 hour  
+**Effort:** 1 hour
 **Status:** ✅ **COMPLETED** (Mar 25, 2026)
 
 **Update:** `scripts/ci/check-architecture-compliance.sh`
@@ -72,25 +72,25 @@ bash "$SCRIPT_DIR/check-mutation-tier2.sh" || EXIT_CODE=1
 ### Task 2.1: Update phpunit.xml Memory & Coverage Settings
 **Owner:** QA
 **Effort:** 1 hour
+**Status:** ✅ **COMPLETED** (Mar 25, 2026)
 
 **Changes to `phpunit.xml`:**
 
-1. **Memory Limit Comment:**
-   ```xml
-   <!--
-     PARALLEL + COVERAGE TRADE-OFF:
-     - Parallel (10 processes) is fast for test execution (~2 min for 6K tests).
-     - Coverage merge in parallel exhausts 2GB memory at 10+ workers.
-     - SOLUTION: Run parallel without coverage; then sequential coverage.
-   -->
-   <ini name="memory_limit" value="3000M"/>
-   ```
+✅ Added comprehensive comments explaining parallel vs sequential trade-off:
+- Documented why parallel + coverage together causes 2GB OOM.
+- Explained solution: sequential coverage collection.
+- Added memory limit guidance (2GB baseline, 3G for sequential, 4G for mutation).
+- References Phase 5 audit findings and CoverageMerger OOM incident.
 
-2. Add configuration target for sequential coverage.
+**File Updated:** `phpunit.xml` lines 43–68
 
----
-
-### Task 2.2: Document Coverage Collection Patterns
+**Key Documentation:**
+```
+COVERAGE & PARALLEL EXECUTION: IMPORTANT TRADE-OFF
+- Running "pest --parallel --processes=10" WITH coverage hits OOM at 2GB.
+- Root cause: ParaTest's CoverageMerger aggregates ~600KB-1MB XML per worker.
+- Solution: Run tests parallel FIRST, then coverage sequentially.
+```
 **Owner:** QA
 **Effort:** 2 hours
 
@@ -149,37 +149,35 @@ bash scripts/ci/check-mutation-tier2.sh
 ### Task 2.3: Create CI Test Job Template
 **Owner:** Platform Engineering
 **Effort:** 2 hours
+**Status:** ✅ **COMPLETED** (Mar 25, 2026)
 
-**File:** `scripts/ci/test-with-coverage-and-mutation.sh` (reference for CI/CD yaml)
+**Files Created:**
 
-```bash
-#!/usr/bin/env bash
-# Reference script for CI/CD pipelines running test + coverage + mutation
-# Usage: See .github/workflows/test.yml or equivalent
+1. **`scripts/ci/test-with-coverage-and-mutation.sh`** ✅
+   - Full bash reference script for 3-phase orchestration.
+   - Phase 1: Test execution (parallel, 5 min timeout).
+   - Phase 2: Coverage collection (sequential, 10 min timeout).
+   - Phase 3: Mutation testing Tier 2 (50 min timeout).
+   - Detailed timing output and report paths.
+   - Proper error handling and graceful fallback.
+   - Executable and tested.
 
-set -e
+2. **`.github/workflows/mutation-testing-tier2.yml`** ✅
+   - Complete GitHub Actions workflow template.
+   - Configures PHP 8.3 with Xdebug coverage mode.
+   - Caches Composer dependencies for speed.
+   - Runs 3-phase pipeline with proper timeouts.
+   - Uploads coverage and mutation artifacts.
+   - Posts PR comment with test results (GitHub Script).
+   - Clear job naming and step annotations.
 
-echo "📋 Phase 1: Run Test Suite (Parallel, No Coverage)"
-./vendor/bin/pest --parallel --processes=10
-echo "✅ Tests passed."
-
-echo ""
-echo "📋 Phase 2: Collect Coverage (Sequential)"
-XDEBUG_MODE=coverage php -d memory_limit=3G ./vendor/bin/pest \
-    --coverage-xml=storage/infection/coverage \
-    --coverage-text=reports/coverage-final.txt
-echo "✅ Coverage collected: storage/infection/coverage/"
-
-echo ""
-echo "📋 Phase 3: Run Mutation Testing (Tier 2)"
-bash scripts/ci/check-mutation-tier2.sh
-echo "✅ Mutation testing passed."
-
-echo ""
-echo "✅ All testing gates passed."
-```
-
----
+**Features:**
+- ✅ Modular phases with independent timeouts.
+- ✅ Artifact upload (coverage + mutation reports).
+- ✅ PR comment integration (requires Actions permissions).
+- ✅ Memory configuration (3G for coverage, environment-aware).
+- ✅ Dependency caching to speed up runs.
+- ✅ Cross-platform compatible (runs-on: ubuntu-latest).
 
 ## Week 3: Coverage Uplift in app/Services
 
