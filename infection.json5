@@ -8,11 +8,10 @@
         ]
     },
     "mutators": {
-        "@default": true,
-        "@arithmetic": true
+        "@default": true
     },
-    "minMsi": 70,
-    "minCoveredMsi": 80,
+    "minMsi": 95,
+    "minCoveredMsi": 95,
     "testFramework": "phpunit",
     "phpUnit": {
         "customPath": "vendor/bin/pest"
@@ -20,6 +19,6 @@
     "tmpDir": "storage/infection",
     "logs": {
         "text": "reports/infection.log",
-        "summary": "reports/infection-summary.log"
+        "summaryJson": "reports/infection-summary.json"
     }
 }

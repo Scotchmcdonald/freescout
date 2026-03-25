@@ -33,8 +33,15 @@ bash scripts/ci/check-mutation-tier2.sh
 ### Run Full Mutation Test (Tier 1)
 
 ```bash
-# Complete 3-module mutation suite (~2-3 hours)
-./vendor/bin/infection
+# Complete 3-module mutation suite (re-runs all 6308 tests first, ~25 min initial + mutation phase)
+# NOTE: pipe with 2>&1 — Infection writes mutation logs to stderr, so bare '| tee' only captures
+# the test-runner stdout and leaves infection.log stale.
+XDEBUG_MODE=off ./vendor/bin/infection 2>&1 | tee reports/infection-run-output.log
+
+# Or agent-safe (detached):
+nohup XDEBUG_MODE=off ./vendor/bin/infection > /dev/null 2>&1 &
+echo $! > reports/infection-tier1.pid
+tail -f reports/infection.log   # text logger output; updated during run
 ```
 
 ### View Results
@@ -576,8 +583,13 @@ If MSI drops, investigate why (tests regressed, code complexity increased).
 | View last results | `cat reports/infection-extended.log` | — |
 | Parse JSON results | `cat reports/infection-extended-summary.json` | — |
 
-**Baseline (2026-03-25):** MSI 100 / Covered MSI 100 — 1666/2743 mutants killed, 0 escaped, runtime ~1m 12s.
-**Threshold:** MSI ≥ 95, Covered MSI ≥ 95.
-**Regression:** MSI drops below 95 (investigate & fix before merging).
-**Goal:** Catch real bugs before production (mutation testing proves tests work).
+**Tier 1 baseline (2026-03-25):** MSI 100 / Covered MSI 100 — 1143/1378 mutants killed, 0 escaped.
+Scope: `Modules/PIB/Services`, `Modules/ContractManager/Services`, `Modules/Payment/Services`.
+
+**Tier 2 baseline (2026-03-25):** MSI 100 / Covered MSI 100 — 1666/2743 mutants killed, 0 escaped, ~1m 12s mutation phase.
+Scope: Tier 1 + `app/Services` + `app/Actions`.
+
+**Threshold (both tiers):** MSI ≥ 95, Covered MSI ≥ 95.
+**Regression:** MSI drops below 95 → investigate & fix before merging.
+**Goal:** Catch real bugs before production — mutation testing proves tests work, not just run.
 
