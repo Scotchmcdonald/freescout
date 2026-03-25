@@ -23,6 +23,8 @@ if [ ! -d "$CI_DIR" ]; then
 fi
 
 # 4. Loop through every .sh file in the directory
+PIPELINE_FAILED=0
+
 for script in "$CI_DIR"/*.sh; do
 
     # Check if the file actually exists (prevents errors if the folder is empty)
@@ -37,6 +39,7 @@ for script in "$CI_DIR"/*.sh; do
         EXIT_CODE=$?
         if [ $EXIT_CODE -ne 0 ]; then
             echo "--> WARNING: $(basename "$script") failed with exit code $EXIT_CODE"
+            PIPELINE_FAILED=1
         else
             echo "--> SUCCESS: $(basename "$script") completed."
         fi
@@ -46,6 +49,29 @@ for script in "$CI_DIR"/*.sh; do
 done
 
 echo ""
+echo "--- Executing: check-boundary-namespace-report.php at $(date) ---"
+if php "$CI_DIR/check-boundary-namespace-report.php"; then
+    echo "--> SUCCESS: check-boundary-namespace-report.php completed."
+else
+    echo "--> WARNING: check-boundary-namespace-report.php had findings."
+    # Non-blocking by default; upgrade to PIPELINE_FAILED=1 when --fail-on-empty is desired
+fi
+
+echo ""
+echo "--- Executing: check-testing-quality-gate.php at $(date) ---"
+if php "$CI_DIR/check-testing-quality-gate.php"; then
+    echo "--> SUCCESS: check-testing-quality-gate.php completed."
+else
+    echo "--> WARNING: check-testing-quality-gate.php failed."
+    PIPELINE_FAILED=1
+fi
+
+echo ""
 echo "========================================"
 echo " CI Pipeline Run Complete at $(date)"
 echo "========================================"
+
+if [ $PIPELINE_FAILED -ne 0 ]; then
+    echo "One or more CI checks failed."
+    exit 1
+fi
