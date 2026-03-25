@@ -20,6 +20,9 @@ bash "$SCRIPT_DIR/check-listener-inheritance.sh" || EXIT_CODE=1
 php artisan test tests/Architecture/CriticalNamespaceBoundaryGuardTest.php --parallel --processes=10 || EXIT_CODE=1
 php artisan test tests/Architecture/BillingPaymentTypeCoverageGuardTest.php --parallel --processes=10 || EXIT_CODE=1
 
+# Phase 5: Mutation testing gate for critical app services (Tier 2)
+bash "$SCRIPT_DIR/check-mutation-tier2.sh" || EXIT_CODE=1
+
 echo ""
 if [ $EXIT_CODE -eq 0 ]; then
     echo "✅ All architecture compliance checks passed!"

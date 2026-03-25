@@ -1,0 +1,27 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": [
+            "Modules/PIB/Services",
+            "Modules/ContractManager/Services",
+            "Modules/Payment/Services",
+            "app/Services",
+            "app/Actions"
+        ]
+    },
+    "mutators": {
+        "@default": true,
+        "@arithmetic": true
+    },
+    "minMsi": 70,
+    "minCoveredMsi": 75,
+    "testFramework": "phpunit",
+    "phpUnit": {
+        "customPath": "vendor/bin/pest"
+    },
+    "tmpDir": "storage/infection",
+    "logs": {
+        "text": "reports/infection-extended.log",
+        "summary": "reports/infection-extended-summary.log"
+    }
+}

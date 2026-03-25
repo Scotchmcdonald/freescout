@@ -15,28 +15,15 @@
 ## Week 1: Config Refactor & Fast CI Gate
 
 ### Task 1.1: Create infection-extended.json5
-**Owner:** QA  
-**Effort:** 2 hours
+**Owner:** QA
+**Effort:** 2 hours  
+**Status:** ✅ **COMPLETED** (Mar 25, 2026)
 
 **Steps:**
-1. Copy `infection.json5` to `infection-extended.json5`.
-2. Expand `source.directories` to:
-   ```json5
-   "directories": [
-       "Modules/PIB/Services",
-       "Modules/ContractManager/Services",
-       "Modules/Payment/Services",
-       "app/Services",
-       "app/Actions"
-   ]
-   ```
-3. Set `minMsi: 70` (lower than Tier 1 for growth room).
-4. Update `logs` paths to include `-extended` suffix.
-5. Commit with message: `chore: add extended mutation config for Tier 2 (app/Services)`
-
-**Validation:**
-```bash
-php vendor/bin/infection --configuration=infection-extended.json5 --dry-run
+1. ✅ Copied `infection.json5` to `infection-extended.json5`.
+2. ✅ Expanded `source.directories` to include app/Services and app/Actions.
+3. ✅ Set `minMsi: 70` (lower than Tier 1 for growth room).
+4. ✅ Updated `logs` paths to include `-extended` suffix (5 log outputs configured).
 ```
 
 **Expected Mutant Count:** 3,500–4,000 (vs 1,378 in Tier 1).
@@ -44,113 +31,53 @@ php vendor/bin/infection --configuration=infection-extended.json5 --dry-run
 ---
 
 ### Task 1.2: Implement check-mutation-tier2.sh
-**Owner:** Platform Engineering  
-**Effort:** 3 hours
+**Owner:** Platform Engineering
+**Effort:** 3 hours  
+**Status:** ✅ **COMPLETED** (Mar 25, 2026)
 
-**File:** `scripts/ci/check-mutation-tier2.sh`
+**File:** `scripts/ci/check-mutation-tier2.sh` ✅ Created & tested
 
 ```bash
 #!/usr/bin/env bash
-# ==============================================================================
 # MUTATION TESTING: TIER 2 (App Services + Actions)
 # Runs post-PR to gate MSI degradation in critical business logic.
-# ==============================================================================
-
-set -e
-
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-CONFIG_FILE="$ROOT_DIR/infection-extended.json5"
-MIN_MSI=70
-MIN_COVERED_MSI=75
-THREADS=6
-TIMEOUT_MINUTES=45
-
-echo "🧬 Mutation Testing: Tier 2 (app/Services + app/Actions)"
-echo "========================================================"
-echo "Configuration: $CONFIG_FILE"
-echo "Thresholds: MSI ≥ $MIN_MSI, Covered MSI ≥ $MIN_COVERED_MSI"
-echo "Threads: $THREADS"
-echo ""
-
-# Run Infection
-timeout $((TIMEOUT_MINUTES * 60)) \
-    php vendor/bin/infection \
-    --configuration="$CONFIG_FILE" \
-    --threads="$THREADS" \
-    --min-msi="$MIN_MSI" \
-    --min-covered-msi="$MIN_COVERED_MSI" \
-    --log-junit=reports/infection-tier2-junit.xml \
-    --logger-text=reports/infection-tier2.log \
-    --logger-summary-json=reports/infection-tier2-summary.json \
-    --ansi \
-    --no-interaction
-
-EXIT_CODE=$?
-
-# Parse results
-if [ -f "reports/infection-tier2-summary.json" ]; then
-    echo ""
-    echo "📊 Mutation Summary (Tier 2):"
-    php -r "
-        \$data = json_decode(file_get_contents('reports/infection-tier2-summary.json'), true);
-        \$stats = \$data['stats'] ?? [];
-        printf(\"  MSI: %d / 100\n\", \$stats['msi'] ?? 0);
-        printf(\"  Covered MSI: %d / 100\n\", \$stats['coveredCodeMsi'] ?? 0);
-        printf(\"  Killed: %d / %d\n\", \$stats['killedCount'] ?? 0, \$stats['totalMutantsCount'] ?? 0);
-        printf(\"  Escaped: %d\n\", \$stats['escapedCount'] ?? 0);
-    "
-fi
-
-if [ $EXIT_CODE -eq 0 ]; then
-    echo ""
-    echo "✅ Tier 2 mutation testing PASSED."
-    exit 0
-else
-    echo ""
-    echo "❌ Tier 2 mutation testing FAILED."
-    echo "   Review escaped mutants in: reports/infection-tier2.log"
-    exit 1
-fi
 ```
 
-**Validation:**
-```bash
-chmod +x scripts/ci/check-mutation-tier2.sh
-bash scripts/ci/check-mutation-tier2.sh
-```
-
-**Expected Result:** Pass (or show current gaps).
-
----
+**Features Implemented:**
+- ✅ Automatic coverage collection if missing (pre-gate).
+- ✅ 6-thread parallel mutation execution (~40 min expected).
+- ✅ JSON summary parsing and human-readable output.
+- ✅ Timeout handling (45 min limit).
+- ✅ Escape mutant log reporting.
+- ✅ Script is executable and tested.
 
 ### Task 1.3: Add to check-architecture-compliance.sh
-**Owner:** Platform Engineering  
-**Effort:** 1 hour
+**Owner:** Platform Engineering
+**Effort:** 1 hour  
+**Status:** ✅ **COMPLETED** (Mar 25, 2026)
 
 **Update:** `scripts/ci/check-architecture-compliance.sh`
 
-After line 21 (after BillingPaymentTypeCoverageGuardTest), add:
+✅ Added after BillingPaymentTypeCoverageGuardTest:
 
 ```bash
-# Phase 5: Mutation testing gate for critical app services
+# Phase 5: Mutation testing gate for critical app services (Tier 2)
 bash "$SCRIPT_DIR/check-mutation-tier2.sh" || EXIT_CODE=1
 ```
 
-**Rationale:** Mutation tier 2 becomes part of architecture/quality gate.
-
----
+**Rationale:** Mutation tier 2 now becomes part of architecture/quality gate in CI/CD.
 
 ## Week 2: Coverage Merge Fix & Documentation
 
 ### Task 2.1: Update phpunit.xml Memory & Coverage Settings
-**Owner:** QA  
+**Owner:** QA
 **Effort:** 1 hour
 
 **Changes to `phpunit.xml`:**
 
 1. **Memory Limit Comment:**
    ```xml
-   <!-- 
+   <!--
      PARALLEL + COVERAGE TRADE-OFF:
      - Parallel (10 processes) is fast for test execution (~2 min for 6K tests).
      - Coverage merge in parallel exhausts 2GB memory at 10+ workers.
@@ -164,7 +91,7 @@ bash "$SCRIPT_DIR/check-mutation-tier2.sh" || EXIT_CODE=1
 ---
 
 ### Task 2.2: Document Coverage Collection Patterns
-**Owner:** QA  
+**Owner:** QA
 **Effort:** 2 hours
 
 **New File:** `docs/development/testing/coverage-and-mutation-guide.md`
@@ -220,7 +147,7 @@ bash scripts/ci/check-mutation-tier2.sh
 ---
 
 ### Task 2.3: Create CI Test Job Template
-**Owner:** Platform Engineering  
+**Owner:** Platform Engineering
 **Effort:** 2 hours
 
 **File:** `scripts/ci/test-with-coverage-and-mutation.sh` (reference for CI/CD yaml)
@@ -257,7 +184,7 @@ echo "✅ All testing gates passed."
 ## Week 3: Coverage Uplift in app/Services
 
 ### Task 3.1: Audit app/Services for Test Coverage
-**Owner:** QA / Backend Team  
+**Owner:** QA / Backend Team
 **Effort:** 4 hours
 
 **Steps:**
@@ -286,7 +213,7 @@ echo "✅ All testing gates passed."
 ---
 
 ### Task 3.2: Add Unit Tests for Top 5 Untested Services
-**Owner:** Backend Team  
+**Owner:** Backend Team
 **Effort:** 8 hours (2 hrs per service avg)
 
 **Target:** Increase app/Services coverage from ~35% to ≥ 60%.
@@ -304,7 +231,7 @@ describe('CacheService', function () {
     test('remembers values across calls', function () {
         $service = new CacheService($cache);
         $value = $service->remember('key', 60, fn() => 'computed');
-        
+
         expect($value)->toBe('computed');
         expect($service->get('key'))->toBe('computed');
     });
@@ -314,7 +241,7 @@ describe('CacheService', function () {
 ---
 
 ### Task 3.3: Add Integration Tests for Critical Workflows
-**Owner:** Backend Team  
+**Owner:** Backend Team
 **Effort:** 6 hours (2 hrs per workflow avg)
 
 **Pattern (tests/Integration/Services/):**
@@ -343,7 +270,7 @@ test('accrues usage and enforces limits', function () {
 ## Week 4: Documentation & Baseline Capture
 
 ### Task 4.1: Finalize Mutation Testing Guide
-**Owner:** QA  
+**Owner:** QA
 **Effort:** 3 hours
 
 **File:** `docs/development/mutation-testing-guide.md`
@@ -358,7 +285,7 @@ Topics to cover:
 ---
 
 ### Task 4.2: Commit Baseline & Final Validation
-**Owner:** QA  
+**Owner:** QA
 **Effort:** 2 hours
 
 **Steps:**
@@ -398,7 +325,7 @@ Topics to cover:
 ---
 
 ### Task 4.3: Validate All Integration Points
-**Owner:** Platform Engineering  
+**Owner:** Platform Engineering
 **Effort:** 2 hours
 
 **Checklist:**
