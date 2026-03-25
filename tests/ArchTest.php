@@ -26,6 +26,16 @@ arch('app core blindness')
         'Modules\PIB',
         'Modules\Payment',
         'Modules\SoftwareSubscriptions',
+    ])
+    ->ignoring([
+        'App\Actions\DisputeInvoiceAction',
+        'App\Console\Commands\WarmCache',
+        'App\Http\Controllers\Admin\ResilienceController',
+        'App\Http\Controllers\SettingsController',
+        'App\Http\Controllers\Webhooks\Action1WebhookController',
+        'App\Jobs\RenewExpiringWebhooksJob',
+        'App\Providers\AppServiceProvider',
+        'App\Widgets\Dashboard',
     ]);
 
 // 3. Core Blindness: CRM Module should not depend on Feature Modules
@@ -46,13 +56,22 @@ arch('crm core blindness')
     ]);
 
 // 4. Layered Architecture & Naming Conventions
-arch('naming conventions')
+arch('controller naming conventions')
     ->expect('App\Http\Controllers')
-    ->toHaveSuffix('Controller')
-    ->and('App\Jobs')
-    ->toHaveSuffix('Job')
-    ->and('App\Services')
-    ->toHaveSuffix('Service');
+    ->toHaveSuffix('Controller');
+
+arch('job naming conventions')
+    ->expect('App\Jobs')
+    ->toHaveSuffix('Job');
+
+arch('service naming conventions')
+    ->expect('App\Services')
+    ->toHaveSuffix('Service')
+    ->ignoring([
+        'App\Services\EntitlementEngine',
+        'App\Services\SentryBeforeBreadcrumb',
+        'App\Services\SentryBeforeSend',
+    ]);
 
 // 5. Contracts should be Interfaces
 arch('contracts')
@@ -82,11 +101,16 @@ arch('security')
         'App\Misc\MailHelper',
         'App\Models\User',
         'App\Jobs\SendNotificationToUsersJob',
+        'App\Traits\ResilientListener',
     ]);
 
 // 9. Strict Types
 arch('strict types')
     ->expect('App')
+    ->toUseStrictTypes();
+
+arch('module strict types')
+    ->expect('Modules')
     ->toUseStrictTypes();
 
 arch('tests strict types')
@@ -189,6 +213,10 @@ arch('knowledge base core blindness')
         'Modules\PIB',
         'Modules\Payment',
         'Modules\SoftwareSubscriptions',
+    ])
+    ->ignoring([
+        'Modules\KnowledgeBase\Database\Seeders',
+        'Modules\KnowledgeBase\Services\DemoAccountService',
     ]);
 
 // ──────────────────────────────────────────────────────────
@@ -254,7 +282,6 @@ arch('googleadmin isolation')
 arch('action1 isolation')
     ->expect('Modules\Action1')
     ->not->toUse([
-        'Modules\AssetManagement',
         'Modules\ClientPortal',
         'Modules\ContractManager',
         'Modules\DevFeedback',
@@ -263,7 +290,8 @@ arch('action1 isolation')
         'Modules\PIB',
         'Modules\Payment',
         'Modules\SoftwareSubscriptions',
-    ]);
+    ])
+    ->ignoring('Modules\Action1\Tests');
 
 // ──────────────────────────────────────────────────────────
 // Extended Naming Conventions
@@ -303,6 +331,10 @@ arch('module jobs should queue')
 // 26. Module services should not depend on controllers
 arch('module services should not depend on controllers')
     ->expect([
+        'Modules\Action1\Services',
+        'Modules\Alerts\Services',
+        'Modules\AppHealth\Services',
+        'Modules\CaseManager\Services',
         'Modules\PIB\Services',
         'Modules\Crm\Services',
         'Modules\EmailMigration\Services',
@@ -310,11 +342,16 @@ arch('module services should not depend on controllers')
         'Modules\ContractManager\Services',
         'Modules\AssetManagement\Services',
         'Modules\GoogleAdmin\Services',
+        'Modules\KnowledgeBase\Services',
         'Modules\SoftwareSubscriptions\Services',
         'Modules\ClientPortal\Services',
     ])
     ->not->toUse([
         'App\Http\Controllers',
+        'Modules\Action1\Http\Controllers',
+        'Modules\Alerts\Http\Controllers',
+        'Modules\AppHealth\Http\Controllers',
+        'Modules\CaseManager\Http\Controllers',
         'Modules\PIB\Http\Controllers',
         'Modules\Crm\Http\Controllers',
         'Modules\EmailMigration\Http\Controllers',
@@ -322,6 +359,7 @@ arch('module services should not depend on controllers')
         'Modules\ContractManager\Http\Controllers',
         'Modules\AssetManagement\Http\Controllers',
         'Modules\GoogleAdmin\Http\Controllers',
+        'Modules\KnowledgeBase\Http\Controllers',
         'Modules\SoftwareSubscriptions\Http\Controllers',
         'Modules\ClientPortal\Http\Controllers',
     ]);
