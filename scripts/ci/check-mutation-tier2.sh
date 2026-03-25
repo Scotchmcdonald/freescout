@@ -8,15 +8,15 @@ set -e
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 CONFIG_FILE="$ROOT_DIR/infection-extended.json5"
-MIN_MSI=70
-MIN_COVERED_MSI=75
+MIN_MSI=95
+MIN_COVERED_MSI=95
 THREADS=6
 TIMEOUT_MINUTES=45
 
 echo "🧬 Mutation Testing: Tier 2 (app/Services + app/Actions)"
 echo "========================================================"
 echo "Configuration: $CONFIG_FILE"
-echo "Thresholds: MSI ≥ $MIN_MSI, Covered MSI ≥ $MIN_COVERED_MSI"
+echo "Thresholds: MSI ≥ $MIN_MSI, Covered MSI ≥ $MIN_COVERED_MSI (baseline: 100/100)"
 echo "Threads: $THREADS"
 echo "Timeout: ${TIMEOUT_MINUTES} minutes"
 echo ""
