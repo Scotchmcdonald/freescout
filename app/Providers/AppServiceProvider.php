@@ -46,18 +46,6 @@ class AppServiceProvider extends ServiceProvider
         // Alias bindings for backward compatibility & test resolution
         $this->app->alias(WidgetRegistryService::class, 'App\Services\Ui\WidgetRegistry');
 
-        // Register Data Import Setting Section
-        \Eventy::addFilter('settings.sections', function ($sections) {
-            $sections['data_import'] = [
-                'title' => __('Data Import'),
-                'route' => 'settings.data_import',
-                'icon' => 'upload',
-                'order' => 800,
-            ];
-
-            return $sections;
-        });
-
         // Canonical EntitlementEngine singleton — lives in PIB module.
         $this->app->singleton(\Modules\PIB\Services\EntitlementEngineService::class, function ($app) {
             return new \Modules\PIB\Services\EntitlementEngineService;
@@ -88,6 +76,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->registerDataImportSettingsSectionFilter();
+
         // ── Production database destruction guard ────────────────────────────
         // Blocks migrate:fresh, db:wipe, and migrate:reset from running when
         // APP_ENV=production. These commands drop all data and must never run
@@ -231,5 +221,39 @@ class AppServiceProvider extends ServiceProvider
             // Silently fail during migrations or when DB is not yet available
             Log::debug('[RBAC] Could not register dynamic gates: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Register Data Import settings section filter when Eventy is available.
+     *
+     * Using a guarded container resolution avoids parallel test bootstrap
+     * flakes caused by facade root mismatch during provider registration order.
+     */
+    protected function registerDataImportSettingsSectionFilter(): void
+    {
+        if (! $this->app->bound('eventy')) {
+            return;
+        }
+
+        try {
+            $eventy = $this->app->make('eventy');
+        } catch (\Throwable) {
+            return;
+        }
+
+        if (! is_object($eventy) || ! is_callable([$eventy, 'addFilter'])) {
+            return;
+        }
+
+        $eventy->addFilter('settings.sections', function ($sections) {
+            $sections['data_import'] = [
+                'title' => __('Data Import'),
+                'route' => 'settings.data_import',
+                'icon' => 'upload',
+                'order' => 800,
+            ];
+
+            return $sections;
+        });
     }
 }

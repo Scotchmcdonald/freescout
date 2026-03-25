@@ -43,9 +43,9 @@ Resolve the highest-risk weaknesses identified in the March 24, 2026 testing inf
 ## Parallel Workstreams
 - [ ] Track A: reliability and mutation baseline
   Context: [track-a-reliability-and-mutation.md](track-a-reliability-and-mutation.md)
-- [ ] Track B: feature boundary depth and write-assertion hardening
-  Context: [track-b-boundary-and-assertion-depth.md](track-b-boundary-and-assertion-depth.md)
-- [ ] Track C: architecture and type-safety ratchets
+- [x] Track B: feature boundary depth and write-assertion hardening
+  Completed summary: [reports/testing-executive-audit/track-b-backlog.md](reports/testing-executive-audit/track-b-backlog.md)
+- [x] Track C: architecture and type-safety ratchets
   Context: [track-c-architecture-and-type-safety.md](track-c-architecture-and-type-safety.md)
 - [ ] Track D: velocity, lane governance, and isolation cleanup
   Context: [track-d-velocity-and-lane-governance.md](track-d-velocity-and-lane-governance.md)

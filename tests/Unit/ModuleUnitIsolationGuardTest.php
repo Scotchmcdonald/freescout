@@ -7,9 +7,9 @@ namespace Tests\Unit;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
-class ModuleUnitIsolationGuardTest extends UnitTestCase
+class ModuleUnitIsolationGuardTest extends PureUnitTestCase
 {
     /**
      * Temporary allowlist while legacy module unit suites are migrated.
@@ -49,7 +49,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
 
     public function test_module_unit_tests_do_not_use_refresh_database_or_cross_module_persistence(): void
     {
-        $unitRoot = base_path('Modules');
+        $unitRoot = dirname(__DIR__, 2).'/Modules';
 
         $refreshDatabaseViolations = [];
         $newAllowlistedRefreshDatabaseViolations = [];
@@ -66,7 +66,7 @@ class ModuleUnitIsolationGuardTest extends UnitTestCase
                 continue;
             }
 
-            $relativePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file->getPathname());
+            $relativePath = str_replace(dirname(__DIR__, 2).DIRECTORY_SEPARATOR, '', $file->getPathname());
             $normalizedPath = str_replace('\\', '/', $relativePath);
 
             if ($this->isFeatureTestWithExternalApiServiceWithoutHttpMock($normalizedPath, $contents = file_get_contents($file->getPathname()) ?: '')) {

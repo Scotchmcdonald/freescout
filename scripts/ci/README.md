@@ -198,6 +198,19 @@ bash scripts/ci/check-markdown-links.sh
 php scripts/ci/check-test-lane-runtime-budgets.php --lane=unit --duration=29
 ```
 
+**Local lane runner:**
+```bash
+bash scripts/testing/run-test-lane.sh unit
+bash scripts/testing/run-test-lane.sh feature
+bash scripts/testing/run-test-lane.sh integration
+```
+
+**When a lane breaches budget:**
+- Run the affected lane locally with `bash scripts/testing/run-test-lane.sh <lane>`.
+- Read `reports/lane-runtime-budget-<lane>-latest.md` for the current duration, rolling median, and decision.
+- If status is `warn`, inspect recent test additions and new external I/O before changing any thresholds.
+- If status is `fail`, bisect to the slowest directory or file, fix the regression, and only then consider a budget change with written rationale.
+
 ### 9. Skip Governance (`check-skip-governance.php`)
 
 **Enforces:** skip debt governance in test files

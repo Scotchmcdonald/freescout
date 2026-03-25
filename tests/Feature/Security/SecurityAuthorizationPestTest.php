@@ -195,18 +195,21 @@ test('user cannot modify other users drafts', function () {
         'conversation_id' => $this->conversation->id,
     ]);
 
-    // Should only affect own drafts - The original test said "Should only affect own drafts"
-    // and then asserted $response->assertOk().
-    // If the backend is correct, this "discard_draft" call should likely be ignored or return success but do nothing.
-    // The legacy test used: $response->assertOk();
-    // And implies it *failed to discard* or similar. But there's no assertion that the draft still exists.
-    // Wait, the test is names "user cannot modify other users drafts".
-    // If response is OK, maybe it just "successfully did nothing" or "successfully discarded my draft (which was null)".
-    // Let's stick to the legacy assertion for now.
-
     $response->assertOk();
 
-    // We should ideally verify the draft logic, but sticking to legacy fidelity first.
+    $this->assertDatabaseHas('threads', [
+        'conversation_id' => $this->conversation->id,
+        'user_id' => $otherUser->id,
+        'type' => \App\Models\Thread::TYPE_DRAFT,
+        'state' => \App\Models\Thread::STATE_DRAFT,
+        'body' => 'Other user draft',
+    ]);
+    $this->assertDatabaseMissing('threads', [
+        'conversation_id' => $this->conversation->id,
+        'user_id' => $this->user->id,
+        'type' => \App\Models\Thread::TYPE_DRAFT,
+        'state' => \App\Models\Thread::STATE_DRAFT,
+    ]);
 });
 
 test('guest cannot access settings routes', function () {

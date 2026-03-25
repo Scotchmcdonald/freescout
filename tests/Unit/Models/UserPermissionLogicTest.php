@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models;
 
-use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
@@ -19,6 +18,9 @@ final class TestUserPermissionModel extends User
     /** @var \Illuminate\Support\Collection<int, int>|null */
     public $roleIds;
 
+    /** @var array<string, object> */
+    public array $permissionQueries = [];
+
     public function isAdmin(): bool
     {
         return $this->admin;
@@ -27,6 +29,15 @@ final class TestUserPermissionModel extends User
     protected function getRbacRoleIds(): \Illuminate\Support\Collection
     {
         return $this->roleIds ?? collect();
+    }
+
+    protected function permissionQueryForName(string $permission)
+    {
+        if (array_key_exists($permission, $this->permissionQueries)) {
+            return $this->permissionQueries[$permission];
+        }
+
+        return parent::permissionQueryForName($permission);
     }
 }
 
@@ -117,12 +128,6 @@ class UserPermissionLogicTest extends PureUnitTestCase
 
     public function test_has_permission_uses_role_fallback_and_cached_rbac_ids_for_string_permissions(): void
     {
-        if (class_exists(Permission::class, false)) {
-            $this->markTestSkipped('Permission model already loaded; alias mocking is unavailable in this worker.');
-        }
-
-        $permissionAlias = Mockery::mock('alias:'.Permission::class);
-
         $legacyQuery = Mockery::mock();
         $legacyQuery->shouldReceive('whereHas')->once()->with(
             'roles',
@@ -155,16 +160,15 @@ class UserPermissionLogicTest extends PureUnitTestCase
         )->andReturnSelf();
         $rbacQuery->shouldReceive('exists')->once()->andReturn(false);
 
-        $permissionAlias->shouldReceive('where')->once()->with('name', 'manage-billing')->andReturn($legacyQuery);
-        $permissionAlias->shouldReceive('where')->once()->with('name', 'manage-mailbox')->andReturn($rbacQuery);
-
         $legacyFallbackUser = $this->user();
         $legacyFallbackUser->role = 4;
+        $legacyFallbackUser->permissionQueries['manage-billing'] = $legacyQuery;
 
         $this->assertTrue($legacyFallbackUser->hasPermission('manage-billing'));
 
         $rbacUser = $this->user();
         $rbacUser->roleIds = collect([8, 9]);
+        $rbacUser->permissionQueries['manage-mailbox'] = $rbacQuery;
 
         $this->assertFalse($rbacUser->hasPermission('manage-mailbox'));
     }

@@ -7,9 +7,9 @@ namespace Tests\Unit;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
-class FeatureWriteAssertionDepthGuardTest extends UnitTestCase
+class FeatureWriteAssertionDepthGuardTest extends PureUnitTestCase
 {
     /**
      * Transitional baseline for write-endpoint Feature files that do not include
@@ -53,7 +53,8 @@ class FeatureWriteAssertionDepthGuardTest extends UnitTestCase
 
     public function test_feature_write_files_without_side_effect_assertions_do_not_increase(): void
     {
-        $featureDir = base_path('tests/Feature');
+        $projectRoot = dirname(__DIR__, 2);
+        $featureDir = $projectRoot.'/tests/Feature';
         $violations = [];
 
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($featureDir));
@@ -73,7 +74,7 @@ class FeatureWriteAssertionDepthGuardTest extends UnitTestCase
                 continue;
             }
 
-            $relativePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file->getPathname());
+            $relativePath = str_replace($projectRoot.DIRECTORY_SEPARATOR, '', $file->getPathname());
             $violations[] = str_replace('\\', '/', $relativePath);
         }
 

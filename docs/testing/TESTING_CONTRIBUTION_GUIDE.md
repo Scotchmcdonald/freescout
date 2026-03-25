@@ -83,8 +83,12 @@ Contributors must not introduce:
 
 Additionally:
 - new tests in tests/Unit must default to Tests\PureUnitTestCase
-- adding framework-booting Unit tests requires temporary exception metadata (owner, issue, rationale, expiry)
+- adding framework-booting Unit tests requires temporary exception metadata (owner, issue, rationale, expiry), but the root guard suite is no longer exempt from pure unit scope
 - all skip exceptions must be explicitly tracked in the skip-governance allowlist
+
+Lane execution and budget checks:
+- run an individual lane locally with `bash scripts/testing/run-test-lane.sh unit|feature|integration`
+- if a lane budget report returns `warn` or `fail`, inspect `reports/lane-runtime-budget-<lane>-latest.md` before changing any threshold
 
 ## Feature Assertion Depth Policy
 

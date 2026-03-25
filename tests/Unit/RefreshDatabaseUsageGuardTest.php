@@ -7,9 +7,9 @@ namespace Tests\Unit;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
-class RefreshDatabaseUsageGuardTest extends UnitTestCase
+class RefreshDatabaseUsageGuardTest extends PureUnitTestCase
 {
     /**
      * Explicit allowlist for rare exceptions where Unit tests intentionally use
@@ -49,7 +49,8 @@ class RefreshDatabaseUsageGuardTest extends UnitTestCase
 
     public function test_unit_suite_disallows_explicit_refresh_database_usage_without_allowlist(): void
     {
-        $unitDir = base_path('tests/Unit');
+        $projectRoot = dirname(__DIR__, 2);
+        $unitDir = $projectRoot.'/tests/Unit';
 
         $violations = [];
 
@@ -65,7 +66,7 @@ class RefreshDatabaseUsageGuardTest extends UnitTestCase
                 continue;
             }
 
-            $relativePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file->getPathname());
+            $relativePath = str_replace($projectRoot.DIRECTORY_SEPARATOR, '', $file->getPathname());
             $normalizedPath = str_replace('\\', '/', $relativePath);
 
             if (array_key_exists($normalizedPath, $this->allowlistedRelativePaths)) {

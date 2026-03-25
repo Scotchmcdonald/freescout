@@ -7,9 +7,9 @@ namespace Tests\Unit;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
-use Tests\UnitTestCase;
+use Tests\PureUnitTestCase;
 
-class UnitFrameworkBootingGuardTest extends UnitTestCase
+class UnitFrameworkBootingGuardTest extends PureUnitTestCase
 {
     /**
      * Transitional baseline: current Unit files still booting framework test cases.
@@ -54,7 +54,8 @@ class UnitFrameworkBootingGuardTest extends UnitTestCase
 
     public function test_framework_booting_unit_test_count_does_not_increase(): void
     {
-        $unitDir = base_path('tests/Unit');
+        $projectRoot = dirname(__DIR__, 2);
+        $unitDir = $projectRoot.'/tests/Unit';
         $violations = [];
 
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($unitDir));
@@ -79,7 +80,7 @@ class UnitFrameworkBootingGuardTest extends UnitTestCase
                 continue;
             }
 
-            $relativePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file->getPathname());
+            $relativePath = str_replace($projectRoot.DIRECTORY_SEPARATOR, '', $file->getPathname());
             $violations[] = str_replace('\\', '/', $relativePath);
         }
 

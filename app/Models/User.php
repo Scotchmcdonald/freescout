@@ -425,6 +425,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Build the permission query used by string permission checks.
+     *
+     * @return mixed
+     */
+    protected function permissionQueryForName(string $permission)
+    {
+        return Permission::where('name', $permission);
+    }
+
+    /**
      * Check if user is internal staff.
      */
     public function isInternalStaff(): bool
@@ -642,7 +652,7 @@ class User extends Authenticatable implements MustVerifyEmail
                 return false;
             }
 
-            return Permission::where('name', $permission)
+            return $this->permissionQueryForName($permission)
                 ->whereHas('roles', function ($query) use ($roleIds) {
                     $query->whereIn('roles.id', $roleIds);
                 })->exists();

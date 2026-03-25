@@ -242,9 +242,28 @@ final class TestLaneRuntimeBudgetGuard
             $lines[] = '- Pass: no severe spike and no sustained regression.';
         }
         $lines[] = '';
+        $lines[] = '## Operator Action';
+        $lines[] = '';
+        $lines[] = 'Run the lane locally with `bash scripts/testing/run-test-lane.sh '.$lane.'`.';
+        $lines[] = 'If the report is `warn`, inspect recent deltas first: changed tests, seeders, factories, or new external I/O in that lane.';
+        $lines[] = 'If the report is `fail`, isolate the slowest scope with `'.$this->laneIsolationCommand($lane).'` or the nearest subdirectory, then either reduce runtime or raise the budget with an explicit rationale in CI history review.';
+        $lines[] = 'Before changing the budget, confirm the regression is intentional and not caused by hidden framework boot, stray I/O, or a flaky environment dependency.';
+        $lines[] = '';
         $lines[] = 'History file: '.$historyPath;
 
         return implode(PHP_EOL, $lines).PHP_EOL;
+    }
+
+    private function laneIsolationCommand(string $lane): string
+    {
+        return match ($lane) {
+            'unit' => 'php artisan test tests/Unit --parallel --processes=10',
+            'feature' => 'php artisan test tests/Feature --parallel --processes=10',
+            'integration' => 'php artisan test tests/Integration --parallel --processes=10',
+            'guards' => 'bash scripts/testing/run-test-lane.sh guards',
+            'architecture' => 'bash scripts/ci/check-architecture-compliance.sh',
+            default => 'bash scripts/testing/run-test-lane.sh '.$lane,
+        };
     }
 }
 
