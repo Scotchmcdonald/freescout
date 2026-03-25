@@ -11,7 +11,7 @@ Raise reliability by closing breadth gaps: increase coverage in business-critica
 ## Workstreams
 ### A. Coverage Breadth Expansion
 - [x] Add feature/integration tests for dashboard widgets (happy + negative + role-based variants).
-- [ ] Add branch-focused tests for service guardrails:
+- [x] Add branch-focused tests for service guardrails:
   - Null/invalid inputs
   - boundary thresholds
   - exception and rollback paths
@@ -29,7 +29,7 @@ Raise reliability by closing breadth gaps: increase coverage in business-critica
 - [x] Keep Tier 1 and Tier 2 MSI at >=95.
 - [ ] Investigate any increase in escapedCount immediately; no deferred fixes.
 
-## Iteration 1 Progress (2026-03-25)
+## Iteration 1 Progress (2026-03-25 Dashboard Widgets)
 - Added widget integration suite: `tests/Integration/Widgets/DashboardWidgetsTest.php`
   - 7 passing tests / 33 assertions
   - Covers role gating and core render branches for Admin/Agent/Finance/Reporter widgets
@@ -40,6 +40,32 @@ Raise reliability by closing breadth gaps: increase coverage in business-critica
 - Mutation guard validated after changes:
   - Tier 2 MSI: 100
   - Covered MSI: 100
+  - Escaped: 0
+
+## Iteration 2 Progress (2026-03-25 Service Guardrails)
+- Added service integration test suites covering all three Phase 2 priority services:
+  - `tests/Integration/Services/AuditLogServiceTest.php` (20 tests)
+    - logSensitiveOperation (w/o subject, w/o causer, default log name)
+    - queryLogs (by log_name, causer_id, subject_type, subject_id, date_range, description_like, combined filters)
+    - getSubjectAuditTrail (respects limit, latest-first ordering)
+    - enrichProperties (adds ip_address, user_agent, timestamp)
+  - `tests/Integration/Services/MetricsServiceTest.php` (18 tests)
+    - trackEvent (info/warning/error levels, empty context, timestamp inclusion)
+    - trackInvoiceGeneration (success + slow threshold boundary, near-threshold no-warning)
+    - trackPaymentProcessed (success/failure/multiple gateways)
+    - trackApiCall (all status codes 200/201/400/404/500/503, slow duration 3000ms threshold, level prioritization)
+    - trackSecurityEvent (with/without context)
+  - `tests/Integration/Services/EntitlementEngineServiceTest.php` (16 tests)
+    - registerResolver/hasResolver/getRegisteredProductTypes (order preservation, empty state)
+    - resolve (correct resolver invocation, unregistered throws, product type routing)
+    - overwrite behavior (replacement without duplication)
+- All tests passing:
+  - Total: 280 tests / 616 assertions
+  - Duration: 8.68s (parallel, 10 processes)
+- Mutation safety re-validated after service tests:
+  - Tier 2 MSI: 100
+  - Covered MSI: 100
+  - Killed: 1666 / 2743
   - Escaped: 0
 
 ## Reliability Milestones
