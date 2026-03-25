@@ -23,10 +23,9 @@ echo ""
 
 # Verify coverage XML exists (mutation testing requires prior coverage collection)
 if [ ! -d "$ROOT_DIR/storage/infection/coverage" ]; then
-    echo "⚠️  Coverage XML not found. Collection coverage first..."
+    echo "⚠️  Coverage XML not found. Collecting coverage first..."
     XDEBUG_MODE=coverage php -d memory_limit=3G "$ROOT_DIR/vendor/bin/pest" \
         --coverage-xml="$ROOT_DIR/storage/infection/coverage" \
-        --no-coverage-ignore-unmocked-methods \
         > /dev/null 2>&1 || true
 fi
 

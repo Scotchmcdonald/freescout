@@ -39,8 +39,7 @@ TESTS_START=$(date +%s)
 
 if ! timeout $PHASE_TIMEOUT_TESTS "$ROOT_DIR/vendor/bin/pest" \
     --parallel \
-    --processes=10 \
-    --no-coverage; then
+    --processes=10; then
     echo ""
     echo "❌ PHASE 1 FAILED: Tests did not pass."
     exit 1
@@ -66,8 +65,7 @@ if ! timeout $PHASE_TIMEOUT_COVERAGE \
     env XDEBUG_MODE=coverage \
     php -d memory_limit=3G "$ROOT_DIR/vendor/bin/pest" \
     --coverage-xml="$ROOT_DIR/storage/infection/coverage" \
-    --coverage-text="$ROOT_DIR/reports/coverage-final.txt" \
-    --no-parallel > /dev/null 2>&1; then
+    --coverage-text="$ROOT_DIR/reports/coverage-final.txt" > /dev/null 2>&1; then
 
     echo ""
     echo "⚠️  PHASE 2 WARNING: Coverage collection had issues."

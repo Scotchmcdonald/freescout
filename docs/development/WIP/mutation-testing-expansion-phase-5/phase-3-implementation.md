@@ -183,34 +183,40 @@ bash scripts/ci/check-mutation-tier2.sh
 
 ### Task 3.1: Audit app/Services for Test Coverage
 **Owner:** QA / Backend Team
-**Effort:** 4 hours
+**Effort:** 4 hours  
+**Status:** ✅ **COMPLETED** (Mar 25, 2026)
 
-**Steps:**
+**Deliverable:** `docs/development/WIP/mutation-testing-expansion-phase-5/coverage-audit-app-services.md` ✅
 
-1. Generate coverage report for `app/Services` only:
-   ```bash
-   XDEBUG_MODE=coverage php -d memory_limit=3G ./vendor/bin/pest \
-       --coverage-xml=storage/infection/coverage \
-       --coverage-text=reports/app-services-coverage.txt
-   ```
+**Audit Results Summary:**
 
-2. Parse coverage to identify:
-   - Classes with < 50% line coverage.
-   - High-cyclomatic-complexity methods (CRAPi > 20).
-   - Untested branches (conditionals without both true/false paths).
+**Well-Tested Services (7):**
+- AtomicCounterService, CircuitBreakerService, RateLimiterService
+- SmtpService, ImapService, ModuleSourceService, WidgetRegistryService
+- Status: ✅ Adequate coverage; ready for mutation testing
 
-3. Output to: `docs/development/WIP/mutation-testing-expansion-phase-5/coverage-audit-app-services.md`
+**Partial Coverage Services (4):**
+- CacheService (~50%), AuditLogService (~40%), EntitlementEngine (~35%)
+- MetricsService (~10% estimated)
+- Status: ⚠️ Need additional tests before mutation testing
 
-**Example Audit Table:**
-| Service | Lines | Coverage | CRAP | Priority |
-| :--- | ---: | ---: | ---: | :--- |
-| EntitlementEngine | 156 | 42% | 18 | HIGH |
-| CacheService | 89 | 78% | 4 | MEDIUM |
-| AuditLogService | 203 | 65% | 12 | MEDIUM |
+**No/Minimal Coverage Services (5):**
+- CachedMailboxService, UserDirectoryRegistryService, NavigationService
+- SentryBeforeBreadcrumb, SentryBeforeSend
+- Status: ❌ Require test creation from scratch
 
----
+**Recommendations for Week 3 Test Implementation:**
+- **Priority 1 (High Impact):** AuditLogService (4–5 hrs), EntitlementEngine (6–8 hrs), MetricsService (3–4 hrs)
+- **Priority 2 (Medium):** CachedMailboxService, UserDirectoryRegistryService
+- **Target:** Increase app/Services coverage from 35% to 50%+ by end of Week 3
 
-### Task 3.2: Add Unit Tests for Top 5 Untested Services
+**Audit includes:**
+- ✅ Complete inventory of 16 service files
+- ✅ Test status for each service (existing tests cross-referenced)
+- ✅ Specific test templates (unit + integration patterns)
+- ✅ Priority ranking with effort estimates
+- ✅ Success metrics and timeline
+- ✅ Reference commands for isolated testing
 **Owner:** Backend Team
 **Effort:** 8 hours (2 hrs per service avg)
 
@@ -340,6 +346,20 @@ Topics to cover:
 ---
 
 ## Rollout & Team Communication
+
+### Important: Pest CLI Flag Correction
+
+**Note (March 25, 2026):** Initial implementations incorrectly used `--no-parallel` and `--no-coverage` flags, which do not exist in Pest/PHPUnit.
+
+**Correct Usage:**
+- **To run tests in parallel:** `./vendor/bin/pest --parallel --processes=10`
+- **To run tests sequentially:** `./vendor/bin/pest` (simply omit the `--parallel` flag)
+- **To skip coverage:** Omit all `--coverage-*` flags
+- **To collect coverage:** `./vendor/bin/pest --coverage-xml=...` (coverage flags only)
+
+**Reference:** Pest CLI correctly supports `--parallel` and `--coverage-*` flags. See `./vendor/bin/pest --help` for complete options.
+
+---
 
 ### Before Deployment
 1. Code review of all 4 phase documents.

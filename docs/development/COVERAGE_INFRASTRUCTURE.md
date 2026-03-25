@@ -58,7 +58,7 @@ XDEBUG_MODE=coverage php artisan test --coverage --no-parallel
 
 # Chunked by suite
 for suite in Unit Feature Integration; do
-  XDEBUG_MODE=coverage php php artisan test \
+  XDEBUG_MODE=coverage php artisan test \
     --testsuite=$suite \
     --coverage-php reports/coverage-${suite}.cov
 done

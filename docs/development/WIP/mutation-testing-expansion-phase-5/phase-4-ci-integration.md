@@ -31,7 +31,7 @@
 
 ### 1. Post-PR Gate (Tier 2)
 
-**When:** After unit/integration tests pass.  
+**When:** After unit/integration tests pass.
 **Where:** `scripts/ci/check-mutation-tier2.sh` (implemented in Phase 3).
 
 **GitHub Actions / GitLab CI Example:**
@@ -50,30 +50,30 @@ jobs:
   mutation:
     runs-on: ubuntu-latest
     timeout-minutes: 55
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: xdebug
-      
+
       - name: Install Dependencies
         run: composer install --no-interaction
-      
+
       - name: Run Test Suite (Parallel, No Coverage)
         run: ./vendor/bin/pest --parallel --processes=10
-      
+
       - name: Collect Coverage
         run: |
           XDEBUG_MODE=coverage php -d memory_limit=3G ./vendor/bin/pest \
             --coverage-xml=storage/infection/coverage
-      
+
       - name: Mutation Testing (Tier 2)
         run: bash scripts/ci/check-mutation-tier2.sh
-      
+
       - name: Upload Results
         if: always()
         uses: actions/upload-artifact@v3
@@ -88,8 +88,8 @@ jobs:
 
 ### 2. Scheduled Nightly (Tier 1)
 
-**When:** Once per week (e.g., Monday 2 AM UTC).  
-**Where:** Separate CI job targeting Tier 1 only.  
+**When:** Once per week (e.g., Monday 2 AM UTC).
+**Where:** Separate CI job targeting Tier 1 only.
 **Output:** Notify Slack/email if MSI drops below 80.
 
 ```yaml
@@ -106,33 +106,33 @@ jobs:
   mutation-tier1:
     runs-on: ubuntu-latest
     timeout-minutes: 200
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: xdebug
-      
+
       - name: Install Dependencies
         run: composer install --no-interaction
-      
+
       - name: Collect Coverage
         run: |
           XDEBUG_MODE=coverage php -d memory_limit=4G ./vendor/bin/pest \
             --coverage-xml=storage/infection/coverage
-      
+
       - name: Mutation Testing (Tier 1)
         run: ./vendor/bin/infection
-      
+
       - name: Notify Results
         if: always()
         run: |
           # Parse infection-summary.json and post to Slack/Teams
           php scripts/ci/notify-mutation-results.php
-      
+
       - name: Archive Results
         uses: actions/upload-artifact@v3
         with:
@@ -253,11 +253,11 @@ timeout 45m php vendor/bin/infection ... || {
 if grep -q "Allowed memory size" reports/infection-tier2.log; then
     echo "⚠️  Memory exhaustion detected during coverage."
     echo "   Retrying with sequential coverage mode..."
-    
-    # Fallback: Sequential coverage
+
+    # Fallback: Sequential coverage (simply omit --parallel flag)
     XDEBUG_MODE=coverage php -d memory_limit=4G ./vendor/bin/pest \
-        --coverage-xml=storage/infection/coverage --no-parallel
-    
+        --coverage-xml=storage/infection/coverage
+
     # Retry mutation
     php vendor/bin/infection --configuration=infection-extended.json5
 fi
