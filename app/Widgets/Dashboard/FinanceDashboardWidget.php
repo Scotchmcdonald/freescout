@@ -134,7 +134,7 @@ class FinanceDashboardWidget implements Widget
             $html .= '<tr class="hover:bg-neutral-50">';
             $html .= '<td class="py-2 pr-4 font-medium text-primary-600">'.e($invoice->invoice_number ?? "#{$invoice->id}").'</td>';
             $html .= '<td class="py-2 pr-4 text-neutral-700">'.e($clientName).'</td>';
-            $html .= '<td class="py-2 pr-4 text-right font-medium text-neutral-900">$'.number_format($invoice->total_amount, 2).'</td>';
+            $html .= '<td class="py-2 pr-4 text-right font-medium text-neutral-900">$'.number_format((float) $invoice->total_amount, 2).'</td>';
             $html .= '<td class="py-2 pr-4 text-neutral-500">'.($invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('M j, Y') : '—').'</td>';
             $html .= '<td class="py-2 '.$overdueClass.'">'.(is_int($daysOverdue) ? $daysOverdue.'d' : $daysOverdue).'</td>';
             $html .= '</tr>';
@@ -152,7 +152,7 @@ class FinanceDashboardWidget implements Widget
         }
 
         $payments = \Modules\Payment\Models\Payment::with('company')
-            ->where('status', 'completed')
+            ->whereIn('status', ['completed', 'successful'])
             ->orderByDesc('created_at')
             ->take(5)
             ->get();
