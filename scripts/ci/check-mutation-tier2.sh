@@ -39,7 +39,7 @@ fi
 # --skip-initial-tests: don't re-run the full suite; use the coverage we already have
 # XDEBUG_MODE=off: prevent xdebug from attaching during mutant execution (slows each run)
 timeout $((TIMEOUT_MINUTES * 60)) \
-    XDEBUG_MODE=off php -d memory_limit=4G "$ROOT_DIR/vendor/bin/infection" \
+    env XDEBUG_MODE=off php -d memory_limit=4G "$ROOT_DIR/vendor/bin/infection" \
     --configuration="$CONFIG_FILE" \
     --coverage="$ROOT_DIR/storage/infection/coverage" \
     --skip-initial-tests \
