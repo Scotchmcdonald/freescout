@@ -34,6 +34,11 @@ test('google chrome devices webhook endpoint is rate limited to 60 requests per 
         expect($response->status())->toBe(200);
     }
 
+    $this->channel->refresh();
+
+    expect($this->channel->notification_count)->toBe(60);
+    expect($this->channel->last_notification_at)->not->toBeNull();
+
     $throttled = $this
         ->withServerVariables(['REMOTE_ADDR' => $ip])
         ->withHeaders([
@@ -47,4 +52,8 @@ test('google chrome devices webhook endpoint is rate limited to 60 requests per 
     $throttled->assertStatus(429);
     $throttled->assertHeader('Retry-After');
     $throttled->assertHeader('X-RateLimit-Limit');
+
+    $this->channel->refresh();
+
+    expect($this->channel->notification_count)->toBe(60);
 })->group('boundary');

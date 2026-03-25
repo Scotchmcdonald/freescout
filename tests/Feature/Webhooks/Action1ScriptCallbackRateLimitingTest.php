@@ -2,9 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\Action1ScriptCallbackController;
+use Illuminate\Support\Facades\Cache;
+
 test('action1 script callback endpoint is rate limited to 30 requests per minute per ip', function () {
     $ip = '10.250.1.10';
     $token = str_repeat('a', 40);
+    $cacheKey = Action1ScriptCallbackController::CACHE_PREFIX.$token;
+
+    Cache::put($cacheKey, [
+        'status' => 'pending',
+        'script_id' => 12345,
+        'org_id' => 987,
+        'minted_at' => now()->toIso8601String(),
+    ], Action1ScriptCallbackController::TOKEN_TTL);
 
     for ($i = 0; $i < 30; $i++) {
         $response = $this
@@ -16,9 +27,16 @@ test('action1 script callback endpoint is rate limited to 30 requests per minute
                 'user' => 'system',
             ]);
 
-        // Unknown token is expected; throttling should not trigger before threshold.
-        expect($response->status())->toBe(404);
+        expect($response->status())->toBeIn([200, 200]);
     }
+
+    $record = Cache::get($cacheKey);
+
+    expect($record)->toBeArray();
+    expect($record['status'] ?? null)->toBe('received');
+    expect($record['script_id'] ?? null)->toBe(12345);
+    expect($record['org_id'] ?? null)->toBe(987);
+    expect($record['output'] ?? null)->toBe('test output');
 
     $throttled = $this
         ->withServerVariables(['REMOTE_ADDR' => $ip])
@@ -31,4 +49,9 @@ test('action1 script callback endpoint is rate limited to 30 requests per minute
 
     $throttled->assertStatus(429);
     $throttled->assertHeader('Retry-After');
+
+    $recordAfterThrottle = Cache::get($cacheKey);
+
+    expect($recordAfterThrottle)->toBeArray();
+    expect($recordAfterThrottle['status'] ?? null)->toBe('received');
 })->group('boundary');
