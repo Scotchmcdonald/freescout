@@ -15,15 +15,17 @@ function phase4Wave2TypeCoverageBaseline(): array
     return [
         'owner' => 'QA/Platform',
         'issue' => 'phase-4-architecture-and-type-coverage-wave-2',
-        'expires' => '2026-05-31',
-        // Critical domain group
+        'expires' => '2026-08-31',
+        // Critical domain group — extended in Wave 2 to include ContractManager and SoftwareSubscriptions
         'target_paths' => [
             'Modules/PIB/Services',
             'Modules/Payment/Services',
+            'Modules/ContractManager/Services',
+            'Modules/SoftwareSubscriptions/Services',
         ],
         // Require strict-types coverage to stay at 100% for this critical domain.
         'min_strict_types_percent' => 100.0,
-        'min_files_scanned' => 10,
+        'min_files_scanned' => 12,
     ];
 }
 

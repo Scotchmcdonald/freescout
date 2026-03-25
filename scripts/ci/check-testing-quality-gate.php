@@ -31,12 +31,8 @@ $minMsi        = envFloat('TEST_MIN_MSI',                DEFAULT_MIN_MSI);
 $minBoundary   = envInt('TEST_MIN_BOUNDARY_MATCHES',     DEFAULT_MIN_BOUNDARY);
 $minArchFiles  = envInt('TEST_MIN_ARCH_FILES',           DEFAULT_MIN_ARCH_FILES);
 
-// Optional timing context injected by the CI orchestrator
-$phaseTimes = [
-    'tests'    => envFloat('TIMING_TESTS_S',    0.0),
-    'coverage' => envFloat('TIMING_COVERAGE_S', 0.0),
-    'mutation' => envFloat('TIMING_MUTATION_S', 0.0),
-];
+// Optional timing context: env vars first, then JSON side-channel fallback
+$phaseTimes = loadPhaseTimes($reportsDir);
 
 // ── Metric Collection ──────────────────────────────────────────────────────
 $coverage = parseCoverage($reportsDir);
@@ -167,6 +163,9 @@ file_put_contents($reportFile, $report);
 echo $report;
 echo PHP_EOL . 'Report saved to: reports/testing-quality-gate-latest.md' . PHP_EOL;
 
+// ── JSONL trend tracking ───────────────────────────────────────────────────
+appendTrendEntry($reportsDir, $checks, $allPass);
+
 if (! $allPass) {
     exit(1);
 }
@@ -181,6 +180,68 @@ function envFloat(string $key, float $default): float
 {
     $v = getenv($key);
     return ($v !== false && trim($v) !== '') ? (float) $v : $default;
+}
+
+/**
+ * Load phase timings from env vars, falling back to the JSON side-channel file.
+ *
+ * @return array{tests:float,coverage:float,mutation:float}
+ */
+function loadPhaseTimes(string $reportsDir): array
+{
+    $fromEnv = [
+        'tests'    => envFloat('TIMING_TESTS_S',    0.0),
+        'coverage' => envFloat('TIMING_COVERAGE_S', 0.0),
+        'mutation' => envFloat('TIMING_MUTATION_S', 0.0),
+    ];
+
+    // If any env var was set, prefer env over side-channel file
+    if ($fromEnv['tests'] > 0 || $fromEnv['coverage'] > 0 || $fromEnv['mutation'] > 0) {
+        return $fromEnv;
+    }
+
+    $sideChannel = $reportsDir . '/ci-timing-latest.json';
+    if (! is_file($sideChannel)) {
+        return $fromEnv;
+    }
+
+    $data = json_decode((string) file_get_contents($sideChannel), true);
+    if (! is_array($data)) {
+        return $fromEnv;
+    }
+
+    return [
+        'tests'    => isset($data['tests_s'])    ? (float) $data['tests_s']    : 0.0,
+        'coverage' => isset($data['coverage_s']) ? (float) $data['coverage_s'] : 0.0,
+        'mutation' => isset($data['mutation_s']) ? (float) $data['mutation_s'] : 0.0,
+    ];
+}
+
+/**
+ * Append a single JSONL entry to the quality-gate history file for trend tracking.
+ *
+ * @param list<array{name:string,actual:float|null,minimum:float,status:bool}> $checks
+ */
+function appendTrendEntry(string $reportsDir, array $checks, bool $allPass): void
+{
+    $historyFile = $reportsDir . '/quality-gate-history.jsonl';
+
+    $entry = [
+        'ts'      => date('c'),
+        'pass'    => $allPass,
+        'checks'  => [],
+    ];
+
+    foreach ($checks as $c) {
+        $entry['checks'][] = [
+            'name'   => $c['name'],
+            'actual' => $c['actual'],
+            'min'    => $c['minimum'],
+            'pass'   => $c['status'],
+        ];
+    }
+
+    file_put_contents($historyFile, json_encode($entry) . PHP_EOL, FILE_APPEND | LOCK_EX);
 }
 
 function envInt(string $key, int $default): int

@@ -363,3 +363,29 @@ arch('module services should not depend on controllers')
         'Modules\SoftwareSubscriptions\Http\Controllers',
         'Modules\ClientPortal\Http\Controllers',
     ]);
+
+// ──────────────────────────────────────────────────────────
+// Wave 2 Additions: Service-Layer HTTP Isolation
+// Financial/critical service namespaces must not accept raw
+// HTTP Request objects — DTOs or primitive parameters only.
+// ──────────────────────────────────────────────────────────
+
+// 27. Critical financial services must not depend on HTTP Request
+arch('financial services do not accept raw http request')
+    ->expect([
+        'Modules\PIB\Services',
+        'Modules\Payment\Services',
+        'Modules\ContractManager\Services',
+        'Modules\SoftwareSubscriptions\Services',
+    ])
+    ->not->toUse('Illuminate\Http\Request');
+
+// 28. App Services must not depend on HTTP Request (use Form Requests at controller layer)
+arch('app services do not accept raw http request')
+    ->expect('App\Services')
+    ->not->toUse('Illuminate\Http\Request');
+
+// 29. Observers must not dispatch queued jobs inline (prevents double-dispatch)
+arch('observers should not use dispatch helper directly')
+    ->expect('App\Observers')
+    ->not->toUse('Illuminate\Support\Facades\Bus');

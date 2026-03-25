@@ -132,3 +132,23 @@ echo "  Coverage: $ROOT_DIR/reports/coverage-final.txt"
 echo "  Mutation: $ROOT_DIR/reports/infection-extended.log"
 echo "  Mutation: $ROOT_DIR/reports/infection-extended-summary.log"
 echo ""
+
+# ==============================================================================
+# TIMING SIDE-CHANNEL
+# Write a JSON file so that check-testing-quality-gate.php can display
+# per-phase timings in the report even when env vars are not injected.
+# ==============================================================================
+
+CI_TIMING_FILE="$ROOT_DIR/reports/ci-timing-latest.json"
+
+cat > "$CI_TIMING_FILE" <<EOF
+{
+  "generated": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "tests_s": ${TESTS_DURATION},
+  "coverage_s": ${COVERAGE_DURATION},
+  "mutation_s": ${MUTATION_DURATION},
+  "total_s": ${TOTAL_DURATION}
+}
+EOF
+
+echo "Timing side-channel: $CI_TIMING_FILE"
