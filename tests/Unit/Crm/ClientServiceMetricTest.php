@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Crm;
 
 use Modules\Crm\Models\ClientServiceMetric;
-use PHPUnit\Framework\TestCase as BaseTestCase;
+use Tests\PureUnitTestCase;
 
 /**
  * Stub that removes DB dependency for date-cast attributes.
@@ -28,7 +28,7 @@ final class StubMetric extends ClientServiceMetric
  *
  * All tests use the stub to avoid DB connections.
  */
-final class ClientServiceMetricTest extends BaseTestCase
+final class ClientServiceMetricTest extends PureUnitTestCase
 {
     private function make(array $attrs = []): StubMetric
     {
