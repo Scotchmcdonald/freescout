@@ -155,3 +155,32 @@ it('rethrows service exceptions so registry can handle upstream failures', funct
     expect(fn () => $provider->getUsers())
         ->toThrow(Exception::class, 'Google API temporarily unavailable');
 });
+
+it('authorization boundary: suspended workspace users are surfaced as non-active for access control', function () {
+    // Authorization boundary: Google Workspace users flagged as 'Suspended' must
+    // be reflected in the provider output so that downstream access control
+    // systems can deny their portal authorization.
+    config(['google.domain' => 'example.com']);
+
+    $name = new class {
+        public function getFullName(): string { return 'Suspended User'; }
+    };
+
+    $suspendedUser = new class($name) {
+        public function __construct(private object $n) {}
+        public function getName(): object { return $this->n; }
+        public function getPrimaryEmail(): string { return 'suspended@example.com'; }
+        public function getSuspended(): bool { return true; }
+        public function getIsEnrolledIn2Sv(): bool { return false; }
+        public function getLastLoginTime(): string { return '2026-01-01T00:00:00Z'; }
+        public function getOrgUnitPath(): string { return '/Suspended'; }
+    };
+
+    $service = Mockery::mock(GoogleWorkspaceService::class);
+    $service->shouldReceive('listUsers')->once()->andReturn([$suspendedUser]);
+
+    $users = (new GoogleUserProvider($service))->getUsers();
+
+    // Authorization boundary: suspended status must be preserved for downstream denial
+    expect($users[0]['status'])->toBe('Suspended');
+});

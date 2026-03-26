@@ -142,4 +142,32 @@ class ModuleTest extends TestCase
         $this->assertEquals('error', $result['status']);
         $this->assertStringContainsString('disabled', strtolower($result['msg']));
     }
+
+    public function test_authorization_boundary_module_update_rejects_missing_download_url(): void
+    {
+        // Authorization boundary: a module update must be refused when no download URL
+        // is configured — the absence of a trusted source URL means the update
+        // is not authorized and could represent an unauthorized code injection risk.
+        config(['app.module_automatic_updates' => true]);
+
+        Http::fake(['*' => Http::response([], 200)]);
+
+        $this->app->instance(ModuleSourceService::class, new class extends ModuleSourceService
+        {
+            public function getModule(string $alias): ?array
+            {
+                return [
+                    'name'         => 'Auth Boundary Module',
+                    'alias'        => $alias,
+                    'download_url' => null, // No authorized download URL
+                ];
+            }
+        });
+
+        $result = Module::updateModule('authboundarymodule');
+
+        $this->assertEquals('error', $result['status'],
+            'Authorization boundary: module update without download URL must be rejected'
+        );
+    }
 }

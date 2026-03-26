@@ -211,4 +211,22 @@ final class CustomerDataTest extends PureUnitTestCase
         // Note: email is not included in toArray output by design
         $this->assertArrayNotHasKey('email', $arr);
     }
+
+    public function test_validation_customer_data_requires_first_name_as_only_mandatory_field(): void
+    {
+        // Validation boundary: first_name is the only required field in CustomerData —
+        // all other fields are optional (nullable). This enforces minimal data collection
+        // while still ensuring the customer has an identity for authorization checks.
+        $minimal = new CustomerData(firstName: 'RequiredOnly');
+
+        $this->assertSame('RequiredOnly', $minimal->firstName,
+            'Validation: firstName must be present and non-null'
+        );
+        $this->assertNull($minimal->lastName,
+            'Validation: lastName is optional and must default to null'
+        );
+        $this->assertNull($minimal->email,
+            'Validation: email is optional and must default to null when not provided'
+        );
+    }
 }

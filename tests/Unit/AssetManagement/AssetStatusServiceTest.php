@@ -187,4 +187,26 @@ final class AssetStatusServiceTest extends PureUnitTestCase
 
         $this->assertSame('custom error message', $ex->getMessage());
     }
+
+    public function test_authorization_boundary_retired_asset_is_permanently_locked(): void
+    {
+        // Authorization boundary: once an asset reaches the 'retired' terminal state,
+        // ALL further transitions must be denied — retirement is a permanent
+        // decommission authorization gate with no recovery path.
+        $allStatuses = $this->service->getAllStatuses();
+
+        foreach ($allStatuses as $targetStatus) {
+            if ($targetStatus === 'retired') {
+                continue; // self-transition is always valid, skip
+            }
+            $this->assertFalse(
+                $this->service->isValidTransition('retired', $targetStatus),
+                "Authorization boundary: retired asset must not be allowed to transition to {$targetStatus}"
+            );
+        }
+
+        $this->assertSame([], $this->service->getValidTargetStatuses('retired'),
+            'Authorization boundary: retired status must have zero authorized target transitions'
+        );
+    }
 }

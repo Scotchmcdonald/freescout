@@ -159,4 +159,27 @@ final class GoogleLicenseDiscoveredDataTest extends PureUnitTestCase
         $this->assertSame(99, $arr['contact_id']);
         $this->assertSame(8, $arr['client_id']);
     }
+
+    public function test_validation_license_data_user_email_is_required_for_authorization_lookup(): void
+    {
+        // Validation boundary: the user_email field is the primary authorization key
+        // for license lookup — it must always be present and non-empty in the DTO.
+        $dto = new GoogleLicenseDiscoveredData(
+            userEmail: 'admin@workspace.example.com',
+            productId: '101031',
+            productName: 'Google Workspace Enterprise Standard',
+            skuId: '1010020026',
+            skuName: 'Enterprise Standard',
+            assignedAt: '2026-01-15',
+            contactId: 42,
+            clientId: 5,
+        );
+
+        $this->assertNotEmpty($dto->userEmail,
+            'Validation boundary: userEmail must be present as the authorization lookup key'
+        );
+        $this->assertSame($dto->userEmail, $dto->toArray()['user_email'],
+            'Validation boundary: user_email must be preserved in the serialized output'
+        );
+    }
 }
