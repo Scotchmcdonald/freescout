@@ -7,6 +7,7 @@ namespace Tests\Unit\Crm;
 use Modules\Crm\Models\ClientConversation;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubClientConversation::class)) {
 final class StubClientConversation extends ClientConversation
 {
     protected static function booted(): void {}
@@ -16,6 +17,8 @@ final class StubClientConversation extends ClientConversation
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 final class ClientConversationTest extends PureUnitTestCase
 {

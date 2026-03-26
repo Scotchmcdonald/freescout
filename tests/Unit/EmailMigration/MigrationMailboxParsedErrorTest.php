@@ -7,6 +7,7 @@ namespace Tests\Unit\EmailMigration;
 use Modules\EmailMigration\Models\MigrationMailbox;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubMigrationMailbox::class)) {
 final class StubMigrationMailbox extends MigrationMailbox
 {
     protected static function booted(): void {}
@@ -16,6 +17,8 @@ final class StubMigrationMailbox extends MigrationMailbox
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 final class MigrationMailboxParsedErrorTest extends PureUnitTestCase
 {

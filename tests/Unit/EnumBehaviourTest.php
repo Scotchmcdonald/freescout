@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 /**
  * Enums behaviour: labels, computed accessors, helpers.
- * Pure unit — zero framework booting.
+ * Note: label() methods use __() helper, so the full framework must be booted.
  */
 class EnumBehaviourTest extends TestCase
 {

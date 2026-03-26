@@ -9,12 +9,15 @@ use Tests\PureUnitTestCase;
 
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
+if (! class_exists(StubPaymentMethod::class)) {
 final class StubPaymentMethod extends PaymentMethod
 {
     protected static function booted(): void {}
 
     public function getDateFormat(): string { return 'Y-m-d H:i:s'; }
 }
+}
+
 
 // ── Test class ────────────────────────────────────────────────────────────────
 

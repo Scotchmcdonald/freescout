@@ -7,7 +7,10 @@ namespace Tests\Integration\Console\Commands;
 use Illuminate\Contracts\Console\Kernel as KernelContract;
 use Tests\IntegrationTestCase;
 
-/** @group console */
+/**
+ * @group console
+ * @group slow
+ */
 class KernelAndEdgeCasesTest extends IntegrationTestCase
 {
     public function test_expected_freescout_commands_are_registered(): void

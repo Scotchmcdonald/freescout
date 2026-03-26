@@ -9,10 +9,13 @@ use Tests\PureUnitTestCase;
 
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
+if (! class_exists(StubClientSoftwareSubscription::class)) {
 final class StubClientSoftwareSubscription extends ClientSoftwareSubscription
 {
     protected static function booted(): void {}
 }
+}
+
 
 // ── Test class ────────────────────────────────────────────────────────────────
 

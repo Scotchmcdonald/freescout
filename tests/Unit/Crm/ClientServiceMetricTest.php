@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 /**
  * Stub that removes DB dependency for date-cast attributes.
  */
+if (! class_exists(StubMetric::class)) {
 final class StubMetric extends ClientServiceMetric
 {
     protected static function booted(): void {}
@@ -19,6 +20,8 @@ final class StubMetric extends ClientServiceMetric
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 /**
  * Pure-unit tests for ClientServiceMetric computed attributes.

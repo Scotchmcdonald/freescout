@@ -11,18 +11,24 @@ use Tests\PureUnitTestCase;
 /**
  * Stub to avoid DB dependency for pure attribute logic.
  */
+if (! class_exists(StubFieldDefinition::class)) {
 final class StubFieldDefinition extends FieldDefinition
 {
     protected static function booted(): void {}
 }
+}
+
 
 /**
  * Stub to avoid DB dependency for CustomField attribute logic.
  */
+if (! class_exists(StubCustomField::class)) {
 final class StubCustomField extends CustomField
 {
     protected static function booted(): void {}
 }
+}
+
 
 /**
  * Pure-unit tests for CRM model helpers:

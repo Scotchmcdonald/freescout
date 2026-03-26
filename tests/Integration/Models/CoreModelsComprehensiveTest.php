@@ -19,6 +19,8 @@ use Tests\IntegrationTestCase;
  * Total: 62 tests
  *
  * These are fundamental models for the email system.
+ *
+ * @group slow
  */
 class CoreModelsComprehensiveTest extends IntegrationTestCase
 {

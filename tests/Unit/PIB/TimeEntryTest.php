@@ -7,6 +7,7 @@ namespace Tests\Unit\PIB;
 use Modules\PIB\Models\TimeEntry;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubTimeEntry::class)) {
 final class StubTimeEntry extends TimeEntry
 {
     protected static function booted(): void {}
@@ -16,6 +17,8 @@ final class StubTimeEntry extends TimeEntry
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 final class TimeEntryTest extends PureUnitTestCase
 {

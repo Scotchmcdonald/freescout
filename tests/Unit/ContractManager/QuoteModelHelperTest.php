@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 /**
  * Stub Quote bypasses DB dependencies for pure-logic tests.
  */
+if (! class_exists(StubQuote::class)) {
 final class StubQuote extends Quote
 {
     protected static function booted(): void {}
@@ -21,6 +22,8 @@ final class StubQuote extends Quote
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 /**
  * Pure-unit tests for Quote model status helpers.

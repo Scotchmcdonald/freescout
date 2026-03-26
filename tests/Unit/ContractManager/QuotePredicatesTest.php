@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use Modules\ContractManager\Models\Quote;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubQuote::class)) {
 final class StubQuote extends Quote
 {
     protected static function booted(): void {}
@@ -17,6 +18,8 @@ final class StubQuote extends Quote
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 final class QuotePredicatesTest extends PureUnitTestCase
 {

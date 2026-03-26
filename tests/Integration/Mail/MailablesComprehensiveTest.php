@@ -23,6 +23,8 @@ use Tests\IntegrationTestCase;
 /**
  * Comprehensive tests for Mail Mailable Classes
  * Following TESTING_GUIDE.md - using test_ prefix, UnitTestCase base class
+ *
+ * @group slow
  */
 class MailablesComprehensiveTest extends IntegrationTestCase
 {

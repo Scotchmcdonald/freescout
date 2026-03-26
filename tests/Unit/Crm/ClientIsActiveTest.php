@@ -7,6 +7,7 @@ namespace Tests\Unit\Crm;
 use Modules\Crm\Models\Client;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubCrmClient::class)) {
 final class StubCrmClient extends Client
 {
     protected static function booted(): void {}
@@ -16,6 +17,8 @@ final class StubCrmClient extends Client
         return [];
     }
 }
+}
+
 
 final class ClientIsActiveTest extends PureUnitTestCase
 {

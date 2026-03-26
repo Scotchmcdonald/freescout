@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Tests\IntegrationTestCase;
 
+/** @group slow */
 class PerformanceAndOptimizationTest extends IntegrationTestCase
 {
     // Query Optimization Tests

@@ -7,6 +7,7 @@ namespace Tests\Unit\EmailMigration;
 use Modules\EmailMigration\Models\MigrationBatch;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubMigrationBatch::class)) {
 final class StubMigrationBatch extends MigrationBatch
 {
     protected static function booted(): void {}
@@ -16,6 +17,8 @@ final class StubMigrationBatch extends MigrationBatch
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 final class MigrationBatchProgressTest extends PureUnitTestCase
 {

@@ -7,6 +7,7 @@ namespace Tests\Unit;
 use App\Models\SyncOperation;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubSyncOperation::class)) {
 final class StubSyncOperation extends SyncOperation
 {
     protected static function booted(): void {}
@@ -16,6 +17,8 @@ final class StubSyncOperation extends SyncOperation
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 final class SyncOperationTest extends PureUnitTestCase
 {

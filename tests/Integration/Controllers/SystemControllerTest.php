@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Tests\IntegrationTestCase;
 
+/** @group slow */
 class SystemControllerTest extends IntegrationTestCase
 {
     public function test_controller_can_be_instantiated(): void

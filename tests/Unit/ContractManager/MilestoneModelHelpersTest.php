@@ -12,6 +12,7 @@ use Tests\PureUnitTestCase;
  * Lightweight stub: bypasses all Eloquent persistence so we can test
  * purely-computational Milestone methods without a DB connection.
  */
+if (! class_exists(StubMilestone::class)) {
 final class StubMilestone extends Milestone
 {
     protected static function booted(): void {}
@@ -31,6 +32,8 @@ final class StubMilestone extends Milestone
         return true;
     }
 }
+}
+
 
 /**
  * Milestone model — status helpers and billing logic.

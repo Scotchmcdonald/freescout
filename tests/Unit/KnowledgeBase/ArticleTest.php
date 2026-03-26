@@ -7,6 +7,7 @@ namespace Tests\Unit\KnowledgeBase;
 use Modules\KnowledgeBase\Models\Article;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubArticle::class)) {
 final class StubArticle extends Article
 {
     protected static function booted(): void {}
@@ -16,10 +17,13 @@ final class StubArticle extends Article
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 /**
  * Minimal user stub that supports isClient().
  */
+if (! class_exists(StubClientUser::class)) {
 final class StubClientUser
 {
     public function __construct(private readonly bool $client = false) {}
@@ -29,6 +33,8 @@ final class StubClientUser
         return $this->client;
     }
 }
+}
+
 
 final class ArticleTest extends PureUnitTestCase
 {

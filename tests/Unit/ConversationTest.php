@@ -9,12 +9,15 @@ use Tests\PureUnitTestCase;
 
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
+if (! class_exists(StubConversation::class)) {
 final class StubConversation extends Conversation
 {
     protected static function booted(): void {}
 
     public function getDateFormat(): string { return 'Y-m-d H:i:s'; }
 }
+}
+
 
 // ── Test class ────────────────────────────────────────────────────────────────
 

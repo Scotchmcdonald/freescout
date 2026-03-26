@@ -11,7 +11,10 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Tests\IntegrationTestCase;
 
-/** @group console */
+/**
+ * @group console
+ * @group slow
+ */
 class ModuleUpdateAndUpdateCommandsTest extends IntegrationTestCase
 {
     protected function tearDown(): void

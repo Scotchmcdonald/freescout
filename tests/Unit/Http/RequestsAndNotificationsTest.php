@@ -14,6 +14,7 @@ use Illuminate\Validation\Factory as ValidationFactory;
 use Illuminate\Validation\PresenceVerifierInterface;
 use Tests\PureUnitTestCase;
 
+/** @group slow */
 class RequestsAndNotificationsTest extends PureUnitTestCase
 {
     protected function setUp(): void

@@ -7,6 +7,7 @@ namespace Tests\Unit;
 use App\Models\User;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubUser::class)) {
 final class StubUser extends User
 {
     protected static function booted(): void {}
@@ -16,6 +17,8 @@ final class StubUser extends User
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 /**
  * Pure-unit tests for User model methods that do not touch the database.

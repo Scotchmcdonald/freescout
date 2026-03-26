@@ -7,10 +7,13 @@ namespace Tests\Unit\KnowledgeBase;
 use Modules\KnowledgeBase\Models\UserTourProgress;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubTourProgress::class)) {
 final class StubTourProgress extends UserTourProgress
 {
     protected static function booted(): void {}
 }
+}
+
 
 final class UserTourProgressTest extends PureUnitTestCase
 {

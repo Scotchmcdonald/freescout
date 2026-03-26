@@ -7,6 +7,7 @@ namespace Tests\Unit\PIB;
 use Modules\PIB\Models\InvoiceLineItem;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubInvoiceLineItem::class)) {
 final class StubInvoiceLineItem extends InvoiceLineItem
 {
     protected static function booted(): void {}
@@ -16,6 +17,8 @@ final class StubInvoiceLineItem extends InvoiceLineItem
         return [];
     }
 }
+}
+
 
 final class InvoiceLineItemTest extends PureUnitTestCase
 {

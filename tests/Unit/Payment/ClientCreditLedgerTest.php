@@ -7,6 +7,7 @@ namespace Tests\Unit\Payment;
 use Modules\Payment\Models\ClientCreditLedger;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubClientCreditLedger::class)) {
 final class StubClientCreditLedger extends ClientCreditLedger
 {
     protected static function booted(): void {}
@@ -16,6 +17,8 @@ final class StubClientCreditLedger extends ClientCreditLedger
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 final class ClientCreditLedgerTest extends PureUnitTestCase
 {

@@ -9,10 +9,13 @@ use Tests\PureUnitTestCase;
 
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
+if (! class_exists(StubAlertSubscription::class)) {
 final class StubAlertSubscription extends AlertSubscription
 {
     protected static function booted(): void {}
 }
+}
+
 
 // ── Test class ────────────────────────────────────────────────────────────────
 

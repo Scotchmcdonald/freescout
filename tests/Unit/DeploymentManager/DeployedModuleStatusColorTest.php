@@ -9,10 +9,13 @@ use Tests\PureUnitTestCase;
 
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
+if (! class_exists(StubDeployedModule::class)) {
 final class StubDeployedModule extends DeployedModule
 {
     protected static function booted(): void {}
 }
+}
+
 
 // ── Test class ────────────────────────────────────────────────────────────────
 

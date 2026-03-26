@@ -9,12 +9,15 @@ use Tests\PureUnitTestCase;
 
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
+if (! class_exists(StubMilestoneForStatus::class)) {
 final class StubMilestoneForStatus extends Milestone
 {
     protected static function booted(): void {}
 
     public function getDateFormat(): string { return 'Y-m-d H:i:s'; }
 }
+}
+
 
 // ── Test class ────────────────────────────────────────────────────────────────
 

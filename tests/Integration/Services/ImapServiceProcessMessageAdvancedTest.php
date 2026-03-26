@@ -34,6 +34,8 @@ use Webklex\PHPIMAP\Support\AttachmentCollection;
  * - Integration scenarios
  *
  * Total: 50 tests
+ *
+ * @group slow
  */
 class ImapServiceProcessMessageAdvancedTest extends IntegrationTestCase
 {

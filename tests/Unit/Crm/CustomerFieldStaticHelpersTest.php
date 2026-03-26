@@ -11,6 +11,7 @@ use Tests\PureUnitTestCase;
  * Stub that prevents DB-touching observers / Rememberable cache driver
  * from interfering with pure-logic tests.
  */
+if (! class_exists(StubCustomerField::class)) {
 final class StubCustomerField extends CustomerField
 {
     protected static function booted(): void {}
@@ -21,6 +22,8 @@ final class StubCustomerField extends CustomerField
         return $this;
     }
 }
+}
+
 
 final class CustomerFieldStaticHelpersTest extends PureUnitTestCase
 {
@@ -191,5 +194,95 @@ final class CustomerFieldStaticHelpersTest extends PureUnitTestCase
         ];
 
         $this->assertSame(count($types), count(array_unique($types)));
+    }
+
+    // ─── getAsText ─────────────────────────────────────────────────────────────
+
+    public function test_get_as_text_dropdown_returns_option_label(): void
+    {
+        $field = new StubCustomerField;
+        $field->setRawAttributes([
+            'type' => CustomerField::TYPE_DROPDOWN,
+            'options' => json_encode(['key1' => 'Label One', 'key2' => 'Label Two']),
+            'value' => 'key1',
+        ]);
+
+        $this->assertSame('Label One', $field->getAsText());
+    }
+
+    public function test_get_as_text_dropdown_falls_back_to_value_when_key_missing(): void
+    {
+        $field = new StubCustomerField;
+        $field->setRawAttributes([
+            'type' => CustomerField::TYPE_DROPDOWN,
+            'options' => json_encode(['a' => 'Alpha']),
+            'value' => 'unknown_key',
+        ]);
+
+        $this->assertSame('unknown_key', $field->getAsText());
+    }
+
+    public function test_get_as_text_multiselect_adds_spaces_after_delimiters(): void
+    {
+        $delimiterPair = CustomerField::MULTISELECT_DELIMITER . CustomerField::MULTISELECT_DELIMITER; // delimiter appears between values
+        $field = new StubCustomerField;
+        $delimiter = CustomerField::MULTISELECT_DELIMITER;
+        $raw = "A{$delimiter}B{$delimiter}C";
+        $field->setRawAttributes([
+            'type' => CustomerField::TYPE_MULTISELECT,
+            'value' => $raw,
+        ]);
+
+        $result = $field->getAsText();
+        // Every delimiter should be followed by a space
+        $this->assertStringContainsString($delimiter . ' ', $result);
+        $this->assertStringContainsString('A', $result);
+        $this->assertStringContainsString('C', $result);
+    }
+
+    public function test_get_as_text_single_line_returns_raw_value(): void
+    {
+        $field = new StubCustomerField;
+        $field->setRawAttributes([
+            'type' => CustomerField::TYPE_SINGLE_LINE,
+            'value' => 'plain text',
+        ]);
+
+        $this->assertSame('plain text', $field->getAsText());
+    }
+
+    public function test_get_as_text_returns_empty_string_when_value_null(): void
+    {
+        $field = new StubCustomerField;
+        $field->setRawAttributes([
+            'type'  => CustomerField::TYPE_NUMBER,
+            'value' => null,
+        ]);
+
+        $this->assertSame('', $field->getAsText());
+    }
+
+    // ─── getMultiselectValues ──────────────────────────────────────────────────
+
+    public function test_get_multiselect_values_splits_on_delimiter(): void
+    {
+        $delimiter = CustomerField::MULTISELECT_DELIMITER;
+        $field = new StubCustomerField;
+        $field->setRawAttributes([
+            'value' => "Alpha{$delimiter}Beta{$delimiter}Gamma",
+        ]);
+
+        $values = $field->getMultiselectValues();
+        $this->assertContains('Alpha', $values);
+        $this->assertContains('Gamma', $values);
+    }
+
+    public function test_get_multiselect_values_empty_string_returns_array(): void
+    {
+        $field = new StubCustomerField;
+        $field->setRawAttributes(['value' => null]);
+
+        $values = $field->getMultiselectValues();
+        $this->assertIsArray($values);
     }
 }

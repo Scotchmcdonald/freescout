@@ -7,6 +7,7 @@ namespace Tests\Unit\SoftwareSubscriptions;
 use Modules\SoftwareSubscriptions\Models\SoftwareAssignment;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubSoftwareAssignment::class)) {
 final class StubSoftwareAssignment extends SoftwareAssignment
 {
     protected static function booted(): void {}
@@ -16,6 +17,8 @@ final class StubSoftwareAssignment extends SoftwareAssignment
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 final class SoftwareAssignmentTest extends PureUnitTestCase
 {

@@ -8,13 +8,17 @@ use Illuminate\Support\Carbon;
 use Modules\ContractManager\Models\Milestone;
 use Tests\PureUnitTestCase;
 
-final class StubMilestone extends Milestone
-{
-    protected static function booted(): void {}
-
-    public function getDateFormat(): string
+// Guard against class redeclaration when ParaTest loads this file across
+// multiple workers in the same process (prevents fatal "already in use" crash).
+if (! class_exists(StubMilestone::class)) {
+    final class StubMilestone extends Milestone
     {
-        return 'Y-m-d H:i:s';
+        protected static function booted(): void {}
+
+        public function getDateFormat(): string
+        {
+            return 'Y-m-d H:i:s';
+        }
     }
 }
 

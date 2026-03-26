@@ -7,10 +7,13 @@ namespace Tests\Unit\PIB;
 use Modules\PIB\Models\ServiceUsage;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubServiceUsage::class)) {
 final class StubServiceUsage extends ServiceUsage
 {
     protected static function booted(): void {}
 }
+}
+
 
 final class ServiceUsagePredicatesTest extends PureUnitTestCase
 {

@@ -9,10 +9,13 @@ use Tests\PureUnitTestCase;
 
 // ── Stub ──────────────────────────────────────────────────────────────────────
 
+if (! class_exists(StubThread::class)) {
 final class StubThread extends Thread
 {
     protected static function booted(): void {}
 }
+}
+
 
 // ── Test class ────────────────────────────────────────────────────────────────
 

@@ -7,6 +7,7 @@ namespace Tests\Unit\Crm;
 use Modules\Crm\Models\TicketLifecycleEvent;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubTicketLifecycleEvent::class)) {
 final class StubTicketLifecycleEvent extends TicketLifecycleEvent
 {
     protected static function booted(): void {}
@@ -16,6 +17,8 @@ final class StubTicketLifecycleEvent extends TicketLifecycleEvent
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 final class TicketLifecycleEventTest extends PureUnitTestCase
 {

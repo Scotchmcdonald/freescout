@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 use Modules\ContractManager\Models\BillingTemplate;
 use Tests\PureUnitTestCase;
 
+if (! class_exists(StubBillingTemplate::class)) {
 final class StubBillingTemplate extends BillingTemplate
 {
     protected static function booted(): void {}
@@ -17,6 +18,8 @@ final class StubBillingTemplate extends BillingTemplate
         return 'Y-m-d H:i:s';
     }
 }
+}
+
 
 final class BillingTemplatePredicatesTest extends PureUnitTestCase
 {
