@@ -37,4 +37,15 @@ class UserAdminTest extends PureUnitTestCase
 
         $this->assertFalse($user->isAdmin());
     }
+
+    public function test_authorization_boundary_non_admin_role_is_denied_admin_check(): void
+    {
+        // Authorization boundary: a user with a non-admin role must never pass
+        // the admin gate — this is the first line of privilege authorization.
+        $user = new User(['role' => User::ROLE_USER]);
+
+        $this->assertFalse($user->isAdmin(),
+            'Authorization boundary: ROLE_USER must not satisfy the admin authorization check'
+        );
+    }
 }

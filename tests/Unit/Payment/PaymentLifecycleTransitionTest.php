@@ -132,4 +132,20 @@ class PaymentLifecycleTransitionTest extends PureUnitTestCase
         $this->assertArrayHasKey('last_used_at', $method->lastUpdatePayload);
         $this->assertInstanceOf(Carbon::class, $method->lastUpdatePayload['last_used_at']);
     }
+
+    public function test_authorization_boundary_failed_payment_is_ineligible_for_refund(): void
+    {
+        // Authorization boundary: only successful payments may be refunded;
+        // failed payments must be refused at the refund authorization gate.
+        $payment = $this->payment([
+            'status'          => 'failed',
+            'total_amount'    => '100.00',
+            'refunded_amount' => '0.00',
+            'dispute_status'  => null,
+        ]);
+
+        $this->assertFalse($payment->canBeRefunded(),
+            'Authorization boundary: failed payments must not be eligible for refunds'
+        );
+    }
 }

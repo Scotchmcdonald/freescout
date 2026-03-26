@@ -115,4 +115,19 @@ final class ClientSoftwareSubscriptionTest extends PureUnitTestCase
         ];
         $this->assertSame(count($statuses), count(array_unique($statuses)));
     }
+
+    public function test_authorization_boundary_over_assigned_subscription_blocks_new_license_slots(): void
+    {
+        // Authorization boundary: a subscription in an over-assigned state must not
+        // report available licenses — assignment quota enforcement is a validation gate.
+        $s = new StubClientSoftwareSubscription;
+        $s->setRawAttributes(['purchased_quantity' => 5, 'assigned_count' => 7]);
+
+        $this->assertFalse($s->hasAvailableLicenses(),
+            'Authorization boundary: over-assigned subscription must have no available license slots'
+        );
+        $this->assertSame(0, $s->available_licenses,
+            'Validation: available_licenses must clamp to zero when over-assigned'
+        );
+    }
 }

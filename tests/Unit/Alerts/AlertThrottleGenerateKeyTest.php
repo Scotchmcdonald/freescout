@@ -68,4 +68,16 @@ final class AlertThrottleGenerateKeyTest extends PureUnitTestCase
         $emptyCtx = AlertThrottle::generateKey('billing.overdue', 1, []);
         $this->assertSame($noCtx, $emptyCtx);
     }
+
+    public function test_throttle_key_rate_limit_boundary_isolates_per_client(): void
+    {
+        // Rate-limit boundary: each client must receive an independent throttle key
+        // to ensure per-client rate limiting never bleeds across tenants.
+        $client1 = AlertThrottle::generateKey('billing.overdue', 1);
+        $client2 = AlertThrottle::generateKey('billing.overdue', 2);
+
+        $this->assertNotSame($client1, $client2,
+            'Throttle rate-limit key must differ per client to enforce isolation boundary'
+        );
+    }
 }

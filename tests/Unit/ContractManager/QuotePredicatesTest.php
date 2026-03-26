@@ -171,4 +171,16 @@ final class QuotePredicatesTest extends PureUnitTestCase
         $q->status = 'expired';
         $this->assertFalse($q->canBeRejected());
     }
+
+    public function test_authorization_boundary_approved_quote_cannot_be_rejected(): void
+    {
+        // Authorization boundary: an approved quote must be protected from rejection —
+        // final-state approval is a one-way authorization transition.
+        $q = new StubQuote;
+        $q->status = 'approved';
+
+        $this->assertFalse($q->canBeRejected(),
+            'Authorization boundary: once approved, a quote must not be rejectable'
+        );
+    }
 }

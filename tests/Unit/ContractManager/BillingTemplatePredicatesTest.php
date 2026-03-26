@@ -140,6 +140,21 @@ final class BillingTemplatePredicatesTest extends PureUnitTestCase
 
     // ─── advanceToNextBillingDate ─────────────────────────────────────────────
 
+    public function test_validation_terminated_billing_template_is_blocked_from_billing(): void
+    {
+        // Validation boundary: a terminated billing template must never be considered
+        // due for invoice generation — termination is an authorization revocation.
+        $bt = new StubBillingTemplate;
+        $bt->setRawAttributes([
+            'status'            => 'terminated',
+            'next_invoice_date' => Carbon::now()->subDay()->toDateString(),
+        ]);
+
+        $this->assertFalse($bt->isDue(),
+            'Validation boundary: terminated templates must not be due for billing'
+        );
+    }
+
     public function test_advance_to_next_billing_date_monthly(): void
     {
         $bt = new StubBillingTemplate;

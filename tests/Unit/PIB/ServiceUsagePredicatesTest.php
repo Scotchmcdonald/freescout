@@ -181,6 +181,18 @@ final class ServiceUsagePredicatesTest extends PureUnitTestCase
         $this->assertFalse($u->canApprove());
     }
 
+    public function test_authorization_boundary_billed_service_usage_cannot_be_re_approved(): void
+    {
+        // Authorization boundary: once a service usage entry has been billed it must
+        // not be approvable again — billing acts as a final authorization gate.
+        $u = new StubServiceUsage;
+        $u->status = ServiceUsage::STATUS_BILLED;
+
+        $this->assertFalse($u->canApprove(),
+            'Authorization boundary: billed service usage must be locked from re-approval'
+        );
+    }
+
     // ─── calculateTotal ───────────────────────────────────────────────────────
 
     public function test_calculate_total_uses_hourly_rate_times_hours(): void
