@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Lean PHPUnit configuration used exclusively by Infection mutation testing.
+
+  Only includes test suites that:
+  a) Are 100% passing (no pre-existing failures), and
+  b) Provide coverage for the mutation scope: PIB/Services,
+     ContractManager/Services, Payment/Services (and optionally
+     app/Services, app/Actions for the extended run).
+
+  The full test suite has pre-existing integration failures that require
+  seeded DB data not available in the mutation testing environment.
+  Those failures are unrelated to the mutation scope.
+-->
+<phpunit bootstrap="../../vendor/autoload.php" colors="true">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>../../tests/Unit</directory>
+            <exclude>../../tests/Unit/Console/Commands</exclude>
+        </testsuite>
+        <testsuite name="PIB">
+            <directory>../../Modules/PIB/Tests</directory>
+        </testsuite>
+        <testsuite name="ContractManager">
+            <directory>../../Modules/ContractManager/Tests</directory>
+        </testsuite>
+        <testsuite name="Payment">
+            <directory>../../Modules/Payment/Tests</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>../../Modules/PIB/Services</directory>
+            <directory>../../Modules/ContractManager/Services</directory>
+            <directory>../../Modules/Payment/Services</directory>
+            <directory>../../app/Services</directory>
+            <directory>../../app/Actions</directory>
+        </include>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="XDEBUG_MODE" value="coverage"/>
+        <ini name="memory_limit" value="4096M"/>
+        <ini name="zend.enable_gc" value="1"/>
+        <ini name="report_memleaks" value="0"/>
+        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="CACHE_STORE" value="array"/>
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="LOG_CHANNEL" value="null"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="STRIPE_SECRET" value="sk_test_dummy"/>
+        <env name="SENTRY_TRACES_SAMPLE_RATE" value="0.1"/>
+    </php>
+</phpunit>

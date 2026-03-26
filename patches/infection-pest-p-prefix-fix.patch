@@ -1,0 +1,15 @@
+--- a/vendor/infection/infection/src/TestFramework/Coverage/JUnit/JUnitTestFileDataProvider.php
++++ b/vendor/infection/infection/src/TestFramework/Coverage/JUnit/JUnitTestFileDataProvider.php
+@@ -87,5 +87,14 @@ final class JUnitTestFileDataProvider implements TestFileDataProvider
+         // A format where the class name parsed from feature and is inside `class` attribute of `testcase` tag
+         yield '//testcase[@class="%s"][1]' => preg_replace('/^(.*):+.*$/', '$1', $fullyQualifiedClassName);
++
++        // Handle Pest 4.x synthetic "P\" namespace prefix:
++        // Coverage XML reports classes as "P\Modules\..." but JUnit XML uses "Modules\..."
++        if (str_starts_with($fullyQualifiedClassName, 'P\\')) {
++            $unprefixed = substr($fullyQualifiedClassName, 2);
++            yield '//testsuite[@name="%s"][1]' => $unprefixed;
++            yield '//testcase[@class="%s"][1]' => $unprefixed;
++        }
+     }
+ }

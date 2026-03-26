@@ -1,0 +1,38 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Pest wrapper for Infection mutation testing.
+ *
+ * Problem: Infection detects the test framework version by running `--version`.
+ * Pest reports its own version (e.g. "Pest Testing Framework 4.3.2"), which
+ * Infection misidentifies as PHPUnit < 9.3 and therefore injects the legacy
+ * <filter><whitelist> XML nodes (unsupported in PHPUnit 11+).
+ *
+ * This wrapper intercepts the `--version` flag and returns the underlying
+ * PHPUnit version string so Infection correctly determines it should use
+ * <source><include> coverage XML nodes instead.
+ *
+ * All other invocations are delegated directly to vendor/bin/pest.
+ *
+ * Usage: set "phpUnit.customPath" in infection.json5 to this script path.
+ *
+ * Note: also apply patches/infection-pest-p-prefix-fix.patch after each
+ * `composer install` — see that file for details.
+ */
+
+$args = array_slice($argv, 1);
+
+$vendorBin = __DIR__ . '/../vendor/bin';
+
+if ($args === ['--version']) {
+    // Delegate to phpunit for its canonical version string
+    $phpunit = $vendorBin . '/phpunit';
+    passthru(escapeshellarg($phpunit) . ' --version', $code);
+    exit($code);
+}
+
+// Delegate all other calls to pest
+$pest = $vendorBin . '/pest';
+$escapedArgs = implode(' ', array_map('escapeshellarg', $args));
+passthru(escapeshellarg($pest) . ' ' . $escapedArgs, $code);
+exit($code);

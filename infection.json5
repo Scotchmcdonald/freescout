@@ -14,7 +14,8 @@
     "minCoveredMsi": 95,
     "testFramework": "phpunit",
     "phpUnit": {
-        "customPath": "vendor/bin/pest"
+        "customPath": "scripts/pest-phpunit-wrapper",
+        "configDir": "config/infection"
     },
     "tmpDir": "storage/infection",
     "logs": {
